@@ -150,8 +150,8 @@
   "reviewed_by_key": "key_reviewer_01",
   "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
   "steward_signoff": null,
-  "draft_receipt": "e53d21631caaec582451cd5b3768e83a9a2f5aa38170e441c4737f38b03d9272",
-  "review_receipt": "9415a1b04dafd88b876805068427a4d618133e620cb3c72a4eda76c60c7cd8c0",
+  "draft_receipt": "702c4edc8759c15055626c5934fde78fc8f5d66670d3b3b8903b24271df9c923",
+  "review_receipt": "15962104904b413045c08918d7e3e3dbcd26ff9787efc4a132420ca21c35997c",
   "blob_sha256": "1bd5a0a5e013da51117ffdd31f697b024ed3c2690a732e644bd75c4fb458d05a",
   "catalog_version": 1
 }

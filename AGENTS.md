@@ -11,10 +11,10 @@ away (*ἔρανος* — the ancient Greek mutual-aid potluck where each contri
 shared civic need).
 
 It is the dedicated public-good NGO tooling surface (`eranos.<domain>`) paired with
-[Shamash](https://github.com/ta-amps/shamash) (`shamash.<domain>`, our internet scam, financial fraud, and
-exploitation detection surface), both running on [Tessera](https://github.com/ta-amps/tessera)
-(`tessera.<domain>`, our atomic work queue and versioned store) for the Meta Global AI Developer Hackathon
-(deadline Nov 4, 2026 at 9:00 PM EST / Nov 5, 02:00 UTC).
+[Shamash](https://github.com/ta-amps/shamash) (`shamash.<domain>`, which finds, quantifies, and combats human harm,
+scams, and exploitation across social media, websites, messages, documents, and payments), both running on
+[Tessera](https://github.com/ta-amps/tessera) (`tessera.<domain>`, our atomic work queue and versioned store) for
+the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at 9:00 PM EST / Nov 5, 02:00 UTC).
 
 ## How it runs
 

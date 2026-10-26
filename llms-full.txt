@@ -73,7 +73,7 @@ Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
 | Subdomain | Repo | Role |
 |---|---|---|
 | `eranos.<domain>` | [ta-amps/eranos](https://github.com/ta-amps/eranos) | **Donate unused tokens for public-good NGO tooling**: builds, tests, and independently reviews off-the-shelf agent skills, tools, files, and agentic processes for NGOs and nonprofits |
-| `shamash.<domain>` | [ta-amps/shamash](https://github.com/ta-amps/shamash) | **Internet scam, fraud & exploitation detection**: reads multi-document and payment bundles across 9 harm areas, recomputes the money against dated law, clears honest look-alikes, and routes T1 to T4 without accusing anyone |
+| `shamash.<domain>` | [ta-amps/shamash](https://github.com/ta-amps/shamash) | **Find, quantify & combat online human harm, scams & exploitation**: reads multi-source social-media, website, message, document, and payment bundles across 10 harm areas, quantifies money and statutory conflicts against dated law, clears honest look-alikes, and routes T1 to T4 without accusing anyone |
 | `tessera.<domain>` | [ta-amps/tessera](https://github.com/ta-amps/tessera) | **Atomic work queue & store**: leases, fencing tokens, receipts, park and resume, compare-and-set records, and content-addressed blobs over HTTP, MCP, CLI, and web forms |
 
 ## Quick start
@@ -120,10 +120,10 @@ nonprofits can pick up and run right away for the public good.
   **read-only MCP tools** (`MCPToolSpec` JSON Schemas), **ready-to-use files** (Markdown SOPs, checklists, CSV
   templates, Open Referral HSDS directories, `SYNTHETIC` test fixtures), and **agentic processes** with explicit
   step-by-step human/agent boundaries.
-- **Sister surface to [Shamash](https://github.com/ta-amps/shamash):** Shamash (`shamash.<domain>`) detects
-  internet scams, financial fraud, and exploitation hidden across bundles of messages, documents, and payments.
-  Eranos (`eranos.<domain>`) turns donated tokens into the off-the-shelf tools and workflows helping
-  organizations use on the ground.
+- **Sister surface to [Shamash](https://github.com/ta-amps/shamash):** Shamash (`shamash.<domain>`) finds,
+  quantifies, and combats human harm, scams, financial fraud, and exploitation across social media, websites,
+  messages, documents, and payments. Eranos (`eranos.<domain>`) turns donated tokens into the off-the-shelf tools
+  and workflows helping organizations use on the ground.
 - **Powered by [Tessera](https://github.com/ta-amps/tessera) with two-step verification (`drafter != reviewer`):**
   One contributor's donated tokens build and self-test a package in `eq02`; a **different** contributor's tokens
   or a human steward independently tests and reviews it in `eq03` before atomic compare-and-set publication into
@@ -597,10 +597,10 @@ away (*ἔρανος* — the ancient Greek mutual-aid potluck where each contri
 shared civic need).
 
 It is the dedicated public-good NGO tooling surface (`eranos.<domain>`) paired with
-[Shamash](https://github.com/ta-amps/shamash) (`shamash.<domain>`, our internet scam, financial fraud, and
-exploitation detection surface), both running on [Tessera](https://github.com/ta-amps/tessera)
-(`tessera.<domain>`, our atomic work queue and versioned store) for the Meta Global AI Developer Hackathon
-(deadline Nov 4, 2026 at 9:00 PM EST / Nov 5, 02:00 UTC).
+[Shamash](https://github.com/ta-amps/shamash) (`shamash.<domain>`, which finds, quantifies, and combats human harm,
+scams, and exploitation across social media, websites, messages, documents, and payments), both running on
+[Tessera](https://github.com/ta-amps/tessera) (`tessera.<domain>`, our atomic work queue and versioned store) for
+the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at 9:00 PM EST / Nov 5, 02:00 UTC).
 
 ## How it runs
 

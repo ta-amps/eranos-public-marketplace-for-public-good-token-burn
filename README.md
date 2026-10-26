@@ -60,7 +60,7 @@ Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
 | Subdomain | Repo | Role |
 |---|---|---|
 | `eranos.<domain>` | [ta-amps/eranos](https://github.com/ta-amps/eranos) | **Donate unused tokens for public-good NGO tooling**: builds, tests, and independently reviews off-the-shelf agent skills, tools, files, and agentic processes for NGOs and nonprofits |
-| `shamash.<domain>` | [ta-amps/shamash](https://github.com/ta-amps/shamash) | **Internet scam, fraud & exploitation detection**: reads multi-document and payment bundles across 9 harm areas, recomputes the money against dated law, clears honest look-alikes, and routes T1 to T4 without accusing anyone |
+| `shamash.<domain>` | [ta-amps/shamash](https://github.com/ta-amps/shamash) | **Find, quantify & combat online human harm, scams & exploitation**: reads multi-source social-media, website, message, document, and payment bundles across 10 harm areas, quantifies money and statutory conflicts against dated law, clears honest look-alikes, and routes T1 to T4 without accusing anyone |
 | `tessera.<domain>` | [ta-amps/tessera](https://github.com/ta-amps/tessera) | **Atomic work queue & store**: leases, fencing tokens, receipts, park and resume, compare-and-set records, and content-addressed blobs over HTTP, MCP, CLI, and web forms |
 
 ## Quick start

@@ -89,10 +89,10 @@ export function Overview() {
           </article>
           <article className="er-card">
             <span className="er-chip er-chip-steward">{SIBLING_DETECTION_URL}</span>
-            <h3>{SIBLING_DETECTION_NAME} · Internet Scam &amp; Exploitation Detection</h3>
+            <h3>{SIBLING_DETECTION_NAME} · Find, Quantify &amp; Combat Online Harm</h3>
             <p className="er-muted">
-              Reads multi-document and payment bundles across 9 harm areas, recomputes fees and payees against dated
-              statutes, clears honest look-alikes, and routes T1–T4 without accusing anyone.
+              Reads social-media, website, message, document, and payment bundles across 10 harm areas, quantifies fees
+              and statutory conflicts against dated law, clears honest look-alikes, and routes T1–T4 without accusing.
             </p>
           </article>
           <article className="er-card">

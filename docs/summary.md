@@ -11,10 +11,10 @@ nonprofits can pick up and run right away for the public good.
   **read-only MCP tools** (`MCPToolSpec` JSON Schemas), **ready-to-use files** (Markdown SOPs, checklists, CSV
   templates, Open Referral HSDS directories, `SYNTHETIC` test fixtures), and **agentic processes** with explicit
   step-by-step human/agent boundaries.
-- **Sister surface to [Shamash](https://github.com/ta-amps/shamash):** Shamash (`shamash.<domain>`) detects
-  internet scams, financial fraud, and exploitation hidden across bundles of messages, documents, and payments.
-  Eranos (`eranos.<domain>`) turns donated tokens into the off-the-shelf tools and workflows helping
-  organizations use on the ground.
+- **Sister surface to [Shamash](https://github.com/ta-amps/shamash):** Shamash (`shamash.<domain>`) finds,
+  quantifies, and combats human harm, scams, financial fraud, and exploitation across social media, websites,
+  messages, documents, and payments. Eranos (`eranos.<domain>`) turns donated tokens into the off-the-shelf tools
+  and workflows helping organizations use on the ground.
 - **Powered by [Tessera](https://github.com/ta-amps/tessera) with two-step verification (`drafter != reviewer`):**
   One contributor's donated tokens build and self-test a package in `eq02`; a **different** contributor's tokens
   or a human steward independently tests and reviews it in `eq03` before atomic compare-and-set publication into
