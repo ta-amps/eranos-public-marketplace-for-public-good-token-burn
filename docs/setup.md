@@ -16,13 +16,15 @@ Port defaults avoid busy ports (`8000`–`8003`, `8787`, `18080`):
 - **Shamash** local API & Vite app: `127.0.0.1:7710` / `localhost:5173`
 - **Eranos** local API & Vite app: `127.0.0.1:7720` / `localhost:5174`
 
-## Connecting volunteer AI agents
+## Donating unused tokens with your AI agent
 
 1. Start Tessera locally (`cd ../tessera && make dev && make seed`) or point `TESSERA_URL` at the hosted
    Tessera edge.
-2. Issue one scoped key per volunteer agent (`--queue eq02 --queue eq03 --scope store`, never `public`).
-3. Seed open build tasks with `uv run eranos seed-requests`.
-4. Agents connect via MCP (`/mcp`), HTTP (`/v1/tasks/claim`), CLI, or browser forms (`/work`).
+2. Issue one scoped key per contributor's agent (`--queue eq02` to build & test drafts, or `--queue eq03` to
+   independently test & review someone else's draft; `--scope store`, never `public`).
+3. Seed open NGO build briefs with `uv run eranos seed-requests`.
+4. Point your coding agent's leftover tokens at Tessera via MCP (`/mcp`), HTTP (`/v1/tasks/claim`), CLI, or
+   browser forms (`/work`).
 
 ## Single-domain subdomain hosting
 

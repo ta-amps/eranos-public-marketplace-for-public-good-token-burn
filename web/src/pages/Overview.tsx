@@ -22,46 +22,77 @@ export function Overview() {
     <div>
       <section className="er-hero">
         <div className="er-chip-row" style={{ marginBottom: 12 }}>
-          <span className="er-chip er-chip-drafts">Two-step verified on {FABRIC_DISPLAY_NAME}</span>
+          <span className="er-chip er-chip-drafts">Built &amp; tested with donated tokens on {FABRIC_DISPLAY_NAME}</span>
           <span className="er-chip er-chip-neutral">
-            {kitCount} published kits · {trackCount} public-good tracks
+            {kitCount} off-the-shelf NGO kits · {trackCount} public-good tracks
           </span>
         </div>
-        <h1>Spare AI agent runs, turned into verified tools for NGOs &amp; nonprofits</h1>
+        <h1>Donate unused AI tokens to build &amp; test off-the-shelf tools for NGOs</h1>
         <p className="er-lede">
-          In ancient Greece, an <em>eranos</em> was a mutual-aid potluck where each citizen contributed a spare
-          share to equip a civic need. {SURFACE_DISPLAY_NAME} lets people point their AI agents at scoped build and
-          review queues on {FABRIC_DISPLAY_NAME} to produce verified agent skills, MCP tool packs, SOP playbooks,
-          referral directories, and audit-readiness kits — while keeping every interview and decision about a person
-          strictly human-only.
+          Most coding subscriptions and API plans leave unused tokens behind every billing window, while NGOs,
+          legal-aid desks, hotlines, and community nonprofits lack the engineering time to build reliable AI
+          workflows. <strong>{SURFACE_DISPLAY_NAME}</strong> lets you point leftover tokens at scoped queues on{" "}
+          {FABRIC_DISPLAY_NAME} to build, test, and independently review <strong>agent skills, tools, files, and
+          agentic processes</strong> that NGOs can pick up and run off the shelf for the public good — while keeping
+          every interview and decision about a person strictly human-only.
         </p>
         <div className="er-actions">
           <AppLink to="/catalog" className="er-btn-primary">
-            Browse Verified Kits ({kitCount})
+            Browse Off-the-Shelf NGO Kits ({kitCount})
           </AppLink>
           <AppLink to="/contribute" className="er-btn-secondary">
-            Connect Your AI Agent
+            Donate Unused Tokens
           </AppLink>
         </div>
       </section>
 
       <section className="er-section">
-        <h2>Two sibling surfaces (separate domains or shared-domain subdomains) on one fabric</h2>
+        <h2>What donated tokens build &amp; test for NGOs off the shelf</h2>
         <div className="er-grid">
           <article className="er-card">
-            <span className="er-chip er-chip-steward">{SIBLING_DETECTION_URL}</span>
-            <h3>{SIBLING_DETECTION_NAME} · Exploitation &amp; Fraud Detection</h3>
+            <span className="er-chip er-chip-drafts">Skills &amp; Tools</span>
+            <h3>Drop-in Agent Skills &amp; Read-Only MCP Tools</h3>
             <p className="er-muted">
-              Reads synthetic multi-document and payment bundles, recomputes fees and loan rates against dated
-              statutes, clears honest look-alikes, and routes T1–T4 without accusing anyone.
+              Structured <code>SKILL.md</code> instructions and deterministic JSON Schema tool contracts for intake
+              prep, fee/rate verification, service-directory lookup, and restricted-grant checks.
             </p>
           </article>
           <article className="er-card">
-            <span className="er-chip er-chip-drafts">{SURFACE_PUBLIC_URL}</span>
-            <h3>{SURFACE_DISPLAY_NAME} · Volunteer Agent Tooling</h3>
+            <span className="er-chip er-chip-assists">Files &amp; Templates</span>
+            <h3>Ready-to-Use SOPs, Checklists &amp; Spreadsheets</h3>
             <p className="er-muted">
-              Turns spare volunteer agent capacity into reusable MCP tools, agent skills, SOP playbooks, warm-referral
-              directories, and grant-compliance kits for resource-constrained nonprofits and NGOs.
+              Markdown playbooks, CSV templates, Open Referral HSDS directories, rule cards, and{" "}
+              <code>SYNTHETIC</code> self-test fixtures that small nonprofits can use even without custom servers.
+            </p>
+          </article>
+          <article className="er-card">
+            <span className="er-chip er-chip-steward">Agentic Processes</span>
+            <h3>Step-by-Step Workflows with Hard Human Guardrails</h3>
+            <p className="er-muted">
+              Multi-step workflows verified by a second contributor&apos;s tokens (<code>drafter ≠ reviewer</code>) so
+              agents handle prep work while interviews, crisis plans, and decisions about people stay human-only.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section className="er-section">
+        <h2>How the public-good surfaces fit together</h2>
+        <div className="er-grid">
+          <article className="er-card">
+            <span className="er-chip er-chip-drafts">{SURFACE_PUBLIC_URL}</span>
+            <h3>{SURFACE_DISPLAY_NAME} · Donated-Token NGO Builder</h3>
+            <p className="er-muted">
+              Turns unused AI tokens into tested, off-the-shelf agent skills, tools, files, and agentic processes for
+              NGOs, clinics, hotlines, and public-good operations.
+            </p>
+          </article>
+          <article className="er-card">
+            <span className="er-chip er-chip-steward">{SIBLING_DETECTION_URL}</span>
+            <h3>{SIBLING_DETECTION_NAME} · Internet Scam &amp; Exploitation Detection</h3>
+            <p className="er-muted">
+              Reads multi-document and payment bundles across 9 harm areas, recomputes fees and payees against dated
+              statutes, clears honest look-alikes, and routes T1–T4 without accusing anyone.
             </p>
           </article>
           <article className="er-card">

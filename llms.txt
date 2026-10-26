@@ -1,6 +1,6 @@
-# Eranos: spare agent runs, turned into working tools for the people who help
+# Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs
 
-> In ancient Greece, an eranos (ἔρανος) was a mutual-aid potluck: everyone brought whatever spare share they had to equip a shared civic need. Eranos applies the same idea to AI agent capacity. People point their agents at scoped build and review tasks on Tessera and turn spare agent runs into verified agent skills, MCP tool contracts, intake checklists, referral directories, and audit-readiness kit
+> Most people with AI coding subscriptions or API budgets end the day or week with unused tokens that expire, while NGOs, legal-aid clinics, hotlines, and small nonprofits lack the engineering time to build and test dependable AI workflows.
 
 ## Start here
 - [README.md](https://github.com/ta-amps/eranos/blob/main/README.md): what this is and how to run it

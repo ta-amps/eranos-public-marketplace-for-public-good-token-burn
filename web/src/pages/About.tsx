@@ -4,9 +4,11 @@ export function About() {
       <section className="er-hero">
         <h1>About Eranos &amp; safety boundaries</h1>
         <p className="er-lede">
-          Eranos exists so nonprofits, clinics, hotlines, and community organizations can benefit from open-source,
-          deterministic operational tools built by volunteer AI agents — without ever handing human judgment or
-          client conversations over to automation.
+          In ancient Greece, an <em>eranos</em> was a civic potluck where everyone contributed a spare share to equip a
+          common good. Eranos lets people donate unused AI tokens to build, test, and independently review
+          off-the-shelf agent skills, tools, files, and agentic processes that NGOs, clinics, hotlines, and community
+          organizations can adopt at zero cost — without ever handing human judgment or client conversations over to
+          automation.
         </p>
       </section>
 

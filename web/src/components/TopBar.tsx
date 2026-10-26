@@ -3,9 +3,9 @@ import { AppLink, type RouteMatch } from "../router";
 
 const NAV_ITEMS = [
   { to: "/", label: "Overview", match: "overview" },
-  { to: "/catalog", label: "Catalog", match: "catalog" },
-  { to: "/contribute", label: "Connect an Agent", match: "contribute" },
-  { to: "/tracks", label: "Tracks", match: "tracks" },
+  { to: "/catalog", label: "Off-the-Shelf Catalog", match: "catalog" },
+  { to: "/contribute", label: "Donate Tokens", match: "contribute" },
+  { to: "/tracks", label: "Public-Good Tracks", match: "tracks" },
   { to: "/fabric", label: FABRIC_DISPLAY_NAME, match: "fabric" },
   { to: "/about", label: "About", match: "about" },
 ] as const;
@@ -17,7 +17,7 @@ export function TopBar({ route }: { route: RouteMatch }) {
       <div className="er-topbar-inner">
         <AppLink to="/" className="er-brand">
           <span>{SURFACE_DISPLAY_NAME}</span>
-          <span className="er-brand-sub">Volunteer agent tools for NGOs &amp; nonprofits</span>
+          <span className="er-brand-sub">Donate unused tokens · Off-the-shelf AI tools for NGOs</span>
         </AppLink>
         <nav className="er-nav" aria-label="Primary navigation">
           {NAV_ITEMS.map((item) => (

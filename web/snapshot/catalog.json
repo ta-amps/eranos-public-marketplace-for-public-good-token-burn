@@ -153,8 +153,8 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "c788f1e4cb9b5542887f3547fff2ec5ed2606e51bd4350d5b2f7eade9bc711c5",
-      "review_receipt": "9c5467cad9b2466dd1fb0c429e2fa46e5732f6e24c1bf1f6c91fa3d2bf3cb2a1",
+      "draft_receipt": "80ac7ab4f5d9a9f462bd562ecce88554c91bdc407db116e06501907a9c7bc355",
+      "review_receipt": "29f8d08fcf275e54bc36fdc57a66c6543651f5c04276084fd9f56d835de8325b",
       "blob_sha256": "0d72c85a4c46bf4047e592b28ae54c758d6af70de8b707e57177669a065fde10",
       "catalog_version": 1
     },
@@ -306,8 +306,8 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "8e05e139b2edbad504cbc1faccf6227175582aa53746185b3a5d0ba44260354f",
-      "review_receipt": "a60a1af1ae11d98942d508d05533b4d3ef3f603ec2f21a3778bd85fab3a13c45",
+      "draft_receipt": "324883740240251c402e1e549f37c991c693aa15f7061a14c37359d39e1efa66",
+      "review_receipt": "113ce815002f4c5076e164d506f041b3f0b1df107b1bca12cb320c8303948151",
       "blob_sha256": "fdcf95dd94c5712ff2eca52c2bbe2ed5d9f9d186e0d39cf782c40fb6d67d337f",
       "catalog_version": 1
     },
@@ -452,8 +452,8 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "c29a60f19fc93914284f89aaf05c86658e8ee0aa7bfb5bf59fb5de4b63302236",
-      "review_receipt": "fbe9442c1d80d0979fef58dfc51c56c2b7223700276f91b022c08d0535dab328",
+      "draft_receipt": "8583df5c4d1194e711730b016e161363f5333cf5a02b70f5e4af536e28ccd8a6",
+      "review_receipt": "63715571d96296049fc53f9b582dbe8bbbfd41aba2fc9202bd53426638e072fd",
       "blob_sha256": "a0b8c68d70579bb0d924d62b9827219c6f9f8fa11722ff189b6e0f99d76eb2db",
       "catalog_version": 1
     },
@@ -608,8 +608,8 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "5a8b5e815e7428ed15f116480f7a2c345712719b311b5ca8e59aeb1af7993d48",
-      "review_receipt": "758684aceecb2177a8955fcf83e3a72d282a6fc134b14129f3836ddfd9c701f9",
+      "draft_receipt": "e53d21631caaec582451cd5b3768e83a9a2f5aa38170e441c4737f38b03d9272",
+      "review_receipt": "9415a1b04dafd88b876805068427a4d618133e620cb3c72a4eda76c60c7cd8c0",
       "blob_sha256": "1bd5a0a5e013da51117ffdd31f697b024ed3c2690a732e644bd75c4fb458d05a",
       "catalog_version": 1
     },
@@ -766,8 +766,8 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "d0bfbe1cbec6d714243693a738867707f79805eada2711e7aae6ae8c2b7fdd8b",
-      "review_receipt": "4a2c8328980d0536fcc5f33293cb6dc7f52335bc5867e4005dea5c8ee034e1be",
+      "draft_receipt": "ae234e7443311f37ba2b457e42184b408ccb1fa58dd2abac34baab44e18948e5",
+      "review_receipt": "8ea76f47c1084194086c2e62e7e3cb1e1cbd47b99483d4cefa3515fb52bd5e29",
       "blob_sha256": "29595d2299d05a3ac174665e9c52b81564f3d9011560a62c1ea0cf53385a4ae2",
       "catalog_version": 1
     }

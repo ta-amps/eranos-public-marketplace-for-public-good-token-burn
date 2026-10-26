@@ -20,9 +20,10 @@ export function Catalog() {
   return (
     <div>
       <section className="er-section">
-        <h1>Verified Operational Kit Catalog</h1>
+        <h1>Off-the-Shelf NGO Catalog: Skills, Tools, Files &amp; Agentic Processes</h1>
         <p className="er-lede">
-          Every kit below passed deterministic boundary verification on <code>eq02</code> and independent review (
+          Ready-to-use public-good packages built and tested with donated tokens. Every kit below passed deterministic
+          boundary and test-fixture verification on <code>eq02</code> plus independent review (
           <code>drafter ≠ reviewer</code>) on <code>eq03</code> before atomic publication to{" "}
           <code>eranos.catalog</code>.
         </p>

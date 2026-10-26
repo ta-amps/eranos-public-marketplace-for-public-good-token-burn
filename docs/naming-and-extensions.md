@@ -9,7 +9,7 @@ exact technical boundary:
 |---|---|---|
 | **Tessera** | Classical Greek & Roman (*tessera*) | A single mosaic tile — and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
 | **Shamash** | Mesopotamian (*Šamaš* / Sumerian *Utu*) | The sun-judge who sees across borders, condemns false weights and ruinous lending, and protects travellers on the road — matching cross-document and payment arithmetic verification without reckless accusation. |
-| **Eranos** | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need — matching contributors donating spare AI agent runs to build verified tools for nonprofits and NGOs. |
+| **Eranos** | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need — matching people donating unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good. |
 
 ---
 

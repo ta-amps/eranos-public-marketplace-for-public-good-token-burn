@@ -1,10 +1,11 @@
 # Comparison
 
-How Eranos compares with common ways nonprofits and public-good teams adopt AI prompts or agent skills:
+How donating unused tokens through **Eranos** compares with common ways NGOs and public-good teams try to get AI
+skills, tools, files, and agentic processes:
 
-| Approach | Who checks quality | Human-only boundaries | Data hygiene | Multi-agent safety |
-|---|---|---|---|---|
-| Ad-hoc shared prompt docs | None; copy-paste drift | Written in prose only, easy to omit | Risk of pasting real client notes into examples | Overwrites in shared docs |
-| Open community skill hubs | Single-author upload | Rarely separates `drafts`, `assists`, and `human_only` | Varies by author | No lease or receipt trail |
-| Bespoke consulting builds | High, for one organization | Custom per engagement | Scoped per engagement | Expensive for small nonprofits |
-| **Eranos on Tessera** | Deterministic verifier (`eq02`) **plus** mandatory independent review (`eq03`, `drafter != reviewer`) | Enforced in Pydantic and verifier: interviews, crisis plans, individual decisions, and external sends must be `human_only` | `SYNTHETIC` mark required on every fixture; non-accusatory copy enforced | Tessera leases, fencing tokens, SHA-256 receipts, park/resume steward sign-off, and CAS catalog history |
+| Approach | Cost to NGO | Who builds & tests it | Human-only boundaries | Data hygiene | Multi-agent safety |
+|---|---|---|---|---|---|
+| Ad-hoc shared prompt docs | Free, high staff time | Untested copy-paste prompts | Written in prose only, easy to omit | Risk of pasting real client notes into examples | Overwrites in shared docs |
+| Open community skill hubs | Free | Single-author upload, rarely tested on NGO edge cases | Rarely separates `drafts`, `assists`, and `human_only` | Varies by author | No lease or receipt trail |
+| Bespoke consulting builds | High ($10k–$100k+) | Custom per engagement | Custom per engagement | Scoped per engagement | Out of reach for small NGOs |
+| **Eranos on Tessera** | **Free off the shelf (funded by donated unused tokens)** | Contributor 1 builds & runs deterministic verifier (`eq02`); **Contributor 2 independently tests & reviews** (`eq03`, `drafter != reviewer`) | Enforced in Pydantic and verifier: interviews, crisis plans, individual decisions, and external sends must be `human_only` | `SYNTHETIC` mark required on every fixture; non-accusatory copy enforced | Tessera leases, fencing tokens, SHA-256 receipts, park/resume steward sign-off, and CAS catalog history |

@@ -5,16 +5,16 @@ and true. Change it only with Taylor's approval.
 
 ## The project
 
-**Eranos** (*ἔρανος* — the ancient Greek mutual-aid gathering where everyone contributes a spare share to
-equip a shared civic good) lets people donate spare AI agent capacity to build, test, and review
-working agent tools, skills, playbooks, checklists, and operational kits for NGOs, nonprofits, and
-public-good operations.
+**Eranos** lets people **donate unused AI tokens** to build, test, and independently review **off-the-shelf
+agent skills, tools, files, and agentic processes** that NGOs, nonprofits, and public-good teams can use right
+away (*ἔρανος* — the ancient Greek mutual-aid potluck where each contributor brings a spare share to equip a
+shared civic need).
 
-It is the dedicated public-good tooling surface (`eranos.<domain>`) paired with
-[Shamash](https://github.com/ta-amps/shamash) (`shamash.<domain>`, our fraud and exploitation detection
-surface), both running on [Tessera](https://github.com/ta-amps/tessera) (`tessera.<domain>`, our atomic
-work queue and versioned store) for the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at
-9:00 PM EST / Nov 5, 02:00 UTC).
+It is the dedicated public-good NGO tooling surface (`eranos.<domain>`) paired with
+[Shamash](https://github.com/ta-amps/shamash) (`shamash.<domain>`, our internet scam, financial fraud, and
+exploitation detection surface), both running on [Tessera](https://github.com/ta-amps/tessera)
+(`tessera.<domain>`, our atomic work queue and versioned store) for the Meta Global AI Developer Hackathon
+(deadline Nov 4, 2026 at 9:00 PM EST / Nov 5, 02:00 UTC).
 
 ## How it runs
 

@@ -1,47 +1,67 @@
-# Eranos: spare agent runs, turned into working tools for the people who help
+# Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs
 
-In ancient Greece, an **eranos** (*ἔρανος*) was a mutual-aid potluck: everyone brought whatever spare share
-they had to equip a shared civic need. **Eranos** applies the same idea to AI agent capacity. People point
-their agents at scoped build and review tasks on [Tessera](https://github.com/ta-amps/tessera) and turn spare
-agent runs into verified **agent skills, MCP tool contracts, intake checklists, referral directories, and
-audit-readiness kits** for NGOs, nonprofits, and public-good operations.
+Most people with AI coding subscriptions or API budgets end the day or week with **unused tokens** that expire,
+while NGOs, legal-aid clinics, hotlines, and small nonprofits lack the engineering time to build and test
+dependable AI workflows.
 
-> Agents do the prep work and arithmetic; people keep every interview and every decision about a person.
+**Eranos** lets anyone **donate unused tokens** — by pointing their coding agent at a scoped task queue on
+[Tessera](https://github.com/ta-amps/tessera) — to **build, test, and independently review off-the-shelf agent
+skills, tools, files, and agentic processes** that NGOs and public-good teams can download and use right away.
 
-## Two surfaces on one shared fabric
+> Unused tokens build and test the kit; a second contributor's tokens review it; people keep every interview and
+> every decision about a person.
 
-Eranos is one half of a two-surface public-good setup running on **Tessera** under a single shared domain:
+*(Name note: in ancient Greece, an **eranos** — ἔρανος — was a mutual-aid potluck where each participant brought a
+spare share to equip a shared civic need.)*
 
-| Subdomain | Repo | Role |
-|---|---|---|
-| `shamash.<domain>` | [ta-amps/shamash](https://github.com/ta-amps/shamash) | **Fraud & exploitation detection**: reads multi-document and payment bundles, recomputes fees and rates against dated law, clears honest look-alikes, and routes T1 to T4 without accusing anyone |
-| `eranos.<domain>` | [ta-amps/eranos](https://github.com/ta-amps/eranos) | **Public-good & nonprofit agent tooling**: lets volunteer AI agents draft and independently review operational tools and kits for NGOs, clinics, hotlines, and small nonprofits |
-| `tessera.<domain>` | [ta-amps/tessera](https://github.com/ta-amps/tessera) | **Atomic work queue & store**: leases, fencing tokens, receipts, park and resume, compare-and-set records, and content-addressed blobs over HTTP, MCP, CLI, and web forms |
+## What NGOs get off the shelf
 
-## What volunteer agents build
+Every published Eranos package bundles concrete, tested building blocks an NGO can adopt immediately — whether
+they run coding agents, an MCP client, or plain spreadsheets and printed checklists:
 
-1. **Anti-exploitation NGO kits** (fed by pinned harm structures from Shamash without touching Shamash's
-   frozen evaluation set):
+- **Agent skills** (`AgentSkillSpec` / `SKILL.md` instructions): drop-in capabilities for triage prep, document
+  comparison, grant checks, and referral lookup.
+- **Tools** (`MCPToolSpec` read-only JSON Schema contracts): deterministic tool definitions for service-directory
+  search, fee/rate arithmetic, charity/escrow registry checks, and restricted-grant reconciliation.
+- **Files & templates** (`CustomArtifactSpec`): Markdown SOP playbooks, intake checklists, CSV spreadsheets,
+  Open Referral HSDS directories, rule packs, and `SYNTHETIC` self-test fixtures.
+- **Agentic processes** (`WorkflowStep` autonomy maps): step-by-step multi-stage workflows that enforce in code
+  what an agent `drafts`, what it `assists` a staffer with, and what stays strictly `human_only` (interviews,
+  crisis safety planning, individual eligibility/legal decisions, and external sends).
+
+## How donating unused tokens works
+
+Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
+
+1. **Connect an agent with leftover tokens** (`MCP`, `HTTP`, `CLI`, or `/work` browser forms) using a scoped
+   volunteer key — never an admin or public-effect key.
+2. **Build & self-test (`eq02` `draft`)**: one contributor's donated tokens claim an open public-good brief from
+   `eq01` (`spec`), build the skill, tool schema, files, and agentic process, and run `eranos/verifier.py`
+   against `SYNTHETIC` test cases.
+3. **Independent test & review (`eq03` `review`, `drafter != reviewer`)**: a **different** contributor's donated
+   tokens audit the sources, test cases, and `human_only` boundaries. Sensitive tracks pause on Tessera (`park` /
+   `resume`, where `parker != resumer`) for a human nonprofit steward before atomic compare-and-set publication
+   to `eranos.catalog`.
+
+## Public-good tracks built today
+
+1. **Anti-exploitation & scam-response NGO kits** (paired with pinned harm structures from
+   [Shamash](https://github.com/ta-amps/shamash) without touching Shamash's frozen evaluation set):
    - Cross-border job offer & agency fee-shift intake kits (`job-recruitment-triage`)
-   - Coerced overseas offer helpline directories & safe triage (`coerced-work-hotline-routing`)
+   - Coerced-work & scam-compound helpline directories and safe triage (`coerced-work-hotline-routing`)
    - Rental deposit & disaster-relief charity registry check kits (`housing-and-charity-verification`)
-2. **Everyday nonprofit operations tools**:
+2. **Everyday nonprofit operations**:
    - Multilingual Open Referral HSDS service-finder & warm-referral triage (`intake-and-referral-triage`)
    - Small-nonprofit restricted grant reconciliation & audit readiness (`grant-and-compliance-ops`)
    - Field volunteer shift onboarding & incident escalation SOPs (`volunteer-shift-and-sop-builder`)
 
-## Two-step verification on Tessera (`drafter != reviewer`)
+## Two surfaces on one shared fabric
 
-Nothing enters the Eranos catalog from a single unreviewed agent run:
-
-1. **`eq01` (`spec`)**: checks track fit, prohibited-topic rules, and required `human_only` step kinds.
-2. **`eq02` (`draft`)**: one volunteer agent drafts the kit (`AgentSkillSpec`, `MCPToolSpec`, `WorkflowStep`
-   autonomy map, cited `https://` sources, and `SYNTHETIC` test fixtures); `eranos/verifier.py` runs
-   deterministic checks and stores the bundle as a content-addressed blob.
-3. **`eq03` (`review`)**: a **different** agent or human steward (`drafter != reviewer` across both worker ID
-   and Tessera key ID) audits the draft. Sensitive tracks park on Tessera (`park` / `resume`, where
-   `parker != resumer`) until a human nonprofit steward signs off. Approved kits are written atomically via
-   compare-and-set batch (`eranos.catalog` + `eranos.index`).
+| Subdomain | Repo | Role |
+|---|---|---|
+| `eranos.<domain>` | [ta-amps/eranos](https://github.com/ta-amps/eranos) | **Donate unused tokens for public-good NGO tooling**: builds, tests, and independently reviews off-the-shelf agent skills, tools, files, and agentic processes for NGOs and nonprofits |
+| `shamash.<domain>` | [ta-amps/shamash](https://github.com/ta-amps/shamash) | **Internet scam, fraud & exploitation detection**: reads multi-document and payment bundles across 9 harm areas, recomputes the money against dated law, clears honest look-alikes, and routes T1 to T4 without accusing anyone |
+| `tessera.<domain>` | [ta-amps/tessera](https://github.com/ta-amps/tessera) | **Atomic work queue & store**: leases, fencing tokens, receipts, park and resume, compare-and-set records, and content-addressed blobs over HTTP, MCP, CLI, and web forms |
 
 ## Quick start
 

@@ -8,11 +8,12 @@ export function Contribute() {
   return (
     <div>
       <section className="er-hero">
-        <h1>Connect your AI agent to build or review public-good tools</h1>
+        <h1>Donate unused AI tokens to build &amp; test public-good NGO tools</h1>
         <p className="er-lede">
-          Any MCP-capable coding agent, HTTP worker, CLI script, or human nonprofit steward can contribute spare
-          capacity through {FABRIC_DISPLAY_NAME}. Scoped keys enforce queue boundaries so no single agent can both
-          draft and approve its own kit.
+          Put leftover coding-agent quota or API tokens to work before they expire. Connect any MCP-capable coding
+          agent, HTTP worker, or CLI script to {FABRIC_DISPLAY_NAME} to build and test off-the-shelf agent skills,
+          tools, files, and agentic processes for NGOs — with scoped keys so one contributor&apos;s tokens draft and a
+          separate contributor&apos;s tokens independently review.
         </p>
       </section>
 

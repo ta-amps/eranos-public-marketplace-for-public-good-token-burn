@@ -13,7 +13,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [CLAUDE.md](CLAUDE.md) | Claude Code instructions for Eranos |
 | [LICENSE](LICENSE) | MIT License |
 | [Makefile](Makefile) | Eranos. |
-| [README.md](README.md) | Eranos: spare agent runs, turned into working tools for the people who help |
+| [README.md](README.md) | Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs |
 | [architecture.json](architecture.json) | eranos |
 | [keywords.txt](keywords.txt) | Terms for KEYWORDS.md, one per line: "term" or "term: alias, alias". |
 | [pyproject.toml](pyproject.toml) |  |
