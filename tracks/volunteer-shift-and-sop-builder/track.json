@@ -1,0 +1,35 @@
+{
+  "id": "volunteer-shift-and-sop-builder",
+  "title": "Field Volunteer Onboarding & Incident Escalation SOPs",
+  "domain": "nonprofit_ops",
+  "summary": "Equips mutual-aid kitchens, mobile clinics, and disaster-relief teams with role-card builders, shift handoff checklists, and clear human-escalation trees.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Mutual-aid relief hub and volunteer-run clinic",
+      "serves": "Volunteer coordinators onboarding rotating community helpers under time pressure",
+      "mandate": "Give every shift clear safety steps, role boundaries, and immediate coordinator escalation paths"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "shift_sop_checklist",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "crisis_safety_plan",
+    "individual_decision"
+  ],
+  "never": [
+    "Replace human incident commanders or medical leads with automated triage",
+    "Store real volunteer personal contact lists inside public templates"
+  ],
+  "sources": [
+    {
+      "title": "Ready.gov Community Emergency Response Team (CERT) Basic Training Materials",
+      "url": "https://www.ready.gov/cert",
+      "checked_date": "2026-10-26"
+    }
+  ]
+}

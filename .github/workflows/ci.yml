@@ -1,0 +1,56 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: eranos
+      - uses: actions/checkout@v4
+        with:
+          repository: ta-amps/tessera
+          path: tessera
+          token: ${{ secrets.TESSERA_READ_TOKEN || github.token }}
+      - uses: astral-sh/setup-uv@v6
+      - name: Install
+        working-directory: eranos
+        run: uv sync --all-groups
+      - name: Lint, types, tests, leak scan, index and architecture checks
+        working-directory: eranos
+        run: make check
+      - name: Two-step volunteer pipeline verification
+        working-directory: eranos
+        run: make verify-examples
+      - name: Tessera conformance suite through Eranos's adapter
+        working-directory: eranos
+        run: make suite BACKEND=local
+
+  web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.25.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm build

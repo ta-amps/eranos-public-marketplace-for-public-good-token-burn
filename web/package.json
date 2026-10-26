@@ -1,0 +1,38 @@
+{
+  "name": "eranos-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Eranos public-good & nonprofit volunteer agent tooling catalog. Every fixture shown is SYNTHETIC.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview --port 4174",
+    "snapshot:build": "VITE_SNAPSHOT=1 vite build",
+    "test:e2e": "playwright test",
+    "astryx": "astryx"
+  },
+  "dependencies": {
+    "@astryxdesign/core": "0.7.4",
+    "@astryxdesign/theme-neutral": "0.7.4",
+    "@stylexjs/stylex": "0.19.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@astryxdesign/cli": "0.7.4",
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
+  }
+}

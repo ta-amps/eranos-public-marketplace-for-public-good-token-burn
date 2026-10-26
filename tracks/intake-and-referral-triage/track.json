@@ -1,0 +1,35 @@
+{
+  "id": "intake-and-referral-triage",
+  "title": "Multilingual Service-Finder & Warm-Referral Operations",
+  "domain": "nonprofit_ops",
+  "summary": "Helps community nonprofits, food pantries, shelters, and legal-aid desks match published program rules to intake notes and draft plain-language warm-referral summaries while keeping eligibility decisions human-only.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Community social-services nonprofit and legal-aid intake desk",
+      "serves": "Residents seeking housing stability, food assistance, benefits navigation, or clinic appointments",
+      "mandate": "Reduce intake paperwork time so caseworkers spend more time directly helping people"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "referral_handoff_template",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "interview",
+    "individual_decision"
+  ],
+  "never": [
+    "Allow an agent to deny service eligibility on its own",
+    "Send client details to partner organizations without human approval and consent"
+  ],
+  "sources": [
+    {
+      "title": "Open Referral Human Services Data Specification (HSDS)",
+      "url": "https://docs.openreferral.org/en/latest/hsds/",
+      "checked_date": "2026-10-26"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+# Eranos: spare agent runs, turned into working tools for the people who help
+
+> In ancient Greece, an eranos (ἔρανος) was a mutual-aid potluck: everyone brought whatever spare share they had to equip a shared civic need. Eranos applies the same idea to AI agent capacity. People point their agents at scoped build and review tasks on Tessera and turn spare agent runs into verified agent skills, MCP tool contracts, intake checklists, referral directories, and audit-readiness kit
+
+## Start here
+- [README.md](https://github.com/ta-amps/eranos/blob/main/README.md): what this is and how to run it
+- [AGENTS.md](https://github.com/ta-amps/eranos/blob/main/AGENTS.md): rules every agent follows here
+- [INDEX.md](https://github.com/ta-amps/eranos/blob/main/INDEX.md): every file with a description
+- [KEYWORDS.md](https://github.com/ta-amps/eranos/blob/main/KEYWORDS.md): where each term appears
+- [llms-full.txt](https://github.com/ta-amps/eranos/blob/main/llms-full.txt): the main documents in full, in reading order
+
+## Documents
+- [CLAUDE.md](https://github.com/ta-amps/eranos/blob/main/CLAUDE.md): Claude Code instructions for Eranos
+- [docs/architecture.md](https://github.com/ta-amps/eranos/blob/main/docs/architecture.md): Eranos: architecture
+- [docs/comparison.md](https://github.com/ta-amps/eranos/blob/main/docs/comparison.md): Comparison
+- [docs/decisions.md](https://github.com/ta-amps/eranos/blob/main/docs/decisions.md): Decisions and Glossary
+- [docs/frontend.md](https://github.com/ta-amps/eranos/blob/main/docs/frontend.md): Eranos: frontend and API surface
+- [docs/generalizing.md](https://github.com/ta-amps/eranos/blob/main/docs/generalizing.md): Generalizing: Adding Tracks and Kits Without Engine Code
+- [docs/glossary.md](https://github.com/ta-amps/eranos/blob/main/docs/glossary.md): Glossary
+- [docs/handoff.md](https://github.com/ta-amps/eranos/blob/main/docs/handoff.md): Handoff
+- [docs/review.md](https://github.com/ta-amps/eranos/blob/main/docs/review.md): Review Guide & Cold-Start Handoff
+- [docs/setup.md](https://github.com/ta-amps/eranos/blob/main/docs/setup.md): Setup and Single-Domain Hosting
+- [docs/summary.md](https://github.com/ta-amps/eranos/blob/main/docs/summary.md): Summary

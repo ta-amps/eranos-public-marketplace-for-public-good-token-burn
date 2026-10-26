@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "task_id": "E1",
+  "repo": "eranos",
+  "title": "Disaster charity registry & rental deposit escrow check kit",
+  "kind": "kit-draft",
+  "owner_type": "muse-code",
+  "effect_class": "write-internal",
+  "branch": "t/E1-housing-charity-kit",
+  "depends_on": [],
+  "context": [
+    "tracks/housing-and-charity-verification/track.json",
+    "examples/kits/01-job-recruitment-triage.json"
+  ],
+  "constraints": [
+    "Synthetic fixtures only, each marked SYNTHETIC",
+    "Keep individual_decision and external_send marked human_only",
+    "Never label an unregistered mutual-aid group with accusatory terms"
+  ],
+  "done_when": "examples/kits/05-housing-and-charity-verification.json passes `make verify-examples` and `make check`"
+}

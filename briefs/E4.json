@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "task_id": "E4",
+  "repo": "eranos",
+  "title": "Export published kits as downloadable SKILL.md + MCP tool bundles",
+  "kind": "code",
+  "owner_type": "muse-code",
+  "effect_class": "write-repo",
+  "branch": "t/E4-bundle-export",
+  "depends_on": ["E3"],
+  "context": [
+    "eranos/cli.py",
+    "eranos/pipeline/run.py"
+  ],
+  "constraints": [
+    "Include SYNTHETIC notice, human_only boundary table, and SHA-256 receipt in every exported bundle"
+  ],
+  "done_when": "`uv run eranos export-bundle KIT-RECRUIT-01` writes SKILL.md, tool.json, and checklist.md tested in pytest"
+}

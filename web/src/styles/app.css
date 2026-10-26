@@ -1,0 +1,325 @@
+body {
+  background: var(--er-bg);
+  color: var(--er-text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.er-skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  background: var(--er-accent);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: var(--er-radius-chip);
+  z-index: 100;
+}
+.er-skip-link:focus {
+  left: 16px;
+}
+
+.er-banner {
+  background: var(--er-accent-soft);
+  color: var(--er-drafts-text);
+  border-bottom: 1px solid var(--er-border);
+  font-size: var(--er-font-12);
+  font-weight: 600;
+  padding: 6px var(--er-margin);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.er-topbar {
+  border-bottom: 1px solid var(--er-border);
+  background: var(--er-bg);
+  padding: 12px var(--er-margin);
+}
+
+.er-topbar-inner {
+  max-width: var(--er-max-width);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.er-brand {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--er-text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.er-brand-sub {
+  font-size: var(--er-font-12);
+  font-weight: 500;
+  color: var(--er-text-muted);
+}
+
+.er-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.er-nav a {
+  text-decoration: none;
+  color: var(--er-text-muted);
+  font-size: var(--er-font-14);
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: var(--er-radius-chip);
+}
+
+.er-nav a:hover,
+.er-nav a[aria-current="page"] {
+  color: var(--er-text);
+  background: var(--er-surface);
+}
+
+.er-main {
+  max-width: var(--er-max-width);
+  margin: 0 auto;
+  padding: var(--er-space-8) var(--er-margin) var(--er-space-12);
+}
+
+.er-hero {
+  background: var(--er-surface-warm);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: var(--er-space-8);
+  margin-bottom: var(--er-space-8);
+}
+
+.er-hero h1 {
+  margin: 0 0 12px;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.2;
+}
+
+.er-lede {
+  font-size: var(--er-font-16);
+  color: var(--er-text-muted);
+  max-width: 78ch;
+  margin: 0 0 20px;
+}
+
+.er-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.er-btn-primary,
+.er-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border-radius: var(--er-radius-chip);
+  font-size: var(--er-font-14);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.er-btn-primary {
+  background: var(--er-accent);
+  color: #ffffff;
+  border: 1px solid var(--er-accent);
+}
+
+:root[data-theme="dark"] .er-btn-primary {
+  color: #0b1915;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .er-btn-primary {
+    color: #0b1915;
+  }
+}
+
+.er-btn-secondary {
+  background: var(--er-bg);
+  color: var(--er-text);
+  border: 1px solid var(--er-border-strong);
+}
+
+.er-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--er-space-4);
+  margin-bottom: var(--er-space-8);
+}
+
+.er-card {
+  background: var(--er-bg);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: var(--er-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.er-card h2,
+.er-card h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.er-muted {
+  color: var(--er-text-muted);
+  font-size: var(--er-font-14);
+  margin: 0;
+}
+
+.er-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.er-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: var(--er-radius-chip);
+  font-size: var(--er-font-12);
+  font-weight: 600;
+}
+
+.er-chip-drafts {
+  background: var(--er-drafts-fill);
+  color: var(--er-drafts-text);
+}
+
+.er-chip-assists {
+  background: var(--er-assists-fill);
+  color: var(--er-assists-text);
+}
+
+.er-chip-human {
+  background: var(--er-human-fill);
+  color: var(--er-human-text);
+}
+
+.er-chip-steward {
+  background: var(--er-steward-fill);
+  color: var(--er-steward-text);
+}
+
+.er-chip-neutral {
+  background: var(--er-surface);
+  color: var(--er-text-muted);
+  border: 1px solid var(--er-border);
+}
+
+.er-code {
+  background: var(--er-surface);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  margin: 0;
+}
+
+.er-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.er-step-item {
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: 14px 16px;
+  background: var(--er-bg);
+}
+
+.er-section {
+  margin-bottom: var(--er-space-8);
+}
+
+.er-section h2 {
+  margin: 0 0 12px;
+  font-size: var(--er-font-20);
+}
+
+.er-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.er-dl div {
+  background: var(--er-surface);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-chip);
+  padding: 10px 12px;
+}
+
+.er-dl dt {
+  font-size: var(--er-font-12);
+  color: var(--er-text-muted);
+  font-weight: 600;
+}
+
+.er-dl dd {
+  margin: 4px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.er-filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: var(--er-space-4);
+}
+
+.er-filter-btn {
+  border: 1px solid var(--er-border-strong);
+  background: var(--er-bg);
+  color: var(--er-text);
+  padding: 6px 12px;
+  border-radius: var(--er-radius-chip);
+  font-size: var(--er-font-14);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.er-filter-btn[aria-pressed="true"] {
+  background: var(--er-accent);
+  color: #ffffff;
+  border-color: var(--er-accent);
+}
+
+:root[data-theme="dark"] .er-filter-btn[aria-pressed="true"] {
+  color: #0b1915;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .er-filter-btn[aria-pressed="true"] {
+    color: #0b1915;
+  }
+}

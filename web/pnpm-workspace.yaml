@@ -1,0 +1,5 @@
+# Astryx postinstall scripts only print a hint to run `astryx init`, which would
+# overwrite our AGENTS.md and CLAUDE.md, so they stay off. Nothing else needs building.
+allowBuilds:
+  "@astryxdesign/cli": false
+  "@astryxdesign/core": false

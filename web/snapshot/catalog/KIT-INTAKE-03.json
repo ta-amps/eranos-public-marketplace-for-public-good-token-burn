@@ -1,0 +1,143 @@
+{
+  "synthetic": true,
+  "kit": {
+    "kit_id": "KIT-INTAKE-03",
+    "track_id": "intake-and-referral-triage",
+    "domain": "nonprofit_ops",
+    "title": "Community Services Warm-Referral & HSDS Triage Kit",
+    "summary": "Matches Open Referral HSDS service listings against household needs, flags missing paperwork early, and drafts a plain-language warm-referral note for caseworker approval.",
+    "target_org": "Neighborhood multi-service nonprofit center",
+    "steps": [
+      {
+        "id": "match_programs",
+        "title": "Filter published local programs by hours, language, and service category",
+        "kind": "directory_lookup",
+        "boundary": "assists",
+        "actor": "Intake support tool",
+        "guidance": "Show matching programs alongside required documents and current intake hours."
+      },
+      {
+        "id": "draft_handoff_note",
+        "title": "Draft plain-language warm-referral summary",
+        "kind": "document_prep",
+        "boundary": "drafts",
+        "actor": "Intake drafting agent",
+        "guidance": "Prepare a concise referral checklist in the resident's preferred language for the caseworker to inspect."
+      },
+      {
+        "id": "resident_conversation",
+        "title": "In-person or phone intake conversation",
+        "kind": "interview",
+        "boundary": "human_only",
+        "actor": "Community resource navigator",
+        "guidance": "Discuss household priorities, consent, and accessibility needs directly with the resident."
+      },
+      {
+        "id": "eligibility_call",
+        "title": "Confirm program fit and referral selection",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Community resource navigator",
+        "guidance": "Never let an automated filter deny a resident; the navigator confirms every referral."
+      }
+    ],
+    "skill": {
+      "name": "warm-referral-drafter",
+      "description": "Matches Open Referral HSDS program entries and drafts a plain-language checklist for a human navigator to review.",
+      "boundary": "drafts",
+      "instructions": "Given published HSDS program records and a synthetic or navigator-entered need summary, list candidate programs with hours, transit notes, and required documents. Mark uncertain requirements as 'ask desk to confirm' rather than excluding the resident.",
+      "refuses": [
+        "Denying eligibility automatically",
+        "Transmitting client details externally without navigator sign-off"
+      ]
+    },
+    "tool": {
+      "name": "filter_hsds_services",
+      "description": "Queries Open Referral HSDS service entries by category, zip/postal prefix, and language support.",
+      "input_schema": {
+        "properties": {
+          "language": {
+            "type": "string"
+          },
+          "open_weekends": {
+            "type": "boolean"
+          },
+          "service_category": {
+            "minLength": 2,
+            "type": "string"
+          }
+        },
+        "required": [
+          "service_category"
+        ],
+        "type": "object"
+      },
+      "output_fields": [
+        "candidate_services",
+        "documents_to_bring",
+        "unconfirmed_fields"
+      ],
+      "read_only": true
+    },
+    "checklist": [
+      "Confirm whether the partner pantry or clinic requires photo ID or accepts self-attestation of address.",
+      "Check language interpretation availability before scheduling a warm handoff.",
+      "Obtain explicit resident consent before sharing any referral note with a partner nonprofit."
+    ],
+    "sources": [
+      {
+        "title": "Open Referral Human Services Data Specification (HSDS)",
+        "url": "https://docs.openreferral.org/en/latest/hsds/",
+        "checked_date": "2026-10-26"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-INTAKE-PANTRY",
+        "scenario": "Weekend food pantry lookup with Spanish language support",
+        "sample_input": "SYNTHETIC: Household of three seeks Saturday food pantry access and Spanish intake hours in district 04.",
+        "expected_indicators": [
+          "weekend_hours_match"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-INTAKE-URGENT-HOUSING",
+        "scenario": "Same-day eviction notice requiring emergency housing navigator",
+        "sample_input": "SYNTHETIC: Resident brings a 48-hour lockout notice and requests emergency rental assistance review.",
+        "expected_indicators": [
+          "urgent_housing_timeline"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-03",
+    "drafted_by_key": "key_drafter_03"
+  },
+  "verification": {
+    "kit_id": "KIT-INTAKE-03",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "cited_sources",
+      "tool_schema_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 2,
+    "human_only_steps": [
+      "resident_conversation",
+      "eligibility_call"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-03",
+  "reviewed_by_key": "key_reviewer_03",
+  "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
+  "steward_signoff": null,
+  "draft_receipt": "d0ea864f08b70192a5c1d715220c92e3334e3fbd33c7c6d023cdb1e5239147b6",
+  "review_receipt": "e8fcd8b61c06f4907c062fedb752beda2c018124c9296cbac341846a8f61e16f",
+  "blob_sha256": "263b7f3cbbf90ed95958b186111d7887337fc49ac91d2234b06359620d958875",
+  "catalog_version": 1
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "task_id": "E3",
+  "repo": "eranos",
+  "title": "Executable reference runner for MCPToolSpec deterministic checks",
+  "kind": "code",
+  "owner_type": "muse-code",
+  "effect_class": "write-repo",
+  "branch": "t/E3-tool-runner",
+  "depends_on": [],
+  "context": [
+    "eranos/verifier.py",
+    "eranos/schemas/records.py"
+  ],
+  "constraints": [
+    "Validate every fixture input against MCPToolSpec.input_schema without network calls",
+    "Keep eranos/ free of hardcoded track IDs"
+  ],
+  "done_when": "verifier validates fixture inputs against input_schema and `make check` passes"
+}

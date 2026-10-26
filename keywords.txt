@@ -1,0 +1,22 @@
+# Terms for KEYWORDS.md, one per line: "term" or "term: alias, alias". Run `make index` after editing.
+Eranos: mutual-aid, volunteer agents
+Shamash
+Tessera
+AgentBoundary: drafts, assists, human_only, human-only
+ToolKit: kit, kits, eranos.catalog
+AgentSkillSpec: agent skill, skill
+MCPToolSpec: MCP tool, tool contract
+drafter != reviewer: independent review, self-review
+eq01: spec queue
+eq02: draft queue
+eq03: review queue
+anti-exploitation: anti_exploitation
+nonprofit operations: nonprofit_ops, nonprofit-ops
+SYNTHETIC
+TrackPack: tracks, track.json
+Astryx
+snapshot: VITE_SNAPSHOT
+adapter: TracedBackend, ERANOS_BACKEND
+edge secret: ERANOS_EDGE_SECRET, x-edge-auth
+architecture.json: check_architecture
+llms-full.txt

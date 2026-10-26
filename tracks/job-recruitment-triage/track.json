@@ -1,0 +1,41 @@
+{
+  "id": "job-recruitment-triage",
+  "title": "Cross-Border Job Offer & Fee-Shift Intake Kits",
+  "domain": "anti_exploitation",
+  "summary": "Equips migrant-worker centres and labour-rights clinics with agent-assisted fee arithmetic tools, contract comparison checklists, and escalation workflows derived from Shamash's recruitment indicators.",
+  "sister_area": "recruitment",
+  "organizations": [
+    {
+      "org_type": "Migrant worker resource centre",
+      "serves": "Workers reviewing overseas employment contracts, agency fee receipts, and loan schedules",
+      "mandate": "Explain fee caps, compare contract versions, and connect workers to legal aid or labour inspectors"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "intake_checklist",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "interview",
+    "individual_decision"
+  ],
+  "never": [
+    "Contact or notify a recruitment agency, employer, or lender",
+    "Store real worker identity documents or real case files in the kit repository",
+    "Allow an agent to decide a worker's legal claim or conduct a client interview"
+  ],
+  "sources": [
+    {
+      "title": "ILO C181 Private Employment Agencies Convention, Article 7",
+      "url": "https://normlex.ilo.org/dyn/normlex/en/f?p=NORMLEXPUB:12100:0::NO::P12100_ILO_CODE:C181",
+      "checked_date": "2026-10-26"
+    },
+    {
+      "title": "Hong Kong Employment Agencies Portal: Code of Practice for Employment Agencies",
+      "url": "https://www.eaa.labour.gov.hk/en/operator.html",
+      "checked_date": "2026-10-26"
+    }
+  ]
+}

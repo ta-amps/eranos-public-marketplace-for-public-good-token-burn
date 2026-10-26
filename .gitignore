@@ -1,0 +1,44 @@
+# Secrets and private material never leave this machine
+.env
+.env.*
+!.env.example
+private/
+secrets/
+
+# Local state and run output
+.eranos/
+.tessera/
+*.db
+*.db-wal
+*.db-shm
+traces/*.jsonl
+results/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+build/
+dist/
+*.egg-info/
+
+# Web
+web/node_modules/
+web/dist/
+web/test-results/
+web/playwright-report/
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+.claude/settings.local.json
+
+# Local Cloudflare secrets and Wrangler state
+.dev.vars
+.wrangler/

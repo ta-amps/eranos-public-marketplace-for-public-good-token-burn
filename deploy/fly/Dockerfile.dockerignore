@@ -1,0 +1,17 @@
+*
+!tessera/pyproject.toml
+!tessera/uv.lock
+!tessera/README.md
+!tessera/LICENSE
+!tessera/src/**
+!eranos/pyproject.toml
+!eranos/uv.lock
+!eranos/README.md
+!eranos/LICENSE
+!eranos/eranos/**
+!eranos/tracks/**
+!eranos/examples/**
+!eranos/briefs/**
+**/__pycache__
+**/.venv
+**/.git

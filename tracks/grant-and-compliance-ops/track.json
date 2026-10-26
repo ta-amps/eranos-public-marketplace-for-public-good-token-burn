@@ -1,0 +1,35 @@
+{
+  "id": "grant-and-compliance-ops",
+  "title": "Small-Nonprofit Grant Reporting & Restricted-Fund Tools",
+  "domain": "nonprofit_ops",
+  "summary": "Gives small nonprofits with no dedicated finance staff deterministic budget-reconciliation tools, restricted-grant deadline trackers, and audit-prep checklists.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Small community nonprofit (3 to 25 staff)",
+      "serves": "Program directors and volunteer treasurers managing multiple public and foundation grants",
+      "mandate": "Keep restricted grant spending reconciled, documented, and ready for annual filings"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "compliance_checklist",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "individual_decision",
+    "external_send"
+  ],
+  "never": [
+    "Submit regulatory filings or grant reports externally without treasurer sign-off",
+    "Invent missing expense figures or estimate unrecorded receipts as zero"
+  ],
+  "sources": [
+    {
+      "title": "IRS Compliance Guide for 501(c)(3) Public Charities (Publication 4221-PC)",
+      "url": "https://www.irs.gov/forms-pubs/about-publication-4221-pc",
+      "checked_date": "2026-10-26"
+    }
+  ]
+}

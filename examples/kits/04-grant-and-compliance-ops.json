@@ -1,0 +1,115 @@
+{
+  "request": {
+    "kit_id": "KIT-GRANT-04",
+    "track_id": "grant-and-compliance-ops",
+    "title": "Small-Nonprofit Restricted Grant & Audit Readiness Kit",
+    "goal": "Give small nonprofits deterministic restricted-fund variance checks, receipt completeness reports, and draft funder narratives that a human treasurer signs off.",
+    "target_org": "Small 501(c)(3) youth and food-security nonprofit",
+    "needs_steward_signoff": false
+  },
+  "draft": {
+    "kit_id": "KIT-GRANT-04",
+    "track_id": "grant-and-compliance-ops",
+    "domain": "nonprofit_ops",
+    "title": "Small-Nonprofit Restricted Grant & Audit Readiness Kit",
+    "summary": "Reconciles ledger rows against restricted grant line items, lists missing receipt attachments as explicit nulls instead of zeros, and drafts narrative variance notes for treasurer review.",
+    "target_org": "Small 501(c)(3) youth and food-security nonprofit",
+    "steps": [
+      {
+        "id": "reconcile_lines",
+        "title": "Recompute restricted grant spend by budget category",
+        "kind": "arithmetic_check",
+        "boundary": "drafts",
+        "actor": "Grant reconciliation tool",
+        "guidance": "Sum posted expenses per grant code, flag unreceipted rows as missing, and compute remaining restricted balance."
+      },
+      {
+        "id": "draft_variance_memo",
+        "title": "Draft quarterly grant progress and variance summary",
+        "kind": "reporting_summary",
+        "boundary": "drafts",
+        "actor": "Operations drafting agent",
+        "guidance": "Summarize completed deliverables and flag any line variance above 10% for budget-modification review."
+      },
+      {
+        "id": "treasurer_approval",
+        "title": "Approve restricted-fund allocation and variance treatment",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Board treasurer or finance lead",
+        "guidance": "Review every flagged receipt gap and approve any cost-reallocation request."
+      },
+      {
+        "id": "submit_funder_report",
+        "title": "File signed report in funder or regulator portal",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Executive director or treasurer",
+        "guidance": "External portal submissions and 990 schedules are filed only by an authorized officer."
+      }
+    ],
+    "skill": {
+      "name": "restricted-grant-reconciler",
+      "description": "Reconciles nonprofit ledger rows against restricted grant budgets without inventing missing numbers.",
+      "boundary": "drafts",
+      "instructions": "Check each expense row's grant tag, date window, and receipt attachment status. Report missing receipts as null/unverified rather than zero, highlight budget lines with >10% variance, and output a review packet for the board treasurer.",
+      "refuses": [
+        "Estimating or inventing missing receipt amounts",
+        "Submitting grant reports or tax filings externally"
+      ]
+    },
+    "tool": {
+      "name": "check_grant_budget_variance",
+      "description": "Computes line-by-line restricted grant spend, remaining balance, variance percent, and missing-receipt count.",
+      "input_schema": {
+        "type": "object",
+        "required": ["grant_id", "currency", "budget_lines", "ledger_rows"],
+        "properties": {
+          "grant_id": { "type": "string" },
+          "currency": { "type": "string", "minLength": 3, "maxLength": 3 },
+          "budget_lines": { "type": "object" },
+          "ledger_rows": { "type": "array", "items": { "type": "object" } }
+        }
+      },
+      "output_fields": ["line_totals", "variance_percent", "unreceipted_rows", "outside_grant_window"],
+      "read_only": true
+    },
+    "checklist": [
+      "Verify every expense date falls inside the grant agreement's start and end dates.",
+      "Keep unreceipted transactions in a separate 'pending documentation' list instead of counting them as cleared.",
+      "Require board treasurer sign-off before requesting a budget-line modification above 10%."
+    ],
+    "sources": [
+      {
+        "title": "IRS Compliance Guide for 501(c)(3) Public Charities (Publication 4221-PC)",
+        "url": "https://www.irs.gov/forms-pubs/about-publication-4221-pc",
+        "checked_date": "2026-10-26"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-GRANT-BALANCED",
+        "scenario": "Quarterly food-program grant within all line caps and fully receipted",
+        "sample_input": "SYNTHETIC: Grant G-2026-04 food supplies budget USD 12,000; 14 posted invoices totaling USD 11,420 with matching receipts inside Q3.",
+        "expected_indicators": [],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-GRANT-VARIANCE",
+        "scenario": "Cold-storage equipment repair puts supplies line 16% over cap plus one missing invoice",
+        "sample_input": "SYNTHETIC: Grant G-2026-04 equipment line budget USD 2,000; posted charges USD 2,320 and row L-88 lacks vendor receipt PDF.",
+        "expected_indicators": ["line_variance_over_10pct", "missing_receipt_attachment"],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "placeholder",
+    "drafted_by_key": "placeholder"
+  },
+  "review": {
+    "kit_id": "KIT-GRANT-04",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only."
+  }
+}

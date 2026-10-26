@@ -1,0 +1,737 @@
+{
+  "$schema": "https://github.com/ta-amps/hackathon-context/blob/main/agents/schemas/architecture.schema.json",
+  "schema_version": 1,
+  "name": "eranos",
+  "summary": "Eranos turns spare volunteer AI agent capacity into verified operational tools, agent skills, read-only MCP tool schemas, checklists, referral directories, and grant-compliance kits for NGOs, nonprofits, and public-good operations. Volunteer agents claim scoped build and review tasks on Tessera (eq01 spec, eq02 draft, eq03 independent review); deterministic checks verify step autonomy boundaries so interviews, crisis safety planning, individual decisions, and external transmissions stay strictly human-only; and a distinct agent or human steward (drafter != reviewer across both worker ID and Tessera key ID) approves each bundle before atomic compare-and-set publication into eranos.catalog. Alongside Shamash (shamash.<domain>), Eranos (eranos.<domain>) runs on Tessera (tessera.<domain>) under a single shared domain.",
+  "status": {
+    "as_of": "2026-10-26",
+    "stage": "prototype",
+    "notes": "Schemas, copy and topic guards, strict JSON loader, six NGO and nonprofit tracks, deterministic verifier, two-step Tessera pipeline (eq01 -> eq02 -> eq03) with steward park/resume and CAS catalog publication, traced local/HTTP adapter, FastAPI service with edge lockdown, React 19 + Astryx web app with offline snapshot mode, and task briefs E1-E4 built and tested (26 pytest tests + 30 Tessera conformance tests)."
+  },
+  "docs": {
+    "summary": "docs/summary.md",
+    "architecture": "docs/architecture.md",
+    "setup": "docs/setup.md",
+    "comparison": "docs/comparison.md",
+    "generalizing": "docs/generalizing.md",
+    "decisions": "docs/decisions.md",
+    "glossary": "docs/glossary.md",
+    "review": "docs/review.md",
+    "frontend": "docs/frontend.md",
+    "handoff": "docs/handoff.md"
+  },
+  "read_order": [
+    "README.md",
+    "docs/summary.md",
+    "docs/architecture.md",
+    "docs/generalizing.md",
+    "tracks/README.md",
+    "examples/kits/README.md",
+    "docs/frontend.md",
+    "docs/setup.md",
+    "docs/comparison.md",
+    "docs/decisions.md",
+    "docs/glossary.md",
+    "docs/review.md",
+    "docs/handoff.md",
+    "AGENTS.md"
+  ],
+  "commands": {
+    "setup": "make setup",
+    "check": "make check",
+    "test": "make test",
+    "suite": "make suite BACKEND=local",
+    "verify_examples": "make verify-examples",
+    "tracks": "uv run eranos tracks",
+    "snapshot": "make snapshot",
+    "run": "make web",
+    "web_check": "make web-check",
+    "architecture": "make architecture",
+    "index": "make index"
+  },
+  "components": [
+    {
+      "id": "copy",
+      "title": "Copy and topic guards",
+      "path": "eranos/copy.py",
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Refuses accusatory labels in every kit text and blocks surveillance, scraping, or personal-data-harvesting topics",
+      "tests": [
+        "tests/test_schemas_and_copy.py"
+      ]
+    },
+    {
+      "id": "records",
+      "title": "Schemas and records",
+      "path": [
+        "eranos/schemas/tracks.py",
+        "eranos/schemas/records.py",
+        "eranos/schemas/__init__.py"
+      ],
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Strict Pydantic models for tracks, kit requests, agent skills, read-only MCP tools, autonomy boundaries, published kits, and briefs",
+      "depends_on": [
+        "copy"
+      ],
+      "tests": [
+        "tests/test_schemas_and_copy.py"
+      ]
+    },
+    {
+      "id": "jsonfile",
+      "title": "Strict JSON loader",
+      "path": "eranos/jsonfile.py",
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Loads track packs, kit bundles, and briefs while rejecting duplicate keys and NaN/Infinity",
+      "tests": [
+        "tests/test_schemas_and_copy.py"
+      ]
+    },
+    {
+      "id": "tracks",
+      "title": "Track registry and packs",
+      "path": [
+        "eranos/tracks.py",
+        "tracks"
+      ],
+      "kind": "data",
+      "domain": "mixed",
+      "role": "Loads the six anti-exploitation NGO and general nonprofit operations tracks from JSON data packs",
+      "depends_on": [
+        "jsonfile",
+        "records"
+      ],
+      "tests": [
+        "tests/test_tracks_and_verifier.py"
+      ]
+    },
+    {
+      "id": "verifier",
+      "title": "Deterministic kit verifier",
+      "path": "eranos/verifier.py",
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Checks workflow autonomy boundaries, required human_only step kinds, MCP JSON Schema structure, HTTPS source citations, and SYNTHETIC fixtures",
+      "depends_on": [
+        "copy",
+        "records"
+      ],
+      "tests": [
+        "tests/test_tracks_and_verifier.py"
+      ]
+    },
+    {
+      "id": "queues",
+      "title": "Queue stage contracts",
+      "path": "eranos/queues",
+      "kind": "worker",
+      "domain": "neutral",
+      "role": "Defines eq01 (spec), eq02 (draft), and eq03 (review) leased queue configurations on Tessera"
+    },
+    {
+      "id": "pipeline",
+      "title": "Two-step volunteer pipeline",
+      "path": [
+        "eranos/pipeline",
+        "examples/kits"
+      ],
+      "kind": "worker",
+      "domain": "neutral",
+      "role": "Runs eq01 -> eq02 -> eq03, stores canonical SHA-256 blobs, enforces drafter != reviewer and deterministic re-verification, parks/resumes for steward sign-off, and writes atomically via CAS",
+      "depends_on": [
+        "jsonfile",
+        "queues",
+        "records",
+        "tracks",
+        "verifier"
+      ],
+      "tests": [
+        "tests/test_pipeline.py"
+      ]
+    },
+    {
+      "id": "log",
+      "title": "Run log and config",
+      "path": [
+        "eranos/log.py",
+        "eranos/config.py"
+      ],
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Environment-only settings and JSON Lines trace writer for fabric operations"
+    },
+    {
+      "id": "adapter",
+      "title": "Tessera fabric adapter",
+      "path": "eranos/adapter",
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Wraps local SQLite tessera.Store or HTTP tessera.client.Client behind one traced backend switch (ERANOS_BACKEND)",
+      "depends_on": [
+        "log"
+      ],
+      "tests": [
+        "tests/test_pipeline.py"
+      ]
+    },
+    {
+      "id": "api",
+      "title": "HTTP API",
+      "path": [
+        "eranos/api/app.py",
+        "eranos/api/__init__.py"
+      ],
+      "kind": "service",
+      "domain": "neutral",
+      "role": "FastAPI service for tracks, verified catalog, open briefs, and queue counts; locked to Cloudflare edge via x-edge-auth",
+      "depends_on": [
+        "adapter",
+        "log",
+        "pipeline",
+        "queues",
+        "records",
+        "tracks"
+      ],
+      "interfaces": [
+        "api"
+      ],
+      "tests": [
+        "tests/test_api_and_edge.py"
+      ]
+    },
+    {
+      "id": "cli",
+      "title": "CLI",
+      "path": "eranos/cli.py",
+      "kind": "cli",
+      "domain": "neutral",
+      "role": "eranos tracks, verify-examples, seed-requests, and export-snapshot",
+      "depends_on": [
+        "adapter",
+        "log",
+        "pipeline",
+        "queues",
+        "records",
+        "tracks"
+      ],
+      "interfaces": [
+        "cli"
+      ]
+    },
+    {
+      "id": "web",
+      "title": "Web app",
+      "path": [
+        "web/src",
+        "web/snapshot"
+      ],
+      "kind": "web",
+      "domain": "neutral",
+      "role": "React 19 and Astryx catalog, autonomy boundary inspector, agent onboarding guide, and offline snapshot viewer",
+      "depends_on": [
+        "api"
+      ],
+      "interfaces": [
+        "web"
+      ],
+      "tests": [
+        "web/tests/shell.spec.ts"
+      ]
+    },
+    {
+      "id": "edge",
+      "title": "Edge Worker",
+      "path": [
+        "deploy/cloudflare/worker.js",
+        "deploy/cloudflare/wrangler.jsonc"
+      ],
+      "kind": "edge",
+      "domain": "neutral",
+      "role": "Serves web/dist, proxies /api/* with x-edge-auth, and attaches HSTS, CSP, nosniff, and frame-deny headers",
+      "depends_on": [
+        "api",
+        "web"
+      ]
+    }
+  ],
+  "interfaces": [
+    {
+      "id": "api",
+      "kind": "http",
+      "served_by": "api",
+      "spec": "docs/frontend.md",
+      "auth": "None locally; locked to Cloudflare Worker via x-edge-auth when ERANOS_EDGE_SECRET is set",
+      "entry_points": [
+        "GET /api/health",
+        "GET /api/tracks",
+        "GET /api/catalog",
+        "GET /api/catalog/{kit_id}",
+        "GET /api/requests",
+        "GET /api/fabric"
+      ]
+    },
+    {
+      "id": "cli",
+      "kind": "cli",
+      "served_by": "cli",
+      "auth": "Local shell",
+      "entry_points": [
+        "eranos tracks",
+        "eranos verify-examples",
+        "eranos seed-requests",
+        "eranos export-snapshot [OUT_DIR]"
+      ]
+    },
+    {
+      "id": "web",
+      "kind": "web",
+      "served_by": "web",
+      "spec": "docs/frontend.md",
+      "auth": "None (synthetic fixtures and verified public-good schemas only)",
+      "entry_points": [
+        "/",
+        "/catalog",
+        "/catalog/{id}",
+        "/contribute",
+        "/tracks",
+        "/fabric",
+        "/about"
+      ]
+    }
+  ],
+  "data_stores": [
+    {
+      "id": "track-packs",
+      "kind": "JSON files",
+      "owned_by": "tracks",
+      "path": "tracks",
+      "holds": [
+        "NGO and nonprofit track definitions",
+        "required human_only step kinds",
+        "primary public sources"
+      ]
+    },
+    {
+      "id": "example-kits",
+      "kind": "JSON files",
+      "owned_by": "pipeline",
+      "path": "examples/kits",
+      "holds": [
+        "synthetic volunteer kit requests, drafts, steward sign-offs, and review decisions"
+      ]
+    },
+    {
+      "id": "fabric",
+      "kind": "Tessera (local SQLite store or HTTP service)",
+      "owned_by": "adapter",
+      "location": "ERANOS_LOCAL_DB or TESSERA_URL",
+      "holds": [
+        "eq01/eq02/eq03 tasks and leases",
+        "SHA-256 canonical kit blobs",
+        "CAS stores eranos.catalog and eranos.index"
+      ]
+    },
+    {
+      "id": "traces",
+      "kind": "JSON Lines",
+      "owned_by": "log",
+      "location": "ERANOS_TRACE, default traces/run.jsonl",
+      "holds": [
+        "timestamped Tessera verb calls and queue telemetry"
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "browser-edge",
+      "between": [
+        "browser",
+        "edge"
+      ],
+      "rule": "Static app and /api/* only; strict CSP, HSTS, nosniff, and X-Frame-Options: DENY on every response",
+      "enforced_by": "deploy/cloudflare/worker.js"
+    },
+    {
+      "id": "edge-api",
+      "between": [
+        "edge",
+        "api"
+      ],
+      "rule": "When ERANOS_EDGE_SECRET is set, x-edge-auth must match in constant time except GET /api/health",
+      "enforced_by": "eranos/api/app.py",
+      "checked_by": [
+        "tests/test_api_and_edge.py::test_edge_lockdown_blocks_direct_origin_requests"
+      ]
+    },
+    {
+      "id": "two-step-publication",
+      "between": [
+        "eq02-drafter",
+        "eq03-reviewer"
+      ],
+      "rule": "No kit enters eranos.catalog unless deterministic verification passes and an independent reviewer (worker != drafter and key != drafter_key) approves it",
+      "enforced_by": "eranos/pipeline/run.py",
+      "checked_by": [
+        "tests/test_pipeline.py::test_self_review_by_same_worker_or_key_is_refused",
+        "tests/test_pipeline.py::test_unverified_draft_cannot_be_approved"
+      ]
+    },
+    {
+      "id": "human-autonomy-floor",
+      "between": [
+        "kit-tools",
+        "people"
+      ],
+      "rule": "Interviews, crisis safety planning, legal judgments, individual decisions, and external sends are refused unless marked human_only; MCP tools are read-only",
+      "enforced_by": "eranos/schemas/records.py",
+      "checked_by": [
+        "tests/test_schemas_and_copy.py::test_interviews_and_decisions_must_stay_human_only",
+        "tests/test_tracks_and_verifier.py::test_verifier_catches_missing_track_required_human_only_kind"
+      ]
+    }
+  ],
+  "invariants": [
+    {
+      "id": "E1",
+      "statement": "No kit, track, or fixture accuses a party or requests surveillance, scraping, or personal-data harvesting",
+      "enforced_by": "copy",
+      "checked_by": [
+        "tests/test_schemas_and_copy.py::test_accusatory_words_are_blocked",
+        "tests/test_schemas_and_copy.py::test_prohibited_collection_topics_are_blocked"
+      ]
+    },
+    {
+      "id": "E2",
+      "statement": "Interviews, crisis safety plans, legal judgments, individual decisions, and external transmissions stay human_only",
+      "enforced_by": "records",
+      "checked_by": [
+        "tests/test_schemas_and_copy.py::test_interviews_and_decisions_must_stay_human_only",
+        "tests/test_tracks_and_verifier.py::test_verifier_catches_missing_track_required_human_only_kind"
+      ]
+    },
+    {
+      "id": "E3",
+      "statement": "Every fixture carries the SYNTHETIC mark and strict JSON files refuse duplicate keys and NaN",
+      "enforced_by": "jsonfile",
+      "checked_by": [
+        "tests/test_schemas_and_copy.py::test_synthetic_fixture_requires_synthetic_mark",
+        "tests/test_schemas_and_copy.py::test_strict_json_rejects_duplicate_keys_and_nan"
+      ]
+    },
+    {
+      "id": "E4",
+      "statement": "Engine code is domain-neutral and names zero track IDs or kit IDs; all six NGO and nonprofit tracks load as data",
+      "enforced_by": "tracks",
+      "checked_by": [
+        "tests/test_tracks_and_verifier.py::test_all_six_tracks_load_across_both_domains",
+        "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id"
+      ]
+    },
+    {
+      "id": "E5",
+      "statement": "Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Tessera key ID",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_schemas_and_copy.py::test_published_kit_refuses_same_drafter_and_reviewer",
+        "tests/test_pipeline.py::test_self_review_by_same_worker_or_key_is_refused"
+      ]
+    },
+    {
+      "id": "E6",
+      "statement": "Unverified drafts cannot be published even if an upstream worker forges a verification report",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_pipeline.py::test_unverified_draft_cannot_be_approved",
+        "tests/test_tracks_and_verifier.py::test_every_example_kit_passes_deterministic_verifier"
+      ]
+    },
+    {
+      "id": "E7",
+      "statement": "Sensitive kits park on Tessera for human nonprofit steward sign-off and publish atomically via CAS upon resume",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_pipeline.py::test_steward_signoff_parks_and_resumes_on_tessera",
+        "tests/test_pipeline.py::test_two_step_pipeline_publishes_verified_kit_to_cas_store"
+      ]
+    },
+    {
+      "id": "E8",
+      "statement": "Agent briefs never carry public effect, API routes reject invalid kit IDs and unauthenticated origin traffic, and private names never leak",
+      "enforced_by": "api",
+      "checked_by": [
+        "tests/test_briefs_and_public.py::test_agent_brief_refuses_public_effect",
+        "tests/test_briefs_and_public.py::test_check_public_passes_cleanly",
+        "tests/test_api_and_edge.py::test_invalid_kit_id_is_rejected_with_400",
+        "tests/test_api_and_edge.py::test_edge_lockdown_blocks_direct_origin_requests"
+      ]
+    }
+  ],
+  "import_rules": [
+    {
+      "id": "ring0-domain-is-pure",
+      "package": "eranos",
+      "package_root": "eranos",
+      "files": [
+        "eranos/schemas",
+        "eranos/copy.py"
+      ],
+      "must_not_import": [
+        "eranos.tracks",
+        "eranos.verifier",
+        "eranos.jsonfile",
+        "eranos.queues",
+        "eranos.pipeline",
+        "eranos.adapter",
+        "eranos.api",
+        "eranos.cli",
+        "eranos.config",
+        "eranos.log",
+        "tessera",
+        "httpx",
+        "requests",
+        "fastapi",
+        "starlette",
+        "os",
+        "pathlib",
+        "sqlite3",
+        "subprocess",
+        "socket"
+      ],
+      "why": "Ring 0 holds pure records, autonomy boundaries, and text safety rules with zero I/O or fabric dependencies"
+    },
+    {
+      "id": "ring1-deterministic-services-make-no-calls",
+      "package": "eranos",
+      "package_root": "eranos",
+      "files": [
+        "eranos/verifier.py",
+        "eranos/tracks.py",
+        "eranos/jsonfile.py"
+      ],
+      "must_not_import": [
+        "eranos.queues",
+        "eranos.pipeline",
+        "eranos.adapter",
+        "eranos.api",
+        "eranos.cli",
+        "eranos.config",
+        "eranos.log",
+        "tessera",
+        "httpx",
+        "requests",
+        "fastapi",
+        "starlette",
+        "sqlite3",
+        "subprocess",
+        "socket"
+      ],
+      "why": "Ring 1 runs deterministic verification and strict JSON loading without touching Tessera, adapters, or network"
+    },
+    {
+      "id": "ring2-use-cases-see-ports-not-engines",
+      "package": "eranos",
+      "package_root": "eranos",
+      "files": [
+        "eranos/queues",
+        "eranos/pipeline"
+      ],
+      "must_not_import": [
+        "tessera.Store",
+        "tessera.store",
+        "tessera.client",
+        "tessera.service",
+        "tessera.mcp_door",
+        "tessera.pages",
+        "tessera.cli",
+        "tessera.testing",
+        "eranos.adapter",
+        "eranos.config",
+        "eranos.log",
+        "eranos.api",
+        "eranos.cli",
+        "httpx",
+        "requests",
+        "fastapi",
+        "sqlite3"
+      ],
+      "why": "Ring 2 orchestrates eq01 -> eq02 -> eq03 against an injected Tessera Backend port without knowing local SQLite vs HTTP"
+    },
+    {
+      "id": "ring3-adapters-never-reach-inward-use-cases-or-doors",
+      "package": "eranos",
+      "package_root": "eranos",
+      "files": [
+        "eranos/adapter",
+        "eranos/config.py",
+        "eranos/log.py"
+      ],
+      "must_not_import": [
+        "eranos.queues",
+        "eranos.pipeline",
+        "eranos.api",
+        "eranos.cli",
+        "fastapi",
+        "starlette"
+      ],
+      "why": "Ring 3 constructs backends and trace logs; it never calls the pipeline or HTTP/CLI doors"
+    },
+    {
+      "id": "ring4-doors-are-leaves",
+      "package": "eranos",
+      "package_root": "eranos",
+      "files": [
+        "eranos/schemas",
+        "eranos/copy.py",
+        "eranos/jsonfile.py",
+        "eranos/tracks.py",
+        "eranos/verifier.py",
+        "eranos/queues",
+        "eranos/pipeline",
+        "eranos/adapter",
+        "eranos/config.py",
+        "eranos/log.py"
+      ],
+      "must_not_import": [
+        "eranos.api",
+        "eranos.cli"
+      ],
+      "why": "Ring 4 (API and CLI) are leaf entry points; nothing inward depends on them"
+    },
+    {
+      "id": "package-never-imports-dev-roots",
+      "package": "eranos",
+      "package_root": "eranos",
+      "files": [
+        "eranos"
+      ],
+      "must_not_import": [
+        "tests",
+        "scripts",
+        "briefs",
+        "traces",
+        "deploy",
+        "web"
+      ],
+      "why": "Runtime package code never imports test, build, or deployment folders"
+    }
+  ],
+  "claims": [
+    {
+      "id": "EC1",
+      "claim": "Volunteer agents build across both anti-exploitation NGO tracks and everyday nonprofit operations tracks using one domain-neutral engine",
+      "status": "built",
+      "evidence": [
+        "tracks/README.md",
+        "tests/test_tracks_and_verifier.py::test_all_six_tracks_load_across_both_domains",
+        "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id"
+      ],
+      "verify": "uv run eranos tracks"
+    },
+    {
+      "id": "EC2",
+      "claim": "Two-step Tessera verification guarantees drafter != reviewer across worker ID and key ID, with steward park/resume and atomic CAS publication",
+      "status": "built",
+      "evidence": [
+        "eranos/pipeline/run.py",
+        "tests/test_pipeline.py::test_two_step_pipeline_publishes_verified_kit_to_cas_store",
+        "tests/test_pipeline.py::test_self_review_by_same_worker_or_key_is_refused",
+        "tests/test_pipeline.py::test_steward_signoff_parks_and_resumes_on_tessera"
+      ],
+      "verify": "make verify-examples"
+    },
+    {
+      "id": "EC3",
+      "claim": "Interviews, crisis safety planning, legal judgments, individual decisions, and external sends are deterministically restricted to human_only",
+      "status": "built",
+      "evidence": [
+        "eranos/verifier.py",
+        "tests/test_schemas_and_copy.py::test_interviews_and_decisions_must_stay_human_only",
+        "tests/test_pipeline.py::test_unverified_draft_cannot_be_approved"
+      ],
+      "verify": "make test"
+    },
+    {
+      "id": "EC4",
+      "claim": "Hosted on Fly.io behind a Cloudflare Worker on eranos.<domain> alongside shamash.<domain> and tessera.<domain> under one shared domain",
+      "status": "partial",
+      "evidence": [
+        "deploy/fly/fly.toml",
+        "deploy/cloudflare/worker.js",
+        "deploy/bootstrap-hosting.sh",
+        "tests/test_api_and_edge.py::test_edge_lockdown_blocks_direct_origin_requests"
+      ],
+      "verify": "deploy/bootstrap-hosting.sh --dry-run"
+    }
+  ],
+  "deployment": [
+    {
+      "id": "local",
+      "how": "make web",
+      "parts": [
+        "API on :7720",
+        "web app on :5174",
+        "local Tessera SQLite store (.eranos/local.db)"
+      ]
+    },
+    {
+      "id": "offline-demo",
+      "how": "make snapshot && pnpm --dir web snapshot:build",
+      "parts": [
+        "static verified catalog in web/dist",
+        "zero backend requests"
+      ]
+    },
+    {
+      "id": "hosted",
+      "how": "deploy/bootstrap-hosting.sh, then GitHub deploy workflow with approval",
+      "parts": [
+        "Cloudflare Worker eranos (eranos.<domain>, static app and /api proxy)",
+        "Fly.io app eranos-api with a 1 GB volume"
+      ]
+    }
+  ],
+  "generalization": {
+    "neutral": [
+      "copy and safe-topic guards",
+      "schemas and autonomy boundary rules",
+      "deterministic kit verifier",
+      "two-step eq01 -> eq02 -> eq03 pipeline and CAS publisher",
+      "Tessera adapter and trace logger",
+      "API and web catalog"
+    ],
+    "specific": [
+      "track data packs in tracks/<id>/track.json",
+      "synthetic kit bundles in examples/kits/*.json"
+    ],
+    "extension_points": [
+      {
+        "id": "track",
+        "what": "A new NGO or nonprofit track",
+        "how": "Add tracks/<id>/track.json specifying domain, organizations, agent_helps_with, human_must_do, required_human_only_kinds, and dated HTTPS sources",
+        "path": "tracks"
+      },
+      {
+        "id": "kit",
+        "what": "A new verified operational kit",
+        "how": "Submit a KitRequest to eq01, draft on eq02 with one volunteer agent, and approve on eq03 with an independent reviewer",
+        "path": "examples/kits"
+      }
+    ]
+  },
+  "limitations": [
+    "Every example fixture is synthetic; real NGO deployments require local partner review of directory contacts and jurisdictional rules",
+    "MCP tool contracts in the catalog are specifications and schemas (read_only: true); organizations wire them to their own local spreadsheets or directories",
+    "Live custom-domain cutover awaits binding the shared root domain on the ta-amps Cloudflare zone"
+  ],
+  "open_questions": [
+    "Should tracks specify per-country helpline re-verification intervals shorter than 90 days?",
+    "Should high-impact kits require two independent volunteer reviewers in addition to a human nonprofit steward?"
+  ],
+  "feedback": {
+    "how": "Open an issue on GitHub; docs/review.md lists the sharpest review questions",
+    "url": "https://github.com/ta-amps/eranos/issues"
+  }
+}

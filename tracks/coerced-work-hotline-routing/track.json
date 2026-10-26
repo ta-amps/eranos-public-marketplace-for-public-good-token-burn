@@ -1,0 +1,42 @@
+{
+  "id": "coerced-work-hotline-routing",
+  "title": "Coerced Recruitment & Crisis Helpline Routing Kits",
+  "domain": "anti_exploitation",
+  "summary": "Builds verified multi-jurisdiction helpline directories and safe-intake triage scripts for NGOs assisting people recruited into coercive work sites, keeping all crisis planning strictly human-only.",
+  "sister_area": "recruitment",
+  "organizations": [
+    {
+      "org_type": "Anti-exploitation helpline and consular referral desk",
+      "serves": "Job-seekers and families checking suspicious overseas tech or customer-support offers",
+      "mandate": "Route urgent inquiries to verified hotlines and trained caseworkers without exposing callers"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "helpline_directory_schema",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "interview",
+    "crisis_safety_plan",
+    "external_send"
+  ],
+  "never": [
+    "Give automated safety or exit advice directly to a person in danger",
+    "Collect location data about real individuals",
+    "Publish unverified phone numbers or unconfirmed helpline hours"
+  ],
+  "sources": [
+    {
+      "title": "UNODC Issue Paper: Casinos, Cyber Fraud, and Trafficking in Persons in Southeast Asia",
+      "url": "https://www.unodc.org/roseap/en/publications/2023/casinos-cyber-fraud-trafficking-in-persons.html",
+      "checked_date": "2026-10-26"
+    },
+    {
+      "title": "ILO Operational Indicators of Trafficking in Human Beings",
+      "url": "https://www.ilo.org/publications/operational-indicators-trafficking-human-beings",
+      "checked_date": "2026-10-26"
+    }
+  ]
+}

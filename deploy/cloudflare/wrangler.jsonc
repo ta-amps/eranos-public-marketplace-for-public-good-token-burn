@@ -1,0 +1,22 @@
+// Eranos edge on Cloudflare Workers: serves the web app's static files plus a reverse proxy for /api/*.
+// Under our single-domain layout, bind `eranos.<your-domain>` via `routes` below (Cloudflare creates
+// the DNS record and TLS certificate automatically on deploy at zero added domain cost).
+{
+  "name": "eranos",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  // Uncomment or set via notes/bind-single-domain.sh once your single root domain is added to Cloudflare:
+  // "routes": [{ "pattern": "eranos.<your-domain>", "custom_domain": true }],
+  "assets": {
+    "directory": "../../web/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": true
+  },
+  "vars": {
+    "API_ORIGIN": "https://eranos-api.fly.dev"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

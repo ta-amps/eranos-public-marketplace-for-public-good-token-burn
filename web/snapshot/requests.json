@@ -1,0 +1,114 @@
+{
+  "synthetic": true,
+  "stages": [
+    {
+      "queue": "eq01",
+      "node": "spec",
+      "title": "Scope & safety gate",
+      "effect_class": "read",
+      "purpose": "Check track alignment, required human_only steps, and safe-topic rules before drafting."
+    },
+    {
+      "queue": "eq02",
+      "node": "draft",
+      "title": "Volunteer agent draft & deterministic checks",
+      "effect_class": "write-internal",
+      "purpose": "One volunteer agent builds the kit, fixtures, skill, and MCP tool spec; verifier runs."
+    },
+    {
+      "queue": "eq03",
+      "node": "review",
+      "title": "Independent review & CAS catalog publish",
+      "effect_class": "write-internal",
+      "purpose": "A different agent or human steward (drafter != reviewer) audits and publishes to eranos.catalog."
+    }
+  ],
+  "requests": [
+    {
+      "schema_version": 1,
+      "task_id": "E1",
+      "repo": "eranos",
+      "title": "Disaster charity registry & rental deposit escrow check kit",
+      "kind": "kit-draft",
+      "owner_type": "muse-code",
+      "effect_class": "write-internal",
+      "branch": "t/E1-housing-charity-kit",
+      "depends_on": [],
+      "context": [
+        "tracks/housing-and-charity-verification/track.json",
+        "examples/kits/01-job-recruitment-triage.json"
+      ],
+      "constraints": [
+        "Synthetic fixtures only, each marked SYNTHETIC",
+        "Keep individual_decision and external_send marked human_only",
+        "Never label an unregistered mutual-aid group with accusatory terms"
+      ],
+      "done_when": "examples/kits/05-housing-and-charity-verification.json passes `make verify-examples` and `make check`",
+      "notes": null
+    },
+    {
+      "schema_version": 1,
+      "task_id": "E2",
+      "repo": "eranos",
+      "title": "Field volunteer shift onboarding & incident escalation SOP kit",
+      "kind": "kit-draft",
+      "owner_type": "muse-code",
+      "effect_class": "write-internal",
+      "branch": "t/E2-volunteer-shift-sop",
+      "depends_on": [],
+      "context": [
+        "tracks/volunteer-shift-and-sop-builder/track.json",
+        "examples/kits/03-intake-and-referral-triage.json"
+      ],
+      "constraints": [
+        "Synthetic fixtures only, each marked SYNTHETIC",
+        "Keep crisis_safety_plan and individual_decision marked human_only"
+      ],
+      "done_when": "examples/kits/06-volunteer-shift-sop.json passes `make verify-examples` and `make check`",
+      "notes": null
+    },
+    {
+      "schema_version": 1,
+      "task_id": "E3",
+      "repo": "eranos",
+      "title": "Executable reference runner for MCPToolSpec deterministic checks",
+      "kind": "code",
+      "owner_type": "muse-code",
+      "effect_class": "write-repo",
+      "branch": "t/E3-tool-runner",
+      "depends_on": [],
+      "context": [
+        "eranos/verifier.py",
+        "eranos/schemas/records.py"
+      ],
+      "constraints": [
+        "Validate every fixture input against MCPToolSpec.input_schema without network calls",
+        "Keep eranos/ free of hardcoded track IDs"
+      ],
+      "done_when": "verifier validates fixture inputs against input_schema and `make check` passes",
+      "notes": null
+    },
+    {
+      "schema_version": 1,
+      "task_id": "E4",
+      "repo": "eranos",
+      "title": "Export published kits as downloadable SKILL.md + MCP tool bundles",
+      "kind": "code",
+      "owner_type": "muse-code",
+      "effect_class": "write-repo",
+      "branch": "t/E4-bundle-export",
+      "depends_on": [
+        "E3"
+      ],
+      "context": [
+        "eranos/cli.py",
+        "eranos/pipeline/run.py"
+      ],
+      "constraints": [
+        "Include SYNTHETIC notice, human_only boundary table, and SHA-256 receipt in every exported bundle"
+      ],
+      "done_when": "`uv run eranos export-bundle KIT-RECRUIT-01` writes SKILL.md, tool.json, and checklist.md tested in pytest",
+      "notes": null
+    }
+  ]
+}
