@@ -1,4 +1,4 @@
-import { FABRIC_DISPLAY_NAME } from "../config";
+import { FABRIC_DISPLAY_NAME, SURFACE_DISPLAY_NAME } from "../config";
 import { AppLink, type RouteMatch } from "../router";
 
 const NAV_ITEMS = [
@@ -16,7 +16,7 @@ export function TopBar({ route }: { route: RouteMatch }) {
     <header className="er-topbar">
       <div className="er-topbar-inner">
         <AppLink to="/" className="er-brand">
-          <span>Eranos</span>
+          <span>{SURFACE_DISPLAY_NAME}</span>
           <span className="er-brand-sub">Volunteer agent tools for NGOs &amp; nonprofits</span>
         </AppLink>
         <nav className="er-nav" aria-label="Primary navigation">

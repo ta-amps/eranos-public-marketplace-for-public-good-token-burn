@@ -62,6 +62,7 @@ make web               # API on http://127.0.0.1:7720 and web app on http://loca
 | [docs/setup.md](docs/setup.md) | Local setup, connecting volunteer agents, single-domain subdomain hosting |
 | [docs/comparison.md](docs/comparison.md) | How Eranos differs from generic prompt hubs and unverified skill directories |
 | [docs/generalizing.md](docs/generalizing.md) | How to add a new public-good track or kit without changing engine code |
+| [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Mythological & classical naming lexicon, flexible deliverable kinds, and multi-domain setup |
 | [docs/decisions.md](docs/decisions.md), [docs/glossary.md](docs/glossary.md) | Key design decisions and plain-language definitions |
 | [docs/review.md](docs/review.md), [docs/handoff.md](docs/handoff.md) | What to test hardest, and cold-start handoff notes |
 | [architecture.json](architecture.json), [llms-full.txt](llms-full.txt) | Machine-checked architecture data and full single-file bundle |

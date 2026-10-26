@@ -30,11 +30,15 @@ def test_api_serves_tracks_catalog_requests_and_fabric(client: TestClient) -> No
 
     cat = client.get("/api/catalog").json()
     assert cat["two_step_verified"] is True
-    assert len(cat["kits"]) == 4
+    assert len(cat["kits"]) == 5
 
     detail = client.get("/api/catalog/KIT-RECRUIT-01")
     assert detail.status_code == 200
     assert detail.json()["kit"]["kit_id"] == "KIT-RECRUIT-01"
+
+    sop_detail = client.get("/api/catalog/KIT-SHIFT-05")
+    assert sop_detail.status_code == 200
+    assert sop_detail.json()["kit"]["deliverable_kind"] == "sop_playbook"
 
     reqs = client.get("/api/requests").json()
     assert len(reqs["stages"]) == 3

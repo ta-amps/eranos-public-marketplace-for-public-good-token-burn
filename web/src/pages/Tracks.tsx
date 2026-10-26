@@ -10,9 +10,8 @@ export function Tracks() {
       <section className="er-section">
         <h1>Public-good build tracks</h1>
         <p className="er-lede">
-          Tracks live as pure JSON data packs in <code>tracks/&lt;id&gt;/track.json</code>. Each track specifies
-          which organizations it serves, what agents may draft or assist with, and which step kinds must remain
-          strictly human-only.
+          Tracks live as pure JSON data packs in <code>tracks/&lt;id&gt;/track.json</code>. Adding a new public-good
+          domain, step kind, or organization type requires zero Python or TypeScript code changes.
         </p>
 
         {state.status === "loading" && <p className="er-muted">Loading tracks…</p>}
@@ -22,30 +21,34 @@ export function Tracks() {
             {state.data.tracks.map((track) => (
               <article key={track.id} className="er-card">
                 <div className="er-chip-row">
-                  <DomainBadge domain={track.domain} />
+                  <DomainBadge domain={track.domain} label={track.domain_label} />
                   <code>{track.id}</code>
                 </div>
                 <h2>{track.title}</h2>
                 <p className="er-muted">{track.summary}</p>
-                <p className="er-muted">
-                  <strong>Organizations served:</strong> {track.organizations.join("; ")}
-                </p>
                 <div>
-                  <strong style={{ fontSize: 14 }}>Agent helps with:</strong>
+                  <strong style={{ fontSize: 14 }}>Organizations served:</strong>
                   <ul>
-                    {track.agent_helps_with.map((item) => (
-                      <li key={item} className="er-muted">
-                        {item}
+                    {track.organizations.map((org) => (
+                      <li key={org.org_type} className="er-muted">
+                        <strong>{org.org_type}:</strong> {org.mandate}
                       </li>
                     ))}
                   </ul>
                 </div>
+                <p className="er-muted">
+                  <strong>Allowed deliverable types:</strong> <code>{track.allowed_artifacts.join(", ")}</code>
+                </p>
+                <p className="er-muted">
+                  <strong>Required human-only steps:</strong>{" "}
+                  <code>{track.required_human_only.join(", ")}</code>
+                </p>
                 <div>
-                  <strong style={{ fontSize: 14 }}>People always keep:</strong>
+                  <strong style={{ fontSize: 14 }}>Lines never crossed:</strong>
                   <ul>
-                    {track.human_must_do.map((item) => (
-                      <li key={item} className="er-muted">
-                        {item}
+                    {track.never.map((rule) => (
+                      <li key={rule} className="er-muted">
+                        {rule}
                       </li>
                     ))}
                   </ul>

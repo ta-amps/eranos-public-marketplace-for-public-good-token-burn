@@ -4,6 +4,7 @@
     "kit_id": "KIT-HOTLINE-02",
     "track_id": "coerced-work-hotline-routing",
     "domain": "anti_exploitation",
+    "deliverable_kind": "full_kit",
     "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
     "summary": "Matches corridor countries and languages to re-verified public helplines and consular desks, surfacing unverified offer indicators while reserving all crisis safety planning for trained staff.",
     "target_org": "Regional anti-exploitation helpline desk",
@@ -52,6 +53,7 @@
         "Contacting external parties automatically"
       ]
     },
+    "skills": [],
     "tool": {
       "name": "match_verified_helplines",
       "description": "Filters verified public helpline records by destination country, origin country, and spoken language.",
@@ -84,6 +86,8 @@
       ],
       "read_only": true
     },
+    "tools": [],
+    "artifacts": [],
     "checklist": [
       "Check whether every listed helpline number was verified within the past 90 days before handing it to a caller.",
       "Note transit changes such as a ticket routed to a border town different from the stated office city.",
@@ -129,7 +133,7 @@
       "synthetic_fixtures",
       "non_accusatory_copy",
       "cited_sources",
-      "tool_schema_alignment"
+      "deliverable_alignment"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -143,8 +147,8 @@
   "reviewed_by_key": "key_reviewer_02",
   "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
   "steward_signoff": "helpline-steward-lead",
-  "draft_receipt": "dddec7a9d0c4630240f5c63fd3c3d500eab2e0d78b367508e73a423fe6525732",
-  "review_receipt": "1ea7d108123068ec38b83f0b1f9566a941abfc82eea98021368ac696cdff6991",
-  "blob_sha256": "715449222704776cd15b10578dffab75181c6373aa2dcb01ced20d8ef069bf81",
+  "draft_receipt": "8e05e139b2edbad504cbc1faccf6227175582aa53746185b3a5d0ba44260354f",
+  "review_receipt": "a60a1af1ae11d98942d508d05533b4d3ef3f603ec2f21a3778bd85fab3a13c45",
+  "blob_sha256": "fdcf95dd94c5712ff2eca52c2bbe2ed5d9f9d186e0d39cf782c40fb6d67d337f",
   "catalog_version": 1
 }

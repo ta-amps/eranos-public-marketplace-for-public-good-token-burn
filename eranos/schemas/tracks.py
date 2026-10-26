@@ -10,22 +10,24 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from eranos.copy import check_non_accusatory, check_safe_topic
 
 TRACK_ID = r"^[a-z][a-z0-9-]{2,47}$"
-TrackDomain = Literal["anti_exploitation", "nonprofit_ops"]
+SLUG_ID = r"^[a-z][a-z0-9_]{2,39}$"
+
+# Open slug types so organizations can add new public-good domains (e.g. humanitarian_aid,
+# civic_legal_aid, public_health) and workflow step kinds purely in track JSON without code edits.
+TrackDomain = Annotated[str, Field(pattern=SLUG_ID)]
+StepKind = Annotated[str, Field(pattern=SLUG_ID)]
 AgentBoundary = Literal["drafts", "assists", "human_only"]
-StepKind = Literal[
-    "document_prep",
-    "arithmetic_check",
-    "checklist_triage",
-    "directory_lookup",
-    "reporting_summary",
-    "interview",
-    "crisis_safety_plan",
-    "individual_decision",
-    "external_send",
-]
 
 HUMAN_ONLY_KINDS: frozenset[str] = frozenset(
-    {"interview", "crisis_safety_plan", "individual_decision", "external_send"}
+    {
+        "interview",
+        "crisis_safety_plan",
+        "legal_judgment",
+        "individual_decision",
+        "case_referral",
+        "grant_signoff",
+        "external_send",
+    }
 )
 
 
@@ -49,6 +51,7 @@ class TrackPack(_Strict):
     id: Annotated[str, Field(pattern=TRACK_ID)]
     title: str = Field(min_length=4, max_length=140)
     domain: TrackDomain
+    domain_label: str | None = Field(default=None, max_length=80)
     summary: str = Field(min_length=10, max_length=600)
     sister_area: str | None = (
         None  # optional pinned Shamash harm-area slug when fed by Shamash learnings

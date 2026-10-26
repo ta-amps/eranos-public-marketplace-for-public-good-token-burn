@@ -18,6 +18,7 @@
     "glossary": "docs/glossary.md",
     "review": "docs/review.md",
     "frontend": "docs/frontend.md",
+    "naming_and_extensions": "docs/naming-and-extensions.md",
     "handoff": "docs/handoff.md"
   },
   "read_order": [
@@ -25,6 +26,7 @@
     "docs/summary.md",
     "docs/architecture.md",
     "docs/generalizing.md",
+    "docs/naming-and-extensions.md",
     "tracks/README.md",
     "examples/kits/README.md",
     "docs/frontend.md",
@@ -423,11 +425,12 @@
     },
     {
       "id": "E4",
-      "statement": "Engine code is domain-neutral and names zero track IDs or kit IDs; all six NGO and nonprofit tracks load as data",
+      "statement": "Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data",
       "enforced_by": "tracks",
       "checked_by": [
         "tests/test_tracks_and_verifier.py::test_all_six_tracks_load_across_both_domains",
-        "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id"
+        "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id",
+        "tests/test_tracks_and_verifier.py::test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes"
       ]
     },
     {

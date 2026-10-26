@@ -4,6 +4,7 @@
     "kit_id": "KIT-RECRUIT-01",
     "track_id": "job-recruitment-triage",
     "domain": "anti_exploitation",
+    "deliverable_kind": "full_kit",
     "title": "Overseas Contract & Agency Fee Arithmetic Intake Kit",
     "summary": "Computes total placement fees as a share of first-month wages, flags contract pay reductions, and prepares a structured summary for a trained caseworker without accusing any party.",
     "target_org": "Migrant worker legal-aid intake desk",
@@ -44,6 +45,7 @@
         "Recommending an action without caseworker review"
       ]
     },
+    "skills": [],
     "tool": {
       "name": "compute_fee_to_wage_ratio",
       "description": "Computes placement fees as a percentage of first-month contract pay when currencies match and compares against a statutory cap.",
@@ -85,6 +87,8 @@
       ],
       "read_only": true
     },
+    "tools": [],
+    "artifacts": [],
     "checklist": [
       "Verify that all fee receipts and contract wages share the same ISO currency before computing a ratio.",
       "Record whether a second contract changed the monthly wage promised in the initial job advertisement.",
@@ -133,7 +137,7 @@
       "synthetic_fixtures",
       "non_accusatory_copy",
       "cited_sources",
-      "tool_schema_alignment"
+      "deliverable_alignment"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -146,8 +150,8 @@
   "reviewed_by_key": "key_reviewer_01",
   "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
   "steward_signoff": null,
-  "draft_receipt": "a791de0ebc3adc15869b51bfb3bb8c4af9d5449ceef983d744eac0a1c7a28bbe",
-  "review_receipt": "0614331d56888faea6de4617da40dfee11054185e99fde39d1385773d1dc50fb",
-  "blob_sha256": "cd73bc8b61ed50112a596fae1b82864b413873c1b517262b31e91a169ae43c96",
+  "draft_receipt": "5a8b5e815e7428ed15f116480f7a2c345712719b311b5ca8e59aeb1af7993d48",
+  "review_receipt": "758684aceecb2177a8955fcf83e3a72d282a6fc134b14129f3836ddfd9c701f9",
+  "blob_sha256": "1bd5a0a5e013da51117ffdd31f697b024ed3c2690a732e644bd75c4fb458d05a",
   "catalog_version": 1
 }

@@ -1,0 +1,159 @@
+{
+  "synthetic": true,
+  "kit": {
+    "kit_id": "KIT-SHIFT-05",
+    "track_id": "volunteer-shift-and-sop-builder",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "sop_playbook",
+    "title": "Community Pantry Shift Onboarding & Incident Escalation SOP Pack",
+    "summary": "Standalone SOP playbook and multilingual role-card drafting skill for volunteer coordinators, reserving all medical, safety, and accommodation decisions strictly for the on-site shift captain.",
+    "target_org": "Neighborhood mutual-aid pantry and cold-weather shelter",
+    "steps": [
+      {
+        "id": "draft_role_cards",
+        "title": "Generate printable station checklists and shift handoff notes",
+        "kind": "volunteer_roster_prep",
+        "boundary": "drafts",
+        "actor": "Operations drafting agent",
+        "guidance": "Prepare plain-language station cards (receiving, sorting, distribution, cleanup) with clear escalation contact boxes."
+      },
+      {
+        "id": "onsite_incident_judgment",
+        "title": "Handle accommodation requests and volunteer conduct",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "On-site human shift captain",
+        "guidance": "Any conflict or guest accommodation decision is handled in person by the trained shift captain."
+      },
+      {
+        "id": "emergency_safety_escalation",
+        "title": "Execute live medical, weather, or physical safety response",
+        "kind": "crisis_safety_plan",
+        "boundary": "human_only",
+        "actor": "On-site shift captain and certified first-aid lead",
+        "guidance": "Immediate physical safety or medical distress is handled directly by on-site human responders."
+      },
+      {
+        "id": "dispatch_shift_packet",
+        "title": "Send approved shift schedule and emergency contacts to volunteers",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Volunteer coordinator",
+        "guidance": "Coordinator reviews and sends shift packets directly; agents never message volunteers automatically."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "shift-role-card-drafter",
+        "description": "Drafts concise, accessible volunteer station cards and shift handoff checklists from a pantry or shelter's operating hours and station list.",
+        "boundary": "drafts",
+        "instructions": "Format each station card at an 8th-grade reading level with three sections: Setup, During Shift, and When to Call the Shift Captain. Never generate medical advice or disciplinary decisions.",
+        "refuses": [
+          "Making volunteer disciplinary or dismissal decisions",
+          "Generating clinical or emergency medical instructions",
+          "Messaging volunteers or guests directly"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [],
+    "artifacts": [
+      {
+        "name": "shift_escalation_sop",
+        "title": "Three-Tier On-Site Escalation Playbook",
+        "artifact_format": "markdown_sop",
+        "boundary": "drafts",
+        "summary": "Printable escalation tree distinguishing routine supply restocks from immediate human shift-captain and emergency-responder triggers.",
+        "spec": [
+          "Tier 1 (Station Lead): Restock shortages, queue pacing, translation card lookup.",
+          "Tier 2 (Human Shift Captain \u2014 immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
+          "Tier 3 (Human Shift Captain + Local Emergency Services): Medical distress or immediate physical safety concern."
+        ]
+      },
+      {
+        "name": "station_handoff_template",
+        "title": "End-of-Shift Handoff CSV Template",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "Zero-PII station handoff log recording supply counts, equipment status, and open follow-ups for the next coordinator.",
+        "spec": {
+          "columns": [
+            "shift_date",
+            "station_id",
+            "households_served_count",
+            "restock_needed",
+            "captain_followup_note"
+          ],
+          "pii_allowed": false
+        }
+      }
+    ],
+    "checklist": [
+      "Confirm the on-site shift captain's name and phone extension are filled in before printing station cards.",
+      "Verify no guest or volunteer personal health details appear in shift handoff notes.",
+      "Walk new volunteers through the Tier 1\u20133 escalation box during the 5-minute pre-shift huddle."
+    ],
+    "sources": [
+      {
+        "title": "Ready.gov Community & Volunteer Preparedness Guidance",
+        "url": "https://www.ready.gov/volunteer",
+        "checked_date": "2026-10-26"
+      },
+      {
+        "title": "Sphere Handbook: Humanitarian Charter and Minimum Standards",
+        "url": "https://spherestandards.org/handbook/",
+        "checked_date": "2026-10-26"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-SHIFT-ROUTINE",
+        "scenario": "Saturday morning pantry coordinator preparing four station role cards",
+        "sample_input": "SYNTHETIC: 3-hour Saturday pantry shift with 12 volunteers across intake welcome, dry-goods table, cold storage, and exit carry-out.",
+        "expected_indicators": [
+          "four_station_cards_generated"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-SHIFT-ESCALATE",
+        "scenario": "Guest requests urgent cold-weather shelter exception after hours",
+        "sample_input": "SYNTHETIC: Volunteer at welcome table asks how to handle an after-hours family shelter accommodation request.",
+        "expected_indicators": [
+          "route_to_shift_captain"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-05",
+    "drafted_by_key": "key_drafter_05"
+  },
+  "verification": {
+    "kit_id": "KIT-SHIFT-05",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 2,
+    "human_only_steps": [
+      "onsite_incident_judgment",
+      "emergency_safety_escalation",
+      "dispatch_shift_packet"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-05",
+  "reviewed_by_key": "key_reviewer_05",
+  "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
+  "steward_signoff": null,
+  "draft_receipt": "d0bfbe1cbec6d714243693a738867707f79805eada2711e7aae6ae8c2b7fdd8b",
+  "review_receipt": "4a2c8328980d0536fcc5f33293cb6dc7f52335bc5867e4005dea5c8ee034e1be",
+  "blob_sha256": "29595d2299d05a3ac174665e9c52b81564f3d9011560a62c1ea0cf53385a4ae2",
+  "catalog_version": 1
+}

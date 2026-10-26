@@ -56,7 +56,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
 
-## docs/ (10)
+## docs/ (11)
 
 | File | What it is |
 |---|---|
@@ -67,6 +67,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/generalizing.md](docs/generalizing.md) | Generalizing: Adding Tracks and Kits Without Engine Code |
 | [docs/glossary.md](docs/glossary.md) | Glossary |
 | [docs/handoff.md](docs/handoff.md) | Handoff |
+| [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Naming, Mythology & Extending Eranos |
 | [docs/review.md](docs/review.md) | Review Guide & Cold-Start Handoff |
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
 | [docs/summary.md](docs/summary.md) | Summary |
@@ -92,12 +93,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/queues/__init__.py](eranos/queues/__init__.py) | Queue specifications for Eranos. |
 | [eranos/queues/stages.py](eranos/queues/stages.py) | Queue definitions for Eranos's volunteer pipeline on Tessera (eq01, eq02, eq03). |
 | [eranos/schemas/__init__.py](eranos/schemas/__init__.py) | Domain records and track schemas for Eranos. |
-| [eranos/schemas/records.py](eranos/schemas/records.py) | Domain records for Eranos kits, agent skills, MCP tool specs, review decisions, and task briefs. |
+| [eranos/schemas/records.py](eranos/schemas/records.py) | Domain records for Eranos kits, agent skills, MCP tool specs, custom operational artifacts, review decisions,… |
 | [eranos/schemas/tracks.py](eranos/schemas/tracks.py) | Schema for public-good tracks (tracks/<id>/track.json). |
 | [eranos/tracks.py](eranos/tracks.py) | Load public-good build tracks (tracks/<id>/track.json). |
 | [eranos/verifier.py](eranos/verifier.py) | Deterministic verifier for volunteer-submitted kits: checks track fit, human-only lines, synthetic fixtures,… |
 
-## examples/ (5)
+## examples/ (6)
 
 | File | What it is |
 |---|---|
@@ -105,6 +106,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/kits/02-coerced-work-hotline-routing.json](examples/kits/02-coerced-work-hotline-routing.json) | JSON object: request, draft, review, steward_signoff |
 | [examples/kits/03-intake-and-referral-triage.json](examples/kits/03-intake-and-referral-triage.json) | JSON object: request, draft, review |
 | [examples/kits/04-grant-and-compliance-ops.json](examples/kits/04-grant-and-compliance-ops.json) | JSON object: request, draft, review |
+| [examples/kits/05-volunteer-shift-sop-pack.json](examples/kits/05-volunteer-shift-sop-pack.json) | JSON object: request, draft, review |
 | [examples/kits/README.md](examples/kits/README.md) | Synthetic Example Kit Bundles |
 
 ## scripts/ (3)
@@ -138,7 +140,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/job-recruitment-triage/track.json](tracks/job-recruitment-triage/track.json) | Cross-Border Job Offer & Fee-Shift Intake Kits |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (41)
+## web/ (42)
 
 | File | What it is |
 |---|---|
@@ -153,6 +155,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/catalog/KIT-HOTLINE-02.json](web/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: synthetic, kit, verification, reviewed_by, reviewed_by_key, review_notes |
 | [web/snapshot/catalog/KIT-INTAKE-03.json](web/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, kit, verification, reviewed_by, reviewed_by_key, review_notes |
 | [web/snapshot/catalog/KIT-RECRUIT-01.json](web/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: synthetic, kit, verification, reviewed_by, reviewed_by_key, review_notes |
+| [web/snapshot/catalog/KIT-SHIFT-05.json](web/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: synthetic, kit, verification, reviewed_by, reviewed_by_key, review_notes |
 | [web/snapshot/fabric.json](web/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: synthetic, tracks |

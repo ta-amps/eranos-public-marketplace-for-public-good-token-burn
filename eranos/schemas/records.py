@@ -1,5 +1,5 @@
-"""Domain records for Eranos kits, agent skills, MCP tool specs, review decisions, and task briefs.
-Pure Ring 0: stdlib and pydantic only."""
+"""Domain records for Eranos kits, agent skills, MCP tool specs, custom operational artifacts,
+review decisions, and task briefs. Pure Ring 0: stdlib and pydantic only."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from eranos.copy import check_non_accusatory, check_safe_topic
 from eranos.schemas.tracks import (
     HUMAN_ONLY_KINDS,
+    SLUG_ID,
     TRACK_ID,
     AgentBoundary,
     SourceRef,
@@ -21,6 +22,15 @@ KIT_ID = r"^[A-Z]{2,4}-[A-Z0-9]{2,8}-[0-9]{2}$"
 BRIEF_ID = r"^[A-Z][0-9]{1,3}$"
 EffectClass = Literal["read", "write-internal", "write-repo", "public"]
 OwnerType = Literal["claude-code", "muse-code", "muse-assistant", "human"]
+DeliverableKind = Annotated[str, Field(pattern=SLUG_ID)]
+ArtifactFormat = Literal[
+    "json_schema",
+    "markdown_sop",
+    "csv_template",
+    "open_referral_hsds",
+    "rule_pack",
+    "checklist_pack",
+]
 
 
 class _Record(BaseModel):
@@ -75,12 +85,31 @@ class MCPToolSpec(_Record):
         return check_safe_topic(check_non_accusatory(value))
 
     @model_validator(mode="after")
-    def _valid_json_schema(self) -> MCPToolSpec:
+    def _valid_json_schema_and_read_only(self) -> MCPToolSpec:
+        if not self.read_only:
+            raise ValueError("MCPToolSpec.read_only must be True for public-good catalog tools")
         if self.input_schema.get("type") != "object" or "properties" not in self.input_schema:
             raise ValueError(
                 "MCPToolSpec.input_schema must be a JSON Schema object with properties"
             )
         return self
+
+
+class CustomArtifactSpec(_Record):
+    """Flexible deliverable unit (SOP playbook, HSDS directory schema, intake template, CSV formula
+    pack, or red-flag indicator pack) so volunteer agents are not limited to one rigid shape."""
+
+    name: str = Field(pattern=r"^[a-z][a-z0-9_-]{2,47}$")
+    title: str = Field(min_length=4, max_length=140)
+    artifact_format: ArtifactFormat
+    boundary: Literal["drafts", "assists"] = "drafts"
+    summary: str = Field(min_length=10, max_length=400)
+    spec: dict[str, Any] | list[str] | str
+
+    @field_validator("title", "summary")
+    @classmethod
+    def _clean(cls, value: str) -> str:
+        return check_safe_topic(check_non_accusatory(value))
 
 
 class SyntheticFixture(_Record):
@@ -102,6 +131,7 @@ class SyntheticFixture(_Record):
 class KitRequest(_Record):
     kit_id: Annotated[str, Field(pattern=KIT_ID)]
     track_id: Annotated[str, Field(pattern=TRACK_ID)]
+    deliverable_kind: DeliverableKind = "full_kit"
     title: str = Field(min_length=5, max_length=140)
     goal: str = Field(min_length=10, max_length=600)
     target_org: str = Field(min_length=3, max_length=140)
@@ -117,17 +147,35 @@ class KitDraft(_Record):
     kit_id: Annotated[str, Field(pattern=KIT_ID)]
     track_id: Annotated[str, Field(pattern=TRACK_ID)]
     domain: TrackDomain
+    deliverable_kind: DeliverableKind = "full_kit"
     title: str = Field(min_length=5, max_length=140)
     summary: str = Field(min_length=15, max_length=600)
     target_org: str = Field(min_length=3, max_length=140)
     steps: list[WorkflowStep] = Field(min_length=2)
-    skill: AgentSkillSpec
-    tool: MCPToolSpec
+    skill: AgentSkillSpec | None = None
+    skills: list[AgentSkillSpec] = Field(default_factory=list)
+    tool: MCPToolSpec | None = None
+    tools: list[MCPToolSpec] = Field(default_factory=list)
+    artifacts: list[CustomArtifactSpec] = Field(default_factory=list)
     checklist: list[str] = Field(min_length=3)
     sources: list[SourceRef] = Field(min_length=1)
     fixtures: list[SyntheticFixture] = Field(min_length=2)
     drafted_by: str = Field(min_length=2, max_length=80)
     drafted_by_key: str = Field(min_length=2, max_length=80)
+
+    def all_skills(self) -> list[AgentSkillSpec]:
+        out: list[AgentSkillSpec] = []
+        if self.skill is not None:
+            out.append(self.skill)
+        out.extend(s for s in self.skills if all(x.name != s.name for x in out))
+        return out
+
+    def all_tools(self) -> list[MCPToolSpec]:
+        out: list[MCPToolSpec] = []
+        if self.tool is not None:
+            out.append(self.tool)
+        out.extend(t for t in self.tools if all(x.name != t.name for x in out))
+        return out
 
     @field_validator("title", "summary")
     @classmethod
@@ -140,9 +188,13 @@ class KitDraft(_Record):
         return [check_safe_topic(check_non_accusatory(item)) for item in items]
 
     @model_validator(mode="after")
-    def _requires_at_least_one_human_only_step(self) -> KitDraft:
+    def _validate_deliverables_and_human_floor(self) -> KitDraft:
         if not any(step.boundary == "human_only" for step in self.steps):
             raise ValueError("every kit must declare at least one human_only workflow step")
+        if not (self.all_skills() or self.all_tools() or self.artifacts):
+            raise ValueError(
+                "every submission must provide at least one skill, MCP tool, or custom operational artifact"
+            )
         return self
 
 
@@ -198,7 +250,7 @@ class PublishedKit(_Record):
 class TaskBrief(_Record):
     schema_version: Literal[1] = 1
     task_id: Annotated[str, Field(pattern=BRIEF_ID)]
-    repo: Literal["eranos", "shamash", "tessera", "hackathon-context"]
+    repo: str = Field(pattern=r"^[a-z][a-z0-9-]{2,47}$")
     title: str = Field(min_length=5, max_length=140)
     kind: str = Field(min_length=2, max_length=40)
     owner_type: OwnerType

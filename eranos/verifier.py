@@ -1,5 +1,5 @@
 """Deterministic verifier for volunteer-submitted kits: checks track fit, human-only lines, synthetic
-fixtures, non-accusatory language, and primary source citations without calling any model."""
+fixtures, non-accusatory language, primary source citations, and deliverable schemas without calling any model."""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ def verify_kit(draft: KitDraft, track: TrackPack) -> VerificationReport:
         "synthetic_fixtures",
         "non_accusatory_copy",
         "cited_sources",
-        "tool_schema_alignment",
+        "deliverable_alignment",
     ]
 
     if draft.track_id != track.id:
@@ -51,9 +51,21 @@ def verify_kit(draft: KitDraft, track: TrackPack) -> VerificationReport:
     if not draft.sources:
         issues.append("at least one HTTPS primary source is required")
 
-    props = draft.tool.input_schema.get("properties")
-    if not isinstance(props, dict) or not props:
-        issues.append("tool.input_schema.properties must define at least one input field")
+    tools = draft.all_tools()
+    skills = draft.all_skills()
+    if not (tools or skills or draft.artifacts):
+        issues.append("at least one skill, MCP tool, or custom artifact is required")
+
+    for tool in tools:
+        props = tool.input_schema.get("properties")
+        if not isinstance(props, dict) or not props:
+            issues.append(
+                f"tool {tool.name!r} input_schema.properties must define at least one field"
+            )
+
+    for art in draft.artifacts:
+        if not art.spec:
+            issues.append(f"artifact {art.name!r} spec must not be empty")
 
     human_steps = [step.id for step in draft.steps if step.boundary == "human_only"]
     return VerificationReport(

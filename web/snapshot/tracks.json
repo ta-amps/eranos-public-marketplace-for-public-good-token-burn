@@ -5,6 +5,7 @@
       "id": "coerced-work-hotline-routing",
       "title": "Coerced Recruitment & Crisis Helpline Routing Kits",
       "domain": "anti_exploitation",
+      "domain_label": null,
       "summary": "Builds verified multi-jurisdiction helpline directories and safe-intake triage scripts for NGOs assisting people recruited into coercive work sites, keeping all crisis planning strictly human-only.",
       "sister_area": "recruitment",
       "organizations": [
@@ -47,6 +48,7 @@
       "id": "grant-and-compliance-ops",
       "title": "Small-Nonprofit Grant Reporting & Restricted-Fund Tools",
       "domain": "nonprofit_ops",
+      "domain_label": null,
       "summary": "Gives small nonprofits with no dedicated finance staff deterministic budget-reconciliation tools, restricted-grant deadline trackers, and audit-prep checklists.",
       "sister_area": null,
       "organizations": [
@@ -82,6 +84,7 @@
       "id": "housing-and-charity-verification",
       "title": "Rental Deposit & Disaster-Relief Charity Check Kits",
       "domain": "anti_exploitation",
+      "domain_label": null,
       "summary": "Provides community legal-aid clinics and disaster-response coalitions with public-registry lookup schemas, deposit-escrow checklists, and fee-comparison tools.",
       "sister_area": "charity",
       "organizations": [
@@ -122,6 +125,7 @@
       "id": "intake-and-referral-triage",
       "title": "Multilingual Service-Finder & Warm-Referral Operations",
       "domain": "nonprofit_ops",
+      "domain_label": null,
       "summary": "Helps community nonprofits, food pantries, shelters, and legal-aid desks match published program rules to intake notes and draft plain-language warm-referral summaries while keeping eligibility decisions human-only.",
       "sister_area": null,
       "organizations": [
@@ -157,6 +161,7 @@
       "id": "job-recruitment-triage",
       "title": "Cross-Border Job Offer & Fee-Shift Intake Kits",
       "domain": "anti_exploitation",
+      "domain_label": null,
       "summary": "Equips migrant-worker centres and labour-rights clinics with agent-assisted fee arithmetic tools, contract comparison checklists, and escalation workflows derived from Shamash's recruitment indicators.",
       "sister_area": "recruitment",
       "organizations": [
@@ -198,6 +203,7 @@
       "id": "volunteer-shift-and-sop-builder",
       "title": "Field Volunteer Onboarding & Incident Escalation SOPs",
       "domain": "nonprofit_ops",
+      "domain_label": null,
       "summary": "Equips mutual-aid kitchens, mobile clinics, and disaster-relief teams with role-card builders, shift handoff checklists, and clear human-escalation trees.",
       "sister_area": null,
       "organizations": [

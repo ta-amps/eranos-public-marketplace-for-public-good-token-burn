@@ -4,6 +4,7 @@
     "kit_id": "KIT-GRANT-04",
     "track_id": "grant-and-compliance-ops",
     "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
     "title": "Small-Nonprofit Restricted Grant & Audit Readiness Kit",
     "summary": "Reconciles ledger rows against restricted grant line items, lists missing receipt attachments as explicit nulls instead of zeros, and drafts narrative variance notes for treasurer review.",
     "target_org": "Small 501(c)(3) youth and food-security nonprofit",
@@ -51,6 +52,7 @@
         "Submitting grant reports or tax filings externally"
       ]
     },
+    "skills": [],
     "tool": {
       "name": "check_grant_budget_variance",
       "description": "Computes line-by-line restricted grant spend, remaining balance, variance percent, and missing-receipt count.",
@@ -90,6 +92,8 @@
       ],
       "read_only": true
     },
+    "tools": [],
+    "artifacts": [],
     "checklist": [
       "Verify every expense date falls inside the grant agreement's start and end dates.",
       "Keep unreceipted transactions in a separate 'pending documentation' list instead of counting them as cleared.",
@@ -133,7 +137,7 @@
       "synthetic_fixtures",
       "non_accusatory_copy",
       "cited_sources",
-      "tool_schema_alignment"
+      "deliverable_alignment"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -146,8 +150,8 @@
   "reviewed_by_key": "key_reviewer_04",
   "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
   "steward_signoff": null,
-  "draft_receipt": "f9244144d8268f0ff97718413fd4e4e6780bf0bff9839daaf06e9a94f28100fc",
-  "review_receipt": "675f94d04ce0533046e1e91178aff0bfe631417428a19d458d5688f19bad8287",
-  "blob_sha256": "f838462244bd8f07ffb3241968aef272b087f6f276e28eb7d03d2145f7033070",
+  "draft_receipt": "c788f1e4cb9b5542887f3547fff2ec5ed2606e51bd4350d5b2f7eade9bc711c5",
+  "review_receipt": "9c5467cad9b2466dd1fb0c429e2fa46e5732f6e24c1bf1f6c91fa3d2bf3cb2a1",
+  "blob_sha256": "0d72c85a4c46bf4047e592b28ae54c758d6af70de8b707e57177669a065fde10",
   "catalog_version": 1
 }

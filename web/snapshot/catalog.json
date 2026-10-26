@@ -7,6 +7,7 @@
         "kit_id": "KIT-GRANT-04",
         "track_id": "grant-and-compliance-ops",
         "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
         "title": "Small-Nonprofit Restricted Grant & Audit Readiness Kit",
         "summary": "Reconciles ledger rows against restricted grant line items, lists missing receipt attachments as explicit nulls instead of zeros, and drafts narrative variance notes for treasurer review.",
         "target_org": "Small 501(c)(3) youth and food-security nonprofit",
@@ -54,6 +55,7 @@
             "Submitting grant reports or tax filings externally"
           ]
         },
+        "skills": [],
         "tool": {
           "name": "check_grant_budget_variance",
           "description": "Computes line-by-line restricted grant spend, remaining balance, variance percent, and missing-receipt count.",
@@ -93,6 +95,8 @@
           ],
           "read_only": true
         },
+        "tools": [],
+        "artifacts": [],
         "checklist": [
           "Verify every expense date falls inside the grant agreement's start and end dates.",
           "Keep unreceipted transactions in a separate 'pending documentation' list instead of counting them as cleared.",
@@ -136,7 +140,7 @@
           "synthetic_fixtures",
           "non_accusatory_copy",
           "cited_sources",
-          "tool_schema_alignment"
+          "deliverable_alignment"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -149,9 +153,9 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "f9244144d8268f0ff97718413fd4e4e6780bf0bff9839daaf06e9a94f28100fc",
-      "review_receipt": "675f94d04ce0533046e1e91178aff0bfe631417428a19d458d5688f19bad8287",
-      "blob_sha256": "f838462244bd8f07ffb3241968aef272b087f6f276e28eb7d03d2145f7033070",
+      "draft_receipt": "c788f1e4cb9b5542887f3547fff2ec5ed2606e51bd4350d5b2f7eade9bc711c5",
+      "review_receipt": "9c5467cad9b2466dd1fb0c429e2fa46e5732f6e24c1bf1f6c91fa3d2bf3cb2a1",
+      "blob_sha256": "0d72c85a4c46bf4047e592b28ae54c758d6af70de8b707e57177669a065fde10",
       "catalog_version": 1
     },
     {
@@ -159,6 +163,7 @@
         "kit_id": "KIT-HOTLINE-02",
         "track_id": "coerced-work-hotline-routing",
         "domain": "anti_exploitation",
+        "deliverable_kind": "full_kit",
         "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
         "summary": "Matches corridor countries and languages to re-verified public helplines and consular desks, surfacing unverified offer indicators while reserving all crisis safety planning for trained staff.",
         "target_org": "Regional anti-exploitation helpline desk",
@@ -207,6 +212,7 @@
             "Contacting external parties automatically"
           ]
         },
+        "skills": [],
         "tool": {
           "name": "match_verified_helplines",
           "description": "Filters verified public helpline records by destination country, origin country, and spoken language.",
@@ -239,6 +245,8 @@
           ],
           "read_only": true
         },
+        "tools": [],
+        "artifacts": [],
         "checklist": [
           "Check whether every listed helpline number was verified within the past 90 days before handing it to a caller.",
           "Note transit changes such as a ticket routed to a border town different from the stated office city.",
@@ -284,7 +292,7 @@
           "synthetic_fixtures",
           "non_accusatory_copy",
           "cited_sources",
-          "tool_schema_alignment"
+          "deliverable_alignment"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -298,9 +306,9 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "dddec7a9d0c4630240f5c63fd3c3d500eab2e0d78b367508e73a423fe6525732",
-      "review_receipt": "1ea7d108123068ec38b83f0b1f9566a941abfc82eea98021368ac696cdff6991",
-      "blob_sha256": "715449222704776cd15b10578dffab75181c6373aa2dcb01ced20d8ef069bf81",
+      "draft_receipt": "8e05e139b2edbad504cbc1faccf6227175582aa53746185b3a5d0ba44260354f",
+      "review_receipt": "a60a1af1ae11d98942d508d05533b4d3ef3f603ec2f21a3778bd85fab3a13c45",
+      "blob_sha256": "fdcf95dd94c5712ff2eca52c2bbe2ed5d9f9d186e0d39cf782c40fb6d67d337f",
       "catalog_version": 1
     },
     {
@@ -308,6 +316,7 @@
         "kit_id": "KIT-INTAKE-03",
         "track_id": "intake-and-referral-triage",
         "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
         "title": "Community Services Warm-Referral & HSDS Triage Kit",
         "summary": "Matches Open Referral HSDS service listings against household needs, flags missing paperwork early, and drafts a plain-language warm-referral note for caseworker approval.",
         "target_org": "Neighborhood multi-service nonprofit center",
@@ -355,6 +364,7 @@
             "Transmitting client details externally without navigator sign-off"
           ]
         },
+        "skills": [],
         "tool": {
           "name": "filter_hsds_services",
           "description": "Queries Open Referral HSDS service entries by category, zip/postal prefix, and language support.",
@@ -383,6 +393,8 @@
           ],
           "read_only": true
         },
+        "tools": [],
+        "artifacts": [],
         "checklist": [
           "Confirm whether the partner pantry or clinic requires photo ID or accepts self-attestation of address.",
           "Check language interpretation availability before scheduling a warm handoff.",
@@ -427,7 +439,7 @@
           "synthetic_fixtures",
           "non_accusatory_copy",
           "cited_sources",
-          "tool_schema_alignment"
+          "deliverable_alignment"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -440,9 +452,9 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "d0ea864f08b70192a5c1d715220c92e3334e3fbd33c7c6d023cdb1e5239147b6",
-      "review_receipt": "e8fcd8b61c06f4907c062fedb752beda2c018124c9296cbac341846a8f61e16f",
-      "blob_sha256": "263b7f3cbbf90ed95958b186111d7887337fc49ac91d2234b06359620d958875",
+      "draft_receipt": "c29a60f19fc93914284f89aaf05c86658e8ee0aa7bfb5bf59fb5de4b63302236",
+      "review_receipt": "fbe9442c1d80d0979fef58dfc51c56c2b7223700276f91b022c08d0535dab328",
+      "blob_sha256": "a0b8c68d70579bb0d924d62b9827219c6f9f8fa11722ff189b6e0f99d76eb2db",
       "catalog_version": 1
     },
     {
@@ -450,6 +462,7 @@
         "kit_id": "KIT-RECRUIT-01",
         "track_id": "job-recruitment-triage",
         "domain": "anti_exploitation",
+        "deliverable_kind": "full_kit",
         "title": "Overseas Contract & Agency Fee Arithmetic Intake Kit",
         "summary": "Computes total placement fees as a share of first-month wages, flags contract pay reductions, and prepares a structured summary for a trained caseworker without accusing any party.",
         "target_org": "Migrant worker legal-aid intake desk",
@@ -490,6 +503,7 @@
             "Recommending an action without caseworker review"
           ]
         },
+        "skills": [],
         "tool": {
           "name": "compute_fee_to_wage_ratio",
           "description": "Computes placement fees as a percentage of first-month contract pay when currencies match and compares against a statutory cap.",
@@ -531,6 +545,8 @@
           ],
           "read_only": true
         },
+        "tools": [],
+        "artifacts": [],
         "checklist": [
           "Verify that all fee receipts and contract wages share the same ISO currency before computing a ratio.",
           "Record whether a second contract changed the monthly wage promised in the initial job advertisement.",
@@ -579,7 +595,7 @@
           "synthetic_fixtures",
           "non_accusatory_copy",
           "cited_sources",
-          "tool_schema_alignment"
+          "deliverable_alignment"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -592,9 +608,167 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "a791de0ebc3adc15869b51bfb3bb8c4af9d5449ceef983d744eac0a1c7a28bbe",
-      "review_receipt": "0614331d56888faea6de4617da40dfee11054185e99fde39d1385773d1dc50fb",
-      "blob_sha256": "cd73bc8b61ed50112a596fae1b82864b413873c1b517262b31e91a169ae43c96",
+      "draft_receipt": "5a8b5e815e7428ed15f116480f7a2c345712719b311b5ca8e59aeb1af7993d48",
+      "review_receipt": "758684aceecb2177a8955fcf83e3a72d282a6fc134b14129f3836ddfd9c701f9",
+      "blob_sha256": "1bd5a0a5e013da51117ffdd31f697b024ed3c2690a732e644bd75c4fb458d05a",
+      "catalog_version": 1
+    },
+    {
+      "kit": {
+        "kit_id": "KIT-SHIFT-05",
+        "track_id": "volunteer-shift-and-sop-builder",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "sop_playbook",
+        "title": "Community Pantry Shift Onboarding & Incident Escalation SOP Pack",
+        "summary": "Standalone SOP playbook and multilingual role-card drafting skill for volunteer coordinators, reserving all medical, safety, and accommodation decisions strictly for the on-site shift captain.",
+        "target_org": "Neighborhood mutual-aid pantry and cold-weather shelter",
+        "steps": [
+          {
+            "id": "draft_role_cards",
+            "title": "Generate printable station checklists and shift handoff notes",
+            "kind": "volunteer_roster_prep",
+            "boundary": "drafts",
+            "actor": "Operations drafting agent",
+            "guidance": "Prepare plain-language station cards (receiving, sorting, distribution, cleanup) with clear escalation contact boxes."
+          },
+          {
+            "id": "onsite_incident_judgment",
+            "title": "Handle accommodation requests and volunteer conduct",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "On-site human shift captain",
+            "guidance": "Any conflict or guest accommodation decision is handled in person by the trained shift captain."
+          },
+          {
+            "id": "emergency_safety_escalation",
+            "title": "Execute live medical, weather, or physical safety response",
+            "kind": "crisis_safety_plan",
+            "boundary": "human_only",
+            "actor": "On-site shift captain and certified first-aid lead",
+            "guidance": "Immediate physical safety or medical distress is handled directly by on-site human responders."
+          },
+          {
+            "id": "dispatch_shift_packet",
+            "title": "Send approved shift schedule and emergency contacts to volunteers",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Volunteer coordinator",
+            "guidance": "Coordinator reviews and sends shift packets directly; agents never message volunteers automatically."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "shift-role-card-drafter",
+            "description": "Drafts concise, accessible volunteer station cards and shift handoff checklists from a pantry or shelter's operating hours and station list.",
+            "boundary": "drafts",
+            "instructions": "Format each station card at an 8th-grade reading level with three sections: Setup, During Shift, and When to Call the Shift Captain. Never generate medical advice or disciplinary decisions.",
+            "refuses": [
+              "Making volunteer disciplinary or dismissal decisions",
+              "Generating clinical or emergency medical instructions",
+              "Messaging volunteers or guests directly"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [],
+        "artifacts": [
+          {
+            "name": "shift_escalation_sop",
+            "title": "Three-Tier On-Site Escalation Playbook",
+            "artifact_format": "markdown_sop",
+            "boundary": "drafts",
+            "summary": "Printable escalation tree distinguishing routine supply restocks from immediate human shift-captain and emergency-responder triggers.",
+            "spec": [
+              "Tier 1 (Station Lead): Restock shortages, queue pacing, translation card lookup.",
+              "Tier 2 (Human Shift Captain \u2014 immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
+              "Tier 3 (Human Shift Captain + Local Emergency Services): Medical distress or immediate physical safety concern."
+            ]
+          },
+          {
+            "name": "station_handoff_template",
+            "title": "End-of-Shift Handoff CSV Template",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "Zero-PII station handoff log recording supply counts, equipment status, and open follow-ups for the next coordinator.",
+            "spec": {
+              "columns": [
+                "shift_date",
+                "station_id",
+                "households_served_count",
+                "restock_needed",
+                "captain_followup_note"
+              ],
+              "pii_allowed": false
+            }
+          }
+        ],
+        "checklist": [
+          "Confirm the on-site shift captain's name and phone extension are filled in before printing station cards.",
+          "Verify no guest or volunteer personal health details appear in shift handoff notes.",
+          "Walk new volunteers through the Tier 1\u20133 escalation box during the 5-minute pre-shift huddle."
+        ],
+        "sources": [
+          {
+            "title": "Ready.gov Community & Volunteer Preparedness Guidance",
+            "url": "https://www.ready.gov/volunteer",
+            "checked_date": "2026-10-26"
+          },
+          {
+            "title": "Sphere Handbook: Humanitarian Charter and Minimum Standards",
+            "url": "https://spherestandards.org/handbook/",
+            "checked_date": "2026-10-26"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-SHIFT-ROUTINE",
+            "scenario": "Saturday morning pantry coordinator preparing four station role cards",
+            "sample_input": "SYNTHETIC: 3-hour Saturday pantry shift with 12 volunteers across intake welcome, dry-goods table, cold storage, and exit carry-out.",
+            "expected_indicators": [
+              "four_station_cards_generated"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-SHIFT-ESCALATE",
+            "scenario": "Guest requests urgent cold-weather shelter exception after hours",
+            "sample_input": "SYNTHETIC: Volunteer at welcome table asks how to handle an after-hours family shelter accommodation request.",
+            "expected_indicators": [
+              "route_to_shift_captain"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-05",
+        "drafted_by_key": "key_drafter_05"
+      },
+      "verification": {
+        "kit_id": "KIT-SHIFT-05",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "onsite_incident_judgment",
+          "emergency_safety_escalation",
+          "dispatch_shift_packet"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-05",
+      "reviewed_by_key": "key_reviewer_05",
+      "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
+      "steward_signoff": null,
+      "draft_receipt": "d0bfbe1cbec6d714243693a738867707f79805eada2711e7aae6ae8c2b7fdd8b",
+      "review_receipt": "4a2c8328980d0536fcc5f33293cb6dc7f52335bc5867e4005dea5c8ee034e1be",
+      "blob_sha256": "29595d2299d05a3ac174665e9c52b81564f3d9011560a62c1ea0cf53385a4ae2",
       "catalog_version": 1
     }
   ]

@@ -4,6 +4,7 @@
     "kit_id": "KIT-INTAKE-03",
     "track_id": "intake-and-referral-triage",
     "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
     "title": "Community Services Warm-Referral & HSDS Triage Kit",
     "summary": "Matches Open Referral HSDS service listings against household needs, flags missing paperwork early, and drafts a plain-language warm-referral note for caseworker approval.",
     "target_org": "Neighborhood multi-service nonprofit center",
@@ -51,6 +52,7 @@
         "Transmitting client details externally without navigator sign-off"
       ]
     },
+    "skills": [],
     "tool": {
       "name": "filter_hsds_services",
       "description": "Queries Open Referral HSDS service entries by category, zip/postal prefix, and language support.",
@@ -79,6 +81,8 @@
       ],
       "read_only": true
     },
+    "tools": [],
+    "artifacts": [],
     "checklist": [
       "Confirm whether the partner pantry or clinic requires photo ID or accepts self-attestation of address.",
       "Check language interpretation availability before scheduling a warm handoff.",
@@ -123,7 +127,7 @@
       "synthetic_fixtures",
       "non_accusatory_copy",
       "cited_sources",
-      "tool_schema_alignment"
+      "deliverable_alignment"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -136,8 +140,8 @@
   "reviewed_by_key": "key_reviewer_03",
   "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
   "steward_signoff": null,
-  "draft_receipt": "d0ea864f08b70192a5c1d715220c92e3334e3fbd33c7c6d023cdb1e5239147b6",
-  "review_receipt": "e8fcd8b61c06f4907c062fedb752beda2c018124c9296cbac341846a8f61e16f",
-  "blob_sha256": "263b7f3cbbf90ed95958b186111d7887337fc49ac91d2234b06359620d958875",
+  "draft_receipt": "c29a60f19fc93914284f89aaf05c86658e8ee0aa7bfb5bf59fb5de4b63302236",
+  "review_receipt": "fbe9442c1d80d0979fef58dfc51c56c2b7223700276f91b022c08d0535dab328",
+  "blob_sha256": "a0b8c68d70579bb0d924d62b9827219c6f9f8fa11722ff189b6e0f99d76eb2db",
   "catalog_version": 1
 }

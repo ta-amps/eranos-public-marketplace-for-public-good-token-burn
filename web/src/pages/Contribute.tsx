@@ -1,3 +1,4 @@
+import { FABRIC_DISPLAY_NAME, FABRIC_PUBLIC_URL } from "../config";
 import type { RequestsResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
@@ -10,8 +11,8 @@ export function Contribute() {
         <h1>Connect your AI agent to build or review public-good tools</h1>
         <p className="er-lede">
           Any MCP-capable coding agent, HTTP worker, CLI script, or human nonprofit steward can contribute spare
-          capacity through Tessera. Scoped keys enforce queue boundaries so no single agent can both draft and
-          approve its own kit.
+          capacity through {FABRIC_DISPLAY_NAME}. Scoped keys enforce queue boundaries so no single agent can both
+          draft and approve its own kit.
         </p>
       </section>
 
@@ -20,16 +21,16 @@ export function Contribute() {
         <div className="er-grid">
           <article className="er-card">
             <span className="er-chip er-chip-drafts">1 · MCP Agent (Claude Code, Cursor, Codex, etc.)</span>
-            <h3>Attach Tessera&apos;s MCP server</h3>
+            <h3>Attach {FABRIC_DISPLAY_NAME}&apos;s MCP server</h3>
             <p className="er-muted">
-              Point your agent at Tessera with a scoped volunteer drafter key (<code>queues=[&quot;eq02&quot;]</code>)
-              or reviewer key (<code>queues=[&quot;eq03&quot;]</code>):
+              Point your agent at {FABRIC_DISPLAY_NAME} with a scoped volunteer drafter key (
+              <code>queues=[&quot;eq02&quot;]</code>) or reviewer key (<code>queues=[&quot;eq03&quot;]</code>):
             </p>
             <pre className="er-code">{`{
   "mcpServers": {
     "tessera": {
       "command": "uv",
-      "args": ["run", "tessera", "mcp", "--url", "https://tessera.<domain>"]
+      "args": ["run", "tessera", "mcp", "--url", "${FABRIC_PUBLIC_URL}"]
     }
   }
 }`}</pre>
@@ -42,7 +43,7 @@ export function Contribute() {
               Claim an open build brief from <code>eq02</code>, run <code>uv run eranos verify-examples</code> locally
               to validate schemas and safety boundaries, then submit the canonical bundle with your fencing token:
             </p>
-            <pre className="er-code">{`curl -X POST https://tessera.<domain>/v1/queues/eq02/claim \\
+            <pre className="er-code">{`curl -X POST ${FABRIC_PUBLIC_URL}/v1/queues/eq02/claim \\
   -H "Authorization: Bearer $TESSERA_DRAFTER_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{"worker": "volunteer-agent-01"}'`}</pre>
@@ -52,8 +53,9 @@ export function Contribute() {
             <span className="er-chip er-chip-steward">3 · Human Nonprofit Steward</span>
             <h3>Resume parked sensitive kits</h3>
             <p className="er-muted">
-              Kits on sensitive tracks park on <code>eq03</code> until a nonprofit domain lead signs off via
-              Tessera&apos;s <code>/work</code> form or CLI (Tessera enforces <code>parker ≠ resumer</code>):
+              Kits on sensitive tracks park on <code>eq03</code> until a nonprofit domain lead signs off via{" "}
+              {FABRIC_DISPLAY_NAME}&apos;s <code>/work</code> form or CLI ({FABRIC_DISPLAY_NAME} enforces{" "}
+              <code>parker ≠ resumer</code>):
             </p>
             <pre className="er-code">{`uv run tessera resume <review_task_id> \\
   --input '{"steward":"helpline-lead","notes":"Checked directory dates"}'`}</pre>
@@ -74,13 +76,24 @@ export function Contribute() {
                   <span className="er-chip er-chip-assists">{req.kind}</span>
                   <span className="er-chip er-chip-drafts">{req.effect_class}</span>
                 </div>
-                <h3>{req.goal}</h3>
+                <h3>{req.title}</h3>
                 <p className="er-muted">
-                  <strong>Touch:</strong> <code>{req.touch.join(", ")}</code>
+                  <strong>Done when:</strong> {req.done_when}
                 </p>
-                <p className="er-muted">
-                  <strong>Checks:</strong> <code>{req.checks.join(" && ")}</code>
-                </p>
+                {req.context.length > 0 && (
+                  <p className="er-muted">
+                    <strong>Context:</strong> <code>{req.context.join(", ")}</code>
+                  </p>
+                )}
+                {req.constraints.length > 0 && (
+                  <ul>
+                    {req.constraints.map((c) => (
+                      <li key={c} className="er-muted">
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </article>
             ))}
           </div>
