@@ -150,8 +150,8 @@
   "reviewed_by_key": "key_reviewer_04",
   "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
   "steward_signoff": null,
-  "draft_receipt": "dee15dc3f869f3551739475f37379177522802207b1e19701ab33d38879e3ad5",
-  "review_receipt": "ba645445a9cd48c659e9093838e838ef095d03e34c2db5c263bbf59a1b7cd7e3",
+  "draft_receipt": "2cdaffc4a981f0516b982222abd094ae309a064b2e59213005398b750f6480e9",
+  "review_receipt": "ac8c56f6376383ade1b7dc4bf2a4e3635a61300b453b09b27e3de01c33114e70",
   "blob_sha256": "0d72c85a4c46bf4047e592b28ae54c758d6af70de8b707e57177669a065fde10",
   "catalog_version": 1
 }

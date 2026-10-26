@@ -97,10 +97,10 @@ export function Overview() {
           </article>
           <article className="er-card">
             <span className="er-chip er-chip-assists">{FABRIC_PUBLIC_URL}</span>
-            <h3>{FABRIC_DISPLAY_NAME} · Atomic Work &amp; CAS Fabric</h3>
+            <h3>{FABRIC_DISPLAY_NAME} · Atomic Verbs &amp; Nouns for Swarms</h3>
             <p className="er-muted">
-              Coordinates leased queues (<code>eq01</code>–<code>eq03</code>), fencing tokens, human steward{" "}
-              <code>park</code>/<code>resume</code>, content-addressed blobs, and compare-and-set catalog publication.
+              Organizes everything as a verb (leased tasks on <code>eq01</code>–<code>eq03</code>, claimed once and
+              receipted) or a reusable noun (compare-and-set records and SHA-256 blobs) so swarms pick up work cleanly.
             </p>
           </article>
         </div>

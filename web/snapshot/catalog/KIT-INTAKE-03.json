@@ -140,8 +140,8 @@
   "reviewed_by_key": "key_reviewer_03",
   "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
   "steward_signoff": null,
-  "draft_receipt": "a608459034acd58c2d883848ecb1bae4b750a2142c7564fb2875ac865625ddd2",
-  "review_receipt": "74fcf0cb363b9f5420623db5e77c738bf4bc1c9c2db2b501949beaf27889cfb9",
+  "draft_receipt": "068f954d3f848922f60beb62e3977a2612890e70a3d4b8d1a05c57429c17c059",
+  "review_receipt": "f2b45d065fd7c75a40e51e8f081a451df55385673cb6a950e887349b7ac59410",
   "blob_sha256": "a0b8c68d70579bb0d924d62b9827219c6f9f8fa11722ff189b6e0f99d76eb2db",
   "catalog_version": 1
 }

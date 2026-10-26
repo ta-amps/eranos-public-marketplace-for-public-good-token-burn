@@ -1,7 +1,7 @@
 [project]
 name = "eranos"
 version = "0.1.0"
-description = "Donate unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good."
+description = "Eranos: donate unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "MIT"

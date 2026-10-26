@@ -152,8 +152,8 @@
   "reviewed_by_key": "key_reviewer_05",
   "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
   "steward_signoff": null,
-  "draft_receipt": "6d51ffdc5d8c6e4b7872376c5606258837b8b19b878ef05275385fe6882dd534",
-  "review_receipt": "b99220ffe511ae1b206dd2a77344db3c9e9a1e100d52580c86223af4b60ebe4e",
+  "draft_receipt": "4cff876c62f6fbc2e4f709286cea59a69aa24d683f73ff592f33410c8c42d165",
+  "review_receipt": "2a0ca91cc34ff9c61582876bf62aa15e2aa229cd8ace9454fa2de8693b211711",
   "blob_sha256": "29595d2299d05a3ac174665e9c52b81564f3d9011560a62c1ea0cf53385a4ae2",
   "catalog_version": 1
 }
