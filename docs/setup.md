@@ -3,7 +3,8 @@
 ## Local setup (no cloud accounts needed)
 
 ```bash
-cd ~/meta_hacakthon/eranos
+git clone https://github.com/ta-amps/eranos.git
+cd eranos
 make setup
 make check
 make verify-examples
@@ -15,6 +16,10 @@ Port defaults avoid busy ports (`8000`–`8003`, `8787`, `18080`):
 - **Tessera** local service & edge: `127.0.0.1:7700` / `127.0.0.1:7701`
 - **Shamash** local API & Vite app: `127.0.0.1:7710` / `localhost:5173`
 - **Eranos** local API & Vite app: `127.0.0.1:7720` / `localhost:5174`
+
+Tessera installs automatically from the immutable Git revision in `pyproject.toml` and `uv.lock`.
+A sibling checkout is needed only for the optional `make suite` conformance target or for running a
+separate local Tessera server.
 
 ## Donating unused tokens with your AI agent
 

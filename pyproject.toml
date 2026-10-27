@@ -11,15 +11,11 @@ dependencies = [
   "httpx>=0.27",
   "fastapi>=0.115",
   "uvicorn>=0.30",
-  "tessera[mcp]",
+  "tessera[mcp] @ git+https://github.com/ta-amps/tessera.git@ecca97deb88b82e627df66c98400b3a302e2bdb0",
 ]
 
 [project.scripts]
 eranos = "eranos.cli:main"
-
-[tool.uv.sources]
-# Tessera lives in the sibling repo (github.com/ta-amps/tessera); clone both side by side.
-tessera = { path = "../tessera", editable = true }
 
 [dependency-groups]
 dev = [
@@ -32,6 +28,9 @@ dev = [
 [build-system]
 requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["eranos"]

@@ -442,3 +442,14 @@ body {
   flex-direction: column;
   gap: 12px;
 }
+
+/* Static layout classes keep the strict style-src policy intact. */
+.er-fallback-brand { display: flex; align-items: center; gap: 10px; padding: 12px 16px; }
+.er-mb-12 { margin-bottom: 12px; }
+.er-mb-10 { margin-bottom: 10px; }
+.er-mb-6 { margin-bottom: 6px; }
+.er-mt-12 { margin-top: 12px; }
+.er-mt-10 { margin-top: 10px; }
+.er-mt-auto { margin-top: auto; }
+.er-font-14 { font-size: 14px; }
+.er-fixture-divider { border-top: 1px solid var(--er-border); padding-top: 10px; }

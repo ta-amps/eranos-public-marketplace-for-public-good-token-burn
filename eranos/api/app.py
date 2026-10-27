@@ -14,8 +14,9 @@ from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query, Request, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.middleware.base import RequestResponseEndpoint
+from starlette.middleware.cors import CORSMiddleware
 
 from eranos import __version__, config
 from eranos.adapter import get_adapter
@@ -34,6 +35,10 @@ KIT_ID_RE = re.compile(KIT_ID)
 EDGE_SECRET_ENV = "ERANOS_EDGE_SECRET"  # noqa: S105 - variable name, not a secret
 EDGE_EXEMPT = frozenset(
     {
+        ("GET", "/connect"),
+        ("HEAD", "/connect"),
+        ("GET", "/connect.json"),
+        ("HEAD", "/connect.json"),
         ("GET", "/api/health"),
         ("HEAD", "/api/health"),
         ("GET", "/favicon.svg"),
@@ -238,26 +243,8 @@ def agent_card(request: Request) -> dict[str, Any]:
             "zeroStoragePracticeGate": True,
         },
         "skills": [
-            {
-                "id": "list_tracks",
-                "name": "List Public-Good Tracks",
-                "description": "List NGO and nonprofit build tracks and required human_only boundaries.",
-            },
-            {
-                "id": "search_catalog",
-                "name": "Search Verified Kit Catalog",
-                "description": "Filter two-step verified NGO kits by domain, track, tag, cohort, SPDX license, or query.",
-            },
-            {
-                "id": "get_kit",
-                "name": "Get Verified Kit Bundle",
-                "description": "Fetch a full PublishedKit including skills, read-only MCP schemas, checklists, fixtures, and receipts.",
-            },
-            {
-                "id": "practice_verify_kit",
-                "name": "Zero-Storage Practice Verifier",
-                "description": "Run deterministic boundary, copy, SPDX, and fixture verification in memory (persisted: false).",
-            },
+            {"id": tool["name"], "name": tool["name"], "description": tool["description"]}
+            for tool in MCP_TOOLS
         ],
     }
 
@@ -355,12 +342,12 @@ def catalog(
 
 
 @app.get("/api/catalog/{kit_id}")
-def catalog_item(kit_id: str) -> dict[str, Any]:
+def catalog_item(kit_id: str, cohort: str | None = Query(default=None)) -> dict[str, Any]:
     if not KIT_ID_RE.match(kit_id):
         raise HTTPException(status_code=400, detail="invalid kit id")
     backend = get_adapter()
     try:
-        found = get_published_kit(backend, kit_id)
+        found = get_published_kit(backend, kit_id, public=True, cohort=cohort)
     finally:
         backend.close()
     if found is None:
@@ -513,7 +500,7 @@ def _execute_mcp_tool(tool_name: str, arguments: dict[str, Any]) -> tuple[dict[s
             return {"error": "invalid kit id", "kit_id": kit_id}, True
         backend = get_adapter()
         try:
-            found = get_published_kit(backend, kit_id)
+            found = get_published_kit(backend, kit_id, public=True, cohort=arguments.get("cohort"))
         finally:
             backend.close()
         if found is None:
@@ -609,3 +596,30 @@ async def mcp_jsonrpc(request: Request) -> JSONResponse:
         )
 
     return _jsonrpc_error(req_id, -32601, f"Method not found: {method}")
+
+
+@app.get("/connect.json")
+def connect_info() -> dict[str, Any]:
+    return {
+        "surface": "eranos",
+        "fabric_connect_url": "https://tessera.ta-amps.workers.dev/connect",
+        "surface_persistence": False,
+        "authentication": "Public reads and practice are open. Tracked noun/verb work uses a Tessera anonymous session or API key.",
+        "practice_persisted": False,
+    }
+
+
+@app.get("/connect", response_class=HTMLResponse)
+def connect_page() -> str:
+    return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect</title><h1>Connect to eranos</h1><p>Public tools require no key. Use Tessera for tracked work.</p><p><a href="https://tessera.ta-amps.workers.dev/connect">Get an anonymous demo session</a></p><p><a href="https://tessera.ta-amps.workers.dev/connect">Create or use an API key</a></p><a href="/connect.json">Machine-readable access modes</a></html>'
+
+
+# CORS is outermost so preflight needs no origin authentication; actual requests retain it.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "HEAD", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "If-Match", "X-Request-Id", "X-Agent-Label"],
+    expose_headers=["ETag", "Retry-After", "X-Request-Id"],
+)

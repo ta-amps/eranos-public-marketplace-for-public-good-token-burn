@@ -1,3 +1,6 @@
+import kitSchema from "./kit-draft.schema.json" with { type: "json" };
+import { schemaIssues } from "./schema.js";
+import { accessResponse, accessDescriptor, CORS_HEADERS } from "./access.js";
 // Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback), intercepts
 // AI-agent discovery endpoints (/favicon.svg, /healthz, /robots.txt, /llms.txt, /llms-full.txt,
 // /.well-known/agent-card.json, POST /mcp) before SPA fallback, and serves /api/* natively 24/7 from
@@ -67,6 +70,7 @@ Allow: /.well-known/agent-card.json
 
 const FALLBACK_LLMS_TXT = `# Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs
 
+- /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
 > Public-good NGO volunteer agent tooling foundry running on Tessera (eq01 -> eq02 -> eq03 -> eranos.catalog).
 
 ## Discovery & API
@@ -222,7 +226,7 @@ const MCP_TOOLS = [
     inputSchema: {
       type: "object",
       required: ["kit_id"],
-      properties: { kit_id: { type: "string" } },
+      properties: { kit_id: { type: "string" }, cohort: { type: "string" } },
       additionalProperties: false,
     },
     annotations: { readOnlyHint: true },
@@ -242,7 +246,7 @@ const MCP_TOOLS = [
     },
     annotations: { readOnlyHint: true },
   },
-];
+].map((tool) => ({...tool, description: "Public tool; no API key required. " + tool.description}));
 
 const HOP_BY_HOP = [
   "connection",
@@ -289,7 +293,8 @@ function stripHopByHop(headers) {
 function finish(response, method) {
   const out = new Response(method === "HEAD" ? null : response.body, response);
   stripHopByHop(out.headers);
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) out.headers.set(name, value);
+  for (const [name, value] of Object.entries({...SECURITY_HEADERS, ...CORS_HEADERS})) out.headers.set(name, value);
+  out.headers.set("x-request-id", crypto.randomUUID());
   if (method !== "GET" && method !== "HEAD") out.headers.set("cache-control", "no-store");
   return out;
 }
@@ -319,7 +324,7 @@ async function getHeadRecord(db, store, key) {
   if (!db) return null;
   const row = await db
     .prepare(
-      "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.key = ?"
+      "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.key = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') AND (h.store != 'eranos.catalog' OR EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:verified'))"
     )
     .bind(store, key)
     .first();
@@ -330,7 +335,7 @@ async function listHeadRecords(db, store) {
   if (!db) return [];
   const res = await db
     .prepare(
-      "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? ORDER BY h.key"
+      "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') AND (h.store != 'eranos.catalog' OR EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:verified')) ORDER BY h.key"
     )
     .bind(store)
     .all();
@@ -388,7 +393,7 @@ async function loadRequestsPayload(request, env) {
 async function loadRawCatalogList(request, env) {
   if (env && env.FABRIC_DB) {
     const fromDb = await listHeadRecords(env.FABRIC_DB, "eranos.catalog");
-    if (fromDb.length > 0) return fromDb;
+    return fromDb;
   }
   const snap = await fetchAssetJson(request, env, "/snapshot/catalog.json");
   if (snap && Array.isArray(snap.kits)) return snap.kits;
@@ -398,12 +403,12 @@ async function loadRawCatalogList(request, env) {
 function isQuarantinedRecord(entry) {
   if (!entry || typeof entry !== "object") return true;
   const kit = entry.kit && typeof entry.kit === "object" ? entry.kit : {};
-  if (entry.visibility_scope === "surface_only" || kit.visibility_scope === "surface_only") return true;
+  if (entry.visibility_scope !== "public_commons" || (kit.visibility_scope && kit.visibility_scope !== "public_commons")) return true;
   const allTags = [
     ...(Array.isArray(entry.tags) ? entry.tags : []),
     ...(Array.isArray(kit.tags) ? kit.tags : []),
   ];
-  return allTags.some((t) => String(t).trim().toLowerCase() === "status:quarantined");
+  return !allTags.includes("status:verified") || allTags.some((t) => String(t).trim().toLowerCase() === "status:quarantined");
 }
 
 function filterCatalogKits(entries, searchParams) {
@@ -570,7 +575,7 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
   const payloadTrackId = String(raw.track_id || "").trim();
   const effectiveTrackId = String(explicitTrackId || payloadTrackId).trim();
 
-  const issues = [];
+  const issues = schemaIssues(raw, kitSchema);
   const addIssue = (msg) => {
     if (!issues.includes(msg)) issues.push(msg);
   };
@@ -585,6 +590,11 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
     );
   }
 
+  if (raw.visibility_scope === "allowlist_surfaces" && (!Array.isArray(raw.allowed_surfaces) || !raw.allowed_surfaces.length)) addIssue("allowlist_surfaces requires allowed_surfaces");
+  if (Array.isArray(raw.target_cohorts) && (!raw.target_cohorts.length || raw.target_cohorts.some((c) => !/^[a-z0-9][a-z0-9_:-]{1,63}$/.test(String(c).trim().toLowerCase())))) addIssue("invalid target_cohorts");
+  if (raw.producer_surface && !/^surface:[a-z0-9][a-z0-9_-]{1,39}$/.test(raw.producer_surface)) addIssue("invalid producer_surface");
+  if (Array.isArray(raw.allowed_surfaces) && raw.allowed_surfaces.some((s) => !/^surface:[a-z0-9][a-z0-9_-]{1,39}$/.test(s))) addIssue("invalid allowed_surfaces");
+  if (Array.isArray(raw.tags) && raw.tags.some((t) => !/^[a-z0-9][a-z0-9_.-]{0,31}:[A-Za-z0-9][A-Za-z0-9_./-]{0,63}$/.test(String(t).trim()))) addIssue("invalid tags");
   const allStrings = collectStrings(raw);
   const badWords = new Set();
   const badTopics = new Set();
@@ -730,7 +740,7 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
   };
 }
 
-function buildAgentCard(request) {
+function buildStaticAgentCard(request) {
   const origin = new URL(request.url).origin;
   return {
     schema_version: "1.0",
@@ -754,6 +764,7 @@ function buildAgentCard(request) {
       llms: "/llms.txt",
       llms_full: "/llms-full.txt",
     },
+    access: accessDescriptor("eranos"),
     capabilities: {
       streaming: false,
       pushNotifications: false,
@@ -785,17 +796,27 @@ function buildAgentCard(request) {
   };
 }
 
+function buildAgentCard(request) {
+  const card = buildStaticAgentCard(request);
+  card.skills = MCP_TOOLS.map((tool) => ({id: tool.name, name: tool.name, description: tool.description}));
+  card.access = accessDescriptor("eranos");
+  return card;
+}
+
 function jsonRpcError(id, code, message, status = 200) {
   return jsonResp({ jsonrpc: "2.0", id: id ?? null, error: { code, message } }, status);
 }
 
-async function lookupSingleKit(request, env, kitId) {
+async function lookupSingleKit(request, env, kitId, cohort = null) {
+  const filters = new URL(request.url).searchParams;
+  if (cohort) filters.set("cohort", cohort);
+  const visible = (entry) => entry && filterCatalogKits([entry], filters).length === 1;
   if (env && env.FABRIC_DB) {
     const found = await getHeadRecord(env.FABRIC_DB, "eranos.catalog", kitId);
-    if (found) return isQuarantinedRecord(found) ? null : found;
+    return visible(found) ? found : null;
   }
   const snapItem = await fetchAssetJson(request, env, `/snapshot/catalog/${encodeURIComponent(kitId)}.json`);
-  if (snapItem && !isQuarantinedRecord(snapItem)) return snapItem;
+  if (visible(snapItem)) return snapItem;
   return null;
 }
 
@@ -899,7 +920,7 @@ async function handleMcp(request, env) {
           },
         });
       }
-      const found = await lookupSingleKit(request, env, kitId);
+      const found = await lookupSingleKit(request, env, kitId, args.cohort);
       if (!found) {
         const errPayload = { error: `kit ${kitId} is not in the catalog`, kit_id: kitId };
         return jsonResp({
@@ -1228,11 +1249,11 @@ async function handleDiscoveryRoute(request, env, pathname) {
     }
     if (pathname === "/llms.txt") {
       const fromAsset = await fetchAssetText(request, env, "/llms.txt");
-      return textResp(fromAsset || FALLBACK_LLMS_TXT, "text/plain; charset=utf-8");
+      return textResp((fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.ta-amps.workers.dev/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
       const fromAsset = await fetchAssetText(request, env, "/llms-full.txt");
-      return textResp(fromAsset || FALLBACK_LLMS_FULL_TXT, "text/plain; charset=utf-8");
+      return textResp((fromAsset || FALLBACK_LLMS_FULL_TXT) + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/.well-known/agent-card.json") {
       return jsonResp(buildAgentCard(request));
@@ -1243,6 +1264,8 @@ async function handleDiscoveryRoute(request, env, pathname) {
 
 export default {
   async fetch(request, env = {}) {
+    const access = accessResponse(request, "eranos");
+    if (access) return finish(access, request.method);
     const { pathname } = new URL(request.url);
     let response = await handleDiscoveryRoute(request, env, pathname);
     if (!response) {

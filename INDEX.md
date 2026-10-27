@@ -43,23 +43,27 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [briefs/E3.json](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [briefs/E4.json](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (8)
+## deploy/ (11)
 
 | File | What it is |
 |---|---|
 | [deploy/README.md](deploy/README.md) | Hosting Eranos |
 | [deploy/bootstrap-hosting.sh](deploy/bootstrap-hosting.sh) | One-time hosting setup for one service on Fly.io behind a Cloudflare Worker: the Fly app and its |
 | [deploy/cloudflare/README.md](deploy/cloudflare/README.md) | Cloudflare: the Eranos edge |
-| [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) | Cloudflare Cloud Worker for Eranos. |
+| [deploy/cloudflare/access.js](deploy/cloudflare/access.js) | Public browser-agent access uses bearer headers, never cookies. |
+| [deploy/cloudflare/kit-draft.schema.json](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
+| [deploy/cloudflare/schema.js](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
+| [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) |  |
 | [deploy/cloudflare/wrangler.jsonc](deploy/cloudflare/wrangler.jsonc) | Eranos Cloud Worker: serves the React web app plus native 24/7 /api/ endpoints backed by |
 | [deploy/fly/Dockerfile](deploy/fly/Dockerfile) | Build from the workspace root so both tessera and eranos are in the build context. |
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
 
-## docs/ (12)
+## docs/ (13)
 
 | File | What it is |
 |---|---|
+| [docs/access-modes.md](docs/access-modes.md) | External agent access |
 | [docs/architecture.md](docs/architecture.md) | Eranos: architecture |
 | [docs/comparison.md](docs/comparison.md) | Comparison |
 | [docs/decisions.md](docs/decisions.md) | Decisions and Glossary |
@@ -73,7 +77,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
 | [docs/summary.md](docs/summary.md) | Summary |
 
-## eranos/ (22)
+## eranos/ (23)
 
 | File | What it is |
 |---|---|
@@ -91,6 +95,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/jsonfile.py](eranos/jsonfile.py) | Strict JSON loader: rejects repeated object keys and NaN/Infinity so track and kit files stay unambiguous. |
 | [eranos/log.py](eranos/log.py) | Structured JSON Lines run logger (ts, level, event, taskid, kitid, queue, leaseid, costusd). |
 | [eranos/pipeline/__init__.py](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
+| [eranos/pipeline/publication.py](eranos/pipeline/publication.py) | Durable review intent, independent proof and retryable catalog publication. |
 | [eranos/pipeline/run.py](eranos/pipeline/run.py) | Two-step volunteer agent pipeline on Tessera (eq01 spec -> eq02 draft -> eq03 review -> CAS catalog). |
 | [eranos/queues/__init__.py](eranos/queues/__init__.py) | Queue specifications for Eranos. |
 | [eranos/queues/stages.py](eranos/queues/stages.py) | Queue definitions for Eranos's volunteer pipeline on Tessera (eq01, eq02, eq03). |
@@ -111,22 +116,25 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/kits/05-volunteer-shift-sop-pack.json](examples/kits/05-volunteer-shift-sop-pack.json) | JSON object: request, draft, review |
 | [examples/kits/README.md](examples/kits/README.md) | Synthetic Example Kit Bundles |
 
-## scripts/ (3)
+## scripts/ (4)
 
 | File | What it is |
 |---|---|
 | [scripts/build_index.py](scripts/build_index.py) | Build this repo's indexes from its own files. |
 | [scripts/check_architecture.py](scripts/check_architecture.py) | Check that architecture.json still describes this repo truthfully. |
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
+| [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (6)
+## tests/ (8)
 
 | File | What it is |
 |---|---|
+| [tests/test_agent_access.py](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
 | [tests/test_api_and_edge.py](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
+| [tests/test_review_contract.py](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
 | [tests/test_schemas_and_copy.py](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
 | [tests/test_tracks_and_verifier.py](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
 
@@ -142,7 +150,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/job-recruitment-triage/track.json](tracks/job-recruitment-triage/track.json) | Cross-Border Job Offer & Fee-Shift Intake Kits |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (52)
+## web/ (53)
 
 | File | What it is |
 |---|---|
@@ -195,6 +203,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/styles/app.css](web/src/styles/app.css) |  |
 | [web/src/styles/tokens.css](web/src/styles/tokens.css) |  |
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
+| [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
 | [web/tests/shell.spec.ts](web/tests/shell.spec.ts) |  |
 | [web/tsconfig.json](web/tsconfig.json) | JSON object: compilerOptions, include |
 | [web/vite.config.ts](web/vite.config.ts) |  |

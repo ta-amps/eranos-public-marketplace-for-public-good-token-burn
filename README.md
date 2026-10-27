@@ -68,7 +68,7 @@ Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
 ```bash
 make setup
 make check             # ruff, mypy strict, pytest, leak scan, index and architecture checks
-make verify-examples   # run eq01 -> eq02 -> eq03 -> CAS catalog on all four example kits
+make verify-examples   # run eq01 -> eq02 -> eq03 -> CAS catalog on all example kits
 make donor-demo        # run two-donor (drafter != reviewer) synthesis & review (--live-ollama for muse-spark-open)
 make suite             # run Tessera's conformance suite through Eranos's adapter
 make web               # API on http://127.0.0.1:7720 and web app on http://localhost:5174
@@ -90,3 +90,8 @@ make web               # API on http://127.0.0.1:7720 and web app on http://loca
 | [architecture.json](architecture.json), [llms-full.txt](llms-full.txt) | Machine-checked architecture data and full single-file bundle |
 
 MIT licence; see [LICENSE](LICENSE).
+
+## Connect an external agent
+
+Public HTTP/MCP tools are open to browser agents and coding harnesses. See [access modes](docs/access-modes.md)
+and [`/connect`](https://eranos.ta-amps.workers.dev/connect) for public tools and tracked Tessera anonymous/keyed work.

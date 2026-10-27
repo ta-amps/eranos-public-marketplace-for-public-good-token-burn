@@ -25,3 +25,10 @@ Cloudflare zone:
 `EDGE_SECRET` on the Worker and `ERANOS_EDGE_SECRET` on the Fly.io app hold the same random 32-byte hex
 secret set by `deploy/bootstrap-hosting.sh`. Direct requests to `eranos-api.fly.dev` without matching
 `x-edge-auth` receive HTTP 403, except `GET /api/health` for Fly health checks.
+
+## Theme and CSP
+
+The web entry point imports the Astryx neutral `built` theme and `theme.css`. Theme CSS and layout
+styles are served as static assets; runtime style injection is disabled. Keep `style-src 'self'` and
+move layout changes into CSS classes. `web/tests/csp.spec.ts` runs the production bundle under this
+Worker's CSP at desktop and mobile sizes and checks applied theme tokens, violations, and overflow.

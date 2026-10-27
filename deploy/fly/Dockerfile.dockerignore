@@ -1,9 +1,4 @@
 *
-!tessera/pyproject.toml
-!tessera/uv.lock
-!tessera/README.md
-!tessera/LICENSE
-!tessera/src/**
 !eranos/pyproject.toml
 !eranos/uv.lock
 !eranos/README.md

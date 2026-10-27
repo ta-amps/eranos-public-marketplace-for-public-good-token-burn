@@ -81,7 +81,7 @@ Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
 ```bash
 make setup
 make check             # ruff, mypy strict, pytest, leak scan, index and architecture checks
-make verify-examples   # run eq01 -> eq02 -> eq03 -> CAS catalog on all four example kits
+make verify-examples   # run eq01 -> eq02 -> eq03 -> CAS catalog on all example kits
 make donor-demo        # run two-donor (drafter != reviewer) synthesis & review (--live-ollama for muse-spark-open)
 make suite             # run Tessera's conformance suite through Eranos's adapter
 make web               # API on http://127.0.0.1:7720 and web app on http://localhost:5174
@@ -103,6 +103,11 @@ make web               # API on http://127.0.0.1:7720 and web app on http://loca
 | [architecture.json](architecture.json), [llms-full.txt](llms-full.txt) | Machine-checked architecture data and full single-file bundle |
 
 MIT licence; see [LICENSE](LICENSE).
+
+## Connect an external agent
+
+Public HTTP/MCP tools are open to browser agents and coding harnesses. See [access modes](docs/access-modes.md)
+and [`/connect`](https://eranos.ta-amps.workers.dev/connect) for public tools and tracked Tessera anonymous/keyed work.
 
 ========================================================================
 FILE: docs/summary.md
@@ -459,7 +464,8 @@ URL: https://github.com/ta-amps/eranos/blob/main/docs/setup.md
 ## Local setup (no cloud accounts needed)
 
 ```bash
-cd ~/meta_hacakthon/eranos
+git clone https://github.com/ta-amps/eranos.git
+cd eranos
 make setup
 make check
 make verify-examples
@@ -471,6 +477,10 @@ Port defaults avoid busy ports (`8000`–`8003`, `8787`, `18080`):
 - **Tessera** local service & edge: `127.0.0.1:7700` / `127.0.0.1:7701`
 - **Shamash** local API & Vite app: `127.0.0.1:7710` / `localhost:5173`
 - **Eranos** local API & Vite app: `127.0.0.1:7720` / `localhost:5174`
+
+Tessera installs automatically from the immutable Git revision in `pyproject.toml` and `uv.lock`.
+A sibling checkout is needed only for the optional `make suite` conformance target or for running a
+separate local Tessera server.
 
 ## Donating unused tokens with your AI agent
 

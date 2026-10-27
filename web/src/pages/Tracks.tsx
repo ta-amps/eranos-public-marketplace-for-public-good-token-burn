@@ -30,7 +30,7 @@ export function Tracks() {
                 <h2>{track.title}</h2>
                 <p className="er-muted">{track.summary}</p>
                 <div>
-                  <strong style={{ fontSize: 14 }}>Organizations served:</strong>
+                  <strong  className="er-font-14">Organizations served:</strong>
                   <ul>
                     {track.organizations.map((org) => (
                       <li key={org.org_type} className="er-muted">
@@ -47,7 +47,7 @@ export function Tracks() {
                   <code>{track.required_human_only.join(", ")}</code>
                 </p>
                 <div>
-                  <strong style={{ fontSize: 14 }}>Lines never crossed:</strong>
+                  <strong  className="er-font-14">Lines never crossed:</strong>
                   <ul>
                     {track.never.map((rule) => (
                       <li key={rule} className="er-muted">
