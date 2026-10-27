@@ -25,9 +25,10 @@ export function Fabric() {
               <article key={q.name} className="er-card">
                 <div className="er-chip-row">
                   <span className="er-chip er-chip-assists">{q.name}</span>
+                  {q.label && <span className="er-chip er-chip-drafts">{q.label}</span>}
                   <span className="er-chip er-chip-neutral">Mode: {fabricState.data.plan}</span>
                 </div>
-                <h2>Queue {q.name}</h2>
+                <h2>{q.label ? `${q.name} · ${q.label}` : `Queue ${q.name}`}</h2>
                 <dl className="er-dl">
                   <div>
                     <dt>Ready</dt>

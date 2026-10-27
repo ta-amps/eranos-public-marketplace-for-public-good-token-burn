@@ -40,6 +40,12 @@ STAGES: tuple[StageSpec, ...] = (
     ),
 )
 
+QUEUE_LABELS: tuple[tuple[str, str], ...] = (
+    ("eq01", "Scope"),
+    ("eq02", "Draft + verify"),
+    ("eq03", "Independent review"),
+)
+
 QUEUE_CONFIGS: tuple[QueueConfig, ...] = (
     QueueConfig(name="eq01", lease_seconds=600, heartbeat_seconds=60, miss_limit=3),
     QueueConfig(name="eq02", lease_seconds=1800, heartbeat_seconds=60, miss_limit=3),

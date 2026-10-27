@@ -35,6 +35,7 @@ for (const viewport of VIEWPORTS) {
 
         const text = await page.locator("body").innerText();
         expect(findBannedWords(text)).toEqual([]);
+        expect(text).not.toContain("<domain>");
         expect(offOrigin).toEqual([]);
 
         const scan = await new AxeBuilder({ page }).analyze();

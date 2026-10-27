@@ -147,8 +147,8 @@
   "reviewed_by_key": "key_reviewer_02",
   "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
   "steward_signoff": "helpline-steward-lead",
-  "draft_receipt": "f97b8229c88e2869074d977bcc67c8b02882872567f231413388fb90a7efd8b9",
-  "review_receipt": "e736654e0d585d339265bcd1778753cc60ba2235a5d8bf9b6a6013f0c4025eac",
+  "draft_receipt": "be3d6448091e763c9026e3f323cc502c6bf40b5852e871aa8c741bc44e381cec",
+  "review_receipt": "4d884ff0a0944e6b3daeeaf477485f00e15147e2b65e6f8b12643e113fb96f31",
   "blob_sha256": "fdcf95dd94c5712ff2eca52c2bbe2ed5d9f9d186e0d39cf782c40fb6d67d337f",
   "catalog_version": 1
 }

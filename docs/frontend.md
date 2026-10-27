@@ -25,11 +25,13 @@ every route except `GET /api/health` requires a matching `x-edge-auth` header fr
 | Endpoint | Returns |
 |---|---|
 | `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and `synthetic: true` |
+| `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
 | `GET /api/tracks` | All six `TrackPack` definitions loaded from `tracks/*/track.json` |
 | `GET /api/catalog` | Summary list of verified `PublishedKit` entries from CAS store `eranos.catalog` (or `web/snapshot` fallback) |
 | `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown) |
 | `GET /api/requests` | Validated volunteer task briefs from `briefs/*.json` |
-| `GET /api/fabric` | Stage definitions (`eq01`, `eq02`, `eq03`) and queue task counts |
+| `GET /api/fabric` | Deterministic `eq01`, `eq02`, `eq03` queue labels and task counts |
+| `GET /api/feed` | Live `noun.promotions` delta feed (`after`, `limit`) from Tessera or empty synthetic cursor fallback |
 
 ## Offline snapshot mode (`VITE_SNAPSHOT=1`)
 

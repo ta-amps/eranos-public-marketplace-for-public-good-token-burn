@@ -1,6 +1,6 @@
 // Eranos Cloud Worker: serves the React web app plus native 24/7 `/api/*` endpoints backed by
-// Cloudflare D1 (`ta-amps-fabric`) and `tessera` Cloud Service Binding (`env.TESSERA`), with
-// optional `STORAGE_MODE = "origin"` reverse-proxy fallback.
+// Cloudflare D1 (`ta-amps-fabric`) and `tessera` + `herma` Cloud Service Bindings (`env.TESSERA`,
+// `env.HERMA`), with optional `STORAGE_MODE = "origin"` reverse-proxy fallback.
 {
   "name": "eranos",
   "main": "worker.js",
@@ -25,6 +25,10 @@
     {
       "binding": "TESSERA",
       "service": "tessera"
+    },
+    {
+      "binding": "HERMA",
+      "service": "herma"
     }
   ],
   "vars": {

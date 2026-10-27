@@ -11,14 +11,15 @@ import re
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request, Response
+import httpx
+from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import RequestResponseEndpoint
 
 from eranos import __version__, config
 from eranos.adapter import get_adapter
 from eranos.pipeline import ensure_queues, get_published_kit, list_published_kits
-from eranos.queues import STAGES
+from eranos.queues import QUEUE_LABELS, STAGES
 from eranos.schemas import KIT_ID, TaskBrief
 from eranos.tracks import load_tracks
 
@@ -59,6 +60,48 @@ def health() -> dict[str, Any]:
         "version": __version__,
         "backend": config.backend_name(),
     }
+
+
+@app.get("/api/handshake")
+def handshake() -> dict[str, Any]:
+    fallback: dict[str, Any] = {
+        "synthetic": True,
+        "surface_id": "eranos",
+        "protocol_version": "1.0",
+        "backend": config.backend_name(),
+        "isolated_store_prefix": "eranos.",
+        "transactional_db_exempt_from_middleware": True,
+    }
+    tessera_url = os.environ.get("TESSERA_URL", "").strip().rstrip("/")
+    tessera_token = os.environ.get("TESSERA_TOKEN", "").strip()
+    if not (tessera_url and tessera_token):
+        return fallback
+    payload: dict[str, Any] = {
+        "protocol_version": "1.0",
+        "surface_id": "eranos",
+        "surface_version": __version__,
+        "requested_max_chars": 4000,
+        "requested_queues": ["eq01", "eq02", "eq03"],
+        "requested_stores": ["eranos.catalog", "eranos.index", "eranos.meta"],
+    }
+    headers = {
+        "Authorization": f"Bearer {tessera_token}",
+        "X-Surface-Id": "eranos",
+    }
+    try:
+        resp = httpx.post(
+            f"{tessera_url}/v1/handshake",
+            json=payload,
+            headers=headers,
+            timeout=5.0,
+        )
+        if resp.is_success:
+            upstream = resp.json()
+            if isinstance(upstream, dict):
+                return {"synthetic": True, **upstream}
+    except httpx.HTTPError:
+        pass
+    return {**fallback, "degraded": True}
 
 
 @app.get("/api/tracks")
@@ -129,12 +172,46 @@ def fabric() -> dict[str, Any]:
         counts = backend.counts()
     finally:
         backend.close()
-    eranos_queues = {"eq01", "eq02", "eq03"}
     return {
         "display_name": config.fabric_display_name(),
         "plan": config.backend_name(),
         "synthetic": True,
         "queues": [
-            {"name": name, **c.model_dump()} for name, c in counts.items() if name in eranos_queues
+            {"name": name, "label": label, **counts[name].model_dump()}
+            for name, label in QUEUE_LABELS
+            if name in counts
         ],
     }
+
+
+@app.get("/api/feed")
+def feed(
+    after: int = Query(default=0, ge=0),
+    limit: int = Query(default=20, ge=1, le=200),
+) -> dict[str, Any]:
+    fallback: dict[str, Any] = {
+        "synthetic": True,
+        "feed": "noun.promotions",
+        "entries": [],
+        "next_cursor": after,
+    }
+    tessera_url = os.environ.get("TESSERA_URL", "").strip().rstrip("/")
+    if not tessera_url:
+        return fallback
+    tessera_token = (os.environ.get("TESSERA_TOKEN") or os.environ.get("TESSERA_KEY") or "").strip()
+    headers: dict[str, str] = {"X-Surface-Id": "eranos"}
+    if tessera_token:
+        headers["Authorization"] = f"Bearer {tessera_token}"
+    try:
+        resp = httpx.get(
+            f"{tessera_url}/v1/feeds/noun.promotions?after={after}&limit={limit}",
+            headers=headers,
+            timeout=5.0,
+        )
+        if resp.is_success:
+            upstream = resp.json()
+            if isinstance(upstream, dict):
+                return {"synthetic": True, **upstream}
+    except httpx.HTTPError:
+        pass
+    return {**fallback, "degraded": True}

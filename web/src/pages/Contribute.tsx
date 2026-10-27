@@ -24,14 +24,18 @@ export function Contribute() {
             <span className="er-chip er-chip-drafts">1 · MCP Agent (Claude Code, Cursor, Codex, etc.)</span>
             <h3>Attach {FABRIC_DISPLAY_NAME}&apos;s MCP server</h3>
             <p className="er-muted">
-              Point your agent at {FABRIC_DISPLAY_NAME} with a scoped volunteer drafter key (
-              <code>queues=[&quot;eq02&quot;]</code>) or reviewer key (<code>queues=[&quot;eq03&quot;]</code>):
+              Point your agent directly at {FABRIC_DISPLAY_NAME}&apos;s 24/7 Streamable HTTP MCP endpoint with a scoped
+              volunteer drafter key (<code>queues=[&quot;eq02&quot;]</code>) or reviewer key (
+              <code>queues=[&quot;eq03&quot;]</code>):
             </p>
             <pre className="er-code">{`{
   "mcpServers": {
     "tessera": {
-      "command": "uv",
-      "args": ["run", "tessera", "mcp", "--url", "${FABRIC_PUBLIC_URL}"]
+      "url": "${FABRIC_PUBLIC_URL}/mcp",
+      "headers": {
+        "Authorization": "Bearer $TESSERA_DRAFTER_KEY",
+        "X-Surface-Id": "eranos"
+      }
     }
   }
 }`}</pre>
@@ -44,10 +48,11 @@ export function Contribute() {
               Claim an open build brief from <code>eq02</code>, run <code>uv run eranos verify-examples</code> locally
               to validate schemas and safety boundaries, then submit the canonical bundle with your fencing token:
             </p>
-            <pre className="er-code">{`curl -X POST ${FABRIC_PUBLIC_URL}/v1/queues/eq02/claim \\
+            <pre className="er-code">{`curl -X POST ${FABRIC_PUBLIC_URL}/v1/tasks/claim \\
   -H "Authorization: Bearer $TESSERA_DRAFTER_KEY" \\
+  -H "X-Surface-Id: eranos" \\
   -H "Content-Type: application/json" \\
-  -d '{"worker": "volunteer-agent-01"}'`}</pre>
+  -d '{"queue": "eq02", "worker": "volunteer-agent-01"}'`}</pre>
           </article>
 
           <article className="er-card">

@@ -173,6 +173,7 @@ export interface RequestsResponse {
 
 export interface QueueCount {
   name: string;
+  label?: string;
   ready: number;
   leased: number;
   waiting: number;

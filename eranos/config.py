@@ -33,7 +33,7 @@ def surface_display_name() -> str:
 
 
 def surface_public_url() -> str:
-    return os.environ.get(PUBLIC_URL_ENV, "https://eranos.<domain>")
+    return os.environ.get(PUBLIC_URL_ENV, "https://eranos.ta-amps.workers.dev")
 
 
 def sibling_detection_name() -> str:
@@ -41,11 +41,11 @@ def sibling_detection_name() -> str:
 
 
 def sibling_detection_url() -> str:
-    return os.environ.get(SIBLING_DETECTION_URL_ENV, "https://shamash.<domain>")
+    return os.environ.get(SIBLING_DETECTION_URL_ENV, "https://shamash.ta-amps.workers.dev")
 
 
 def public_tessera_url() -> str:
-    return os.environ.get(PUBLIC_TESSERA_URL_ENV, "https://tessera.<domain>")
+    return os.environ.get(PUBLIC_TESSERA_URL_ENV, "https://tessera.ta-amps.workers.dev")
 
 
 def trace_path() -> str:

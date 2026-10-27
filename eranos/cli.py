@@ -24,7 +24,7 @@ from eranos.pipeline import (
     run_spec_step,
     submit_kit_request,
 )
-from eranos.queues import STAGES
+from eranos.queues import QUEUE_LABELS, STAGES
 from eranos.schemas import KitRequest, ReviewDecision, TaskBrief
 from eranos.tracks import load_tracks
 
@@ -183,9 +183,9 @@ def cmd_export_snapshot(target: Path) -> int:
         "plan": "snapshot",
         "synthetic": True,
         "queues": [
-            {"name": name, **c.model_dump()}
-            for name, c in counts.items()
-            if name in {"eq01", "eq02", "eq03"}
+            {"name": name, "label": label, **counts[name].model_dump()}
+            for name, label in QUEUE_LABELS
+            if name in counts
         ],
     }
 

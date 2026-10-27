@@ -279,11 +279,13 @@
       "auth": "None locally; locked to Cloudflare Worker via x-edge-auth when ERANOS_EDGE_SECRET is set",
       "entry_points": [
         "GET /api/health",
+        "GET /api/handshake",
         "GET /api/tracks",
         "GET /api/catalog",
         "GET /api/catalog/{kit_id}",
         "GET /api/requests",
-        "GET /api/fabric"
+        "GET /api/fabric",
+        "GET /api/feed"
       ]
     },
     {

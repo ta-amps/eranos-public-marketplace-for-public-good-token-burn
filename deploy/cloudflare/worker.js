@@ -5,7 +5,19 @@
 const DEFAULT_API_ORIGIN = "https://eranos-api.fly.dev";
 const ERANOS_VERSION = "0.1.0";
 const KIT_ID_RE = /^KIT-[A-Z0-9][A-Z0-9-]{1,46}$/;
-const ERANOS_QUEUES = new Set(["eq01", "eq02", "eq03"]);
+const ERANOS_QUEUE_LABELS = [
+  ["eq01", "Scope"],
+  ["eq02", "Draft + verify"],
+  ["eq03", "Independent review"],
+];
+const ZERO_QUEUE_COUNTS = {
+  ready: 0,
+  leased: 0,
+  waiting: 0,
+  done: 0,
+  dead: 0,
+  cancelled: 0,
+};
 
 const HOP_BY_HOP = [
   "connection",
@@ -108,6 +120,81 @@ async function handleCloudApi(request, env, pathname) {
     });
   }
 
+  if (pathname === "/api/handshake") {
+    const fallbackHandshake = {
+      synthetic: true,
+      surface_id: "eranos",
+      protocol_version: "1.0",
+      backend: "tessera-cloud",
+      isolated_store_prefix: "eranos.",
+      transactional_db_exempt_from_middleware: true,
+    };
+    const handshakeBody = JSON.stringify({
+      protocol_version: "1.0",
+      surface_id: "eranos",
+      surface_version: ERANOS_VERSION,
+      requested_max_chars: 4000,
+      requested_queues: ["eq01", "eq02", "eq03"],
+      requested_stores: ["eranos.catalog", "eranos.index", "eranos.meta"],
+    });
+
+    let tesseraHandshake = null;
+    if (env.TESSERA) {
+      try {
+        const tHeaders = {
+          "Content-Type": "application/json",
+          "X-Surface-Id": "eranos",
+        };
+        if (env.TESSERA_SURFACE_KEY) {
+          tHeaders["Authorization"] = `Bearer ${env.TESSERA_SURFACE_KEY}`;
+        }
+        const tResp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/handshake", {
+          method: "POST",
+          headers: tHeaders,
+          body: handshakeBody,
+        });
+        if (tResp.ok) {
+          const parsed = await tResp.json();
+          if (parsed && typeof parsed === "object") tesseraHandshake = parsed;
+        } else {
+          await tResp.body?.cancel();
+        }
+      } catch {
+        // graceful fallback if TESSERA handshake fails
+      }
+    }
+
+    let hermaHandshake = null;
+    if (env.HERMA && env.HERMA_SURFACE_KEY) {
+      try {
+        const hResp = await env.HERMA.fetch("https://herma.ta-amps.workers.dev/v1/handshake", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${env.HERMA_SURFACE_KEY}`,
+            "X-Surface-Id": "eranos",
+          },
+          body: handshakeBody,
+        });
+        if (hResp.ok) {
+          const parsed = await hResp.json();
+          if (parsed && typeof parsed === "object") hermaHandshake = parsed;
+        } else {
+          await hResp.body?.cancel();
+        }
+      } catch {
+        // graceful fallback if HERMA handshake fails
+      }
+    }
+
+    return jsonResp({
+      ...fallbackHandshake,
+      ...(tesseraHandshake || {}),
+      ...(tesseraHandshake ? { tessera: tesseraHandshake } : {}),
+      ...(hermaHandshake ? { herma: hermaHandshake } : {}),
+    });
+  }
+
   if (pathname === "/api/tracks") {
     const stored = await getHeadRecord(env.FABRIC_DB, "eranos.meta", "tracks");
     if (stored) return jsonResp(stored);
@@ -146,12 +233,20 @@ async function handleCloudApi(request, env, pathname) {
     let queues = [];
     if (env.TESSERA) {
       try {
-        const resp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/health");
+        const resp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/health", {
+          headers: { "X-Surface-Id": "eranos" },
+        });
         if (resp.ok) {
           const h = await resp.json();
-          queues = (h.queues || [])
-            .filter((q) => ERANOS_QUEUES.has(q.name))
-            .map((q) => ({ name: q.name, ...q.counts }));
+          const byName = new Map((h.queues || []).map((q) => [q.name, q.counts || {}]));
+          queues = ERANOS_QUEUE_LABELS.map(([name, label]) => ({
+            name,
+            label,
+            ...ZERO_QUEUE_COUNTS,
+            ...(byName.get(name) || {}),
+          }));
+        } else {
+          await resp.body?.cancel();
         }
       } catch {
         // fall back to empty queue array if service binding unreachable
@@ -163,6 +258,43 @@ async function handleCloudApi(request, env, pathname) {
       synthetic: true,
       queues,
     });
+  }
+
+  if (pathname === "/api/feed") {
+    const reqUrl = new URL(request.url);
+    const rawAfter = Number.parseInt(reqUrl.searchParams.get("after") ?? "0", 10);
+    const rawLimit = Number.parseInt(reqUrl.searchParams.get("limit") ?? "20", 10);
+    const after = Number.isFinite(rawAfter) && rawAfter >= 0 ? rawAfter : 0;
+    const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 200) : 20;
+    const fallbackFeed = {
+      synthetic: true,
+      feed: "noun.promotions",
+      entries: [],
+      next_cursor: after,
+    };
+    if (env.TESSERA) {
+      try {
+        const headers = { "X-Surface-Id": "eranos" };
+        if (env.TESSERA_SURFACE_KEY) {
+          headers["Authorization"] = `Bearer ${env.TESSERA_SURFACE_KEY}`;
+        }
+        const resp = await env.TESSERA.fetch(
+          `https://tessera.ta-amps.workers.dev/v1/feeds/noun.promotions?after=${after}&limit=${limit}`,
+          { headers }
+        );
+        if (resp.ok) {
+          const payload = await resp.json();
+          if (payload && typeof payload === "object") {
+            return jsonResp({ synthetic: true, ...payload });
+          }
+        } else {
+          await resp.body?.cancel();
+        }
+      } catch {
+        // fall back to empty synthetic cursor if service binding unreachable
+      }
+    }
+    return jsonResp(fallbackFeed);
   }
 
   return problem(404, "Not Found", `No API route matches ${pathname}`, "not_found");
