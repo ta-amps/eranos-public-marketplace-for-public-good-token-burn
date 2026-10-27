@@ -50,8 +50,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/README.md](deploy/README.md) | Hosting Eranos |
 | [deploy/bootstrap-hosting.sh](deploy/bootstrap-hosting.sh) | One-time hosting setup for one service on Fly.io behind a Cloudflare Worker: the Fly app and its |
 | [deploy/cloudflare/README.md](deploy/cloudflare/README.md) | Cloudflare: the Eranos edge |
-| [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) | Cloudflare edge for Eranos. |
-| [deploy/cloudflare/wrangler.jsonc](deploy/cloudflare/wrangler.jsonc) | Eranos edge on Cloudflare Workers: serves the web app's static files plus a reverse proxy for /api/. |
+| [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) | Cloudflare Cloud Worker for Eranos. |
+| [deploy/cloudflare/wrangler.jsonc](deploy/cloudflare/wrangler.jsonc) | Eranos Cloud Worker: serves the React web app plus native 24/7 /api/ endpoints backed by |
 | [deploy/fly/Dockerfile](deploy/fly/Dockerfile) | Build from the workspace root so both tessera and eranos are in the build context. |
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |

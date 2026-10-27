@@ -1,10 +1,11 @@
-// Eranos edge on Cloudflare Workers: serves the web app's static files plus a reverse proxy for /api/*.
-// Under our single-domain layout, bind `eranos.<your-domain>` via `routes` below (Cloudflare creates
-// the DNS record and TLS certificate automatically on deploy at zero added domain cost).
+// Eranos Cloud Worker: serves the React web app plus native 24/7 `/api/*` endpoints backed by
+// Cloudflare D1 (`ta-amps-fabric`) and `tessera` Cloud Service Binding (`env.TESSERA`), with
+// optional `STORAGE_MODE = "origin"` reverse-proxy fallback.
 {
   "name": "eranos",
   "main": "worker.js",
   "compatibility_date": "2026-10-01",
+  "workers_dev": true,
   // Uncomment or set via notes/bind-single-domain.sh once your single root domain is added to Cloudflare:
   // "routes": [{ "pattern": "eranos.<your-domain>", "custom_domain": true }],
   "assets": {
@@ -13,10 +14,27 @@
     "not_found_handling": "single-page-application",
     "run_worker_first": true
   },
+  "d1_databases": [
+    {
+      "binding": "FABRIC_DB",
+      "database_name": "ta-amps-fabric",
+      "database_id": "bc3deb8e-1841-4df3-8fd5-e70f800835d1"
+    }
+  ],
+  "services": [
+    {
+      "binding": "TESSERA",
+      "service": "tessera"
+    }
+  ],
   "vars": {
+    "STORAGE_MODE": "cloud",
     "API_ORIGIN": "https://eranos-api.fly.dev"
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "traces": {
+      "enabled": true
+    }
   }
 }

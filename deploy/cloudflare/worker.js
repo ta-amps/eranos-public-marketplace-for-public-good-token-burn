@@ -1,9 +1,11 @@
-// Cloudflare edge for Eranos. Serves the web app's static files (single-page-app fallback) and
-// reverse-proxies /api/* to the Eranos API on Fly.io. Every response leaves with strict security headers.
-// EDGE_SECRET (set with `wrangler secret put EDGE_SECRET`) tells the origin a request came through
-// this edge; the API refuses anything else once ERANOS_EDGE_SECRET is set on Fly.
+// Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback) and
+// serves `/api/*` natively 24/7 from Cloudflare D1 (`ta-amps-fabric`, mirrored live from Tessera Cloud)
+// + `env.TESSERA` Service Binding (`STORAGE_MODE = "cloud"`), with optional Fly.io origin fallback.
 
 const DEFAULT_API_ORIGIN = "https://eranos-api.fly.dev";
+const ERANOS_VERSION = "0.1.0";
+const KIT_ID_RE = /^KIT-[A-Z0-9][A-Z0-9-]{1,46}$/;
+const ERANOS_QUEUES = new Set(["eq01", "eq02", "eq03"]);
 
 const HOP_BY_HOP = [
   "connection",
@@ -55,11 +57,115 @@ function finish(response, method) {
   return out;
 }
 
-function problem(status, title, detail) {
-  return new Response(JSON.stringify({ type: "about:blank", title, status, detail }), {
+function jsonResp(data, status = 200) {
+  return new Response(JSON.stringify(data), {
     status,
-    headers: { "content-type": "application/problem+json" },
+    headers: { "content-type": "application/json", "cache-control": "private, no-store" },
   });
+}
+
+function problem(status, title, detail, code = "invalid_request") {
+  return new Response(JSON.stringify({ type: "about:blank", title, status, detail, code }), {
+    status,
+    headers: { "content-type": "application/problem+json", "cache-control": "no-store" },
+  });
+}
+
+async function getHeadRecord(db, store, key) {
+  if (!db) return null;
+  const row = await db
+    .prepare(
+      "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.key = ?"
+    )
+    .bind(store, key)
+    .first();
+  return row ? JSON.parse(row.value) : null;
+}
+
+async function listHeadRecords(db, store) {
+  if (!db) return [];
+  const res = await db
+    .prepare(
+      "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? ORDER BY h.key"
+    )
+    .bind(store)
+    .all();
+  return (res.results || []).map((r) => JSON.parse(r.value));
+}
+
+async function handleCloudApi(request, env, pathname) {
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    return problem(405, "Method Not Allowed", "Eranos public API routes are read-only GET/HEAD.", "method_not_allowed");
+  }
+
+  if (pathname === "/api/health") {
+    return jsonResp({
+      ok: true,
+      synthetic: true,
+      surface: "eranos",
+      version: ERANOS_VERSION,
+      backend: "tessera-cloud",
+    });
+  }
+
+  if (pathname === "/api/tracks") {
+    const stored = await getHeadRecord(env.FABRIC_DB, "eranos.meta", "tracks");
+    if (stored) return jsonResp(stored);
+    return await env.ASSETS.fetch(new URL("/snapshot/tracks.json", request.url));
+  }
+
+  if (pathname === "/api/requests") {
+    const stored = await getHeadRecord(env.FABRIC_DB, "eranos.meta", "requests");
+    if (stored) return jsonResp(stored);
+    return await env.ASSETS.fetch(new URL("/snapshot/requests.json", request.url));
+  }
+
+  if (pathname === "/api/catalog") {
+    const kits = await listHeadRecords(env.FABRIC_DB, "eranos.catalog");
+    return jsonResp({
+      synthetic: true,
+      two_step_verified: true,
+      kits,
+    });
+  }
+
+  const kitMatch = /^\/api\/catalog\/([^/]+)$/.exec(pathname);
+  if (kitMatch) {
+    const kitId = decodeURIComponent(kitMatch[1]);
+    if (!KIT_ID_RE.test(kitId)) {
+      return problem(400, "Bad Request", "invalid kit id", "invalid_request");
+    }
+    const found = await getHeadRecord(env.FABRIC_DB, "eranos.catalog", kitId);
+    if (!found) {
+      return problem(404, "Not Found", `kit ${kitId} is not in the catalog`, "not_found");
+    }
+    return jsonResp({ synthetic: true, ...found });
+  }
+
+  if (pathname === "/api/fabric") {
+    let queues = [];
+    if (env.TESSERA) {
+      try {
+        const resp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/health");
+        if (resp.ok) {
+          const h = await resp.json();
+          queues = (h.queues || [])
+            .filter((q) => ERANOS_QUEUES.has(q.name))
+            .map((q) => ({ name: q.name, ...q.counts }));
+        }
+      } catch {
+        // fall back to empty queue array if service binding unreachable
+      }
+    }
+    return jsonResp({
+      display_name: "Tessera Cloud",
+      plan: "tessera-cloud",
+      synthetic: true,
+      queues,
+    });
+  }
+
+  return problem(404, "Not Found", `No API route matches ${pathname}`, "not_found");
 }
 
 async function proxyApi(request, env) {
@@ -81,7 +187,7 @@ async function proxyApi(request, env) {
       redirect: "manual",
     });
   } catch {
-    return problem(502, "Bad Gateway", "The Eranos API did not answer.");
+    return problem(502, "Bad Gateway", "The Eranos API did not answer.", "unavailable");
   }
   const response = new Response(upstream.body, upstream);
   if (!response.headers.has("cache-control")) {
@@ -95,7 +201,11 @@ export default {
     const { pathname } = new URL(request.url);
     let response;
     if (pathname === "/api" || pathname.startsWith("/api/")) {
-      response = await proxyApi(request, env);
+      if ((env.STORAGE_MODE || "cloud") === "origin") {
+        response = await proxyApi(request, env);
+      } else {
+        response = await handleCloudApi(request, env, pathname);
+      }
     } else if (request.method === "GET" || request.method === "HEAD") {
       response = await env.ASSETS.fetch(request);
     } else {
