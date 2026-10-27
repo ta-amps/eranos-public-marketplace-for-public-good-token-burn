@@ -1,6 +1,46 @@
 {
   "synthetic": true,
+  "spdx_license": "BSD-3-Clause",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:grant-and-compliance-ops",
+    "kind:full_kit",
+    "spdx:BSD-3-Clause",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar"
+  ],
   "kit": {
+    "spdx_license": "BSD-3-Clause",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:grant-and-compliance-ops",
+      "kind:full_kit",
+      "spdx:BSD-3-Clause",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
     "kit_id": "KIT-GRANT-04",
     "track_id": "grant-and-compliance-ops",
     "domain": "nonprofit_ops",
@@ -136,6 +176,8 @@
       "human_only_boundaries",
       "synthetic_fixtures",
       "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
       "cited_sources",
       "deliverable_alignment"
     ],
@@ -150,8 +192,8 @@
   "reviewed_by_key": "key_reviewer_04",
   "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
   "steward_signoff": null,
-  "draft_receipt": "c31780ea03fd5a9d09f08f25136bc42c7d3eaf681bbbed0bc9eda0a3ec10cf76",
-  "review_receipt": "2aaef2cf534e2756d78a94de9d4abd93733de5ea0aa458a2fe2acbdbfbebc6e7",
-  "blob_sha256": "0d72c85a4c46bf4047e592b28ae54c758d6af70de8b707e57177669a065fde10",
+  "draft_receipt": "d33b45b213776a92c5c00d656150e92fba432a6aaa7f52cebc13ece9345ba792",
+  "review_receipt": "d5f063a613e943a134b3962ba4ca3cb0ad63508d9a5afd92aac725e2cebece3c",
+  "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
   "catalog_version": 1
 }

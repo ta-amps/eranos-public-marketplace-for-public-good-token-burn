@@ -7,7 +7,7 @@ export function About() {
           In ancient Greece, an <em>eranos</em> was a civic potluck where everyone contributed a spare share to equip a
           common good. Eranos lets people donate unused AI tokens to build, test, and independently review
           off-the-shelf agent skills, tools, files, and agentic processes that NGOs, clinics, hotlines, and community
-          organizations can adopt at zero cost — without ever handing human judgment or client conversations over to
+          organizations can adopt at zero cost -- without ever handing human judgment or client conversations over to
           automation.
         </p>
       </section>
@@ -24,11 +24,12 @@ export function About() {
         </section>
 
         <section className="er-card">
-          <h2>Two-step independent verification</h2>
+          <h2>Two-step independent verification &amp; quarantine</h2>
           <p className="er-muted">
-            A kit drafted by one volunteer agent on <code>eq02</code> must pass deterministic schema, copy, and
-            citation checks and then be approved by a distinct agent or human steward on <code>eq03</code> (
-            <code>drafter ≠ reviewer</code> across both worker ID and Tessera key ID).
+            Unreviewed drafts on <code>eq01</code> and <code>eq02</code> remain quarantined (
+            <code>visibility_scope: surface_only</code>) until deterministic schema, open-SPDX, copy, and citation
+            checks pass and an independent agent or steward approves on <code>eq03</code> (
+            <code>drafter != reviewer</code> across both worker ID and Tessera key ID).
           </p>
         </section>
 

@@ -1,10 +1,11 @@
-"""Eranos CLI: inspect public-good tracks, verify the two-step Tessera pipeline on example kits, seed
-volunteer requests, and export static web snapshots."""
+"""Eranos CLI: inspect public-good tracks, run zero-storage practice verification, verify the two-step
+Tessera pipeline on example kits, seed volunteer requests, and export static web snapshots."""
 
 from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,7 @@ from tessera import TaskSpec
 from eranos import config
 from eranos.adapter import get_adapter
 from eranos.donor_worker import DEFAULT_CHAT_BASE, DEFAULT_DONOR_MODEL, run_donor_demo
+from eranos.jsonfile import load_json
 from eranos.pipeline import (
     ensure_queues,
     list_published_kits,
@@ -27,6 +29,7 @@ from eranos.pipeline import (
 from eranos.queues import QUEUE_LABELS, STAGES
 from eranos.schemas import KitRequest, ReviewDecision, TaskBrief
 from eranos.tracks import load_tracks
+from eranos.verifier import practice_verify_kit
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
@@ -37,7 +40,7 @@ def _run_all_examples(backend: Any) -> list[dict[str, Any]]:
     for idx, bundle in enumerate(bundles, start=1):
         req = KitRequest.model_validate(bundle["request"])
         graph = submit_kit_request(backend, req)
-        run_spec_step(backend, worker=f"spec-gate-{idx:02d}")
+        run_spec_step(backend, worker=f"spec-gate-{idx:02d}", key_id=f"key_spec_{idx:02d}")
         run_draft_step(
             backend,
             bundle["draft"],
@@ -56,6 +59,7 @@ def _run_all_examples(backend: Any) -> list[dict[str, Any]]:
             resume_steward_signoff(
                 backend,
                 graph.review_task_id,
+                by=steward["steward"],
                 steward=steward["steward"],
                 notes=steward["notes"],
             )
@@ -90,7 +94,54 @@ def cmd_tracks() -> int:
     return 0
 
 
-def cmd_verify_examples() -> int:
+def cmd_practice(kit_path: Path, *, track_id: str | None = None) -> int:
+    try:
+        payload = load_json(kit_path)
+    except (OSError, ValueError) as exc:
+        err_out = {
+            "passed": False,
+            "persisted": False,
+            "kit_id": "UNSPECIFIED",
+            "spdx_license": "Apache-2.0",
+            "issues": [f"failed to load strict JSON from {kit_path}: {exc}"],
+            "receipt_sha256": None,
+        }
+        print(json.dumps(err_out, indent=2))
+        return 1
+    if not isinstance(payload, dict):
+        err_out = {
+            "passed": False,
+            "persisted": False,
+            "kit_id": "UNSPECIFIED",
+            "spdx_license": "Apache-2.0",
+            "issues": ["practice input JSON root must be an object"],
+            "receipt_sha256": None,
+        }
+        print(json.dumps(err_out, indent=2))
+        return 1
+    result = practice_verify_kit(payload, track_id=track_id)
+    print(json.dumps(result, indent=2))
+    return 0 if result["passed"] else 1
+
+
+def cmd_verify_examples(*, dry_run: bool = False) -> int:
+    if dry_run:
+        bundles = load_example_bundles()
+        reports = [practice_verify_kit(b) for b in bundles]
+        all_passed = all(r["passed"] for r in reports)
+        print(
+            json.dumps(
+                {
+                    "passed": all_passed,
+                    "persisted": False,
+                    "count": len(reports),
+                    "results": reports,
+                },
+                indent=2,
+            )
+        )
+        return 0 if all_passed else 1
+
     backend = get_adapter()
     try:
         results = _run_all_examples(backend)
@@ -154,6 +205,8 @@ def cmd_export_snapshot(target: Path) -> int:
         "two_step_verified": True,
         "kits": [k.model_dump(mode="json") for k in kits],
     }
+    for existing in (target / "catalog").glob("*.json"):
+        existing.unlink()
     for kit in kits:
         (target / "catalog" / f"{kit.kit.kit_id}.json").write_text(
             json.dumps({"synthetic": True, **kit.model_dump(mode="json")}, indent=2) + "\n",
@@ -201,6 +254,15 @@ def cmd_export_snapshot(target: Path) -> int:
     (target / "fabric.json").write_text(
         json.dumps(fabric_payload, indent=2) + "\n", encoding="utf-8"
     )
+
+    default_snapshot_dir = (REPO_ROOT / "web" / "snapshot").resolve()
+    if target.resolve() == default_snapshot_dir:
+        public_snapshot = REPO_ROOT / "web" / "public" / "snapshot"
+        if public_snapshot.exists():
+            shutil.rmtree(public_snapshot)
+        public_snapshot.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copytree(target, public_snapshot)
+
     print(f"wrote static snapshot to {target} ({len(kits)} kits)")
     return 0
 
@@ -215,7 +277,25 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="eranos", description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("tracks", help="List the six public-good build tracks")
-    sub.add_parser("verify-examples", help="Run the two-step Tessera pipeline on example kits")
+    ver = sub.add_parser(
+        "verify-examples", help="Run the two-step Tessera pipeline on example kits"
+    )
+    ver.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Run zero-storage in-memory verification across all example kits",
+    )
+    prac = sub.add_parser(
+        "practice",
+        help="Run zero-storage deterministic verification on a kit JSON file (persisted: false)",
+    )
+    prac.add_argument("kit", type=Path, help="Path to kit draft or bundle JSON")
+    prac.add_argument("--track-id", default=None, help="Optional explicit track ID")
+    prac.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Explicit dry-run flag (practice never persists to storage)",
+    )
     sub.add_parser("seed-requests", help="Seed open volunteer agent briefs into eq02")
     donor = sub.add_parser(
         "donor-demo",
@@ -237,7 +317,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "tracks":
         return cmd_tracks()
     if args.cmd == "verify-examples":
-        return cmd_verify_examples()
+        return cmd_verify_examples(dry_run=bool(args.dry_run))
+    if args.cmd == "practice":
+        return cmd_practice(args.kit, track_id=args.track_id)
     if args.cmd == "seed-requests":
         return cmd_seed_requests()
     if args.cmd == "donor-demo":

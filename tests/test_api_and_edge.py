@@ -1,4 +1,4 @@
-"""Tests for Eranos FastAPI endpoints, Surface Handshake v1.0, delta feed, edge Worker, and lockdown."""
+"""Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown."""
 
 from __future__ import annotations
 
@@ -13,9 +13,18 @@ from fastapi.testclient import TestClient
 from tessera import QueueCounts
 
 from eranos import __version__
+from eranos.adapter import get_adapter
 from eranos.api import app as api_module
 from eranos.api.app import app
 from eranos.cli import main as cli_main
+from eranos.pipeline import (
+    load_example_bundles,
+    run_draft_step,
+    run_review_step,
+    run_spec_step,
+    submit_kit_request,
+)
+from eranos.schemas import KitRequest, ReviewDecision
 
 SECRET = "edge-secret-for-tests-only"  # check-public: allow
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -61,6 +70,230 @@ def test_api_serves_tracks_catalog_requests_and_fabric(client: TestClient) -> No
         ("eq02", "Draft + verify"),
         ("eq03", "Independent review"),
     ]
+
+
+def test_catalog_filtering_cohorts_spdx_tags_and_quarantine(client: TestClient) -> None:
+    # Combinable domain, track, tag, spdx, and free-text query filters
+    nonprofit = client.get("/api/catalog?domain=nonprofit_ops").json()["kits"]
+    assert {k["kit"]["kit_id"] for k in nonprofit} == {
+        "KIT-INTAKE-03",
+        "KIT-GRANT-04",
+        "KIT-SHIFT-05",
+    }
+
+    hotline = client.get("/api/catalog?track=coerced-work-hotline-routing").json()["kits"]
+    assert [k["kit"]["kit_id"] for k in hotline] == ["KIT-HOTLINE-02"]
+
+    cc_by = client.get("/api/catalog?spdx=CC-BY-4.0").json()["kits"]
+    assert [k["kit"]["kit_id"] for k in cc_by] == ["KIT-HOTLINE-02"]
+
+    combo = client.get(
+        "/api/catalog?domain=nonprofit_ops&spdx=CC0-1.0&tag=kind:sop_playbook"
+    ).json()["kits"]
+    assert [k["kit"]["kit_id"] for k in combo] == ["KIT-SHIFT-05"]
+
+    searched = client.get("/api/catalog?q=ledger").json()["kits"]
+    assert [k["kit"]["kit_id"] for k in searched] == ["KIT-GRANT-04"]
+
+    empty = client.get("/api/catalog?domain=nonprofit_ops&spdx=CC-BY-4.0").json()["kits"]
+    assert empty == []
+
+    # Publish a verified cohort-restricted kit (target_cohorts WITHOUT "all")
+    bundle = load_example_bundles()[0]
+    restricted_req = KitRequest.model_validate(
+        {
+            **bundle["request"],
+            "kit_id": "KIT-COHORT-88",
+            "target_cohorts": ["ngo_closed_pilot"],
+            "visibility_scope": "allowlist_surfaces",
+        }
+    )
+    restricted_draft = {
+        **bundle["draft"],
+        "kit_id": "KIT-COHORT-88",
+        "target_cohorts": ["ngo_closed_pilot"],
+        "visibility_scope": "allowlist_surfaces",
+    }
+    backend = get_adapter()
+    try:
+        submit_kit_request(backend, restricted_req, run_id="run-cohort-88")
+        run_spec_step(backend, worker="spec-cohort")
+        run_draft_step(backend, restricted_draft, worker="drafter-c1", key_id="key_c1")
+        run_review_step(
+            backend,
+            ReviewDecision(
+                kit_id="KIT-COHORT-88",
+                verdict="approved",
+                reviewed_by="reviewer-c2",
+                reviewed_by_key="key_c2",
+                notes="Verified restricted cohort kit.",
+            ),
+            worker="reviewer-c2",
+            key_id="key_c2",
+        )
+    finally:
+        backend.close()
+
+    # Omitted ?cohort= MUST return ONLY universal ("all") kits
+    default_ids = {k["kit"]["kit_id"] for k in client.get("/api/catalog").json()["kits"]}
+    assert "KIT-COHORT-88" not in default_ids
+    assert len(default_ids) == 5
+
+    # Explicit ?cohort=ngo_closed_pilot returns universal ("all") OR "ngo_closed_pilot"
+    pilot_ids = {
+        k["kit"]["kit_id"]
+        for k in client.get("/api/catalog?cohort=ngo_closed_pilot").json()["kits"]
+    }
+    assert "KIT-COHORT-88" in pilot_ids
+    assert len(pilot_ids) == 6
+
+    # Unrelated cohort returns only universal ("all") kits
+    other_ids = {
+        k["kit"]["kit_id"] for k in client.get("/api/catalog?cohort=other_coalition").json()["kits"]
+    }
+    assert "KIT-COHORT-88" not in other_ids
+    assert len(other_ids) == 5
+
+
+def test_practice_api_zero_storage_gate(client: TestClient) -> None:
+    bundle = load_example_bundles()[0]
+    ok_resp = client.post("/api/practice", json={"draft": bundle["draft"]})
+    assert ok_resp.status_code == 200
+    ok_data = ok_resp.json()
+    assert ok_data["passed"] is True
+    assert ok_data["persisted"] is False
+    assert len(ok_data["receipt_sha256"]) == 64
+
+    bad_draft = {
+        **bundle["draft"],
+        "kit_id": "KIT-DRYRUN-99",
+        "spdx_license": "Proprietary-Closed",
+        "summary": "Accuse the scammer directly.",
+    }
+    bad_resp = client.post("/api/practice", json={"draft": bad_draft})
+    assert bad_resp.status_code == 200
+    bad_data = bad_resp.json()
+    assert bad_data["passed"] is False
+    assert bad_data["persisted"] is False
+    assert len(bad_data["issues"]) >= 1
+
+    # Catalog must remain completely untouched
+    assert client.get("/api/catalog/KIT-DRYRUN-99").status_code == 404
+    assert len(client.get("/api/catalog").json()["kits"]) == 5
+
+
+def test_agent_discovery_and_stateless_mcp_even_under_edge_lockdown(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("ERANOS_EDGE_SECRET", SECRET)
+
+    fav = client.get("/favicon.svg")
+    assert fav.status_code == 200
+    assert "image/svg+xml" in fav.headers["content-type"]
+    assert "<svg" in fav.text
+
+    hz = client.get("/healthz")
+    assert hz.status_code == 200
+    assert "application/json" in hz.headers["content-type"]
+    assert hz.json()["ok"] is True
+
+    rob = client.get("/robots.txt")
+    assert rob.status_code == 200
+    assert "text/plain" in rob.headers["content-type"]
+    assert "User-agent: *" in rob.text
+
+    llms = client.get("/llms.txt")
+    assert llms.status_code == 200
+    assert "text/plain" in llms.headers["content-type"]
+    assert "Eranos" in llms.text
+
+    llms_full = client.get("/llms-full.txt")
+    assert llms_full.status_code == 200
+    assert "text/plain" in llms_full.headers["content-type"]
+    assert len(llms_full.text) > 500
+
+    card = client.get("/.well-known/agent-card.json")
+    assert card.status_code == 200
+    assert "application/json" in card.headers["content-type"]
+    assert card.json()["endpoints"]["mcp"] == "/mcp"
+
+    # Stateless JSON-RPC 2.0 MCP
+    init_resp = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {"protocolVersion": "2024-11-05"},
+        },
+    )
+    assert init_resp.status_code == 200
+    assert init_resp.json()["result"]["serverInfo"]["name"] == "eranos"
+
+    notif_resp = client.post("/mcp", json={"jsonrpc": "2.0", "method": "notifications/initialized"})
+    assert notif_resp.status_code == 202
+
+    ping_resp = client.post("/mcp", json={"jsonrpc": "2.0", "id": 2, "method": "ping"})
+    assert ping_resp.status_code == 200
+    assert ping_resp.json()["result"] == {}
+
+    list_resp = client.post("/mcp", json={"jsonrpc": "2.0", "id": 3, "method": "tools/list"})
+    assert list_resp.status_code == 200
+    tool_names = {t["name"] for t in list_resp.json()["result"]["tools"]}
+    assert tool_names == {"list_tracks", "search_catalog", "get_kit", "practice_verify_kit"}
+
+    tracks_call = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 4,
+            "method": "tools/call",
+            "params": {"name": "list_tracks", "arguments": {}},
+        },
+    )
+    assert tracks_call.status_code == 200
+    assert len(tracks_call.json()["result"]["structuredContent"]["tracks"]) == 6
+
+    search_call = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 5,
+            "method": "tools/call",
+            "params": {"name": "search_catalog", "arguments": {"spdx": "CC-BY-4.0"}},
+        },
+    )
+    assert search_call.status_code == 200
+    found_kits = search_call.json()["result"]["structuredContent"]["kits"]
+    assert [k["kit"]["kit_id"] for k in found_kits] == ["KIT-HOTLINE-02"]
+
+    kit_call = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 6,
+            "method": "tools/call",
+            "params": {"name": "get_kit", "arguments": {"kit_id": "KIT-RECRUIT-01"}},
+        },
+    )
+    assert kit_call.status_code == 200
+    assert kit_call.json()["result"]["isError"] is False
+    assert kit_call.json()["result"]["structuredContent"]["kit"]["kit_id"] == "KIT-RECRUIT-01"
+
+    bundle = load_example_bundles()[0]
+    prac_call = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 7,
+            "method": "tools/call",
+            "params": {"name": "practice_verify_kit", "arguments": {"draft": bundle["draft"]}},
+        },
+    )
+    assert prac_call.status_code == 200
+    prac_struct = prac_call.json()["result"]["structuredContent"]
+    assert prac_struct["passed"] is True
+    assert prac_struct["persisted"] is False
 
 
 def test_fabric_queues_have_deterministic_order_and_labels(
@@ -292,6 +525,132 @@ console.log(JSON.stringify({{ fab, hs, feed, fallbackHs, fallbackFeed, calls }})
     assert len(hs_calls) == 2
     for call in hs_calls:
         assert call["init"]["headers"]["X-Surface-Id"] == "eranos"
+
+
+def test_cloudflare_worker_discovery_mcp_practice_and_snapshot_assets() -> None:
+    worker_path = (REPO_ROOT / "deploy" / "cloudflare" / "worker.js").as_posix()
+    dist_dir = (REPO_ROOT / "web" / "dist").as_posix()
+    example_draft = load_example_bundles()[0]["draft"]
+
+    script = f"""
+import fs from "node:fs";
+import path from "node:path";
+import worker from {json.dumps(worker_path)};
+
+const distDir = {json.dumps(dist_dir)};
+const draft = {json.dumps(example_draft)};
+
+const env = {{
+  ASSETS: {{
+    async fetch(req) {{
+      const u = new URL(typeof req === "string" ? req : req.url);
+      const target = path.join(distDir, u.pathname.replace(/^\\//, ""));
+      if (fs.existsSync(target) && fs.statSync(target).isFile()) {{
+        const ext = path.extname(target);
+        const ct = ext === ".json"
+          ? "application/json; charset=utf-8"
+          : ext === ".svg"
+            ? "image/svg+xml"
+            : "text/html; charset=utf-8";
+        return new Response(fs.readFileSync(target), {{
+          status: 200,
+          headers: {{ "content-type": ct }},
+        }});
+      }}
+      // Simulate Cloudflare SPA soft-200 index.html fallback on missing paths!
+      return new Response("<!doctype html><html><body>SPA</body></html>", {{
+        status: 200,
+        headers: {{ "content-type": "text/html; charset=utf-8" }},
+      }});
+    }},
+  }},
+}};
+
+const fav = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/favicon.svg"), env);
+const hz = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/healthz"), env);
+const rob = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/robots.txt"), env);
+const llms = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms.txt"), env);
+const llmsFull = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms-full.txt"), env);
+const card = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/.well-known/agent-card.json"), env);
+
+const catFiltered = await worker.fetch(
+  new Request("https://eranos.ta-amps.workers.dev/api/catalog?domain=nonprofit_ops&spdx=BSD-3-Clause"),
+  env,
+);
+const missingKit = await worker.fetch(
+  new Request("https://eranos.ta-amps.workers.dev/api/catalog/KIT-MISSING-99"),
+  env,
+);
+const practiceOk = await worker.fetch(
+  new Request("https://eranos.ta-amps.workers.dev/api/practice", {{
+    method: "POST",
+    headers: {{ "content-type": "application/json" }},
+    body: JSON.stringify({{ draft }}),
+  }}),
+  env,
+);
+const mcpInit = await worker.fetch(
+  new Request("https://eranos.ta-amps.workers.dev/mcp", {{
+    method: "POST",
+    headers: {{ "content-type": "application/json" }},
+    body: JSON.stringify({{ jsonrpc: "2.0", id: 1, method: "initialize", params: {{}} }}),
+  }}),
+  env,
+);
+const mcpSearch = await worker.fetch(
+  new Request("https://eranos.ta-amps.workers.dev/mcp", {{
+    method: "POST",
+    headers: {{ "content-type": "application/json" }},
+    body: JSON.stringify({{
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/call",
+      params: {{ name: "search_catalog", arguments: {{ spdx: "CC-BY-4.0" }} }},
+    }}),
+  }}),
+  env,
+);
+
+console.log(JSON.stringify({{
+  fav: {{ status: fav.status, ct: fav.headers.get("content-type") }},
+  hz: {{ status: hz.status, ct: hz.headers.get("content-type"), body: await hz.json() }},
+  rob: {{ status: rob.status, ct: rob.headers.get("content-type"), text: await rob.text() }},
+  llms: {{ status: llms.status, ct: llms.headers.get("content-type"), len: (await llms.text()).length }},
+  llmsFull: {{ status: llmsFull.status, ct: llmsFull.headers.get("content-type") }},
+  card: {{ status: card.status, ct: card.headers.get("content-type"), body: await card.json() }},
+  catFiltered: await catFiltered.json(),
+  missingKit: {{ status: missingKit.status, ct: missingKit.headers.get("content-type") }},
+  practiceOk: await practiceOk.json(),
+  mcpInit: await mcpInit.json(),
+  mcpSearch: await mcpSearch.json(),
+}}));
+"""
+    res = subprocess.run(
+        ["node", "--input-type=module", "-e", script],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    out = json.loads(res.stdout)
+    assert out["fav"] == {"status": 200, "ct": "image/svg+xml; charset=utf-8"}
+    assert out["hz"]["status"] == 200
+    assert "application/json" in out["hz"]["ct"]
+    assert out["hz"]["body"]["ok"] is True
+    assert out["rob"]["status"] == 200
+    assert "text/plain" in out["rob"]["ct"]
+    assert out["llms"]["status"] == 200 and out["llms"]["len"] > 100
+    assert out["llmsFull"]["status"] == 200 and "text/plain" in out["llmsFull"]["ct"]
+    assert out["card"]["status"] == 200 and out["card"]["body"]["endpoints"]["mcp"] == "/mcp"
+    assert [k["kit"]["kit_id"] for k in out["catFiltered"]["kits"]] == ["KIT-GRANT-04"]
+    assert out["missingKit"]["status"] == 404
+    assert "json" in out["missingKit"]["ct"]
+    assert "text/html" not in out["missingKit"]["ct"]
+    assert out["practiceOk"]["passed"] is True
+    assert out["practiceOk"]["persisted"] is False
+    assert out["mcpInit"]["result"]["serverInfo"]["name"] == "eranos"
+    assert [
+        k["kit"]["kit_id"] for k in out["mcpSearch"]["result"]["structuredContent"]["kits"]
+    ] == ["KIT-HOTLINE-02"]
 
 
 def test_web_config_resolver_and_contribute_snippets() -> None:

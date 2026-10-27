@@ -1,0 +1,198 @@
+{
+  "synthetic": true,
+  "spdx_license": "CC-BY-4.0",
+  "tags": [
+    "status:verified",
+    "domain:anti_exploitation",
+    "track:coerced-work-hotline-routing",
+    "kind:full_kit",
+    "spdx:CC-BY-4.0",
+    "cohort:ngo_hotline",
+    "steward:required"
+  ],
+  "target_cohorts": [
+    "all",
+    "ngo_hotline"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar"
+  ],
+  "kit": {
+    "spdx_license": "CC-BY-4.0",
+    "tags": [
+      "status:verified",
+      "domain:anti_exploitation",
+      "track:coerced-work-hotline-routing",
+      "kind:full_kit",
+      "spdx:CC-BY-4.0",
+      "cohort:ngo_hotline",
+      "steward:required"
+    ],
+    "target_cohorts": [
+      "all",
+      "ngo_hotline"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
+    "kit_id": "KIT-HOTLINE-02",
+    "track_id": "coerced-work-hotline-routing",
+    "domain": "anti_exploitation",
+    "deliverable_kind": "full_kit",
+    "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
+    "summary": "Matches corridor countries and languages to re-verified public helplines and consular desks, surfacing unverified offer indicators while reserving all crisis safety planning for trained staff.",
+    "target_org": "Regional anti-exploitation helpline desk",
+    "steps": [
+      {
+        "id": "lookup_helplines",
+        "title": "Match corridor country and caller language to verified public hotlines",
+        "kind": "directory_lookup",
+        "boundary": "assists",
+        "actor": "Helpline assistant tool",
+        "guidance": "Return only helpline entries whose checked_date is within 90 days; mark older entries for human re-verification."
+      },
+      {
+        "id": "caller_interview",
+        "title": "Live conversation with caller or family member",
+        "kind": "interview",
+        "boundary": "human_only",
+        "actor": "Trained helpline responder",
+        "guidance": "Conduct trauma-informed intake without automated scripts speaking to the caller."
+      },
+      {
+        "id": "safety_plan",
+        "title": "Crisis safety and consular escalation plan",
+        "kind": "crisis_safety_plan",
+        "boundary": "human_only",
+        "actor": "Senior crisis caseworker",
+        "guidance": "Handle any immediate safety risk directly with trained human responders."
+      },
+      {
+        "id": "external_referral",
+        "title": "Transmit warm referral to consular or partner desk",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Helpline shift lead",
+        "guidance": "Send referral details only with explicit consent and human supervisor review."
+      }
+    ],
+    "skill": {
+      "name": "corridor-helpline-lookup",
+      "description": "Finds verified public helplines and consular contacts by corridor and language, flagging stale entries before use.",
+      "boundary": "assists",
+      "instructions": "Look up matching corridor helplines from the verified JSON directory, display each entry's last checked date and official URL, and immediately route any active distress call to a human responder without generating safety advice.",
+      "refuses": [
+        "Generating exit or safety instructions for a person at risk",
+        "Collecting or logging caller location coordinates",
+        "Contacting external parties automatically"
+      ]
+    },
+    "skills": [],
+    "tool": {
+      "name": "match_verified_helplines",
+      "description": "Filters verified public helpline records by destination country, origin country, and spoken language.",
+      "input_schema": {
+        "properties": {
+          "corridor": {
+            "minLength": 2,
+            "type": "string"
+          },
+          "language": {
+            "minLength": 2,
+            "type": "string"
+          },
+          "max_age_days": {
+            "default": 90,
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "corridor",
+          "language"
+        ],
+        "type": "object"
+      },
+      "output_fields": [
+        "matches",
+        "stale_entries",
+        "requires_human_recheck"
+      ],
+      "read_only": true
+    },
+    "tools": [],
+    "artifacts": [],
+    "checklist": [
+      "Check whether every listed helpline number was verified within the past 90 days before handing it to a caller.",
+      "Note transit changes such as a ticket routed to a border town different from the stated office city.",
+      "Escalate any live safety concern immediately to the human shift lead."
+    ],
+    "sources": [
+      {
+        "title": "UNODC Issue Paper: Casinos, Cyber Fraud, and Trafficking in Persons in Southeast Asia",
+        "url": "https://www.unodc.org/roseap/en/publications/2023/casinos-cyber-fraud-trafficking-in-persons.html",
+        "checked_date": "2026-10-26"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-HOTLINE-PRECHECK",
+        "scenario": "Pre-departure job-seeker verifying a licensed recruiter listing",
+        "sample_input": "SYNTHETIC: Caller asks which official labour registry checks an overseas customer-support job contract before signing.",
+        "expected_indicators": [
+          "registry_verification_requested"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-HOTLINE-URGENT",
+        "scenario": "Family reports sudden transit reroute and restricted phone access",
+        "sample_input": "SYNTHETIC: Family member reports job-seeker landed in a different city and was asked to surrender travel documents.",
+        "expected_indicators": [
+          "transit_reroute",
+          "document_retention"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-02",
+    "drafted_by_key": "key_drafter_02"
+  },
+  "verification": {
+    "kit_id": "KIT-HOTLINE-02",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 2,
+    "human_only_steps": [
+      "caller_interview",
+      "safety_plan",
+      "external_referral"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-02",
+  "reviewed_by_key": "key_reviewer_02",
+  "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
+  "steward_signoff": "helpline-steward-lead",
+  "draft_receipt": "77dd33396ca1f82a6a5c8cf096fa80685849e3029b8d3dd8b675c7635df5243d",
+  "review_receipt": "d816b7b6d37f66a52f033c90c6472ebb1540951e6faa3c9f393ca21689f1999d",
+  "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
+  "catalog_version": 1
+}

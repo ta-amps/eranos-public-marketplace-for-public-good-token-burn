@@ -1,6 +1,46 @@
 {
   "synthetic": true,
+  "spdx_license": "CC0-1.0",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:volunteer-shift-and-sop-builder",
+    "kind:sop_playbook",
+    "spdx:CC0-1.0",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar"
+  ],
   "kit": {
+    "spdx_license": "CC0-1.0",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:volunteer-shift-and-sop-builder",
+      "kind:sop_playbook",
+      "spdx:CC0-1.0",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
     "kit_id": "KIT-SHIFT-05",
     "track_id": "volunteer-shift-and-sop-builder",
     "domain": "nonprofit_ops",
@@ -67,7 +107,7 @@
         "summary": "Printable escalation tree distinguishing routine supply restocks from immediate human shift-captain and emergency-responder triggers.",
         "spec": [
           "Tier 1 (Station Lead): Restock shortages, queue pacing, translation card lookup.",
-          "Tier 2 (Human Shift Captain \u2014 immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
+          "Tier 2 (Human Shift Captain -- immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
           "Tier 3 (Human Shift Captain + Local Emergency Services): Medical distress or immediate physical safety concern."
         ]
       },
@@ -137,6 +177,8 @@
       "human_only_boundaries",
       "synthetic_fixtures",
       "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
       "cited_sources",
       "deliverable_alignment"
     ],
@@ -152,8 +194,8 @@
   "reviewed_by_key": "key_reviewer_05",
   "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
   "steward_signoff": null,
-  "draft_receipt": "44df4fdcd4fa5acbb205cbb47bd49572660d81aa60c55d1668b83b20d00cf325",
-  "review_receipt": "2d8f641592d73dc6ff4a2f1ba4dd466b0da0cb15b701583b7e87738d6b1ec2f7",
-  "blob_sha256": "29595d2299d05a3ac174665e9c52b81564f3d9011560a62c1ea0cf53385a4ae2",
+  "draft_receipt": "db5dc03889a42bd89e27144f0dce5eb5a561904bf120a2eb3af16e9b75675cfd",
+  "review_receipt": "d5842857e032d502ad6906ecc4edf552a0673ef10029fcc73088cc94f9fe3cb9",
+  "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
   "catalog_version": 1
 }

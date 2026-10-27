@@ -1,4 +1,5 @@
 import { DomainBadge } from "../components/BoundaryBadge";
+import { ErrorAlert } from "../components/ErrorAlert";
 import {
   FABRIC_DISPLAY_NAME,
   FABRIC_PUBLIC_URL,
@@ -33,7 +34,7 @@ export function Overview() {
           legal-aid desks, hotlines, and community nonprofits lack the engineering time to build reliable AI
           workflows. <strong>{SURFACE_DISPLAY_NAME}</strong> lets you point leftover tokens at scoped queues on{" "}
           {FABRIC_DISPLAY_NAME} to build, test, and independently review <strong>agent skills, tools, files, and
-          agentic processes</strong> that NGOs can pick up and run off the shelf for the public good — while keeping
+          agentic processes</strong> that NGOs can pick up and run off the shelf for the public good -- while keeping
           every interview and decision about a person strictly human-only.
         </p>
         <div className="er-actions">
@@ -69,7 +70,7 @@ export function Overview() {
             <span className="er-chip er-chip-steward">Agentic Processes</span>
             <h3>Step-by-Step Workflows with Hard Human Guardrails</h3>
             <p className="er-muted">
-              Multi-step workflows verified by a second contributor&apos;s tokens (<code>drafter ≠ reviewer</code>) so
+              Multi-step workflows verified by a second contributor&apos;s tokens (<code>drafter != reviewer</code>) so
               agents handle prep work while interviews, crisis plans, and decisions about people stay human-only.
             </p>
           </article>
@@ -92,14 +93,14 @@ export function Overview() {
             <h3>{SIBLING_DETECTION_NAME} · Find, Quantify &amp; Combat Online Harm</h3>
             <p className="er-muted">
               Reads social-media, website, message, document, and payment bundles across 10 harm areas, quantifies fees
-              and statutory conflicts against dated law, clears honest look-alikes, and routes T1–T4 without accusing.
+              and statutory conflicts against dated law, clears honest look-alikes, and routes T1-T4 without accusing.
             </p>
           </article>
           <article className="er-card">
             <span className="er-chip er-chip-assists">{FABRIC_PUBLIC_URL}</span>
             <h3>{FABRIC_DISPLAY_NAME} · Atomic Verbs &amp; Nouns for Swarms</h3>
             <p className="er-muted">
-              Organizes everything as a verb (leased tasks on <code>eq01</code>–<code>eq03</code>, claimed once and
+              Organizes everything as a verb (leased tasks on <code>eq01</code>-<code>eq03</code>, claimed once and
               receipted) or a reusable noun (compare-and-set records and SHA-256 blobs) so swarms pick up work cleanly.
             </p>
           </article>
@@ -108,18 +109,33 @@ export function Overview() {
 
       <section className="er-section">
         <h2>Recently verified kits &amp; operational packs</h2>
-        {catalog.state.status === "loading" && <p className="er-muted">Loading verified catalog…</p>}
-        {catalog.state.status === "error" && <p className="er-muted">Catalog unavailable: {catalog.state.message}</p>}
+        {tracks.state.status === "error" && (
+          <ErrorAlert
+            title="Tracks unavailable"
+            message={tracks.state.message}
+            onRetry={tracks.reload}
+          />
+        )}
+        {catalog.state.status === "loading" && <p className="er-muted">Loading verified catalog...</p>}
+        {catalog.state.status === "error" && (
+          <ErrorAlert
+            title="Catalog unavailable"
+            message={catalog.state.message}
+            onRetry={catalog.reload}
+          />
+        )}
         {catalog.state.status === "ready" && (
           <div className="er-grid">
             {catalog.state.data.kits.map((entry) => {
               const tools = allTools(entry.kit);
               const skills = allSkills(entry.kit);
+              const spdx = entry.spdx_license || entry.kit.spdx_license || "Apache-2.0";
               return (
                 <article key={entry.kit.kit_id} className="er-card">
                   <div className="er-chip-row">
                     <DomainBadge domain={entry.kit.domain} />
                     <span className="er-chip er-chip-neutral">{entry.kit.deliverable_kind.replace(/_/g, " ")}</span>
+                    <span className="er-chip er-chip-neutral">SPDX: {spdx}</span>
                     {entry.steward_signoff && <span className="er-chip er-chip-steward">Steward signed off</span>}
                   </div>
                   <h3>

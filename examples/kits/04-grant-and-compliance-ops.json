@@ -5,12 +5,36 @@
     "title": "Small-Nonprofit Restricted Grant & Audit Readiness Kit",
     "goal": "Give small nonprofits deterministic restricted-fund variance checks, receipt completeness reports, and draft funder narratives that a human treasurer signs off.",
     "target_org": "Small 501(c)(3) youth and food-security nonprofit",
-    "needs_steward_signoff": false
+    "needs_steward_signoff": false,
+    "spdx_license": "BSD-3-Clause",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:grant-and-compliance-ops",
+      "kind:full_kit",
+      "spdx:BSD-3-Clause",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": ["all", "nonprofit_ops"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"]
   },
   "draft": {
     "kit_id": "KIT-GRANT-04",
     "track_id": "grant-and-compliance-ops",
     "domain": "nonprofit_ops",
+    "spdx_license": "BSD-3-Clause",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:grant-and-compliance-ops",
+      "kind:full_kit",
+      "spdx:BSD-3-Clause",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": ["all", "nonprofit_ops"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"],
     "title": "Small-Nonprofit Restricted Grant & Audit Readiness Kit",
     "summary": "Reconciles ledger rows against restricted grant line items, lists missing receipt attachments as explicit nulls instead of zeros, and drafts narrative variance notes for treasurer review.",
     "target_org": "Small 501(c)(3) youth and food-security nonprofit",

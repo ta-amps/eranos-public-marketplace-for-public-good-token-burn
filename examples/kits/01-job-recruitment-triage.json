@@ -5,12 +5,36 @@
     "title": "Overseas Contract & Agency Fee Arithmetic Intake Kit",
     "goal": "Help migrant-worker desk staff compare advertised pay, signed contract pay, and agency fee receipts against statutory caps before a caseworker interview.",
     "target_org": "Migrant worker legal-aid intake desk",
-    "needs_steward_signoff": false
+    "needs_steward_signoff": false,
+    "spdx_license": "Apache-2.0",
+    "tags": [
+      "domain:anti_exploitation",
+      "track:job-recruitment-triage",
+      "kind:full_kit",
+      "spdx:Apache-2.0",
+      "cohort:ngo_legal_aid"
+    ],
+    "target_cohorts": ["all", "ngo_legal_aid"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"]
   },
   "draft": {
     "kit_id": "KIT-RECRUIT-01",
     "track_id": "job-recruitment-triage",
     "domain": "anti_exploitation",
+    "spdx_license": "Apache-2.0",
+    "tags": [
+      "domain:anti_exploitation",
+      "track:job-recruitment-triage",
+      "kind:full_kit",
+      "spdx:Apache-2.0",
+      "cohort:ngo_legal_aid"
+    ],
+    "target_cohorts": ["all", "ngo_legal_aid"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"],
     "title": "Overseas Contract & Agency Fee Arithmetic Intake Kit",
     "summary": "Computes total placement fees as a share of first-month wages, flags contract pay reductions, and prepares a structured summary for a trained caseworker without accusing any party.",
     "target_org": "Migrant worker legal-aid intake desk",

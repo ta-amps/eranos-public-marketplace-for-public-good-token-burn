@@ -1,15 +1,30 @@
-"""Tests for the two-step Tessera pipeline: drafter != reviewer, park/resume steward sign-off, and CAS store."""
+"""Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
 
 import pytest
+from tessera import Forbidden, RecordWrite
 
 from eranos.adapter import TracedBackend
 from eranos.adapter import local as local_adapter
-from eranos.donor_worker import ContributorModelRefused, check_donor_model, run_donor_demo
+from eranos.cli import main as cli_main
+from eranos.donor_worker import (
+    DRAFTER_QUEUES,
+    REVIEWER_QUEUES,
+    ContributorModelRefused,
+    check_donor_model,
+    issue_drafter_key,
+    issue_reviewer_key,
+    run_donor_demo,
+)
 from eranos.pipeline import (
+    CATALOG_STORE,
+    SelfReviewError,
     SelfReviewRefused,
     UnverifiedKitRefused,
     get_published_kit,
@@ -30,7 +45,9 @@ def backend(tmp_path: Path) -> TracedBackend:
     return TracedBackend(store, backend="local", trace_path=str(tmp_path / "trace.jsonl"))
 
 
-def test_two_step_pipeline_publishes_verified_kit_to_cas_store(backend: TracedBackend) -> None:
+def test_two_step_pipeline_publishes_verified_kit_to_cas_store(
+    backend: TracedBackend, monkeypatch: pytest.MonkeyPatch
+) -> None:
     try:
         bundle = load_example_bundles()[0]
         req = KitRequest.model_validate(bundle["request"])
@@ -38,11 +55,25 @@ def test_two_step_pipeline_publishes_verified_kit_to_cas_store(backend: TracedBa
 
         spec_out = run_spec_step(backend, worker="spec-01")
         assert spec_out is not None and spec_out["kit_id"] == req.kit_id
+        assert spec_out["visibility_scope"] == "surface_only"
+        assert "status:quarantined" in spec_out["tags"]
 
         draft_out = run_draft_step(
             backend, bundle["draft"], worker="drafter-01", key_id="key_drafter_01"
         )
         assert draft_out is not None and draft_out["verification"]["passed"] is True
+        assert draft_out["visibility_scope"] == "surface_only"
+        assert "status:quarantined" in draft_out["tags"]
+        # Unreviewed drafts must NEVER enter eranos.catalog
+        assert list_published_kits(backend) == []
+
+        feed_events: list[tuple[str, dict[str, Any]]] = []
+        monkeypatch.setattr(
+            backend,
+            "publish_feed",
+            lambda feed, payload, **_kw: feed_events.append((feed, payload)),
+            raising=False,
+        )
 
         rev_out = run_review_step(
             backend,
@@ -51,14 +82,64 @@ def test_two_step_pipeline_publishes_verified_kit_to_cas_store(backend: TracedBa
             key_id="key_reviewer_02",
         )
         assert rev_out is not None and rev_out["status"] == "published"
+        assert len(feed_events) == 1
+        assert feed_events[0][0] == "noun.promotions"
+        assert feed_events[0][1]["kit_id"] == req.kit_id
+        assert feed_events[0][1]["visibility_scope"] == "public_commons"
 
         stored = get_published_kit(backend, req.kit_id)
         assert stored is not None
         assert stored.kit.drafted_by == "drafter-01"
         assert stored.reviewed_by == "reviewer-02"
+        assert stored.visibility_scope == "public_commons"
+        assert "status:verified" in stored.tags
+        assert "status:quarantined" not in stored.tags
         assert stored.catalog_version == 1
         assert stored.blob_sha256 is not None
         assert len(backend.get_blob(stored.blob_sha256)) > 100
+    finally:
+        backend.close()
+
+
+def test_quarantined_records_never_leak_into_public_catalog_queries(backend: TracedBackend) -> None:
+    try:
+        bundle = load_example_bundles()[0]
+        # Simulate a corrupted/unreviewed record written with status:quarantined in the store
+        forged_record = {
+            "kit": {
+                **bundle["draft"],
+                "drafted_by": "d-1",
+                "drafted_by_key": "k-1",
+                "visibility_scope": "surface_only",
+                "tags": ["status:quarantined"],
+            },
+            "verification": {
+                "kit_id": bundle["request"]["kit_id"],
+                "passed": True,
+                "checks_run": ["all"],
+                "issues": [],
+                "fixture_count": 2,
+                "human_only_steps": ["worker_interview"],
+            },
+            "reviewed_by": "r-2",
+            "reviewed_by_key": "k-2",
+            "review_notes": "Forged entry",
+            "visibility_scope": "surface_only",
+            "tags": ["status:quarantined"],
+            "catalog_version": 1,
+        }
+        backend.put_records(
+            [
+                RecordWrite(
+                    store=CATALOG_STORE,
+                    key="KIT-QUARANTINE-99",
+                    value=forged_record,
+                    expected_version=0,
+                )
+            ]
+        )
+        assert list_published_kits(backend) == []
+        assert get_published_kit(backend, "KIT-QUARANTINE-99") is None
     finally:
         backend.close()
 
@@ -83,6 +164,123 @@ def test_self_review_by_same_worker_or_key_is_refused(backend: TracedBackend) ->
         backend.close()
 
 
+def test_all_three_drafter_reviewer_and_parker_resumer_bypasses_closed(
+    backend: TracedBackend, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    try:
+        # (a) Key scoping: drafters get eq01/eq02 ONLY; reviewers get eq03 ONLY
+        assert DRAFTER_QUEUES == ("eq01", "eq02")
+        assert REVIEWER_QUEUES == ("eq03",)
+        captured_keys: list[tuple[str, list[str]]] = []
+
+        class FakeKeyStore:
+            def issue_key(
+                self,
+                label: str,
+                *,
+                queues: list[str],
+                effect_classes: list[str] | None = None,
+                scopes: list[str] | None = None,
+            ) -> tuple[str, Any]:
+                assert scopes == ["store"]
+                assert effect_classes == ["read", "write-internal"]
+                captured_keys.append((label, list(queues)))
+                return (f"tok_{label}", SimpleNamespace(key_id=f"id_{label}"))
+
+        ks = FakeKeyStore()
+        issue_drafter_key(ks, "drafter")
+        issue_reviewer_key(ks, "reviewer")
+        assert captured_keys == [
+            ("drafter", ["eq01", "eq02"]),
+            ("reviewer", ["eq03"]),
+        ]
+
+        # (b) Spoofed draft payload identity cannot bypass Tessera task completed_by_key / worker check
+        bundle = load_example_bundles()[0]
+        req = KitRequest.model_validate(bundle["request"])
+        graph = submit_kit_request(backend, req, run_id="run-spoof")
+        run_spec_step(backend, worker="spec-bot")
+        lease = backend.claim("eq02", "colluding-worker")
+        assert lease is not None
+        spoofed_draft = {
+            **bundle["draft"],
+            "drafted_by": "innocent-other-worker",
+            "drafted_by_key": "innocent-other-key",
+        }
+        backend.submit(
+            lease.task_id,
+            lease.fencing_token,
+            {
+                "node": "draft",
+                "draft": spoofed_draft,
+                "verification": {
+                    "kit_id": req.kit_id,
+                    "passed": True,
+                    "checks_run": ["all"],
+                    "issues": [],
+                    "fixture_count": 2,
+                },
+                "blob_sha256": "b" * 64,
+                "needs_steward_signoff": False,
+            },
+            idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
+            ok=True,
+        )
+
+        # Colluding worker tries to review its own eq02 task under spoofed draft metadata
+        with pytest.raises(SelfReviewError):
+            run_review_step(
+                backend,
+                ReviewDecision(
+                    kit_id=req.kit_id,
+                    verdict="approved",
+                    reviewed_by="colluding-worker",
+                    reviewed_by_key="key_rev_99",
+                    notes="Self-review attempt.",
+                ),
+                worker="colluding-worker",
+                key_id="key_rev_99",
+            )
+
+        # Also verify completed_by_key from backend.results(draft_id) blocks matching reviewer key
+        orig_results = backend.results
+        monkeypatch.setattr(
+            backend,
+            "results",
+            lambda tid: (
+                [SimpleNamespace(completed_by_key="key_collude_77", worker="someone-else")]
+                if tid == graph.draft_task_id
+                else orig_results(tid)
+            ),
+            raising=False,
+        )
+        submit_kit_request(backend, req, run_id="run-key-spoof")
+        run_spec_step(backend, worker="spec-bot")
+        run_draft_step(backend, bundle["draft"], worker="drafter-clean", key_id="key_drafter_clean")
+        # Force results on the new draft task to expose completed_by_key="key_collude_77"
+        monkeypatch.setattr(
+            backend,
+            "results",
+            lambda _tid: [SimpleNamespace(completed_by_key="key_collude_77")],
+            raising=False,
+        )
+        with pytest.raises(SelfReviewError):
+            run_review_step(
+                backend,
+                ReviewDecision(
+                    kit_id=req.kit_id,
+                    verdict="approved",
+                    reviewed_by="distinct-worker",
+                    reviewed_by_key="key_collude_77",
+                    notes="Matching completed_by_key must fail.",
+                ),
+                worker="distinct-worker",
+                key_id="key_collude_77",
+            )
+    finally:
+        backend.close()
+
+
 def test_steward_signoff_parks_and_resumes_on_tessera(backend: TracedBackend) -> None:
     try:
         bundle = load_example_bundles()[1]  # KIT-HOTLINE-02 requires steward signoff
@@ -91,19 +289,41 @@ def test_steward_signoff_parks_and_resumes_on_tessera(backend: TracedBackend) ->
         run_spec_step(backend)
         run_draft_step(backend, bundle["draft"], worker="drafter-01", key_id="key_d1")
 
+        # Create real key in local store so Store.claim records parked_by = rev_key_id
+        _, rev_grant = issue_reviewer_key(backend._inner, "rev-01")  # type: ignore[attr-defined]
+        rev_key_id = str(rev_grant.key_id)
+
         first = run_review_step(
             backend,
             ReviewDecision.model_validate(bundle["review"]),
             worker="reviewer-01",
-            key_id="key_r1",
+            key_id=rev_key_id,
         )
         assert first is not None and first["status"] == "parked"
         assert list_published_kits(backend) == []
+
+        # (c) Empty steward / by must raise ValueError
+        with pytest.raises(ValueError, match="non-empty"):
+            resume_steward_signoff(backend, graph.review_task_id, by="   ", notes="Blank steward")
+
+        # (c) Parker == resumer (by key_id OR worker) must raise Forbidden even on local backend
+        with pytest.raises(Forbidden):
+            resume_steward_signoff(
+                backend, graph.review_task_id, by=rev_key_id, notes="Self-resume by parking key"
+            )
+        with pytest.raises(Forbidden):
+            resume_steward_signoff(
+                backend,
+                graph.review_task_id,
+                by="reviewer-01",
+                notes="Self-resume by parking worker",
+            )
 
         resume_steward_signoff(
             backend,
             graph.review_task_id,
             steward="helpline-director",
+            by="steward:helpline-director",
             notes="Verified human-only crisis steps.",
         )
         second = run_review_step(
@@ -112,11 +332,11 @@ def test_steward_signoff_parks_and_resumes_on_tessera(backend: TracedBackend) ->
                 kit_id=req.kit_id,
                 verdict="approved",
                 reviewed_by="reviewer-01",
-                reviewed_by_key="key_r1",
+                reviewed_by_key=rev_key_id,
                 notes="Approved following steward sign-off.",
             ),
             worker="reviewer-01",
-            key_id="key_r1",
+            key_id=rev_key_id,
         )
         assert second is not None and second["status"] == "published"
         published = get_published_kit(backend, req.kit_id)
@@ -191,6 +411,19 @@ def test_unverified_draft_cannot_be_approved(backend: TracedBackend) -> None:
         assert list_published_kits(backend) == []
     finally:
         backend.close()
+
+
+def test_cli_practice_and_verify_examples_dry_run(capsys: pytest.CaptureFixture[str]) -> None:
+    rc = cli_main(["practice", "examples/kits/01-job-recruitment-triage.json", "--dry-run"])
+    assert rc == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["passed"] is True
+    assert payload["persisted"] is False
+    assert len(payload["receipt_sha256"]) == 64
+
+    rc2 = cli_main(["verify-examples", "--dry-run"])
+    assert rc2 == 0
+    _ = capsys.readouterr()
 
 
 def test_donor_worker_refuses_contributor_tier_models() -> None:

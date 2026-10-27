@@ -7,5 +7,5 @@
 - **TrackPack (`tracks/<id>/track.json`):** Data file defining a nonprofit need, who it serves, required
   `human_only` steps, lines never crossed, and cited primary sources.
 - **KitDraft / PublishedKit:** A structured package holding workflow steps, an `AgentSkillSpec`, a read-only
-  `MCPToolSpec` JSON Schema, a checklist, sources, and `SYNTHETIC` fixtures—published into `eranos.catalog`
+  `MCPToolSpec` JSON Schema, a checklist, sources, and `SYNTHETIC` fixtures -- published into `eranos.catalog`
   only after independent review.

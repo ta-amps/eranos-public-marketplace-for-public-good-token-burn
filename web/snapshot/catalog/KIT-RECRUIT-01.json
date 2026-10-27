@@ -1,6 +1,46 @@
 {
   "synthetic": true,
+  "spdx_license": "Apache-2.0",
+  "tags": [
+    "status:verified",
+    "domain:anti_exploitation",
+    "track:job-recruitment-triage",
+    "kind:full_kit",
+    "spdx:Apache-2.0",
+    "cohort:ngo_legal_aid"
+  ],
+  "target_cohorts": [
+    "all",
+    "ngo_legal_aid"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar"
+  ],
   "kit": {
+    "spdx_license": "Apache-2.0",
+    "tags": [
+      "status:verified",
+      "domain:anti_exploitation",
+      "track:job-recruitment-triage",
+      "kind:full_kit",
+      "spdx:Apache-2.0",
+      "cohort:ngo_legal_aid"
+    ],
+    "target_cohorts": [
+      "all",
+      "ngo_legal_aid"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
     "kit_id": "KIT-RECRUIT-01",
     "track_id": "job-recruitment-triage",
     "domain": "anti_exploitation",
@@ -136,6 +176,8 @@
       "human_only_boundaries",
       "synthetic_fixtures",
       "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
       "cited_sources",
       "deliverable_alignment"
     ],
@@ -150,8 +192,8 @@
   "reviewed_by_key": "key_reviewer_01",
   "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
   "steward_signoff": null,
-  "draft_receipt": "bb93897dea4601ef78a57686f4830d8a078b62b8a43bf446b3efb25df957e2bd",
-  "review_receipt": "877c33d83e3886becc775de54d96804c6c265b4320a92a853436897f6efcaa4c",
-  "blob_sha256": "1bd5a0a5e013da51117ffdd31f697b024ed3c2690a732e644bd75c4fb458d05a",
+  "draft_receipt": "0b9f19dbae10b7ec62d495d2ce34b5db55448dd20ddf59ad4463f4c52a9d8efb",
+  "review_receipt": "ee1a460defeb7d7879e06c93b29fd6520d50ced1e1af3692faa47a324afd0d2d",
+  "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
   "catalog_version": 1
 }

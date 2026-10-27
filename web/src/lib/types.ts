@@ -1,5 +1,14 @@
 export type AutonomyBoundary = "drafts" | "assists" | "human_only";
 export type TrackDomain = string;
+export type VisibilityScope = "surface_only" | "allowlist_surfaces" | "public_commons";
+
+export const OPEN_SPDX_ALLOWLIST = [
+  "Apache-2.0",
+  "BSD-3-Clause",
+  "CC-BY-4.0",
+  "CC0-1.0",
+  "MIT",
+] as const;
 
 export interface SourceCitation {
   title: string;
@@ -69,7 +78,27 @@ export interface SyntheticFixture {
   expected_human_escalation: boolean;
 }
 
-export interface KitDraft {
+export interface GovernanceMetadata {
+  spdx_license: string;
+  tags: string[];
+  target_cohorts: string[];
+  producer_surface: string;
+  visibility_scope: VisibilityScope;
+  allowed_surfaces: string[];
+}
+
+export interface KitRequest extends GovernanceMetadata {
+  kit_id: string;
+  track_id: string;
+  title: string;
+  problem_statement: string;
+  target_org: string;
+  requested_artifacts: string[];
+  requires_steward_signoff: boolean;
+  requested_by: string;
+}
+
+export interface KitDraft extends GovernanceMetadata {
   kit_id: string;
   track_id: string;
   domain: TrackDomain;
@@ -117,7 +146,7 @@ export interface VerificationReport {
   human_only_steps: string[];
 }
 
-export interface PublishedKit {
+export interface PublishedKit extends GovernanceMetadata {
   kit: KitDraft;
   verification: VerificationReport;
   reviewed_by: string;
@@ -128,6 +157,20 @@ export interface PublishedKit {
   review_receipt?: string | null;
   blob_sha256?: string | null;
   catalog_version: number;
+}
+
+export interface PracticeVerifyResponse {
+  synthetic: boolean;
+  passed: boolean;
+  persisted: false;
+  kit_id: string;
+  track_id: string | null;
+  spdx_license: string;
+  checks_run: string[];
+  issues: string[];
+  fixture_count: number;
+  human_only_steps: string[];
+  receipt_sha256: string;
 }
 
 export interface CatalogResponse {

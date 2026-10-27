@@ -4,7 +4,10 @@ from __future__ import annotations
 
 from eranos.schemas.records import (
     BRIEF_ID,
+    DEFAULT_ALLOWED_SURFACES,
+    DEFAULT_PRODUCER_SURFACE,
     KIT_ID,
+    OPEN_SPDX_ALLOWLIST,
     AgentSkillSpec,
     ArtifactFormat,
     CustomArtifactSpec,
@@ -19,7 +22,11 @@ from eranos.schemas.records import (
     SyntheticFixture,
     TaskBrief,
     VerificationReport,
+    VisibilityScope,
     WorkflowStep,
+    normalize_tag,
+    normalize_tags,
+    validate_spdx_license,
 )
 from eranos.schemas.tracks import (
     HUMAN_ONLY_KINDS,
@@ -35,8 +42,11 @@ from eranos.schemas.tracks import (
 
 __all__ = [
     "BRIEF_ID",
+    "DEFAULT_ALLOWED_SURFACES",
+    "DEFAULT_PRODUCER_SURFACE",
     "HUMAN_ONLY_KINDS",
     "KIT_ID",
+    "OPEN_SPDX_ALLOWLIST",
     "SLUG_ID",
     "TRACK_ID",
     "AgentBoundary",
@@ -59,5 +69,9 @@ __all__ = [
     "TrackDomain",
     "TrackPack",
     "VerificationReport",
+    "VisibilityScope",
     "WorkflowStep",
+    "normalize_tag",
+    "normalize_tags",
+    "validate_spdx_license",
 ]

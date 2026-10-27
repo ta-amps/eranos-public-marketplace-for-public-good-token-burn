@@ -5,12 +5,38 @@
     "title": "Community Services Warm-Referral & HSDS Triage Kit",
     "goal": "Help community resource desks match resident needs to open food, housing, and clinic programs and draft plain-language referral notes while keeping eligibility decisions human-only.",
     "target_org": "Neighborhood multi-service nonprofit center",
-    "needs_steward_signoff": false
+    "needs_steward_signoff": false,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:intake-and-referral-triage",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:ngo_legal_aid",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": ["all", "ngo_legal_aid", "nonprofit_ops"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"]
   },
   "draft": {
     "kit_id": "KIT-INTAKE-03",
     "track_id": "intake-and-referral-triage",
     "domain": "nonprofit_ops",
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:intake-and-referral-triage",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:ngo_legal_aid",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": ["all", "ngo_legal_aid", "nonprofit_ops"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"],
     "title": "Community Services Warm-Referral & HSDS Triage Kit",
     "summary": "Matches Open Referral HSDS service listings against household needs, flags missing paperwork early, and drafts a plain-language warm-referral note for caseworker approval.",
     "target_org": "Neighborhood multi-service nonprofit center",

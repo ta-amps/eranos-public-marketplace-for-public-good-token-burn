@@ -3,6 +3,7 @@ review decisions, and task briefs. Pure Ring 0: stdlib and pydantic only."""
 
 from __future__ import annotations
 
+import re
 from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -31,10 +32,139 @@ ArtifactFormat = Literal[
     "rule_pack",
     "checklist_pack",
 ]
+VisibilityScope = Literal["surface_only", "allowlist_surfaces", "public_commons"]
+
+OPEN_SPDX_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        "Apache-2.0",
+        "MIT",
+        "BSD-3-Clause",
+        "CC-BY-4.0",
+        "CC0-1.0",
+    }
+)
+DEFAULT_PRODUCER_SURFACE = "surface:eranos"
+DEFAULT_ALLOWED_SURFACES: tuple[str, ...] = (
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar",
+)
+
+_TAG_RE = re.compile(r"^[a-z0-9][a-z0-9_.-]{0,31}:[A-Za-z0-9][A-Za-z0-9_./-]{0,63}$")
+_COHORT_RE = re.compile(r"^[a-z0-9][a-z0-9_:-]{1,63}$")
+_SURFACE_RE = re.compile(r"^surface:[a-z0-9][a-z0-9_-]{1,39}$")
+
+
+def validate_spdx_license(value: str) -> str:
+    cleaned = value.strip()
+    if cleaned not in OPEN_SPDX_ALLOWLIST:
+        allowed = ", ".join(sorted(OPEN_SPDX_ALLOWLIST))
+        raise ValueError(f"spdx_license {value!r} must be in open SPDX allowlist ({allowed})")
+    return cleaned
+
+
+def normalize_tag(tag: str) -> str:
+    raw = tag.strip()
+    if ":" not in raw:
+        raise ValueError(f"tag {tag!r} must follow normalized 'key:value' format")
+    key, val = raw.split(":", 1)
+    norm = f"{key.strip().lower()}:{val.strip()}"
+    if not _TAG_RE.match(norm):
+        raise ValueError(f"tag {tag!r} contains invalid characters; expected 'key:value'")
+    check_safe_topic(check_non_accusatory(norm))
+    return norm
+
+
+def normalize_tags(tags: list[str]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in tags:
+        norm = normalize_tag(item)
+        if norm not in seen:
+            seen.add(norm)
+            out.append(norm)
+    return out
+
+
+def validate_cohorts(cohorts: list[str]) -> list[str]:
+    if not cohorts:
+        raise ValueError("target_cohorts must specify at least one cohort (e.g. ['all'])")
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in cohorts:
+        cleaned = item.strip().lower()
+        if not _COHORT_RE.match(cleaned):
+            raise ValueError(f"invalid cohort identifier {item!r}")
+        check_safe_topic(check_non_accusatory(cleaned))
+        if cleaned not in seen:
+            seen.add(cleaned)
+            out.append(cleaned)
+    return out
+
+
+def validate_surface_id(surface: str) -> str:
+    cleaned = surface.strip()
+    if not _SURFACE_RE.match(cleaned):
+        raise ValueError(f"surface identifier {surface!r} must match 'surface:<slug>'")
+    check_safe_topic(check_non_accusatory(cleaned))
+    return cleaned
+
+
+def validate_allowed_surfaces(surfaces: list[str]) -> list[str]:
+    out: list[str] = []
+    seen: set[str] = set()
+    for item in surfaces:
+        cleaned = validate_surface_id(item)
+        if cleaned not in seen:
+            seen.add(cleaned)
+            out.append(cleaned)
+    return out
 
 
 class _Record(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class _GovernedRecord(_Record):
+    spdx_license: str = "Apache-2.0"
+    tags: list[str] = Field(default_factory=list)
+    target_cohorts: list[str] = Field(default_factory=lambda: ["all"])
+    producer_surface: str = DEFAULT_PRODUCER_SURFACE
+    visibility_scope: VisibilityScope = "public_commons"
+    allowed_surfaces: list[str] = Field(default_factory=lambda: list(DEFAULT_ALLOWED_SURFACES))
+
+    @field_validator("spdx_license")
+    @classmethod
+    def _check_spdx(cls, value: str) -> str:
+        return validate_spdx_license(value)
+
+    @field_validator("tags")
+    @classmethod
+    def _check_tags(cls, value: list[str]) -> list[str]:
+        return normalize_tags(value)
+
+    @field_validator("target_cohorts")
+    @classmethod
+    def _check_cohorts(cls, value: list[str]) -> list[str]:
+        return validate_cohorts(value)
+
+    @field_validator("producer_surface")
+    @classmethod
+    def _check_producer_surface(cls, value: str) -> str:
+        return validate_surface_id(value)
+
+    @field_validator("allowed_surfaces")
+    @classmethod
+    def _check_allowed_surfaces(cls, value: list[str]) -> list[str]:
+        return validate_allowed_surfaces(value)
+
+    @model_validator(mode="after")
+    def _check_allowlist_scope(self) -> _GovernedRecord:
+        if self.visibility_scope == "allowlist_surfaces" and not self.allowed_surfaces:
+            raise ValueError(
+                "allowed_surfaces must not be empty when visibility_scope='allowlist_surfaces'"
+            )
+        return self
 
 
 class WorkflowStep(_Record):
@@ -128,7 +258,7 @@ class SyntheticFixture(_Record):
         return value
 
 
-class KitRequest(_Record):
+class KitRequest(_GovernedRecord):
     kit_id: Annotated[str, Field(pattern=KIT_ID)]
     track_id: Annotated[str, Field(pattern=TRACK_ID)]
     deliverable_kind: DeliverableKind = "full_kit"
@@ -143,7 +273,7 @@ class KitRequest(_Record):
         return check_safe_topic(check_non_accusatory(value))
 
 
-class KitDraft(_Record):
+class KitDraft(_GovernedRecord):
     kit_id: Annotated[str, Field(pattern=KIT_ID)]
     track_id: Annotated[str, Field(pattern=TRACK_ID)]
     domain: TrackDomain
@@ -220,7 +350,17 @@ class ReviewDecision(_Record):
         return check_safe_topic(check_non_accusatory(value))
 
 
-class PublishedKit(_Record):
+_GOVERNANCE_FIELDS = (
+    "spdx_license",
+    "tags",
+    "target_cohorts",
+    "producer_surface",
+    "visibility_scope",
+    "allowed_surfaces",
+)
+
+
+class PublishedKit(_GovernedRecord):
     kit: KitDraft
     verification: VerificationReport
     reviewed_by: str = Field(min_length=2, max_length=80)
@@ -231,6 +371,24 @@ class PublishedKit(_Record):
     review_receipt: str | None = None
     blob_sha256: str | None = None
     catalog_version: int = Field(ge=1, default=1)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _inherit_governance_from_kit(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        raw_kit = data.get("kit")
+        if isinstance(raw_kit, KitDraft):
+            kit_map = raw_kit.model_dump(mode="python")
+        elif isinstance(raw_kit, dict):
+            kit_map = raw_kit
+        else:
+            return data
+        merged = dict(data)
+        for field_name in _GOVERNANCE_FIELDS:
+            if field_name not in merged and field_name in kit_map:
+                merged[field_name] = kit_map[field_name]
+        return merged
 
     @model_validator(mode="after")
     def _enforce_independent_review(self) -> PublishedKit:
@@ -244,6 +402,10 @@ class PublishedKit(_Record):
             raise ValueError(
                 f"two-step rule violated: reviewer key {self.reviewed_by_key!r} matches drafter key"
             )
+        if self.visibility_scope == "surface_only" or self.kit.visibility_scope == "surface_only":
+            raise ValueError("quarantined surface_only drafts cannot be published to the catalog")
+        if "status:quarantined" in self.tags or "status:quarantined" in self.kit.tags:
+            raise ValueError("quarantined drafts cannot be published to the catalog")
         return self
 
 

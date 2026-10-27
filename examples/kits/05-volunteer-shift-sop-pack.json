@@ -6,13 +6,37 @@
     "title": "Community Pantry Shift Onboarding & Incident Escalation SOP Pack",
     "goal": "Equip weekend community pantry and shelter coordinators with a structured shift role-card generator and human-only incident escalation playbook without requiring any external database.",
     "target_org": "Neighborhood mutual-aid pantry and cold-weather shelter",
-    "needs_steward_signoff": false
+    "needs_steward_signoff": false,
+    "spdx_license": "CC0-1.0",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:volunteer-shift-and-sop-builder",
+      "kind:sop_playbook",
+      "spdx:CC0-1.0",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": ["all", "nonprofit_ops"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"]
   },
   "draft": {
     "kit_id": "KIT-SHIFT-05",
     "track_id": "volunteer-shift-and-sop-builder",
     "domain": "nonprofit_ops",
     "deliverable_kind": "sop_playbook",
+    "spdx_license": "CC0-1.0",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:volunteer-shift-and-sop-builder",
+      "kind:sop_playbook",
+      "spdx:CC0-1.0",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": ["all", "nonprofit_ops"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"],
     "title": "Community Pantry Shift Onboarding & Incident Escalation SOP Pack",
     "summary": "Standalone SOP playbook and multilingual role-card drafting skill for volunteer coordinators, reserving all medical, safety, and accommodation decisions strictly for the on-site shift captain.",
     "target_org": "Neighborhood mutual-aid pantry and cold-weather shelter",
@@ -72,7 +96,7 @@
         "summary": "Printable escalation tree distinguishing routine supply restocks from immediate human shift-captain and emergency-responder triggers.",
         "spec": [
           "Tier 1 (Station Lead): Restock shortages, queue pacing, translation card lookup.",
-          "Tier 2 (Human Shift Captain — immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
+          "Tier 2 (Human Shift Captain -- immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
           "Tier 3 (Human Shift Captain + Local Emergency Services): Medical distress or immediate physical safety concern."
         ]
       },

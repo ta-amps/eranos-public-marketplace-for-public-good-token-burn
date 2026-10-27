@@ -1,0 +1,199 @@
+{
+  "synthetic": true,
+  "spdx_license": "Apache-2.0",
+  "tags": [
+    "status:verified",
+    "domain:anti_exploitation",
+    "track:job-recruitment-triage",
+    "kind:full_kit",
+    "spdx:Apache-2.0",
+    "cohort:ngo_legal_aid"
+  ],
+  "target_cohorts": [
+    "all",
+    "ngo_legal_aid"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar"
+  ],
+  "kit": {
+    "spdx_license": "Apache-2.0",
+    "tags": [
+      "status:verified",
+      "domain:anti_exploitation",
+      "track:job-recruitment-triage",
+      "kind:full_kit",
+      "spdx:Apache-2.0",
+      "cohort:ngo_legal_aid"
+    ],
+    "target_cohorts": [
+      "all",
+      "ngo_legal_aid"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
+    "kit_id": "KIT-RECRUIT-01",
+    "track_id": "job-recruitment-triage",
+    "domain": "anti_exploitation",
+    "deliverable_kind": "full_kit",
+    "title": "Overseas Contract & Agency Fee Arithmetic Intake Kit",
+    "summary": "Computes total placement fees as a share of first-month wages, flags contract pay reductions, and prepares a structured summary for a trained caseworker without accusing any party.",
+    "target_org": "Migrant worker legal-aid intake desk",
+    "steps": [
+      {
+        "id": "extract_terms",
+        "title": "List stated wage, deductions, and fee receipts",
+        "kind": "arithmetic_check",
+        "boundary": "drafts",
+        "actor": "Intake agent",
+        "guidance": "Extract each amount with its currency code and document line reference; leave missing figures null."
+      },
+      {
+        "id": "worker_interview",
+        "title": "Confidential intake conversation with the worker",
+        "kind": "interview",
+        "boundary": "human_only",
+        "actor": "Trained NGO caseworker",
+        "guidance": "Confirm whether documents or passports are held and what the worker wishes to do next."
+      },
+      {
+        "id": "route_decision",
+        "title": "Caseworker referral or legal-aid decision",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Supervising legal-aid specialist",
+        "guidance": "Decide with the worker whether to request missing records, seek fee recovery, or close intake."
+      }
+    ],
+    "skill": {
+      "name": "recruitment-fee-intake-check",
+      "description": "Prepares a neutral arithmetic table comparing job-offer pay, contract pay, and fee receipts for an NGO caseworker.",
+      "boundary": "drafts",
+      "instructions": "Read only synthetic or client-consented local text inside the NGO's own workspace. List every fee and wage with its ISO currency code, compute fee share of first-month pay when currencies match, cite the applicable statute section, and stop before any interview or legal recommendation.",
+      "refuses": [
+        "Contacting an agency, lender, or employer",
+        "Calling any person or firm a lawbreaker",
+        "Recommending an action without caseworker review"
+      ]
+    },
+    "skills": [],
+    "tool": {
+      "name": "compute_fee_to_wage_ratio",
+      "description": "Computes placement fees as a percentage of first-month contract pay when currencies match and compares against a statutory cap.",
+      "input_schema": {
+        "properties": {
+          "cap_percent": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "currency": {
+            "maxLength": 3,
+            "minLength": 3,
+            "type": "string"
+          },
+          "fees": {
+            "items": {
+              "minimum": 0,
+              "type": "number"
+            },
+            "type": "array"
+          },
+          "monthly_wage": {
+            "minimum": 0.01,
+            "type": "number"
+          }
+        },
+        "required": [
+          "monthly_wage",
+          "fees",
+          "currency"
+        ],
+        "type": "object"
+      },
+      "output_fields": [
+        "total_fees",
+        "share_percent",
+        "exceeds_cap",
+        "currency"
+      ],
+      "read_only": true
+    },
+    "tools": [],
+    "artifacts": [],
+    "checklist": [
+      "Verify that all fee receipts and contract wages share the same ISO currency before computing a ratio.",
+      "Record whether a second contract changed the monthly wage promised in the initial job advertisement.",
+      "Hand every case mentioning identity-document retention combined with loan deductions straight to a trained caseworker."
+    ],
+    "sources": [
+      {
+        "title": "ILO C181 Private Employment Agencies Convention, Article 7",
+        "url": "https://normlex.ilo.org/dyn/normlex/en/f?p=NORMLEXPUB:12100:0::NO::P12100_ILO_CODE:C181",
+        "checked_date": "2026-10-26"
+      },
+      {
+        "title": "Hong Kong Employment Agencies Portal: Code of Practice for Employment Agencies",
+        "url": "https://www.eaa.labour.gov.hk/en/operator.html",
+        "checked_date": "2026-10-26"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-RECRUIT-CLEAR",
+        "scenario": "Legitimate agency commission within the 10% cap",
+        "sample_input": "SYNTHETIC: Contract states monthly salary HKD 5,000; receipt states commission HKD 450; worker holds own passport.",
+        "expected_indicators": [],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-RECRUIT-ESCALATE",
+        "scenario": "Training fee above cap plus passport safekeeping clause",
+        "sample_input": "SYNTHETIC: Contract states monthly salary HKD 4,870; receipt states training charge HKD 4,200; clause holds passport for safekeeping.",
+        "expected_indicators": [
+          "fee_exceeds_cap",
+          "document_retention_clause"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-01",
+    "drafted_by_key": "key_drafter_01"
+  },
+  "verification": {
+    "kit_id": "KIT-RECRUIT-01",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 2,
+    "human_only_steps": [
+      "worker_interview",
+      "route_decision"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-01",
+  "reviewed_by_key": "key_reviewer_01",
+  "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
+  "steward_signoff": null,
+  "draft_receipt": "0b9f19dbae10b7ec62d495d2ce34b5db55448dd20ddf59ad4463f4c52a9d8efb",
+  "review_receipt": "ee1a460defeb7d7879e06c93b29fd6520d50ced1e1af3692faa47a324afd0d2d",
+  "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
+  "catalog_version": 1
+}

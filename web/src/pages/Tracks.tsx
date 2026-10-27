@@ -1,9 +1,10 @@
 import { DomainBadge } from "../components/BoundaryBadge";
+import { ErrorAlert } from "../components/ErrorAlert";
 import type { TracksResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
 export function Tracks() {
-  const { state } = useResource<TracksResponse>("/api/tracks");
+  const { state, reload } = useResource<TracksResponse>("/api/tracks");
 
   return (
     <div>
@@ -14,8 +15,10 @@ export function Tracks() {
           domain, step kind, or organization type requires zero Python or TypeScript code changes.
         </p>
 
-        {state.status === "loading" && <p className="er-muted">Loading tracks…</p>}
-        {state.status === "error" && <p className="er-muted">Error loading tracks: {state.message}</p>}
+        {state.status === "loading" && <p className="er-muted">Loading tracks...</p>}
+        {state.status === "error" && (
+          <ErrorAlert title="Error loading tracks" message={state.message} onRetry={reload} />
+        )}
         {state.status === "ready" && (
           <div className="er-grid">
             {state.data.tracks.map((track) => (

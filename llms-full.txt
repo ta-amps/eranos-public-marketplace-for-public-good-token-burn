@@ -17,19 +17,19 @@ Most people with AI coding subscriptions or API budgets end the day or week with
 while NGOs, legal-aid clinics, hotlines, and small nonprofits lack the engineering time to build and test
 dependable AI workflows.
 
-**Eranos** lets anyone **donate unused tokens** — by pointing their coding agent at a scoped task queue on
-[Tessera](https://github.com/ta-amps/tessera) — to **build, test, and independently review off-the-shelf agent
+**Eranos** lets anyone **donate unused tokens** -- by pointing their coding agent at a scoped task queue on
+[Tessera](https://github.com/ta-amps/tessera) -- to **build, test, and independently review off-the-shelf agent
 skills, tools, files, and agentic processes** that NGOs and public-good teams can download and use right away.
 
 > Unused tokens build and test the kit; a second contributor's tokens review it; people keep every interview and
 > every decision about a person.
 
-*(Name note: in ancient Greece, an **eranos** — ἔρανος — was a mutual-aid potluck where each participant brought a
+*(Name note: in ancient Greece, an **eranos** -- ἔρανος -- was a mutual-aid potluck where each participant brought a
 spare share to equip a shared civic need.)*
 
 ## What NGOs get off the shelf
 
-Every published Eranos package bundles concrete, tested building blocks an NGO can adopt immediately — whether
+Every published Eranos package bundles concrete, tested building blocks an NGO can adopt immediately -- whether
 they run coding agents, an MCP client, or plain spreadsheets and printed checklists:
 
 - **Agent skills** (`AgentSkillSpec` / `SKILL.md` instructions): drop-in capabilities for triage prep, document
@@ -47,7 +47,7 @@ they run coding agents, an MCP client, or plain spreadsheets and printed checkli
 Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
 
 1. **Connect an agent with leftover tokens** (`MCP`, `HTTP`, `CLI`, or `/work` browser forms) using a scoped
-   volunteer key — never an admin or public-effect key.
+   volunteer key -- never an admin or public-effect key.
 2. **Build & self-test (`eq02` `draft`)**: one contributor's donated tokens claim an open public-good brief from
    `eq01` (`spec`), build the skill, tool schema, files, and agentic process, and run `eranos/verifier.py`
    against `SYNTHETIC` test cases.
@@ -250,7 +250,7 @@ URL: https://github.com/ta-amps/eranos/blob/main/docs/generalizing.md
 
 # Generalizing: Adding Tracks and Kits Without Engine Code
 
-Eranos's Python engine (`eranos/`) knows no track ID or kit ID by name—`tests/test_tracks_and_verifier.py`
+Eranos's Python engine (`eranos/`) knows no track ID or kit ID by name -- `tests/test_tracks_and_verifier.py`
 scans the AST of every module in `eranos/` and fails if one is hardcoded.
 
 ## Extension points
@@ -281,9 +281,9 @@ exact technical boundary:
 
 | Repo / Surface | Origin | Meaning & Architectural Fit |
 |---|---|---|
-| **Tessera** | Classical Greek & Roman (*tessera*) | A single mosaic tile — and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
-| **Shamash** | Mesopotamian (*Šamaš* / Sumerian *Utu*) | The sun-judge who sees across borders, condemns false weights and ruinous lending, and protects travellers on the road — matching cross-document and payment arithmetic verification without reckless accusation. |
-| **Eranos** | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need — matching people donating unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good. |
+| **Tessera** | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
+| **Shamash** | Mesopotamian (*Šamaš* / Sumerian *Utu*) | The sun-judge who sees across borders, condemns false weights and ruinous lending, and protects travellers on the road -- matching cross-document and payment arithmetic verification without reckless accusation. |
+| **Eranos** | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need -- matching people donating unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good. |
 
 ---
 
@@ -294,22 +294,22 @@ environment variables (`ERANOS_SURFACE_NAME`, `VITE_SURFACE_NAME`, `VITE_SURFACE
 source code. Below are the sibling names explored during design:
 
 ### Craftsmen, Tool-Forgers & Builders
-- **Kothar** (*Kothar-wa-Khasis*, Ugaritic/Canaanite — *"Skillful and Wise"*): The divine smith and
+- **Kothar** (*Kothar-wa-Khasis*, Ugaritic/Canaanite -- *"Skillful and Wise"*): The divine smith and
   architect who forges named, precision instruments to push back chaos and exploitation.
-- **Ilmarinen** (Finnic *Kalevala*): The eternal hammerer who forges the *Sampo* — a self-sustaining
+- **Ilmarinen** (Finnic *Kalevala*): The eternal hammerer who forges the *Sampo* -- a self-sustaining
   civic mill of grain, salt, and coin for the common good.
 - **Hephaestus** (Greek) / **Vulcan** (Roman): Master builder of autonomous workshop tripods and tools
   that assist stewards without replacing human judgment.
 - **Goibniu** (Irish/Celtic) / **Wayland** (Germanic): Legendary smiths of unbreakable, reliable craft.
-- **Vishvakarma** (Vedic/Sanskrit — *"All-Maker"*): Divine architect of public halls, tools, and
+- **Vishvakarma** (Vedic/Sanskrit -- *"All-Maker"*): Divine architect of public halls, tools, and
   standardized measures.
-- **Lu Ban** (Chinese — legendary carpenter-engineer): Patron of practical templates, modular jigs, and
+- **Lu Ban** (Chinese -- legendary carpenter-engineer): Patron of practical templates, modular jigs, and
   civilian relief engineering.
 
 ### Scribes, Ledgers, Granaries & Blueprints
 - **Nisaba** (Sumerian/Mesopotamian): Goddess of reed-stylus writing, accounting tablets, fair boundary
   surveys, and public granaries; direct Mesopotamian counterpart to **Shamash**.
-- **Seshat** (Ancient Egyptian — *"She Who Scribes"*): Keeper of blueprints, cord-stretching
+- **Seshat** (Ancient Egyptian -- *"She Who Scribes"*): Keeper of blueprints, cord-stretching
   measurements, archives, and libraries who turns raw knowledge into buildable plans.
 - **Thoth** (Egyptian) / **Nabu** (Babylonian): Guardians of exact records, translations, and verified
   citations.
@@ -317,7 +317,7 @@ source code. Below are the sibling names explored during design:
 ### Social Justice, Shelter & Honest Weights
 - **Nanshe** (Sumerian): Sister of Ningirsu and companion in justice to Utu/Shamash; inspects weights
   and measures, protects widows, migrants, and orphans, and shelters refugees from debt bondage.
-- **Ma'at** (Egyptian): Cosmic balance, truth, and calibrated feather-weight verification — ideal for
+- **Ma'at** (Egyptian): Cosmic balance, truth, and calibrated feather-weight verification -- ideal for
   deterministic evaluation suites and twin-case benchmarks.
 - **Themis** & **Dike** (Greek) / **Astraea** (Roman): Customary public order (*Themis*) and grounded
   human case-by-case justice (*Dike*).
@@ -330,7 +330,7 @@ source code. Below are the sibling names explored during design:
 - **Agora** (Greek) / **Forum** (Roman): Open civic assembly and public catalog of shared tools.
 - **Ayni** (Quechua / Andean) & **Minga** (Andean): Reciprocal community labor where neighbors pool
   effort to build shared infrastructure (bridges, storehouses, terraces).
-- **Bayanihan** (Filipino) & **Yui** (Japanese): Collective neighborhood mutual aid — directly resonant
+- **Bayanihan** (Filipino) & **Yui** (Japanese): Collective neighborhood mutual aid -- directly resonant
   with migrant-worker and disaster-relief communities.
 - **Hermes** (Greek) / **Iris** (Greek): Swift, faithful protocol routers and cross-language bridges
   (fitting MCP adapters and warm-referral handoffs).
@@ -389,7 +389,7 @@ Each file `examples/kits/*.json` holds a synthetic request, volunteer agent draf
 sign-off payload, and independent review decision exercised end-to-end by `make verify-examples`
 (`eq01 -> eq02 -> eq03 -> eranos.catalog`).
 
-Every fixture input begins with `SYNTHETIC:` — no real client, worker, caller, or donor data is ever
+Every fixture input begins with `SYNTHETIC:` -- no real client, worker, caller, or donor data is ever
 stored in this repository.
 
 ========================================================================
@@ -400,7 +400,8 @@ URL: https://github.com/ta-amps/eranos/blob/main/docs/frontend.md
 # Eranos: frontend and API surface
 
 The Eranos web surface (`web/`) lets nonprofit staff, volunteer agent operators, and reviewers inspect
-verified operational kits, check what agents are permitted vs. forbidden to do on each workflow step,
+verified operational kits, filter the catalog by governance and cohort metadata, check what agents are
+permitted vs. forbidden to do on each workflow step, run the zero-storage practice verifier (`persisted: false`),
 verify the two-step review receipts (`drafter != reviewer`), and connect their own AI agents to open
 build and review queues on Tessera.
 
@@ -409,35 +410,44 @@ build and review queues on Tessera.
 | Path | Page | Purpose |
 |---|---|---|
 | `/` | Overview | How volunteer agents build and independently review NGO & nonprofit tools on Tessera, live catalog counts, and the pairing with Shamash |
-| `/catalog` | Verified Catalog | Filterable list of published kits across anti-exploitation NGO work and general nonprofit operations |
-| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Tessera cryptographic receipts |
-| `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key |
+| `/catalog` | Verified Catalog | Filterable list of published kits by Domain, Track, Tag, Cohort, Open SPDX License, and free-text search |
+| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Tessera cryptographic receipts |
+| `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key (`eq01`/`eq02` vs `eq03`) |
 | `/tracks` | Tracks | The six data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
-| `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus CAS store guarantees |
-| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, why interviews and decisions remain human-only, and links to Shamash & Tessera |
+| `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
+| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and links to Shamash & Tessera |
 
-## HTTP API (`eranos/api/app.py`)
+## HTTP API & AI-agent discovery (`eranos/api/app.py` & `deploy/cloudflare/worker.js`)
 
-All endpoints return `synthetic: true` and `Cache-Control: no-store`. When `ERANOS_EDGE_SECRET` is set,
-every route except `GET /api/health` requires a matching `x-edge-auth` header from the Cloudflare Worker.
+All JSON API endpoints return `synthetic: true` and `Cache-Control: no-store`. When `ERANOS_EDGE_SECRET` is set,
+every `/api/*` route except `GET /api/health` requires a matching `x-edge-auth` header from the Cloudflare Worker;
+root health and AI-agent discovery endpoints remain publicly reachable at both the edge and origin.
 
 | Endpoint | Returns |
 |---|---|
 | `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and `synthetic: true` |
 | `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
 | `GET /api/tracks` | All six `TrackPack` definitions loaded from `tracks/*/track.json` |
-| `GET /api/catalog` | Summary list of verified `PublishedKit` entries from CAS store `eranos.catalog` (or `web/snapshot` fallback) |
-| `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown) |
+| `GET /api/catalog` | Filtered list of verified `PublishedKit` entries (`?domain=`, `?track=`, `?tag=`, `?cohort=`, `?spdx=`, `?q=`; unreviewed `status:quarantined` items excluded; omitted `?cohort=` returns universal `"all"` kits only) |
+| `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including governance envelope, skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown or quarantined) |
+| `POST /api/practice` | Zero-storage deterministic verifier (`persisted: false`, open-SPDX check, boundary & copy guards, SHA-256 practice receipt) |
 | `GET /api/requests` | Validated volunteer task briefs from `briefs/*.json` |
 | `GET /api/fabric` | Deterministic `eq01`, `eq02`, `eq03` queue labels and task counts |
-| `GET /api/feed` | Live `noun.promotions` delta feed (`after`, `limit`) from Tessera or empty synthetic cursor fallback |
+| `GET /api/feed` | Live `noun.promotions` delta feed (`after`, `limit`) from Tessera or local backend |
+| `GET /favicon.svg` | Inline SVG civic-wreath brand icon |
+| `GET /healthz` | Public JSON health probe |
+| `GET /robots.txt` | Crawler and AI-agent allowlist |
+| `GET /llms.txt` / `GET /llms-full.txt` | Structured LLM index and full reference corpus (`text/plain; charset=utf-8`) |
+| `GET /.well-known/agent-card.json` | A2A / agent discovery card advertising MCP and catalog capabilities |
+| `POST /mcp` | Stateless JSON-RPC 2.0 MCP server (`initialize`, `notifications/initialized`, `ping`, `tools/list`, `tools/call` for `list_tracks`, `search_catalog`, `get_kit`, `practice_verify_kit`) |
 
-## Offline snapshot mode (`VITE_SNAPSHOT=1`)
+## Offline snapshot & edge asset packaging (`make snapshot`)
 
 `make snapshot` runs `uv run eranos export-snapshot web/snapshot`, executing the real two-step pipeline
-(`eq01 -> eq02 -> eq03` + steward `park`/`resume`) against an ephemeral SQLite store and exporting static
-JSON into `web/snapshot/`. Building with `VITE_SNAPSHOT=1` bundles those verified outputs directly into
-the client so the full UI works offline with zero backend calls.
+(`eq01 -> eq02 -> eq03` + steward `park`/`resume`) against an ephemeral SQLite store, writing static
+JSON into `web/snapshot/`, and mirroring it into `web/public/snapshot/` so `pnpm --dir web build` bundles
+`/snapshot/{tracks,catalog,requests,fabric}.json` and `/snapshot/catalog/*.json` into `web/dist/snapshot/`
+for edge Worker fallback as well as `VITE_SNAPSHOT=1` offline builds.
 
 ========================================================================
 FILE: docs/setup.md
@@ -618,7 +628,7 @@ URL: https://github.com/ta-amps/eranos/blob/main/docs/glossary.md
 - **TrackPack (`tracks/<id>/track.json`):** Data file defining a nonprofit need, who it serves, required
   `human_only` steps, lines never crossed, and cited primary sources.
 - **KitDraft / PublishedKit:** A structured package holding workflow steps, an `AgentSkillSpec`, a read-only
-  `MCPToolSpec` JSON Schema, a checklist, sources, and `SYNTHETIC` fixtures—published into `eranos.catalog`
+  `MCPToolSpec` JSON Schema, a checklist, sources, and `SYNTHETIC` fixtures -- published into `eranos.catalog`
   only after independent review.
 
 ========================================================================
@@ -684,7 +694,7 @@ and true. Change it only with Taylor's approval.
 
 **Eranos** lets people **donate unused AI tokens** to build, test, and independently review **off-the-shelf
 agent skills, tools, files, and agentic processes** that NGOs, nonprofits, and public-good teams can use right
-away (*ἔρανος* — the ancient Greek mutual-aid potluck where each contributor brings a spare share to equip a
+away (*ἔρανος* -- the ancient Greek mutual-aid potluck where each contributor brings a spare share to equip a
 shared civic need).
 
 It is the dedicated public-good NGO tooling surface (`eranos.<domain>`) paired with
@@ -754,7 +764,7 @@ Never break these. If a task seems to need it, stop and ask Taylor.
 1. Synthetic data and public sources only. Every example and test fixture carries a visible `SYNTHETIC`
    mark. Real client records from NGOs or real people's posts never enter this repo.
 2. Live interviews, crisis safety planning, eligibility or legal decisions about a real person, and any
-   external sending or filing are always marked `human_only`—never `drafts`.
+   external sending or filing are always marked `human_only` -- never `drafts`.
 3. Two-step publication (`drafter != reviewer`). The key or worker that drafted a kit may never approve
    its review in `eq03`.
 4. Non-accusatory language only (`eranos/copy.py`). Tools surface indicators and checklist questions,

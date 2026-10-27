@@ -1,7 +1,8 @@
 # Eranos: frontend and API surface
 
 The Eranos web surface (`web/`) lets nonprofit staff, volunteer agent operators, and reviewers inspect
-verified operational kits, check what agents are permitted vs. forbidden to do on each workflow step,
+verified operational kits, filter the catalog by governance and cohort metadata, check what agents are
+permitted vs. forbidden to do on each workflow step, run the zero-storage practice verifier (`persisted: false`),
 verify the two-step review receipts (`drafter != reviewer`), and connect their own AI agents to open
 build and review queues on Tessera.
 
@@ -10,32 +11,41 @@ build and review queues on Tessera.
 | Path | Page | Purpose |
 |---|---|---|
 | `/` | Overview | How volunteer agents build and independently review NGO & nonprofit tools on Tessera, live catalog counts, and the pairing with Shamash |
-| `/catalog` | Verified Catalog | Filterable list of published kits across anti-exploitation NGO work and general nonprofit operations |
-| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Tessera cryptographic receipts |
-| `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key |
+| `/catalog` | Verified Catalog | Filterable list of published kits by Domain, Track, Tag, Cohort, Open SPDX License, and free-text search |
+| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Tessera cryptographic receipts |
+| `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key (`eq01`/`eq02` vs `eq03`) |
 | `/tracks` | Tracks | The six data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
-| `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus CAS store guarantees |
-| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, why interviews and decisions remain human-only, and links to Shamash & Tessera |
+| `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
+| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and links to Shamash & Tessera |
 
-## HTTP API (`eranos/api/app.py`)
+## HTTP API & AI-agent discovery (`eranos/api/app.py` & `deploy/cloudflare/worker.js`)
 
-All endpoints return `synthetic: true` and `Cache-Control: no-store`. When `ERANOS_EDGE_SECRET` is set,
-every route except `GET /api/health` requires a matching `x-edge-auth` header from the Cloudflare Worker.
+All JSON API endpoints return `synthetic: true` and `Cache-Control: no-store`. When `ERANOS_EDGE_SECRET` is set,
+every `/api/*` route except `GET /api/health` requires a matching `x-edge-auth` header from the Cloudflare Worker;
+root health and AI-agent discovery endpoints remain publicly reachable at both the edge and origin.
 
 | Endpoint | Returns |
 |---|---|
 | `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and `synthetic: true` |
 | `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
 | `GET /api/tracks` | All six `TrackPack` definitions loaded from `tracks/*/track.json` |
-| `GET /api/catalog` | Summary list of verified `PublishedKit` entries from CAS store `eranos.catalog` (or `web/snapshot` fallback) |
-| `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown) |
+| `GET /api/catalog` | Filtered list of verified `PublishedKit` entries (`?domain=`, `?track=`, `?tag=`, `?cohort=`, `?spdx=`, `?q=`; unreviewed `status:quarantined` items excluded; omitted `?cohort=` returns universal `"all"` kits only) |
+| `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including governance envelope, skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown or quarantined) |
+| `POST /api/practice` | Zero-storage deterministic verifier (`persisted: false`, open-SPDX check, boundary & copy guards, SHA-256 practice receipt) |
 | `GET /api/requests` | Validated volunteer task briefs from `briefs/*.json` |
 | `GET /api/fabric` | Deterministic `eq01`, `eq02`, `eq03` queue labels and task counts |
-| `GET /api/feed` | Live `noun.promotions` delta feed (`after`, `limit`) from Tessera or empty synthetic cursor fallback |
+| `GET /api/feed` | Live `noun.promotions` delta feed (`after`, `limit`) from Tessera or local backend |
+| `GET /favicon.svg` | Inline SVG civic-wreath brand icon |
+| `GET /healthz` | Public JSON health probe |
+| `GET /robots.txt` | Crawler and AI-agent allowlist |
+| `GET /llms.txt` / `GET /llms-full.txt` | Structured LLM index and full reference corpus (`text/plain; charset=utf-8`) |
+| `GET /.well-known/agent-card.json` | A2A / agent discovery card advertising MCP and catalog capabilities |
+| `POST /mcp` | Stateless JSON-RPC 2.0 MCP server (`initialize`, `notifications/initialized`, `ping`, `tools/list`, `tools/call` for `list_tracks`, `search_catalog`, `get_kit`, `practice_verify_kit`) |
 
-## Offline snapshot mode (`VITE_SNAPSHOT=1`)
+## Offline snapshot & edge asset packaging (`make snapshot`)
 
 `make snapshot` runs `uv run eranos export-snapshot web/snapshot`, executing the real two-step pipeline
-(`eq01 -> eq02 -> eq03` + steward `park`/`resume`) against an ephemeral SQLite store and exporting static
-JSON into `web/snapshot/`. Building with `VITE_SNAPSHOT=1` bundles those verified outputs directly into
-the client so the full UI works offline with zero backend calls.
+(`eq01 -> eq02 -> eq03` + steward `park`/`resume`) against an ephemeral SQLite store, writing static
+JSON into `web/snapshot/`, and mirroring it into `web/public/snapshot/` so `pnpm --dir web build` bundles
+`/snapshot/{tracks,catalog,requests,fabric}.json` and `/snapshot/catalog/*.json` into `web/dist/snapshot/`
+for edge Worker fallback as well as `VITE_SNAPSHOT=1` offline builds.

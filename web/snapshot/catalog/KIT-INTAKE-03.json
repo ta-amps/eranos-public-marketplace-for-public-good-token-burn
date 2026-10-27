@@ -1,6 +1,50 @@
 {
   "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:intake-and-referral-triage",
+    "kind:full_kit",
+    "spdx:MIT",
+    "cohort:ngo_legal_aid",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "ngo_legal_aid",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar"
+  ],
   "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:intake-and-referral-triage",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:ngo_legal_aid",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "ngo_legal_aid",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
     "kit_id": "KIT-INTAKE-03",
     "track_id": "intake-and-referral-triage",
     "domain": "nonprofit_ops",
@@ -126,6 +170,8 @@
       "human_only_boundaries",
       "synthetic_fixtures",
       "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
       "cited_sources",
       "deliverable_alignment"
     ],
@@ -140,8 +186,8 @@
   "reviewed_by_key": "key_reviewer_03",
   "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
   "steward_signoff": null,
-  "draft_receipt": "278c4e8c0449bc163e11352e5e9eaac691bea8c7d6714cd5cd523bf8d0dc5ce4",
-  "review_receipt": "11310739640c6a009c229093fb5fe9abae5f270ec3539a2f6986cf4d92e5771c",
-  "blob_sha256": "a0b8c68d70579bb0d924d62b9827219c6f9f8fa11722ff189b6e0f99d76eb2db",
+  "draft_receipt": "45d2e198ebb3ed57c209cdf608d20e45495c716e22cbe20a4d5967501ab91242",
+  "review_receipt": "54e75e6c93bee9b163e4137be3ea4941434f82afc03508743c7d008fbcc55396",
+  "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
   "catalog_version": 1
 }

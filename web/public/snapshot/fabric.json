@@ -1,0 +1,37 @@
+{
+  "display_name": "Tessera",
+  "plan": "snapshot",
+  "synthetic": true,
+  "queues": [
+    {
+      "name": "eq01",
+      "label": "Scope",
+      "ready": 0,
+      "leased": 0,
+      "waiting": 0,
+      "done": 5,
+      "dead": 0,
+      "cancelled": 0
+    },
+    {
+      "name": "eq02",
+      "label": "Draft + verify",
+      "ready": 0,
+      "leased": 0,
+      "waiting": 0,
+      "done": 5,
+      "dead": 0,
+      "cancelled": 0
+    },
+    {
+      "name": "eq03",
+      "label": "Independent review",
+      "ready": 0,
+      "leased": 0,
+      "waiting": 0,
+      "done": 5,
+      "dead": 0,
+      "cancelled": 0
+    }
+  ]
+}

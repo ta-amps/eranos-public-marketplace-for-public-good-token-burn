@@ -7,7 +7,7 @@ and true. Change it only with Taylor's approval.
 
 **Eranos** lets people **donate unused AI tokens** to build, test, and independently review **off-the-shelf
 agent skills, tools, files, and agentic processes** that NGOs, nonprofits, and public-good teams can use right
-away (*ἔρανος* — the ancient Greek mutual-aid potluck where each contributor brings a spare share to equip a
+away (*ἔρανος* -- the ancient Greek mutual-aid potluck where each contributor brings a spare share to equip a
 shared civic need).
 
 It is the dedicated public-good NGO tooling surface (`eranos.<domain>`) paired with
@@ -77,7 +77,7 @@ Never break these. If a task seems to need it, stop and ask Taylor.
 1. Synthetic data and public sources only. Every example and test fixture carries a visible `SYNTHETIC`
    mark. Real client records from NGOs or real people's posts never enter this repo.
 2. Live interviews, crisis safety planning, eligibility or legal decisions about a real person, and any
-   external sending or filing are always marked `human_only`—never `drafts`.
+   external sending or filing are always marked `human_only` -- never `drafts`.
 3. Two-step publication (`drafter != reviewer`). The key or worker that drafted a kit may never approve
    its review in `eq03`.
 4. Non-accusatory language only (`eranos/copy.py`). Tools surface indicators and checklist questions,

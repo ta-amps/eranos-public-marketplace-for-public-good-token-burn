@@ -1,0 +1,991 @@
+{
+  "synthetic": true,
+  "two_step_verified": true,
+  "kits": [
+    {
+      "spdx_license": "BSD-3-Clause",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:grant-and-compliance-ops",
+        "kind:full_kit",
+        "spdx:BSD-3-Clause",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
+      "kit": {
+        "spdx_license": "BSD-3-Clause",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:grant-and-compliance-ops",
+          "kind:full_kit",
+          "spdx:BSD-3-Clause",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
+        "kit_id": "KIT-GRANT-04",
+        "track_id": "grant-and-compliance-ops",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Small-Nonprofit Restricted Grant & Audit Readiness Kit",
+        "summary": "Reconciles ledger rows against restricted grant line items, lists missing receipt attachments as explicit nulls instead of zeros, and drafts narrative variance notes for treasurer review.",
+        "target_org": "Small 501(c)(3) youth and food-security nonprofit",
+        "steps": [
+          {
+            "id": "reconcile_lines",
+            "title": "Recompute restricted grant spend by budget category",
+            "kind": "arithmetic_check",
+            "boundary": "drafts",
+            "actor": "Grant reconciliation tool",
+            "guidance": "Sum posted expenses per grant code, flag unreceipted rows as missing, and compute remaining restricted balance."
+          },
+          {
+            "id": "draft_variance_memo",
+            "title": "Draft quarterly grant progress and variance summary",
+            "kind": "reporting_summary",
+            "boundary": "drafts",
+            "actor": "Operations drafting agent",
+            "guidance": "Summarize completed deliverables and flag any line variance above 10% for budget-modification review."
+          },
+          {
+            "id": "treasurer_approval",
+            "title": "Approve restricted-fund allocation and variance treatment",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Board treasurer or finance lead",
+            "guidance": "Review every flagged receipt gap and approve any cost-reallocation request."
+          },
+          {
+            "id": "submit_funder_report",
+            "title": "File signed report in funder or regulator portal",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Executive director or treasurer",
+            "guidance": "External portal submissions and 990 schedules are filed only by an authorized officer."
+          }
+        ],
+        "skill": {
+          "name": "restricted-grant-reconciler",
+          "description": "Reconciles nonprofit ledger rows against restricted grant budgets without inventing missing numbers.",
+          "boundary": "drafts",
+          "instructions": "Check each expense row's grant tag, date window, and receipt attachment status. Report missing receipts as null/unverified rather than zero, highlight budget lines with >10% variance, and output a review packet for the board treasurer.",
+          "refuses": [
+            "Estimating or inventing missing receipt amounts",
+            "Submitting grant reports or tax filings externally"
+          ]
+        },
+        "skills": [],
+        "tool": {
+          "name": "check_grant_budget_variance",
+          "description": "Computes line-by-line restricted grant spend, remaining balance, variance percent, and missing-receipt count.",
+          "input_schema": {
+            "properties": {
+              "budget_lines": {
+                "type": "object"
+              },
+              "currency": {
+                "maxLength": 3,
+                "minLength": 3,
+                "type": "string"
+              },
+              "grant_id": {
+                "type": "string"
+              },
+              "ledger_rows": {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            },
+            "required": [
+              "grant_id",
+              "currency",
+              "budget_lines",
+              "ledger_rows"
+            ],
+            "type": "object"
+          },
+          "output_fields": [
+            "line_totals",
+            "variance_percent",
+            "unreceipted_rows",
+            "outside_grant_window"
+          ],
+          "read_only": true
+        },
+        "tools": [],
+        "artifacts": [],
+        "checklist": [
+          "Verify every expense date falls inside the grant agreement's start and end dates.",
+          "Keep unreceipted transactions in a separate 'pending documentation' list instead of counting them as cleared.",
+          "Require board treasurer sign-off before requesting a budget-line modification above 10%."
+        ],
+        "sources": [
+          {
+            "title": "IRS Compliance Guide for 501(c)(3) Public Charities (Publication 4221-PC)",
+            "url": "https://www.irs.gov/forms-pubs/about-publication-4221-pc",
+            "checked_date": "2026-10-26"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-GRANT-BALANCED",
+            "scenario": "Quarterly food-program grant within all line caps and fully receipted",
+            "sample_input": "SYNTHETIC: Grant G-2026-04 food supplies budget USD 12,000; 14 posted invoices totaling USD 11,420 with matching receipts inside Q3.",
+            "expected_indicators": [],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-GRANT-VARIANCE",
+            "scenario": "Cold-storage equipment repair puts supplies line 16% over cap plus one missing invoice",
+            "sample_input": "SYNTHETIC: Grant G-2026-04 equipment line budget USD 2,000; posted charges USD 2,320 and row L-88 lacks vendor receipt PDF.",
+            "expected_indicators": [
+              "line_variance_over_10pct",
+              "missing_receipt_attachment"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-04",
+        "drafted_by_key": "key_drafter_04"
+      },
+      "verification": {
+        "kit_id": "KIT-GRANT-04",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "treasurer_approval",
+          "submit_funder_report"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-04",
+      "reviewed_by_key": "key_reviewer_04",
+      "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
+      "steward_signoff": null,
+      "draft_receipt": "d33b45b213776a92c5c00d656150e92fba432a6aaa7f52cebc13ece9345ba792",
+      "review_receipt": "d5f063a613e943a134b3962ba4ca3cb0ad63508d9a5afd92aac725e2cebece3c",
+      "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
+      "catalog_version": 1
+    },
+    {
+      "spdx_license": "CC-BY-4.0",
+      "tags": [
+        "status:verified",
+        "domain:anti_exploitation",
+        "track:coerced-work-hotline-routing",
+        "kind:full_kit",
+        "spdx:CC-BY-4.0",
+        "cohort:ngo_hotline",
+        "steward:required"
+      ],
+      "target_cohorts": [
+        "all",
+        "ngo_hotline"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
+      "kit": {
+        "spdx_license": "CC-BY-4.0",
+        "tags": [
+          "status:verified",
+          "domain:anti_exploitation",
+          "track:coerced-work-hotline-routing",
+          "kind:full_kit",
+          "spdx:CC-BY-4.0",
+          "cohort:ngo_hotline",
+          "steward:required"
+        ],
+        "target_cohorts": [
+          "all",
+          "ngo_hotline"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
+        "kit_id": "KIT-HOTLINE-02",
+        "track_id": "coerced-work-hotline-routing",
+        "domain": "anti_exploitation",
+        "deliverable_kind": "full_kit",
+        "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
+        "summary": "Matches corridor countries and languages to re-verified public helplines and consular desks, surfacing unverified offer indicators while reserving all crisis safety planning for trained staff.",
+        "target_org": "Regional anti-exploitation helpline desk",
+        "steps": [
+          {
+            "id": "lookup_helplines",
+            "title": "Match corridor country and caller language to verified public hotlines",
+            "kind": "directory_lookup",
+            "boundary": "assists",
+            "actor": "Helpline assistant tool",
+            "guidance": "Return only helpline entries whose checked_date is within 90 days; mark older entries for human re-verification."
+          },
+          {
+            "id": "caller_interview",
+            "title": "Live conversation with caller or family member",
+            "kind": "interview",
+            "boundary": "human_only",
+            "actor": "Trained helpline responder",
+            "guidance": "Conduct trauma-informed intake without automated scripts speaking to the caller."
+          },
+          {
+            "id": "safety_plan",
+            "title": "Crisis safety and consular escalation plan",
+            "kind": "crisis_safety_plan",
+            "boundary": "human_only",
+            "actor": "Senior crisis caseworker",
+            "guidance": "Handle any immediate safety risk directly with trained human responders."
+          },
+          {
+            "id": "external_referral",
+            "title": "Transmit warm referral to consular or partner desk",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Helpline shift lead",
+            "guidance": "Send referral details only with explicit consent and human supervisor review."
+          }
+        ],
+        "skill": {
+          "name": "corridor-helpline-lookup",
+          "description": "Finds verified public helplines and consular contacts by corridor and language, flagging stale entries before use.",
+          "boundary": "assists",
+          "instructions": "Look up matching corridor helplines from the verified JSON directory, display each entry's last checked date and official URL, and immediately route any active distress call to a human responder without generating safety advice.",
+          "refuses": [
+            "Generating exit or safety instructions for a person at risk",
+            "Collecting or logging caller location coordinates",
+            "Contacting external parties automatically"
+          ]
+        },
+        "skills": [],
+        "tool": {
+          "name": "match_verified_helplines",
+          "description": "Filters verified public helpline records by destination country, origin country, and spoken language.",
+          "input_schema": {
+            "properties": {
+              "corridor": {
+                "minLength": 2,
+                "type": "string"
+              },
+              "language": {
+                "minLength": 2,
+                "type": "string"
+              },
+              "max_age_days": {
+                "default": 90,
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "corridor",
+              "language"
+            ],
+            "type": "object"
+          },
+          "output_fields": [
+            "matches",
+            "stale_entries",
+            "requires_human_recheck"
+          ],
+          "read_only": true
+        },
+        "tools": [],
+        "artifacts": [],
+        "checklist": [
+          "Check whether every listed helpline number was verified within the past 90 days before handing it to a caller.",
+          "Note transit changes such as a ticket routed to a border town different from the stated office city.",
+          "Escalate any live safety concern immediately to the human shift lead."
+        ],
+        "sources": [
+          {
+            "title": "UNODC Issue Paper: Casinos, Cyber Fraud, and Trafficking in Persons in Southeast Asia",
+            "url": "https://www.unodc.org/roseap/en/publications/2023/casinos-cyber-fraud-trafficking-in-persons.html",
+            "checked_date": "2026-10-26"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-HOTLINE-PRECHECK",
+            "scenario": "Pre-departure job-seeker verifying a licensed recruiter listing",
+            "sample_input": "SYNTHETIC: Caller asks which official labour registry checks an overseas customer-support job contract before signing.",
+            "expected_indicators": [
+              "registry_verification_requested"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-HOTLINE-URGENT",
+            "scenario": "Family reports sudden transit reroute and restricted phone access",
+            "sample_input": "SYNTHETIC: Family member reports job-seeker landed in a different city and was asked to surrender travel documents.",
+            "expected_indicators": [
+              "transit_reroute",
+              "document_retention"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-02",
+        "drafted_by_key": "key_drafter_02"
+      },
+      "verification": {
+        "kit_id": "KIT-HOTLINE-02",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "caller_interview",
+          "safety_plan",
+          "external_referral"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-02",
+      "reviewed_by_key": "key_reviewer_02",
+      "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
+      "steward_signoff": "helpline-steward-lead",
+      "draft_receipt": "77dd33396ca1f82a6a5c8cf096fa80685849e3029b8d3dd8b675c7635df5243d",
+      "review_receipt": "d816b7b6d37f66a52f033c90c6472ebb1540951e6faa3c9f393ca21689f1999d",
+      "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
+      "catalog_version": 1
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:intake-and-referral-triage",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:ngo_legal_aid",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "ngo_legal_aid",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:intake-and-referral-triage",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:ngo_legal_aid",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "ngo_legal_aid",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
+        "kit_id": "KIT-INTAKE-03",
+        "track_id": "intake-and-referral-triage",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Community Services Warm-Referral & HSDS Triage Kit",
+        "summary": "Matches Open Referral HSDS service listings against household needs, flags missing paperwork early, and drafts a plain-language warm-referral note for caseworker approval.",
+        "target_org": "Neighborhood multi-service nonprofit center",
+        "steps": [
+          {
+            "id": "match_programs",
+            "title": "Filter published local programs by hours, language, and service category",
+            "kind": "directory_lookup",
+            "boundary": "assists",
+            "actor": "Intake support tool",
+            "guidance": "Show matching programs alongside required documents and current intake hours."
+          },
+          {
+            "id": "draft_handoff_note",
+            "title": "Draft plain-language warm-referral summary",
+            "kind": "document_prep",
+            "boundary": "drafts",
+            "actor": "Intake drafting agent",
+            "guidance": "Prepare a concise referral checklist in the resident's preferred language for the caseworker to inspect."
+          },
+          {
+            "id": "resident_conversation",
+            "title": "In-person or phone intake conversation",
+            "kind": "interview",
+            "boundary": "human_only",
+            "actor": "Community resource navigator",
+            "guidance": "Discuss household priorities, consent, and accessibility needs directly with the resident."
+          },
+          {
+            "id": "eligibility_call",
+            "title": "Confirm program fit and referral selection",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Community resource navigator",
+            "guidance": "Never let an automated filter deny a resident; the navigator confirms every referral."
+          }
+        ],
+        "skill": {
+          "name": "warm-referral-drafter",
+          "description": "Matches Open Referral HSDS program entries and drafts a plain-language checklist for a human navigator to review.",
+          "boundary": "drafts",
+          "instructions": "Given published HSDS program records and a synthetic or navigator-entered need summary, list candidate programs with hours, transit notes, and required documents. Mark uncertain requirements as 'ask desk to confirm' rather than excluding the resident.",
+          "refuses": [
+            "Denying eligibility automatically",
+            "Transmitting client details externally without navigator sign-off"
+          ]
+        },
+        "skills": [],
+        "tool": {
+          "name": "filter_hsds_services",
+          "description": "Queries Open Referral HSDS service entries by category, zip/postal prefix, and language support.",
+          "input_schema": {
+            "properties": {
+              "language": {
+                "type": "string"
+              },
+              "open_weekends": {
+                "type": "boolean"
+              },
+              "service_category": {
+                "minLength": 2,
+                "type": "string"
+              }
+            },
+            "required": [
+              "service_category"
+            ],
+            "type": "object"
+          },
+          "output_fields": [
+            "candidate_services",
+            "documents_to_bring",
+            "unconfirmed_fields"
+          ],
+          "read_only": true
+        },
+        "tools": [],
+        "artifacts": [],
+        "checklist": [
+          "Confirm whether the partner pantry or clinic requires photo ID or accepts self-attestation of address.",
+          "Check language interpretation availability before scheduling a warm handoff.",
+          "Obtain explicit resident consent before sharing any referral note with a partner nonprofit."
+        ],
+        "sources": [
+          {
+            "title": "Open Referral Human Services Data Specification (HSDS)",
+            "url": "https://docs.openreferral.org/en/latest/hsds/",
+            "checked_date": "2026-10-26"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-INTAKE-PANTRY",
+            "scenario": "Weekend food pantry lookup with Spanish language support",
+            "sample_input": "SYNTHETIC: Household of three seeks Saturday food pantry access and Spanish intake hours in district 04.",
+            "expected_indicators": [
+              "weekend_hours_match"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-INTAKE-URGENT-HOUSING",
+            "scenario": "Same-day eviction notice requiring emergency housing navigator",
+            "sample_input": "SYNTHETIC: Resident brings a 48-hour lockout notice and requests emergency rental assistance review.",
+            "expected_indicators": [
+              "urgent_housing_timeline"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-03",
+        "drafted_by_key": "key_drafter_03"
+      },
+      "verification": {
+        "kit_id": "KIT-INTAKE-03",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "resident_conversation",
+          "eligibility_call"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-03",
+      "reviewed_by_key": "key_reviewer_03",
+      "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
+      "steward_signoff": null,
+      "draft_receipt": "45d2e198ebb3ed57c209cdf608d20e45495c716e22cbe20a4d5967501ab91242",
+      "review_receipt": "54e75e6c93bee9b163e4137be3ea4941434f82afc03508743c7d008fbcc55396",
+      "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
+      "catalog_version": 1
+    },
+    {
+      "spdx_license": "Apache-2.0",
+      "tags": [
+        "status:verified",
+        "domain:anti_exploitation",
+        "track:job-recruitment-triage",
+        "kind:full_kit",
+        "spdx:Apache-2.0",
+        "cohort:ngo_legal_aid"
+      ],
+      "target_cohorts": [
+        "all",
+        "ngo_legal_aid"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
+      "kit": {
+        "spdx_license": "Apache-2.0",
+        "tags": [
+          "status:verified",
+          "domain:anti_exploitation",
+          "track:job-recruitment-triage",
+          "kind:full_kit",
+          "spdx:Apache-2.0",
+          "cohort:ngo_legal_aid"
+        ],
+        "target_cohorts": [
+          "all",
+          "ngo_legal_aid"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
+        "kit_id": "KIT-RECRUIT-01",
+        "track_id": "job-recruitment-triage",
+        "domain": "anti_exploitation",
+        "deliverable_kind": "full_kit",
+        "title": "Overseas Contract & Agency Fee Arithmetic Intake Kit",
+        "summary": "Computes total placement fees as a share of first-month wages, flags contract pay reductions, and prepares a structured summary for a trained caseworker without accusing any party.",
+        "target_org": "Migrant worker legal-aid intake desk",
+        "steps": [
+          {
+            "id": "extract_terms",
+            "title": "List stated wage, deductions, and fee receipts",
+            "kind": "arithmetic_check",
+            "boundary": "drafts",
+            "actor": "Intake agent",
+            "guidance": "Extract each amount with its currency code and document line reference; leave missing figures null."
+          },
+          {
+            "id": "worker_interview",
+            "title": "Confidential intake conversation with the worker",
+            "kind": "interview",
+            "boundary": "human_only",
+            "actor": "Trained NGO caseworker",
+            "guidance": "Confirm whether documents or passports are held and what the worker wishes to do next."
+          },
+          {
+            "id": "route_decision",
+            "title": "Caseworker referral or legal-aid decision",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Supervising legal-aid specialist",
+            "guidance": "Decide with the worker whether to request missing records, seek fee recovery, or close intake."
+          }
+        ],
+        "skill": {
+          "name": "recruitment-fee-intake-check",
+          "description": "Prepares a neutral arithmetic table comparing job-offer pay, contract pay, and fee receipts for an NGO caseworker.",
+          "boundary": "drafts",
+          "instructions": "Read only synthetic or client-consented local text inside the NGO's own workspace. List every fee and wage with its ISO currency code, compute fee share of first-month pay when currencies match, cite the applicable statute section, and stop before any interview or legal recommendation.",
+          "refuses": [
+            "Contacting an agency, lender, or employer",
+            "Calling any person or firm a lawbreaker",
+            "Recommending an action without caseworker review"
+          ]
+        },
+        "skills": [],
+        "tool": {
+          "name": "compute_fee_to_wage_ratio",
+          "description": "Computes placement fees as a percentage of first-month contract pay when currencies match and compares against a statutory cap.",
+          "input_schema": {
+            "properties": {
+              "cap_percent": {
+                "minimum": 0,
+                "type": "number"
+              },
+              "currency": {
+                "maxLength": 3,
+                "minLength": 3,
+                "type": "string"
+              },
+              "fees": {
+                "items": {
+                  "minimum": 0,
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              "monthly_wage": {
+                "minimum": 0.01,
+                "type": "number"
+              }
+            },
+            "required": [
+              "monthly_wage",
+              "fees",
+              "currency"
+            ],
+            "type": "object"
+          },
+          "output_fields": [
+            "total_fees",
+            "share_percent",
+            "exceeds_cap",
+            "currency"
+          ],
+          "read_only": true
+        },
+        "tools": [],
+        "artifacts": [],
+        "checklist": [
+          "Verify that all fee receipts and contract wages share the same ISO currency before computing a ratio.",
+          "Record whether a second contract changed the monthly wage promised in the initial job advertisement.",
+          "Hand every case mentioning identity-document retention combined with loan deductions straight to a trained caseworker."
+        ],
+        "sources": [
+          {
+            "title": "ILO C181 Private Employment Agencies Convention, Article 7",
+            "url": "https://normlex.ilo.org/dyn/normlex/en/f?p=NORMLEXPUB:12100:0::NO::P12100_ILO_CODE:C181",
+            "checked_date": "2026-10-26"
+          },
+          {
+            "title": "Hong Kong Employment Agencies Portal: Code of Practice for Employment Agencies",
+            "url": "https://www.eaa.labour.gov.hk/en/operator.html",
+            "checked_date": "2026-10-26"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-RECRUIT-CLEAR",
+            "scenario": "Legitimate agency commission within the 10% cap",
+            "sample_input": "SYNTHETIC: Contract states monthly salary HKD 5,000; receipt states commission HKD 450; worker holds own passport.",
+            "expected_indicators": [],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-RECRUIT-ESCALATE",
+            "scenario": "Training fee above cap plus passport safekeeping clause",
+            "sample_input": "SYNTHETIC: Contract states monthly salary HKD 4,870; receipt states training charge HKD 4,200; clause holds passport for safekeeping.",
+            "expected_indicators": [
+              "fee_exceeds_cap",
+              "document_retention_clause"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-01",
+        "drafted_by_key": "key_drafter_01"
+      },
+      "verification": {
+        "kit_id": "KIT-RECRUIT-01",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "worker_interview",
+          "route_decision"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-01",
+      "reviewed_by_key": "key_reviewer_01",
+      "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
+      "steward_signoff": null,
+      "draft_receipt": "0b9f19dbae10b7ec62d495d2ce34b5db55448dd20ddf59ad4463f4c52a9d8efb",
+      "review_receipt": "ee1a460defeb7d7879e06c93b29fd6520d50ced1e1af3692faa47a324afd0d2d",
+      "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
+      "catalog_version": 1
+    },
+    {
+      "spdx_license": "CC0-1.0",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:volunteer-shift-and-sop-builder",
+        "kind:sop_playbook",
+        "spdx:CC0-1.0",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
+      "kit": {
+        "spdx_license": "CC0-1.0",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:volunteer-shift-and-sop-builder",
+          "kind:sop_playbook",
+          "spdx:CC0-1.0",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
+        "kit_id": "KIT-SHIFT-05",
+        "track_id": "volunteer-shift-and-sop-builder",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "sop_playbook",
+        "title": "Community Pantry Shift Onboarding & Incident Escalation SOP Pack",
+        "summary": "Standalone SOP playbook and multilingual role-card drafting skill for volunteer coordinators, reserving all medical, safety, and accommodation decisions strictly for the on-site shift captain.",
+        "target_org": "Neighborhood mutual-aid pantry and cold-weather shelter",
+        "steps": [
+          {
+            "id": "draft_role_cards",
+            "title": "Generate printable station checklists and shift handoff notes",
+            "kind": "volunteer_roster_prep",
+            "boundary": "drafts",
+            "actor": "Operations drafting agent",
+            "guidance": "Prepare plain-language station cards (receiving, sorting, distribution, cleanup) with clear escalation contact boxes."
+          },
+          {
+            "id": "onsite_incident_judgment",
+            "title": "Handle accommodation requests and volunteer conduct",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "On-site human shift captain",
+            "guidance": "Any conflict or guest accommodation decision is handled in person by the trained shift captain."
+          },
+          {
+            "id": "emergency_safety_escalation",
+            "title": "Execute live medical, weather, or physical safety response",
+            "kind": "crisis_safety_plan",
+            "boundary": "human_only",
+            "actor": "On-site shift captain and certified first-aid lead",
+            "guidance": "Immediate physical safety or medical distress is handled directly by on-site human responders."
+          },
+          {
+            "id": "dispatch_shift_packet",
+            "title": "Send approved shift schedule and emergency contacts to volunteers",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Volunteer coordinator",
+            "guidance": "Coordinator reviews and sends shift packets directly; agents never message volunteers automatically."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "shift-role-card-drafter",
+            "description": "Drafts concise, accessible volunteer station cards and shift handoff checklists from a pantry or shelter's operating hours and station list.",
+            "boundary": "drafts",
+            "instructions": "Format each station card at an 8th-grade reading level with three sections: Setup, During Shift, and When to Call the Shift Captain. Never generate medical advice or disciplinary decisions.",
+            "refuses": [
+              "Making volunteer disciplinary or dismissal decisions",
+              "Generating clinical or emergency medical instructions",
+              "Messaging volunteers or guests directly"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [],
+        "artifacts": [
+          {
+            "name": "shift_escalation_sop",
+            "title": "Three-Tier On-Site Escalation Playbook",
+            "artifact_format": "markdown_sop",
+            "boundary": "drafts",
+            "summary": "Printable escalation tree distinguishing routine supply restocks from immediate human shift-captain and emergency-responder triggers.",
+            "spec": [
+              "Tier 1 (Station Lead): Restock shortages, queue pacing, translation card lookup.",
+              "Tier 2 (Human Shift Captain -- immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
+              "Tier 3 (Human Shift Captain + Local Emergency Services): Medical distress or immediate physical safety concern."
+            ]
+          },
+          {
+            "name": "station_handoff_template",
+            "title": "End-of-Shift Handoff CSV Template",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "Zero-PII station handoff log recording supply counts, equipment status, and open follow-ups for the next coordinator.",
+            "spec": {
+              "columns": [
+                "shift_date",
+                "station_id",
+                "households_served_count",
+                "restock_needed",
+                "captain_followup_note"
+              ],
+              "pii_allowed": false
+            }
+          }
+        ],
+        "checklist": [
+          "Confirm the on-site shift captain's name and phone extension are filled in before printing station cards.",
+          "Verify no guest or volunteer personal health details appear in shift handoff notes.",
+          "Walk new volunteers through the Tier 1\u20133 escalation box during the 5-minute pre-shift huddle."
+        ],
+        "sources": [
+          {
+            "title": "Ready.gov Community & Volunteer Preparedness Guidance",
+            "url": "https://www.ready.gov/volunteer",
+            "checked_date": "2026-10-26"
+          },
+          {
+            "title": "Sphere Handbook: Humanitarian Charter and Minimum Standards",
+            "url": "https://spherestandards.org/handbook/",
+            "checked_date": "2026-10-26"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-SHIFT-ROUTINE",
+            "scenario": "Saturday morning pantry coordinator preparing four station role cards",
+            "sample_input": "SYNTHETIC: 3-hour Saturday pantry shift with 12 volunteers across intake welcome, dry-goods table, cold storage, and exit carry-out.",
+            "expected_indicators": [
+              "four_station_cards_generated"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-SHIFT-ESCALATE",
+            "scenario": "Guest requests urgent cold-weather shelter exception after hours",
+            "sample_input": "SYNTHETIC: Volunteer at welcome table asks how to handle an after-hours family shelter accommodation request.",
+            "expected_indicators": [
+              "route_to_shift_captain"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-05",
+        "drafted_by_key": "key_drafter_05"
+      },
+      "verification": {
+        "kit_id": "KIT-SHIFT-05",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "onsite_incident_judgment",
+          "emergency_safety_escalation",
+          "dispatch_shift_packet"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-05",
+      "reviewed_by_key": "key_reviewer_05",
+      "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
+      "steward_signoff": null,
+      "draft_receipt": "db5dc03889a42bd89e27144f0dce5eb5a561904bf120a2eb3af16e9b75675cfd",
+      "review_receipt": "d5842857e032d502ad6906ecc4edf552a0673ef10029fcc73088cc94f9fe3cb9",
+      "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
+      "catalog_version": 1
+    }
+  ]
+}

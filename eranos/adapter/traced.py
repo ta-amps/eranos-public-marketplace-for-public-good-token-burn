@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 from collections.abc import Sequence
 from typing import Any
 
@@ -41,8 +42,16 @@ class TracedBackend:
         *,
         kinds: Sequence[str] | None = None,
         effect_classes: Sequence[str] | None = None,
+        key_id: str | None = None,
     ) -> Lease | None:
-        lease = self._inner.claim(queue, worker, kinds=kinds, effect_classes=effect_classes)
+        claim_params = inspect.signature(self._inner.claim).parameters
+        kwargs: dict[str, Any] = {
+            "kinds": kinds,
+            "effect_classes": effect_classes,
+        }
+        if key_id is not None and "key_id" in claim_params:
+            kwargs["key_id"] = key_id
+        lease = self._inner.claim(queue, worker, **kwargs)
         if lease is not None:
             self._trace.write(
                 "claimed",
@@ -104,9 +113,23 @@ class TracedBackend:
         )
         return view
 
-    def resume(self, task_id: str, value: dict[str, Any], *, park: int | None = None) -> TaskView:
-        view = self._inner.resume(task_id, value, park=park)
-        self._trace.write("resumed", task_id=task_id, backend=self.backend)
+    def resume(
+        self,
+        task_id: str,
+        value: dict[str, Any],
+        *,
+        park: int | None = None,
+        by: str | None = None,
+        allow_self: bool = False,
+    ) -> TaskView:
+        resume_params = inspect.signature(self._inner.resume).parameters
+        kwargs: dict[str, Any] = {"park": park}
+        if by is not None and "by" in resume_params:
+            kwargs["by"] = by
+        if allow_self and "allow_self" in resume_params:
+            kwargs["allow_self"] = allow_self
+        view = self._inner.resume(task_id, value, **kwargs)
+        self._trace.write("resumed", task_id=task_id, by=by, backend=self.backend)
         return view
 
     def close(self) -> None:

@@ -17,7 +17,7 @@ proxy with zero extra cost.
 
 ## Files
 
-- [`hosting.env`](hosting.env) — non-secret app, Worker, volume, health URL, and optional `CUSTOM_DOMAIN`
-- [`bootstrap-hosting.sh`](bootstrap-hosting.sh) — shared dry-run-capable bootstrap script
-- [`cloudflare/`](cloudflare/README.md) — Cloudflare Worker (`worker.js` + `wrangler.jsonc`)
-- [`fly/`](fly/README.md) — Fly.io container (`Dockerfile`, `Dockerfile.dockerignore`, `fly.toml`)
+- [`hosting.env`](hosting.env) -- non-secret app, Worker, volume, health URL, and optional `CUSTOM_DOMAIN`
+- [`bootstrap-hosting.sh`](bootstrap-hosting.sh) -- shared dry-run-capable bootstrap script
+- [`cloudflare/`](cloudflare/README.md) -- Cloudflare Worker (`worker.js` + `wrangler.jsonc`)
+- [`fly/`](fly/README.md) -- Fly.io container (`Dockerfile`, `Dockerfile.dockerignore`, `fly.toml`)

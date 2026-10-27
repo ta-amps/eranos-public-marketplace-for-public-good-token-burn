@@ -1,6 +1,6 @@
 # Generalizing: Adding Tracks and Kits Without Engine Code
 
-Eranos's Python engine (`eranos/`) knows no track ID or kit ID by name—`tests/test_tracks_and_verifier.py`
+Eranos's Python engine (`eranos/`) knows no track ID or kit ID by name -- `tests/test_tracks_and_verifier.py`
 scans the AST of every module in `eranos/` and fails if one is hardcoded.
 
 ## Extension points

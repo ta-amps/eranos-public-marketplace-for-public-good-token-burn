@@ -119,10 +119,11 @@
       "path": "eranos/verifier.py",
       "kind": "library",
       "domain": "neutral",
-      "role": "Checks workflow autonomy boundaries, required human_only step kinds, MCP JSON Schema structure, HTTPS source citations, and SYNTHETIC fixtures",
+      "role": "Checks workflow autonomy boundaries, open SPDX allowlist, required human_only step kinds, MCP JSON Schema structure, HTTPS source citations, SYNTHETIC fixtures, and zero-storage practice verification",
       "depends_on": [
         "copy",
-        "records"
+        "records",
+        "tracks"
       ],
       "tests": [
         "tests/test_tracks_and_verifier.py"
@@ -191,14 +192,15 @@
       ],
       "kind": "service",
       "domain": "neutral",
-      "role": "FastAPI service for tracks, verified catalog, open briefs, and queue counts; locked to Cloudflare edge via x-edge-auth",
+      "role": "FastAPI service for tracks, filtered verified catalog, zero-storage practice gate, open briefs, queue counts, and AI-agent discovery/MCP; locked to Cloudflare edge via x-edge-auth",
       "depends_on": [
         "adapter",
         "log",
         "pipeline",
         "queues",
         "records",
-        "tracks"
+        "tracks",
+        "verifier"
       ],
       "interfaces": [
         "api"
@@ -216,7 +218,7 @@
       ],
       "kind": "cli",
       "domain": "neutral",
-      "role": "eranos tracks, verify-examples, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot",
+      "role": "eranos tracks, verify-examples, practice, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot",
       "depends_on": [
         "adapter",
         "copy",
@@ -239,11 +241,12 @@
       "title": "Web app",
       "path": [
         "web/src",
+        "web/public",
         "web/snapshot"
       ],
       "kind": "web",
       "domain": "neutral",
-      "role": "React 19 and Astryx catalog, autonomy boundary inspector, agent onboarding guide, and offline snapshot viewer",
+      "role": "React 19 and Astryx catalog with governance filters, autonomy boundary inspector, zero-storage practice verifier, agent onboarding guide, and offline snapshot viewer",
       "depends_on": [
         "api"
       ],
@@ -276,16 +279,24 @@
       "kind": "http",
       "served_by": "api",
       "spec": "docs/frontend.md",
-      "auth": "None locally; locked to Cloudflare Worker via x-edge-auth when ERANOS_EDGE_SECRET is set",
+      "auth": "None locally; locked to Cloudflare Worker via x-edge-auth when ERANOS_EDGE_SECRET is set, with health and AI-agent discovery routes edge-exempt",
       "entry_points": [
         "GET /api/health",
         "GET /api/handshake",
         "GET /api/tracks",
         "GET /api/catalog",
         "GET /api/catalog/{kit_id}",
+        "POST /api/practice",
         "GET /api/requests",
         "GET /api/fabric",
-        "GET /api/feed"
+        "GET /api/feed",
+        "GET /favicon.svg",
+        "GET /healthz",
+        "GET /robots.txt",
+        "GET /llms.txt",
+        "GET /llms-full.txt",
+        "GET /.well-known/agent-card.json",
+        "POST /mcp"
       ]
     },
     {
@@ -295,7 +306,8 @@
       "auth": "Local shell",
       "entry_points": [
         "eranos tracks",
-        "eranos verify-examples",
+        "eranos verify-examples [--dry-run]",
+        "eranos practice <kit.json> [--dry-run]",
         "eranos donor-demo [--live-ollama]",
         "eranos seed-requests",
         "eranos export-snapshot [OUT_DIR]"
@@ -376,7 +388,7 @@
         "edge",
         "api"
       ],
-      "rule": "When ERANOS_EDGE_SECRET is set, x-edge-auth must match in constant time except GET /api/health",
+      "rule": "When ERANOS_EDGE_SECRET is set, x-edge-auth must match in constant time except GET /api/health and public health/agent-discovery routes",
       "enforced_by": "eranos/api/app.py",
       "checked_by": [
         "tests/test_api_and_edge.py::test_edge_lockdown_blocks_direct_origin_requests"

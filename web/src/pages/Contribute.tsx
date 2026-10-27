@@ -1,9 +1,10 @@
+import { ErrorAlert } from "../components/ErrorAlert";
 import { FABRIC_DISPLAY_NAME, FABRIC_PUBLIC_URL } from "../config";
 import type { RequestsResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
 export function Contribute() {
-  const { state } = useResource<RequestsResponse>("/api/requests");
+  const { state, reload } = useResource<RequestsResponse>("/api/requests");
 
   return (
     <div>
@@ -12,7 +13,7 @@ export function Contribute() {
         <p className="er-lede">
           Put leftover coding-agent quota or API tokens to work before they expire. Connect any MCP-capable coding
           agent, HTTP worker, or CLI script to {FABRIC_DISPLAY_NAME} to build and test off-the-shelf agent skills,
-          tools, files, and agentic processes for NGOs — with scoped keys so one contributor&apos;s tokens draft and a
+          tools, files, and agentic processes for NGOs -- with scoped keys so one contributor&apos;s tokens draft and a
           separate contributor&apos;s tokens independently review.
         </p>
       </section>
@@ -25,10 +26,10 @@ export function Contribute() {
             <h3>Attach {FABRIC_DISPLAY_NAME}&apos;s MCP server</h3>
             <p className="er-muted">
               Point your agent directly at {FABRIC_DISPLAY_NAME}&apos;s 24/7 Streamable HTTP MCP endpoint with a scoped
-              volunteer drafter key (<code>queues=[&quot;eq02&quot;]</code>) or reviewer key (
+              volunteer drafter key (<code>queues=[&quot;eq01&quot;, &quot;eq02&quot;]</code>) or reviewer key (
               <code>queues=[&quot;eq03&quot;]</code>):
             </p>
-            <pre className="er-code">{`{
+            <pre className="er-code" tabIndex={0}>{`{
   "mcpServers": {
     "tessera": {
       "url": "${FABRIC_PUBLIC_URL}/mcp",
@@ -43,12 +44,14 @@ export function Contribute() {
 
           <article className="er-card">
             <span className="er-chip er-chip-assists">2 · HTTP or CLI Worker</span>
-            <h3>Claim, verify deterministically, and submit</h3>
+            <h3>Practice dry-run first, then claim and submit</h3>
             <p className="er-muted">
-              Claim an open build brief from <code>eq02</code>, run <code>uv run eranos verify-examples</code> locally
-              to validate schemas and safety boundaries, then submit the canonical bundle with your fencing token:
+              Validate any candidate kit locally with zero storage writes via{" "}
+              <code>uv run eranos practice &lt;kit.json&gt;</code> (<code>persisted: false</code>), claim an open build
+              brief from <code>eq02</code>, and submit the canonical bundle with your fencing token:
             </p>
-            <pre className="er-code">{`curl -X POST ${FABRIC_PUBLIC_URL}/v1/tasks/claim \\
+            <pre className="er-code" tabIndex={0}>{`uv run eranos practice examples/kits/01-job-recruitment-triage.json
+curl -X POST ${FABRIC_PUBLIC_URL}/v1/tasks/claim \\
   -H "Authorization: Bearer $TESSERA_DRAFTER_KEY" \\
   -H "X-Surface-Id: eranos" \\
   -H "Content-Type: application/json" \\
@@ -61,9 +64,10 @@ export function Contribute() {
             <p className="er-muted">
               Kits on sensitive tracks park on <code>eq03</code> until a nonprofit domain lead signs off via{" "}
               {FABRIC_DISPLAY_NAME}&apos;s <code>/work</code> form or CLI ({FABRIC_DISPLAY_NAME} enforces{" "}
-              <code>parker ≠ resumer</code>):
+              <code>parker != resumer</code>):
             </p>
-            <pre className="er-code">{`uv run tessera resume <review_task_id> \\
+            <pre className="er-code" tabIndex={0}>{`uv run tessera resume <review_task_id> \\
+  --by helpline-lead \\
   --input '{"steward":"helpline-lead","notes":"Checked directory dates"}'`}</pre>
           </article>
         </div>
@@ -71,8 +75,10 @@ export function Contribute() {
 
       <section className="er-section">
         <h2>Open volunteer agent briefs</h2>
-        {state.status === "loading" && <p className="er-muted">Loading open briefs…</p>}
-        {state.status === "error" && <p className="er-muted">Could not load briefs: {state.message}</p>}
+        {state.status === "loading" && <p className="er-muted">Loading open briefs...</p>}
+        {state.status === "error" && (
+          <ErrorAlert title="Could not load briefs" message={state.message} onRetry={reload} />
+        )}
         {state.status === "ready" && (
           <div className="er-grid">
             {state.data.requests.map((req) => (

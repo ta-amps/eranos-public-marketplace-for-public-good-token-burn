@@ -5,12 +5,38 @@
     "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
     "goal": "Give helpline intake desks a verified directory lookup tool and red-flag checklist for suspicious overseas job offers while keeping all safety planning strictly human-only.",
     "target_org": "Regional anti-exploitation helpline desk",
-    "needs_steward_signoff": true
+    "needs_steward_signoff": true,
+    "spdx_license": "CC-BY-4.0",
+    "tags": [
+      "domain:anti_exploitation",
+      "track:coerced-work-hotline-routing",
+      "kind:full_kit",
+      "spdx:CC-BY-4.0",
+      "cohort:ngo_hotline",
+      "steward:required"
+    ],
+    "target_cohorts": ["all", "ngo_hotline"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"]
   },
   "draft": {
     "kit_id": "KIT-HOTLINE-02",
     "track_id": "coerced-work-hotline-routing",
     "domain": "anti_exploitation",
+    "spdx_license": "CC-BY-4.0",
+    "tags": [
+      "domain:anti_exploitation",
+      "track:coerced-work-hotline-routing",
+      "kind:full_kit",
+      "spdx:CC-BY-4.0",
+      "cohort:ngo_hotline",
+      "steward:required"
+    ],
+    "target_cohorts": ["all", "ngo_hotline"],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"],
     "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
     "summary": "Matches corridor countries and languages to re-verified public helplines and consular desks, surfacing unverified offer indicators while reserving all crisis safety planning for trained staff.",
     "target_org": "Regional anti-exploitation helpline desk",

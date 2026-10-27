@@ -1,4 +1,4 @@
-"""Tests for public-good tracks, neutral engine code scan, and deterministic kit verification."""
+"""Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gate."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import ast
 import re
 from pathlib import Path
 
-from eranos.pipeline import load_example_bundles
+from eranos.pipeline import load_example_bundles, practice_verify_kit
 from eranos.schemas import KitDraft
 from eranos.tracks import get_track, load_tracks
 from eranos.verifier import verify_kit
@@ -67,6 +67,59 @@ def test_verifier_catches_missing_track_required_human_only_kind() -> None:
     report = verify_kit(draft, get_track(draft.track_id))
     assert not report.passed
     assert any("interview" in issue for issue in report.issues)
+
+
+def test_practice_verify_kit_zero_storage_pass_and_failure_modes(tmp_path: Path) -> None:
+    bundle = load_example_bundles()[0]
+    ok_res = practice_verify_kit(bundle["draft"])
+    assert ok_res["passed"] is True
+    assert ok_res["persisted"] is False
+    assert ok_res["spdx_license"] == "Apache-2.0"
+    assert ok_res["issues"] == []
+    assert len(ok_res["receipt_sha256"]) == 64
+    assert practice_verify_kit(bundle["draft"])["receipt_sha256"] == ok_res["receipt_sha256"]
+    assert list(tmp_path.iterdir()) == []
+
+    # 1. Closed / non-allowlisted SPDX license rejected
+    bad_spdx = practice_verify_kit({**bundle["draft"], "spdx_license": "Proprietary-1.0"})
+    assert bad_spdx["passed"] is False
+    assert bad_spdx["persisted"] is False
+    assert any("spdx_license" in issue for issue in bad_spdx["issues"])
+
+    # 2. Accusatory copy rejected
+    bad_copy = practice_verify_kit(
+        {**bundle["draft"], "summary": "Flag the recruiter as a scammer immediately."}
+    )
+    assert bad_copy["passed"] is False
+    assert bad_copy["persisted"] is False
+    assert any("non-accusatory" in issue for issue in bad_copy["issues"])
+
+    # 3. Prohibited surveillance / harvesting topic rejected
+    bad_topic = practice_verify_kit(
+        {**bundle["draft"], "summary": "Build a grooming kit sample archive."}
+    )
+    assert bad_topic["passed"] is False
+    assert bad_topic["persisted"] is False
+    assert any("prohibited topic" in issue for issue in bad_topic["issues"])
+
+    # 4. Autonomy boundary violation (interview marked drafts) rejected
+    bad_steps = [
+        {**s, "boundary": "drafts"} if s["kind"] == "interview" else s
+        for s in bundle["draft"]["steps"]
+    ]
+    bad_boundary = practice_verify_kit({**bundle["draft"], "steps": bad_steps})
+    assert bad_boundary["passed"] is False
+    assert bad_boundary["persisted"] is False
+    assert any("human_only" in issue for issue in bad_boundary["issues"])
+
+    # 5. Fixture escalation coverage missing rejected
+    no_escalation_fx = [
+        {**fx, "expected_human_escalation": False} for fx in bundle["draft"]["fixtures"]
+    ]
+    bad_fx = practice_verify_kit({**bundle["draft"], "fixtures": no_escalation_fx})
+    assert bad_fx["passed"] is False
+    assert bad_fx["persisted"] is False
+    assert any("human-escalation" in issue for issue in bad_fx["issues"])
 
 
 def test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes() -> None:

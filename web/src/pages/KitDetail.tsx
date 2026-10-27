@@ -1,19 +1,34 @@
+import { useState } from "react";
+
 import { BoundaryBadge, DomainBadge } from "../components/BoundaryBadge";
-import { allSkills, allTools, type PublishedKit } from "../lib/types";
+import { ErrorAlert } from "../components/ErrorAlert";
+import { runPracticeVerify } from "../lib/api";
+import {
+  allSkills,
+  allTools,
+  type PracticeVerifyResponse,
+  type PublishedKit,
+} from "../lib/types";
 import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
 
 export function KitDetail({ id }: { id: string }) {
-  const { state } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}`);
+  const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}`);
+  const [practiceState, setPracticeState] = useState<
+    | { status: "idle" }
+    | { status: "running" }
+    | { status: "ready"; result: PracticeVerifyResponse }
+    | { status: "error"; message: string }
+  >({ status: "idle" });
 
   if (state.status === "loading") {
-    return <p className="er-muted">Loading kit {id}…</p>;
+    return <p className="er-muted">Loading kit {id}...</p>;
   }
   if (state.status === "error") {
     return (
       <section className="er-card">
         <h1>Kit unavailable</h1>
-        <p className="er-muted">{state.message}</p>
+        <ErrorAlert title={`Could not load ${id}`} message={state.message} onRetry={reload} />
         <p>
           <AppLink to="/catalog">Back to catalog</AppLink>
         </p>
@@ -25,11 +40,31 @@ export function KitDetail({ id }: { id: string }) {
   const { kit, verification } = entry;
   const skills = allSkills(kit);
   const tools = allTools(kit);
+  const spdxLicense = entry.spdx_license || kit.spdx_license || "Apache-2.0";
+  const visibilityScope = entry.visibility_scope || kit.visibility_scope || "public_commons";
+  const cohorts = entry.target_cohorts?.length
+    ? entry.target_cohorts
+    : kit.target_cohorts?.length
+      ? kit.target_cohorts
+      : ["all"];
+  const tags = Array.from(new Set([...(entry.tags ?? []), ...(kit.tags ?? [])]));
+
+  const handlePracticeRun = () => {
+    setPracticeState({ status: "running" });
+    runPracticeVerify(kit, kit.track_id)
+      .then((result) => setPracticeState({ status: "ready", result }))
+      .catch((err: unknown) =>
+        setPracticeState({
+          status: "error",
+          message: err instanceof Error ? err.message : String(err),
+        }),
+      );
+  };
 
   return (
     <div>
       <p className="er-muted" style={{ marginBottom: 12 }}>
-        <AppLink to="/catalog">← Verified Catalog</AppLink> / <code>{kit.kit_id}</code>
+        <AppLink to="/catalog">Back to Verified Catalog</AppLink> / <code>{kit.kit_id}</code>
       </p>
 
       <section className="er-hero">
@@ -37,6 +72,8 @@ export function KitDetail({ id }: { id: string }) {
           <span className="er-chip er-chip-neutral">{kit.kit_id}</span>
           <DomainBadge domain={kit.domain} />
           <span className="er-chip er-chip-assists">{kit.deliverable_kind.replace(/_/g, " ")}</span>
+          <span className="er-chip er-chip-neutral">SPDX: {spdxLicense}</span>
+          <span className="er-chip er-chip-drafts">Scope: {visibilityScope}</span>
           {entry.steward_signoff && (
             <span className="er-chip er-chip-steward">Steward sign-off: {entry.steward_signoff}</span>
           )}
@@ -45,8 +82,93 @@ export function KitDetail({ id }: { id: string }) {
         <p className="er-lede">{kit.summary}</p>
         <p className="er-muted">
           <strong>Target organization:</strong> {kit.target_org} · <strong>Track:</strong>{" "}
-          <code>{kit.track_id}</code> · <strong>Catalog version:</strong> v{entry.catalog_version}
+          <code>{kit.track_id}</code> · <strong>Catalog version:</strong> v{entry.catalog_version} ·{" "}
+          <strong>Cohorts:</strong> <code>{cohorts.join(", ")}</code>
         </p>
+        {tags.length > 0 && (
+          <div className="er-chip-row" style={{ marginTop: 10 }}>
+            {tags.map((t) => (
+              <span key={t} className="er-chip er-chip-neutral">
+                {t}
+              </span>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="er-section">
+        <div className="er-practice-panel">
+          <div className="er-chip-row">
+            <span className="er-chip er-chip-drafts">Zero-Storage Practice Gate</span>
+            <code>persisted: false</code>
+          </div>
+          <h2>Interactive Zero-Storage Practice Verifier</h2>
+          <p className="er-muted">
+            Re-run the full deterministic autonomy-boundary, open-SPDX, non-accusatory copy, HTTPS citation, and{" "}
+            <code>SYNTHETIC</code> escalation check in memory with zero database or blob writes.
+          </p>
+          <div className="er-actions">
+            <button
+              type="button"
+              className="er-btn-primary"
+              data-testid="run-practice-verifier"
+              disabled={practiceState.status === "running"}
+              onClick={handlePracticeRun}
+            >
+              {practiceState.status === "running"
+                ? "Running zero-storage verifier..."
+                : "Run Zero-Storage Practice Verifier"}
+            </button>
+          </div>
+          {practiceState.status === "error" && (
+            <ErrorAlert
+              title="Practice verification failed"
+              message={practiceState.message}
+              onRetry={handlePracticeRun}
+            />
+          )}
+          {practiceState.status === "ready" && (
+            <div data-testid="practice-verifier-result">
+              <div className="er-chip-row" style={{ marginBottom: 10 }}>
+                <span
+                  className={
+                    practiceState.result.passed ? "er-chip er-chip-drafts" : "er-chip er-chip-human"
+                  }
+                >
+                  {practiceState.result.passed ? "PASSED" : "FAILED"}
+                </span>
+                <span className="er-chip er-chip-neutral">
+                  persisted: {String(practiceState.result.persisted)}
+                </span>
+                <span className="er-chip er-chip-neutral">
+                  SPDX: {practiceState.result.spdx_license}
+                </span>
+              </div>
+              <dl className="er-dl">
+                <div>
+                  <dt>Practice receipt SHA-256</dt>
+                  <dd>{practiceState.result.receipt_sha256}</dd>
+                </div>
+                <div>
+                  <dt>Persisted to storage</dt>
+                  <dd>{String(practiceState.result.persisted)}</dd>
+                </div>
+                <div>
+                  <dt>Checks executed</dt>
+                  <dd>{practiceState.result.checks_run.join(", ")}</dd>
+                </div>
+                <div>
+                  <dt>Issues found</dt>
+                  <dd>
+                    {practiceState.result.issues.length === 0
+                      ? "0 issues"
+                      : practiceState.result.issues.join("; ")}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          )}
+        </div>
       </section>
 
       <section className="er-section">
@@ -103,7 +225,7 @@ export function KitDetail({ id }: { id: string }) {
               <p className="er-muted">
                 <strong>Output fields:</strong> <code>{tl.output_fields.join(", ")}</code>
               </p>
-              <pre className="er-code">{JSON.stringify(tl.input_schema, null, 2)}</pre>
+              <pre className="er-code" tabIndex={0}>{JSON.stringify(tl.input_schema, null, 2)}</pre>
             </section>
           ))}
 
@@ -115,7 +237,7 @@ export function KitDetail({ id }: { id: string }) {
               </div>
               <h2>{art.title}</h2>
               <p className="er-muted">{art.summary}</p>
-              <pre className="er-code">{JSON.stringify(art.spec, null, 2)}</pre>
+              <pre className="er-code" tabIndex={0}>{JSON.stringify(art.spec, null, 2)}</pre>
             </section>
           ))}
         </div>
@@ -163,7 +285,7 @@ export function KitDetail({ id }: { id: string }) {
       </div>
 
       <section className="er-section">
-        <h2>Two-step Tessera verification receipts (drafter ≠ reviewer)</h2>
+        <h2>Two-step Tessera verification receipts (drafter != reviewer)</h2>
         <dl className="er-dl">
           <div>
             <dt>Drafted on eq02 by</dt>
@@ -179,15 +301,15 @@ export function KitDetail({ id }: { id: string }) {
           </div>
           <div>
             <dt>Content-addressed blob SHA-256</dt>
-            <dd>{entry.blob_sha256 ?? "—"}</dd>
+            <dd>{entry.blob_sha256 ?? "--"}</dd>
           </div>
           <div>
             <dt>eq02 draft receipt</dt>
-            <dd>{entry.draft_receipt ?? "—"}</dd>
+            <dd>{entry.draft_receipt ?? "--"}</dd>
           </div>
           <div>
             <dt>eq03 review receipt</dt>
-            <dd>{entry.review_receipt ?? "—"}</dd>
+            <dd>{entry.review_receipt ?? "--"}</dd>
           </div>
           <div>
             <dt>Reviewer notes</dt>

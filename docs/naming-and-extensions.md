@@ -7,9 +7,9 @@ exact technical boundary:
 
 | Repo / Surface | Origin | Meaning & Architectural Fit |
 |---|---|---|
-| **Tessera** | Classical Greek & Roman (*tessera*) | A single mosaic tile — and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
-| **Shamash** | Mesopotamian (*Šamaš* / Sumerian *Utu*) | The sun-judge who sees across borders, condemns false weights and ruinous lending, and protects travellers on the road — matching cross-document and payment arithmetic verification without reckless accusation. |
-| **Eranos** | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need — matching people donating unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good. |
+| **Tessera** | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
+| **Shamash** | Mesopotamian (*Šamaš* / Sumerian *Utu*) | The sun-judge who sees across borders, condemns false weights and ruinous lending, and protects travellers on the road -- matching cross-document and payment arithmetic verification without reckless accusation. |
+| **Eranos** | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need -- matching people donating unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good. |
 
 ---
 
@@ -20,22 +20,22 @@ environment variables (`ERANOS_SURFACE_NAME`, `VITE_SURFACE_NAME`, `VITE_SURFACE
 source code. Below are the sibling names explored during design:
 
 ### Craftsmen, Tool-Forgers & Builders
-- **Kothar** (*Kothar-wa-Khasis*, Ugaritic/Canaanite — *"Skillful and Wise"*): The divine smith and
+- **Kothar** (*Kothar-wa-Khasis*, Ugaritic/Canaanite -- *"Skillful and Wise"*): The divine smith and
   architect who forges named, precision instruments to push back chaos and exploitation.
-- **Ilmarinen** (Finnic *Kalevala*): The eternal hammerer who forges the *Sampo* — a self-sustaining
+- **Ilmarinen** (Finnic *Kalevala*): The eternal hammerer who forges the *Sampo* -- a self-sustaining
   civic mill of grain, salt, and coin for the common good.
 - **Hephaestus** (Greek) / **Vulcan** (Roman): Master builder of autonomous workshop tripods and tools
   that assist stewards without replacing human judgment.
 - **Goibniu** (Irish/Celtic) / **Wayland** (Germanic): Legendary smiths of unbreakable, reliable craft.
-- **Vishvakarma** (Vedic/Sanskrit — *"All-Maker"*): Divine architect of public halls, tools, and
+- **Vishvakarma** (Vedic/Sanskrit -- *"All-Maker"*): Divine architect of public halls, tools, and
   standardized measures.
-- **Lu Ban** (Chinese — legendary carpenter-engineer): Patron of practical templates, modular jigs, and
+- **Lu Ban** (Chinese -- legendary carpenter-engineer): Patron of practical templates, modular jigs, and
   civilian relief engineering.
 
 ### Scribes, Ledgers, Granaries & Blueprints
 - **Nisaba** (Sumerian/Mesopotamian): Goddess of reed-stylus writing, accounting tablets, fair boundary
   surveys, and public granaries; direct Mesopotamian counterpart to **Shamash**.
-- **Seshat** (Ancient Egyptian — *"She Who Scribes"*): Keeper of blueprints, cord-stretching
+- **Seshat** (Ancient Egyptian -- *"She Who Scribes"*): Keeper of blueprints, cord-stretching
   measurements, archives, and libraries who turns raw knowledge into buildable plans.
 - **Thoth** (Egyptian) / **Nabu** (Babylonian): Guardians of exact records, translations, and verified
   citations.
@@ -43,7 +43,7 @@ source code. Below are the sibling names explored during design:
 ### Social Justice, Shelter & Honest Weights
 - **Nanshe** (Sumerian): Sister of Ningirsu and companion in justice to Utu/Shamash; inspects weights
   and measures, protects widows, migrants, and orphans, and shelters refugees from debt bondage.
-- **Ma'at** (Egyptian): Cosmic balance, truth, and calibrated feather-weight verification — ideal for
+- **Ma'at** (Egyptian): Cosmic balance, truth, and calibrated feather-weight verification -- ideal for
   deterministic evaluation suites and twin-case benchmarks.
 - **Themis** & **Dike** (Greek) / **Astraea** (Roman): Customary public order (*Themis*) and grounded
   human case-by-case justice (*Dike*).
@@ -56,7 +56,7 @@ source code. Below are the sibling names explored during design:
 - **Agora** (Greek) / **Forum** (Roman): Open civic assembly and public catalog of shared tools.
 - **Ayni** (Quechua / Andean) & **Minga** (Andean): Reciprocal community labor where neighbors pool
   effort to build shared infrastructure (bridges, storehouses, terraces).
-- **Bayanihan** (Filipino) & **Yui** (Japanese): Collective neighborhood mutual aid — directly resonant
+- **Bayanihan** (Filipino) & **Yui** (Japanese): Collective neighborhood mutual aid -- directly resonant
   with migrant-worker and disaster-relief communities.
 - **Hermes** (Greek) / **Iris** (Greek): Swift, faithful protocol routers and cross-language bridges
   (fitting MCP adapters and warm-referral handoffs).

@@ -11,6 +11,7 @@ from `TrackPack` data without hardcoding any track or example kit id.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import os
 import socket
@@ -28,6 +29,7 @@ from tessera.service import create_app as create_tessera_app
 
 from eranos.copy import check_non_accusatory, check_safe_topic
 from eranos.pipeline import (
+    enrich_governance_tags,
     ensure_queues,
     get_published_kit,
     run_review_step,
@@ -49,6 +51,34 @@ from eranos.verifier import verify_kit
 
 DEFAULT_DONOR_MODEL = "muse-spark-open"
 DEFAULT_CHAT_BASE = "https://ollama.com/v1"
+DRAFTER_QUEUES: tuple[str, ...] = ("eq01", "eq02")
+REVIEWER_QUEUES: tuple[str, ...] = ("eq03",)
+
+
+def issue_drafter_key(store: Any, label: str) -> tuple[str, Any]:
+    """Mint a volunteer drafter key strictly scoped to eq01 and eq02 (never eq03)."""
+    queues = list(DRAFTER_QUEUES)
+    if "eq03" in queues:
+        raise ValueError("drafter key may never include eq03")
+    raw_key, grant = store.issue_key(
+        label,
+        queues=queues,
+        effect_classes=["read", "write-internal"],
+        scopes=["store"],
+    )
+    return str(raw_key), grant
+
+
+def issue_reviewer_key(store: Any, label: str) -> tuple[str, Any]:
+    """Mint an independent volunteer reviewer key strictly scoped to eq03."""
+    raw_key, grant = store.issue_key(
+        label,
+        queues=list(REVIEWER_QUEUES),
+        effect_classes=["read", "write-internal"],
+        scopes=["store"],
+    )
+    return str(raw_key), grant
+
 
 SYSTEM_PROMPT = (
     "You are an Eranos public-good contributor agent donating tokens to build or review an "
@@ -238,11 +268,25 @@ def synthesize_draft(
             )
         )
 
+    quarantined_tags = enrich_governance_tags(
+        request.tags,
+        status="quarantined",
+        domain=track.domain,
+        track_id=track.id,
+        deliverable_kind=request.deliverable_kind,
+        spdx_license=request.spdx_license,
+    )
     draft = KitDraft(
         kit_id=request.kit_id,
         track_id=track.id,
         domain=track.domain,
         deliverable_kind=request.deliverable_kind,
+        spdx_license=request.spdx_license,
+        tags=quarantined_tags,
+        target_cohorts=request.target_cohorts,
+        producer_surface=request.producer_surface,
+        visibility_scope="surface_only",
+        allowed_surfaces=request.allowed_surfaces,
         title=request.title,
         summary=str(synth["summary"]),
         target_org=request.target_org,
@@ -334,12 +378,22 @@ def claim_and_draft_once(
     report = verify_kit(draft, track)
     canonical_bytes = json.dumps(draft.model_dump(mode="json"), sort_keys=True).encode("utf-8")
     blob_sha256: str = backend.put_blob(canonical_bytes)
+    requested_scope = str(
+        dep_out.get("requested_visibility_scope")
+        or (
+            lease.brief.get("requested_visibility_scope") if isinstance(lease.brief, dict) else None
+        )
+        or "public_commons"
+    )
     payload: dict[str, Any] = {
         "node": "draft",
         "draft": draft.model_dump(mode="json"),
         "verification": report.model_dump(mode="json"),
         "blob_sha256": blob_sha256,
         "needs_steward_signoff": bool(dep_out.get("needs_steward_signoff", False)),
+        "visibility_scope": "surface_only",
+        "tags": draft.tags,
+        "requested_visibility_scope": requested_scope,
     }
     receipt = backend.submit(
         lease.task_id,
@@ -419,18 +473,8 @@ def run_donor_demo(
         store = Store(db_path)
         ensure_queues(store)
         k_admin, _ = store.issue_key("eranos-service", queues=["eq*"], scopes=["admin", "store"])
-        k_drafter, rec_drafter = store.issue_key(
-            "opencode-donor-01",
-            queues=["eq01", "eq02"],
-            effect_classes=["read", "write-internal"],
-            scopes=["store"],
-        )
-        k_reviewer, rec_reviewer = store.issue_key(
-            "ollama-reviewer-02",
-            queues=["eq03"],
-            effect_classes=["read", "write-internal"],
-            scopes=["store"],
-        )
+        k_drafter, rec_drafter = issue_drafter_key(store, "opencode-donor-01")
+        k_reviewer, rec_reviewer = issue_reviewer_key(store, "ollama-reviewer-02")
 
         settings = ServiceSettings(
             db_path=db_path,
@@ -458,9 +502,12 @@ def run_donor_demo(
                     pass
                 time.sleep(0.1)
 
-            c_admin = Client(tessera_url, key=k_admin)
-            c_drafter = Client(tessera_url, key=k_drafter)
-            c_reviewer = Client(tessera_url, key=k_reviewer)
+            client_kwargs: dict[str, Any] = {}
+            if "surface_id" in inspect.signature(Client.__init__).parameters:
+                client_kwargs["surface_id"] = "eranos"
+            c_admin = Client(tessera_url, key=k_admin, **client_kwargs)
+            c_drafter = Client(tessera_url, key=k_drafter, **client_kwargs)
+            c_reviewer = Client(tessera_url, key=k_reviewer, **client_kwargs)
             try:
                 submit_kit_request(c_admin, req, run_id="er_donor_demo")
                 spec_out = run_spec_step(c_drafter, worker="opencode-donor-01")

@@ -3,7 +3,47 @@
   "two_step_verified": true,
   "kits": [
     {
+      "spdx_license": "BSD-3-Clause",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:grant-and-compliance-ops",
+        "kind:full_kit",
+        "spdx:BSD-3-Clause",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
       "kit": {
+        "spdx_license": "BSD-3-Clause",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:grant-and-compliance-ops",
+          "kind:full_kit",
+          "spdx:BSD-3-Clause",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
         "kit_id": "KIT-GRANT-04",
         "track_id": "grant-and-compliance-ops",
         "domain": "nonprofit_ops",
@@ -139,6 +179,8 @@
           "human_only_boundaries",
           "synthetic_fixtures",
           "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
           "cited_sources",
           "deliverable_alignment"
         ],
@@ -153,13 +195,55 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "c31780ea03fd5a9d09f08f25136bc42c7d3eaf681bbbed0bc9eda0a3ec10cf76",
-      "review_receipt": "2aaef2cf534e2756d78a94de9d4abd93733de5ea0aa458a2fe2acbdbfbebc6e7",
-      "blob_sha256": "0d72c85a4c46bf4047e592b28ae54c758d6af70de8b707e57177669a065fde10",
+      "draft_receipt": "d33b45b213776a92c5c00d656150e92fba432a6aaa7f52cebc13ece9345ba792",
+      "review_receipt": "d5f063a613e943a134b3962ba4ca3cb0ad63508d9a5afd92aac725e2cebece3c",
+      "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
       "catalog_version": 1
     },
     {
+      "spdx_license": "CC-BY-4.0",
+      "tags": [
+        "status:verified",
+        "domain:anti_exploitation",
+        "track:coerced-work-hotline-routing",
+        "kind:full_kit",
+        "spdx:CC-BY-4.0",
+        "cohort:ngo_hotline",
+        "steward:required"
+      ],
+      "target_cohorts": [
+        "all",
+        "ngo_hotline"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
       "kit": {
+        "spdx_license": "CC-BY-4.0",
+        "tags": [
+          "status:verified",
+          "domain:anti_exploitation",
+          "track:coerced-work-hotline-routing",
+          "kind:full_kit",
+          "spdx:CC-BY-4.0",
+          "cohort:ngo_hotline",
+          "steward:required"
+        ],
+        "target_cohorts": [
+          "all",
+          "ngo_hotline"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
         "kit_id": "KIT-HOTLINE-02",
         "track_id": "coerced-work-hotline-routing",
         "domain": "anti_exploitation",
@@ -291,6 +375,8 @@
           "human_only_boundaries",
           "synthetic_fixtures",
           "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
           "cited_sources",
           "deliverable_alignment"
         ],
@@ -306,13 +392,57 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "be3d6448091e763c9026e3f323cc502c6bf40b5852e871aa8c741bc44e381cec",
-      "review_receipt": "4d884ff0a0944e6b3daeeaf477485f00e15147e2b65e6f8b12643e113fb96f31",
-      "blob_sha256": "fdcf95dd94c5712ff2eca52c2bbe2ed5d9f9d186e0d39cf782c40fb6d67d337f",
+      "draft_receipt": "77dd33396ca1f82a6a5c8cf096fa80685849e3029b8d3dd8b675c7635df5243d",
+      "review_receipt": "d816b7b6d37f66a52f033c90c6472ebb1540951e6faa3c9f393ca21689f1999d",
+      "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
       "catalog_version": 1
     },
     {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:intake-and-referral-triage",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:ngo_legal_aid",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "ngo_legal_aid",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
       "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:intake-and-referral-triage",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:ngo_legal_aid",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "ngo_legal_aid",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
         "kit_id": "KIT-INTAKE-03",
         "track_id": "intake-and-referral-triage",
         "domain": "nonprofit_ops",
@@ -438,6 +568,8 @@
           "human_only_boundaries",
           "synthetic_fixtures",
           "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
           "cited_sources",
           "deliverable_alignment"
         ],
@@ -452,13 +584,53 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "278c4e8c0449bc163e11352e5e9eaac691bea8c7d6714cd5cd523bf8d0dc5ce4",
-      "review_receipt": "11310739640c6a009c229093fb5fe9abae5f270ec3539a2f6986cf4d92e5771c",
-      "blob_sha256": "a0b8c68d70579bb0d924d62b9827219c6f9f8fa11722ff189b6e0f99d76eb2db",
+      "draft_receipt": "45d2e198ebb3ed57c209cdf608d20e45495c716e22cbe20a4d5967501ab91242",
+      "review_receipt": "54e75e6c93bee9b163e4137be3ea4941434f82afc03508743c7d008fbcc55396",
+      "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
       "catalog_version": 1
     },
     {
+      "spdx_license": "Apache-2.0",
+      "tags": [
+        "status:verified",
+        "domain:anti_exploitation",
+        "track:job-recruitment-triage",
+        "kind:full_kit",
+        "spdx:Apache-2.0",
+        "cohort:ngo_legal_aid"
+      ],
+      "target_cohorts": [
+        "all",
+        "ngo_legal_aid"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
       "kit": {
+        "spdx_license": "Apache-2.0",
+        "tags": [
+          "status:verified",
+          "domain:anti_exploitation",
+          "track:job-recruitment-triage",
+          "kind:full_kit",
+          "spdx:Apache-2.0",
+          "cohort:ngo_legal_aid"
+        ],
+        "target_cohorts": [
+          "all",
+          "ngo_legal_aid"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
         "kit_id": "KIT-RECRUIT-01",
         "track_id": "job-recruitment-triage",
         "domain": "anti_exploitation",
@@ -594,6 +766,8 @@
           "human_only_boundaries",
           "synthetic_fixtures",
           "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
           "cited_sources",
           "deliverable_alignment"
         ],
@@ -608,13 +782,53 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "bb93897dea4601ef78a57686f4830d8a078b62b8a43bf446b3efb25df957e2bd",
-      "review_receipt": "877c33d83e3886becc775de54d96804c6c265b4320a92a853436897f6efcaa4c",
-      "blob_sha256": "1bd5a0a5e013da51117ffdd31f697b024ed3c2690a732e644bd75c4fb458d05a",
+      "draft_receipt": "0b9f19dbae10b7ec62d495d2ce34b5db55448dd20ddf59ad4463f4c52a9d8efb",
+      "review_receipt": "ee1a460defeb7d7879e06c93b29fd6520d50ced1e1af3692faa47a324afd0d2d",
+      "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
       "catalog_version": 1
     },
     {
+      "spdx_license": "CC0-1.0",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:volunteer-shift-and-sop-builder",
+        "kind:sop_playbook",
+        "spdx:CC0-1.0",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma",
+        "surface:kothar"
+      ],
       "kit": {
+        "spdx_license": "CC0-1.0",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:volunteer-shift-and-sop-builder",
+          "kind:sop_playbook",
+          "spdx:CC0-1.0",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma",
+          "surface:kothar"
+        ],
         "kit_id": "KIT-SHIFT-05",
         "track_id": "volunteer-shift-and-sop-builder",
         "domain": "nonprofit_ops",
@@ -681,7 +895,7 @@
             "summary": "Printable escalation tree distinguishing routine supply restocks from immediate human shift-captain and emergency-responder triggers.",
             "spec": [
               "Tier 1 (Station Lead): Restock shortages, queue pacing, translation card lookup.",
-              "Tier 2 (Human Shift Captain \u2014 immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
+              "Tier 2 (Human Shift Captain -- immediate): Guest accommodation request, interpersonal dispute, minor facility hazard.",
               "Tier 3 (Human Shift Captain + Local Emergency Services): Medical distress or immediate physical safety concern."
             ]
           },
@@ -751,6 +965,8 @@
           "human_only_boundaries",
           "synthetic_fixtures",
           "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
           "cited_sources",
           "deliverable_alignment"
         ],
@@ -766,9 +982,9 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "44df4fdcd4fa5acbb205cbb47bd49572660d81aa60c55d1668b83b20d00cf325",
-      "review_receipt": "2d8f641592d73dc6ff4a2f1ba4dd466b0da0cb15b701583b7e87738d6b1ec2f7",
-      "blob_sha256": "29595d2299d05a3ac174665e9c52b81564f3d9011560a62c1ea0cf53385a4ae2",
+      "draft_receipt": "db5dc03889a42bd89e27144f0dce5eb5a561904bf120a2eb3af16e9b75675cfd",
+      "review_receipt": "d5842857e032d502ad6906ecc4edf552a0673ef10029fcc73088cc94f9fe3cb9",
+      "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
       "catalog_version": 1
     }
   ]

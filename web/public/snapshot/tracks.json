@@ -1,0 +1,239 @@
+{
+  "synthetic": true,
+  "tracks": [
+    {
+      "id": "coerced-work-hotline-routing",
+      "title": "Coerced Recruitment & Crisis Helpline Routing Kits",
+      "domain": "anti_exploitation",
+      "domain_label": null,
+      "summary": "Builds verified multi-jurisdiction helpline directories and safe-intake triage scripts for NGOs assisting people recruited into coercive work sites, keeping all crisis planning strictly human-only.",
+      "sister_area": "recruitment",
+      "organizations": [
+        {
+          "org_type": "Anti-exploitation helpline and consular referral desk",
+          "serves": "Job-seekers and families checking suspicious overseas tech or customer-support offers",
+          "mandate": "Route urgent inquiries to verified hotlines and trained caseworkers without exposing callers"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "helpline_directory_schema",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "interview",
+        "crisis_safety_plan",
+        "external_send"
+      ],
+      "never": [
+        "Give automated safety or exit advice directly to a person in danger",
+        "Collect location data about real individuals",
+        "Publish unverified phone numbers or unconfirmed helpline hours"
+      ],
+      "sources": [
+        {
+          "title": "UNODC Issue Paper: Casinos, Cyber Fraud, and Trafficking in Persons in Southeast Asia",
+          "url": "https://www.unodc.org/roseap/en/publications/2023/casinos-cyber-fraud-trafficking-in-persons.html",
+          "checked_date": "2026-10-26"
+        },
+        {
+          "title": "ILO Operational Indicators of Trafficking in Human Beings",
+          "url": "https://www.ilo.org/publications/operational-indicators-trafficking-human-beings",
+          "checked_date": "2026-10-26"
+        }
+      ]
+    },
+    {
+      "id": "grant-and-compliance-ops",
+      "title": "Small-Nonprofit Grant Reporting & Restricted-Fund Tools",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Gives small nonprofits with no dedicated finance staff deterministic budget-reconciliation tools, restricted-grant deadline trackers, and audit-prep checklists.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Small community nonprofit (3 to 25 staff)",
+          "serves": "Program directors and volunteer treasurers managing multiple public and foundation grants",
+          "mandate": "Keep restricted grant spending reconciled, documented, and ready for annual filings"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "compliance_checklist",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Submit regulatory filings or grant reports externally without treasurer sign-off",
+        "Invent missing expense figures or estimate unrecorded receipts as zero"
+      ],
+      "sources": [
+        {
+          "title": "IRS Compliance Guide for 501(c)(3) Public Charities (Publication 4221-PC)",
+          "url": "https://www.irs.gov/forms-pubs/about-publication-4221-pc",
+          "checked_date": "2026-10-26"
+        }
+      ]
+    },
+    {
+      "id": "housing-and-charity-verification",
+      "title": "Rental Deposit & Disaster-Relief Charity Check Kits",
+      "domain": "anti_exploitation",
+      "domain_label": null,
+      "summary": "Provides community legal-aid clinics and disaster-response coalitions with public-registry lookup schemas, deposit-escrow checklists, and fee-comparison tools.",
+      "sister_area": "charity",
+      "organizations": [
+        {
+          "org_type": "Tenant legal-aid clinic and disaster-relief coalition",
+          "serves": "Renters asked for upfront wire deposits and donors verifying post-disaster appeals",
+          "mandate": "Check public charity registries and lease deposit terms before funds are wired"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "verification_checklist",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Label an unregistered community mutual-aid group as dishonest without human review",
+        "File regulator complaints automatically without human sign-off"
+      ],
+      "sources": [
+        {
+          "title": "IRS Tax Exempt Organization Search Guidance",
+          "url": "https://www.irs.gov/charities-non-profits/tax-exempt-organization-search",
+          "checked_date": "2026-10-26"
+        },
+        {
+          "title": "US FTC Consumer Advice: Rental Listing Indicators",
+          "url": "https://consumer.ftc.gov/articles/rental-listing-scams",
+          "checked_date": "2026-10-26"
+        }
+      ]
+    },
+    {
+      "id": "intake-and-referral-triage",
+      "title": "Multilingual Service-Finder & Warm-Referral Operations",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps community nonprofits, food pantries, shelters, and legal-aid desks match published program rules to intake notes and draft plain-language warm-referral summaries while keeping eligibility decisions human-only.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Community social-services nonprofit and legal-aid intake desk",
+          "serves": "Residents seeking housing stability, food assistance, benefits navigation, or clinic appointments",
+          "mandate": "Reduce intake paperwork time so caseworkers spend more time directly helping people"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "referral_handoff_template",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "interview",
+        "individual_decision"
+      ],
+      "never": [
+        "Allow an agent to deny service eligibility on its own",
+        "Send client details to partner organizations without human approval and consent"
+      ],
+      "sources": [
+        {
+          "title": "Open Referral Human Services Data Specification (HSDS)",
+          "url": "https://docs.openreferral.org/en/latest/hsds/",
+          "checked_date": "2026-10-26"
+        }
+      ]
+    },
+    {
+      "id": "job-recruitment-triage",
+      "title": "Cross-Border Job Offer & Fee-Shift Intake Kits",
+      "domain": "anti_exploitation",
+      "domain_label": null,
+      "summary": "Equips migrant-worker centres and labour-rights clinics with agent-assisted fee arithmetic tools, contract comparison checklists, and escalation workflows derived from Shamash's recruitment indicators.",
+      "sister_area": "recruitment",
+      "organizations": [
+        {
+          "org_type": "Migrant worker resource centre",
+          "serves": "Workers reviewing overseas employment contracts, agency fee receipts, and loan schedules",
+          "mandate": "Explain fee caps, compare contract versions, and connect workers to legal aid or labour inspectors"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "intake_checklist",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "interview",
+        "individual_decision"
+      ],
+      "never": [
+        "Contact or notify a recruitment agency, employer, or lender",
+        "Store real worker identity documents or real case files in the kit repository",
+        "Allow an agent to decide a worker's legal claim or conduct a client interview"
+      ],
+      "sources": [
+        {
+          "title": "ILO C181 Private Employment Agencies Convention, Article 7",
+          "url": "https://normlex.ilo.org/dyn/normlex/en/f?p=NORMLEXPUB:12100:0::NO::P12100_ILO_CODE:C181",
+          "checked_date": "2026-10-26"
+        },
+        {
+          "title": "Hong Kong Employment Agencies Portal: Code of Practice for Employment Agencies",
+          "url": "https://www.eaa.labour.gov.hk/en/operator.html",
+          "checked_date": "2026-10-26"
+        }
+      ]
+    },
+    {
+      "id": "volunteer-shift-and-sop-builder",
+      "title": "Field Volunteer Onboarding & Incident Escalation SOPs",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Equips mutual-aid kitchens, mobile clinics, and disaster-relief teams with role-card builders, shift handoff checklists, and clear human-escalation trees.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Mutual-aid relief hub and volunteer-run clinic",
+          "serves": "Volunteer coordinators onboarding rotating community helpers under time pressure",
+          "mandate": "Give every shift clear safety steps, role boundaries, and immediate coordinator escalation paths"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "shift_sop_checklist",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "crisis_safety_plan",
+        "individual_decision"
+      ],
+      "never": [
+        "Replace human incident commanders or medical leads with automated triage",
+        "Store real volunteer personal contact lists inside public templates"
+      ],
+      "sources": [
+        {
+          "title": "Ready.gov Community Emergency Response Team (CERT) Basic Training Materials",
+          "url": "https://www.ready.gov/cert",
+          "checked_date": "2026-10-26"
+        }
+      ]
+    }
+  ]
+}

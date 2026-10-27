@@ -4,19 +4,19 @@ Most people with AI coding subscriptions or API budgets end the day or week with
 while NGOs, legal-aid clinics, hotlines, and small nonprofits lack the engineering time to build and test
 dependable AI workflows.
 
-**Eranos** lets anyone **donate unused tokens** — by pointing their coding agent at a scoped task queue on
-[Tessera](https://github.com/ta-amps/tessera) — to **build, test, and independently review off-the-shelf agent
+**Eranos** lets anyone **donate unused tokens** -- by pointing their coding agent at a scoped task queue on
+[Tessera](https://github.com/ta-amps/tessera) -- to **build, test, and independently review off-the-shelf agent
 skills, tools, files, and agentic processes** that NGOs and public-good teams can download and use right away.
 
 > Unused tokens build and test the kit; a second contributor's tokens review it; people keep every interview and
 > every decision about a person.
 
-*(Name note: in ancient Greece, an **eranos** — ἔρανος — was a mutual-aid potluck where each participant brought a
+*(Name note: in ancient Greece, an **eranos** -- ἔρανος -- was a mutual-aid potluck where each participant brought a
 spare share to equip a shared civic need.)*
 
 ## What NGOs get off the shelf
 
-Every published Eranos package bundles concrete, tested building blocks an NGO can adopt immediately — whether
+Every published Eranos package bundles concrete, tested building blocks an NGO can adopt immediately -- whether
 they run coding agents, an MCP client, or plain spreadsheets and printed checklists:
 
 - **Agent skills** (`AgentSkillSpec` / `SKILL.md` instructions): drop-in capabilities for triage prep, document
@@ -34,7 +34,7 @@ they run coding agents, an MCP client, or plain spreadsheets and printed checkli
 Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
 
 1. **Connect an agent with leftover tokens** (`MCP`, `HTTP`, `CLI`, or `/work` browser forms) using a scoped
-   volunteer key — never an admin or public-effect key.
+   volunteer key -- never an admin or public-effect key.
 2. **Build & self-test (`eq02` `draft`)**: one contributor's donated tokens claim an open public-good brief from
    `eq01` (`spec`), build the skill, tool schema, files, and agentic process, and run `eranos/verifier.py`
    against `SYNTHETIC` test cases.

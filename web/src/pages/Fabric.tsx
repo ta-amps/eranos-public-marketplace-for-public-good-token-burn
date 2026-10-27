@@ -1,3 +1,4 @@
+import { ErrorAlert } from "../components/ErrorAlert";
 import type { FabricResponse, RequestsResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
@@ -13,12 +14,19 @@ export function Fabric() {
         <h1>Tessera queues &amp; atomic CAS publication</h1>
         <p className="er-lede">
           Eranos uses three leased queues on Tessera (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
-          content-addressed SHA-256 blobs, and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
+          quarantining unreviewed drafts as <code>surface_only</code> and promoting independently reviewed packages via
+          content-addressed SHA-256 blobs and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
           <code>eranos.index</code>).
         </p>
 
-        {fabricState.status === "loading" && <p className="er-muted">Loading queue telemetry…</p>}
-        {fabricState.status === "error" && <p className="er-muted">Error: {fabricState.message}</p>}
+        {fabricState.status === "loading" && <p className="er-muted">Loading queue telemetry...</p>}
+        {fabricState.status === "error" && (
+          <ErrorAlert
+            title="Error loading queue telemetry"
+            message={fabricState.message}
+            onRetry={fabric.reload}
+          />
+        )}
         {fabricState.status === "ready" && (
           <div className="er-grid">
             {fabricState.data.queues.map((q) => (
@@ -53,6 +61,13 @@ export function Fabric() {
         )}
       </section>
 
+      {requestsState.status === "error" && (
+        <ErrorAlert
+          title="Error loading stage contracts"
+          message={requestsState.message}
+          onRetry={requests.reload}
+        />
+      )}
       {requestsState.status === "ready" && (
         <section className="er-section">
           <h2>Stage contracts</h2>

@@ -1,6 +1,48 @@
 {
   "synthetic": true,
+  "spdx_license": "CC-BY-4.0",
+  "tags": [
+    "status:verified",
+    "domain:anti_exploitation",
+    "track:coerced-work-hotline-routing",
+    "kind:full_kit",
+    "spdx:CC-BY-4.0",
+    "cohort:ngo_hotline",
+    "steward:required"
+  ],
+  "target_cohorts": [
+    "all",
+    "ngo_hotline"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma",
+    "surface:kothar"
+  ],
   "kit": {
+    "spdx_license": "CC-BY-4.0",
+    "tags": [
+      "status:verified",
+      "domain:anti_exploitation",
+      "track:coerced-work-hotline-routing",
+      "kind:full_kit",
+      "spdx:CC-BY-4.0",
+      "cohort:ngo_hotline",
+      "steward:required"
+    ],
+    "target_cohorts": [
+      "all",
+      "ngo_hotline"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
     "kit_id": "KIT-HOTLINE-02",
     "track_id": "coerced-work-hotline-routing",
     "domain": "anti_exploitation",
@@ -132,6 +174,8 @@
       "human_only_boundaries",
       "synthetic_fixtures",
       "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
       "cited_sources",
       "deliverable_alignment"
     ],
@@ -147,8 +191,8 @@
   "reviewed_by_key": "key_reviewer_02",
   "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
   "steward_signoff": "helpline-steward-lead",
-  "draft_receipt": "be3d6448091e763c9026e3f323cc502c6bf40b5852e871aa8c741bc44e381cec",
-  "review_receipt": "4d884ff0a0944e6b3daeeaf477485f00e15147e2b65e6f8b12643e113fb96f31",
-  "blob_sha256": "fdcf95dd94c5712ff2eca52c2bbe2ed5d9f9d186e0d39cf782c40fb6d67d337f",
+  "draft_receipt": "77dd33396ca1f82a6a5c8cf096fa80685849e3029b8d3dd8b675c7635df5243d",
+  "review_receipt": "d816b7b6d37f66a52f033c90c6472ebb1540951e6faa3c9f393ca21689f1999d",
+  "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
   "catalog_version": 1
 }
