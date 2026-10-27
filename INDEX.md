@@ -56,7 +56,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
 
-## docs/ (11)
+## docs/ (12)
 
 | File | What it is |
 |---|---|
@@ -68,11 +68,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/glossary.md](docs/glossary.md) | Glossary |
 | [docs/handoff.md](docs/handoff.md) | Handoff |
 | [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Naming, Mythology & Extending Eranos |
+| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models |
 | [docs/review.md](docs/review.md) | Review Guide & Cold-Start Handoff |
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
 | [docs/summary.md](docs/summary.md) | Summary |
 
-## eranos/ (21)
+## eranos/ (22)
 
 | File | What it is |
 |---|---|
@@ -86,6 +87,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/cli.py](eranos/cli.py) | Eranos CLI: inspect public-good tracks, verify the two-step Tessera pipeline on example kits, seed volunteer… |
 | [eranos/config.py](eranos/config.py) | Runtime settings from environment variables. |
 | [eranos/copy.py](eranos/copy.py) | Copy and topic guardrails: outputs use neutral operational indicators, never accusations, and never collect o… |
+| [eranos/donor_worker.py](eranos/donor_worker.py) | Live and offline donor-agent worker for Eranos (eq01 -> eq02 -> eq03 -> eranos.catalog). |
 | [eranos/jsonfile.py](eranos/jsonfile.py) | Strict JSON loader: rejects repeated object keys and NaN/Infinity so track and kit files stay unambiguous. |
 | [eranos/log.py](eranos/log.py) | Structured JSON Lines run logger (ts, level, event, taskid, kitid, queue, leaseid, costusd). |
 | [eranos/pipeline/__init__.py](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |

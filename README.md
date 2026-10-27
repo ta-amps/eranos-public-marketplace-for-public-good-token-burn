@@ -69,6 +69,7 @@ Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
 make setup
 make check             # ruff, mypy strict, pytest, leak scan, index and architecture checks
 make verify-examples   # run eq01 -> eq02 -> eq03 -> CAS catalog on all four example kits
+make donor-demo        # run two-donor (drafter != reviewer) synthesis & review (--live-ollama for muse-spark-open)
 make suite             # run Tessera's conformance suite through Eranos's adapter
 make web               # API on http://127.0.0.1:7720 and web app on http://localhost:5174
 ```
@@ -80,6 +81,7 @@ make web               # API on http://127.0.0.1:7720 and web app on http://loca
 | [docs/summary.md](docs/summary.md) | One-page overview, claims, and verification commands |
 | [docs/architecture.md](docs/architecture.md) | Rings, queues, two-step review invariants, and trust boundaries |
 | [docs/setup.md](docs/setup.md) | Local setup, connecting volunteer agents, single-domain subdomain hosting |
+| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating unused tokens with OpenCode (`/mcp`), Ollama Cloud (`muse-spark-open`), or Meta models |
 | [docs/comparison.md](docs/comparison.md) | How Eranos differs from generic prompt hubs and unverified skill directories |
 | [docs/generalizing.md](docs/generalizing.md) | How to add a new public-good track or kit without changing engine code |
 | [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Mythological & classical naming lexicon, flexible deliverable kinds, and multi-domain setup |

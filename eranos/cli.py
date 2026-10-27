@@ -13,6 +13,7 @@ from tessera import TaskSpec
 
 from eranos import config
 from eranos.adapter import get_adapter
+from eranos.donor_worker import DEFAULT_CHAT_BASE, DEFAULT_DONOR_MODEL, run_donor_demo
 from eranos.pipeline import (
     ensure_queues,
     list_published_kits,
@@ -204,12 +205,29 @@ def cmd_export_snapshot(target: Path) -> int:
     return 0
 
 
+def cmd_donor_demo(*, live_ollama: bool, model: str, base_url: str) -> int:
+    result = run_donor_demo(dry_model=not live_ollama, model=model, base_url=base_url)
+    print(json.dumps(result, indent=2))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="eranos", description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("tracks", help="List the six public-good build tracks")
     sub.add_parser("verify-examples", help="Run the two-step Tessera pipeline on example kits")
     sub.add_parser("seed-requests", help="Seed open volunteer agent briefs into eq02")
+    donor = sub.add_parser(
+        "donor-demo",
+        help="Run a two-donor (drafter != reviewer) kit build and review over Tessera HTTP",
+    )
+    donor.add_argument(
+        "--live-ollama",
+        action="store_true",
+        help="Call live open-weights chat endpoint (OLLAMA_API_KEY) instead of offline dry synthesis",
+    )
+    donor.add_argument("--model", default=DEFAULT_DONOR_MODEL)
+    donor.add_argument("--base-url", default=DEFAULT_CHAT_BASE)
     snap = sub.add_parser(
         "export-snapshot", help="Write static snapshot JSON files for the web app"
     )
@@ -222,6 +240,12 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_verify_examples()
     if args.cmd == "seed-requests":
         return cmd_seed_requests()
+    if args.cmd == "donor-demo":
+        return cmd_donor_demo(
+            live_ollama=bool(args.live_ollama),
+            model=str(args.model),
+            base_url=str(args.base_url),
+        )
     if args.cmd == "export-snapshot":
         return cmd_export_snapshot(args.out)
     return 1

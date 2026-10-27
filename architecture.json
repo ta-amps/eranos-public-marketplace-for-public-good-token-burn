@@ -12,6 +12,7 @@
     "summary": "docs/summary.md",
     "architecture": "docs/architecture.md",
     "setup": "docs/setup.md",
+    "opencode_donors": "docs/opencode-donors.md",
     "comparison": "docs/comparison.md",
     "generalizing": "docs/generalizing.md",
     "decisions": "docs/decisions.md",
@@ -31,6 +32,7 @@
     "examples/kits/README.md",
     "docs/frontend.md",
     "docs/setup.md",
+    "docs/opencode-donors.md",
     "docs/comparison.md",
     "docs/decisions.md",
     "docs/glossary.md",
@@ -44,6 +46,7 @@
     "test": "make test",
     "suite": "make suite BACKEND=local",
     "verify_examples": "make verify-examples",
+    "donor_demo": "make donor-demo",
     "tracks": "uv run eranos tracks",
     "snapshot": "make snapshot",
     "run": "make web",
@@ -206,21 +209,29 @@
     },
     {
       "id": "cli",
-      "title": "CLI",
-      "path": "eranos/cli.py",
+      "title": "CLI and donor worker",
+      "path": [
+        "eranos/cli.py",
+        "eranos/donor_worker.py"
+      ],
       "kind": "cli",
       "domain": "neutral",
-      "role": "eranos tracks, verify-examples, seed-requests, and export-snapshot",
+      "role": "eranos tracks, verify-examples, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot",
       "depends_on": [
         "adapter",
+        "copy",
         "log",
         "pipeline",
         "queues",
         "records",
-        "tracks"
+        "tracks",
+        "verifier"
       ],
       "interfaces": [
         "cli"
+      ],
+      "tests": [
+        "tests/test_pipeline.py"
       ]
     },
     {
@@ -283,6 +294,7 @@
       "entry_points": [
         "eranos tracks",
         "eranos verify-examples",
+        "eranos donor-demo [--live-ollama]",
         "eranos seed-requests",
         "eranos export-snapshot [OUT_DIR]"
       ]
@@ -490,6 +502,7 @@
         "eranos.adapter",
         "eranos.api",
         "eranos.cli",
+        "eranos.donor_worker",
         "eranos.config",
         "eranos.log",
         "tessera",
@@ -520,6 +533,7 @@
         "eranos.adapter",
         "eranos.api",
         "eranos.cli",
+        "eranos.donor_worker",
         "eranos.config",
         "eranos.log",
         "tessera",
@@ -555,6 +569,7 @@
         "eranos.log",
         "eranos.api",
         "eranos.cli",
+        "eranos.donor_worker",
         "httpx",
         "requests",
         "fastapi",
@@ -576,6 +591,7 @@
         "eranos.pipeline",
         "eranos.api",
         "eranos.cli",
+        "eranos.donor_worker",
         "fastapi",
         "starlette"
       ],
@@ -599,7 +615,8 @@
       ],
       "must_not_import": [
         "eranos.api",
-        "eranos.cli"
+        "eranos.cli",
+        "eranos.donor_worker"
       ],
       "why": "Ring 4 (API and CLI) are leaf entry points; nothing inward depends on them"
     },

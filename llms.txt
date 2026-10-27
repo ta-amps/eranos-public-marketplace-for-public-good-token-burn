@@ -19,6 +19,7 @@
 - [docs/glossary.md](https://github.com/ta-amps/eranos/blob/main/docs/glossary.md): Glossary
 - [docs/handoff.md](https://github.com/ta-amps/eranos/blob/main/docs/handoff.md): Handoff
 - [docs/naming-and-extensions.md](https://github.com/ta-amps/eranos/blob/main/docs/naming-and-extensions.md): Naming, Mythology & Extending Eranos
+- [docs/opencode-donors.md](https://github.com/ta-amps/eranos/blob/main/docs/opencode-donors.md): Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models
 - [docs/review.md](https://github.com/ta-amps/eranos/blob/main/docs/review.md): Review Guide & Cold-Start Handoff
 - [docs/setup.md](https://github.com/ta-amps/eranos/blob/main/docs/setup.md): Setup and Single-Domain Hosting
 - [docs/summary.md](https://github.com/ta-amps/eranos/blob/main/docs/summary.md): Summary

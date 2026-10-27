@@ -8,6 +8,7 @@ import pytest
 
 from eranos.adapter import TracedBackend
 from eranos.adapter import local as local_adapter
+from eranos.donor_worker import ContributorModelRefused, check_donor_model, run_donor_demo
 from eranos.pipeline import (
     SelfReviewRefused,
     UnverifiedKitRefused,
@@ -190,3 +191,20 @@ def test_unverified_draft_cannot_be_approved(backend: TracedBackend) -> None:
         assert list_published_kits(backend) == []
     finally:
         backend.close()
+
+
+def test_donor_worker_refuses_contributor_tier_models() -> None:
+    check_donor_model("muse-spark-open")
+    with pytest.raises(ContributorModelRefused):
+        check_donor_model("muse-spark-open-contributor")
+
+
+def test_donor_demo_synthesizes_verifies_and_publishes_with_distinct_keys() -> None:
+    out = run_donor_demo(dry_model=True)
+    assert out["ok"] is True
+    assert out["kit_id"] == "KIT-DONOR-90"
+    assert out["drafted_by"] == "opencode-donor-01"
+    assert out["reviewed_by"] == "ollama-reviewer-02"
+    assert out["eq03_scope_blocked"] is True
+    assert out["catalog_version"] == 1
+    assert out["jobs_recorded"] == 1
