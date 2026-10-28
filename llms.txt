@@ -11,6 +11,7 @@
 
 ## Documents
 - [CLAUDE.md](https://github.com/ta-amps/eranos/blob/main/CLAUDE.md): Claude Code instructions for Eranos
+- [docs/WORKER-FIRST-EXECUTION.md](https://github.com/ta-amps/eranos/blob/main/docs/WORKER-FIRST-EXECUTION.md): Worker-first execution and private work
 - [docs/access-modes.md](https://github.com/ta-amps/eranos/blob/main/docs/access-modes.md): External agent access
 - [docs/agent-workflow.md](https://github.com/ta-amps/eranos/blob/main/docs/agent-workflow.md): Agent workflow and verified boundaries
 - [docs/architecture.md](https://github.com/ta-amps/eranos/blob/main/docs/architecture.md): Eranos: architecture

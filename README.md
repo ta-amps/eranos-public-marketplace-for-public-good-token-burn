@@ -16,6 +16,10 @@ skills, tools, files, and agentic processes** that NGOs and public-good teams ca
 *(Name note: in ancient Greece, an **eranos** -- ἔρανος -- was a mutual-aid potluck where each participant brought a
 spare share to equip a shared civic need.)*
 
+## Worker execution policy
+
+The [worker-first execution policy](docs/WORKER-FIRST-EXECUTION.md) defines claimed verbs, worker self-checks, private worker access, proportionate review and exceptional server inference. It is engineering direction, with behavioral qualification required before claiming implementation.
+
 ## What NGOs get off the shelf
 
 Every published Eranos package bundles concrete, tested building blocks an NGO can adopt immediately -- whether

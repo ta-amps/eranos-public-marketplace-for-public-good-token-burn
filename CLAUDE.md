@@ -1,5 +1,9 @@
 # Claude Code instructions for Eranos
 
+## Worker execution direction
+
+Follow the [worker-first execution policy](docs/WORKER-FIRST-EXECUTION.md) when designing agentic work. Prefer claimed verbs and authorized workers, including private workers. Keep ordinary coordination deterministic; additional review is a verb when required. The policy does not widen effect, spending or publication authority.
+
 Read and follow @AGENTS.md first. Every hard rule in `AGENTS.md` applies here, enforced by
 `.claude/hooks/guard.py`.
 
