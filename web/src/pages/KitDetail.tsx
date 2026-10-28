@@ -146,7 +146,7 @@ export function KitDetail({ id }: { id: string }) {
               </div>
               <dl className="er-dl">
                 <div>
-                  <dt>Practice receipt SHA-256</dt>
+                  <dt>Validation outcome SHA-256 (does not bind draft content)</dt>
                   <dd>{practiceState.result.receipt_sha256}</dd>
                 </div>
                 <div>

@@ -311,7 +311,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "pydantic", specifier = ">=2.9" },
-    { name = "tessera", extras = ["mcp"], git = "https://github.com/ta-amps/tessera.git?rev=ecca97deb88b82e627df66c98400b3a302e2bdb0" },
+    { name = "tessera", extras = ["mcp"], git = "https://github.com/ta-amps/tessera.git?rev=d86b856506a2b138e1cc375e8b9172886e0c15e3" },
     { name = "uvicorn", specifier = ">=0.30" },
 ]
 
@@ -1087,7 +1087,7 @@ wheels = [
 [[package]]
 name = "tessera"
 version = "0.2.0"
-source = { git = "https://github.com/ta-amps/tessera.git?rev=ecca97deb88b82e627df66c98400b3a302e2bdb0#ecca97deb88b82e627df66c98400b3a302e2bdb0" }
+source = { git = "https://github.com/ta-amps/tessera.git?rev=d86b856506a2b138e1cc375e8b9172886e0c15e3#d86b856506a2b138e1cc375e8b9172886e0c15e3" }
 dependencies = [
     { name = "fastapi" },
     { name = "httpx" },

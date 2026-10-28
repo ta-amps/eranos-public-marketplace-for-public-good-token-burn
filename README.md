@@ -1,5 +1,7 @@
 # Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs
 
+Agent operators: read [the noun/verb workflow, public access boundaries and verification evidence](docs/agent-workflow.md).
+
 Most people with AI coding subscriptions or API budgets end the day or week with **unused tokens** that expire,
 while NGOs, legal-aid clinics, hotlines, and small nonprofits lack the engineering time to build and test
 dependable AI workflows.

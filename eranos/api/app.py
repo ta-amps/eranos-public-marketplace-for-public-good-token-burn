@@ -20,6 +20,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from eranos import __version__, config
 from eranos.adapter import get_adapter
+from eranos.api.public_feed import public_feed_payload
 from eranos.pipeline import (
     ensure_queues,
     filter_published_kits,
@@ -120,7 +121,7 @@ MCP_TOOLS: list[dict[str, Any]] = [
     },
     {
         "name": "practice_verify_kit",
-        "description": "Zero-storage in-memory deterministic dry-run verifier (persisted: false) checking autonomy boundaries, copy guards, open SPDX allowlist, and SYNTHETIC fixtures.",
+        "description": "Zero-storage deterministic verifier (persisted: false) for boundaries, copy, SPDX and SYNTHETIC fixtures. Receipt scope is validation_outcome; it does not bind draft content or publish a kit.",
         "inputSchema": {
             "type": "object",
             "required": ["draft"],
@@ -439,12 +440,10 @@ def feed(
                     for e in local_entries
                 ]
                 next_cur = int(dumped[-1]["seq"]) if dumped else after
-                return {
-                    "synthetic": True,
-                    "feed": "noun.promotions",
-                    "entries": dumped,
-                    "next_cursor": next_cur,
-                }
+                return public_feed_payload(
+                    {"feed": "noun.promotions", "entries": dumped, "next_cursor": next_cur},
+                    after=after,
+                )
         except Exception:
             return fallback
         finally:
@@ -463,7 +462,7 @@ def feed(
         if resp.is_success:
             upstream = resp.json()
             if isinstance(upstream, dict):
-                return {"synthetic": True, **upstream}
+                return public_feed_payload(upstream, after=after)
     except httpx.HTTPError:
         pass
     return {**fallback, "degraded": True}

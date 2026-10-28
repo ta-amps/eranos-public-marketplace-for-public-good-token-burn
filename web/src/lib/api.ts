@@ -267,6 +267,8 @@ async function runSnapshotPracticeVerify(
     fixture_count: draft.fixtures.length,
     human_only_steps: humanSteps,
     receipt_sha256: receiptSha256,
+    receipt_scope: "validation_outcome",
+    artifact_bound: false,
   };
 }
 

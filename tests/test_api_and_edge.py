@@ -414,7 +414,18 @@ def test_feed_fallback_and_tessera_upstream(
             200,
             json={
                 "feed": "noun.promotions",
-                "entries": [{"seq": 8, "store": "eranos.catalog", "key": "KIT-RECRUIT-01"}],
+                "entries": [
+                    {
+                        "seq": 8,
+                        "payload": {"store": "eranos.catalog", "key": "KIT-RECRUIT-01"},
+                        "namespace": "main",
+                        "producer_surface": "surface:eranos",
+                        "visibility_scope": "public_commons",
+                        "allowed_surfaces": [],
+                        "target_cohorts": ["all"],
+                        "tags": ["status:verified"],
+                    }
+                ],
                 "next_cursor": 8,
             },
         )
@@ -474,7 +485,7 @@ const env = {{
       if (u.pathname === "/v1/feeds/noun.promotions") {{
         return Response.json({{
           feed: "noun.promotions",
-          entries: [{{ seq: 5, key: "KIT-RECRUIT-01" }}],
+          entries: [{{ seq: 5, payload: {{key: "KIT-RECRUIT-01"}}, namespace: "main", producer_surface: "surface:eranos", visibility_scope: "public_commons", allowed_surfaces: [], target_cohorts: ["all"], tags: ["status:verified"] }}],
           next_cursor: 5,
         }});
       }}

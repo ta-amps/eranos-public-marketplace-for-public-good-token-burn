@@ -1,6 +1,6 @@
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
 import { schemaIssues } from "./schema.js";
-import { accessResponse, accessDescriptor, CORS_HEADERS } from "./access.js";
+import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
 // Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback), intercepts
 // AI-agent discovery endpoints (/favicon.svg, /healthz, /robots.txt, /llms.txt, /llms-full.txt,
 // /.well-known/agent-card.json, POST /mcp) before SPA fallback, and serves /api/* natively 24/7 from
@@ -234,7 +234,7 @@ const MCP_TOOLS = [
   {
     name: "practice_verify_kit",
     description:
-      "Zero-storage in-memory deterministic dry-run verifier (persisted: false) checking autonomy boundaries, copy guards, open SPDX allowlist, and SYNTHETIC fixtures.",
+      "Zero-storage deterministic verifier (persisted: false) for boundaries, copy, SPDX and SYNTHETIC fixtures. Receipt scope is validation_outcome; it does not bind draft content or publish a kit.",
     inputSchema: {
       type: "object",
       required: ["draft"],
@@ -567,6 +567,8 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
       issues: ["practice payload must be a JSON object"],
       checks_run: PRACTICE_CHECKS,
       receipt_sha256: await sha256Hex("invalid"),
+      receipt_scope: "validation_outcome",
+      artifact_bound: false,
     };
   }
 
@@ -737,6 +739,8 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
     issues,
     checks_run: PRACTICE_CHECKS,
     receipt_sha256: receiptSha256,
+    receipt_scope: "validation_outcome",
+    artifact_bound: false,
   };
 }
 
@@ -1171,7 +1175,7 @@ async function handleCloudApi(request, env, pathname) {
         if (resp.ok) {
           const payload = await resp.json();
           if (payload && typeof payload === "object") {
-            return jsonResp({ synthetic: true, ...payload });
+            return jsonResp(publicFeedPayload(payload, after));
           }
         } else {
           await resp.body?.cancel();

@@ -165,7 +165,11 @@ def practice_verify_kit(
     tracks_root: Path | None = None,
 ) -> dict[str, Any]:
     """Execute full deterministic boundary, copy, prohibited-topic, SPDX allowlist, and fixture
-    checks 100% in memory with zero database or blob writes (`persisted: False`)."""
+    checks in memory with zero database or blob writes (`persisted: False`).
+
+    The receipt hashes this validation outcome, not the full draft. It is not a
+    content identity, independent review, or catalog publication receipt.
+    """
     raw = _unwrap_draft_payload(draft_payload)
     raw.setdefault("drafted_by", "practice-dry-run")
     raw.setdefault("drafted_by_key", "practice-dry-run-key")
@@ -319,4 +323,6 @@ def practice_verify_kit(
         "issues": issues,
         "checks_run": list(PRACTICE_CHECKS),
         "receipt_sha256": receipt_sha256,
+        "receipt_scope": "validation_outcome",
+        "artifact_bound": False,
     }

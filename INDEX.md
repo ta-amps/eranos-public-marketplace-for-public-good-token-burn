@@ -59,11 +59,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
 
-## docs/ (13)
+## docs/ (14)
 
 | File | What it is |
 |---|---|
 | [docs/access-modes.md](docs/access-modes.md) | External agent access |
+| [docs/agent-workflow.md](docs/agent-workflow.md) | Agent workflow and verified boundaries |
 | [docs/architecture.md](docs/architecture.md) | Eranos: architecture |
 | [docs/comparison.md](docs/comparison.md) | Comparison |
 | [docs/decisions.md](docs/decisions.md) | Decisions and Glossary |
@@ -77,7 +78,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
 | [docs/summary.md](docs/summary.md) | Summary |
 
-## eranos/ (23)
+## eranos/ (24)
 
 | File | What it is |
 |---|---|
@@ -88,6 +89,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/adapter/traced.py](eranos/adapter/traced.py) | Traced Backend wrapper: logs every Tessera queue and store verb to JSON Lines. |
 | [eranos/api/__init__.py](eranos/api/__init__.py) | HTTP API for Eranos. |
 | [eranos/api/app.py](eranos/api/app.py) | FastAPI app for Eranos. |
+| [eranos/api/public_feed.py](eranos/api/public_feed.py) | Project a service-readable feed into an explicitly public response. |
 | [eranos/cli.py](eranos/cli.py) | Eranos CLI: inspect public-good tracks, run zero-storage practice verification, verify the two-step Tessera p… |
 | [eranos/config.py](eranos/config.py) | Runtime settings from environment variables. |
 | [eranos/copy.py](eranos/copy.py) | Copy and topic guardrails: outputs use neutral operational indicators, never accusations, and never collect o… |
@@ -125,7 +127,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (8)
+## tests/ (9)
 
 | File | What it is |
 |---|---|
@@ -134,6 +136,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
+| [tests/test_public_feed.py](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
 | [tests/test_review_contract.py](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
 | [tests/test_schemas_and_copy.py](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
 | [tests/test_tracks_and_verifier.py](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |

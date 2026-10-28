@@ -106,3 +106,35 @@ console.log(JSON.stringify(await r.json()));
     assert result["passed"] is False
     assert result["persisted"] is False
     assert any("skill" in issue for issue in result["issues"])
+
+
+def test_practice_receipt_is_explicitly_an_outcome_not_a_content_digest() -> None:
+    original = load_example_bundles()[0]["draft"]
+    revised = {**original, "summary": "SYNTHETIC revised public-good workflow summary."}
+    first = practice_verify_kit(original)
+    second = practice_verify_kit(revised)
+    assert first["passed"] is True and second["passed"] is True
+    assert first["receipt_sha256"] == second["receipt_sha256"]
+    assert first["receipt_scope"] == second["receipt_scope"] == "validation_outcome"
+    assert first["artifact_bound"] is second["artifact_bound"] is False
+    script = """
+import worker from WORKER;
+const out=[];
+for (const draft of DRAFTS) {
+ const response=await worker.fetch(new Request("https://example.com/api/practice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({draft})}),{});
+ out.push(await response.json());
+}
+console.log(JSON.stringify(out));
+""".replace("WORKER", json.dumps((ROOT / "deploy/cloudflare/worker.js").as_uri())).replace(
+        "DRAFTS", json.dumps([original, revised])
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    results = json.loads(run.stdout)
+    assert all(item["passed"] and item["persisted"] is False for item in results)
+    assert all(
+        item["receipt_scope"] == "validation_outcome" and item["artifact_bound"] is False
+        for item in results
+    )
+    assert results[0]["receipt_sha256"] == results[1]["receipt_sha256"]
