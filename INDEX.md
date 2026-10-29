@@ -13,7 +13,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [CLAUDE.md](CLAUDE.md) | Claude Code instructions for Eranos |
 | [LICENSE](LICENSE) | MIT License |
 | [Makefile](Makefile) | Eranos. |
-| [README.md](README.md) | Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs |
+| [README.md](README.md) | Eranos: spare AI tokens build tested tools for nonprofits |
 | [architecture.json](architecture.json) | eranos |
 | [keywords.txt](keywords.txt) | Terms for KEYWORDS.md, one per line: "term" or "term: alias, alias". |
 | [pyproject.toml](pyproject.toml) |  |
@@ -60,7 +60,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
 
-## docs/ (15)
+## docs/ (17)
 
 | File | What it is |
 |---|---|
@@ -75,9 +75,11 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/glossary.md](docs/glossary.md) | Glossary |
 | [docs/handoff.md](docs/handoff.md) | Handoff |
 | [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Naming, Mythology & Extending Eranos |
+| [docs/nouns-and-verbs.md](docs/nouns-and-verbs.md) | Nouns, verbs, surfaces and infrastructure |
 | [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models |
 | [docs/review.md](docs/review.md) | Review Guide & Cold-Start Handoff |
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
+| [docs/status.md](docs/status.md) | Status |
 | [docs/summary.md](docs/summary.md) | Summary |
 
 ## eranos/ (24)

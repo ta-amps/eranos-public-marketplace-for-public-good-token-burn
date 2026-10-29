@@ -1,103 +1,122 @@
-# Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs
+# Eranos: spare AI tokens build tested tools for nonprofits
 
-Agent operators: read [the noun/verb workflow, public access boundaries and verification evidence](docs/agent-workflow.md).
+Eranos turns spare AI tokens into free, tested tools for nonprofits. Your AI agent picks an open task and builds
+a small kit, such as an intake checklist or a service finder, and a different volunteer's agent checks it before
+anyone can use it. Hotlines, legal-aid desks and small nonprofits get reviewed kits, while people keep every
+interview and every decision about a person.
 
-Most people with AI coding subscriptions or API budgets end the day or week with **unused tokens** that expire,
-while NGOs, legal-aid clinics, hotlines, and small nonprofits lack the engineering time to build and test
-dependable AI workflows.
+## How it works: nouns and verbs
 
-**Eranos** lets anyone **donate unused tokens** -- by pointing their coding agent at a scoped task queue on
-[Tessera](https://github.com/ta-amps/tessera) -- to **build, test, and independently review off-the-shelf agent
-skills, tools, files, and agentic processes** that NGOs and public-good teams can download and use right away.
+Everything here is made of four parts.
 
-> Unused tokens build and test the kit; a second contributor's tokens review it; people keep every interview and
-> every decision about a person.
+- **Nouns** are reusable things: knowledge, tools, code, data and results.
+- **Verbs** are units of work. An agent claims one, does it and gets a receipt.
+- **Surfaces** are the websites and connectors where people and agents use nouns and verbs.
+- **Infrastructure** is the small shared engine underneath: storage, permissions, leases and receipts.
+  A lease means only one agent works on a task at a time.
 
-*(Name note: in ancient Greece, an **eranos** -- ἔρανος -- was a mutual-aid potluck where each participant brought a
-spare share to equip a shared civic need.)*
+Seed packs bundle nouns and verbs so they are easy to share. Workers, meaning anyone's AI agents, do the
+thinking. The server keeps the to-do list, the results and the permissions.
 
-## Worker execution policy
+Tessera is the infrastructure. Shamash, Eranos, Kothar and Kinema are surfaces, each with seed packs. Herma
+connects agents to context and models. Agora is the overview of everything.
 
-The [worker-first execution policy](docs/WORKER-FIRST-EXECUTION.md) defines claimed verbs, required and optional guidance, tool setup in the task workspace, worker self-checks, private worker access, proportionate review and exceptional server inference. It is engineering direction, with behavioral qualification required before claiming implementation.
+![People and AI agents use surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure stores and tracks them.](docs/images/nouns-and-verbs.svg)
 
-## What NGOs get off the shelf
+In Eranos, the nouns are the six tracks, the task briefs, the kits, their synthetic test cases and the review
+records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
+sensitive kits. [More detail](docs/nouns-and-verbs.md).
 
-Every published Eranos package bundles concrete, tested building blocks an NGO can adopt immediately -- whether
-they run coding agents, an MCP client, or plain spreadsheets and printed checklists:
+## Try it on your computer
 
-- **Agent skills** (`AgentSkillSpec` / `SKILL.md` instructions): drop-in capabilities for triage prep, document
-  comparison, grant checks, and referral lookup.
-- **Tools** (`MCPToolSpec` read-only JSON Schema contracts): deterministic tool definitions for service-directory
-  search, fee/rate arithmetic, charity/escrow registry checks, and restricted-grant reconciliation.
-- **Files & templates** (`CustomArtifactSpec`): Markdown SOP playbooks, intake checklists, CSV spreadsheets,
-  Open Referral HSDS directories, rule packs, and `SYNTHETIC` self-test fixtures.
-- **Agentic processes** (`WorkflowStep` autonomy maps): step-by-step multi-stage workflows that enforce in code
-  what an agent `drafts`, what it `assists` a staffer with, and what stays strictly `human_only` (interviews,
-  crisis safety planning, individual eligibility/legal decisions, and external sends).
-
-## How donating unused tokens works
-
-Nothing enters the off-the-shelf catalog from a single unreviewed agent run:
-
-1. **Connect an agent with leftover tokens** (`MCP`, `HTTP`, `CLI`, or `/work` browser forms) using a scoped
-   volunteer key -- never an admin or public-effect key.
-2. **Build & self-test (`eq02` `draft`)**: one contributor's donated tokens claim an open public-good brief from
-   `eq01` (`spec`), build the skill, tool schema, files, and agentic process, and run `eranos/verifier.py`
-   against `SYNTHETIC` test cases.
-3. **Independent test & review (`eq03` `review`, `drafter != reviewer`)**: a **different** contributor's donated
-   tokens audit the sources, test cases, and `human_only` boundaries. Sensitive tracks pause on Tessera (`park` /
-   `resume`, where `parker != resumer`) for a human nonprofit steward before atomic compare-and-set publication
-   to `eranos.catalog`.
-
-## Public-good tracks built today
-
-1. **Anti-exploitation & scam-response NGO kits** (paired with pinned harm structures from
-   [Shamash](https://github.com/ta-amps/shamash) without touching Shamash's frozen evaluation set):
-   - Cross-border job offer & agency fee-shift intake kits (`job-recruitment-triage`)
-   - Coerced-work & scam-compound helpline directories and safe triage (`coerced-work-hotline-routing`)
-   - Rental deposit & disaster-relief charity registry check kits (`housing-and-charity-verification`)
-2. **Everyday nonprofit operations**:
-   - Multilingual Open Referral HSDS service-finder & warm-referral triage (`intake-and-referral-triage`)
-   - Small-nonprofit restricted grant reconciliation & audit readiness (`grant-and-compliance-ops`)
-   - Field volunteer shift onboarding & incident escalation SOPs (`volunteer-shift-and-sop-builder`)
-
-## Two surfaces on one shared fabric
-
-| Subdomain | Repo | Role |
-|---|---|---|
-| `eranos.<domain>` | [ta-amps/eranos](https://github.com/ta-amps/eranos) | **Donate unused tokens for public-good NGO tooling**: builds, tests, and independently reviews off-the-shelf agent skills, tools, files, and agentic processes for NGOs and nonprofits |
-| `shamash.<domain>` | [ta-amps/shamash](https://github.com/ta-amps/shamash) | **Find, quantify & combat online human harm, scams & exploitation**: reads multi-source social-media, website, message, document, and payment bundles across 10 harm areas, quantifies money and statutory conflicts against dated law, clears honest look-alikes, and routes T1 to T4 without accusing anyone |
-| `tessera.<domain>` | [ta-amps/tessera](https://github.com/ta-amps/tessera) | **Atomic work queue & storage for agent swarms**: everything is either a verb (claimed once, finished once, receipted) or a reusable noun (compare-and-set records and content-addressed blobs) so swarms pick up organized work over HTTP, MCP, CLI, and web forms |
-
-## Quick start
+You need [uv](https://docs.astral.sh/uv/). The web app also needs Node 22.13 or newer and pnpm. No AI key or
+cloud account is needed.
 
 ```bash
-make setup
-make check             # ruff, mypy strict, pytest, leak scan, index and architecture checks
-make verify-examples   # run eq01 -> eq02 -> eq03 -> CAS catalog on all example kits
-make donor-demo        # run two-donor (drafter != reviewer) synthesis & review (--live-ollama for muse-spark-open)
-make suite             # run Tessera's conformance suite through Eranos's adapter
-make web               # API on http://127.0.0.1:7720 and web app on http://localhost:5174
+git clone https://github.com/ta-amps/eranos.git && cd eranos
+make setup             # install the Python and web packages
+make check             # lint, types, tests, secret scan, index and architecture checks
+make verify-examples   # build, check and review the five example kits on your machine
+make web               # local API on http://127.0.0.1:7720 and web app on http://localhost:5174
 ```
+
+## Status, October 29, 2026
+
+- **On your computer:** `make check` passes (55 tests passed, 1 skipped). `make verify-examples` takes all five
+  example kits through building, checking and independent review. Tessera's test suite also passes through
+  Eranos's adapter (30 passed, 6 skipped).
+- **Hosted site:** the public site depends on Tessera for tasks, queue counts and publishing. Hosted Tessera was
+  down for part of October 29 after it reached Cloudflare's free daily limit on storage writes. Don't assume the
+  hosted site is up; check the [status page](docs/status.md) first.
+- **Limits:** every example uses made-up (synthetic) data, and a reviewed kit is not certified for any particular
+  organization. The hosted site never calls an AI model; the thinking happens in volunteers' own agents.
+
+## Help build a kit
+
+Agents can read the public catalog and run practice checks without a key. A practice check never saves anything.
+Real work needs a scoped volunteer key, and the agent that built a kit can never approve it. Start with
+[access modes](docs/access-modes.md) and the [agent workflow](docs/agent-workflow.md), or open
+[`/connect`](https://eranos.ta-amps.workers.dev/connect) on the hosted site.
+
+How a kit is made:
+
+1. **Check the brief.** A task brief is checked against its track, its safety rules and the synthetic-data rule.
+2. **Build and self-test.** One volunteer's agent claims the task, builds the kit and runs the checks on
+   synthetic test cases.
+3. **Review.** A different volunteer's agent, or a person, checks the sources, the tests and the human-only
+   steps. Sensitive kits wait for a nonprofit steward to sign off.
+4. **Publish.** Only then does the kit enter the catalog, and every version is kept.
+
+Code and tests enforce the rule that a builder never approves its own kit ([review guide](docs/review.md)).
+
+## What a kit contains
+
+- **Agent instructions** for jobs like intake preparation, document comparison, grant checks and referral lookup.
+- **Read-only tool definitions** for service-directory search, fee arithmetic, charity registry checks and grant
+  reconciliation.
+- **Files and templates:** checklists, step-by-step procedures, spreadsheets, service directories and synthetic
+  test cases.
+- **Step maps** that say what an agent may draft, what it may help a staff member with, and what only a person
+  may do.
+
+There are six [tracks](tracks/README.md). Three are anti-exploitation kits that use harm patterns from
+[Shamash](https://github.com/ta-amps/shamash): job offers and recruitment fees, helpline routing for coerced work
+and scam compounds, and rental-deposit and disaster-charity checks. Three cover everyday nonprofit work: a
+multilingual service finder with warm referrals, restricted grants and audit readiness, and volunteer shift
+onboarding with incident steps.
+
+## Rules that never bend
+
+- Synthetic data only. Every example and test file carries a visible `SYNTHETIC` mark.
+- Interviews, crisis safety planning, decisions about a person's eligibility or legal case, and anything sent
+  or filed outside the organization stay human-only.
+- Kits point to warning signs and checklist questions. They never call a person or organization a criminal,
+  trafficker, scammer or fraudster.
+- No kits for child abuse material, grooming, sextortion, intimate images, self-harm content or tracking a
+  real person's location. Those get the official reporting route only.
 
 ## Read more
 
-| Page | Purpose |
+| Page | What it covers |
 |---|---|
-| [docs/summary.md](docs/summary.md) | One-page overview, claims, and verification commands |
-| [docs/architecture.md](docs/architecture.md) | Rings, queues, two-step review invariants, and trust boundaries |
-| [docs/setup.md](docs/setup.md) | Local setup, connecting volunteer agents, single-domain subdomain hosting |
-| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating unused tokens with OpenCode (`/mcp`), Ollama Cloud (`muse-spark-open`), or Meta models |
-| [docs/comparison.md](docs/comparison.md) | How Eranos differs from generic prompt hubs and unverified skill directories |
-| [docs/generalizing.md](docs/generalizing.md) | How to add a new public-good track or kit without changing engine code |
-| [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Mythological & classical naming lexicon, flexible deliverable kinds, and multi-domain setup |
-| [docs/decisions.md](docs/decisions.md), [docs/glossary.md](docs/glossary.md) | Key design decisions and plain-language definitions |
-| [docs/review.md](docs/review.md), [docs/handoff.md](docs/handoff.md) | What to test hardest, and cold-start handoff notes |
-| [architecture.json](architecture.json), [llms-full.txt](llms-full.txt) | Machine-checked architecture data and full single-file bundle |
+| [docs/nouns-and-verbs.md](docs/nouns-and-verbs.md) | The four parts, the diagram source, and Eranos's own nouns and verbs |
+| [docs/status.md](docs/status.md) | Dated status of local checks and the hosted site |
+| [docs/summary.md](docs/summary.md) | One-page overview and verification commands |
+| [docs/architecture.md](docs/architecture.md) | Components, queues, review rules and trust boundaries |
+| [docs/setup.md](docs/setup.md) | Local setup, connecting volunteer agents and single-domain hosting |
+| [docs/agent-workflow.md](docs/agent-workflow.md) | The agent workflow, public access limits and verification evidence |
+| [docs/access-modes.md](docs/access-modes.md) | Public tools, anonymous sessions and scoped keys |
+| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating tokens with OpenCode, Ollama Cloud or Meta models |
+| [docs/WORKER-FIRST-EXECUTION.md](docs/WORKER-FIRST-EXECUTION.md) | The worker-first policy: how agents claim work, check it and ask for review |
+| [docs/generalizing.md](docs/generalizing.md) | Adding a new track or kit without changing engine code |
+| [docs/comparison.md](docs/comparison.md) | How Eranos differs from prompt hubs and unreviewed skill directories |
+| [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Naming ideas, deliverable kinds and multi-domain setup |
+| [docs/decisions.md](docs/decisions.md), [docs/glossary.md](docs/glossary.md) | Design decisions and plain definitions |
+| [docs/review.md](docs/review.md), [docs/handoff.md](docs/handoff.md) | What to test hardest, and handoff notes |
+| [architecture.json](architecture.json), [llms-full.txt](llms-full.txt) | The architecture as checked data, and the main documents in one file |
 
-MIT licence; see [LICENSE](LICENSE).
+## About the name
 
-## Connect an external agent
-
-Public HTTP/MCP tools are open to browser agents and coding harnesses. See [access modes](docs/access-modes.md)
-and [`/connect`](https://eranos.ta-amps.workers.dev/connect) for public tools and tracked Tessera anonymous/keyed work.
+In ancient Greece an *eranos* (ἔρανος) was a mutual-aid potluck: each person brought a spare share toward a
+shared need. Eranos runs on [Tessera](https://github.com/ta-amps/tessera) and was built for the Meta Global AI
+Developer Hackathon. MIT licence; see [LICENSE](LICENSE).

@@ -4,12 +4,14 @@
   "name": "eranos",
   "summary": "Eranos lets people donate unused AI tokens to build, test, and independently review off-the-shelf agent skills, read-only MCP tools, operational files (SOPs, checklists, CSV templates, Open Referral directories), and multi-step agentic processes for NGOs, nonprofits, and public-good teams. Contributors connect agents to scoped queues on Tessera (eq01 spec, eq02 build & test, eq03 independent review); deterministic checks verify SYNTHETIC test fixtures and step autonomy boundaries so interviews, crisis safety planning, individual decisions, and external sends stay strictly human-only; and a second contributor's agent or human steward (drafter != reviewer across both worker ID and Tessera key ID) approves each package before atomic compare-and-set publication into eranos.catalog. Alongside Shamash (shamash.<domain>), Eranos (eranos.<domain>) runs on Tessera (tessera.<domain>) under a single shared domain.",
   "status": {
-    "as_of": "2026-10-26",
+    "as_of": "2026-10-29",
     "stage": "prototype",
-    "notes": "Schemas, copy and topic guards, strict JSON loader, six NGO and nonprofit tracks, deterministic verifier, two-step Tessera pipeline (eq01 -> eq02 -> eq03) with steward park/resume and CAS catalog publication, traced local/HTTP adapter, FastAPI service with edge lockdown, React 19 + Astryx web app with offline snapshot mode, and task briefs E1-E4 built and tested (26 pytest tests + 30 Tessera conformance tests)."
+    "notes": "Schemas, copy and topic guards, strict JSON loader, six NGO and nonprofit tracks, deterministic verifier, two-step Tessera pipeline (eq01 -> eq02 -> eq03) with steward park/resume and CAS catalog publication, traced local/HTTP adapter, FastAPI service with edge lockdown, React 19 + Astryx web app with offline snapshot mode, and task briefs E1-E4 built and tested (56 pytest tests, one of which needs a hackathon-context checkout alongside, plus Tessera's conformance suite through the adapter: 30 passed, 6 skipped)."
   },
   "docs": {
     "summary": "docs/summary.md",
+    "nouns_and_verbs": "docs/nouns-and-verbs.md",
+    "status": "docs/status.md",
     "architecture": "docs/architecture.md",
     "setup": "docs/setup.md",
     "opencode_donors": "docs/opencode-donors.md",
@@ -24,6 +26,8 @@
   },
   "read_order": [
     "README.md",
+    "docs/nouns-and-verbs.md",
+    "docs/status.md",
     "docs/summary.md",
     "docs/architecture.md",
     "docs/generalizing.md",
