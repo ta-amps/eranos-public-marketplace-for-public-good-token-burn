@@ -1,8 +1,62 @@
 # Worker-first execution and private work
 
-Architecture direction adopted October 28, 2026. This policy describes required design and migration checks. It does not certify that every current endpoint or worker already implements them.
+Architecture direction adopted October 28, 2026, clarified October 29. Follow this policy when designing, implementing, reviewing and handing off work. It describes required design and migration checks, not an event rule or certification that every current endpoint or worker already implements them.
 
-Agentic work should normally be a **verb that an authorized worker claims**. A noun holds versioned input, context, an artifact or evidence. Workers reason, act, check and repair. The server coordinates identity, discovery, leases, storage, validation and receipts without autonomous model calls on the normal path.
+Independently schedulable agentic work must be a **verb that an authorized worker claims**, unless an explicit server exception applies. A noun holds versioned input, context, code, a tool, a model, a recipe, an artifact or evidence. Workers reason, act, check and repair. The server coordinates identity, discovery, leases, storage, validation and receipts without autonomous model calls on the normal path.
+
+## Required boundaries: nouns, verbs, surfaces and infrastructure
+
+The architecture has **nouns, verbs, surfaces and narrow supporting
+infrastructure**. Seed packs contain nouns and verbs. These are mandatory design
+boundaries, not suggestions to replace with a separate service for each domain.
+For a one-minute explanation and the diagram, see
+[nouns, verbs, surfaces and infrastructure](nouns-and-verbs.md).
+
+| Boundary | Responsibility | What it must not become |
+| --- | --- | --- |
+| Nouns | Scoped, versioned knowledge, source observations, tools/code, prompts, profiles, models, data, recipes, configuration, plans, artifacts and evidence | An access grant, execution authority or quality certificate merely because it is stored or hashed |
+| Verbs | Independently schedulable work with input references, acceptance checks, authority and recorded outcomes; authorized workers perform ordinary reasoning | A second queue or an unrecorded server agent |
+| Surfaces | Websites, apps, dashboards, CLI and HTTP/MCP interfaces for discovering and using nouns and verbs | A separate permission system, autonomous domain brain or work authority |
+| Infrastructure | Narrow, explicit identity, authorization, storage, versions, leases, CAS, receipts, transport, health, backpressure and essential management plumbing | A label that exempts domain reasoning from worker execution or permission checks |
+
+A **seed pack bundles nouns and verb templates/seeds**. It is not another entity
+type, scheduler or runtime. Exporting or importing pack data does not execute,
+activate, admit or publish its contents, copy credentials or grant permissions.
+Its repository and showcase surface do not become independent agent runtimes.
+
+**Project is a convenient human label, not an architectural primitive.** It may
+name a surface and scoped collection of nouns and verbs. Store a needed
+description or profile as an existing noun. Do not add a project service, core
+table, separate execution authority or project-only lifecycle for this vocabulary.
+
+Every capability change and handoff must identify its nouns, independently
+schedulable verbs, surface, existing lifecycle owner and any infrastructure or
+server exception. Reject an implementation that hides ordinary domain reasoning
+inside a server handler, creates a competing task authority or lets a pack
+activate itself. Keep deterministic libraries and compatibility endpoints when
+they serve workers; packaging is not a reason to delete tested code or make
+every helper function a task.
+
+Deterministic infrastructure and essential management can remain server-side:
+identity, storage, leases, accounting, credentials, authorized provisioning,
+scheduling and recovery. They retain their own authority and audit requirements.
+Schedules may enqueue already-authorized work. Calling domain reasoning private,
+urgent or management does not create an exception. Model use by a management
+service must satisfy the explicit inference rules below.
+
+Server-side configuration, provider plans, health observations and attempt
+evidence are nouns too. Independently schedulable server management is private
+verb work. Server-side describes placement, not an exemption from the entity
+model. Enforce access on discovery, claims, records, blobs, history, receipts and
+logs; a private label alone grants nothing. Provider rotation may select only
+explicitly permitted provider/model pairs for that data and payer, and must
+retain each attempt and unknown outcome. Deterministic work records no model,
+with a link to its parent reasoning attempt when applicable.
+
+Enforce the boundary in owning tests: reject implicit model fallback, unauthorized
+effects and invalid contracts; prove that exporting a seed pack performs no
+network, enqueue, installation or activation work. Documentation inventories and
+tests of fixtures do not establish universal runtime coverage.
 
 Private, management and infrastructure work can use the same pattern through private workers. A worker can run in a customer harness, an operator environment or an approved cloud service. Its location does not determine its permissions, model provider or payer. Moving work to an operator-owned worker does not make its inference or hosting free.
 
