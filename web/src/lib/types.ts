@@ -171,6 +171,8 @@ export interface PracticeVerifyResponse {
   fixture_count: number;
   human_only_steps: string[];
   receipt_sha256: string;
+  receipt_scope: "validation_outcome";
+  artifact_bound: false;
 }
 
 export interface CatalogResponse {

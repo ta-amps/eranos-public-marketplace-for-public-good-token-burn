@@ -182,7 +182,7 @@ def test_all_three_drafter_reviewer_and_parker_resumer_bypasses_closed(
                 effect_classes: list[str] | None = None,
                 scopes: list[str] | None = None,
             ) -> tuple[str, Any]:
-                assert scopes == ["store"]
+                assert scopes == ["store", "surface:eranos"]
                 assert effect_classes == ["read", "write-internal"]
                 captured_keys.append((label, list(queues)))
                 return (f"tok_{label}", SimpleNamespace(key_id=f"id_{label}"))
@@ -441,3 +441,80 @@ def test_donor_demo_synthesizes_verifies_and_publishes_with_distinct_keys() -> N
     assert out["eq03_scope_blocked"] is True
     assert out["catalog_version"] == 1
     assert out["jobs_recorded"] == 1
+
+
+def test_review_is_bound_and_publication_recovers_after_store_failure(
+    backend: TracedBackend, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from tessera import NotFound
+
+    from eranos.pipeline.publication import OUTBOX_STORE
+
+    bundle = load_example_bundles()[0]
+    req = KitRequest.model_validate(bundle["request"])
+    graph = submit_kit_request(backend, req)
+    run_spec_step(backend)
+    run_draft_step(backend, bundle["draft"], worker="draft-synthetic", key_id="draft-synthetic-key")
+    decision = ReviewDecision.model_validate(bundle["review"])
+    original = backend.put_records
+
+    def fail_catalog(writes: Any, **kwargs: Any) -> Any:
+        if any(w.store == CATALOG_STORE for w in writes):
+            raise RuntimeError("SYNTHETIC persistence failure")
+        return original(writes, **kwargs)
+
+    monkeypatch.setattr(backend, "put_records", fail_catalog)
+    with pytest.raises(RuntimeError, match="persistence failure"):
+        run_review_step(backend, decision, worker="review-synthetic", key_id="review-synthetic-key")
+    assert backend.task(graph.review_task_id).state == "done"
+    assert (
+        backend.results(graph.review_task_id)[-1].output["status"] == "approved_pending_publication"
+    )
+    with pytest.raises(NotFound):
+        backend.get_record(CATALOG_STORE, req.kit_id)
+    with backend.scope_context(surface="surface:eranos"):
+        assert backend.get_record(OUTBOX_STORE, req.kit_id).value["status"] == "pending"
+    monkeypatch.setattr(backend, "put_records", original)
+    recovered = run_review_step(
+        backend, decision, worker="review-synthetic", key_id="review-synthetic-key"
+    )
+    assert recovered is not None and recovered["status"] == "published"
+    assert recovered["published"]["catalog_version"] == 1
+    assert (
+        run_review_step(backend, decision, worker="review-synthetic", key_id="review-synthetic-key")
+        is None
+    )
+
+
+def test_wrong_kit_approval_and_negative_steward_resume_do_not_publish(
+    backend: TracedBackend,
+) -> None:
+    bundle = load_example_bundles()[0]
+    req = KitRequest.model_validate(bundle["request"])
+    submit_kit_request(backend, req)
+    run_spec_step(backend)
+    run_draft_step(backend, bundle["draft"], worker="draft-synthetic", key_id="draft-key")
+    wrong = ReviewDecision.model_validate({**bundle["review"], "kit_id": "KIT-OTHER-98"})
+    with pytest.raises(UnverifiedKitRefused, match="leased kit"):
+        run_review_step(backend, wrong, worker="review-synthetic", key_id="review-key")
+    assert get_published_kit(backend, req.kit_id) is None
+
+    # A fresh backend avoids the deliberately rejected task's retry ordering.
+    backend.close()
+
+
+def test_negative_steward_decision_reparks(backend: TracedBackend) -> None:
+    bundle = load_example_bundles()[1]
+    req = KitRequest.model_validate(bundle["request"])
+    graph = submit_kit_request(backend, req)
+    run_spec_step(backend)
+    run_draft_step(backend, bundle["draft"], worker="draft-synthetic", key_id="draft-key")
+    decision = ReviewDecision.model_validate(bundle["review"])
+    run_review_step(backend, decision, worker="review-synthetic", key_id="review-key")
+    backend.resume(
+        graph.review_task_id, {"approved": False, "notes": "SYNTHETIC refusal"}, by="human-steward"
+    )
+    with pytest.raises(UnverifiedKitRefused, match="steward approval"):
+        run_review_step(backend, decision, worker="review-synthetic", key_id="review-key")
+    assert get_published_kit(backend, req.kit_id) is None
+    assert backend.task(graph.review_task_id).state == "waiting"

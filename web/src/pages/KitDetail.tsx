@@ -63,12 +63,12 @@ export function KitDetail({ id }: { id: string }) {
 
   return (
     <div>
-      <p className="er-muted" style={{ marginBottom: 12 }}>
+      <p className="er-muted er-mb-12" >
         <AppLink to="/catalog">Back to Verified Catalog</AppLink> / <code>{kit.kit_id}</code>
       </p>
 
       <section className="er-hero">
-        <div className="er-chip-row" style={{ marginBottom: 12 }}>
+        <div className="er-chip-row er-mb-12" >
           <span className="er-chip er-chip-neutral">{kit.kit_id}</span>
           <DomainBadge domain={kit.domain} />
           <span className="er-chip er-chip-assists">{kit.deliverable_kind.replace(/_/g, " ")}</span>
@@ -86,7 +86,7 @@ export function KitDetail({ id }: { id: string }) {
           <strong>Cohorts:</strong> <code>{cohorts.join(", ")}</code>
         </p>
         {tags.length > 0 && (
-          <div className="er-chip-row" style={{ marginTop: 10 }}>
+          <div className="er-chip-row er-mt-10" >
             {tags.map((t) => (
               <span key={t} className="er-chip er-chip-neutral">
                 {t}
@@ -129,7 +129,7 @@ export function KitDetail({ id }: { id: string }) {
           )}
           {practiceState.status === "ready" && (
             <div data-testid="practice-verifier-result">
-              <div className="er-chip-row" style={{ marginBottom: 10 }}>
+              <div className="er-chip-row er-mb-10" >
                 <span
                   className={
                     practiceState.result.passed ? "er-chip er-chip-drafts" : "er-chip er-chip-human"
@@ -146,7 +146,7 @@ export function KitDetail({ id }: { id: string }) {
               </div>
               <dl className="er-dl">
                 <div>
-                  <dt>Practice receipt SHA-256</dt>
+                  <dt>Validation outcome SHA-256 (does not bind draft content)</dt>
                   <dd>{practiceState.result.receipt_sha256}</dd>
                 </div>
                 <div>
@@ -176,7 +176,7 @@ export function KitDetail({ id }: { id: string }) {
         <ul className="er-step-list">
           {kit.steps.map((step) => (
             <li key={step.id} className="er-step-item">
-              <div className="er-chip-row" style={{ marginBottom: 6 }}>
+              <div className="er-chip-row er-mb-6" >
                 <BoundaryBadge boundary={step.boundary} />
                 <strong>{step.title}</strong>
                 <span className="er-chip er-chip-neutral">{step.kind}</span>
@@ -269,7 +269,7 @@ export function KitDetail({ id }: { id: string }) {
         <section className="er-card">
           <h2>Synthetic verification fixtures ({verification.fixture_count})</h2>
           {kit.fixtures.map((fx) => (
-            <div key={fx.id} style={{ borderTop: "1px solid var(--er-border)", paddingTop: 10 }}>
+            <div key={fx.id}  className="er-fixture-divider">
               <div className="er-chip-row">
                 <code>{fx.id}</code>
                 <span className={fx.expected_human_escalation ? "er-chip er-chip-human" : "er-chip er-chip-drafts"}>

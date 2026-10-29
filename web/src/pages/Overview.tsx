@@ -22,7 +22,7 @@ export function Overview() {
   return (
     <div>
       <section className="er-hero">
-        <div className="er-chip-row" style={{ marginBottom: 12 }}>
+        <div className="er-chip-row er-mb-12" >
           <span className="er-chip er-chip-drafts">Built &amp; tested with donated tokens on {FABRIC_DISPLAY_NAME}</span>
           <span className="er-chip er-chip-neutral">
             {kitCount} off-the-shelf NGO kits · {trackCount} public-good tracks

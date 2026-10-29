@@ -19,8 +19,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: ta-amps/tessera
+          ref: ecca97deb88b82e627df66c98400b3a302e2bdb0
           path: tessera
           token: ${{ secrets.TESSERA_READ_TOKEN || github.token }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - uses: astral-sh/setup-uv@v6
       - name: Install
         working-directory: eranos
@@ -54,3 +58,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec tsc --noEmit
       - run: pnpm build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright test tests/csp.spec.ts

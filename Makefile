@@ -1,4 +1,4 @@
-# Eranos. Run `make help` for the list. Tessera must be cloned next to this repo (../tessera).
+# Eranos. Run `make help` for the list. The optional conformance suite uses a Tessera checkout; runtime installation is pinned.
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 BACKEND ?= local

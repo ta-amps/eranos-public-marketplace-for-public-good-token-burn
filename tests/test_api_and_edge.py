@@ -105,14 +105,14 @@ def test_catalog_filtering_cohorts_spdx_tags_and_quarantine(client: TestClient) 
             **bundle["request"],
             "kit_id": "KIT-COHORT-88",
             "target_cohorts": ["ngo_closed_pilot"],
-            "visibility_scope": "allowlist_surfaces",
+            "visibility_scope": "public_commons",
         }
     )
     restricted_draft = {
         **bundle["draft"],
         "kit_id": "KIT-COHORT-88",
         "target_cohorts": ["ngo_closed_pilot"],
-        "visibility_scope": "allowlist_surfaces",
+        "visibility_scope": "public_commons",
     }
     backend = get_adapter()
     try:
@@ -414,7 +414,18 @@ def test_feed_fallback_and_tessera_upstream(
             200,
             json={
                 "feed": "noun.promotions",
-                "entries": [{"seq": 8, "store": "eranos.catalog", "key": "KIT-RECRUIT-01"}],
+                "entries": [
+                    {
+                        "seq": 8,
+                        "payload": {"store": "eranos.catalog", "key": "KIT-RECRUIT-01"},
+                        "namespace": "main",
+                        "producer_surface": "surface:eranos",
+                        "visibility_scope": "public_commons",
+                        "allowed_surfaces": [],
+                        "target_cohorts": ["all"],
+                        "tags": ["status:verified"],
+                    }
+                ],
                 "next_cursor": 8,
             },
         )
@@ -474,7 +485,7 @@ const env = {{
       if (u.pathname === "/v1/feeds/noun.promotions") {{
         return Response.json({{
           feed: "noun.promotions",
-          entries: [{{ seq: 5, key: "KIT-RECRUIT-01" }}],
+          entries: [{{ seq: 5, payload: {{key: "KIT-RECRUIT-01"}}, namespace: "main", producer_surface: "surface:eranos", visibility_scope: "public_commons", allowed_surfaces: [], target_cohorts: ["all"], tags: ["status:verified"] }}],
           next_cursor: 5,
         }});
       }}
@@ -529,7 +540,7 @@ console.log(JSON.stringify({{ fab, hs, feed, fallbackHs, fallbackFeed, calls }})
 
 def test_cloudflare_worker_discovery_mcp_practice_and_snapshot_assets() -> None:
     worker_path = (REPO_ROOT / "deploy" / "cloudflare" / "worker.js").as_posix()
-    dist_dir = (REPO_ROOT / "web" / "dist").as_posix()
+    dist_dir = (REPO_ROOT / "web" / "public").as_posix()
     example_draft = load_example_bundles()[0]["draft"]
 
     script = f"""

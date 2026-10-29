@@ -27,13 +27,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: eranos
-      - uses: actions/checkout@v4
-        with:
-          repository: ta-amps/tessera
-          path: tessera
-          token: ${{ secrets.TESSERA_READ_TOKEN || github.token }}
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - name: Send only the two repos' sources to the builder
+      - name: Send only this repo's sources to the builder
         run: cp eranos/deploy/fly/Dockerfile.dockerignore .dockerignore
       - name: Deploy
         env:

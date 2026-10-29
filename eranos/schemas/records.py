@@ -371,6 +371,12 @@ class PublishedKit(_GovernedRecord):
     review_receipt: str | None = None
     blob_sha256: str | None = None
     catalog_version: int = Field(ge=1, default=1)
+    review_task_id: str | None = None
+    draft_task_id: str | None = None
+    draft_sha256: str | None = None
+    drafter_key_id: str | None = None
+    reviewer_key_id: str | None = None
+    publication_sha256: str | None = None
 
     @model_validator(mode="before")
     @classmethod

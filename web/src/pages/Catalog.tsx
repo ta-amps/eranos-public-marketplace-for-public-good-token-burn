@@ -234,7 +234,7 @@ export function Catalog() {
           </div>
 
           {hasActiveFilters && (
-            <div className="er-actions" style={{ marginTop: 12 }}>
+            <div className="er-actions er-mt-12" >
               <button type="button" className="er-btn-secondary" onClick={resetFilters}>
                 Reset filters
               </button>
@@ -297,7 +297,7 @@ export function Catalog() {
                     human-only) · {skills.length} skill(s) · {tools.length} MCP tool(s) ·{" "}
                     {entry.kit.artifacts.length} custom artifact(s)
                   </p>
-                  <div className="er-actions" style={{ marginTop: "auto" }}>
+                  <div className="er-actions er-mt-auto" >
                     <AppLink to={`/catalog/${entry.kit.kit_id}`} className="er-btn-secondary">
                       Inspect deliverables, schemas &amp; receipts
                     </AppLink>

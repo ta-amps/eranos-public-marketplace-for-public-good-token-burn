@@ -17,13 +17,13 @@ Deploys require Taylor's approval each time.
 1. Run `deploy/bootstrap-hosting.sh --dry-run` first, then `deploy/bootstrap-hosting.sh` under the
    `ta-amps` Fly, Cloudflare, and GitHub accounts.
 2. Preferred deploy path: trigger the GitHub `deploy` workflow (`api` or `both`), which waits for
-   approval in the `production` environment, checks out `tessera` and `eranos` side by side, copies
+   approval in the `production` environment, checks out Eranos and installs the pinned Tessera dependency, copies
    `Dockerfile.dockerignore` to `.dockerignore`, and runs `flyctl deploy --remote-only`.
 3. Clean-directory manual deploy (never run `fly deploy` from a parent folder containing private notes):
 
 ```bash
 mkdir /tmp/eranos-deploy && cd /tmp/eranos-deploy
-git clone https://github.com/ta-amps/tessera.git && git clone https://github.com/ta-amps/eranos.git
+git clone https://github.com/ta-amps/eranos.git
 cp eranos/deploy/fly/Dockerfile.dockerignore .dockerignore
 fly deploy . --config eranos/deploy/fly/fly.toml --dockerfile eranos/deploy/fly/Dockerfile --remote-only
 ```

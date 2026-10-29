@@ -23,6 +23,11 @@ from typing import Any
 from tessera import Forbidden, NotFound, RecordWrite, TaskSpec, TaskView
 
 from eranos.jsonfile import load_json
+from eranos.pipeline.publication import (
+    prepare_publication,
+    publication_digest,
+    recover_publications,
+)
 from eranos.queues import QUEUE_CONFIGS
 from eranos.schemas import (
     KitDraft,
@@ -417,6 +422,14 @@ def _publish_to_catalog_scoped(
     try:
         existing_kit = backend.get_record(CATALOG_STORE, kit_id)
         expected_kit_ver: int | None = existing_kit.version
+        prior = PublishedKit.model_validate(existing_kit.value)
+        if (
+            prior.review_task_id == published.review_task_id
+            and prior.review_receipt == published.review_receipt
+            and prior.publication_sha256 == published.publication_sha256
+        ):
+            _publish_promotion(backend, prior)
+            return prior
     except NotFound:
         expected_kit_ver = None
 
@@ -483,7 +496,7 @@ def _publish_to_catalog_scoped(
         "tags": ["status:verified", "store:eranos.index"],
         "target_cohorts": ["all"],
         "producer_surface": payload.producer_surface,
-        "visibility_scope": "public_commons",
+        "visibility_scope": "surface_only",
         "allowed_surfaces": payload.allowed_surfaces,
     }
     backend.put_records(
@@ -498,18 +511,39 @@ def _publish_to_catalog_scoped(
             _build_record_write(
                 store=INDEX_STORE,
                 key=INDEX_KEY,
-                value={"kit_ids": kit_ids},
+                value={
+                    "kit_ids": kit_ids,
+                    **{
+                        k: getattr(payload, k)
+                        for k in (
+                            "review_task_id",
+                            "review_receipt",
+                            "draft_task_id",
+                            "draft_sha256",
+                            "drafter_key_id",
+                            "reviewer_key_id",
+                            "publication_sha256",
+                        )
+                    },
+                },
                 expected_version=expected_idx_ver,
                 governance=index_governance,
             ),
         ]
     )
 
+    _publish_promotion(backend, payload)
+
+    return payload
+
+
+def _publish_promotion(backend: Any, payload: PublishedKit) -> None:
     if hasattr(backend, "publish_feed"):
         feed_payload: dict[str, Any] = {
             "store": CATALOG_STORE,
-            "key": kit_id,
-            "kit_id": kit_id,
+            "key": payload.kit.kit_id,
+            "promotion_id": payload.publication_sha256,
+            "kit_id": payload.kit.kit_id,
             "track_id": payload.kit.track_id,
             "domain": payload.kit.domain,
             "catalog_version": payload.catalog_version,
@@ -533,11 +567,18 @@ def _publish_to_catalog_scoped(
             feed_kwargs["kind"] = "promotion"
         if "summary" in feed_param_names:
             feed_kwargs["summary"] = (
-                f"Promoted {kit_id} v{payload.catalog_version} ({payload.spdx_license}) to {CATALOG_STORE}"
+                f"Promoted {payload.kit.kit_id} v{payload.catalog_version} ({payload.spdx_license}) to {CATALOG_STORE}"
             )
+        for field in (
+            "producer_surface",
+            "visibility_scope",
+            "allowed_surfaces",
+            "target_cohorts",
+            "tags",
+        ):
+            if field in feed_param_names:
+                feed_kwargs[field] = getattr(payload, field)
         backend.publish_feed("noun.promotions", feed_payload, **feed_kwargs)
-
-    return payload
 
 
 def _events_for_task(backend: Any, target_task_id: str) -> list[Any]:
@@ -613,6 +654,17 @@ def run_review_step(
     key_id: str,
     tracks_root: Path | None = None,
 ) -> dict[str, Any] | None:
+    with _eranos_surface_scope(backend):
+        recovered = recover_publications(
+            backend, _publish_to_catalog, kit_id=decision.kit_id, key_id=key_id
+        )
+    if recovered is not None:
+        return {
+            "node": "review",
+            "status": "published",
+            "kit_id": recovered.kit.kit_id,
+            "published": recovered.model_dump(mode="json"),
+        }
     lease = _claim_with_key(backend, "eq03", worker, key_id=key_id)
     if lease is None:
         return None
@@ -623,6 +675,16 @@ def run_review_step(
         )
 
     draft = KitDraft.model_validate(dep_res.output["draft"])
+    if decision.kit_id != draft.kit_id:
+        backend.submit(
+            lease.task_id,
+            lease.fencing_token,
+            {"node": "review", "status": "rejected_subject_mismatch", "kit_id": draft.kit_id},
+            idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
+            ok=False,
+            error="review decision does not match the leased kit",
+        )
+        raise UnverifiedKitRefused("review decision does not match the leased kit")
     upstream_report = VerificationReport.model_validate(dep_res.output["verification"])
     reverified = verify_kit(draft, get_track(draft.track_id, tracks_root))
     blob_sha256 = str(dep_res.output["blob_sha256"])
@@ -668,6 +730,22 @@ def run_review_step(
 
     steward_input = lease.inputs[-1] if lease.inputs else None
     if (needs_steward or decision.verdict == "park_for_steward") and steward_input is None:
+        with _eranos_surface_scope(backend):
+            try:
+                steward_request_version = backend.get_record(
+                    "eranos.steward_requests", lease.task_id
+                ).version
+            except NotFound:
+                steward_request_version = 0
+            backend.put_record(
+                "eranos.steward_requests",
+                lease.task_id,
+                {"kit_id": draft.kit_id, "draft_sha256": blob_sha256},
+                expected_version=steward_request_version,
+                producer_surface="surface:eranos",
+                visibility_scope="surface_only",
+                tags=["status:quarantined"],
+            )
         parked: TaskView = backend.park(
             lease.task_id,
             lease.fencing_token,
@@ -680,6 +758,23 @@ def run_review_step(
             "kit_id": draft.kit_id,
             "park": parked.parks,
         }
+
+    if (needs_steward or decision.verdict == "park_for_steward") and (
+        not isinstance(steward_input, dict)
+        or steward_input.get("approved") is not True
+        or steward_input.get("kit_id") != draft.kit_id
+        or steward_input.get("draft_sha256") != blob_sha256
+        or not steward_input.get("steward")
+    ):
+        backend.park(
+            lease.task_id,
+            lease.fencing_token,
+            reason="affirmative steward approval bound to this draft is required",
+            resume_within=604800.0,
+        )
+        raise UnverifiedKitRefused(
+            "steward approval is missing, negative, or for a different draft"
+        )
 
     if decision.verdict == "needs_revision":
         receipt = backend.submit(
@@ -740,6 +835,11 @@ def run_review_step(
         steward_signoff=steward_label,
         draft_receipt=dep_res.receipt_hash,
         blob_sha256=blob_sha256,
+        review_task_id=lease.task_id,
+        draft_task_id=dep_res.task_id,
+        draft_sha256=blob_sha256,
+        drafter_key_id=getattr(dep_res, "completed_by_key", None) or draft.drafted_by_key,
+        reviewer_key_id=key_id,
         spdx_license=promoted_draft.spdx_license,
         tags=verified_tags,
         target_cohorts=promoted_draft.target_cohorts,
@@ -747,12 +847,25 @@ def run_review_step(
         visibility_scope=promoted_scope,
         allowed_surfaces=promoted_draft.allowed_surfaces,
     )
-    receipt = backend.submit(
+    provisional_pub = provisional_pub.model_copy(
+        update={"publication_sha256": publication_digest(provisional_pub)}
+    )
+    with _eranos_surface_scope(backend):
+        outbox_key = prepare_publication(backend, provisional_pub, lease.fencing_token)
+    backend.submit(
         lease.task_id,
         lease.fencing_token,
         {
             "node": "review",
-            "status": "published",
+            "status": "approved_pending_publication",
+            "approved": True,
+            "outbox_key": outbox_key,
+            "review_task_id": lease.task_id,
+            "draft_task_id": dep_res.task_id,
+            "draft_sha256": blob_sha256,
+            "drafter_key_id": provisional_pub.drafter_key_id,
+            "reviewer_key_id": key_id,
+            "publication_sha256": provisional_pub.publication_sha256,
             "kit_id": draft.kit_id,
             "reviewed_by": worker,
             "steward_signoff": steward_label,
@@ -762,11 +875,12 @@ def run_review_step(
         idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
         ok=True,
     )
-    stored = _publish_to_catalog(
-        backend,
-        provisional_pub.model_copy(update={"review_receipt": receipt.receipt_hash}),
-        requested_visibility_scope=promoted_scope,
-    )
+    with _eranos_surface_scope(backend):
+        stored = recover_publications(
+            backend, _publish_to_catalog, kit_id=draft.kit_id, key_id=key_id
+        )
+    if stored is None:
+        raise UnverifiedKitRefused("completed review proof did not match the prepared publication")
     return {
         "node": "review",
         "status": "published",
@@ -830,9 +944,18 @@ def resume_steward_signoff(
     if "by" in resume_param_names:
         resume_kwargs["by"] = resumer
 
+    with _eranos_surface_scope(backend):
+        pending_approval = backend.get_record("eranos.steward_requests", review_task_id).value
     view: TaskView = backend.resume(
         review_task_id,
-        {"steward": steward_name, "by": resumer, "notes": notes},
+        {
+            "approved": True,
+            "kit_id": pending_approval["kit_id"],
+            "draft_sha256": pending_approval["draft_sha256"],
+            "steward": steward_name,
+            "by": resumer,
+            "notes": notes,
+        },
         **resume_kwargs,
     )
     return view
@@ -895,7 +1018,11 @@ def filter_published_kits(
 
     filtered: list[PublishedKit] = []
     for entry in kits:
-        if _is_quarantined(entry):
+        if (
+            entry.visibility_scope != "public_commons"
+            or "status:verified" not in entry.tags
+            or _is_quarantined(entry)
+        ):
             continue
         kit = entry.kit
         all_tags = list(dict.fromkeys([*entry.tags, *kit.tags]))
@@ -955,7 +1082,9 @@ def filter_published_kits(
     return filtered
 
 
-def get_published_kit(backend: Any, kit_id: str) -> PublishedKit | None:
+def get_published_kit(
+    backend: Any, kit_id: str, *, public: bool = False, cohort: str | None = None
+) -> PublishedKit | None:
     with _eranos_surface_scope(backend):
         try:
             rec = backend.get_record(CATALOG_STORE, kit_id)
@@ -976,6 +1105,8 @@ def get_published_kit(backend: Any, kit_id: str) -> PublishedKit | None:
             return None
     entry = PublishedKit.model_validate(raw_val)
     if _is_quarantined(entry):
+        return None
+    if public and not filter_published_kits([entry], cohort=cohort):
         return None
     return entry
 
