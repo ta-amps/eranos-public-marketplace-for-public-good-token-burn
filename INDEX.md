@@ -43,7 +43,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [briefs/E3.json](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [briefs/E4.json](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (11)
+## deploy/ (12)
 
 | File | What it is |
 |---|---|
@@ -51,6 +51,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/bootstrap-hosting.sh](deploy/bootstrap-hosting.sh) | One-time hosting setup for one service on Fly.io behind a Cloudflare Worker: the Fly app and its |
 | [deploy/cloudflare/README.md](deploy/cloudflare/README.md) | Cloudflare: the Eranos edge |
 | [deploy/cloudflare/access.js](deploy/cloudflare/access.js) | Public browser-agent access uses bearer headers, never cookies. |
+| [deploy/cloudflare/agent_start.js](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
 | [deploy/cloudflare/kit-draft.schema.json](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
 | [deploy/cloudflare/schema.js](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
 | [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) |  |

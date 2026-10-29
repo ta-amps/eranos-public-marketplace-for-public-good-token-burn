@@ -1,3 +1,4 @@
+import { agentStartAsset, withAgentStart } from "./agent_start.js";
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
 import { schemaIssues } from "./schema.js";
 import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
@@ -1266,7 +1267,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
   return null;
 }
 
-export default {
+const onboardingApplication = {
   async fetch(request, env = {}) {
     const access = accessResponse(request, "eranos");
     if (access) return finish(access, request.method);
@@ -1288,5 +1289,12 @@ export default {
       }
     }
     return finish(response, request.method);
+  },
+};
+
+export default {
+  ...onboardingApplication,
+  async fetch(request, env, ctx) {
+    return agentStartAsset(request) || withAgentStart(request, await onboardingApplication.fetch(request, env, ctx));
   },
 };
