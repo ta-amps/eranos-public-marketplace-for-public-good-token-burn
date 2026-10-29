@@ -4,9 +4,11 @@ How Eranos is structured in code and checked automatically. The machine-readable
 [architecture.json](../architecture.json), which `make architecture` verifies against real file paths,
 pytest functions, doc links, and Python import rings (`scripts/check_architecture.py`).
 
-## Context: two surfaces on one shared fabric
+## Context: one of two public surfaces, on shared infrastructure
 
-Eranos pairs with [Shamash](https://github.com/ta-amps/shamash) (`shamash.<domain>`) on top of
+Eranos (`eranos.<domain>`) is one of exactly two public surfaces: the two-sided marketplace where spare AI
+capacity builds agent kits for nonprofits. Agora, the single overview, is the other. Tessera and Herma are
+infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs. Eranos runs on
 [Tessera](https://github.com/ta-amps/tessera) (`tessera.<domain>`) under one shared root domain:
 
 ```mermaid

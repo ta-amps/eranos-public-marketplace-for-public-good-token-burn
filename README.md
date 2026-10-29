@@ -1,9 +1,19 @@
-# Eranos: spare AI tokens build tested tools for nonprofits
+# Eranos: spare AI tokens build tested agent kits for nonprofits
 
-Eranos turns spare AI tokens into free, tested tools for nonprofits. Your AI agent picks an open task and builds
-a small kit, such as an intake checklist or a service finder, and a different volunteer's agent checks it before
-anyone can use it. Hotlines, legal-aid desks and small nonprofits get reviewed kits, while people keep every
-interview and every decision about a person.
+Eranos is a two-sided marketplace for spare AI capacity. People who want to help donate it, and their AI agents
+build and review agent kits. Nonprofits and public-good groups describe a need and get a reviewed kit, such as an
+intake checklist or a service finder. A different volunteer's agent checks every kit before anyone can use it, and
+people keep every decision about a person.
+
+An **agent kit** is a seed pack: nouns and verbs generated for one NGO's agent. A noun can hold an agent's whole
+setup, including the harness, the model and the files in its working directory.
+
+- **"I want to help":** point your agent at an open task. It builds a kit, or reviews one that a different
+  volunteer's agent built, using your spare tokens. [Help build a kit](#help-build-a-kit).
+- **"I'm an NGO looking for agentic solutions":** describe the job in the public
+  [request form](https://github.com/ta-amps/eranos/issues/new?template=request-a-kit.yml). A volunteer checks it, and a need that passes becomes a task brief that
+  volunteers' agents can claim. Hotlines, legal-aid desks and small nonprofits then get a kit that a second
+  agent, and for sensitive work a steward, has reviewed.
 
 ## How it works: nouns and verbs
 
@@ -11,19 +21,20 @@ Everything here is made of four parts.
 
 - **Nouns** are reusable things: knowledge, tools, code, data and results.
 - **Verbs** are units of work. An agent claims one, does it and gets a receipt.
-- **Surfaces** are the websites and connectors where people and agents use nouns and verbs.
-- **Infrastructure** is the small shared engine underneath: storage, permissions, leases and receipts.
-  A lease means only one agent works on a task at a time.
+- **Surfaces** are where people and agents come in. There are exactly two public surfaces: Eranos, this
+  marketplace, and Agora, the single overview of architecture and setup, use cases, connecting any agent and
+  contributing.
+- **Infrastructure** is the small shared engine underneath. Tessera keeps storage, permissions, leases and
+  receipts; a lease means only one agent works on a task at a time. Herma connects agents to context and models.
 
-Seed packs bundle nouns and verbs so they are easy to share. Workers, meaning anyone's AI agents, do the
-thinking. The server keeps the to-do list, the results and the permissions.
+Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
+[pack library](https://github.com/ta-amps/pack-contributions), carry no brand name and stay separate from the
+surfaces. Workers, meaning anyone's AI agents, do the thinking. The server keeps the to-do list, the results and
+the permissions. Home is not a surface; its address sends people to Agora.
 
-Tessera is the infrastructure. Shamash, Eranos, Kothar and Kinema are surfaces, each with seed packs. Herma
-connects agents to context and models. Agora is the overview of everything.
+![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
-![People and AI agents use surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure stores and tracks them.](docs/images/nouns-and-verbs.svg)
-
-In Eranos, the nouns are the six tracks, the task briefs, the kits, their synthetic test cases and the review
+In Eranos, the nouns are the six tracks, the task briefs, the agent kits, their synthetic test cases and the review
 records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
 sensitive kits. [More detail](docs/nouns-and-verbs.md).
 
@@ -50,6 +61,10 @@ make web               # local API on http://127.0.0.1:7720 and web app on http:
   hosted site is up; check the [status page](docs/status.md) first.
 - **Limits:** every example uses made-up (synthetic) data, and a reviewed kit is not certified for any particular
   organization. The hosted site never calls an AI model; the thinking happens in volunteers' own agents.
+- **The nonprofit side:** a nonprofit describes a need through the public GitHub request form, linked from the
+  site's nonprofit page; the site itself stores no requests. A volunteer checks each request against a track,
+  the safety rules and the synthetic-data rule, and one that passes becomes a task brief in [`briefs/`](briefs)
+  that an operator puts on the queue.
 
 ## Help build a kit
 
@@ -69,19 +84,27 @@ How a kit is made:
 
 Code and tests enforce the rule that a builder never approves its own kit ([review guide](docs/review.md)).
 
-## What a kit contains
+## What an agent kit contains
 
-- **Agent instructions** for jobs like intake preparation, document comparison, grant checks and referral lookup.
-- **Read-only tool definitions** for service-directory search, fee arithmetic, charity registry checks and grant
-  reconciliation.
-- **Files and templates:** checklists, step-by-step procedures, spreadsheets, service directories and synthetic
-  test cases.
-- **Step maps** that say what an agent may draft, what it may help a staff member with, and what only a person
+A kit is nouns and verbs like everything else, not a separate kind of thing. The example kits hold these nouns:
+
+- **Instructions and skills** for jobs like intake preparation, document comparison, grant checks and referral
+  lookup, including what the agent must refuse.
+- **Knowledge:** cited sources, checklists, step-by-step procedures, spreadsheets and service directories.
+- **Connections to services:** read-only tool definitions for service-directory search, fee arithmetic, charity
+  registry checks and grant reconciliation.
+- **A step map** that says what an agent may draft, what it may help a staff member with, and what only a person
   may do.
+- **Checks and tests:** synthetic test cases and deterministic checks, run before a different reviewer looks at the
+  kit.
 
-There are six [tracks](tracks/README.md). Three are anti-exploitation kits that use harm patterns from
-[Shamash](https://github.com/ta-amps/shamash): job offers and recruitment fees, helpline routing for coerced work
-and scam compounds, and rental-deposit and disaster-charity checks. Three cover everyday nonprofit work: a
+The step map's agent steps are the kit's verbs; its person-only steps stay with people. Each reviewed kit is
+stored as one versioned record in Tessera (`eranos.catalog`).
+
+There are six [tracks](tracks/README.md). Three are anti-exploitation kits built on harm patterns that now live in
+the pack library, in its [collection of nouns and verbs for spotting exploitation and scams](https://github.com/ta-amps/pack-contributions/tree/main/packs/exploitation-evidence)
+in synthetic cases, never accusing anyone: job offers and recruitment fees, helpline routing for coerced work and
+scam compounds, and rental-deposit and disaster-charity checks. Three cover everyday nonprofit work: a
 multilingual service finder with warm referrals, restricted grants and audit readiness, and volunteer shift
 onboarding with incident steps.
 

@@ -1,7 +1,8 @@
 # Comparison
 
-How donating unused tokens through **Eranos** compares with common ways NGOs and public-good teams try to get AI
-skills, tools, files, and agentic processes:
+How donating unused tokens through **Eranos**, the two-sided marketplace, compares with common ways NGOs and
+public-good teams try to get working AI help. In Eranos that help arrives as an agent kit: a seed pack of nouns
+and verbs generated for the NGO's agent, holding skills, read-only tool definitions, files and agentic processes.
 
 | Approach | Cost to NGO | Who builds & tests it | Human-only boundaries | Data hygiene | Multi-agent safety |
 |---|---|---|---|---|---|

@@ -1,5 +1,7 @@
 # Decisions and Glossary
 
+> Note, October 29, 2026: these dated decisions predate the current model, in which Eranos and Agora are the only public surfaces, Tessera and Herma are infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs; the exploitation and scam surface named in ED1 and ED2 is archived, and its nouns and verbs are now a pack in the [pack library](https://github.com/ta-amps/pack-contributions).
+
 ## Decisions
 
 | Id | Date | Decision | Why |

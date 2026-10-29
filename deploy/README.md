@@ -3,13 +3,13 @@
 Eranos runs behind a Cloudflare Worker (`eranos`) in front of one small Fly.io API container
 (`eranos-api`) with a persistent 1 GB volume (`eranos_data`) for its local SQLite store and traces.
 
-Under the shared single-domain layout, all three public-good surfaces share one root domain on free
-Cloudflare Workers Custom Domains:
+Eranos is one of exactly two public surfaces (Agora, the single overview, is the other); Tessera and Herma are
+infrastructure; everything else is nouns and verbs in seed packs. Under the shared single-domain layout, Eranos
+and Tessera share one root domain on free Cloudflare Workers Custom Domains:
 
 | Subdomain | Worker | Origin | Purpose |
 |---|---|---|---|
-| `shamash.<domain>` | `shamash` | `shamash-api.fly.dev` | Fraud & exploitation detection |
-| `eranos.<domain>` | `eranos` | `eranos-api.fly.dev` | Nonprofit & NGO volunteer agent tooling |
+| `eranos.<domain>` | `eranos` | `eranos-api.fly.dev` | The two-sided marketplace where volunteers' agents build agent kits for NGOs |
 | `tessera.<domain>` | `tessera` | `tessera-api.fly.dev` | Shared atomic queue, CAS records & blob store |
 
 Until a custom domain is bound, `eranos.<account>.workers.dev` serves the exact same Worker and `/api/*`

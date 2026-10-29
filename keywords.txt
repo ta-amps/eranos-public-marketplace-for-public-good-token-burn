@@ -1,6 +1,6 @@
 # Terms for KEYWORDS.md, one per line: "term" or "term: alias, alias". Run `make index` after editing.
 Eranos: mutual-aid, volunteer agents
-Shamash
+seed pack: seed packs, pack library
 Tessera
 AgentBoundary: drafts, assists, human_only, human-only
 ToolKit: kit, kits, eranos.catalog
