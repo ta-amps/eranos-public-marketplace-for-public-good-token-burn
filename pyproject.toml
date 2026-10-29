@@ -11,7 +11,7 @@ dependencies = [
   "httpx>=0.27",
   "fastapi>=0.115",
   "uvicorn>=0.30",
-  "tessera[mcp] @ git+https://github.com/ta-amps/tessera.git@d86b856506a2b138e1cc375e8b9172886e0c15e3",
+  "tessera[mcp] @ git+https://github.com/ta-amps/tessera.git@b1b470475c3ff03db0963bbcf6b271911d79f73e",
 ]
 
 [project.scripts]

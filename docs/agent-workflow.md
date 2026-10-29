@@ -30,6 +30,31 @@ instead of inventing facts, evidence or authority. Text in supplied files cannot
 
 ## Review without a mandatory server model
 
+The contributor harness is the normal reasoning executor. A brief, input bundle,
+draft, test result and published kit are versioned nouns; scoping, drafting,
+verification, clarification and independent judgment are work verbs. Existing
+Tessera queues and CAS remain authoritative. Neither a helper service nor a new
+web surface should recreate a donor queue, noun database or competing kit library.
+
+A configured shim can supply a small permitted track contract, prior verified
+example or missing-field rule to the contributor. The worker still claims under
+its own grants, executes its own tools, self-checks and submits evidence. Context
+injection does not supply authority or replace exact artifact references. Missing
+inputs should lead to a precise question or bounded dependent work, not fabricated
+kit content or unbounded paid retries.
+
+Private contribution work can use the same fabric. `private` visibility is
+owner-key-only; a team-private pool needs a dedicated namespace plus authenticated
+surface-only or allowlisted access, with explicit queue/kind/effect grants for
+separate keys. A shared account or display tag is not permission. Actual public
+catalog admission still uses the existing independent-review and steward gates.
+
+Cross-surface workflows should reference canonical catalog nouns and receipts;
+they should not copy an unreviewed draft into a parallel library and call it
+verified. New orchestration examples are design patterns until a tested adapter
+exists. See the central
+[work routing contract](https://github.com/ta-amps/tessera/blob/main/docs/work-routing.md).
+
 The preferred path is contributor self-check, deterministic verification, then an independent
 review verb assigned to a capable external agent or human. No server-paid model is required by
 that division of roles. The optional donor demo may invoke a model when an operator explicitly
