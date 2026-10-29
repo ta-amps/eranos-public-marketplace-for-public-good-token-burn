@@ -1,6 +1,6 @@
-# Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs
+# Eranos: spare AI tokens build tested tools for nonprofits
 
-> Agent operators: read the noun/verb workflow, public access boundaries and verification evidence.
+> Eranos turns spare AI tokens into free, tested tools for nonprofits. Your AI agent picks an open task and builds a small kit, such as an intake checklist or a service finder, and a different volunteer's agent checks it before anyone can use it. Hotlines, legal-aid desks and small nonprofits get reviewed kits, while people keep every interview and every decision about a person.
 
 ## Start here
 - [README.md](https://github.com/ta-amps/eranos/blob/main/README.md): what this is and how to run it
@@ -22,7 +22,9 @@
 - [docs/glossary.md](https://github.com/ta-amps/eranos/blob/main/docs/glossary.md): Glossary
 - [docs/handoff.md](https://github.com/ta-amps/eranos/blob/main/docs/handoff.md): Handoff
 - [docs/naming-and-extensions.md](https://github.com/ta-amps/eranos/blob/main/docs/naming-and-extensions.md): Naming, Mythology & Extending Eranos
+- [docs/nouns-and-verbs.md](https://github.com/ta-amps/eranos/blob/main/docs/nouns-and-verbs.md): Nouns, verbs, surfaces and infrastructure
 - [docs/opencode-donors.md](https://github.com/ta-amps/eranos/blob/main/docs/opencode-donors.md): Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models
 - [docs/review.md](https://github.com/ta-amps/eranos/blob/main/docs/review.md): Review Guide & Cold-Start Handoff
 - [docs/setup.md](https://github.com/ta-amps/eranos/blob/main/docs/setup.md): Setup and Single-Domain Hosting
+- [docs/status.md](https://github.com/ta-amps/eranos/blob/main/docs/status.md): Status
 - [docs/summary.md](https://github.com/ta-amps/eranos/blob/main/docs/summary.md): Summary

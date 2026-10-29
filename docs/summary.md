@@ -26,7 +26,7 @@ nonprofits can pick up and run right away for the public good.
 
 ```bash
 make check             # lint, mypy strict, unit + pipeline + API + guard tests, leak scan, architecture
-make verify-examples   # runs 4 synthetic kits across anti-exploitation and nonprofit-ops (including park/resume)
+make verify-examples   # runs 5 synthetic kits across anti-exploitation and nonprofit-ops (including park/resume)
 make suite             # runs Tessera's conformance suite through eranos.adapter
 make web-check         # strict TypeScript check and Vite production bundle
 ```
