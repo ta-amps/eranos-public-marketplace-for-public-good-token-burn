@@ -76,6 +76,10 @@ def test_abuse_cases_hold(flow: tuple[dict[str, Any], list[str]]) -> None:
     assert abuse["anonymous_review_claim"] == 403
     assert abuse["requester_claim"] == 403
     assert abuse["anonymous_quota"] == 429
+    # Granted claims spend the open-claim allowance (5 per session, 10 per address, shared here
+    # with the earlier volunteers); the empty poll before each granted claim spent nothing.
+    assert 1 <= abuse["open_claims_before_cap"] <= 5
+    assert abuse["polls_before_granted"] == [204] * abuse["open_claims_before_cap"]
     assert abuse["requester_quota"][-1] == 429
     assert abuse["personal_data_request_verb"] == 400
     assert abuse["personal_data_request"] == ["job: an email address", "job: a phone number"]

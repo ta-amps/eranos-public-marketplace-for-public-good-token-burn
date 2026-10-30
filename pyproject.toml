@@ -13,7 +13,7 @@ dependencies = [
   "uvicorn>=0.30",
   # The one Tessera pin. CI checks out the same revision for the conformance suite; run `uv lock`
   # after changing it.
-  "tessera[mcp] @ git+https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine.git@2fef333066be3fa28c0fac01a89e35d899575ec8",
+  "tessera[mcp] @ git+https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine.git@38b6da6e7dc21385ad928b76544486045f3ed106",
 ]
 
 [project.scripts]

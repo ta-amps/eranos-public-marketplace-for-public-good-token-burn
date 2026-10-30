@@ -29,18 +29,23 @@ from typing import Any
 
 import httpx
 import uvicorn
-from tessera import Store
+from tessera import Store, TaskSpec
 from tessera.access import ServiceSettings
 from tessera.client import Client
 from tessera.service import create_app as create_tessera_app
 
 from eranos import config
-from eranos.contributor import USER_AGENT, OpenSession, contribute_once
+from eranos.contributor import OPEN_NAMESPACE, USER_AGENT, OpenSession, contribute_once
 from eranos.donor_worker import synthesize_review_decision
 from eranos.intake import parse_issue_form
 from eranos.nouns import seed_nouns
 from eranos.pipeline import resume_steward_signoff, run_review_step
-from eranos.pipeline.requests import PersonalDataRefused, run_request_check, submit_request
+from eranos.pipeline.requests import (
+    OPEN_VERB_TAG,
+    PersonalDataRefused,
+    run_request_check,
+    submit_request,
+)
 from eranos.pipeline.solutions import run_report_review
 from eranos.queues import QUEUE_CONFIGS
 from eranos.requester import Requester
@@ -420,9 +425,49 @@ def run_local(say: Say = print) -> dict[str, Any]:
         seen["abuse"]["requester_claim"] = ngo.call(
             "POST", "/v1/tasks/claim", shared=True, json={"queue": "eq03", "worker": "ngo"}
         ).status_code
-        for _ in range(5):
-            abuser.claim(kinds=["build"])  # nothing open: empty claim attempts still count
-        seen["abuse"]["anonymous_quota"] = abuser.claim(kinds=["build"]).status_code
+        # Open-claim limits count granted leases, never empty polls: claims are granted until the
+        # session's or this address's hourly allowance is spent (earlier volunteers here share the
+        # address), while the empty polls between them cost nothing.
+        for i in range(6):
+            fabric.store.enqueue(
+                TaskSpec(
+                    queue="eq02",
+                    task_id=f"cap-check-{i}",
+                    kind="cap_check",
+                    effect_class="write-internal",
+                    brief={"title": "SYNTHETIC claim-cap check"},
+                    tags=[OPEN_VERB_TAG, "status:quarantined"],
+                    producer_surface="surface:eranos",
+                    visibility_scope="surface_only",
+                )
+            )
+        granted, polls = 0, []
+        for _ in range(6):
+            polls.append(abuser.claim(kinds=["nothing_waiting"]).status_code)
+            claimed = abuser.claim(kinds=["cap_check"])
+            if claimed.status_code != 200:
+                break
+            granted += 1
+            ref = {
+                "task_id": claimed.json()["task_id"],
+                "fencing_token": claimed.json()["fencing_token"],
+            }
+            abuser._call(
+                "POST",
+                "/v1/tasks/submit",
+                json={**ref, "output": {"node": "cap_check", "note": "SYNTHETIC"}},
+                headers={
+                    **OPEN_NAMESPACE,
+                    "idempotency-key": f"{ref['task_id']}:{ref['fencing_token']}",
+                },
+            ).raise_for_status()
+        seen["abuse"]["anonymous_quota"] = claimed.status_code
+        seen["abuse"]["open_claims_before_cap"] = granted
+        # The poll before each granted claim was made with allowance left; once it is spent, any
+        # claim, empty or not, is refused.
+        seen["abuse"]["polls_before_granted"] = polls[:granted]
+        for i in range(granted, 6):
+            fabric.store.cancel(f"cap-check-{i}", "claim-cap check done")
         codes = [
             other.ask(f"Summarize public budget documents for program {i}.")["task_id"] and 201
             for i in range(5)
@@ -442,9 +487,14 @@ def run_local(say: Say = print) -> dict[str, Any]:
         a = seen["abuse"]
         say(f"[08] abuse: anonymous publish {a['anonymous_publish']}, anonymous review claim")
         say(
-            f"     {a['anonymous_review_claim']}, NGO claim {a['requester_claim']}, 6th open claim in an hour"
+            f"     {a['anonymous_review_claim']}, NGO claim {a['requester_claim']}, open claim after"
+            f" {a['open_claims_before_cap']} granted this hour {a['anonymous_quota']}"
         )
-        say(f"     {a['anonymous_quota']}, NGO B's 6th request in an hour {sixth.status_code}")
+        say(
+            f"     (the empty poll before each granted claim answered"
+            f" {sorted(set(a['polls_before_granted']))} and cost nothing),"
+            f" NGO B's 6th request in an hour {sixth.status_code}"
+        )
         abuser.close()
         peek_session.close()
 
