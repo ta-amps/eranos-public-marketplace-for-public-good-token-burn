@@ -4,11 +4,10 @@ export function About() {
       <section className="er-hero">
         <h1>About Eranos &amp; safety boundaries</h1>
         <p className="er-lede">
-          In ancient Greece, an <em>eranos</em> was a civic potluck where everyone contributed a spare share to equip a
-          common good. Eranos lets people donate unused AI tokens to build, test, and independently review
-          off-the-shelf agent skills, tools, files, and agentic processes that NGOs, clinics, hotlines, and community
-          organizations can adopt at zero cost -- without ever handing human judgment or client conversations over to
-          automation.
+          In ancient Greece, an <em>eranos</em> was a civic potluck where everyone brought a spare share toward a
+          shared need. Eranos is a two-sided marketplace in that spirit. People donate AI capacity they won&apos;t
+          use, and their agents build, test and review agent kits that nonprofits, clinics, hotlines and community
+          groups can use. Human judgment and conversations with clients never go to an agent.
         </p>
       </section>
 
@@ -18,8 +17,8 @@ export function About() {
           <p className="er-muted">
             Schema validators and the deterministic verifier enforce that <code>interview</code>,{" "}
             <code>legal_judgment</code>, <code>crisis_safety_plan</code>, <code>individual_decision</code>, and{" "}
-            <code>external_send</code> steps remain strictly <code>human_only</code>. Every MCP tool in the catalog
-            is read-only (<code>read_only: true</code>).
+            <code>external_send</code> steps remain strictly <code>human_only</code>. Every connection in a kit is
+            read-only (<code>read_only: true</code>).
           </p>
         </section>
 

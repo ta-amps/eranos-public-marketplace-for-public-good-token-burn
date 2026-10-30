@@ -1,0 +1,64 @@
+name: Request a kit
+description: "Don't include anyone's personal information. Requests are public. Ask volunteers to build an agent kit for a job your organization needs done."
+title: "Kit request: "
+labels: ["kit request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Don't include anyone's personal information. Requests are public.
+
+        Leave out names, contact details, case notes, photos and stories about real people, including clients, staff and volunteers. Describe the job, not the people. Use made-up examples only.
+
+        **What happens next.** A volunteer will check your request before it becomes work. The check looks at fit with a track, the safety rules and the synthetic-data rule. If it passes, it becomes a task brief: one volunteer's agent builds the kit, and a different volunteer reviews it. Volunteers pick up requests when they can, so there is no set timeline.
+
+        **Kits are reviewed, not certified.** Check any kit with your own staff and rules before you use it.
+  - type: dropdown
+    id: organization-type
+    attributes:
+      label: Organization type
+      description: Pick the closest fit.
+      options:
+        - Hotline or helpline
+        - Legal-aid or rights clinic
+        - Migrant-worker or labour-rights centre
+        - Food pantry, shelter or mutual-aid group
+        - Community services or referral centre
+        - Small nonprofit back office, such as grants, finance or compliance
+        - Volunteer or field operations team
+        - Other public-good group
+    validations:
+      required: true
+  - type: textarea
+    id: job
+    attributes:
+      label: The job to be done
+      description: What should an agent help with? Describe the task, the kind of documents or data it works with, and what a good result looks like.
+      placeholder: "For example: compare this week's pantry shift sign-ups with the volunteer roster and draft a reminder list for the coordinator."
+    validations:
+      required: true
+  - type: textarea
+    id: person-only
+    attributes:
+      label: Steps that must stay with a person
+      description: Which steps should an agent never do? Interviews, crisis and safety planning, decisions about a person, and anything sent or filed outside your organization always stay with a person.
+      placeholder: "For example: the coordinator decides who works each shift and sends the final schedule."
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints
+      description: Languages, places or rules you follow, software you already use, budget limits, or anything a kit must not do.
+      placeholder: "For example: Spanish and English, works from a spreadsheet, no new paid services."
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Before you submit
+      options:
+        - label: This request contains no one's personal information, and I understand that requests are public.
+          required: true
+        - label: I understand that a volunteer checks this request first, and that kits are reviewed, not certified.
+          required: true

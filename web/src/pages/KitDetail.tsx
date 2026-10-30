@@ -64,7 +64,7 @@ export function KitDetail({ id }: { id: string }) {
   return (
     <div>
       <p className="er-muted er-mb-12" >
-        <AppLink to="/catalog">Back to Verified Catalog</AppLink> / <code>{kit.kit_id}</code>
+        <AppLink to="/catalog">Back to the kit catalog</AppLink> / <code>{kit.kit_id}</code>
       </p>
 
       <section className="er-hero">
@@ -99,13 +99,13 @@ export function KitDetail({ id }: { id: string }) {
       <section className="er-section">
         <div className="er-practice-panel">
           <div className="er-chip-row">
-            <span className="er-chip er-chip-drafts">Zero-Storage Practice Gate</span>
+            <span className="er-chip er-chip-drafts">Practice check: nothing is saved</span>
             <code>persisted: false</code>
           </div>
-          <h2>Interactive Zero-Storage Practice Verifier</h2>
+          <h2>Run the practice check yourself</h2>
           <p className="er-muted">
-            Re-run the full deterministic autonomy-boundary, open-SPDX, non-accusatory copy, HTTPS citation, and{" "}
-            <code>SYNTHETIC</code> escalation check in memory with zero database or blob writes.
+            Run the kit&apos;s deterministic checks again, in memory, with nothing saved: the step boundaries, the
+            open license, the wording rules, the source links and the <code>SYNTHETIC</code> test cases.
           </p>
           <div className="er-actions">
             <button
@@ -116,8 +116,8 @@ export function KitDetail({ id }: { id: string }) {
               onClick={handlePracticeRun}
             >
               {practiceState.status === "running"
-                ? "Running zero-storage verifier..."
-                : "Run Zero-Storage Practice Verifier"}
+                ? "Running the practice check..."
+                : "Run the practice check"}
             </button>
           </div>
           {practiceState.status === "error" && (
@@ -172,7 +172,7 @@ export function KitDetail({ id }: { id: string }) {
       </section>
 
       <section className="er-section">
-        <h2>Workflow autonomy map (what agents prepare vs. what people decide)</h2>
+        <h2>Step map: what the agent prepares and what stays with a person</h2>
         <ul className="er-step-list">
           {kit.steps.map((step) => (
             <li key={step.id} className="er-step-item">
@@ -196,7 +196,7 @@ export function KitDetail({ id }: { id: string }) {
                 <BoundaryBadge boundary={sk.boundary} />
                 <code>SKILL</code>
               </div>
-              <h2>Agent Skill · {sk.name}</h2>
+              <h2>Skill · {sk.name}</h2>
               <p className="er-muted">{sk.description}</p>
               <p className="er-muted">
                 <strong>Instructions:</strong> {sk.instructions}
@@ -217,10 +217,10 @@ export function KitDetail({ id }: { id: string }) {
           {tools.map((tl) => (
             <section key={tl.name} className="er-card">
               <div className="er-chip-row">
-                <span className="er-chip er-chip-assists">Read-only MCP tool</span>
+                <span className="er-chip er-chip-assists">Read-only connection (MCP)</span>
                 <code>{tl.name}</code>
               </div>
-              <h2>MCP Tool · {tl.name}</h2>
+              <h2>Connection · {tl.name}</h2>
               <p className="er-muted">{tl.description}</p>
               <p className="er-muted">
                 <strong>Output fields:</strong> <code>{tl.output_fields.join(", ")}</code>
@@ -245,7 +245,7 @@ export function KitDetail({ id }: { id: string }) {
 
       <div className="er-grid">
         <section className="er-card">
-          <h2>Staff operational checklist</h2>
+          <h2>Checklist for staff</h2>
           <ul>
             {kit.checklist.map((item) => (
               <li key={item} className="er-muted">
@@ -253,7 +253,7 @@ export function KitDetail({ id }: { id: string }) {
               </li>
             ))}
           </ul>
-          <h3>Primary public sources</h3>
+          <h3>Public sources</h3>
           <ul>
             {kit.sources.map((src) => (
               <li key={src.url} className="er-muted">
@@ -267,7 +267,7 @@ export function KitDetail({ id }: { id: string }) {
         </section>
 
         <section className="er-card">
-          <h2>Synthetic verification fixtures ({verification.fixture_count})</h2>
+          <h2>Synthetic test cases ({verification.fixture_count})</h2>
           {kit.fixtures.map((fx) => (
             <div key={fx.id}  className="er-fixture-divider">
               <div className="er-chip-row">
@@ -285,7 +285,7 @@ export function KitDetail({ id }: { id: string }) {
       </div>
 
       <section className="er-section">
-        <h2>Two-step Tessera verification receipts (drafter != reviewer)</h2>
+        <h2>Review receipts: the builder is not the reviewer (drafter != reviewer)</h2>
         <dl className="er-dl">
           <div>
             <dt>Drafted on eq02 by</dt>

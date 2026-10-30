@@ -10,6 +10,8 @@ const VIEWPORTS = [
 
 const ROUTES = [
   "/",
+  "/help",
+  "/nonprofits",
   "/catalog",
   "/catalog/KIT-HOTLINE-02",
   "/contribute",

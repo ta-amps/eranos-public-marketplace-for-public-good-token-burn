@@ -453,3 +453,193 @@ body {
 .er-mt-auto { margin-top: auto; }
 .er-font-14 { font-size: 14px; }
 .er-fixture-divider { border-top: 1px solid var(--er-border); padding-top: 10px; }
+
+/* Two-sided marketplace: the two front doors and the pages behind them. */
+.er-measure { max-width: 78ch; }
+.er-small { font-size: var(--er-font-14); color: var(--er-text-muted); margin: 0; }
+
+.er-hero-home h1 { font-size: clamp(28px, 4vw, 44px); max-width: 22ch; }
+
+.er-doors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--er-space-4);
+  max-width: 920px;
+}
+.er-door { display: flex; flex-direction: column; gap: var(--er-space-2); }
+.er-btn-door {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 60px;
+  justify-content: center;
+  text-align: center;
+  padding: 14px 20px;
+  font-size: 17px;
+  line-height: 1.3;
+}
+.er-door-note { margin: 0; font-size: var(--er-font-14); color: var(--er-text-muted); }
+
+.er-btn-primary:focus-visible,
+.er-btn-secondary:focus-visible,
+.er-filter-btn:focus-visible,
+.er-details summary:focus-visible,
+.er-nav a:focus-visible,
+.er-brand:focus-visible {
+  outline: 3px solid var(--er-assists-text);
+  outline-offset: 2px;
+}
+
+.er-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--er-space-4);
+  counter-reset: er-step;
+}
+.er-steps li {
+  counter-increment: er-step;
+  background: var(--er-bg);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: var(--er-space-4) 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.er-steps li::before {
+  content: counter(er-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--er-accent-soft);
+  color: var(--er-drafts-text);
+  font-weight: 700;
+  font-size: var(--er-font-14);
+}
+.er-steps h3 { margin: 0; font-size: 18px; }
+
+.er-parts {
+  display: grid;
+  align-items: start;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--er-space-4);
+  margin-bottom: var(--er-space-4);
+}
+.er-pieces { margin: 0; display: grid; gap: 10px; }
+.er-pieces div { border-top: 1px solid var(--er-border); padding-top: 8px; }
+.er-pieces dt { font-weight: 700; font-size: 15px; }
+.er-pieces dd { margin: 2px 0 0; color: var(--er-text-muted); font-size: var(--er-font-14); }
+
+.er-plain-list,
+.er-person-list,
+.er-plain-steps,
+.er-status ul {
+  margin: 0;
+  padding-left: 1.3em;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 78ch;
+}
+.er-plain-list,
+.er-person-list,
+.er-status ul,
+.er-link-list { list-style: disc; }
+.er-plain-steps { list-style: decimal; }
+.er-plain-steps li::marker { font-weight: 700; color: var(--er-drafts-text); }
+.er-person-list li::marker { color: var(--er-human-text); }
+
+/* A chip placed directly in a card keeps its own width instead of stretching across the column. */
+.er-card > .er-chip { align-self: flex-start; }
+.er-card-subhead { margin: 4px 0 0; font-size: var(--er-font-14); }
+.er-stepmap { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.er-stepmap li { display: flex; align-items: baseline; gap: 8px; font-size: var(--er-font-14); }
+.er-stepmap .er-chip { flex-shrink: 0; min-width: 7.4em; justify-content: center; }
+
+.er-warning {
+  margin: 0 0 var(--er-space-4);
+  padding: 12px 16px;
+  border: 1px solid var(--er-human-text);
+  border-radius: var(--er-radius-card);
+  background: var(--er-human-fill);
+  color: var(--er-human-text);
+  max-width: 78ch;
+}
+
+.er-grid-kits { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+
+.er-hero-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: var(--er-space-4); }
+
+.er-request {
+  background: var(--er-surface-warm);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: var(--er-space-6);
+  max-width: 920px;
+}
+.er-request h2 { margin-top: 0; }
+
+.er-footer p a {
+  color: var(--er-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.er-status {
+  background: var(--er-surface);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: var(--er-space-6);
+}
+.er-status h2 { margin: 0 0 12px; font-size: var(--er-font-20); }
+.er-status li { color: var(--er-text-muted); font-size: 15px; }
+
+.er-brief {
+  background: var(--er-surface-warm);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: var(--er-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 920px;
+}
+.er-brief h3 { margin: 0; font-size: 18px; }
+.er-brief-actions { display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.er-brief-actions .er-details { flex: 1; min-width: 240px; }
+.er-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--er-font-14);
+  padding: 9px 0;
+}
+.er-details label { display: block; margin: 8px 0 6px; font-size: var(--er-font-14); font-weight: 600; }
+.er-details .er-btn-secondary { margin-top: 10px; }
+.er-textarea { display: block; resize: vertical; font-family: inherit; line-height: 1.5; }
+.er-brief-status { min-height: 1.5em; margin: 0; font-size: var(--er-font-14); font-weight: 600; color: var(--er-drafts-text); }
+.er-link-list { margin: 0; padding-left: 1.2em; font-size: var(--er-font-14); display: flex; flex-direction: column; gap: 4px; }
+/* Links inside running text need more than colour to stand out (WCAG 1.4.1). */
+.er-main p a:not([class]),
+.er-main li a:not([class]) {
+  color: var(--er-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+@media (max-width: 767px) {
+  .er-hero { padding: var(--er-space-6) var(--er-space-4); }
+  .er-parts { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 639px) {
+  .er-doors { grid-template-columns: minmax(0, 1fr); }
+  .er-btn-door { min-height: 72px; font-size: 16px; }
+  .er-brief,
+  .er-request { padding: var(--er-space-4); }
+  .er-brief-actions .er-btn-primary { width: 100%; justify-content: center; }
+}

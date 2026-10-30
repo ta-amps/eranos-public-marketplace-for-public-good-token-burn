@@ -17,7 +17,7 @@ if (!policySource) throw new Error("Worker CSP declaration not found");
 const policy = (
   JSON.parse(`[${policySource[1]!.replace(/,\s*$/, "")}]`) as string[]
 ).join("; ");
-const routes = ["/", "/catalog", "/tracks", "/catalog/KIT-RECRUIT-01"];
+const routes = ["/", "/help", "/nonprofits", "/catalog", "/tracks", "/catalog/KIT-RECRUIT-01"];
 
 for (const width of [1440, 390]) {
   test(`strict CSP loads external theme at ${width}px`, async ({ page }) => {

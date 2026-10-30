@@ -258,7 +258,8 @@
         "web"
       ],
       "tests": [
-        "web/tests/shell.spec.ts"
+        "web/tests/shell.spec.ts",
+        "web/tests/marketplace.spec.ts"
       ]
     },
     {
@@ -325,6 +326,8 @@
       "auth": "None (synthetic fixtures and verified public-good schemas only)",
       "entry_points": [
         "/",
+        "/help",
+        "/nonprofits",
         "/catalog",
         "/catalog/{id}",
         "/contribute",
