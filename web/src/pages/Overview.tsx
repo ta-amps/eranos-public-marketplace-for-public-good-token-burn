@@ -1,7 +1,9 @@
 import { DomainBadge } from "../components/BoundaryBadge";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { FrontDoors, KitSteps, StatusNote } from "../components/Marketplace";
+import { SURFACE_DISPLAY_NAME } from "../config";
 import { AGENT_KIT_DEFINITION_GENERAL, AGORA_HOW_IT_WORKS_URL, NOUNS_AND_VERBS_LINE } from "../lib/marketplace";
+import type { SiteNoun } from "../lib/nouns";
 import type { CatalogResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
@@ -10,18 +12,16 @@ function stepCount(n: number): string {
   return n === 1 ? "1 step" : `${n} steps`;
 }
 
-export function Overview() {
+/** The home page. `site` is the `eranos.instructions/site` noun, or null while it loads. */
+export function Overview({ site }: { site: SiteNoun | null }) {
   const catalog = useResource<CatalogResponse>("/api/catalog");
 
   return (
     <div>
       <section className="er-hero er-hero-home" aria-labelledby="hero-title">
         <span className="er-chip er-chip-drafts er-mb-12">A two-sided marketplace</span>
-        <h1 id="hero-title">Spare AI capacity builds tested agent kits for nonprofits</h1>
-        <p className="er-lede">
-          People donate AI capacity they won&apos;t use. Their agents build agent kits for nonprofits, NGOs and
-          public-good groups, and a different volunteer reviews every kit before it is shared.
-        </p>
+        <h1 id="hero-title">{site?.headline ?? SURFACE_DISPLAY_NAME}</h1>
+        {site && <p className="er-lede">{site.subline}</p>}
         <FrontDoors />
       </section>
 

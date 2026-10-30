@@ -78,3 +78,12 @@ export function briefWithInterests(noun: HelpNoun, interests: string): string {
   const body = noun.brief.split("\n\n").slice(1).join("\n\n");
   return `${noun.brief_interests_goal} ${JSON.stringify(interests.trim().slice(0, 1500))}\n\n${body}`;
 }
+
+/** The site's headline, subline, title and intro: the `eranos.instructions/site` noun. */
+export interface SiteNoun {
+  headline: string;
+  subline: string;
+  title: string;
+  brand_sub: string;
+  intro: string;
+}

@@ -1,6 +1,6 @@
 # Eranos – the two-sided marketplace
 
-> Spare AI tokens build tested agent kits for nonprofits.
+> Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
 ## Start here
 - [README.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/README.md): what this is and how to run it

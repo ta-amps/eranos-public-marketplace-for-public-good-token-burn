@@ -223,13 +223,24 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     help_noun = json.loads(out["help"]["body"])
     assert out["help"]["status"] == 200 and help_noun["value"]["title"] == "Help in six steps"
     keys = [r["key"] for r in json.loads(out["listing"]["body"])["records"]]
-    assert keys == ["classify", "help", "nonprofits", "public-research"]
+    assert keys == ["classify", "help", "nonprofits", "public-research", "site"]
     for name in ("private_store", "catalog_store", "missing"):
         assert out[name]["status"] == 404, name
     practice = json.loads(out["practice"]["body"])
     expected = hashlib.sha256(canonical_json(draft).encode("utf-8")).hexdigest()
     assert practice["draft_sha256"] == expected
     assert "connect-src 'self' https://tessera.ta-amps.workers.dev" in out["help"]["csp"]
+
+
+def test_static_page_and_readme_match_the_site_noun() -> None:
+    """index.html shows the headline before the app loads the site noun; it must not drift from it."""
+    site = json.loads((ROOT / "instructions" / "site.json").read_text(encoding="utf-8"))
+    html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+    assert f"<title>Eranos · {site['title']}</title>" in html
+    assert f"<h1>{site['headline']}</h1>" in html
+    assert f"<span>{site['brand_sub']}</span>" in html
+    readme = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
+    assert readme[2] == f"{site['headline']} {site['subline']}"
 
 
 def test_starting_brief_noun_is_the_canonical_brief() -> None:

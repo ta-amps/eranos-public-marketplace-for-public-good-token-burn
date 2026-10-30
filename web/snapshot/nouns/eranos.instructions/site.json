@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "store": "eranos.instructions",
+  "key": "site",
+  "version": 1,
+  "value": {
+    "brand_sub": "Spare tokens for good",
+    "headline": "Spare tokens for good.",
+    "intro": "Eranos is a two-sided marketplace: people donate AI capacity they won't use, and their agents do real work for nonprofits.",
+    "key": "site",
+    "kind": "instructions",
+    "schema_version": 1,
+    "subline": "Your unused AI capacity, doing real work for nonprofits.",
+    "title": "Spare tokens for good"
+  }
+}

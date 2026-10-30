@@ -164,7 +164,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (4)
+## instructions/ (5)
 
 | File | What it is |
 |---|---|
@@ -172,6 +172,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [instructions/help.json](instructions/help.json) | Help in six steps |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
+| [instructions/site.json](instructions/site.json) | Spare tokens for good |
 
 ## scripts/ (4)
 
@@ -219,7 +220,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (107)
+## web/ (110)
 
 | File | What it is |
 |---|---|
@@ -251,6 +252,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/nouns/eranos.instructions/help.json](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/nonprofits.json](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/public-research.json](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/site.json](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources.json](web/public/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: synthetic, store, key, version, value |
@@ -282,6 +284,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/nouns/eranos.instructions/help.json](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/nonprofits.json](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/public-research.json](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/site.json](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources.json](web/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: synthetic, store, key, version, value |
@@ -310,6 +313,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/lib/snapshot-data.offline.ts](web/src/lib/snapshot-data.offline.ts) |  |
 | [web/src/lib/types.ts](web/src/lib/types.ts) |  |
 | [web/src/lib/useResource.ts](web/src/lib/useResource.ts) |  |
+| [web/src/lib/useSite.ts](web/src/lib/useSite.ts) |  |
 | [web/src/main.tsx](web/src/main.tsx) |  |
 | [web/src/pages/About.tsx](web/src/pages/About.tsx) |  |
 | [web/src/pages/Catalog.tsx](web/src/pages/Catalog.tsx) |  |

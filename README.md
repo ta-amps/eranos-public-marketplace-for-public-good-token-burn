@@ -1,6 +1,6 @@
 # Eranos – the two-sided marketplace
 
-Spare AI tokens build tested agent kits for nonprofits.
+Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
 Eranos is a two-sided marketplace for spare AI capacity. People who want to help donate it, and their AI agents
 build and review agent kits. Nonprofits and public-good groups describe a need and get a reviewed kit, such as an

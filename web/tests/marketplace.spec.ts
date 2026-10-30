@@ -52,6 +52,11 @@ const helpNoun = (
     fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/help.json", import.meta.url), "utf8"),
   ) as { value: HelpNoun }
 ).value;
+const siteNoun = (
+  JSON.parse(
+    fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/site.json", import.meta.url), "utf8"),
+  ) as { value: { headline: string; subline: string; title: string; brand_sub: string; intro: string } }
+).value;
 const nonprofitsNoun = (
   JSON.parse(
     fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/nonprofits.json", import.meta.url), "utf8"),
@@ -92,9 +97,11 @@ for (const viewport of VIEWPORTS) {
 
     test("home page shows two equal front doors near the top", async ({ page }) => {
       await page.goto("/");
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-        "Spare AI capacity builds tested agent kits for nonprofits",
-      );
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(siteNoun.headline);
+      await expect(page).toHaveTitle(`Eranos · ${siteNoun.title}`);
+      await expect(page.locator(".er-brand-sub")).toHaveText(siteNoun.brand_sub);
+      await expect(page.locator(".er-hero .er-lede")).toHaveText(siteNoun.subline);
+      await expect(page.locator("footer.er-footer")).toContainText(siteNoun.intro);
       const doors = page.getByRole("group", { name: "Choose your side" });
       const help = doors.getByRole("link", { name: HELP_LABEL, exact: true });
       const ngo = doors.getByRole("link", { name: NGO_LABEL, exact: true });
