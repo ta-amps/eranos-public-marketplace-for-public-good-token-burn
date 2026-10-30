@@ -311,7 +311,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "pydantic", specifier = ">=2.9" },
-    { name = "tessera", extras = ["mcp"], git = "https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine.git?rev=38b6da6e7dc21385ad928b76544486045f3ed106" },
+    { name = "tessera", extras = ["mcp"], git = "https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine.git?rev=7d79296f0c217de8b4b911fef8bfd55f4c5d096c" },
     { name = "uvicorn", specifier = ">=0.30" },
 ]
 
@@ -1087,7 +1087,7 @@ wheels = [
 [[package]]
 name = "tessera"
 version = "0.2.0"
-source = { git = "https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine.git?rev=38b6da6e7dc21385ad928b76544486045f3ed106#38b6da6e7dc21385ad928b76544486045f3ed106" }
+source = { git = "https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine.git?rev=7d79296f0c217de8b4b911fef8bfd55f4c5d096c#7d79296f0c217de8b4b911fef8bfd55f4c5d096c" }
 dependencies = [
     { name = "fastapi" },
     { name = "httpx" },
