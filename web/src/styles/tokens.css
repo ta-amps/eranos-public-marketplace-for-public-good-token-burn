@@ -1,6 +1,8 @@
 /*
  * Eranos semantic tokens layered over the Astryx neutral theme.
  * Warm civic palette: deep forest accent (#155e49 / dark #6ee0be) + high-contrast boundary chips (>= 5.5:1).
+ * Text on the accent is --er-on-accent: white on the light theme's forest (7.69:1), near-black on the dark
+ * theme's mint (11.23:1). The skip link, primary buttons and pressed filters use it.
  */
 :root {
   --er-bg: #ffffff;
@@ -12,6 +14,7 @@
   --er-text-muted: #4f5c56;
   --er-accent: #155e49;
   --er-accent-soft: #e3f2ed;
+  --er-on-accent: #ffffff;
 
   --er-drafts-text: #145b42;
   --er-drafts-fill: #e2f3ec;
@@ -54,6 +57,7 @@
     --er-text-muted: #a1b0a9;
     --er-accent: #6ee0be;
     --er-accent-soft: #122b23;
+    --er-on-accent: #0b1915;
 
     --er-drafts-text: #72dfb6;
     --er-drafts-fill: #112920;
@@ -76,6 +80,7 @@
   --er-text-muted: #a1b0a9;
   --er-accent: #6ee0be;
   --er-accent-soft: #122b23;
+  --er-on-accent: #0b1915;
 
   --er-drafts-text: #72dfb6;
   --er-drafts-fill: #112920;

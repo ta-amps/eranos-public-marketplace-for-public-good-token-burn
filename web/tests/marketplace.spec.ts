@@ -55,13 +55,44 @@ const helpNoun = (
 const siteNoun = (
   JSON.parse(
     fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/site.json", import.meta.url), "utf8"),
-  ) as { value: { headline: string; subline: string; title: string; brand_sub: string; intro: string } }
+  ) as { value: { headline: string; subline: string; title: string; brand_sub: string; intro: string; privacy: string } }
 ).value;
 const nonprofitsNoun = (
   JSON.parse(
     fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/nonprofits.json", import.meta.url), "utf8"),
-  ) as { value: { form: { label: string }; form_on_github: string } }
+  ) as {
+    value: {
+      lede: string;
+      no_agent: string;
+      warning: string;
+      next_title: string;
+      hosted: string;
+      form: { label: string; hint: string; links_hint: string };
+      form_on_github: string;
+    };
+  }
 ).value;
+const connectNoun = (
+  JSON.parse(
+    fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/connect.json", import.meta.url), "utf8"),
+  ) as { value: { title: string; authentication: string; machine_link: string; links: { machine: string } } }
+).value;
+
+/** The WCAG contrast ratio of the focused element's text against its own background. */
+async function focusedContrast(page: Page): Promise<number> {
+  return page.evaluate(() => {
+    const rgb = (value: string) => (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+    const luminance = (value: string) => {
+      const [r = 0, g = 0, b = 0] = rgb(value)
+        .map((v) => v / 255)
+        .map((v) => (v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const style = getComputedStyle(document.activeElement as Element);
+    const [a, b] = [luminance(style.color), luminance(style.backgroundColor)];
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  });
+}
 
 function briefFor(mode: "any" | "interests", interests = ""): string {
   if (mode === "any") return helpNoun.brief;
@@ -338,4 +369,106 @@ test("the marketplace pages never call agent kits tools", async ({ page }) => {
     });
     expect(copy, route).not.toMatch(TOOLS_WORD);
   }
+});
+
+
+// Acceptance and accessibility fixes, October 30 ------------------------------------------------------------
+
+for (const scheme of ["light", "dark"] as const) {
+  test(`the skip link is readable when it has focus, ${scheme} theme`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: scheme });
+    for (const path of ["/", "/nonprofits"]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+      await page.keyboard.press("Tab");
+      const skip = page.getByRole("link", { name: "Skip to content" });
+      await expect(skip).toBeFocused();
+      await expect(skip).toBeInViewport();
+      // White on the dark theme's mint measured 1.61:1; text on the accent must reach 4.5:1.
+      expect(await focusedContrast(page), `${path} ${scheme}`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+}
+
+test("no page scrolls sideways at 320 px, including the example requests on /help", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  for (const path of ["/", "/help", "/nonprofits", "/connect"]) {
+    await page.goto(path);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator("main")).not.toContainText("Loading");
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow, path).toBeLessThanOrEqual(0);
+  }
+  await page.goto("/help");
+  const examples = page.locator("code.er-step-example");
+  expect(await examples.count()).toBeGreaterThanOrEqual(2);
+  for (const box of await examples.all()) {
+    const fits = await box.evaluate((node) => node.getBoundingClientRect().right <= window.innerWidth);
+    expect(fits).toBe(true);
+  }
+});
+
+test("/nonprofits opens in plain words and says what happens before the box", async ({ page }) => {
+  await page.goto("/nonprofits");
+  const hero = page.locator(".er-hero");
+  await expect(hero.getByTestId("ngo-lede")).toHaveText(nonprofitsNoun.lede);
+  await expect(hero).toContainText(nonprofitsNoun.no_agent);
+  expect(await hero.innerText()).not.toMatch(/\b(nouns?|verbs?|seed packs?)\b/i);
+
+  const request = page.getByTestId("request-kit");
+  await expect(request.getByRole("heading", { level: 2 })).toHaveText("Tell us what you need");
+  await expect(request.getByRole("heading", { level: 3, name: nonprofitsNoun.next_title })).toBeVisible();
+  await expect(request.getByRole("list", { name: nonprofitsNoun.next_title })).toContainText("A volunteer's agent reads it");
+  await expect(request.getByTestId("request-hosted")).toHaveText(nonprofitsNoun.hosted);
+  // The steps, the honest note about the hosted queues and the warning come before the box, on screen and in order.
+  const box = await request.getByRole("textbox", { name: nonprofitsNoun.form.label }).boundingBox();
+  for (const id of ["request-steps", "request-hosted"]) {
+    const part = await request.getByTestId(id).boundingBox();
+    if (!box || !part) throw new Error("no layout box");
+    expect(part.y + part.height, id).toBeLessThan(box.y);
+  }
+  const sendsAfter = await request.evaluate((section) => {
+    const steps = section.querySelector('[data-testid="request-steps"]');
+    const send = section.querySelector('button[type="submit"]');
+    return !!steps && !!send && !!(steps.compareDocumentPosition(send) & Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+  expect(sendsAfter).toBe(true);
+});
+
+test("the need box's hints and warning describe it for screen readers", async ({ page }) => {
+  await page.goto("/nonprofits");
+  await expect(page.locator("#need")).toHaveAccessibleDescription(`${nonprofitsNoun.form.hint} ${nonprofitsNoun.warning}`);
+  await expect(page.locator("#links")).toHaveAccessibleDescription(nonprofitsNoun.form.links_hint);
+});
+
+test("/connect is a page of the site, with its layout, title and both themes", async ({ page }) => {
+  await page.goto("/connect");
+  await expect(page).toHaveTitle("Connect to Eranos");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(connectNoun.title);
+  await expect(page.locator("main")).toContainText(connectNoun.authentication);
+  await expect(page.getByRole("navigation", { name: "Primary navigation" })).toBeVisible();
+  await expect(page.getByTestId("synthetic-banner")).toBeVisible();
+  await expect(page.locator("footer.er-footer")).toBeVisible();
+  await page.keyboard.press("Tab");
+  await expect(page.getByRole("link", { name: "Skip to content" })).toBeFocused();
+  await expect(page.getByRole("link", { name: connectNoun.machine_link })).toHaveAttribute("href", connectNoun.links.machine);
+  const colours = async () =>
+    page.evaluate(() => {
+      const main = getComputedStyle(document.querySelector("main") as Element);
+      const body = getComputedStyle(document.body);
+      return { text: main.color, background: body.backgroundColor };
+    });
+  const light = await colours();
+  await page.emulateMedia({ colorScheme: "dark" });
+  const dark = await colours();
+  expect(dark.background).not.toBe(light.background);
+  expect(dark.text).not.toBe(light.text);
+});
+
+test("the footer says what the site loads and keeps, from the site noun", async ({ page }) => {
+  for (const path of ["/", "/help", "/nonprofits", "/connect"]) {
+    await page.goto(path);
+    await expect(page.getByTestId("privacy-line")).toHaveText(siteNoun.privacy);
+  }
+  expect(siteNoun.privacy).toMatch(/^No analytics, ads or cookies\./);
 });

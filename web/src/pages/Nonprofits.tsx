@@ -2,12 +2,7 @@ import { DomainBadge } from "../components/BoundaryBadge";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { KitParts, PersonOnlyList, StatusNote, StepMap } from "../components/Marketplace";
 import { RequestBox } from "../components/RequestBox";
-import {
-  AGENT_KIT_DEFINITION,
-  PACK_LIBRARY_URL,
-  REQUEST_KIT_URL,
-  WHOLE_SETUP,
-} from "../lib/marketplace";
+import { AGENT_KIT_DEFINITION, PACK_LIBRARY_URL, REQUEST_KIT_URL, WHOLE_SETUP } from "../lib/marketplace";
 import type { CatalogResponse, ExampleNeed, ExamplesResponse } from "../lib/types";
 import type { NonprofitsNoun, NounResponse } from "../lib/nouns";
 import { useResource } from "../lib/useResource";
@@ -15,7 +10,11 @@ import { AppLink } from "../router";
 
 const EXPLOITATION_PACK_URL = `${PACK_LIBRARY_URL}/tree/main/packs/exploitation-evidence`;
 
-/** The nonprofit side of the marketplace: NGOs and public-good groups looking for agentic solutions. */
+/**
+ * The nonprofit side of the marketplace: NGOs and public-good groups looking for agentic solutions. The page opens in
+ * plain words, from the `eranos.instructions/nonprofits` noun: what a nonprofit can ask for, and then, before the
+ * box, what happens after it sends.
+ */
 export function Nonprofits() {
   const catalog = useResource<CatalogResponse>("/api/catalog");
   const examples = useResource<ExamplesResponse>("/api/examples");
@@ -30,10 +29,14 @@ export function Nonprofits() {
       <section className="er-hero" aria-labelledby="ngo-title">
         <span className="er-chip er-chip-drafts er-mb-12">For nonprofits, NGOs and public-good groups</span>
         <h1 id="ngo-title">Agent kits for nonprofits, NGOs and public-good groups</h1>
-        <p className="er-lede">
-          {AGENT_KIT_DEFINITION} Volunteers build kits with AI capacity they donate, and a different volunteer
-          reviews each one before it is shared.
-        </p>
+        {noun && (
+          <>
+            <p className="er-lede" data-testid="ngo-lede">
+              {noun.lede}
+            </p>
+            <p className="er-muted er-measure er-mb-12">{noun.no_agent}</p>
+          </>
+        )}
         <div className="er-hero-links">
           <a className="er-btn-primary" href="#examples">
             Browse example kits
@@ -48,6 +51,7 @@ export function Nonprofits() {
 
       <section className="er-section" aria-labelledby="parts-title">
         <h2 id="parts-title">What is in an agent kit</h2>
+        <p className="er-muted er-measure er-mb-12">{AGENT_KIT_DEFINITION}</p>
         <KitParts />
         <p className="er-muted er-measure">{WHOLE_SETUP}</p>
         <p className="er-muted er-measure er-mt-10">
@@ -124,17 +128,21 @@ export function Nonprofits() {
         {noun && (
           <>
             <h2 id="request-title">{noun.title}</h2>
-            <p className="er-warning" role="note">
-              <strong>{noun.warning}</strong>
-            </p>
-            <RequestBox noun={noun} />
-            <ol className="er-plain-steps er-mt-12" data-testid="request-steps">
+            <h3 id="request-next-title">{noun.next_title}</h3>
+            <ol className="er-plain-steps" data-testid="request-steps" aria-labelledby="request-next-title">
               {noun.steps.map((step) => (
                 <li key={step.id}>
                   <strong>{step.title}.</strong> {step.detail}
                 </li>
               ))}
             </ol>
+            <p className="er-muted er-measure er-mt-10 er-mb-12" data-testid="request-hosted">
+              {noun.hosted}
+            </p>
+            <p className="er-warning" role="note" id="request-warning">
+              <strong>{noun.warning}</strong>
+            </p>
+            <RequestBox noun={noun} describedBy="request-warning" />
             <p className="er-muted er-measure er-mt-12">{noun.follow}</p>
             <p className="er-small er-mt-10">
               <a href={REQUEST_KIT_URL}>{noun.form_on_github}</a>

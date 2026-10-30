@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 import json
 import re
 import subprocess
@@ -121,7 +122,10 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
             ("mcp", "POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}),
         ]
     )
-    assert out["connect"]["status"] == 200 and "Connect to eranos" in out["connect"]["body"]
+    assert (
+        out["connect"]["status"] == 200
+        and "<title>Connect to Eranos</title>" in out["connect"]["body"]
+    )
     assert json.loads(out["connect_json"]["body"])["surface_persistence"] is False
     start = json.loads(out["start_json"]["body"])
     assert start["version"] == "agent.onboarding.v1"
@@ -223,7 +227,7 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     help_noun = json.loads(out["help"]["body"])
     assert out["help"]["status"] == 200 and help_noun["value"]["title"] == "Help in six steps"
     keys = [r["key"] for r in json.loads(out["listing"]["body"])["records"]]
-    assert keys == ["classify", "help", "nonprofits", "public-research", "site"]
+    assert keys == ["classify", "connect", "help", "nonprofits", "public-research", "site"]
     for name in ("private_store", "catalog_store", "missing"):
         assert out[name]["status"] == 404, name
     practice = json.loads(out["practice"]["body"])
@@ -241,6 +245,10 @@ def test_static_page_and_readme_match_the_site_noun() -> None:
     assert f"<span>{site['brand_sub']}</span>" in html
     readme = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
     assert readme[2] == f"{site['headline']} {site['subline']}"
+    # Readers that run no script get the skip link and the privacy line too.
+    assert '<a class="er-skip-link" href="#main">Skip to content</a>' in html
+    assert '<main id="main">' in html
+    assert f"<p>{site['privacy']}</p>" in html
 
 
 def test_starting_brief_noun_is_the_canonical_brief() -> None:
@@ -257,3 +265,160 @@ def test_starting_brief_noun_is_the_canonical_brief() -> None:
     noun = json.loads((ROOT / "instructions" / "help.json").read_text(encoding="utf-8"))
     assert noun["brief"] == json.loads(run.stdout)
     assert not re.search(r"\btools?\b", " ".join(s["title"] + s["detail"] for s in noun["steps"]))
+
+
+# Acceptance and accessibility fixes, October 30 ------------------------------------------------------------
+
+
+def _router_pages() -> set[str]:
+    router = (ROOT / "web" / "src" / "router.tsx").read_text(encoding="utf-8")
+    table = router.split("const STATIC_ROUTES", 1)[1].split("};", 1)[0]
+    return set(re.findall(r'"(/[a-z-]*)": \{ name:', table))
+
+
+def test_the_worker_knows_the_app_pages_the_router_knows() -> None:
+    worker = WORKER.read_text(encoding="utf-8")
+    listed = re.search(r"const APP_PAGES = \[([^\]]*)\];", worker)
+    assert listed, "the Worker lists the app's pages"
+    assert set(re.findall(r'"(/[a-z-]*)"', listed.group(1))) == _router_pages()
+    assert "const APP_KIT_PAGE_RE = /^\\/catalog\\/[^/]+$/;" in worker
+    assert "/^\\/catalog\\/([^/]+)$/" in (ROOT / "web" / "src" / "router.tsx").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_unknown_addresses_answer_404_with_the_app_view() -> None:
+    out = _worker(
+        [
+            ("missing", "GET", "/this-page-does-not-exist-uat", None),
+            ("missing_deep", "GET", "/help/more/pages", None),
+            ("missing_head", "HEAD", "/no-such-page", None),
+            ("missing_api", "GET", "/api/no-such-route", None),
+            *[(f"page{n}", "GET", path, None) for n, path in enumerate(sorted(_router_pages()))],
+            ("kit", "GET", "/catalog/KIT-SHIFT-05", None),
+            ("slash", "GET", "/nonprofits/", None),
+            ("asset", "GET", "/snapshot/catalog.json", None),
+            ("favicon", "GET", "/favicon.svg", None),
+        ]
+    )
+    for name in ("missing", "missing_deep", "missing_head"):
+        assert out[name]["status"] == 404, name
+        assert out[name]["type"].startswith("text/html"), name
+        assert "script-src 'self'" in out[name]["csp"], name
+    # The 404 body is the app shell, so the app's "Page not found" view shows.
+    assert '<div id="root">' in out["missing"]["body"]
+    assert out["missing_api"]["status"] == 404 and "json" in out["missing_api"]["type"]
+    for name in [n for n in out if n.startswith("page")] + ["kit", "slash"]:
+        assert out[name]["status"] == 200, name
+        assert out[name]["type"].startswith("text/html"), name
+    assert out["asset"]["status"] == 200 and "json" in out["asset"]["type"]
+    assert out["favicon"]["status"] == 200
+
+
+def _descriptor() -> dict[str, Any]:
+    script = (
+        "import { accessDescriptor } from "
+        + json.dumps((ROOT / "deploy" / "cloudflare" / "access.js").as_uri())
+        + "; console.log(JSON.stringify(accessDescriptor('eranos')));"
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    result: dict[str, Any] = json.loads(run.stdout)
+    return result
+
+
+def test_connect_is_a_page_of_the_site_titled_connect_to_eranos() -> None:
+    noun = json.loads((ROOT / "instructions" / "connect.json").read_text(encoding="utf-8"))
+    out = _worker(
+        [
+            ("connect", "GET", "/connect", None),
+            ("connect_head", "HEAD", "/connect", None),
+            ("connect_json", "GET", "/connect.json", None),
+            ("connect_post", "POST", "/connect", {}),
+        ]
+    )
+    page = out["connect"]
+    assert page["status"] == 200 and page["type"].startswith("text/html")
+    assert "script-src 'self'" in page["csp"] and page["frame"] == "DENY"
+    body = page["body"]
+    # The site's own shell: its title is this page's, and the app that draws the layout loads into it.
+    assert body.count("<title>") == 1 and "<title>Connect to Eranos</title>" in body
+    assert noun["title"] == "Connect to Eranos"
+    assert '<a class="er-skip-link" href="#main">Skip to content</a>' in body
+    assert '<nav aria-label="Primary navigation">' in body and '<div id="root">' in body
+    assert '<script type="module" src="/src/main.tsx"></script>' in body
+    # Its text is the connect noun, readable without a script, and the machine-readable link stays.
+    main = html.unescape(body.split('<main id="main">', 1)[1].split("</main>", 1)[0])
+    assert f"<h1>{noun['title']}</h1>" in main
+    for key in ("authentication", "restrictions", "anonymous_note", "bearer_note"):
+        assert noun[key] in main, key
+    assert f'<a href="/connect.json">{noun["machine_link"]}</a>' in main
+    assert f'<a href="{noun["links"]["fabric_connect"]}">{noun["anonymous_link"]}</a>' in main
+    assert out["connect_head"]["status"] == 200 and out["connect_head"]["body"] == ""
+    assert out["connect_post"]["status"] == 405
+    # The JSON for agents is unchanged: the access descriptor, as before; the page says the same two sentences.
+    descriptor = _descriptor()
+    assert json.loads(out["connect_json"]["body"]) == descriptor
+    assert (noun["authentication"], noun["restrictions"]) == (
+        descriptor["authentication"],
+        descriptor["restrictions"],
+    )
+    assert noun["links"]["fabric_connect"] == descriptor["fabric_connect_url"]
+
+
+def test_snapshot_page_nouns_match_their_source_files() -> None:
+    """The static copies the offline site reads are exports of instructions/, never edited by hand."""
+    for source in sorted((ROOT / "instructions").glob("*.json")):
+        value = json.loads(source.read_text(encoding="utf-8"))
+        for folder in (ROOT / "web" / "snapshot", ROOT / "web" / "public" / "snapshot"):
+            copy = folder / "nouns" / "eranos.instructions" / source.name
+            assert json.loads(copy.read_text(encoding="utf-8"))["value"] == value, copy
+            listing = json.loads(
+                (folder / "nouns" / "eranos.instructions.json").read_text(encoding="utf-8")
+            )
+            assert {r["key"]: r["value"] for r in listing["records"]}[source.stem] == value, (
+                source.stem
+            )
+
+
+def test_the_nonprofits_page_opens_in_plain_words() -> None:
+    noun = json.loads((ROOT / "instructions" / "nonprofits.json").read_text(encoding="utf-8"))
+    opening = f"{noun['lede']} {noun['no_agent']}"
+    assert not re.search(r"\b(nouns?|verbs?|seed packs?)\b", opening, re.IGNORECASE)
+    assert "You don't need your own AI agent for research requests." in noun["no_agent"]
+    assert noun["form"]["label"] == noun["title"] == "Tell us what you need"
+    plan = next(step for step in noun["steps"] if step["id"] == "plan")
+    assert (
+        plan["detail"].startswith("A volunteer's agent") and "sorts it into parts" in plan["detail"]
+    )
+    assert "hosted queues yet" in noun["hosted"]
+    page = (ROOT / "web" / "src" / "pages" / "Nonprofits.tsx").read_text(encoding="utf-8")
+    assert page.index("noun.next_title") < page.index("noun.steps.map") < page.index("<RequestBox")
+    assert page.index("noun.hosted") < page.index("<RequestBox")
+
+
+def test_the_privacy_line_matches_what_the_site_loads() -> None:
+    site = json.loads((ROOT / "instructions" / "site.json").read_text(encoding="utf-8"))
+    assert (
+        site["privacy"].startswith("No analytics, ads or cookies.") and "Tessera" in site["privacy"]
+    )
+    # "Every page, script and style comes from this site": the policy the Worker sends allows nothing else,
+    # except the request box's calls to Tessera.
+    worker = WORKER.read_text(encoding="utf-8")
+    policy = re.search(r"const CONTENT_SECURITY_POLICY = \[([\s\S]*?)\]\.join", worker)
+    assert policy
+    directives = dict(
+        d.split(" ", 1) for d in json.loads(f"[{policy.group(1).rstrip().rstrip(',')}]") if " " in d
+    )
+    for name in ("default-src", "script-src", "style-src", "font-src"):
+        assert directives[name] == "'self'", name
+    assert directives["img-src"] == "'self' data:"
+    assert directives["connect-src"] == "'self' https://tessera.ta-amps.workers.dev"
+    # No cookies or stored data: nothing in the app reads or writes them.
+    for path in sorted((ROOT / "web" / "src").rglob("*.ts*")):
+        text = path.read_text(encoding="utf-8")
+        assert not re.search(r"document\.cookie|localStorage|sessionStorage|indexedDB", text), (
+            path.name
+        )
+    assert "set-cookie" not in worker.lower()

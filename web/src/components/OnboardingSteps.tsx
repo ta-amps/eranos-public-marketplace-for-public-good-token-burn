@@ -37,12 +37,7 @@ export function OnboardingSteps({ noun, error, onRetry }: { noun: HelpNoun | nul
         {noun.steps.map((step) => (
           <li key={step.id}>
             <strong>{step.title}.</strong> {step.detail}
-            {step.example && (
-              <>
-                {" "}
-                <code className="er-small">{step.example}</code>
-              </>
-            )}
+            {step.example && <code className="er-small er-step-example">{step.example}</code>}
           </li>
         ))}
       </ol>

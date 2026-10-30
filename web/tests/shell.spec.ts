@@ -25,6 +25,7 @@ const ROUTES = [
   "/tracks",
   "/fabric",
   "/about",
+  "/connect",
 ] as const;
 
 for (const viewport of VIEWPORTS) {

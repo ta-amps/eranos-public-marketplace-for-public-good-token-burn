@@ -11,7 +11,7 @@ body {
   left: -9999px;
   top: 8px;
   background: var(--er-accent);
-  color: #ffffff;
+  color: var(--er-on-accent);
   padding: 8px 14px;
   border-radius: var(--er-radius-chip);
   z-index: 100;
@@ -172,18 +172,8 @@ body {
 
 .er-btn-primary {
   background: var(--er-accent);
-  color: #ffffff;
+  color: var(--er-on-accent);
   border: 1px solid var(--er-accent);
-}
-
-:root[data-theme="dark"] .er-btn-primary {
-  color: #0b1915;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .er-btn-primary {
-    color: #0b1915;
-  }
 }
 
 .er-btn-secondary {
@@ -346,18 +336,8 @@ body {
 
 .er-filter-btn[aria-pressed="true"] {
   background: var(--er-accent);
-  color: #ffffff;
+  color: var(--er-on-accent);
   border-color: var(--er-accent);
-}
-
-:root[data-theme="dark"] .er-filter-btn[aria-pressed="true"] {
-  color: #0b1915;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .er-filter-btn[aria-pressed="true"] {
-    color: #0b1915;
-  }
 }
 
 .er-filter-panel {
@@ -677,4 +657,19 @@ body {
 .er-command code {
   overflow-wrap: anywhere;
   max-width: 100%;
+}
+
+/* Small inline code, such as a request's id, wraps a long token instead of widening the page. */
+code.er-small { overflow-wrap: anywhere; }
+
+/* A step's example request on /help: its own box on its own line, which wraps a long address at 320 px. */
+.er-step-example {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: var(--er-space-1);
+  padding: 2px 8px;
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-chip);
+  background: var(--er-surface);
 }
