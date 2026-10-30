@@ -2,6 +2,44 @@
   "synthetic": true,
   "tracks": [
     {
+      "id": "accessible-and-multilingual-communications",
+      "title": "Accessible and Multilingual Communications",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps nonprofits check translated materials and web pages for dropped facts, changed numbers, reading level and common accessibility barriers, while fluent reviewers, assistive technology users and staff make the final calls.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Community services center or small nonprofit communications team",
+          "serves": "Community members who read in many languages or use assistive technology",
+          "mandate": "Make sure every flyer and web page says the same thing in every language and works for people with disabilities"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "checklist_pack",
+        "csv_template",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "external_send"
+      ],
+      "never": [
+        "Approve a translation without a fluent reviewer",
+        "Call a page accessible or compliant from automatic checks alone",
+        "Publish, print or post materials on the organization's behalf"
+      ],
+      "sources": [
+        {
+          "title": "US Department of Justice, Civil Rights Division: Limited English Proficiency",
+          "url": "https://www.justice.gov/crt/limited-english-proficiency",
+          "checked_date": "2026-10-30"
+        }
+      ],
+      "needs_steward_signoff": false
+    },
+    {
       "id": "coerced-work-hotline-routing",
       "title": "Coerced Recruitment & Crisis Helpline Routing Kits",
       "domain": "anti_exploitation",
@@ -42,7 +80,84 @@
           "url": "https://www.ilo.org/publications/operational-indicators-trafficking-human-beings",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
+    },
+    {
+      "id": "donor-stewardship-and-privacy",
+      "title": "Donor Stewardship and Privacy",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps small nonprofits thank donors with accurate, personal letters and the acknowledgment details their finance lead requires, while honoring every donor's privacy choices; staff decide special handling and sign and send every letter.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Small nonprofit development or finance office",
+          "serves": "Individual donors and the staff who thank them",
+          "mandate": "Thank every donor promptly and accurately, honor privacy choices, and keep donor records inside the organization's own systems"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Put one donor's details in another donor's letter or in a shared list",
+        "Override a donor's anonymity or contact choices",
+        "Give tax advice or change the finance lead's acknowledgment wording"
+      ],
+      "sources": [
+        {
+          "title": "IRS: Charitable contributions, written acknowledgments",
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-written-acknowledgments",
+          "checked_date": "2026-10-30"
+        }
+      ],
+      "needs_steward_signoff": false
+    },
+    {
+      "id": "food-and-essentials-distribution",
+      "title": "Food Bank and Pantry Distribution",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps food banks, pantries and essentials closets turn stock counts and pickup bookings into restock lists and balanced pickup plans, while household decisions and messages stay with staff.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Volunteer-run food bank, pantry or essentials closet",
+          "serves": "Households collecting food or essentials at set pickup times",
+          "mandate": "Keep shelves stocked, hand out food before its quality date passes, and keep pickup lines short and fair"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Decide which households get food, extra food or an exception",
+        "Message or call households or volunteers on the organization's behalf",
+        "Judge whether food is safe to eat from a date label alone"
+      ],
+      "sources": [
+        {
+          "title": "Feeding America: How Do Food Banks Work?",
+          "url": "https://www.feedingamerica.org/our-work/food-bank-network",
+          "checked_date": "2026-10-30"
+        }
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "grant-and-compliance-ops",
@@ -78,7 +193,8 @@
           "url": "https://www.irs.gov/forms-pubs/about-publication-4221-pc",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "housing-and-charity-verification",
@@ -119,7 +235,8 @@
           "url": "https://consumer.ftc.gov/articles/rental-listing-scams",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
     },
     {
       "id": "intake-and-referral-triage",
@@ -155,7 +272,8 @@
           "url": "https://docs.openreferral.org/en/latest/hsds/",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "job-recruitment-triage",
@@ -197,7 +315,165 @@
           "url": "https://www.eaa.labour.gov.hk/en/operator.html",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
+    },
+    {
+      "id": "policy-and-public-rules",
+      "title": "Public Rules and Policy Briefs",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps nonprofits follow new public rules and ordinances with plain-language briefs that cite the clause behind every point, while staff and counsel decide what a rule means and what is said publicly.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Small advocacy or services nonprofit",
+          "serves": "Staff, boards and partners who need to understand new public rules",
+          "mandate": "Understand new rules accurately from the official text, and leave interpretation to staff and counsel"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "markdown_sop",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "legal_judgment",
+        "external_send"
+      ],
+      "never": [
+        "Say how a rule applies to a particular person, or give legal advice",
+        "Cite anything other than the official text",
+        "Publish or share a brief on the organization's behalf"
+      ],
+      "sources": [
+        {
+          "title": "National Archives: The Federal Register, What It Is and How to Use It",
+          "url": "https://www.archives.gov/federal-register/tutorial",
+          "checked_date": "2026-10-30"
+        }
+      ],
+      "needs_steward_signoff": false
+    },
+    {
+      "id": "program-impact-reporting",
+      "title": "Program Impact and Funding Reports",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps small nonprofits turn their own program records into monthly impact reports and funding impact summaries with every figure traced and every gap visible, while staff check the figures, approve the text and share or submit it.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Community nonprofit with program staff and a small board",
+          "serves": "Program managers, executive directors, boards and funders",
+          "mandate": "Report what programs did and achieved honestly, with every number traceable to the organization's own records"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "markdown_sop",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Invent, estimate or round away a missing number",
+        "Quote a participant without staff approval, or with a name",
+        "Share or submit a report on the organization's behalf"
+      ],
+      "sources": [
+        {
+          "title": "eCFR: 2 CFR 200.329, Monitoring and reporting program performance",
+          "url": "https://www.ecfr.gov/current/title-2/section-200.329",
+          "checked_date": "2026-10-30"
+        }
+      ],
+      "needs_steward_signoff": false
+    },
+    {
+      "id": "statement-transcription",
+      "title": "Handwritten Statements and Records",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps community organizations turn handwritten statements, cards and forms into text typed exactly as written, with every uncertain reading flagged for a person and local terms listed in a glossary, while staff check, follow up and decide how statements are used.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Community center or services nonprofit that collects handwritten statements and forms",
+          "serves": "Community members who write statements, and the staff and interns who type them up",
+          "mandate": "Keep every statement in the writer's own words, protect it, and use it only with consent"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "markdown_sop",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Correct, tidy, summarize or translate a writer's words in the transcription",
+        "Guess an unclear word without flagging it for a person",
+        "Share a statement without the writer's consent"
+      ],
+      "sources": [
+        {
+          "title": "National Archives: Citizen Archivist resources for transcribing records",
+          "url": "https://www.archives.gov/citizen-archivist/resources",
+          "checked_date": "2026-10-30"
+        }
+      ],
+      "needs_steward_signoff": true
+    },
+    {
+      "id": "victim-support-referrals",
+      "title": "Victim Support Referrals",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps victim services programs prepare referral options from public services directories using only the service needs an advocate enters, while advocates hold every conversation, do all safety planning and make every referral with the person's consent.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Victim services program or helpline with trained advocates",
+          "serves": "People seeking support after harm, and the advocates who help them",
+          "mandate": "Offer choices from verified public services, let each person decide, and keep their story and safety with trained advocates"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "checklist_pack",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "interview",
+        "crisis_safety_plan",
+        "case_referral"
+      ],
+      "never": [
+        "Read, ask for or store a person's story, name, contact details or location",
+        "Describe anyone as responsible for harm",
+        "Contact a service or a person on the program's behalf"
+      ],
+      "sources": [
+        {
+          "title": "Office for Victims of Crime: Directory of Crime Victim Services",
+          "url": "https://ovc.ojp.gov/directory-crime-victim-services",
+          "checked_date": "2026-10-30"
+        }
+      ],
+      "needs_steward_signoff": true
     },
     {
       "id": "volunteer-shift-and-sop-builder",
@@ -233,7 +509,8 @@
           "url": "https://www.ready.gov/cert",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     }
   ]
 }

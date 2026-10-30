@@ -1,0 +1,82 @@
+{
+  "synthetic": true,
+  "store": "eranos.verb_templates",
+  "records": [
+    {
+      "key": "policy-and-law-watch",
+      "version": 1,
+      "value": {
+        "pack": "policy-and-law-watch",
+        "pack_version": "0.1.0",
+        "route": "public-only",
+        "source": {
+          "library": "seed-packs-library-of-nouns-and-verbs",
+          "path": "packs/policy-and-law-watch"
+        },
+        "status": "proposal_only",
+        "steps": [
+          {
+            "claimant": "agent",
+            "title": "Check official sources for new laws and rules on a topic"
+          },
+          {
+            "claimant": "agent",
+            "title": "Extract each new rule's clauses, dates, definitions and duties"
+          },
+          {
+            "claimant": "agent",
+            "title": "Write a plain-language summary that cites a clause for every point"
+          },
+          {
+            "claimant": "agent_or_human",
+            "title": "Review every citation (a different worker)"
+          },
+          {
+            "claimant": "human",
+            "title": "Decide whether the reviewed summary is delivered (a person)"
+          }
+        ],
+        "summary": "A collection of nouns and verbs for watching official public sources for new laws and rules on a topic: reading them only through permitted official access, extracting their clauses, writing a summary that cites a clause for every point and is marked not legal advice, having a different worker review every citation, and delivering it only when a person decides.",
+        "title": "Policy and law watch"
+      }
+    },
+    {
+      "key": "public-budget-report",
+      "version": 1,
+      "value": {
+        "pack": "public-budget-report",
+        "pack_version": "0.1.0",
+        "route": "public-only",
+        "source": {
+          "library": "seed-packs-library-of-nouns-and-verbs",
+          "path": "packs/public-budget-report"
+        },
+        "status": "proposal_only",
+        "steps": [
+          {
+            "claimant": "agent",
+            "title": "Find the official budget document and read its terms"
+          },
+          {
+            "claimant": "agent",
+            "title": "Extract one program area's line items with pages and lines"
+          },
+          {
+            "claimant": "agent",
+            "title": "Write a cited report on the program area's budget"
+          },
+          {
+            "claimant": "agent_or_human",
+            "title": "Review every figure in the report (a different worker)"
+          },
+          {
+            "claimant": "human",
+            "title": "Decide whether the reviewed report is delivered (a person)"
+          }
+        ],
+        "summary": "A collection of nouns and verbs for reporting on a public state or city budget: finding the official budget document through permitted access, extracting one program area's line items with their pages and lines, writing a report that cites every figure, having a different worker review it, and delivering it only when a person decides.",
+        "title": "Public budget report"
+      }
+    }
+  ]
+}

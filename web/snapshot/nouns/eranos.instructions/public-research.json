@@ -1,0 +1,50 @@
+{
+  "synthetic": true,
+  "store": "eranos.instructions",
+  "key": "public-research",
+  "version": 1,
+  "value": {
+    "access": {
+      "allowed": [
+        "official_api",
+        "official_download",
+        "public_web_page"
+      ],
+      "never": [
+        "scrape"
+      ],
+      "platforms": {
+        "facebook.com": [
+          "meta_content_library",
+          "meta_graph_api"
+        ],
+        "instagram.com": [
+          "meta_content_library",
+          "meta_graph_api"
+        ],
+        "threads.net": [
+          "meta_content_library",
+          "meta_graph_api"
+        ]
+      }
+    },
+    "citation": {
+      "quote": "exact text from the cited source",
+      "required": true
+    },
+    "decision": "A person decides what to do with this result.",
+    "disclaimer_text": "This summary of public information is not legal advice.",
+    "key": "public-research",
+    "kind": "instructions",
+    "legal_disclaimer": "not legal advice",
+    "rules": [
+      "No personal data, in sources, claims or summaries.",
+      "No platform reached against its terms. Facebook and Instagram only through Meta's official access, never by scraping.",
+      "Every claim cites a public source, with an exact quote from it.",
+      "A legal summary says it is not legal advice.",
+      "A person decides what to do with the result."
+    ],
+    "schema_version": 1,
+    "title": "Rules for public-only research"
+  }
+}

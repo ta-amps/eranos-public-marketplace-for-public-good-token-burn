@@ -358,7 +358,7 @@ def claim_and_draft_once(
     transport: httpx.BaseTransport | None = None,
 ) -> dict[str, Any] | None:
     """Claim one `eq02` draft task, synthesize and deterministically verify a `KitDraft`, and submit."""
-    lease = backend.claim("eq02", worker)
+    lease = backend.claim("eq02", worker, kinds=["draft"])
     if lease is None:
         return None
     dep_out = lease.dependencies[0].output

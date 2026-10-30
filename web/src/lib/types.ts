@@ -227,6 +227,33 @@ export interface QueueCount {
   cancelled: number;
 }
 
+/** An organization's need in its own plain words, read from the kit's seed pack (synthetic). */
+export interface ExampleNeed {
+  kit_id: string;
+  kit_title: string;
+  title: string;
+  says: string;
+  mark: string;
+  noun: Record<string, unknown>;
+}
+
+/** The recorded example runs: evidence nouns written by the repository's own pipeline. */
+export interface ExampleRunsSummary {
+  count: number;
+  label: string;
+  kits: string[];
+  outcomes: string[];
+  recorded_at: string;
+  source_commits: string[];
+  model_calls: number;
+}
+
+export interface ExamplesResponse {
+  synthetic: boolean;
+  needs: ExampleNeed[];
+  runs: ExampleRunsSummary | null;
+}
+
 export interface FabricResponse {
   display_name: string;
   plan: string;

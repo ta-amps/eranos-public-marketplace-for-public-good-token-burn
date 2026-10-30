@@ -1,0 +1,48 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-funding-impact-summary",
+    "kit": {
+      "store": "seedpack.kit-funding-impact-summary",
+      "key": "kit-funding-impact-summary.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "d5ffb966501b9a28c14acc2ce0e7f33ee7104ac230feae1250f987fbcdf98c41"
+    },
+    "request": {
+      "store": "seedpack.kit-funding-impact-summary",
+      "key": "kit-funding-impact-summary.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "5bcf88c1d889362f96bbfb389a360b8df14793eb980fc20e69b61a6fa67ac461"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-RENEWAL-10",
+    "track_id": "program-impact-reporting",
+    "deliverable_kind": "full_kit",
+    "needs_steward_signoff": false,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:program-impact-reporting",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "review": {
+    "kit_id": "KIT-RENEWAL-10",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff."
+  }
+}

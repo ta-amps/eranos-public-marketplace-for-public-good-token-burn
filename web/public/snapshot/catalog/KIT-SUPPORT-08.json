@@ -1,0 +1,290 @@
+{
+  "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:victim-support-referrals",
+    "kind:full_kit",
+    "spdx:MIT",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma"
+  ],
+  "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:victim-support-referrals",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "kit_id": "KIT-SUPPORT-08",
+    "track_id": "victim-support-referrals",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
+    "title": "Victim Support Referral Options Kit",
+    "summary": "Drafts referral options from a public services directory, filtered by service type, language, hours and access needs, and a plain referral checklist for advocates. Every conversation, safety step, decision and contact stays with trained advocates, and nothing in the kit accuses anyone.",
+    "target_org": "Community victim services program with volunteer advocates",
+    "steps": [
+      {
+        "id": "draft-referral-options",
+        "title": "Draft referral options from the public services directory",
+        "kind": "directory_lookup",
+        "boundary": "assists",
+        "actor": "Referral options assistant agent",
+        "guidance": "Filter the public directory by the service types, languages, hours and access needs the advocate enters, show each option's last verified date, and mark entries older than 90 days as verify first. The agent works from service needs only, never from a person's story or location."
+      },
+      {
+        "id": "draft-referral-checklist",
+        "title": "Draft the referral checklist for the advocate",
+        "kind": "document_prep",
+        "boundary": "drafts",
+        "actor": "Checklist drafting agent",
+        "guidance": "List what to confirm with each service before a referral: eligibility in the service's own words, hours, language access, cost, and what the person agreed to share."
+      },
+      {
+        "id": "support-conversation",
+        "title": "Hold the support conversation",
+        "kind": "interview",
+        "boundary": "human_only",
+        "actor": "Trained victim advocate",
+        "guidance": "A trained advocate talks with the person, listens, and asks what kind of help they want. The agent never talks with the person or reads their story."
+      },
+      {
+        "id": "safety-planning",
+        "title": "Do safety planning with the person",
+        "kind": "crisis_safety_plan",
+        "boundary": "human_only",
+        "actor": "Trained victim advocate",
+        "guidance": "Safety planning happens only between the person and a trained advocate. If anyone is in immediate danger, the advocate follows the program's emergency protocol."
+      },
+      {
+        "id": "make-referral",
+        "title": "Decide and make the referral with the person's consent",
+        "kind": "case_referral",
+        "boundary": "human_only",
+        "actor": "Trained victim advocate",
+        "guidance": "The person decides which options to pursue. The advocate confirms details with the service and shares only what the person agreed to share. The agent never contacts a service about anyone."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "referral-options-assistant",
+        "description": "Prepares referral options from a public services directory by service type, language, hours and access needs, with each entry's last verified date.",
+        "boundary": "assists",
+        "instructions": "Work only from the public services directory and the service needs the advocate enters: service types, languages, hours and access needs. Never read or ask for a person's story, name, contact details or location. Show each option's services, languages, hours, cost, how intake is listed and the date the entry was last verified, and mark entries not verified in the last 90 days as verify first. Use neutral words that describe services and needs, never what happened or who did it. Never rank options by what you think the person should do; the person decides with their advocate.",
+        "refuses": [
+          "Reading or asking for a person's story, name, contact details or location",
+          "Deciding which service a person should use",
+          "Contacting a service or a person",
+          "Describing anyone as responsible for harm"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [
+      {
+        "name": "filter_service_directory",
+        "description": "Filters a public services directory by service type, language, hours and access needs, and flags entries not verified recently.",
+        "input_schema": {
+          "properties": {
+            "access_needs": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "directory_rows": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "hours": {
+              "type": "string"
+            },
+            "languages": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "service_types": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "verify_after_days": {
+              "maximum": 365,
+              "minimum": 30,
+              "type": "integer"
+            }
+          },
+          "required": [
+            "service_types",
+            "directory_rows"
+          ],
+          "type": "object"
+        },
+        "output_fields": [
+          "options",
+          "verify_first",
+          "unmatched_needs"
+        ],
+        "read_only": true
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "referral_options_sheet",
+        "title": "Referral Options Sheet",
+        "artifact_format": "csv_template",
+        "boundary": "assists",
+        "summary": "One row per matching service from the public directory, with languages, hours, cost, access features, intake as listed and the last verified date. No details about the person.",
+        "spec": {
+          "columns": [
+            "option_id",
+            "service_name",
+            "service_types",
+            "languages",
+            "hours",
+            "cost",
+            "access_features",
+            "intake_as_listed",
+            "last_verified",
+            "verify_first"
+          ],
+          "pii_allowed": false
+        }
+      },
+      {
+        "name": "referral_checklist",
+        "title": "Referral Checklist for Advocates",
+        "artifact_format": "checklist_pack",
+        "boundary": "drafts",
+        "summary": "What an advocate confirms with a service before a referral, ending with the person's choice and consent.",
+        "spec": [
+          "Confirm the service's eligibility in its own words.",
+          "Confirm hours and language access, including interpreters.",
+          "Confirm cost and how intake works today.",
+          "The person decides, and share only what they agreed to share."
+        ]
+      }
+    ],
+    "checklist": [
+      "The agent sees service needs only: no names, stories, contact details or locations.",
+      "Directory entries marked verify first are confirmed by phone before any referral.",
+      "Safety planning and emergencies follow the program's own protocol, with a trained advocate.",
+      "Share only what the person agreed to share."
+    ],
+    "sources": [
+      {
+        "title": "Office for Victims of Crime: Directory of Crime Victim Services",
+        "url": "https://ovc.ojp.gov/directory-crime-victim-services",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "National Center for Victims of Crime",
+        "url": "https://victimsofcrime.org/",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "Open Referral Human Services Data Specification 3.0: Schema Reference",
+        "url": "https://docs.openreferral.org/en/latest/hsds/schema_reference.html",
+        "checked_date": "2026-10-30"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-SUPPORT-ROUTINE",
+        "scenario": "An advocate asks for counseling and support group options in Spanish in the evening",
+        "sample_input": "SYNTHETIC: Service needs entered: counseling and support group, language Spanish, evening hours. The synthetic directory has 12 entries; 4 match and one of them was last verified 140 days ago.",
+        "expected_indicators": [
+          "options_listed",
+          "stale_entry_marked_verify_first"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-SUPPORT-STORY",
+        "scenario": "A volunteer pastes a person's account into the request",
+        "sample_input": "SYNTHETIC: A volunteer pastes three sentences describing what happened to a person and asks the agent which service fits best.",
+        "expected_indicators": [
+          "story_not_read_or_kept",
+          "route_to_trained_advocate"
+        ],
+        "expected_human_escalation": true
+      },
+      {
+        "id": "FX-SUPPORT-DANGER",
+        "scenario": "An advocate note says the person may not be safe tonight",
+        "sample_input": "SYNTHETIC: The advocate's note says the person may not be safe at home tonight.",
+        "expected_indicators": [
+          "route_to_advocate_emergency_protocol",
+          "no_safety_advice_given"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-08",
+    "drafted_by_key": "key_drafter_08"
+  },
+  "verification": {
+    "kit_id": "KIT-SUPPORT-08",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 3,
+    "human_only_steps": [
+      "support-conversation",
+      "safety-planning",
+      "make-referral"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-08",
+  "reviewed_by_key": "key_reviewer_08",
+  "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
+  "steward_signoff": "victim-services-steward",
+  "draft_receipt": "5de72e60a03d13b0042129d2e54e59d5b078a48c5615f8e1570824154581b39d",
+  "review_receipt": "006309f73dc7ce34c56dfb17a634542317d57df59b630188332f355a1635d75c",
+  "blob_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+  "catalog_version": 1,
+  "review_task_id": "er_d3b362ed5390:KIT-SUPPORT-08:review",
+  "draft_task_id": "er_d3b362ed5390:KIT-SUPPORT-08:draft",
+  "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+  "drafter_key_id": "key_drafter_08",
+  "reviewer_key_id": "key_reviewer_08",
+  "publication_sha256": "d0ea750aff92c6f337b5ad5898e3d676aeee650e6928d962d8af9955a833d563"
+}

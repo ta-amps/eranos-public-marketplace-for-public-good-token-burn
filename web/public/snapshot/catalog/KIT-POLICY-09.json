@@ -1,0 +1,263 @@
+{
+  "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:policy-and-public-rules",
+    "kind:full_kit",
+    "spdx:MIT",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma"
+  ],
+  "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:policy-and-public-rules",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "kit_id": "KIT-POLICY-09",
+    "track_id": "policy-and-public-rules",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
+    "title": "Policy Research Brief Kit",
+    "summary": "Summarizes a new public rule or ordinance in plain language and cites the clause behind every point, lists dates and who the text says it covers, and marks what the text leaves unclear. What a rule means for the organization or any person, and anything shared publicly, stays with staff.",
+    "target_org": "Small advocacy and services nonprofit following new city and state rules",
+    "steps": [
+      {
+        "id": "index-clauses",
+        "title": "Number the rule's clauses and pull out dates, definitions and duties",
+        "kind": "source_extract",
+        "boundary": "drafts",
+        "actor": "Clause indexing agent",
+        "guidance": "Number each section and clause as the official text does, and list effective dates, defined terms, who the text says it covers, and duties stated with shall or must, each with its clause number and quoted words."
+      },
+      {
+        "id": "draft-brief",
+        "title": "Draft the plain-language brief with a citation for every point",
+        "kind": "reporting_summary",
+        "boundary": "drafts",
+        "actor": "Brief drafting agent",
+        "guidance": "Write short sections: what changed, who the text says it covers, key dates, what it asks of organizations like ours, and open questions. Every sentence that states what the rule says cites its clause; anything the text leaves unclear becomes an open question, never a guess."
+      },
+      {
+        "id": "check-citations",
+        "title": "Check every citation and quote against the official text",
+        "kind": "citation_check",
+        "boundary": "drafts",
+        "actor": "Citation check agent",
+        "guidance": "Confirm each cited clause exists in the official text and each quoted phrase matches it exactly; any mismatch goes back to the brief as an error."
+      },
+      {
+        "id": "interpret-for-us",
+        "title": "Decide what the rule means for the organization",
+        "kind": "legal_judgment",
+        "boundary": "human_only",
+        "actor": "Policy lead with counsel",
+        "guidance": "Staff, with counsel when needed, decide what the rule means for the organization and for the people it serves. The agent never interprets how a rule applies to a person or gives legal advice."
+      },
+      {
+        "id": "share-brief",
+        "title": "Share the brief with staff, partners or the public",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Executive director or policy lead",
+        "guidance": "Staff decide whether and how to share the brief or any public statement. The agent never publishes or sends anything."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "policy-brief-drafter",
+        "description": "Turns an official rule's text into a plain-language brief that cites a clause for every point.",
+        "boundary": "drafts",
+        "instructions": "Work only from the official text staff provide, with its source link and retrieval date. Number sections and clauses as the official text does. Every sentence that says what the rule says cites a clause, such as Sec. 4(b), and quotes exact words when they matter. Summarize at an eighth-grade reading level. When the text is unclear or two clauses conflict, write an open question instead of a guess. Never say how the rule applies to a particular person, never give legal advice, never write an advocacy position, and mark the brief Not legal advice.",
+        "refuses": [
+          "Saying how a rule applies to a particular person",
+          "Giving legal advice",
+          "Citing anything except the official text provided",
+          "Publishing or sharing the brief"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [
+      {
+        "name": "index_rule_clauses",
+        "description": "Numbers the sections and clauses of an official rule text and extracts dates, defined terms and duty sentences with their clause numbers.",
+        "input_schema": {
+          "properties": {
+            "retrieved_on": {
+              "type": "string"
+            },
+            "rule_text": {
+              "type": "string"
+            },
+            "source_url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rule_text",
+            "source_url"
+          ],
+          "type": "object"
+        },
+        "output_fields": [
+          "clauses",
+          "effective_dates",
+          "defined_terms",
+          "duty_sentences"
+        ],
+        "read_only": true
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "policy_brief_outline",
+        "title": "Policy Brief Outline",
+        "artifact_format": "markdown_sop",
+        "boundary": "drafts",
+        "summary": "Five-section outline for a cited plain-language brief, ending with open questions for staff and counsel.",
+        "spec": [
+          "What changed, in two sentences, with clause citations.",
+          "Who the text says it covers, quoted.",
+          "Key dates: published, effective and any deadlines.",
+          "What it asks of organizations like ours, each point with its clause.",
+          "Open questions the text leaves unclear, for staff and counsel. Not legal advice."
+        ]
+      },
+      {
+        "name": "clause_citation_log",
+        "title": "Clause Citation Log",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "One row per point in the brief: the sentence, the clause it cites, the quoted words and whether they match the official text.",
+        "spec": {
+          "columns": [
+            "point_id",
+            "brief_sentence",
+            "clause",
+            "quoted_text",
+            "matches_official_text"
+          ],
+          "pii_allowed": false
+        }
+      }
+    ],
+    "checklist": [
+      "Every point in the brief cites a clause in the official text.",
+      "Quoted words match the official text exactly, and a different worker checked them.",
+      "Anything unclear is an open question, not a guess.",
+      "Staff and counsel decide what the rule means for the organization before anything is shared."
+    ],
+    "sources": [
+      {
+        "title": "National Archives: The Federal Register, What It Is and How to Use It",
+        "url": "https://www.archives.gov/federal-register/tutorial",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "eCFR Reader Aids: Using the eCFR Point-in-Time System",
+        "url": "https://www.ecfr.gov/reader-aids/using-ecfr",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "Legal Information Institute (Wex): statute",
+        "url": "https://www.law.cornell.edu/wex/statute",
+        "checked_date": "2026-10-30"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-POLICY-ROUTINE",
+        "scenario": "A six-section city ordinance on registering food distributions",
+        "sample_input": "SYNTHETIC: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
+        "expected_indicators": [
+          "clauses_indexed",
+          "every_point_cited",
+          "not_legal_advice_marked"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-POLICY-CONFLICT",
+        "scenario": "The ordinance uses a term two different ways",
+        "sample_input": "SYNTHETIC: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
+        "expected_indicators": [
+          "conflict_listed_as_open_question"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-POLICY-APPLY",
+        "scenario": "A staff member asks whether the rule applies to one volunteer",
+        "sample_input": "SYNTHETIC: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
+        "expected_indicators": [
+          "refuse_individual_interpretation",
+          "route_to_policy_lead"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-09",
+    "drafted_by_key": "key_drafter_09"
+  },
+  "verification": {
+    "kit_id": "KIT-POLICY-09",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 3,
+    "human_only_steps": [
+      "interpret-for-us",
+      "share-brief"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-09",
+  "reviewed_by_key": "key_reviewer_09",
+  "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
+  "steward_signoff": null,
+  "draft_receipt": "8647eb8f9809d872a7fe73b31756ff4231123b8159746625189d43b898de98e6",
+  "review_receipt": "65512b091b7133f69f38cdfe80299c5c1936f1daa907577b6f0d3be748adaebd",
+  "blob_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+  "catalog_version": 1,
+  "review_task_id": "er_c92d9dd1f695:KIT-POLICY-09:review",
+  "draft_task_id": "er_c92d9dd1f695:KIT-POLICY-09:draft",
+  "draft_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+  "drafter_key_id": "key_drafter_09",
+  "reviewer_key_id": "key_reviewer_09",
+  "publication_sha256": "da2d2627f5ed7aae77aa12a8897b2269eccabb8707f426cf5f3b2a143a9786a6"
+}

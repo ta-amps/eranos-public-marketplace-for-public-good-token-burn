@@ -1,0 +1,36 @@
+{
+  "id": "donor-stewardship-and-privacy",
+  "title": "Donor Stewardship and Privacy",
+  "domain": "nonprofit_ops",
+  "summary": "Helps small nonprofits thank donors with accurate, personal letters and the acknowledgment details their finance lead requires, while honoring every donor's privacy choices; staff decide special handling and sign and send every letter.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Small nonprofit development or finance office",
+      "serves": "Individual donors and the staff who thank them",
+      "mandate": "Thank every donor promptly and accurately, honor privacy choices, and keep donor records inside the organization's own systems"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "csv_template",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "individual_decision",
+    "external_send"
+  ],
+  "never": [
+    "Put one donor's details in another donor's letter or in a shared list",
+    "Override a donor's anonymity or contact choices",
+    "Give tax advice or change the finance lead's acknowledgment wording"
+  ],
+  "sources": [
+    {
+      "title": "IRS: Charitable contributions, written acknowledgments",
+      "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-written-acknowledgments",
+      "checked_date": "2026-10-30"
+    }
+  ]
+}

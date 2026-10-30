@@ -1,5 +1,6 @@
 import { SURFACE_DISPLAY_NAME } from "../config";
 import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
+import type { SiteNoun } from "../lib/nouns";
 import { AppLink, type RouteMatch } from "../router";
 
 const NAV_ITEMS = [
@@ -9,7 +10,7 @@ const NAV_ITEMS = [
   { to: "/about", label: "About", match: "about" },
 ] as const;
 
-export function TopBar({ route }: { route: RouteMatch }) {
+export function TopBar({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
   const active = route.name === "kit" ? "catalog" : route.name;
   return (
     <header className="er-topbar">
@@ -43,7 +44,7 @@ export function TopBar({ route }: { route: RouteMatch }) {
             <polygon points="32,23 39,32 32,41 25,32" fill="#ffffff" />
           </svg>
           <span>{SURFACE_DISPLAY_NAME}</span>
-          <span className="er-brand-sub">Spare AI capacity · Agent kits for nonprofits</span>
+          {site && <span className="er-brand-sub">{site.brand_sub}</span>}
         </AppLink>
         <nav className="er-nav" aria-label="Primary navigation">
           {NAV_ITEMS.map((item) => (

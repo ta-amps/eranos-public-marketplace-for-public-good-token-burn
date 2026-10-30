@@ -1,0 +1,36 @@
+{
+  "id": "accessible-and-multilingual-communications",
+  "title": "Accessible and Multilingual Communications",
+  "domain": "nonprofit_ops",
+  "summary": "Helps nonprofits check translated materials and web pages for dropped facts, changed numbers, reading level and common accessibility barriers, while fluent reviewers, assistive technology users and staff make the final calls.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Community services center or small nonprofit communications team",
+      "serves": "Community members who read in many languages or use assistive technology",
+      "mandate": "Make sure every flyer and web page says the same thing in every language and works for people with disabilities"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "checklist_pack",
+    "csv_template",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "external_send"
+  ],
+  "never": [
+    "Approve a translation without a fluent reviewer",
+    "Call a page accessible or compliant from automatic checks alone",
+    "Publish, print or post materials on the organization's behalf"
+  ],
+  "sources": [
+    {
+      "title": "US Department of Justice, Civil Rights Division: Limited English Proficiency",
+      "url": "https://www.justice.gov/crt/limited-english-proficiency",
+      "checked_date": "2026-10-30"
+    }
+  ]
+}

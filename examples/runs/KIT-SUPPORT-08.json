@@ -1,0 +1,97 @@
+{
+  "schema": "eranos.example-run.v1",
+  "synthetic": true,
+  "kit_id": "KIT-SUPPORT-08",
+  "title": "Victim Support Referral Options Kit",
+  "example": {
+    "path": "examples/kits/08-victim-support-referrals.json",
+    "sha256": "c4a6313276cf993696920f994e27265b2a00b18670460cfd7f55a6c7ef8d8cb1"
+  },
+  "inputs_sha256": "afd0b7fef812fbc78c79ee0c23e9966f456d8c8d3c98185dc2d594267e5b9c10",
+  "seed_pack": {
+    "pack_id": "kit-victim-support-referrals",
+    "kit": {
+      "store": "seedpack.kit-victim-support-referrals",
+      "key": "kit-victim-support-referrals.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "efa495d7cd4704dff11c6df6c11ae970ad6929aba87205784840b627ca9c533d"
+    },
+    "request": {
+      "store": "seedpack.kit-victim-support-referrals",
+      "key": "kit-victim-support-referrals.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "3f9b99d6a1fd93fad773f3ebe8d92c34d5da41224b36dfa89a3852acba046f96"
+    }
+  },
+  "verbs": [
+    {
+      "verb": "check",
+      "queue": "eq01",
+      "task_id": "er_bafecdaf97a1:KIT-SUPPORT-08:spec",
+      "worker": "spec-gate-08",
+      "key_id": "key_spec_08",
+      "ok": true,
+      "receipt_sha256": "ce72451f54447ce00305339da9b9e28c43a6eee5868228d239349cb5c5340b6d",
+      "state_after": "done",
+      "submitted_at": "1793334712.933066"
+    },
+    {
+      "verb": "build",
+      "queue": "eq02",
+      "task_id": "er_bafecdaf97a1:KIT-SUPPORT-08:draft",
+      "worker": "volunteer-drafter-08",
+      "key_id": "key_drafter_08",
+      "ok": true,
+      "receipt_sha256": "ca096e02d8a0f1a190b9c1133fa756c81be638fbc45c7a456449e61d3b71d9ff",
+      "state_after": "done",
+      "submitted_at": "1793334712.9348896",
+      "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+      "verification": {
+        "passed": true,
+        "checks_run": 8,
+        "fixtures": 3,
+        "human_only_steps": [
+          "support-conversation",
+          "safety-planning",
+          "make-referral"
+        ]
+      }
+    },
+    {
+      "verb": "review",
+      "queue": "eq03",
+      "task_id": "er_bafecdaf97a1:KIT-SUPPORT-08:review",
+      "worker": "volunteer-reviewer-08",
+      "key_id": "key_reviewer_08",
+      "ok": true,
+      "receipt_sha256": "33175fa98eb92e532c0b916846c53e1399c64e8d135c794ff2c4be8103854516",
+      "state_after": "done",
+      "submitted_at": "1793334712.94464",
+      "parked_for_steward": true,
+      "steward_signoff": "victim-services-steward",
+      "publication_sha256": "d19ba029a08875c587c92ada562a410a0c435f514ae280c684346e30e6f9e225"
+    }
+  ],
+  "outcome": "published",
+  "catalog_version": 1,
+  "where": "a desktop computer",
+  "data": "synthetic",
+  "summary_label": "example runs on a desktop computer, synthetic data",
+  "machine": {
+    "class": "desktop",
+    "os": "Linux",
+    "python": "3.12.13"
+  },
+  "source": {
+    "repository": "eranos-public-marketplace-for-public-good-token-burn",
+    "commit": "b69cbd1c3233253a1f1a666f8e3a3f0f8bd930dc",
+    "tree_clean": true,
+    "seed_pack_library": {
+      "commit": "5d11d8f323469366b66aab4e4270a432b46863c9",
+      "tree_clean": true
+    }
+  },
+  "store": "local Tessera store in a temporary folder, discarded after the run",
+  "model_calls": 0,
+  "recorded_at": "2026-10-30T04:31:53Z"
+}

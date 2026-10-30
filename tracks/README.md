@@ -14,3 +14,10 @@ track IDs; adding a new track is pure data.
 | `intake-and-referral-triage` | `nonprofit_ops` | Open Referral HSDS community service matching and warm-referral prep |
 | `grant-and-compliance-ops` | `nonprofit_ops` | Restricted grant ledger reconciliation & audit-readiness prep for small nonprofits |
 | `volunteer-shift-and-sop-builder` | `nonprofit_ops` | Volunteer shift checklists, multilingual role cards, and human escalation SOPs |
+| `program-impact-reporting` | `nonprofit_ops` | Monthly program impact reports and funding impact summaries with every figure traced and every gap visible |
+| `statement-transcription` | `nonprofit_ops` | Handwritten statements, cards and forms typed exactly as written, with uncertain readings flagged for a person |
+| `victim-support-referrals` | `nonprofit_ops` | Referral options from public services directories using only entered service needs; every conversation, safety step and referral stays with advocates |
+| `policy-and-public-rules` | `nonprofit_ops` | Plain-language briefs of new public rules that cite the clause behind every point; interpretation stays with staff and counsel |
+| `food-and-essentials-distribution` | `nonprofit_ops` | Restock and use-first lists from stock counts, and balanced pickup plans; household decisions stay with staff |
+| `donor-stewardship-and-privacy` | `nonprofit_ops` | Donor thank-you letters with acknowledgment wording and privacy checks; staff sign and send |
+| `accessible-and-multilingual-communications` | `nonprofit_ops` | Translation fact checks and accessibility reviews; fluent reviewers and staff make the final calls |

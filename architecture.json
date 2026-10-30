@@ -56,7 +56,8 @@
     "run": "make web",
     "web_check": "make web-check",
     "architecture": "make architecture",
-    "index": "make index"
+    "index": "make index",
+    "record_runs": "make record-runs"
   },
   "components": [
     {
@@ -68,6 +69,17 @@
       "role": "Refuses accusatory labels in every kit text and blocks surveillance, scraping, or personal-data-harvesting topics",
       "tests": [
         "tests/test_schemas_and_copy.py"
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Personal-data screen",
+      "path": "eranos/privacy.py",
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Finds common contact, identity and payment patterns and record-like lines in requests and reports, naming kinds and fields but never the matched text",
+      "tests": [
+        "tests/test_open_contribution.py"
       ]
     },
     {
@@ -108,7 +120,7 @@
       ],
       "kind": "data",
       "domain": "mixed",
-      "role": "Loads the six anti-exploitation NGO and general nonprofit operations tracks from JSON data packs",
+      "role": "Loads the anti-exploitation NGO and general nonprofit operations tracks from JSON data packs",
       "depends_on": [
         "jsonfile",
         "records"
@@ -150,16 +162,19 @@
       ],
       "kind": "worker",
       "domain": "neutral",
-      "role": "Runs eq01 -> eq02 -> eq03, stores canonical SHA-256 blobs, enforces drafter != reviewer and deterministic re-verification, parks/resumes for steward sign-off, and writes atomically via CAS",
+      "role": "Runs eq01 -> eq02 -> eq03, stores canonical SHA-256 blobs, enforces drafter != reviewer and deterministic re-verification, parks/resumes for steward sign-off, and writes atomically via CAS; composes example kits that point at seed packs from the library, refusing any pin or step that drifted",
       "depends_on": [
+        "copy",
         "jsonfile",
+        "privacy",
         "queues",
         "records",
         "tracks",
         "verifier"
       ],
       "tests": [
-        "tests/test_pipeline.py"
+        "tests/test_pipeline.py",
+        "tests/test_seed_packs.py"
       ]
     },
     {
@@ -218,11 +233,15 @@
       "title": "CLI and donor worker",
       "path": [
         "eranos/cli.py",
-        "eranos/donor_worker.py"
+        "eranos/donor_worker.py",
+        "eranos/contributor.py",
+        "eranos/requester.py",
+        "eranos/intake.py",
+        "eranos/e2e.py"
       ],
       "kind": "cli",
       "domain": "neutral",
-      "role": "eranos tracks, verify-examples, practice, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot",
+      "role": "eranos tracks, verify-examples, practice, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot, and record-example-runs (one example-run evidence noun per example kit)",
       "depends_on": [
         "adapter",
         "copy",
@@ -237,6 +256,8 @@
         "cli"
       ],
       "tests": [
+        "tests/test_example_runs.py",
+        "tests/test_open_contribution.py",
         "tests/test_pipeline.py"
       ]
     },
@@ -276,6 +297,26 @@
         "api",
         "web"
       ]
+    },
+    {
+      "id": "nouns",
+      "title": "Page, onboarding and rules nouns",
+      "path": [
+        "eranos/nouns.py",
+        "instructions",
+        "examples/sources",
+        "examples/requests"
+      ],
+      "kind": "data",
+      "domain": "neutral",
+      "role": "Versioned source files for the onboarding steps, starting brief, request guidance, classify and research rules and stand-in sources, plus the public-research packs read from the seed-pack library; seeded to Tessera and rendered by the surfaces",
+      "depends_on": [
+        "jsonfile"
+      ],
+      "tests": [
+        "tests/test_open_contribution.py",
+        "tests/test_marketplace_site.py"
+      ]
     }
   ],
   "interfaces": [
@@ -292,6 +333,7 @@
         "GET /api/catalog",
         "GET /api/catalog/{kit_id}",
         "POST /api/practice",
+        "GET /api/examples",
         "GET /api/requests",
         "GET /api/fabric",
         "GET /api/feed",
@@ -315,7 +357,8 @@
         "eranos practice <kit.json> [--dry-run]",
         "eranos donor-demo [--live-ollama]",
         "eranos seed-requests",
-        "eranos export-snapshot [OUT_DIR]"
+        "eranos export-snapshot [OUT_DIR]",
+        "eranos record-example-runs [OUT_DIR]"
       ]
     },
     {
@@ -376,6 +419,36 @@
       "location": "ERANOS_TRACE, default traces/run.jsonl",
       "holds": [
         "timestamped Tessera verb calls and queue telemetry"
+      ]
+    },
+    {
+      "id": "seed-pack-library",
+      "kind": "JSON files in another repository, read only",
+      "owned_by": "pipeline",
+      "location": "ERANOS_SEED_PACKS, default ../seed-packs-library-of-nouns-and-verbs",
+      "holds": [
+        "the kit, skill, tool card, file, checklist, source, test case and example request nouns of referenced example kits",
+        "the verb template behind each step of those kits"
+      ]
+    },
+    {
+      "id": "example-runs",
+      "kind": "JSON files",
+      "owned_by": "cli",
+      "path": "examples/runs",
+      "holds": [
+        "one evidence noun per example kit: the receipts of checking, building and reviewing it on a throwaway local store, input digests, source commits, the kind of computer and zero model calls"
+      ]
+    },
+    {
+      "id": "request-nouns",
+      "kind": "Tessera records",
+      "owned_by": "pipeline",
+      "path": "eranos/pipeline/request_noun.py",
+      "holds": [
+        "eranos.requests: each request's state and parts",
+        "eranos.plans: the classify step's plan in plain words, tied to its receipt",
+        "eranos.solutions: delivered reports with their review receipts"
       ]
     }
   ],
@@ -461,7 +534,7 @@
       "statement": "Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data",
       "enforced_by": "tracks",
       "checked_by": [
-        "tests/test_tracks_and_verifier.py::test_all_six_tracks_load_across_both_domains",
+        "tests/test_tracks_and_verifier.py::test_every_track_loads_across_both_domains",
         "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id",
         "tests/test_tracks_and_verifier.py::test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes"
       ]
@@ -503,6 +576,52 @@
         "tests/test_api_and_edge.py::test_invalid_kit_id_is_rejected_with_400",
         "tests/test_api_and_edge.py::test_edge_lockdown_blocks_direct_origin_requests"
       ]
+    },
+    {
+      "id": "E9",
+      "statement": "A referenced example kit takes its content only from its seed pack: every pin matches the noun's digest, and every step matches its verb template's title and claimant",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_seed_packs.py::test_a_changed_library_noun_is_refused",
+        "tests/test_seed_packs.py::test_the_example_cannot_carry_kit_content",
+        "tests/test_seed_packs.py::test_each_step_must_match_its_verb_template"
+      ]
+    },
+    {
+      "id": "E10",
+      "statement": "The site's example needs and example-run count come from nouns: each kit's need from its seed pack, and the count from one recorded run per example kit whose example and inputs still match their digests",
+      "enforced_by": "cli",
+      "checked_by": [
+        "tests/test_example_runs.py::test_every_example_kit_has_a_current_recorded_run",
+        "tests/test_example_runs.py::test_the_site_reads_needs_and_run_counts_from_these_nouns"
+      ]
+    },
+    {
+      "id": "E11",
+      "statement": "Work by a tracked anonymous session is published or delivered only after review by a different keyed worker or a person; anonymous sessions never claim review verbs or write the catalog",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_open_contribution.py::test_only_reviewed_work_is_published_or_delivered",
+        "tests/test_open_contribution.py::test_abuse_cases_hold"
+      ]
+    },
+    {
+      "id": "E12",
+      "statement": "A nonprofit's request becomes exactly one eq01 verb, which an authorized worker classifies and splits into public research and kit parts, recorded as a plan noun",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_open_contribution.py::test_typing_a_request_enqueues_exactly_one_verb",
+        "tests/test_open_contribution.py::test_classify_then_split_routes_public_private_and_mixed_requests"
+      ]
+    },
+    {
+      "id": "E13",
+      "statement": "Personal data is refused before a request is stored, and public reports cite a public source for every claim, say they are not legal advice when legal, and leave the decision to a person",
+      "enforced_by": "privacy",
+      "checked_by": [
+        "tests/test_open_contribution.py::test_personal_data_screen_names_kinds_never_text",
+        "tests/test_open_contribution.py::test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimers"
+      ]
     }
   ],
   "import_rules": [
@@ -512,7 +631,8 @@
       "package_root": "eranos",
       "files": [
         "eranos/schemas",
-        "eranos/copy.py"
+        "eranos/copy.py",
+        "eranos/privacy.py"
       ],
       "must_not_import": [
         "eranos.tracks",
@@ -564,7 +684,11 @@
         "starlette",
         "sqlite3",
         "subprocess",
-        "socket"
+        "socket",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 1 runs deterministic verification and strict JSON loading without touching Tessera, adapters, or network"
     },
@@ -594,7 +718,11 @@
         "httpx",
         "requests",
         "fastapi",
-        "sqlite3"
+        "sqlite3",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 2 orchestrates eq01 -> eq02 -> eq03 against an injected Tessera Backend port without knowing local SQLite vs HTTP"
     },
@@ -614,7 +742,11 @@
         "eranos.cli",
         "eranos.donor_worker",
         "fastapi",
-        "starlette"
+        "starlette",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 3 constructs backends and trace logs; it never calls the pipeline or HTTP/CLI doors"
     },
@@ -632,12 +764,18 @@
         "eranos/pipeline",
         "eranos/adapter",
         "eranos/config.py",
-        "eranos/log.py"
+        "eranos/log.py",
+        "eranos/privacy.py",
+        "eranos/nouns.py"
       ],
       "must_not_import": [
         "eranos.api",
         "eranos.cli",
-        "eranos.donor_worker"
+        "eranos.donor_worker",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 4 (API and CLI) are leaf entry points; nothing inward depends on them"
     },
@@ -666,7 +804,7 @@
       "status": "built",
       "evidence": [
         "tracks/README.md",
-        "tests/test_tracks_and_verifier.py::test_all_six_tracks_load_across_both_domains",
+        "tests/test_tracks_and_verifier.py::test_every_track_loads_across_both_domains",
         "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id"
       ],
       "verify": "uv run eranos tracks"

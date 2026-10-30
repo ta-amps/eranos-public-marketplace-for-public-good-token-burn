@@ -36,5 +36,6 @@
       "url": "https://consumer.ftc.gov/articles/rental-listing-scams",
       "checked_date": "2026-10-26"
     }
-  ]
+  ],
+  "needs_steward_signoff": true
 }

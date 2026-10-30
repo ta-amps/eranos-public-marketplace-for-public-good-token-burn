@@ -1,0 +1,48 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-policy-research-brief",
+    "kit": {
+      "store": "seedpack.kit-policy-research-brief",
+      "key": "kit-policy-research-brief.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "f2e6bcf021dd849df0e2d1504c7132f30deac70d76e5905929653ba0dec038d0"
+    },
+    "request": {
+      "store": "seedpack.kit-policy-research-brief",
+      "key": "kit-policy-research-brief.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "5dd6bf9cc3eb41da44f90e53319118db8cbfa93e23284a0c39a496b628dc7048"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-POLICY-09",
+    "track_id": "policy-and-public-rules",
+    "deliverable_kind": "full_kit",
+    "needs_steward_signoff": false,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:policy-and-public-rules",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "review": {
+    "kit_id": "KIT-POLICY-09",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel."
+  }
+}

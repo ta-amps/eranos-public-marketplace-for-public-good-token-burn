@@ -20,7 +20,7 @@ a summary; `web/src/router.tsx` is the source of truth.
 | `/catalog` | Verified Catalog | Filterable list of published kits by Domain, Track, Tag, Cohort, Open SPDX License, and free-text search |
 | `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Tessera cryptographic receipts |
 | `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key (`eq01`/`eq02` vs `eq03`) |
-| `/tracks` | Tracks | The six data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
+| `/tracks` | Tracks | The data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
 | `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
 | `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Tessera |
 
@@ -34,7 +34,8 @@ root health and AI-agent discovery endpoints remain publicly reachable at both t
 |---|---|
 | `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and `synthetic: true` |
 | `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
-| `GET /api/tracks` | All six `TrackPack` definitions loaded from `tracks/*/track.json` |
+| `GET /api/tracks` | Every `TrackPack` definition loaded from `tracks/*/track.json` |
+| `GET /api/examples` | Each seed-pack kit's need in the organization's own words, and the count of recorded example runs (`examples/runs/`), as the snapshot built with the deploy holds them |
 | `GET /api/catalog` | Filtered list of verified `PublishedKit` entries (`?domain=`, `?track=`, `?tag=`, `?cohort=`, `?spdx=`, `?q=`; unreviewed `status:quarantined` items excluded; omitted `?cohort=` returns universal `"all"` kits only) |
 | `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including governance envelope, skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown or quarantined) |
 | `POST /api/practice` | Zero-storage deterministic verifier (`persisted: false`, open-SPDX check, boundary & copy guards, SHA-256 practice receipt) |

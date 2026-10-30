@@ -37,5 +37,6 @@
       "url": "https://www.eaa.labour.gov.hk/en/operator.html",
       "checked_date": "2026-10-26"
     }
-  ]
+  ],
+  "needs_steward_signoff": true
 }

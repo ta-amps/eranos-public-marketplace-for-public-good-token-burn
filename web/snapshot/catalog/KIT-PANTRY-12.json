@@ -1,0 +1,272 @@
+{
+  "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:food-and-essentials-distribution",
+    "kind:full_kit",
+    "spdx:MIT",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma"
+  ],
+  "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:food-and-essentials-distribution",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "kit_id": "KIT-PANTRY-12",
+    "track_id": "food-and-essentials-distribution",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
+    "title": "Food Bank Inventory and Pickup Scheduling Kit",
+    "summary": "Turns weekly stock counts into a restock and use-first list, and spreads booked pickup slots across volunteer shifts. Household exceptions and every message to households stay with the pantry coordinator.",
+    "target_org": "Volunteer-run neighborhood food bank with weekly pickup hours",
+    "steps": [
+      {
+        "id": "count-stock",
+        "title": "Total this week's stock counts and flag items to hand out first",
+        "kind": "inventory_count",
+        "boundary": "drafts",
+        "actor": "Inventory drafting agent",
+        "guidance": "Add up counts by item and storage area, list items below their restock level, and flag items whose date label falls inside the use-first window for a person to check. Missing counts stay blank, never zero."
+      },
+      {
+        "id": "plan-pickups",
+        "title": "Spread booked pickup slots across volunteer shifts",
+        "kind": "schedule_draft",
+        "boundary": "drafts",
+        "actor": "Scheduling drafting agent",
+        "guidance": "Group booked slots by pickup window, compare them with volunteers per shift, and suggest moving a slot only to a window the household marked as acceptable. Use slot codes, never names."
+      },
+      {
+        "id": "decide-exceptions",
+        "title": "Decide household exceptions, such as extra food or a late pickup",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Pantry coordinator",
+        "guidance": "The coordinator decides any exception for a household in person or by phone, using the pantry's own rules. The agent only lists open requests by slot code."
+      },
+      {
+        "id": "send-reminders",
+        "title": "Send pickup reminders and schedule changes to households",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Pantry coordinator or volunteer lead",
+        "guidance": "A person reviews the reminder list and sends it from the pantry's own phone or messaging account. The agent never messages households."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "pickup-plan-drafter",
+        "description": "Drafts a weekly restock and use-first list and a balanced pickup plan from stock counts and booked slot codes.",
+        "boundary": "drafts",
+        "instructions": "Work only from the stock count sheet and the pickup slot sheet. Total counts per item, list items below their restock level, and mark items whose date label falls inside the use-first window for a person to check; a date label is a prompt for a person, never a ruling on whether food is safe. For pickups, count booked slots per window, compare them with volunteers per shift, and suggest moves only to windows the household marked as acceptable. Use slot codes only, never names, phone numbers or addresses. Leave missing counts blank and list them for the coordinator.",
+        "refuses": [
+          "Deciding which households get extra food or an exception",
+          "Messaging or calling households or volunteers",
+          "Judging whether food is safe to eat",
+          "Storing names, phone numbers or addresses in the plan"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [
+      {
+        "name": "summarize_stock_and_slots",
+        "description": "Totals stock counts by item and area, lists items below restock level and inside the use-first window, and counts booked slots per pickup window.",
+        "input_schema": {
+          "properties": {
+            "slot_rows": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "stock_rows": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "use_first_days": {
+              "maximum": 30,
+              "minimum": 1,
+              "type": "integer"
+            },
+            "week_of": {
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+              "type": "string"
+            }
+          },
+          "required": [
+            "week_of",
+            "stock_rows",
+            "slot_rows"
+          ],
+          "type": "object"
+        },
+        "output_fields": [
+          "item_totals",
+          "below_restock_level",
+          "use_first_items",
+          "missing_counts",
+          "slots_per_window",
+          "volunteers_per_window"
+        ],
+        "read_only": true
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "stock_count_sheet",
+        "title": "Weekly Stock Count Sheet",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "Count sheet by item and storage area, with restock levels and the date label a person checks. No personal data.",
+        "spec": {
+          "columns": [
+            "count_date",
+            "storage_area",
+            "item",
+            "unit",
+            "count",
+            "restock_level",
+            "date_label",
+            "date_label_type"
+          ],
+          "pii_allowed": false
+        }
+      },
+      {
+        "name": "pickup_slot_sheet",
+        "title": "Pickup Slot Sheet",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "Slot codes, pickup windows and the other windows each household said would work, with no names or contact details.",
+        "spec": {
+          "columns": [
+            "slot_code",
+            "pickup_window",
+            "acceptable_windows",
+            "household_size_band",
+            "exception_requested"
+          ],
+          "pii_allowed": false
+        }
+      }
+    ],
+    "checklist": [
+      "Count sheets and slot sheets hold codes and counts only; remove any name, phone number or address before the agent reads them.",
+      "Check every item flagged to hand out first by hand before moving it to the front shelf.",
+      "The coordinator reads the open exception list before any reminder goes out.",
+      "Keep missing counts blank so the restock list shows them as unknown."
+    ],
+    "sources": [
+      {
+        "title": "Feeding America: How Do Food Banks Work?",
+        "url": "https://www.feedingamerica.org/our-work/food-bank-network",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "US EPA: Wasted Food Scale",
+        "url": "https://www.epa.gov/sustainable-management-food/wasted-food-scale",
+        "checked_date": "2026-10-30"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-PANTRY-ROUTINE",
+        "scenario": "Saturday pantry with full counts and evenly booked windows",
+        "sample_input": "SYNTHETIC: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
+        "expected_indicators": [
+          "restock_list_drafted",
+          "pickup_plan_balanced"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-PANTRY-GAPS",
+        "scenario": "Missing cooler counts, one item near its date label and a crowded first window",
+        "sample_input": "SYNTHETIC: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
+        "expected_indicators": [
+          "missing_counts_left_blank",
+          "use_first_flagged_for_person",
+          "window_overbooked"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-PANTRY-EXCEPTION",
+        "scenario": "A household asks for extra food and a pickup after closing time",
+        "sample_input": "SYNTHETIC: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
+        "expected_indicators": [
+          "route_to_coordinator",
+          "no_exception_decided_by_agent"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-12",
+    "drafted_by_key": "key_drafter_12"
+  },
+  "verification": {
+    "kit_id": "KIT-PANTRY-12",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 3,
+    "human_only_steps": [
+      "decide-exceptions",
+      "send-reminders"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-12",
+  "reviewed_by_key": "key_reviewer_12",
+  "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
+  "steward_signoff": null,
+  "draft_receipt": "e9c86075dfc8425c0ce784b438411e4ba92209ac5eb146dbbab524347be369b8",
+  "review_receipt": "4c8ba25c5cbc2974548f90f60aaa29a3f636ee220e85bbdb390a736e67bb7468",
+  "blob_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+  "catalog_version": 1,
+  "review_task_id": "er_4b9e1943738d:KIT-PANTRY-12:review",
+  "draft_task_id": "er_4b9e1943738d:KIT-PANTRY-12:draft",
+  "draft_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+  "drafter_key_id": "key_drafter_12",
+  "reviewer_key_id": "key_reviewer_12",
+  "publication_sha256": "48cdc90e25ae9c56f840ddbf2ca431ca7b656640f3a883f15b4668eef4912541"
+}

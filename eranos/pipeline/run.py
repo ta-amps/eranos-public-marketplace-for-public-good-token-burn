@@ -11,6 +11,7 @@ Enforces:
 
 from __future__ import annotations
 
+import hashlib
 import inspect
 import json
 import uuid
@@ -21,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 from tessera import Forbidden, NotFound, RecordWrite, TaskSpec, TaskView
+from tessera.receipts import canonical_json
 
 from eranos.jsonfile import load_json
 from eranos.pipeline.publication import (
@@ -28,6 +30,8 @@ from eranos.pipeline.publication import (
     publication_digest,
     recover_publications,
 )
+from eranos.pipeline.request_noun import update_request_part
+from eranos.pipeline.seed_packs import resolve_bundle
 from eranos.queues import QUEUE_CONFIGS
 from eranos.schemas import (
     KitDraft,
@@ -166,14 +170,28 @@ def _claim_with_key(
     worker: str,
     *,
     key_id: str | None = None,
+    kinds: list[str] | None = None,
 ) -> Any:
+    """Claim one verb; `kinds` keeps each worker to its own kind of task on a shared queue."""
     try:
         param_names: set[str] = set(inspect.signature(backend.claim).parameters.keys())
     except (TypeError, ValueError):
         param_names = set()
+    kwargs: dict[str, Any] = {}
+    if kinds is not None and "kinds" in param_names:
+        kwargs["kinds"] = kinds
     if key_id is not None and "key_id" in param_names:
-        return backend.claim(queue, worker, key_id=key_id)
-    return backend.claim(queue, worker)
+        kwargs["key_id"] = key_id
+    return backend.claim(queue, worker, **kwargs)
+
+
+def draft_digests(raw_draft: Any, draft: KitDraft) -> set[str]:
+    """The two accepted content digests of a draft: canonical JSON as submitted, or the stored blob."""
+    stored = json.dumps(draft.model_dump(mode="json"), sort_keys=True).encode("utf-8")
+    return {
+        hashlib.sha256(canonical_json(raw_draft).encode("utf-8")).hexdigest(),
+        hashlib.sha256(stored).hexdigest(),
+    }
 
 
 def submit_kit_request(
@@ -273,7 +291,7 @@ def run_spec_step(
     key_id: str | None = None,
     tracks_root: Path | None = None,
 ) -> dict[str, Any] | None:
-    lease = _claim_with_key(backend, "eq01", worker, key_id=key_id)
+    lease = _claim_with_key(backend, "eq01", worker, key_id=key_id, kinds=["spec"])
     if lease is None:
         return None
     req = KitRequest.model_validate(lease.brief["request"])
@@ -317,7 +335,7 @@ def run_draft_step(
     worker: str,
     key_id: str,
 ) -> dict[str, Any] | None:
-    lease = _claim_with_key(backend, "eq02", worker, key_id=key_id)
+    lease = _claim_with_key(backend, "eq02", worker, key_id=key_id, kinds=["draft"])
     if lease is None:
         return None
     dep_out = lease.dependencies[0].output
@@ -665,9 +683,11 @@ def run_review_step(
             "kit_id": recovered.kit.kit_id,
             "published": recovered.model_dump(mode="json"),
         }
-    lease = _claim_with_key(backend, "eq03", worker, key_id=key_id)
+    lease = _claim_with_key(backend, "eq03", worker, key_id=key_id, kinds=["review"])
     if lease is None:
         return None
+    brief = lease.brief if isinstance(lease.brief, dict) else {}
+    request_id, part = brief.get("request_id"), brief.get("part")
     dep_res = lease.dependencies[0]
     if dep_res.output is None:
         raise UnverifiedKitRefused(
@@ -675,6 +695,19 @@ def run_review_step(
         )
 
     draft = KitDraft.model_validate(dep_res.output["draft"])
+    # A build verb's result answers its own brief: an open build cannot replace another kit.
+    if (brief.get("kit_id") and draft.kit_id != brief["kit_id"]) or (
+        brief.get("track_id") and draft.track_id != brief["track_id"]
+    ):
+        backend.submit(
+            lease.task_id,
+            lease.fencing_token,
+            {"node": "review", "status": "rejected_off_brief", "kit_id": draft.kit_id},
+            idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
+            ok=False,
+            error="the draft does not answer this review's brief",
+        )
+        raise UnverifiedKitRefused("the draft's kit or track differs from the checked brief")
     if decision.kit_id != draft.kit_id:
         backend.submit(
             lease.task_id,
@@ -688,7 +721,10 @@ def run_review_step(
     upstream_report = VerificationReport.model_validate(dep_res.output["verification"])
     reverified = verify_kit(draft, get_track(draft.track_id, tracks_root))
     blob_sha256 = str(dep_res.output["blob_sha256"])
-    needs_steward = bool(dep_res.output.get("needs_steward_signoff", False))
+    # The brief, set by the checker, can raise the sign-off requirement; a submission cannot lower it.
+    needs_steward = bool(dep_res.output.get("needs_steward_signoff", False)) or bool(
+        brief.get("needs_steward_signoff", False)
+    )
 
     drafter_workers, drafter_keys = _collect_drafter_identities(backend, dep_res, draft)
     reviewer_workers = {w.strip() for w in (worker, decision.reviewed_by) if w and w.strip()}
@@ -713,6 +749,21 @@ def run_review_step(
             f"(workers={sorted(drafter_workers)!r}, keys={sorted(drafter_keys)!r})"
         )
 
+    if blob_sha256 not in draft_digests(dep_res.output["draft"], draft):
+        backend.submit(
+            lease.task_id,
+            lease.fencing_token,
+            {"node": "review", "status": "rejected_digest", "kit_id": draft.kit_id},
+            idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
+            ok=False,
+            error="blob_sha256 is not the digest of the submitted draft",
+        )
+        raise UnverifiedKitRefused(
+            f"cannot review {draft.kit_id}: its digest does not bind its content"
+        )
+
+    if request_id and part is not None:
+        update_request_part(backend, str(request_id), part, "in_review")
     if decision.verdict == "approved" and (not upstream_report.passed or not reverified.passed):
         issues = reverified.issues or upstream_report.issues
         backend.submit(
@@ -752,6 +803,8 @@ def run_review_step(
             reason=f"waiting for human nonprofit steward sign-off on {draft.kit_id}",
             resume_within=604800.0,
         )
+        if request_id and part is not None:
+            update_request_part(backend, str(request_id), part, "awaiting_steward")
         return {
             "node": "review",
             "status": "parked",
@@ -789,6 +842,10 @@ def run_review_step(
             idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
             ok=True,
         )
+        if request_id and part is not None:
+            update_request_part(
+                backend, str(request_id), part, "needs_revision", notes=decision.notes
+            )
         return {
             "node": "review",
             "status": "needs_revision",
@@ -803,10 +860,8 @@ def run_review_step(
         else None
     )
     requested_scope = str(
-        dep_res.output.get("requested_visibility_scope")
-        or (
-            lease.brief.get("requested_visibility_scope") if isinstance(lease.brief, dict) else None
-        )
+        brief.get("requested_visibility_scope")
+        or dep_res.output.get("requested_visibility_scope")
         or "public_commons"
     )
     promoted_scope: VisibilityScope = (
@@ -881,6 +936,17 @@ def run_review_step(
         )
     if stored is None:
         raise UnverifiedKitRefused("completed review proof did not match the prepared publication")
+    if request_id and part is not None:
+        update_request_part(
+            backend,
+            str(request_id),
+            part,
+            "published",
+            kit_id=stored.kit.kit_id,
+            catalog_version=stored.catalog_version,
+            review_receipt=stored.review_receipt,
+            publication_sha256=stored.publication_sha256,
+        )
     return {
         "node": "review",
         "status": "published",
@@ -1111,9 +1177,18 @@ def get_published_kit(
     return entry
 
 
-def load_example_bundles(examples_dir: Path | None = None) -> list[dict[str, Any]]:
-    folder = examples_dir or (Path(__file__).resolve().parents[2] / "examples" / "kits")
-    return [load_json(p) for p in sorted(folder.glob("*.json"))]
+EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "examples" / "kits"
+
+
+def example_paths(examples_dir: Path | None = None) -> list[Path]:
+    return sorted((examples_dir or EXAMPLES_DIR).glob("*.json"))
+
+
+def load_example_bundles(
+    examples_dir: Path | None = None, *, seed_packs_dir: Path | None = None
+) -> list[dict[str, Any]]:
+    """Example bundles in file order; one that names a seed pack is composed from the library."""
+    return [resolve_bundle(load_json(p), root=seed_packs_dir) for p in example_paths(examples_dir)]
 
 
 __all__ = [
@@ -1126,6 +1201,7 @@ __all__ = [
     "UnverifiedKitRefused",
     "enrich_governance_tags",
     "ensure_queues",
+    "example_paths",
     "filter_published_kits",
     "get_published_kit",
     "list_published_kits",

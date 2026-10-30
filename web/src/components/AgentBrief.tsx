@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
-import { buildAgentPrompt } from "virtual:agent-start";
 
 import { AGORA_CONNECT_AGENT_URL } from "../lib/marketplace";
+import { briefWithInterests, type HelpNoun } from "../lib/nouns";
 import { AppLink } from "../router";
 
 type Mode = "any" | "interests";
@@ -9,12 +9,10 @@ type Mode = "any" | "interests";
 /**
  * The copy-a-starting-brief path for volunteers' agents.
  *
- * The brief comes from `deploy/cloudflare/agent_start.js`, the onboarding module the Worker vendors
- * unchanged and serves as the `/agent-start.json` noun, so the copied text is identical. That module's
- * own banner script binds once at page load outside the React root, so this page renders the same
- * controls in React. Interest text stays in this component: it is never sent, stored or logged.
+ * The brief is a noun: the `brief` of `eranos.instructions/help`, the same text as Agora's
+ * `site/agent-brief.txt`. Interest text stays in this component: it is never sent, stored or logged.
  */
-export function AgentBrief() {
+export function AgentBrief({ noun }: { noun: HelpNoun | null }) {
   const [interests, setInterests] = useState("");
   const [brief, setBrief] = useState("");
   const [status, setStatus] = useState("");
@@ -29,7 +27,8 @@ export function AgentBrief() {
       interestsRef.current?.focus();
       return;
     }
-    const text = buildAgentPrompt(window.location.origin, mode, interests);
+    if (!noun) return;
+    const text = mode === "any" ? noun.brief : briefWithInterests(noun, interests);
     setBrief(text);
     setPreviewShown(true);
     try {

@@ -16,12 +16,25 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: eranos-public-marketplace-for-public-good-token-burn
+      - name: Read the Tessera pin from pyproject.toml, the one place it is set
+        id: pins
+        working-directory: eranos-public-marketplace-for-public-good-token-burn
+        run: |
+          rev=$(grep -oE 'tessera-infrastructure-work-and-storage-engine\.git@[0-9a-f]{40}' pyproject.toml | cut -d@ -f2)
+          test -n "$rev"
+          echo "tessera=$rev" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v4
         with:
           repository: ta-amps/tessera-infrastructure-work-and-storage-engine
-          ref: ecca97deb88b82e627df66c98400b3a302e2bdb0
+          ref: ${{ steps.pins.outputs.tessera }}
           path: tessera-infrastructure-work-and-storage-engine
           token: ${{ secrets.TESSERA_READ_TOKEN || github.token }}
+      - name: Seed-pack library that the referenced example kits point at
+        uses: actions/checkout@v4
+        with:
+          repository: ta-amps/seed-packs-library-of-nouns-and-verbs
+          ref: 168500501378bbd6f625efaf810126d8f5ef017f
+          path: seed-packs-library-of-nouns-and-verbs
       - uses: actions/setup-node@v4
         with:
           node-version: 22

@@ -4,6 +4,8 @@ import { SyntheticBanner } from "./components/SyntheticBanner";
 import { TopBar } from "./components/TopBar";
 import { FABRIC_DISPLAY_NAME, SURFACE_DISPLAY_NAME } from "./config";
 import { AGORA_HOW_IT_WORKS_URL, AGORA_URL } from "./lib/marketplace";
+import type { SiteNoun } from "./lib/nouns";
+import { useSite } from "./lib/useSite";
 import { About } from "./pages/About";
 import { Catalog } from "./pages/Catalog";
 import { Contribute } from "./pages/Contribute";
@@ -16,10 +18,10 @@ import { Overview } from "./pages/Overview";
 import { Tracks } from "./pages/Tracks";
 import { AppLink, matchPath, usePath, type RouteMatch } from "./router";
 
-function Page({ route }: { route: RouteMatch }) {
+function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
   switch (route.name) {
     case "overview":
-      return <Overview />;
+      return <Overview site={site} />;
     case "help":
       return <Help />;
     case "nonprofits":
@@ -41,10 +43,10 @@ function Page({ route }: { route: RouteMatch }) {
   }
 }
 
-function pageTitle(route: RouteMatch): string {
+function pageTitle(route: RouteMatch, site: SiteNoun | null): string {
   switch (route.name) {
     case "overview":
-      return `${SURFACE_DISPLAY_NAME} · Spare AI capacity builds tested agent kits for nonprofits`;
+      return site ? `${SURFACE_DISPLAY_NAME} · ${site.title}` : SURFACE_DISPLAY_NAME;
     case "help":
       return `I want to help · ${SURFACE_DISPLAY_NAME}`;
     case "nonprofits":
@@ -68,7 +70,9 @@ function pageTitle(route: RouteMatch): string {
 
 export function App() {
   const route = matchPath(usePath());
-  const title = pageTitle(route);
+  // The site noun (headline, title, intro) loads once here and is passed down.
+  const site = useSite();
+  const title = pageTitle(route, site);
   useEffect(() => {
     document.title = title;
   }, [title]);
@@ -79,17 +83,16 @@ export function App() {
         Skip to content
       </a>
       <SyntheticBanner />
-      <TopBar route={route} />
+      <TopBar route={route} site={site} />
       <main id="main" className="er-main" tabIndex={-1}>
-        <Page route={route} />
+        <Page route={route} site={site} />
       </main>
       <footer className="er-footer">
         <div className="er-footer-inner">
           <p className="er-muted">
-            <strong>{SURFACE_DISPLAY_NAME}</strong> is a two-sided marketplace: spare AI capacity builds tested
-            agent kits for nonprofits. It runs on {FABRIC_DISPLAY_NAME}, the shared infrastructure for tasks,
-            storage and receipts. <a href={AGORA_URL}>Agora</a> explains how everything fits together. Every
-            example is <code>SYNTHETIC</code>, and people keep every interview and every decision about a person.
+            {site ? `${site.intro} It runs on` : `${SURFACE_DISPLAY_NAME} runs on`} {FABRIC_DISPLAY_NAME}, the shared
+            infrastructure for tasks, storage and receipts. <a href={AGORA_URL}>Agora</a> explains how everything fits together. Every example is{" "}
+            <code>SYNTHETIC</code>, and people keep every interview and every decision about a person.
           </p>
           <nav className="er-footer-links" aria-label="Footer and agent discovery links">
             <AppLink to="/help">I want to help</AppLink>

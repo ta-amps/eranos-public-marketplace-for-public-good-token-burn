@@ -69,18 +69,19 @@ Allow: /llms-full.txt
 Allow: /.well-known/agent-card.json
 `;
 
-const FALLBACK_LLMS_TXT = `# Eranos: spare AI capacity builds tested agent kits for nonprofits
+const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
 
 > A two-sided marketplace. People donate AI capacity they won't use; their agents build, check and independently review agent kits for nonprofits, NGOs and public-good groups (eq01 check -> eq02 build -> eq03 review -> eranos.catalog). An agent kit is a seed pack of nouns and verbs made for one organization's agent. Tessera is the shared infrastructure underneath; Agora (https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/) explains how it all works.
 
 ## The two sides
 - /help: I want to help. Connect your own agent, copy a starting brief and see the open tasks.
-- /nonprofits: I'm an NGO looking for agentic solutions. Browse reviewed example kits or request a kit.
+- /nonprofits: I'm an NGO looking for agentic solutions. Browse reviewed example kits, or tell us what you need in one plain box.
 
 ## Discovery & API
 - /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
 - /api/catalog: Verified two-step reviewed NGO kits (?domain=&track=&tag=&cohort=&spdx=&q=)
-- /api/tracks: Six public-good NGO and nonprofit build tracks
+- /api/tracks: Public-good NGO and nonprofit build tracks
+- /api/examples: Synthetic example needs in organizations' own words, and the count of recorded example runs
 - /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
 - /mcp: Stateless JSON-RPC 2.0 MCP endpoint (list_tracks, search_catalog, get_kit, practice_verify_kit)
 - /.well-known/agent-card.json: Machine-readable agent capability card
@@ -264,13 +265,14 @@ const HOP_BY_HOP = [
   "upgrade",
 ];
 
+// connect-src names Tessera: the request box signs a nonprofit up and files its request there.
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "script-src 'self'",
   "style-src 'self'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://tessera.ta-amps.workers.dev",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -560,6 +562,36 @@ function unwrapDraftPayload(payload) {
     return raw;
   }
   return { ...payload };
+}
+
+// The digest a build submission carries: SHA-256 of the draft as canonical JSON (same as the API).
+async function withDraftDigest(result, body) {
+  const draft = body && typeof body.draft === "object" && body.draft !== null && !Array.isArray(body.draft) ? body.draft : body;
+  return { ...result, draft_sha256: await sha256Hex(canonicalJson(draft)) };
+}
+
+// Public Eranos nouns (page text, plans, requests, delivered reports, sources, verb templates):
+// Tessera's mirror first, then the snapshot exported from Tessera with this deploy.
+const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
+const NOUN_KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/;
+
+async function loadNoun(request, env, store, key) {
+  const stored = await getHeadRecord(env.FABRIC_DB, store, key);
+  if (stored !== null && stored !== undefined) return { synthetic: true, store, key, value: stored };
+  const snap = await fetchAssetJson(request, env, `/snapshot/nouns/${store}/${key}.json`);
+  return snap && snap.store === store && snap.key === key ? snap : null;
+}
+
+async function loadNounList(request, env, store) {
+  if (env && env.FABRIC_DB) {
+    const res = await env.FABRIC_DB.prepare(
+      "SELECT h.key AS key, h.version AS version, r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') ORDER BY h.key LIMIT 100"
+    ).bind(store).all();
+    const records = (res.results || []).map((r) => ({ key: r.key, version: Number(r.version), value: JSON.parse(r.value) }));
+    if (records.length) return { synthetic: true, store, records };
+  }
+  const snap = await fetchAssetJson(request, env, `/snapshot/nouns/${store}.json`);
+  return snap && snap.store === store && Array.isArray(snap.records) ? snap : { synthetic: true, store, records: [] };
 }
 
 async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
@@ -961,7 +993,7 @@ async function handleMcp(request, env) {
       const tracksById = new Map((tracksPayload.tracks || []).map((t) => [t.id, t]));
       const draftInput = args.draft && typeof args.draft === "object" ? args.draft : args;
       const explicitTrack = typeof args.track_id === "string" && args.track_id.trim() ? args.track_id.trim() : null;
-      const payload = await practiceVerifyKit(draftInput, explicitTrack, tracksById);
+      const payload = await withDraftDigest(await practiceVerifyKit(draftInput, explicitTrack, tracksById), args);
       return jsonResp({
         jsonrpc: "2.0",
         id: reqId,
@@ -1002,7 +1034,7 @@ async function handleCloudApi(request, env, pathname) {
     const tracksPayload = await loadTracksPayload(request, env);
     const tracksById = new Map((tracksPayload.tracks || []).map((t) => [t.id, t]));
     const result = await practiceVerifyKit(body, queryTrack || bodyTrack || null, tracksById);
-    return jsonResp(result);
+    return jsonResp(await withDraftDigest(result, body));
   }
 
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -1096,6 +1128,27 @@ async function handleCloudApi(request, env, pathname) {
 
   if (pathname === "/api/tracks") {
     return jsonResp(await loadTracksPayload(request, env));
+  }
+
+  if (pathname === "/api/examples") {
+    // Example needs and recorded example runs are repository nouns, built into this deploy's snapshot.
+    const examples = await fetchAssetJson(request, env, "/snapshot/examples.json");
+    if (!examples) {
+      return problem(404, "Not Found", "this build has no example nouns", "not_found");
+    }
+    return jsonResp(examples);
+  }
+
+  const nounMatch = /^\/api\/nouns\/([a-z0-9_.-]+)(?:\/([^/]+))?$/.exec(pathname);
+  if (nounMatch) {
+    const store = nounMatch[1];
+    const key = nounMatch[2] === undefined ? null : decodeURIComponent(nounMatch[2]);
+    if (!PUBLIC_NOUN_STORES.has(store) || (key !== null && !NOUN_KEY_RE.test(key))) {
+      return problem(404, "Not Found", "no such public noun", "not_found");
+    }
+    if (key === null) return jsonResp(await loadNounList(request, env, store));
+    const found = await loadNoun(request, env, store, key);
+    return found ? jsonResp(found) : problem(404, "Not Found", "no such public noun", "not_found");
   }
 
   if (pathname === "/api/requests") {

@@ -1,0 +1,262 @@
+{
+  "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:program-impact-reporting",
+    "kind:full_kit",
+    "spdx:MIT",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma"
+  ],
+  "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:program-impact-reporting",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "kit_id": "KIT-RENEWAL-10",
+    "track_id": "program-impact-reporting",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
+    "title": "Funding Impact Summary for Grant Renewal Kit",
+    "summary": "Summarizes what a grant paid for and achieved over its whole period for a renewal application: results against the original targets, spending by budget line from the finance lead's figures, and lessons staff name. Missing numbers stay unknown, and staff approve and submit.",
+    "target_org": "Small community nonprofit applying to renew a two-year foundation grant",
+    "steps": [
+      {
+        "id": "compare-period-to-targets",
+        "title": "Compare the grant period's results with the original targets",
+        "kind": "arithmetic_check",
+        "boundary": "drafts",
+        "actor": "Report arithmetic agent",
+        "guidance": "Total each measure over the whole grant period, compare it with the original target, and take spending by budget line only from the finance lead's figures. A missing number stays unknown, never zero."
+      },
+      {
+        "id": "draft-impact-summary",
+        "title": "Draft the funding impact summary for the renewal",
+        "kind": "reporting_summary",
+        "boundary": "drafts",
+        "actor": "Summary drafting agent",
+        "guidance": "Draft the renewal's sections: what the grant paid for, results against targets, what it cost by line, what staff learned, and what comes next. Every number comes from the period table, and lessons come only from staff notes."
+      },
+      {
+        "id": "check-figures",
+        "title": "Check every figure against the books and program records",
+        "kind": "grant_signoff",
+        "boundary": "human_only",
+        "actor": "Finance lead",
+        "guidance": "The finance lead traces every figure to the organization's books and program records and corrects or removes any that cannot be traced."
+      },
+      {
+        "id": "approve-summary",
+        "title": "Approve the summary and how shortfalls are explained",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Executive director",
+        "guidance": "The executive director decides how shortfalls, changes and lessons are explained, and approves the summary."
+      },
+      {
+        "id": "submit-renewal",
+        "title": "Submit the renewal application to the funder",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Executive director",
+        "guidance": "The executive director submits the renewal through the funder's own portal. The agent never submits or sends anything."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "impact-summary-drafter",
+        "description": "Drafts a grant renewal's funding impact summary from a period results table, keeping every number traceable and every gap visible.",
+        "boundary": "drafts",
+        "instructions": "Use the funder's renewal sections and word limits. Take every number from the period results table and cite its measure or budget line; spending figures are the finance lead's, word for word. Write missing numbers as not yet counted. Describe what the grant paid for and what was done and counted, and never claim a result the table does not show. Take lessons and next steps only from staff notes. Keep participant stories out unless staff supply an approved, de-identified one.",
+        "refuses": [
+          "Inventing or estimating a missing number",
+          "Changing the finance lead's spending figures",
+          "Claiming results the records do not show",
+          "Submitting the renewal"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [
+      {
+        "name": "compare_period_to_targets",
+        "description": "Totals each measure across a grant's reporting periods, compares it with the original target, and lists missing numbers as unknown.",
+        "input_schema": {
+          "properties": {
+            "finance_figures": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "periods": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "targets": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "targets",
+            "periods"
+          ],
+          "type": "object"
+        },
+        "output_fields": [
+          "totals_by_measure",
+          "percent_of_target",
+          "spending_by_line",
+          "missing"
+        ],
+        "read_only": true
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "period_results_table",
+        "title": "Grant Period Results Table",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "One row per measure for the whole grant period, with its target, total and percent of target, plus spending by budget line from the finance lead. No participant details.",
+        "spec": {
+          "columns": [
+            "measure_id",
+            "measure",
+            "target",
+            "total",
+            "percent_of_target",
+            "budget_line",
+            "spent",
+            "source"
+          ],
+          "pii_allowed": false
+        }
+      },
+      {
+        "name": "renewal_summary_outline",
+        "title": "Funding Impact Summary Outline",
+        "artifact_format": "markdown_sop",
+        "boundary": "drafts",
+        "summary": "Five-section outline for a renewal's impact summary, with every number from the period table.",
+        "spec": [
+          "1. What the grant paid for, by budget line.",
+          "2. Results against the original targets.",
+          "3. What it cost, from the finance lead's figures.",
+          "4. What staff learned, from staff notes.",
+          "5. What the next grant period would do."
+        ]
+      }
+    ],
+    "checklist": [
+      "Every number traces to the period table, and every spending figure to the finance lead.",
+      "Missing numbers read as not yet counted, never as zero.",
+      "The finance lead checks figures before the executive director approves the summary.",
+      "Only the executive director submits the renewal."
+    ],
+    "sources": [
+      {
+        "title": "eCFR: 2 CFR 200.329, Monitoring and reporting program performance",
+        "url": "https://www.ecfr.gov/current/title-2/section-200.329",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "National Council of Nonprofits: Administration and Financial Management",
+        "url": "https://www.councilofnonprofits.org/running-nonprofit/administration-and-financial-management",
+        "checked_date": "2026-10-30"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-RENEWAL-ROUTINE",
+        "scenario": "Two-year grant with every period reported and most targets met",
+        "sample_input": "SYNTHETIC: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
+        "expected_indicators": [
+          "period_table_complete",
+          "spending_copied_from_finance_lead",
+          "summary_drafted"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-RENEWAL-GAP",
+        "scenario": "One quarter's results are missing and one measure is well below target",
+        "sample_input": "SYNTHETIC: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
+        "expected_indicators": [
+          "missing_period_reported_unknown",
+          "below_target_flagged"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-10",
+    "drafted_by_key": "key_drafter_10"
+  },
+  "verification": {
+    "kit_id": "KIT-RENEWAL-10",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 2,
+    "human_only_steps": [
+      "check-figures",
+      "approve-summary",
+      "submit-renewal"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-10",
+  "reviewed_by_key": "key_reviewer_10",
+  "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
+  "steward_signoff": null,
+  "draft_receipt": "618cc8825776e4aa74e7011d32e722621e309f3b65d1987b9e562940e910fc84",
+  "review_receipt": "badd7f599a5be3666c3d09f00f6e54126a7c6b6bbd40a8de5bafd0819ba817cd",
+  "blob_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+  "catalog_version": 1,
+  "review_task_id": "er_a3a3f772334a:KIT-RENEWAL-10:review",
+  "draft_task_id": "er_a3a3f772334a:KIT-RENEWAL-10:draft",
+  "draft_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+  "drafter_key_id": "key_drafter_10",
+  "reviewer_key_id": "key_reviewer_10",
+  "publication_sha256": "9ed2a363b78f15adb467f4e23c44d7e3aed7bfdae2f976bbdd48835ff4aa6301"
+}

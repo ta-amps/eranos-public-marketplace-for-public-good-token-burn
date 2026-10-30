@@ -1,0 +1,246 @@
+{
+  "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:accessible-and-multilingual-communications",
+    "kind:checklist_pack",
+    "spdx:MIT",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma"
+  ],
+  "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:accessible-and-multilingual-communications",
+      "kind:checklist_pack",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "kit_id": "KIT-FLYER-14",
+    "track_id": "accessible-and-multilingual-communications",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "checklist_pack",
+    "title": "Multilingual Service Flyer Translation Check Kit",
+    "summary": "Checks each translated service flyer against its English source for dropped facts, changed numbers, dates and phone numbers, untranslated text and reading level. A fluent community reviewer approves each language, and staff decide what gets printed and posted.",
+    "target_org": "Community health and services center printing flyers in five languages",
+    "steps": [
+      {
+        "id": "compare-facts",
+        "title": "Compare facts across the source and each translation",
+        "kind": "translation_check",
+        "boundary": "drafts",
+        "actor": "Translation check agent",
+        "guidance": "List every fact in the English source, such as the service, hours, dates, address line, phone number, cost and who can use it, and check that each appears unchanged in each translation. Numbers, dates and phone numbers must match exactly."
+      },
+      {
+        "id": "draft-reviewer-questions",
+        "title": "Draft questions for the fluent reviewer",
+        "kind": "review_prep",
+        "boundary": "assists",
+        "actor": "Review preparation agent",
+        "guidance": "For each language, list the sentences where meaning may have shifted, words left in English and sentences above the target reading level, as questions for the fluent reviewer, not corrections."
+      },
+      {
+        "id": "fluent-review",
+        "title": "Approve each translation (fluent community reviewer)",
+        "kind": "fluent_review",
+        "boundary": "human_only",
+        "actor": "Fluent community reviewer",
+        "guidance": "A fluent speaker from the community reads the whole flyer, answers the questions and approves or corrects the translation. Machine checks never replace this step."
+      },
+      {
+        "id": "print-and-post",
+        "title": "Decide what gets printed and posted",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Communications coordinator",
+        "guidance": "Staff print and post only translations the fluent reviewer approved, and keep each approval with its flyer version."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "flyer-fact-checker",
+        "description": "Compares a translated flyer with its English source for dropped or changed facts, exact numbers and dates, and untranslated text.",
+        "boundary": "drafts",
+        "instructions": "Work from the English source and the translation the center provides. Build a fact list from the source: service name, days, hours, dates, address line, phone number, cost and who can use the service. For each translation, mark each fact as matching, changed or missing; numbers, dates, times and phone numbers must match character for character after normal formatting for that language. List words left in English. Turn every problem into a question for the fluent reviewer. Never rewrite the translation yourself and never call a translation approved.",
+        "refuses": [
+          "Approving a translation",
+          "Rewriting a flyer in another language for printing",
+          "Printing, posting or sharing a flyer",
+          "Guessing a fact the source does not state"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [
+      {
+        "name": "compare_flyer_facts",
+        "description": "Extracts dates, times, phone numbers and amounts from the source and each translation and lists any that differ or are missing.",
+        "input_schema": {
+          "properties": {
+            "source_text": {
+              "type": "string"
+            },
+            "target_reading_grade": {
+              "maximum": 12,
+              "minimum": 3,
+              "type": "integer"
+            },
+            "translations": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "source_text",
+            "translations"
+          ],
+          "type": "object"
+        },
+        "output_fields": [
+          "facts",
+          "mismatched_numbers",
+          "missing_facts",
+          "untranslated_terms",
+          "long_sentences"
+        ],
+        "read_only": true
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "translation_review_sheet",
+        "title": "Translation Review Sheet",
+        "artifact_format": "checklist_pack",
+        "boundary": "drafts",
+        "summary": "What a fluent community reviewer confirms for each language before a flyer is printed.",
+        "spec": [
+          "Every fact in the English source appears in this language.",
+          "Dates, times, phone numbers and costs match the source exactly.",
+          "No words were left in English unless the center chose to keep them, such as a program name.",
+          "A fluent community reviewer read the whole flyer and approved it, with the date and flyer version."
+        ]
+      },
+      {
+        "name": "flyer_fact_list",
+        "title": "Flyer Fact List",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "One row per fact and language: the source text, the translated text and whether it matches, changed or is missing.",
+        "spec": {
+          "columns": [
+            "fact_id",
+            "fact_type",
+            "source_text",
+            "language",
+            "translation_text",
+            "status"
+          ],
+          "pii_allowed": false
+        }
+      }
+    ],
+    "checklist": [
+      "Run the fact comparison on the final file that will be printed, not an earlier draft.",
+      "A fluent community reviewer approves every language before printing.",
+      "Keep each approval with the flyer version it covers."
+    ],
+    "sources": [
+      {
+        "title": "US Department of Justice, Civil Rights Division: Limited English Proficiency",
+        "url": "https://www.justice.gov/crt/limited-english-proficiency",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "Digital.gov: Plain language guide series",
+        "url": "https://digital.gov/guides/plain-language",
+        "checked_date": "2026-10-30"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-FLYER-MATCH",
+        "scenario": "All five translations carry every fact unchanged",
+        "sample_input": "SYNTHETIC: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
+        "expected_indicators": [
+          "all_facts_present",
+          "questions_listed_for_reviewer"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-FLYER-MISMATCH",
+        "scenario": "A translated date and phone number differ from the source",
+        "sample_input": "SYNTHETIC: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
+        "expected_indicators": [
+          "mismatched_date",
+          "mismatched_phone_number",
+          "hold_for_fluent_reviewer"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-14",
+    "drafted_by_key": "key_drafter_14"
+  },
+  "verification": {
+    "kit_id": "KIT-FLYER-14",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 2,
+    "human_only_steps": [
+      "fluent-review",
+      "print-and-post"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-14",
+  "reviewed_by_key": "key_reviewer_14",
+  "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
+  "steward_signoff": null,
+  "draft_receipt": "565869f583503a8d68dafe04c12bc82553969ddc397d2235460af244438d77a9",
+  "review_receipt": "99b6a53c2b0411e525c7007cf1fafe976b3fb8e4b0f98ba4fac4ddcabc3e96a6",
+  "blob_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+  "catalog_version": 1,
+  "review_task_id": "er_d303b2eb401a:KIT-FLYER-14:review",
+  "draft_task_id": "er_d303b2eb401a:KIT-FLYER-14:draft",
+  "draft_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+  "drafter_key_id": "key_drafter_14",
+  "reviewer_key_id": "key_reviewer_14",
+  "publication_sha256": "0fd0c37cea6052a761df1c8804f019eaf644cd6c19fb3488548526626c64e79a"
+}

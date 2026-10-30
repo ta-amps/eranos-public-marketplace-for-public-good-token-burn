@@ -557,6 +557,9 @@ body {
 /* A chip placed directly in a card keeps its own width instead of stretching across the column. */
 .er-card > .er-chip { align-self: flex-start; }
 .er-card-subhead { margin: 4px 0 0; font-size: var(--er-font-14); }
+.er-need { margin: 0; padding: 8px 12px; border-left: 3px solid var(--er-border-strong); background: var(--er-surface-warm); }
+.er-need figcaption { font-size: var(--er-font-12); color: var(--er-text-muted); }
+.er-need blockquote { margin: 4px 0 0; font-size: var(--er-font-14); }
 .er-stepmap { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .er-stepmap li { display: flex; align-items: baseline; gap: 8px; font-size: var(--er-font-14); }
 .er-stepmap .er-chip { flex-shrink: 0; min-width: 7.4em; justify-content: center; }
@@ -642,4 +645,36 @@ body {
   .er-brief,
   .er-request { padding: var(--er-space-4); }
   .er-brief-actions .er-btn-primary { width: 100%; justify-content: center; }
+}
+
+/* One-box request form and the contributor's one command, rendered from nouns. */
+.er-request-form {
+  display: grid;
+  gap: 6px;
+  max-width: 720px;
+}
+
+.er-request-form label {
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.er-request-form .er-consent {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-weight: 400;
+}
+
+.er-command {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.er-command code {
+  overflow-wrap: anywhere;
+  max-width: 100%;
 }

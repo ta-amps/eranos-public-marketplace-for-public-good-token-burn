@@ -1,0 +1,97 @@
+{
+  "schema": "eranos.example-run.v1",
+  "synthetic": true,
+  "kit_id": "KIT-RENEWAL-10",
+  "title": "Funding Impact Summary for Grant Renewal Kit",
+  "example": {
+    "path": "examples/kits/10-funding-impact-summary.json",
+    "sha256": "66ac8fadaa9ab55bb424525e8f439cd608cf0136a6a1616d476b20e522751259"
+  },
+  "inputs_sha256": "63f1efcd5c301f76a971802465f77b223c3b154e54dc200c81f7e2d679144516",
+  "seed_pack": {
+    "pack_id": "kit-funding-impact-summary",
+    "kit": {
+      "store": "seedpack.kit-funding-impact-summary",
+      "key": "kit-funding-impact-summary.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "d5ffb966501b9a28c14acc2ce0e7f33ee7104ac230feae1250f987fbcdf98c41"
+    },
+    "request": {
+      "store": "seedpack.kit-funding-impact-summary",
+      "key": "kit-funding-impact-summary.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "5bcf88c1d889362f96bbfb389a360b8df14793eb980fc20e69b61a6fa67ac461"
+    }
+  },
+  "verbs": [
+    {
+      "verb": "check",
+      "queue": "eq01",
+      "task_id": "er_a8ce86a2a14d:KIT-RENEWAL-10:spec",
+      "worker": "spec-gate-10",
+      "key_id": "key_spec_10",
+      "ok": true,
+      "receipt_sha256": "a828b94d29d83bc5c4068d85cbe2c8024d48c8dcdc4e01b4d448156d23349db7",
+      "state_after": "done",
+      "submitted_at": "1793334712.9646885"
+    },
+    {
+      "verb": "build",
+      "queue": "eq02",
+      "task_id": "er_a8ce86a2a14d:KIT-RENEWAL-10:draft",
+      "worker": "volunteer-drafter-10",
+      "key_id": "key_drafter_10",
+      "ok": true,
+      "receipt_sha256": "46a5757693f32c9677fcd141c8fe05a4527ca5b21ffd79902adafe6274b3686d",
+      "state_after": "done",
+      "submitted_at": "1793334712.9664574",
+      "draft_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+      "verification": {
+        "passed": true,
+        "checks_run": 8,
+        "fixtures": 2,
+        "human_only_steps": [
+          "check-figures",
+          "approve-summary",
+          "submit-renewal"
+        ]
+      }
+    },
+    {
+      "verb": "review",
+      "queue": "eq03",
+      "task_id": "er_a8ce86a2a14d:KIT-RENEWAL-10:review",
+      "worker": "volunteer-reviewer-10",
+      "key_id": "key_reviewer_10",
+      "ok": true,
+      "receipt_sha256": "e53afed6d315835e76bf828df9223c1058ec91970b87dd1710bd3b8bce5a3219",
+      "state_after": "done",
+      "submitted_at": "1793334712.9713814",
+      "parked_for_steward": false,
+      "steward_signoff": null,
+      "publication_sha256": "5364f3091dbdc9844cb7cd37e220bd5334873ea873bf4cb37b15ec562e63cd78"
+    }
+  ],
+  "outcome": "published",
+  "catalog_version": 1,
+  "where": "a desktop computer",
+  "data": "synthetic",
+  "summary_label": "example runs on a desktop computer, synthetic data",
+  "machine": {
+    "class": "desktop",
+    "os": "Linux",
+    "python": "3.12.13"
+  },
+  "source": {
+    "repository": "eranos-public-marketplace-for-public-good-token-burn",
+    "commit": "b69cbd1c3233253a1f1a666f8e3a3f0f8bd930dc",
+    "tree_clean": true,
+    "seed_pack_library": {
+      "commit": "5d11d8f323469366b66aab4e4270a432b46863c9",
+      "tree_clean": true
+    }
+  },
+  "store": "local Tessera store in a temporary folder, discarded after the run",
+  "model_calls": 0,
+  "recorded_at": "2026-10-30T04:31:53Z"
+}

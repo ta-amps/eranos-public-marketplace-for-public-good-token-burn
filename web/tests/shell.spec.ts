@@ -1,7 +1,14 @@
+import fs from "node:fs";
+
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 import { findBannedWords } from "../src/lib/copy";
+
+// The catalog the offline build bundles: every reviewed example kit.
+const KIT_COUNT = (
+  JSON.parse(fs.readFileSync(new URL("../snapshot/catalog.json", import.meta.url), "utf8")) as { kits: unknown[] }
+).kits.length;
 
 const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
@@ -52,7 +59,7 @@ for (const viewport of VIEWPORTS) {
 
 test("catalog filters narrow kits, show empty state, and reset cleanly", async ({ page }) => {
   await page.goto("/catalog");
-  await expect(page.locator("article.er-card")).toHaveCount(5);
+  await expect(page.locator("article.er-card")).toHaveCount(KIT_COUNT);
 
   await page.getByLabel("SPDX License").selectOption("CC-BY-4.0");
   await expect(page.locator("article.er-card")).toHaveCount(1);
@@ -65,7 +72,7 @@ test("catalog filters narrow kits, show empty state, and reset cleanly", async (
   await expect(emptyState).toContainText("No verified kits match the selected filters.");
 
   await emptyState.getByRole("button", { name: "Reset filters" }).click();
-  await expect(page.locator("article.er-card")).toHaveCount(5);
+  await expect(page.locator("article.er-card")).toHaveCount(KIT_COUNT);
 });
 
 test("kit detail runs zero-storage practice verifier with persisted: false", async ({ page }) => {

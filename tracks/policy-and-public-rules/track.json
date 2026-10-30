@@ -1,0 +1,37 @@
+{
+  "id": "policy-and-public-rules",
+  "title": "Public Rules and Policy Briefs",
+  "domain": "nonprofit_ops",
+  "summary": "Helps nonprofits follow new public rules and ordinances with plain-language briefs that cite the clause behind every point, while staff and counsel decide what a rule means and what is said publicly.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Small advocacy or services nonprofit",
+      "serves": "Staff, boards and partners who need to understand new public rules",
+      "mandate": "Understand new rules accurately from the official text, and leave interpretation to staff and counsel"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "csv_template",
+    "markdown_sop",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "legal_judgment",
+    "external_send"
+  ],
+  "never": [
+    "Say how a rule applies to a particular person, or give legal advice",
+    "Cite anything other than the official text",
+    "Publish or share a brief on the organization's behalf"
+  ],
+  "sources": [
+    {
+      "title": "National Archives: The Federal Register, What It Is and How to Use It",
+      "url": "https://www.archives.gov/federal-register/tutorial",
+      "checked_date": "2026-10-30"
+    }
+  ]
+}
