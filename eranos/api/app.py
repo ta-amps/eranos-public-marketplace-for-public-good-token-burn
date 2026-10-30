@@ -352,7 +352,7 @@ def catalog(
 
 @app.get("/api/catalog/{kit_id}")
 def catalog_item(kit_id: str, cohort: str | None = Query(default=None)) -> dict[str, Any]:
-    if not KIT_ID_RE.match(kit_id):
+    if not KIT_ID_RE.fullmatch(kit_id):
         raise HTTPException(status_code=400, detail="invalid kit id")
     backend = get_adapter()
     try:
@@ -414,7 +414,7 @@ def noun_list(store: str, limit: int = Query(default=50, ge=1, le=100)) -> dict[
 @app.get("/api/nouns/{store}/{key}")
 def noun(store: str, key: str) -> dict[str, Any]:
     """One public Eranos noun; quarantined, private or unverified records are never shown."""
-    if store not in PUBLIC_STORES or not NOUN_KEY_RE.match(key):
+    if store not in PUBLIC_STORES or not NOUN_KEY_RE.fullmatch(key):
         raise HTTPException(status_code=404, detail="no such public noun")
     backend = get_adapter()
     try:
@@ -564,7 +564,7 @@ def _execute_mcp_tool(tool_name: str, arguments: dict[str, Any]) -> tuple[dict[s
         return data, False
     if tool_name == "get_kit":
         kit_id = str(arguments.get("kit_id") or "").strip()
-        if not KIT_ID_RE.match(kit_id):
+        if not KIT_ID_RE.fullmatch(kit_id):
             return {"error": "invalid kit id", "kit_id": kit_id}, True
         backend = get_adapter()
         try:

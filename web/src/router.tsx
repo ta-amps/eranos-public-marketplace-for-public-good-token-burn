@@ -32,7 +32,13 @@ export function matchPath(rawPath: string): RouteMatch {
   const kitMatch = /^\/catalog\/([^/]+)$/.exec(path);
   const rawId = kitMatch?.[1];
   if (kitMatch && rawId) {
-    return { name: "kit", id: decodeURIComponent(rawId) };
+    // A broken percent escape such as "%E0%A4%A" made decodeURIComponent throw while rendering, which left a
+    // blank page. It is a page that does not exist.
+    try {
+      return { name: "kit", id: decodeURIComponent(rawId) };
+    } catch {
+      return { name: "notFound", path };
+    }
   }
   return { name: "notFound", path };
 }

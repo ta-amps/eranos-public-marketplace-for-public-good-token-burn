@@ -583,6 +583,30 @@ function isAppPage(pathname) {
   return APP_PAGES.includes(path) || APP_KIT_PAGE_RE.test(path);
 }
 
+// A path segment, percent-decoded, or BROKEN_ESCAPE when it holds a broken escape such as "%E0%A4%A". Before,
+// decodeURIComponent threw there, and the Worker answered Cloudflare's bare 500 page with no CORS headers.
+const BROKEN_ESCAPE = Symbol("broken percent escape");
+
+function decodeSegment(raw) {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return BROKEN_ESCAPE;
+  }
+}
+
+// A kit page whose id is malformed or names no kit in the catalog still gets the app shell, whose "Kit
+// unavailable" view explains, but with status 404, so agents and link checkers can tell a wrong kit link from a
+// real one. The lookup is the one /api/catalog/<id> makes for the page itself.
+async function isMissingKitPage(request, env, pathname) {
+  const path = pathname.replace(/\/+$/, "");
+  if (!APP_KIT_PAGE_RE.test(path)) return false;
+  const kitId = decodeSegment(path.slice("/catalog/".length));
+  if (kitId === BROKEN_ESCAPE || !KIT_ID_RE.test(kitId)) return true;
+  const plain = new Request(new URL(`/api/catalog/${encodeURIComponent(kitId)}`, request.url));
+  return !(await lookupSingleKit(plain, env, kitId));
+}
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 }
@@ -1097,7 +1121,9 @@ async function handleCloudApi(request, env, pathname) {
   }
 
   if (request.method !== "GET" && request.method !== "HEAD") {
-    return problem(405, "Method Not Allowed", "Eranos public API routes are read-only GET/HEAD.", "method_not_allowed");
+    return problem(405, "Method Not Allowed", "Eranos public API routes are read-only GET/HEAD.", "method_not_allowed", {
+      allow: "GET, HEAD",
+    });
   }
 
   if (pathname === "/api/health") {
@@ -1201,7 +1227,10 @@ async function handleCloudApi(request, env, pathname) {
   const nounMatch = /^\/api\/nouns\/([a-z0-9_.-]+)(?:\/([^/]+))?$/.exec(pathname);
   if (nounMatch) {
     const store = nounMatch[1];
-    const key = nounMatch[2] === undefined ? null : decodeURIComponent(nounMatch[2]);
+    const key = nounMatch[2] === undefined ? null : decodeSegment(nounMatch[2]);
+    if (key === BROKEN_ESCAPE) {
+      return problem(400, "Bad Request", "the noun key is not valid percent-encoding", "invalid_request");
+    }
     if (!PUBLIC_NOUN_STORES.has(store) || (key !== null && !NOUN_KEY_RE.test(key))) {
       return problem(404, "Not Found", "no such public noun", "not_found");
     }
@@ -1227,8 +1256,8 @@ async function handleCloudApi(request, env, pathname) {
 
   const kitMatch = /^\/api\/catalog\/([^/]+)$/.exec(pathname);
   if (kitMatch) {
-    const kitId = decodeURIComponent(kitMatch[1]);
-    if (!KIT_ID_RE.test(kitId)) {
+    const kitId = decodeSegment(kitMatch[1]);
+    if (kitId === BROKEN_ESCAPE || !KIT_ID_RE.test(kitId)) {
       return problem(400, "Bad Request", "invalid kit id", "invalid_request");
     }
     const found = await lookupSingleKit(request, env, kitId);
@@ -1406,7 +1435,7 @@ const onboardingApplication = {
           ? await env.ASSETS.fetch(request)
           : new Response("Not Found", { status: 404 });
         const html = (response.headers.get("content-type") || "").includes("text/html");
-        if (response.status === 200 && html && !isAppPage(pathname)) {
+        if (response.status === 200 && html && (!isAppPage(pathname) || (await isMissingKitPage(request, env, pathname)))) {
           response = new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers });
         }
       } else {

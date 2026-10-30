@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { SNAPSHOT } from "../config";
-import { getJson, type ApiPath } from "./api";
+import { ApiError, getJson, type ApiPath } from "./api";
 
 export type Resource<T> =
   | { status: "loading" }
-  | { status: "error"; message: string }
+  | { status: "error"; message: string; httpStatus?: number }
   | { status: "ready"; data: T; fromSnapshot: boolean };
 
 export function useResource<T>(path: ApiPath): { state: Resource<T>; reload: () => void } {
@@ -19,7 +19,11 @@ export function useResource<T>(path: ApiPath): { state: Resource<T>; reload: () 
       .then((data) => setState({ status: "ready", data, fromSnapshot: SNAPSHOT }))
       .catch((error: unknown) => {
         if (controller.signal.aborted) return;
-        setState({ status: "error", message: error instanceof Error ? error.message : String(error) });
+        setState({
+          status: "error",
+          message: error instanceof Error ? error.message : String(error),
+          httpStatus: error instanceof ApiError ? error.status : undefined,
+        });
       });
     return () => controller.abort();
   }, [path, attempt]);
