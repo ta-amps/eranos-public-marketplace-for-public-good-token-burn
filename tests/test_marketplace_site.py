@@ -51,6 +51,9 @@ for (const [name, method, pathname, body] of requests) {
     type: response.headers.get("content-type") || "",
     csp: response.headers.get("content-security-policy") || "",
     frame: response.headers.get("x-frame-options") || "",
+    allow: response.headers.get("allow") || "",
+    cache: response.headers.get("cache-control") || "",
+    cors: response.headers.get("access-control-allow-origin") || "",
     body: method === "HEAD" ? "" : await response.text(),
   };
 }
@@ -313,6 +316,44 @@ def test_unknown_addresses_answer_404_with_the_app_view() -> None:
         assert out[name]["type"].startswith("text/html"), name
     assert out["asset"]["status"] == 200 and "json" in out["asset"]["type"]
     assert out["favicon"]["status"] == 200
+
+
+def test_broken_escapes_wrong_kit_links_and_read_only_routes_answer_plainly() -> None:
+    """Hunt, October 30, all read live first: a broken percent escape in an API path made the Worker throw, so
+    Cloudflare answered its bare "error code: 1101" 500 with no CORS headers; every kit address answered 200,
+    even one naming no kit; 405s on the read-only API had no Allow header; /connect.json set no cache rule."""
+    out = _worker(
+        [
+            ("kit_escape", "GET", "/api/catalog/%E0%A4%A", None),
+            ("noun_escape", "GET", "/api/nouns/eranos.instructions/%E0%A4%A", None),
+            ("noun_ok", "GET", "/api/nouns/eranos.instructions/site", None),
+            ("kit_page", "GET", "/catalog/KIT-SHIFT-05", None),
+            ("kit_page_slash", "GET", "/catalog/KIT-SHIFT-05/", None),
+            ("kit_page_missing", "GET", "/catalog/KIT-SHIFT-99", None),
+            ("kit_page_lower", "GET", "/catalog/kit-shift-05", None),
+            ("kit_page_escape", "GET", "/catalog/%E0%A4%A", None),
+            ("kit_page_head", "HEAD", "/catalog/NOPE-KIT-99", None),
+            ("post_api", "POST", "/api/catalog", {}),
+            ("connect_json", "GET", "/connect.json", None),
+            ("post_connect", "POST", "/connect.json", {}),
+        ]
+    )
+    for name in ("kit_escape", "noun_escape"):
+        assert out[name]["status"] == 400, name
+        assert out[name]["type"] == "application/problem+json", name
+        assert json.loads(out[name]["body"])["code"] == "invalid_request", name
+        assert out[name]["cors"] == "*", name
+    assert out["noun_ok"]["status"] == 200
+    for name in ("kit_page", "kit_page_slash"):
+        assert out[name]["status"] == 200, name
+    for name in ("kit_page_missing", "kit_page_lower", "kit_page_escape", "kit_page_head"):
+        assert out[name]["status"] == 404, name
+        assert out[name]["type"].startswith("text/html"), name
+    # The 404 body is still the app shell, whose "Kit unavailable" view explains and links back.
+    assert '<div id="root">' in out["kit_page_missing"]["body"]
+    assert out["post_api"]["status"] == 405 and out["post_api"]["allow"] == "GET, HEAD"
+    assert out["post_connect"]["status"] == 405 and out["post_connect"]["allow"] == "GET, HEAD"
+    assert out["connect_json"]["status"] == 200 and "no-store" in out["connect_json"]["cache"]
 
 
 def _descriptor() -> dict[str, Any]:
