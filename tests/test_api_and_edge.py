@@ -694,6 +694,9 @@ def test_invalid_kit_id_is_rejected_with_400(client: TestClient) -> None:
         resp = client.get(f"/api/catalog/{bad}")
         assert resp.status_code in {400, 404}
     assert client.get("/api/catalog/bad..id").status_code == 400
+    # Hunt, October 30: `re.match` with `$` let a trailing newline through, which the Worker refuses.
+    assert client.get("/api/catalog/KIT-GRANT-04%0A").status_code == 400
+    assert client.get("/api/nouns/eranos.instructions/site%0A").status_code == 404
 
 
 def test_edge_lockdown_blocks_direct_origin_requests(
