@@ -12,8 +12,8 @@ Eranos API on Fly.io (`API_ORIGIN`, default `https://eranos-api.fly.dev`):
 
 ## Shared single-domain custom subdomain
 
-To bind `eranos.<your-domain>` alongside `shamash.<your-domain>` and `tessera.<your-domain>` on a single
-Cloudflare zone:
+Eranos is one of exactly two public surfaces; Tessera, like Herma, is infrastructure. To bind
+`eranos.<your-domain>` alongside `tessera.<your-domain>` on a single Cloudflare zone:
 
 1. Uncomment `"routes"` in [`wrangler.jsonc`](wrangler.jsonc) and set `"pattern": "eranos.<your-domain>"`.
 2. Set `CUSTOM_DOMAIN="eranos.<your-domain>"` and `HEALTH_URL="https://eranos.<your-domain>/api/health"` in

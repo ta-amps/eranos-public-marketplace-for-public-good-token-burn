@@ -27,7 +27,8 @@ kits.
 - Eranos's own `/healthz` and `/api/health` describe only the Eranos worker. They answer `ok` even when Tessera
   is unavailable, so they are not a full health check.
 
-Agora, the ta-amps overview repository, records dated status across all of the repositories.
+Agora, the single overview and the other public surface besides Eranos, records dated status across all of the
+repositories. Tessera and Herma are infrastructure; everything else is nouns and verbs in seed packs.
 
 ## Known limits
 

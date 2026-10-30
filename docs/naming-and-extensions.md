@@ -1,27 +1,31 @@
 # Naming, Mythology & Extending Eranos
 
-## Why the three projects carry ancient civic and mythological names
+## Why the surfaces and the infrastructure carry ancient civic names
 
-Each surface in this stack is named for a concrete ancient practice or guardian figure that matches its
-exact technical boundary:
+The two public surfaces, Eranos and Agora, and the infrastructure under them, Tessera and Herma, are each named
+for a concrete ancient practice that matches its exact technical boundary:
 
-| Repo / Surface | Origin | Meaning & Architectural Fit |
+| Name | Origin | Meaning & Architectural Fit |
 |---|---|---|
-| **Tessera** | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
-| **Shamash** | Mesopotamian (*Šamaš* / Sumerian *Utu*) | The sun-judge who sees across borders, condemns false weights and ruinous lending, and protects travellers on the road -- matching cross-document and payment arithmetic verification without reckless accusation. |
-| **Eranos** | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need -- matching people donating unused AI tokens to build, test, and independently review off-the-shelf agent skills, tools, files, and agentic processes for NGOs and the public good. |
+| **Eranos** (surface) | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need -- matching the two-sided marketplace where people donate spare AI capacity to build, test, and independently review agent kits for NGOs, nonprofits, and public-good groups. |
+| **Agora** (surface) | Ancient Greek (*ἀγορά*) | The open public square where a city gathered and saw what was on offer -- matching the single overview of architecture and setup, use cases, connecting any agent, and contributing. |
+| **Tessera** (infrastructure) | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
+| **Herma** (infrastructure) | Classical Greek (*herma*) | An inscribed roadside waymarker carved with civic precepts and directions that travellers read on the way -- matching the infrastructure that connects agents to context and models. |
+
+Everything else is nouns and verbs in seed packs, agent kits included, and seed packs take no names. Each pack in
+the [pack library](https://github.com/ta-amps/pack-contributions) is named only for what it does, for example a
+collection of nouns and verbs for video and motion made with code. Home is not a surface; its address sends
+people to Agora.
 
 ---
 
-## Sibling mythological & legendary names (for forks, future surfaces, or domain packs)
+## Sibling mythological & legendary names (for forks or future surfaces)
 
 Organizations or teams adapting this stack for specialized public-good surfaces can rebrand via
 environment variables (`ERANOS_SURFACE_NAME`, `VITE_SURFACE_NAME`, `VITE_SURFACE_URL`) without editing
 source code. Below are the sibling names explored during design:
 
 ### Craftsmen, Tool-Forgers & Builders
-- **Kothar** (*Kothar-wa-Khasis*, Ugaritic/Canaanite -- *"Skillful and Wise"*): The divine smith and
-  architect who forges named, precision instruments to push back chaos and exploitation.
 - **Ilmarinen** (Finnic *Kalevala*): The eternal hammerer who forges the *Sampo* -- a self-sustaining
   civic mill of grain, salt, and coin for the common good.
 - **Hephaestus** (Greek) / **Vulcan** (Roman): Master builder of autonomous workshop tripods and tools
@@ -34,14 +38,14 @@ source code. Below are the sibling names explored during design:
 
 ### Scribes, Ledgers, Granaries & Blueprints
 - **Nisaba** (Sumerian/Mesopotamian): Goddess of reed-stylus writing, accounting tablets, fair boundary
-  surveys, and public granaries; direct Mesopotamian counterpart to **Shamash**.
+  surveys, and public granaries.
 - **Seshat** (Ancient Egyptian -- *"She Who Scribes"*): Keeper of blueprints, cord-stretching
   measurements, archives, and libraries who turns raw knowledge into buildable plans.
 - **Thoth** (Egyptian) / **Nabu** (Babylonian): Guardians of exact records, translations, and verified
   citations.
 
 ### Social Justice, Shelter & Honest Weights
-- **Nanshe** (Sumerian): Sister of Ningirsu and companion in justice to Utu/Shamash; inspects weights
+- **Nanshe** (Sumerian): Sister of Ningirsu and companion in justice to the sun god Utu; inspects weights
   and measures, protects widows, migrants, and orphans, and shelters refugees from debt bondage.
 - **Ma'at** (Egyptian): Cosmic balance, truth, and calibrated feather-weight verification -- ideal for
   deterministic evaluation suites and twin-case benchmarks.
@@ -53,7 +57,7 @@ source code. Below are the sibling names explored during design:
 ### Commons, Mutual Aid & Safe Passage
 - **Xenia** (Greek) / **Hospitium** (Roman): Sacred duty of safe hospitality and protection for
   strangers and travellers.
-- **Agora** (Greek) / **Forum** (Roman): Open civic assembly and public catalog of shared tools.
+- **Forum** (Roman): The open civic assembly; its Greek counterpart, *agora*, already names the public square.
 - **Ayni** (Quechua / Andean) & **Minga** (Andean): Reciprocal community labor where neighbors pool
   effort to build shared infrastructure (bridges, storehouses, terraces).
 - **Bayanihan** (Filipino) & **Yui** (Japanese): Collective neighborhood mutual aid -- directly resonant
@@ -78,6 +82,6 @@ source code. Below are the sibling names explored during design:
      zero-infrastructure spreadsheets or printed field playbooks
 3. **Separate root domains OR shared-domain subdomains**:
    - Configure `CUSTOM_DOMAIN` in `deploy/hosting.env` + `routes` in `deploy/cloudflare/wrangler.jsonc`
-     to bind either dedicated domains (`eranos.org`, `shamash.org`) or subdomains (`eranos.example.org`,
-     `shamash.example.org`, `tessera.example.org`), and pass `VITE_SURFACE_URL`, `VITE_SIBLING_URL`, and
+     to bind either a dedicated domain (`eranos.org`) or subdomains (`eranos.example.org`,
+     `tessera.example.org`), and pass `VITE_SURFACE_URL`, `VITE_SIBLING_URL`, and
      `VITE_TESSERA_URL` at build time.

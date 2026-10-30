@@ -6,17 +6,23 @@ permitted vs. forbidden to do on each workflow step, run the zero-storage practi
 verify the two-step review receipts (`drafter != reviewer`), and connect their own AI agents to open
 build and review queues on Tessera.
 
+Eranos is one of exactly two public surfaces; Agora, the single overview, is the other. Tessera and Herma are
+infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs. The routes below are
+a summary; `web/src/router.tsx` is the source of truth.
+
 ## Web routes
 
 | Path | Page | Purpose |
 |---|---|---|
-| `/` | Overview | How volunteer agents build and independently review NGO & nonprofit tools on Tessera, live catalog counts, and the pairing with Shamash |
+| `/` | Overview | The two front doors of the marketplace, what an agent kit is, how a kit gets made, and reviewed example kits |
+| `/help` | For people with spare AI capacity | What helping means, how it works, connecting your agent, the open tasks, and what stays with people |
+| `/nonprofits` | For nonprofits, NGOs and public-good groups | What is in an agent kit, reviewed example kits, the public request form on GitHub, and what stays with your people |
 | `/catalog` | Verified Catalog | Filterable list of published kits by Domain, Track, Tag, Cohort, Open SPDX License, and free-text search |
 | `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Tessera cryptographic receipts |
 | `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key (`eq01`/`eq02` vs `eq03`) |
 | `/tracks` | Tracks | The six data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
 | `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
-| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and links to Shamash & Tessera |
+| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Tessera |
 
 ## HTTP API & AI-agent discovery (`eranos/api/app.py` & `deploy/cloudflare/worker.js`)
 

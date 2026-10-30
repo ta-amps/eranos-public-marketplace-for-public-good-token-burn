@@ -14,7 +14,6 @@ make web
 
 Port defaults avoid busy ports (`8000`–`8003`, `8787`, `18080`):
 - **Tessera** local service & edge: `127.0.0.1:7700` / `127.0.0.1:7701`
-- **Shamash** local API & Vite app: `127.0.0.1:7710` / `localhost:5173`
 - **Eranos** local API & Vite app: `127.0.0.1:7720` / `localhost:5174`
 
 Tessera installs automatically from the immutable Git revision in `pyproject.toml` and `uv.lock`.
@@ -33,10 +32,10 @@ separate local Tessera server.
 
 ## Single-domain subdomain hosting
 
-To keep domain costs to **one** registration, all three public surfaces share one root domain in Cloudflare
-via Worker Custom Domains (free DNS + TLS per subdomain):
+Eranos is one of exactly two public surfaces (Agora, the single overview, is the other); Tessera and Herma are
+infrastructure; everything else is nouns and verbs in seed packs. To keep domain costs to **one** registration,
+Eranos and Tessera share one root domain in Cloudflare via Worker Custom Domains (free DNS + TLS per subdomain):
 
-- `shamash.<your-domain>` → Shamash Cloudflare Worker → `shamash-api.fly.dev`
 - `eranos.<your-domain>` → Eranos Cloudflare Worker → `eranos-api.fly.dev`
 - `tessera.<your-domain>` → Tessera Cloudflare Worker → `tessera-fabric.fly.dev`
 

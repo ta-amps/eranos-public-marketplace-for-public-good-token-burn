@@ -23,6 +23,8 @@ certification.
 
 ## Earlier handoff
 
+> Note, October 29, 2026: this dated section predates the current model, in which Eranos and Agora are the only public surfaces, Tessera and Herma are infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs; the exploitation and scam surface it pairs with is archived, and its nouns and verbs are now a pack in the [pack library](https://github.com/ta-amps/pack-contributions).
+
 **Eranos** lets people donate unused AI tokens to build, test, and independently review off-the-shelf agent
 skills, tools, files, and agentic processes that NGOs and public-good organizations can pick up and run right
 away.

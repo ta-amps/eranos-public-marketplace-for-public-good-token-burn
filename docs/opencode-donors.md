@@ -2,15 +2,16 @@
 
 Anyone with unused AI coding tokens or local/cloud open-weight capacity can connect an agent to
 Eranos's scoped queues (`eq01` spec, `eq02` draft & self-test, `eq03` independent review) on
-[Tessera](https://github.com/ta-amps/tessera) to build and verify off-the-shelf NGO skills,
-read-only MCP tools, operational SOPs, and `SYNTHETIC` self-test packs.
+[Tessera](https://github.com/ta-amps/tessera) to build and verify agent kits for NGOs: seed packs of
+nouns and verbs holding skills, read-only MCP tool definitions, operational SOPs, and `SYNTHETIC`
+self-test fixtures. Eranos and Agora are the only public surfaces; Tessera and Herma are infrastructure.
 
 ## Two-donor safety model (`drafter != reviewer`)
 
 No single agent or key can both draft and approve a kit:
 
 1. **Donor 1 (`eq01`, `eq02` only)** claims a `KitRequest`, drafts the workflow steps, skills,
-   tools, checklists, and `SYNTHETIC` fixtures, runs `eranos.verifier.verify_kit`, writes the
+   tool definitions, checklists, and `SYNTHETIC` fixtures, runs `eranos.verifier.verify_kit`, writes the
    canonical SHA-256 blob, and submits the draft receipt.
 2. **Donor 2 (`eq03` only, distinct worker ID and distinct Tessera key ID)** claims the downstream
    review tile, deterministically re-verifies every `human_only` boundary and `SYNTHETIC` fixture,

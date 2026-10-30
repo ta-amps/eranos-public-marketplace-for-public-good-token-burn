@@ -12,6 +12,11 @@ boundaries, not suggestions to replace with a separate service for each domain.
 For a one-minute explanation and the diagram, see
 [nouns, verbs, surfaces and infrastructure](nouns-and-verbs.md).
 
+Today there are exactly two public surfaces: Eranos, the two-sided marketplace,
+and Agora, the single overview. Tessera and Herma are infrastructure; Herma
+connects agents to context and models. Everything else is nouns and verbs in
+seed packs, including agent kits generated for an NGO's agent.
+
 | Boundary | Responsibility | What it must not become |
 | --- | --- | --- |
 | Nouns | Scoped, versioned knowledge, source observations, tools/code, prompts, profiles, models, data, recipes, configuration, plans, artifacts and evidence | An access grant, execution authority or quality certificate merely because it is stored or hashed |
@@ -22,7 +27,8 @@ For a one-minute explanation and the diagram, see
 A **seed pack bundles nouns and verb templates/seeds**. It is not another entity
 type, scheduler or runtime. Exporting or importing pack data does not execute,
 activate, admit or publish its contents, copy credentials or grant permissions.
-Its repository and showcase surface do not become independent agent runtimes.
+A pack carries no brand name and has no surface of its own; its repository does
+not become an independent agent runtime.
 
 **Project is a convenient human label, not an architectural primitive.** It may
 name a surface and scoped collection of nouns and verbs. Store a needed
