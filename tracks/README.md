@@ -14,3 +14,4 @@ track IDs; adding a new track is pure data.
 | `intake-and-referral-triage` | `nonprofit_ops` | Open Referral HSDS community service matching and warm-referral prep |
 | `grant-and-compliance-ops` | `nonprofit_ops` | Restricted grant ledger reconciliation & audit-readiness prep for small nonprofits |
 | `volunteer-shift-and-sop-builder` | `nonprofit_ops` | Volunteer shift checklists, multilingual role cards, and human escalation SOPs |
+| `program-impact-reporting` | `nonprofit_ops` | Monthly program impact reports and funding impact summaries with every figure traced and every gap visible |

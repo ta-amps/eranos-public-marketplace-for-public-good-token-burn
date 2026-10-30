@@ -14,9 +14,10 @@ from eranos.verifier import verify_kit
 CODE_DIR = Path(__file__).resolve().parent.parent / "eranos"
 
 
-def test_all_six_tracks_load_across_both_domains() -> None:
+def test_every_track_loads_across_both_domains() -> None:
     tracks = load_tracks()
-    assert len(tracks) == 6
+    files = sorted((CODE_DIR.parent / "tracks").glob("*/track.json"))
+    assert len(tracks) == len(files) >= 6
     domains = {t.domain for t in tracks.values()}
     assert domains == {"anti_exploitation", "nonprofit_ops"}
     for pack in tracks.values():

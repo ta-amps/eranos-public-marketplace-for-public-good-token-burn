@@ -134,7 +134,10 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
     assert "/help: I want to help." in llms
     assert "/nonprofits: I'm an NGO looking for agentic solutions." in llms
     assert json.loads(out["health"]["body"])["surface"] == "eranos"
-    assert len(json.loads(out["catalog"]["body"])["kits"]) == 5
+    snapshot_kits = json.loads(
+        (ROOT / "web" / "public" / "snapshot" / "catalog.json").read_text(encoding="utf-8")
+    )["kits"]
+    assert len(json.loads(out["catalog"]["body"])["kits"]) == len(snapshot_kits) >= 5
     assert out["missing_api"]["status"] == 404
     assert "json" in out["missing_api"]["type"]
     tools = json.loads(out["mcp"]["body"])["result"]["tools"]

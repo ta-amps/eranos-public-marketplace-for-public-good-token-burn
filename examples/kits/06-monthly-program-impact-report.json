@@ -1,0 +1,48 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-monthly-impact-report",
+    "kit": {
+      "store": "seedpack.kit-monthly-impact-report",
+      "key": "kit-monthly-impact-report.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "ce133f88abdd8074ffbc73e76b255ea5032a0802103634d4d310ea95056c64de"
+    },
+    "request": {
+      "store": "seedpack.kit-monthly-impact-report",
+      "key": "kit-monthly-impact-report.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "99c8cf829ba7367495e7cb8d759da3fed47ff3e83ad6c6885b8f24406f5a7eae"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-IMPACT-06",
+    "track_id": "program-impact-reporting",
+    "deliverable_kind": "full_kit",
+    "needs_steward_signoff": false,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:program-impact-reporting",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "review": {
+    "kit_id": "KIT-IMPACT-06",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff."
+  }
+}

@@ -41,7 +41,7 @@ export function Nonprofits() {
         <KitParts />
         <p className="er-muted er-measure">{WHOLE_SETUP}</p>
         <p className="er-muted er-measure er-mt-10">
-          The five examples below hold instructions, skills, knowledge, connections, a step map, and checks and
+          The examples below hold instructions, skills, knowledge, connections, a step map, and checks and
           tests. None of them includes agent settings yet.
         </p>
       </section>

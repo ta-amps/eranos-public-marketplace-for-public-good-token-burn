@@ -215,7 +215,7 @@ test("/help falls back to selected text when the clipboard refuses", async ({ pa
   expect(selection).toEqual([0, expected.length]);
 });
 
-test("/nonprofits explains agent kits, shows the five reviewed examples and the request form", async ({ page }) => {
+test("/nonprofits explains agent kits, shows every reviewed example and the request form", async ({ page }) => {
   await page.goto("/nonprofits");
   const main = page.locator("main");
   await expect(main).toContainText(
@@ -229,7 +229,7 @@ test("/nonprofits explains agent kits, shows the five reviewed examples and the 
 
   const kits = page.getByTestId("example-kit");
   await expect(kits).toHaveCount(KIT_IDS.length);
-  expect(KIT_IDS.length).toBe(5);
+  expect(KIT_IDS.length).toBeGreaterThanOrEqual(5);
   for (let i = 0; i < KIT_IDS.length; i += 1) {
     const stepMap = kits.nth(i).locator("ul.er-stepmap");
     await expect(stepMap.getByText("Person only").first()).toBeVisible();

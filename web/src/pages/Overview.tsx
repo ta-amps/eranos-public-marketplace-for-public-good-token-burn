@@ -42,7 +42,7 @@ export function Overview() {
       <section className="er-section" aria-labelledby="examples-title">
         <h2 id="examples-title">Reviewed example kits</h2>
         <p className="er-muted er-measure er-mb-12">
-          Five examples, built and reviewed with synthetic data. Each one shows which steps an agent drafts and
+          Examples built and reviewed with synthetic data. Each one shows which steps an agent drafts and
           which stay with a person.
         </p>
         {catalog.state.status === "loading" && <p className="er-muted">Loading example kits...</p>}

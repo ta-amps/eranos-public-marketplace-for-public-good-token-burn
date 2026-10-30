@@ -25,6 +25,7 @@ from eranos.pipeline import (
     submit_kit_request,
 )
 from eranos.schemas import KitRequest, ReviewDecision
+from eranos.tracks import get_track, load_tracks
 
 SECRET = "edge-secret-for-tests-only"  # check-public: allow
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -46,11 +47,11 @@ def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
 def test_api_serves_tracks_catalog_requests_and_fabric(client: TestClient) -> None:
     assert client.get("/api/health").json()["surface"] == "eranos"
     tracks = client.get("/api/tracks").json()
-    assert len(tracks["tracks"]) == 6
+    assert len(tracks["tracks"]) == len(load_tracks())
 
     cat = client.get("/api/catalog").json()
     assert cat["two_step_verified"] is True
-    assert len(cat["kits"]) == 5
+    assert len(cat["kits"]) == len(load_example_bundles())
 
     detail = client.get("/api/catalog/KIT-RECRUIT-01")
     assert detail.status_code == 200
@@ -75,11 +76,13 @@ def test_api_serves_tracks_catalog_requests_and_fabric(client: TestClient) -> No
 def test_catalog_filtering_cohorts_spdx_tags_and_quarantine(client: TestClient) -> None:
     # Combinable domain, track, tag, spdx, and free-text query filters
     nonprofit = client.get("/api/catalog?domain=nonprofit_ops").json()["kits"]
-    assert {k["kit"]["kit_id"] for k in nonprofit} == {
-        "KIT-INTAKE-03",
-        "KIT-GRANT-04",
-        "KIT-SHIFT-05",
+    expected = {
+        b["request"]["kit_id"]
+        for b in load_example_bundles()
+        if get_track(b["request"]["track_id"]).domain == "nonprofit_ops"
     }
+    assert {"KIT-INTAKE-03", "KIT-GRANT-04", "KIT-SHIFT-05"} <= expected
+    assert {k["kit"]["kit_id"] for k in nonprofit} == expected
 
     hotline = client.get("/api/catalog?track=coerced-work-hotline-routing").json()["kits"]
     assert [k["kit"]["kit_id"] for k in hotline] == ["KIT-HOTLINE-02"]
@@ -136,8 +139,9 @@ def test_catalog_filtering_cohorts_spdx_tags_and_quarantine(client: TestClient) 
 
     # Omitted ?cohort= MUST return ONLY universal ("all") kits
     default_ids = {k["kit"]["kit_id"] for k in client.get("/api/catalog").json()["kits"]}
+    universal = len(load_example_bundles())
     assert "KIT-COHORT-88" not in default_ids
-    assert len(default_ids) == 5
+    assert len(default_ids) == universal
 
     # Explicit ?cohort=ngo_closed_pilot returns universal ("all") OR "ngo_closed_pilot"
     pilot_ids = {
@@ -145,14 +149,14 @@ def test_catalog_filtering_cohorts_spdx_tags_and_quarantine(client: TestClient) 
         for k in client.get("/api/catalog?cohort=ngo_closed_pilot").json()["kits"]
     }
     assert "KIT-COHORT-88" in pilot_ids
-    assert len(pilot_ids) == 6
+    assert len(pilot_ids) == universal + 1
 
     # Unrelated cohort returns only universal ("all") kits
     other_ids = {
         k["kit"]["kit_id"] for k in client.get("/api/catalog?cohort=other_coalition").json()["kits"]
     }
     assert "KIT-COHORT-88" not in other_ids
-    assert len(other_ids) == 5
+    assert len(other_ids) == universal
 
 
 def test_practice_api_zero_storage_gate(client: TestClient) -> None:
@@ -179,7 +183,7 @@ def test_practice_api_zero_storage_gate(client: TestClient) -> None:
 
     # Catalog must remain completely untouched
     assert client.get("/api/catalog/KIT-DRYRUN-99").status_code == 404
-    assert len(client.get("/api/catalog").json()["kits"]) == 5
+    assert len(client.get("/api/catalog").json()["kits"]) == len(load_example_bundles())
 
 
 def test_agent_discovery_and_stateless_mcp_even_under_edge_lockdown(
@@ -252,7 +256,7 @@ def test_agent_discovery_and_stateless_mcp_even_under_edge_lockdown(
         },
     )
     assert tracks_call.status_code == 200
-    assert len(tracks_call.json()["result"]["structuredContent"]["tracks"]) == 6
+    assert len(tracks_call.json()["result"]["structuredContent"]["tracks"]) == len(load_tracks())
 
     search_call = client.post(
         "/mcp",

@@ -1,0 +1,37 @@
+{
+  "id": "program-impact-reporting",
+  "title": "Program Impact and Funding Reports",
+  "domain": "nonprofit_ops",
+  "summary": "Helps small nonprofits turn their own program records into monthly impact reports and funding impact summaries with every figure traced and every gap visible, while staff check the figures, approve the text and share or submit it.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Community nonprofit with program staff and a small board",
+      "serves": "Program managers, executive directors, boards and funders",
+      "mandate": "Report what programs did and achieved honestly, with every number traceable to the organization's own records"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "csv_template",
+    "markdown_sop",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "individual_decision",
+    "external_send"
+  ],
+  "never": [
+    "Invent, estimate or round away a missing number",
+    "Quote a participant without staff approval, or with a name",
+    "Share or submit a report on the organization's behalf"
+  ],
+  "sources": [
+    {
+      "title": "eCFR: 2 CFR 200.329, Monitoring and reporting program performance",
+      "url": "https://www.ecfr.gov/current/title-2/section-200.329",
+      "checked_date": "2026-10-30"
+    }
+  ]
+}

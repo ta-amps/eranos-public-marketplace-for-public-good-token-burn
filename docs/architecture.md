@@ -42,7 +42,7 @@ flowchart LR
 | Copy & topic guards | `eranos/copy.py` | Blocks accusatory labels against people/organizations and blocks surveillance, scraping, or personal-data-harvesting kit topics | neutral |
 | Schemas & records | `eranos/schemas/tracks.py`, `eranos/schemas/records.py` | Strict Pydantic records (`extra="forbid"`): `TrackPack`, `KitRequest`, `KitDraft`, `AgentSkillSpec`, `MCPToolSpec`, `PublishedKit`, `TaskBrief` | neutral |
 | Strict JSON loader | `eranos/jsonfile.py` | Loads track packs, kit bundles, and briefs while rejecting duplicate keys and `NaN`/`Infinity` | neutral |
-| Track registry & packs | `eranos/tracks.py`, `tracks/` | Loads the six NGO and nonprofit tracks; neutral Python code names zero track IDs | data is specific |
+| Track registry & packs | `eranos/tracks.py`, `tracks/` | Loads the NGO and nonprofit tracks; neutral Python code names zero track IDs | data is specific |
 | Deterministic verifier | `eranos/verifier.py` | Verifies step autonomy boundaries, required `human_only` kinds, MCP JSON Schema shape, HTTPS source citations, non-accusatory copy, and `SYNTHETIC` fixtures | neutral |
 | Queues | `eranos/queues/stages.py` | Defines `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) stage configs on Tessera | neutral |
 | Two-step pipeline | `eranos/pipeline/run.py`, `examples/kits/` | Runs `spec -> draft -> review`, stores canonical SHA-256 blobs, enforces `drafter != reviewer` and defense-in-depth re-verification, supports steward `park`/`resume`, and publishes via atomic CAS batch | neutral |
@@ -72,11 +72,12 @@ flowchart LR
 | E1 | No kit, track, or fixture accuses a party or requests surveillance, scraping, or personal-data harvesting | `test_accusatory_words_are_blocked`, `test_prohibited_collection_topics_are_blocked` |
 | E2 | Interviews, crisis safety plans, legal judgments, individual decisions, and external transmissions stay human_only | `test_interviews_and_decisions_must_stay_human_only`, `test_verifier_catches_missing_track_required_human_only_kind` |
 | E3 | Every fixture carries the SYNTHETIC mark and strict JSON files refuse duplicate keys and NaN | `test_synthetic_fixture_requires_synthetic_mark`, `test_strict_json_rejects_duplicate_keys_and_nan` |
-| E4 | Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data | `test_all_six_tracks_load_across_both_domains`, `test_neutral_code_names_no_track_or_kit_id`, `test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes` |
+| E4 | Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data | `test_every_track_loads_across_both_domains`, `test_neutral_code_names_no_track_or_kit_id`, `test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes` |
 | E5 | Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Tessera key ID | `test_published_kit_refuses_same_drafter_and_reviewer`, `test_self_review_by_same_worker_or_key_is_refused` |
 | E6 | Unverified drafts cannot be published even if an upstream worker forges a verification report | `test_unverified_draft_cannot_be_approved`, `test_every_example_kit_passes_deterministic_verifier` |
 | E7 | Sensitive kits park on Tessera for human nonprofit steward sign-off and publish atomically via CAS upon resume | `test_steward_signoff_parks_and_resumes_on_tessera`, `test_two_step_pipeline_publishes_verified_kit_to_cas_store` |
 | E8 | Agent briefs never carry public effect, API routes reject invalid kit IDs and unauthenticated origin traffic, and private names never leak | `test_agent_brief_refuses_public_effect`, `test_check_public_passes_cleanly`, `test_invalid_kit_id_is_rejected_with_400`, `test_edge_lockdown_blocks_direct_origin_requests` |
+| E9 | A referenced example kit takes its content only from its seed pack: every pin matches the noun's digest, and every step matches its verb template's title and claimant | `test_a_changed_library_noun_is_refused`, `test_the_example_cannot_carry_kit_content`, `test_each_step_must_match_its_verb_template` |
 
 ## Trust boundaries
 

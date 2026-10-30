@@ -36,7 +36,7 @@ the permissions. Home is not a surface; its address sends people to Agora.
 
 ![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
-In Eranos, the nouns are the six tracks, the task briefs, the agent kits, their synthetic test cases and the review
+In Eranos, the nouns are the tracks, the task briefs, the agent kits, their synthetic test cases and the review
 records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
 sensitive kits. [More detail](docs/nouns-and-verbs.md).
 
@@ -49,7 +49,7 @@ cloud account is needed.
 git clone https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn.git && cd eranos-public-marketplace-for-public-good-token-burn
 make setup             # install the Python and web packages
 make check             # lint, types, tests, secret scan, index and architecture checks
-make verify-examples   # build, check and review the five example kits on your machine
+make verify-examples   # build, check and review every example kit on your machine
 make web               # local API on http://127.0.0.1:7720 and web app on http://localhost:5174
 ```
 
@@ -103,12 +103,16 @@ A kit is nouns and verbs like everything else, not a separate kind of thing. The
 The step map's agent steps are the kit's verbs; its person-only steps stay with people. Each reviewed kit is
 stored as one versioned record in Tessera (`eranos.catalog`).
 
-There are six [tracks](tracks/README.md). Three are anti-exploitation kits built on harm patterns that now live in
+The [tracks](tracks/README.md) are data files. Three are anti-exploitation kits built on harm patterns that now live in
 the pack library, in its [collection of nouns and verbs for spotting exploitation and scams](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence)
 in synthetic cases, never accusing anyone: job offers and recruitment fees, helpline routing for coerced work and
-scam compounds, and rental-deposit and disaster-charity checks. Three cover everyday nonprofit work: a
-multilingual service finder with warm referrals, restricted grants and audit readiness, and volunteer shift
-onboarding with incident steps.
+scam compounds, and rental-deposit and disaster-charity checks. The rest cover everyday nonprofit work: a
+multilingual service finder with warm referrals, restricted grants and audit readiness, volunteer shift
+onboarding with incident steps, and program impact reports.
+
+Newer example kits point at a seed pack in the [library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)
+instead of repeating its content: the example keeps only this catalog's fields and the exact pins of the pack's kit
+and example request nouns, so each kit has one source. See [examples/kits/README.md](examples/kits/README.md).
 
 ## Rules that never bend
 

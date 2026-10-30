@@ -22,6 +22,12 @@ jobs:
           ref: ecca97deb88b82e627df66c98400b3a302e2bdb0
           path: tessera-infrastructure-work-and-storage-engine
           token: ${{ secrets.TESSERA_READ_TOKEN || github.token }}
+      - name: Seed-pack library that the referenced example kits point at
+        uses: actions/checkout@v4
+        with:
+          repository: ta-amps/seed-packs-library-of-nouns-and-verbs
+          ref: f99ae4fad940cf2f80b5de197c7731e6038c08d2
+          path: seed-packs-library-of-nouns-and-verbs
       - uses: actions/setup-node@v4
         with:
           node-version: 22

@@ -276,7 +276,7 @@ def cmd_donor_demo(*, live_ollama: bool, model: str, base_url: str) -> int:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="eranos", description=__doc__)
     sub = parser.add_subparsers(dest="cmd", required=True)
-    sub.add_parser("tracks", help="List the six public-good build tracks")
+    sub.add_parser("tracks", help="List the public-good build tracks")
     ver = sub.add_parser(
         "verify-examples", help="Run the two-step Tessera pipeline on example kits"
     )

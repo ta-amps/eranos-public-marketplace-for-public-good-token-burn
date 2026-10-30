@@ -28,6 +28,7 @@ from eranos.pipeline.publication import (
     publication_digest,
     recover_publications,
 )
+from eranos.pipeline.seed_packs import resolve_bundle
 from eranos.queues import QUEUE_CONFIGS
 from eranos.schemas import (
     KitDraft,
@@ -1111,9 +1112,18 @@ def get_published_kit(
     return entry
 
 
-def load_example_bundles(examples_dir: Path | None = None) -> list[dict[str, Any]]:
-    folder = examples_dir or (Path(__file__).resolve().parents[2] / "examples" / "kits")
-    return [load_json(p) for p in sorted(folder.glob("*.json"))]
+EXAMPLES_DIR = Path(__file__).resolve().parents[2] / "examples" / "kits"
+
+
+def example_paths(examples_dir: Path | None = None) -> list[Path]:
+    return sorted((examples_dir or EXAMPLES_DIR).glob("*.json"))
+
+
+def load_example_bundles(
+    examples_dir: Path | None = None, *, seed_packs_dir: Path | None = None
+) -> list[dict[str, Any]]:
+    """Example bundles in file order; one that names a seed pack is composed from the library."""
+    return [resolve_bundle(load_json(p), root=seed_packs_dir) for p in example_paths(examples_dir)]
 
 
 __all__ = [
@@ -1126,6 +1136,7 @@ __all__ = [
     "UnverifiedKitRefused",
     "enrich_governance_tags",
     "ensure_queues",
+    "example_paths",
     "filter_published_kits",
     "get_published_kit",
     "list_published_kits",

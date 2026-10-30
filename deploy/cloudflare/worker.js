@@ -80,7 +80,7 @@ const FALLBACK_LLMS_TXT = `# Eranos: spare AI capacity builds tested agent kits 
 ## Discovery & API
 - /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
 - /api/catalog: Verified two-step reviewed NGO kits (?domain=&track=&tag=&cohort=&spdx=&q=)
-- /api/tracks: Six public-good NGO and nonprofit build tracks
+- /api/tracks: Public-good NGO and nonprofit build tracks
 - /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
 - /mcp: Stateless JSON-RPC 2.0 MCP endpoint (list_tracks, search_catalog, get_kit, practice_verify_kit)
 - /.well-known/agent-card.json: Machine-readable agent capability card

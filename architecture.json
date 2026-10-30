@@ -108,7 +108,7 @@
       ],
       "kind": "data",
       "domain": "mixed",
-      "role": "Loads the six anti-exploitation NGO and general nonprofit operations tracks from JSON data packs",
+      "role": "Loads the anti-exploitation NGO and general nonprofit operations tracks from JSON data packs",
       "depends_on": [
         "jsonfile",
         "records"
@@ -150,7 +150,7 @@
       ],
       "kind": "worker",
       "domain": "neutral",
-      "role": "Runs eq01 -> eq02 -> eq03, stores canonical SHA-256 blobs, enforces drafter != reviewer and deterministic re-verification, parks/resumes for steward sign-off, and writes atomically via CAS",
+      "role": "Runs eq01 -> eq02 -> eq03, stores canonical SHA-256 blobs, enforces drafter != reviewer and deterministic re-verification, parks/resumes for steward sign-off, and writes atomically via CAS; composes example kits that point at seed packs from the library, refusing any pin or step that drifted",
       "depends_on": [
         "jsonfile",
         "queues",
@@ -159,7 +159,8 @@
         "verifier"
       ],
       "tests": [
-        "tests/test_pipeline.py"
+        "tests/test_pipeline.py",
+        "tests/test_seed_packs.py"
       ]
     },
     {
@@ -377,6 +378,16 @@
       "holds": [
         "timestamped Tessera verb calls and queue telemetry"
       ]
+    },
+    {
+      "id": "seed-pack-library",
+      "kind": "JSON files in another repository, read only",
+      "owned_by": "pipeline",
+      "location": "ERANOS_SEED_PACKS, default ../seed-packs-library-of-nouns-and-verbs",
+      "holds": [
+        "the kit, skill, tool card, file, checklist, source, test case and example request nouns of referenced example kits",
+        "the verb template behind each step of those kits"
+      ]
     }
   ],
   "boundaries": [
@@ -461,7 +472,7 @@
       "statement": "Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data",
       "enforced_by": "tracks",
       "checked_by": [
-        "tests/test_tracks_and_verifier.py::test_all_six_tracks_load_across_both_domains",
+        "tests/test_tracks_and_verifier.py::test_every_track_loads_across_both_domains",
         "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id",
         "tests/test_tracks_and_verifier.py::test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes"
       ]
@@ -502,6 +513,16 @@
         "tests/test_briefs_and_public.py::test_check_public_passes_cleanly",
         "tests/test_api_and_edge.py::test_invalid_kit_id_is_rejected_with_400",
         "tests/test_api_and_edge.py::test_edge_lockdown_blocks_direct_origin_requests"
+      ]
+    },
+    {
+      "id": "E9",
+      "statement": "A referenced example kit takes its content only from its seed pack: every pin matches the noun's digest, and every step matches its verb template's title and claimant",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_seed_packs.py::test_a_changed_library_noun_is_refused",
+        "tests/test_seed_packs.py::test_the_example_cannot_carry_kit_content",
+        "tests/test_seed_packs.py::test_each_step_must_match_its_verb_template"
       ]
     }
   ],
@@ -666,7 +687,7 @@
       "status": "built",
       "evidence": [
         "tracks/README.md",
-        "tests/test_tracks_and_verifier.py::test_all_six_tracks_load_across_both_domains",
+        "tests/test_tracks_and_verifier.py::test_every_track_loads_across_both_domains",
         "tests/test_tracks_and_verifier.py::test_neutral_code_names_no_track_or_kit_id"
       ],
       "verify": "uv run eranos tracks"

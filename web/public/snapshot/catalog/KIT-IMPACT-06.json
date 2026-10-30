@@ -1,0 +1,277 @@
+{
+  "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:program-impact-reporting",
+    "kind:full_kit",
+    "spdx:MIT",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma"
+  ],
+  "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:program-impact-reporting",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "kit_id": "KIT-IMPACT-06",
+    "track_id": "program-impact-reporting",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
+    "title": "Monthly Program Impact Report Kit",
+    "summary": "Turns a month of program records into an impact report: totals by measure, change from last month, results against targets, and missing numbers kept as unknown. The program manager checks every figure, and the executive director approves the report and shares it.",
+    "target_org": "Community nonprofit reporting monthly results to its board and partners",
+    "steps": [
+      {
+        "id": "total-month",
+        "title": "Total the month's program records by measure",
+        "kind": "arithmetic_check",
+        "boundary": "drafts",
+        "actor": "Report arithmetic agent",
+        "guidance": "Total sessions, people served and outcome check-ins for the month by measure, compare each with the month's target and with last month, and keep any missing count as unknown, never zero."
+      },
+      {
+        "id": "draft-impact-report",
+        "title": "Draft the monthly impact report",
+        "kind": "reporting_summary",
+        "boundary": "drafts",
+        "actor": "Report drafting agent",
+        "guidance": "Draft the report's sections: highlights, results against targets, changes from last month, what staff are watching, and next month. Every number comes from the results table, and no participant is quoted without staff approval."
+      },
+      {
+        "id": "check-figures",
+        "title": "Check every figure against the program records",
+        "kind": "figure_check",
+        "boundary": "human_only",
+        "actor": "Program manager",
+        "guidance": "The program manager traces each figure to the program's own records and corrects or removes any figure that cannot be traced."
+      },
+      {
+        "id": "approve-report",
+        "title": "Approve the report and how shortfalls are explained",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Executive director",
+        "guidance": "The executive director decides how shortfalls and changes are explained and approves the report."
+      },
+      {
+        "id": "share-report",
+        "title": "Share the report with the board and partners",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Executive director",
+        "guidance": "The executive director shares the approved report with the board and partners. The agent never sends or publishes the report."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "impact-report-drafter",
+        "description": "Drafts a monthly impact report from a results table, keeping every number traced to a measure and every gap visible.",
+        "boundary": "drafts",
+        "instructions": "Use the outline's sections and word limits: highlights, results against targets, changes from last month, what staff are watching, and next month. Take every number from the results table and cite its measure. Write missing numbers as not yet counted, and name the site they are missing from. Describe what was done and counted in plain words at an eighth-grade reading level, and never claim an outcome the records do not show. Use a participant quote only when staff have marked it approved, never with a name or a detail that could identify the person. Flag every measure below 90 percent of its target for the executive director's explanation.",
+        "refuses": [
+          "Inventing or estimating a missing number",
+          "Claiming outcomes the records do not show",
+          "Quoting a participant without staff approval",
+          "Sharing the report outside the organization"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [
+      {
+        "name": "summarize_month_by_measure",
+        "description": "Totals a month's program records by measure and compares each with its target and with last month, listing missing counts as unknown.",
+        "input_schema": {
+          "properties": {
+            "last_month": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "month": {
+              "pattern": "^[0-9]{4}-[0-9]{2}$",
+              "type": "string"
+            },
+            "records": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "targets": {
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "month",
+            "records",
+            "targets"
+          ],
+          "type": "object"
+        },
+        "output_fields": [
+          "totals_by_measure",
+          "percent_of_target",
+          "change_from_last_month",
+          "missing_counts"
+        ],
+        "read_only": true
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "monthly_results_table",
+        "title": "Monthly Results Table",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "One row per measure for the month: target, count, percent of target, last month, change and the record it came from. No participant details.",
+        "spec": {
+          "columns": [
+            "month",
+            "measure_id",
+            "measure",
+            "target",
+            "counted",
+            "percent_of_target",
+            "last_month",
+            "change",
+            "source_record"
+          ],
+          "pii_allowed": false
+        }
+      },
+      {
+        "name": "impact_report_outline",
+        "title": "Monthly Impact Report Outline",
+        "artifact_format": "markdown_sop",
+        "boundary": "drafts",
+        "summary": "Five-section outline for the monthly report, with every number drawn from the results table.",
+        "spec": [
+          "1. Highlights: three plain sentences, each with its measure.",
+          "2. Results against targets, from the results table only.",
+          "3. Changes from last month, from the results table only.",
+          "4. What staff are watching, written or approved by the program manager.",
+          "5. Next month's plans and targets."
+        ]
+      }
+    ],
+    "checklist": [
+      "Every number in the report traces to a row in the results table.",
+      "Missing counts read as not yet counted, never as zero.",
+      "Participant quotes appear only with staff approval and never with a name.",
+      "The program manager checks figures before the executive director approves the report."
+    ],
+    "sources": [
+      {
+        "title": "eCFR: 2 CFR 200.329, Monitoring and reporting program performance",
+        "url": "https://www.ecfr.gov/current/title-2/section-200.329",
+        "checked_date": "2026-10-30"
+      },
+      {
+        "title": "National Council of Nonprofits: Administration and Financial Management",
+        "url": "https://www.councilofnonprofits.org/running-nonprofit/administration-and-financial-management",
+        "checked_date": "2026-10-30"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-IMPACT-ROUTINE",
+        "scenario": "October with every record in and most targets met",
+        "sample_input": "SYNTHETIC: Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
+        "expected_indicators": [
+          "results_table_complete",
+          "change_from_last_month_computed",
+          "report_drafted"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-IMPACT-GAP",
+        "scenario": "Outcome check-ins missing for one site and sessions below target",
+        "sample_input": "SYNTHETIC: Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
+        "expected_indicators": [
+          "missing_count_reported_unknown",
+          "below_target_flagged"
+        ],
+        "expected_human_escalation": true
+      },
+      {
+        "id": "FX-IMPACT-QUOTE",
+        "scenario": "Staff notes include a participant quote with no approval mark",
+        "sample_input": "SYNTHETIC: The October program notes include a quote from a youth participant with their full name and no approval mark.",
+        "expected_indicators": [
+          "quote_left_out_pending_approval"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-06",
+    "drafted_by_key": "key_drafter_06"
+  },
+  "verification": {
+    "kit_id": "KIT-IMPACT-06",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 3,
+    "human_only_steps": [
+      "check-figures",
+      "approve-report",
+      "share-report"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-06",
+  "reviewed_by_key": "key_reviewer_06",
+  "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
+  "steward_signoff": null,
+  "draft_receipt": "d064368c19fb0b3d69f68a5abd268cd735c675b30547854482dcb6e48377e0c4",
+  "review_receipt": "67478958b453b5b5481969c5694262142fd9acf1e2d7d5e5a92127be5a1344f1",
+  "blob_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
+  "catalog_version": 1,
+  "review_task_id": "er_eec2826744b1:KIT-IMPACT-06:review",
+  "draft_task_id": "er_eec2826744b1:KIT-IMPACT-06:draft",
+  "draft_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
+  "drafter_key_id": "key_drafter_06",
+  "reviewer_key_id": "key_reviewer_06",
+  "publication_sha256": "cda61d59656dd2ff3934142740afb1f370ffe5b500c028de70ad0d0d79bbcb01"
+}
