@@ -116,6 +116,7 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
             ("llms", "GET", "/llms.txt", None),
             ("health", "GET", "/api/health", None),
             ("catalog", "GET", "/api/catalog", None),
+            ("examples", "GET", "/api/examples", None),
             ("missing_api", "GET", "/api/help", None),
             ("mcp", "POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}),
         ]
@@ -138,6 +139,11 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
         (ROOT / "web" / "public" / "snapshot" / "catalog.json").read_text(encoding="utf-8")
     )["kits"]
     assert len(json.loads(out["catalog"]["body"])["kits"]) == len(snapshot_kits) >= 5
+    shown = json.loads(
+        (ROOT / "web" / "public" / "snapshot" / "examples.json").read_text(encoding="utf-8")
+    )
+    assert json.loads(out["examples"]["body"]) == shown
+    assert shown["runs"]["count"] >= 5 and shown["needs"]
     assert out["missing_api"]["status"] == 404
     assert "json" in out["missing_api"]["type"]
     tools = json.loads(out["mcp"]["body"])["result"]["tools"]

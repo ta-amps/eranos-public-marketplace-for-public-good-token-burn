@@ -35,6 +35,7 @@ root health and AI-agent discovery endpoints remain publicly reachable at both t
 | `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and `synthetic: true` |
 | `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
 | `GET /api/tracks` | Every `TrackPack` definition loaded from `tracks/*/track.json` |
+| `GET /api/examples` | Each seed-pack kit's need in the organization's own words, and the count of recorded example runs (`examples/runs/`), as the snapshot built with the deploy holds them |
 | `GET /api/catalog` | Filtered list of verified `PublishedKit` entries (`?domain=`, `?track=`, `?tag=`, `?cohort=`, `?spdx=`, `?q=`; unreviewed `status:quarantined` items excluded; omitted `?cohort=` returns universal `"all"` kits only) |
 | `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including governance envelope, skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown or quarantined) |
 | `POST /api/practice` | Zero-storage deterministic verifier (`persisted: false`, open-SPDX check, boundary & copy guards, SHA-256 practice receipt) |

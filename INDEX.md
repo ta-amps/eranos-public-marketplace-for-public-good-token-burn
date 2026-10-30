@@ -114,7 +114,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/tracks.py](eranos/tracks.py) | Load public-good build tracks (tracks/<id>/track.json). |
 | [eranos/verifier.py](eranos/verifier.py) | Deterministic verifier for volunteer-submitted kits: checks track fit, human-only lines, synthetic fixtures,… |
 
-## examples/ (15)
+## examples/ (30)
 
 | File | What it is |
 |---|---|
@@ -133,6 +133,21 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/kits/13-donor-thank-you-letters.json](examples/kits/13-donor-thank-you-letters.json) | JSON object: seed_pack, request, review |
 | [examples/kits/14-multilingual-flyer-translation-check.json](examples/kits/14-multilingual-flyer-translation-check.json) | JSON object: seed_pack, request, review |
 | [examples/kits/README.md](examples/kits/README.md) | Synthetic Example Kit Bundles |
+| [examples/runs/KIT-FLYER-14.json](examples/runs/KIT-FLYER-14.json) | Multilingual Service Flyer Translation Check Kit |
+| [examples/runs/KIT-GRANT-04.json](examples/runs/KIT-GRANT-04.json) | Small-Nonprofit Restricted Grant & Audit Readiness Kit |
+| [examples/runs/KIT-HOTLINE-02.json](examples/runs/KIT-HOTLINE-02.json) | Coerced Overseas Offer Helpline Directory & Safe Triage Kit |
+| [examples/runs/KIT-IMPACT-06.json](examples/runs/KIT-IMPACT-06.json) | Monthly Program Impact Report Kit |
+| [examples/runs/KIT-INTAKE-03.json](examples/runs/KIT-INTAKE-03.json) | Community Services Warm-Referral & HSDS Triage Kit |
+| [examples/runs/KIT-PANTRY-12.json](examples/runs/KIT-PANTRY-12.json) | Food Bank Inventory and Pickup Scheduling Kit |
+| [examples/runs/KIT-POLICY-09.json](examples/runs/KIT-POLICY-09.json) | Policy Research Brief Kit |
+| [examples/runs/KIT-RECRUIT-01.json](examples/runs/KIT-RECRUIT-01.json) | Overseas Contract & Agency Fee Arithmetic Intake Kit |
+| [examples/runs/KIT-RELIEF-11.json](examples/runs/KIT-RELIEF-11.json) | Disaster Relief Volunteer Shift Schedule Kit |
+| [examples/runs/KIT-RENEWAL-10.json](examples/runs/KIT-RENEWAL-10.json) | Funding Impact Summary for Grant Renewal Kit |
+| [examples/runs/KIT-SHIFT-05.json](examples/runs/KIT-SHIFT-05.json) | Community Pantry Shift Onboarding & Incident Escalation SOP Pack |
+| [examples/runs/KIT-SUPPORT-08.json](examples/runs/KIT-SUPPORT-08.json) | Victim Support Referral Options Kit |
+| [examples/runs/KIT-THANKS-13.json](examples/runs/KIT-THANKS-13.json) | Donor Thank-You Letters with Privacy Checks Kit |
+| [examples/runs/KIT-TRANSCR-07.json](examples/runs/KIT-TRANSCR-07.json) | Handwritten Statements to Text Kit |
+| [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 
 ## scripts/ (4)
 
@@ -179,7 +194,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (78)
+## web/ (80)
 
 | File | What it is |
 |---|---|
@@ -204,6 +219,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/catalog/KIT-SUPPORT-08.json](web/public/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-THANKS-13.json](web/public/snapshot/catalog/KIT-THANKS-13.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-TRANSCR-07.json](web/public/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/examples.json](web/public/snapshot/examples.json) | JSON object: synthetic, needs, runs |
 | [web/public/snapshot/fabric.json](web/public/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/public/snapshot/requests.json](web/public/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/public/snapshot/tracks.json](web/public/snapshot/tracks.json) | JSON object: synthetic, tracks |
@@ -222,6 +238,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/catalog/KIT-SUPPORT-08.json](web/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-THANKS-13.json](web/snapshot/catalog/KIT-THANKS-13.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-TRANSCR-07.json](web/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/examples.json](web/snapshot/examples.json) | JSON object: synthetic, needs, runs |
 | [web/snapshot/fabric.json](web/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: synthetic, tracks |

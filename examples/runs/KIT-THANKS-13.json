@@ -1,0 +1,97 @@
+{
+  "schema": "eranos.example-run.v1",
+  "synthetic": true,
+  "kit_id": "KIT-THANKS-13",
+  "title": "Donor Thank-You Letters with Privacy Checks Kit",
+  "example": {
+    "path": "examples/kits/13-donor-thank-you-letters.json",
+    "sha256": "9242fedd8960507340d573971738c6a37dbdb6cf0b93d72ab14a513bf2ea4f19"
+  },
+  "inputs_sha256": "521f116149205ee2f168d581e09eed10fef3e31dea1448c357b015694e302578",
+  "seed_pack": {
+    "pack_id": "kit-donor-thank-you-letters",
+    "kit": {
+      "store": "seedpack.kit-donor-thank-you-letters",
+      "key": "kit-donor-thank-you-letters.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "f44cc42c6db7147cc0971bbcdeebc794d11a55c5e0d1b9e2d94c650246adf3b7"
+    },
+    "request": {
+      "store": "seedpack.kit-donor-thank-you-letters",
+      "key": "kit-donor-thank-you-letters.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "5f016c00c556769c1a77df483e7558474b05cb28d41617455eb1680abb739f0d"
+    }
+  },
+  "verbs": [
+    {
+      "verb": "check",
+      "queue": "eq01",
+      "task_id": "er_2db62fb499b9:KIT-THANKS-13:spec",
+      "worker": "spec-gate-13",
+      "key_id": "key_spec_13",
+      "ok": true,
+      "receipt_sha256": "970797b62e271429c05ac039fd9071428b59fa4ee3ac88be88fe9daaa7ac22ac",
+      "state_after": "done",
+      "submitted_at": "1793334713.006914"
+    },
+    {
+      "verb": "build",
+      "queue": "eq02",
+      "task_id": "er_2db62fb499b9:KIT-THANKS-13:draft",
+      "worker": "volunteer-drafter-13",
+      "key_id": "key_drafter_13",
+      "ok": true,
+      "receipt_sha256": "fed09dc9c9b1ce7e7b1efeb678d24e92a6cd9f9232811fadd53ec162d651ddae",
+      "state_after": "done",
+      "submitted_at": "1793334713.0087793",
+      "draft_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+      "verification": {
+        "passed": true,
+        "checks_run": 8,
+        "fixtures": 2,
+        "human_only_steps": [
+          "decide-special-handling",
+          "confirm-acknowledgment-wording",
+          "sign-and-send"
+        ]
+      }
+    },
+    {
+      "verb": "review",
+      "queue": "eq03",
+      "task_id": "er_2db62fb499b9:KIT-THANKS-13:review",
+      "worker": "volunteer-reviewer-13",
+      "key_id": "key_reviewer_13",
+      "ok": true,
+      "receipt_sha256": "0991bf01ab7651319d78aca651d48977fb7605b2a5ec32b63616d43485f8e31d",
+      "state_after": "done",
+      "submitted_at": "1793334713.0138946",
+      "parked_for_steward": false,
+      "steward_signoff": null,
+      "publication_sha256": "18b6b46d8b2fa97f2d8ada1907c679a60341181600c4399b0edf082da30ac430"
+    }
+  ],
+  "outcome": "published",
+  "catalog_version": 1,
+  "where": "a desktop computer",
+  "data": "synthetic",
+  "summary_label": "example runs on a desktop computer, synthetic data",
+  "machine": {
+    "class": "desktop",
+    "os": "Linux",
+    "python": "3.12.13"
+  },
+  "source": {
+    "repository": "eranos-public-marketplace-for-public-good-token-burn",
+    "commit": "b69cbd1c3233253a1f1a666f8e3a3f0f8bd930dc",
+    "tree_clean": true,
+    "seed_pack_library": {
+      "commit": "5d11d8f323469366b66aab4e4270a432b46863c9",
+      "tree_clean": true
+    }
+  },
+  "store": "local Tessera store in a temporary folder, discarded after the run",
+  "model_calls": 0,
+  "recorded_at": "2026-10-30T04:31:53Z"
+}

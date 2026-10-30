@@ -8,7 +8,8 @@ import {
   STATUS_AS_OF,
   STATUS_LINES,
 } from "../lib/marketplace";
-import type { WorkflowStep } from "../lib/types";
+import type { ExamplesResponse, WorkflowStep } from "../lib/types";
+import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
 import { BoundaryBadge } from "./BoundaryBadge";
 
@@ -104,12 +105,19 @@ export function StepMap({ steps }: { steps: WorkflowStep[] }) {
   );
 }
 
-/** The dated, honest status of the marketplace. */
+/** The dated, honest status of the marketplace. The example-run line is read from the run nouns. */
 export function StatusNote() {
+  const examples = useResource<ExamplesResponse>("/api/examples");
+  const runs = examples.state.status === "ready" ? examples.state.data.runs : null;
   return (
     <section className="er-status" aria-labelledby="status-title" data-testid="status-note">
       <h2 id="status-title">Where things stand, {STATUS_AS_OF}</h2>
       <ul>
+        {runs && (
+          <li data-testid="example-runs">
+            {runs.count} {runs.label}
+          </li>
+        )}
         {STATUS_LINES.map((line) => (
           <li key={line}>{line}</li>
         ))}

@@ -61,6 +61,11 @@ def test_api_serves_tracks_catalog_requests_and_fabric(client: TestClient) -> No
     assert sop_detail.status_code == 200
     assert sop_detail.json()["kit"]["deliverable_kind"] == "sop_playbook"
 
+    examples = client.get("/api/examples").json()
+    assert examples["synthetic"] is True
+    assert len(examples["needs"]) == sum("seed_pack" in b for b in load_example_bundles())
+    assert examples["runs"]["count"] == len(load_example_bundles())
+
     reqs = client.get("/api/requests").json()
     assert len(reqs["stages"]) == 3
     assert len(reqs["requests"]) >= 4

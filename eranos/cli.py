@@ -32,7 +32,7 @@ from eranos.pipeline import (
     run_spec_step,
     submit_kit_request,
 )
-from eranos.pipeline.examples import RUN_SCHEMA, bundle_sha256
+from eranos.pipeline.examples import RUN_SCHEMA, bundle_sha256, examples_payload, load_example_runs
 from eranos.queues import QUEUE_LABELS, STAGES
 from eranos.schemas import KitRequest, ReviewDecision, TaskBrief
 from eranos.tracks import load_tracks
@@ -416,6 +416,10 @@ def cmd_export_snapshot(target: Path) -> int:
     )
     (target / "fabric.json").write_text(
         json.dumps(fabric_payload, indent=2) + "\n", encoding="utf-8"
+    )
+    examples = examples_payload(load_example_bundles(), load_example_runs())
+    (target / "examples.json").write_text(
+        json.dumps(examples, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
 
     default_snapshot_dir = (REPO_ROOT / "web" / "snapshot").resolve()

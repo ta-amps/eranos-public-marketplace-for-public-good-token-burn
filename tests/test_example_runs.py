@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
 import pytest
 
 from eranos.cli import main as cli_main
-from eranos.pipeline import load_example_bundles
-from eranos.pipeline.examples import bundle_sha256, load_example_runs
+from eranos.pipeline import example_paths, load_example_bundles
+from eranos.pipeline.examples import bundle_sha256, examples_payload, load_example_runs
 
 
 @pytest.fixture
@@ -38,3 +40,29 @@ def test_recording_writes_one_evidence_noun_per_example_kit(local_store: Path) -
         assert run["summary_label"] == f"example runs on {run['where']}, synthetic data"
         steward = bundles[run["kit_id"]]["request"].get("needs_steward_signoff", False)
         assert review["parked_for_steward"] is bool(steward)
+
+
+def test_every_example_kit_has_a_current_recorded_run() -> None:
+    root = Path(__file__).resolve().parents[1]
+    bundles = load_example_bundles()
+    runs = {run["kit_id"]: run for run in load_example_runs()}
+    assert set(runs) == {b["request"]["kit_id"] for b in bundles}, "run make record-runs"
+    for path, bundle in zip(example_paths(), bundles, strict=True):
+        run = runs[bundle["request"]["kit_id"]]
+        assert run["example"]["path"] == path.relative_to(root).as_posix()
+        stale = "the example or its seed pack changed after its recorded run; run make record-runs"
+        assert run["example"]["sha256"] == hashlib.sha256(path.read_bytes()).hexdigest(), stale
+        assert run["inputs_sha256"] == bundle_sha256(bundle), stale
+        assert run["source"]["tree_clean"] is True, "record runs from a committed, clean tree"
+        assert run["model_calls"] == 0 and run["outcome"] == "published"
+
+
+def test_the_site_reads_needs_and_run_counts_from_these_nouns() -> None:
+    root = Path(__file__).resolve().parents[1]
+    payload = examples_payload(load_example_bundles(), load_example_runs())
+    assert payload["runs"]["count"] == len(load_example_bundles())
+    assert payload["runs"]["label"].endswith(", synthetic data")
+    assert payload["needs"] and all(need["mark"] == "SYNTHETIC" for need in payload["needs"])
+    for name in ("snapshot", "public/snapshot"):
+        shown = json.loads((root / "web" / name / "examples.json").read_text(encoding="utf-8"))
+        assert shown == payload, f"web/{name}/examples.json is stale; run make snapshot"

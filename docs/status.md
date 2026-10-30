@@ -9,8 +9,9 @@ Checked on October 29, 2026, in a fresh clone of `main` with this page's documen
 
 | Command | Result |
 |---|---|
-| `make check` | Lint, strict types, secret scan, index and architecture checks pass; 55 tests passed and 1 skipped. The skipped test compares shared scripts with a `hackathon-context` checkout next to this one, and passes when that checkout is present |
+| `make check` | Lint, strict types, secret scan, index and architecture checks pass; 79 tests passed and 1 skipped. The skipped test compares shared scripts with a `hackathon-context` checkout next to this one, and passes when that checkout is present |
 | `make verify-examples` | Every example kit is built, checked, independently reviewed and published to a local catalog. Kits that point at a seed pack are composed from the library first. Sensitive kits wait for a steward's sign-off and then resume |
+| `make record-runs` | Every example kit is checked, built and independently reviewed with this repository's own pipeline on a throwaway local store, and one evidence noun per kit is written to `examples/runs/`. These are example runs on one computer with synthetic data, not hosted volunteer runs |
 | `make suite BACKEND=local` | Tessera's conformance suite through Eranos's adapter: 30 passed, 6 skipped, using the Tessera revision that CI uses |
 
 ## Hosted site

@@ -1,0 +1,96 @@
+{
+  "schema": "eranos.example-run.v1",
+  "synthetic": true,
+  "kit_id": "KIT-PANTRY-12",
+  "title": "Food Bank Inventory and Pickup Scheduling Kit",
+  "example": {
+    "path": "examples/kits/12-food-bank-pickup-scheduling.json",
+    "sha256": "6ecc5c36fccba4b6918f2d5249194df61b9cca4a0e86c716eed57d2e50eb7e64"
+  },
+  "inputs_sha256": "0959cd9d4d0fc7cfd655f671a9af197777e78bde2bf46feed621f243747acaf0",
+  "seed_pack": {
+    "pack_id": "kit-food-bank-pickups",
+    "kit": {
+      "store": "seedpack.kit-food-bank-pickups",
+      "key": "kit-food-bank-pickups.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "21c07cd04580223be8ad2c2d6d35810392cbe2eeef54cd37fb3cdaf9abe5e048"
+    },
+    "request": {
+      "store": "seedpack.kit-food-bank-pickups",
+      "key": "kit-food-bank-pickups.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "1a8dda65eb64a9910843578281a2d2f33c237207a18c7148d4431a0473099d42"
+    }
+  },
+  "verbs": [
+    {
+      "verb": "check",
+      "queue": "eq01",
+      "task_id": "er_5083c2227a12:KIT-PANTRY-12:spec",
+      "worker": "spec-gate-12",
+      "key_id": "key_spec_12",
+      "ok": true,
+      "receipt_sha256": "d6f477476cacd57c55d7d3c7e0b25c55a01e971f641a2f3afb6a767650827d1a",
+      "state_after": "done",
+      "submitted_at": "1793334712.9922538"
+    },
+    {
+      "verb": "build",
+      "queue": "eq02",
+      "task_id": "er_5083c2227a12:KIT-PANTRY-12:draft",
+      "worker": "volunteer-drafter-12",
+      "key_id": "key_drafter_12",
+      "ok": true,
+      "receipt_sha256": "f37ea000c51efa96c1ffeaa90dd9a2be6eb5755194e26ba3e7626635f751c93b",
+      "state_after": "done",
+      "submitted_at": "1793334712.9943783",
+      "draft_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+      "verification": {
+        "passed": true,
+        "checks_run": 8,
+        "fixtures": 3,
+        "human_only_steps": [
+          "decide-exceptions",
+          "send-reminders"
+        ]
+      }
+    },
+    {
+      "verb": "review",
+      "queue": "eq03",
+      "task_id": "er_5083c2227a12:KIT-PANTRY-12:review",
+      "worker": "volunteer-reviewer-12",
+      "key_id": "key_reviewer_12",
+      "ok": true,
+      "receipt_sha256": "494d8fea5ef8f9aa030618d8a5e9c6c580a21bdc2a0992e6a8c97412161e2873",
+      "state_after": "done",
+      "submitted_at": "1793334713.0002735",
+      "parked_for_steward": false,
+      "steward_signoff": null,
+      "publication_sha256": "8cac14c9b8d8a83c31ae8e7f8ca24defca4563d6839890799fd3433319aa9ac4"
+    }
+  ],
+  "outcome": "published",
+  "catalog_version": 1,
+  "where": "a desktop computer",
+  "data": "synthetic",
+  "summary_label": "example runs on a desktop computer, synthetic data",
+  "machine": {
+    "class": "desktop",
+    "os": "Linux",
+    "python": "3.12.13"
+  },
+  "source": {
+    "repository": "eranos-public-marketplace-for-public-good-token-burn",
+    "commit": "b69cbd1c3233253a1f1a666f8e3a3f0f8bd930dc",
+    "tree_clean": true,
+    "seed_pack_library": {
+      "commit": "5d11d8f323469366b66aab4e4270a432b46863c9",
+      "tree_clean": true
+    }
+  },
+  "store": "local Tessera store in a temporary folder, discarded after the run",
+  "model_calls": 0,
+  "recorded_at": "2026-10-30T04:31:53Z"
+}

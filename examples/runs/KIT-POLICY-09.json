@@ -1,0 +1,96 @@
+{
+  "schema": "eranos.example-run.v1",
+  "synthetic": true,
+  "kit_id": "KIT-POLICY-09",
+  "title": "Policy Research Brief Kit",
+  "example": {
+    "path": "examples/kits/09-policy-research-brief.json",
+    "sha256": "036d71aa38219966d68883a08c65611f2cfcf9c4fb5afa071ed0fec773239336"
+  },
+  "inputs_sha256": "64d18be093d66eacf543da89c63efae491cc44b4815c5939d3229d6905b951fb",
+  "seed_pack": {
+    "pack_id": "kit-policy-research-brief",
+    "kit": {
+      "store": "seedpack.kit-policy-research-brief",
+      "key": "kit-policy-research-brief.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "f2e6bcf021dd849df0e2d1504c7132f30deac70d76e5905929653ba0dec038d0"
+    },
+    "request": {
+      "store": "seedpack.kit-policy-research-brief",
+      "key": "kit-policy-research-brief.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "5dd6bf9cc3eb41da44f90e53319118db8cbfa93e23284a0c39a496b628dc7048"
+    }
+  },
+  "verbs": [
+    {
+      "verb": "check",
+      "queue": "eq01",
+      "task_id": "er_fac1786bce6f:KIT-POLICY-09:spec",
+      "worker": "spec-gate-09",
+      "key_id": "key_spec_09",
+      "ok": true,
+      "receipt_sha256": "934882cbde0717836f97e5903575e8f7c070224bf1feb764e007d1cb281f5801",
+      "state_after": "done",
+      "submitted_at": "1793334712.950812"
+    },
+    {
+      "verb": "build",
+      "queue": "eq02",
+      "task_id": "er_fac1786bce6f:KIT-POLICY-09:draft",
+      "worker": "volunteer-drafter-09",
+      "key_id": "key_drafter_09",
+      "ok": true,
+      "receipt_sha256": "b51a2e25f51f398d5fe09e887879de2d7190f0d1b8a9ea680db7be17f7ab525e",
+      "state_after": "done",
+      "submitted_at": "1793334712.9532795",
+      "draft_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+      "verification": {
+        "passed": true,
+        "checks_run": 8,
+        "fixtures": 3,
+        "human_only_steps": [
+          "interpret-for-us",
+          "share-brief"
+        ]
+      }
+    },
+    {
+      "verb": "review",
+      "queue": "eq03",
+      "task_id": "er_fac1786bce6f:KIT-POLICY-09:review",
+      "worker": "volunteer-reviewer-09",
+      "key_id": "key_reviewer_09",
+      "ok": true,
+      "receipt_sha256": "054b8c46d70e7c0e7836870fbd831de01dbea42f076b2caf67d31a200e4b1ca8",
+      "state_after": "done",
+      "submitted_at": "1793334712.9581988",
+      "parked_for_steward": false,
+      "steward_signoff": null,
+      "publication_sha256": "df0f3219973efed400d8a21f649f97de194874de6db9b4067e69356210767c0d"
+    }
+  ],
+  "outcome": "published",
+  "catalog_version": 1,
+  "where": "a desktop computer",
+  "data": "synthetic",
+  "summary_label": "example runs on a desktop computer, synthetic data",
+  "machine": {
+    "class": "desktop",
+    "os": "Linux",
+    "python": "3.12.13"
+  },
+  "source": {
+    "repository": "eranos-public-marketplace-for-public-good-token-burn",
+    "commit": "b69cbd1c3233253a1f1a666f8e3a3f0f8bd930dc",
+    "tree_clean": true,
+    "seed_pack_library": {
+      "commit": "5d11d8f323469366b66aab4e4270a432b46863c9",
+      "tree_clean": true
+    }
+  },
+  "store": "local Tessera store in a temporary folder, discarded after the run",
+  "model_calls": 0,
+  "recorded_at": "2026-10-30T04:31:53Z"
+}

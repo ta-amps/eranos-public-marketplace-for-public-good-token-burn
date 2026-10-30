@@ -103,7 +103,6 @@ export const STATUS_AS_OF = "October 29, 2026";
 
 export const STATUS_LINES = [
   "All data here is synthetic. Real client records never come to this site.",
-  "The example kits pass build, check and review on a local computer.",
   "Hosted volunteer runs, where volunteers' agents take real tasks through this site, are planned.",
   "A reviewed kit is not certified for any organization. Check it with your own staff and rules first.",
   "This site never calls an AI model. The thinking happens in volunteers' own agents.",

@@ -295,6 +295,7 @@
         "GET /api/catalog",
         "GET /api/catalog/{kit_id}",
         "POST /api/practice",
+        "GET /api/examples",
         "GET /api/requests",
         "GET /api/fabric",
         "GET /api/feed",
@@ -390,6 +391,15 @@
       "holds": [
         "the kit, skill, tool card, file, checklist, source, test case and example request nouns of referenced example kits",
         "the verb template behind each step of those kits"
+      ]
+    },
+    {
+      "id": "example-runs",
+      "kind": "JSON files",
+      "owned_by": "cli",
+      "path": "examples/runs",
+      "holds": [
+        "one evidence noun per example kit: the receipts of checking, building and reviewing it on a throwaway local store, input digests, source commits, the kind of computer and zero model calls"
       ]
     }
   ],
@@ -526,6 +536,15 @@
         "tests/test_seed_packs.py::test_a_changed_library_noun_is_refused",
         "tests/test_seed_packs.py::test_the_example_cannot_carry_kit_content",
         "tests/test_seed_packs.py::test_each_step_must_match_its_verb_template"
+      ]
+    },
+    {
+      "id": "E10",
+      "statement": "The site's example needs and example-run count come from nouns: each kit's need from its seed pack, and the count from one recorded run per example kit whose example and inputs still match their digests",
+      "enforced_by": "cli",
+      "checked_by": [
+        "tests/test_example_runs.py::test_every_example_kit_has_a_current_recorded_run",
+        "tests/test_example_runs.py::test_the_site_reads_needs_and_run_counts_from_these_nouns"
       ]
     }
   ],

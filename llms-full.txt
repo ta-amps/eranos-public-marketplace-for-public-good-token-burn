@@ -68,8 +68,9 @@ make web               # local API on http://127.0.0.1:7720 and web app on http:
 
 ## Status, October 29, 2026
 
-- **On your computer:** `make check` passes (55 tests passed, 1 skipped). `make verify-examples` takes all five
-  example kits through building, checking and independent review. Tessera's test suite also passes through
+- **On your computer:** `make check` passes (79 tests passed, 1 skipped). `make verify-examples` takes all fourteen
+  example kits through building, checking and independent review, and `make record-runs` records one example run per
+  kit in `examples/runs/`: example runs on one computer, with synthetic data. Tessera's test suite also passes through
   Eranos's adapter (30 passed, 6 skipped).
 - **Hosted site:** the public site depends on Tessera for tasks, queue counts and publishing. Hosted Tessera was
   down for part of October 29 after it reached Cloudflare's free daily limit on storage writes. Don't assume the
@@ -257,8 +258,9 @@ Checked on October 29, 2026, in a fresh clone of `main` with this page's documen
 
 | Command | Result |
 |---|---|
-| `make check` | Lint, strict types, secret scan, index and architecture checks pass; 55 tests passed and 1 skipped. The skipped test compares shared scripts with a `hackathon-context` checkout next to this one, and passes when that checkout is present |
+| `make check` | Lint, strict types, secret scan, index and architecture checks pass; 79 tests passed and 1 skipped. The skipped test compares shared scripts with a `hackathon-context` checkout next to this one, and passes when that checkout is present |
 | `make verify-examples` | Every example kit is built, checked, independently reviewed and published to a local catalog. Kits that point at a seed pack are composed from the library first. Sensitive kits wait for a steward's sign-off and then resume |
+| `make record-runs` | Every example kit is checked, built and independently reviewed with this repository's own pipeline on a throwaway local store, and one evidence noun per kit is written to `examples/runs/`. These are example runs on one computer with synthetic data, not hosted volunteer runs |
 | `make suite BACKEND=local` | Tessera's conformance suite through Eranos's adapter: 30 passed, 6 skipped, using the Tessera revision that CI uses |
 
 ## Hosted site
@@ -419,6 +421,7 @@ flowchart LR
 | E7 | Sensitive kits park on Tessera for human nonprofit steward sign-off and publish atomically via CAS upon resume | `test_steward_signoff_parks_and_resumes_on_tessera`, `test_two_step_pipeline_publishes_verified_kit_to_cas_store` |
 | E8 | Agent briefs never carry public effect, API routes reject invalid kit IDs and unauthenticated origin traffic, and private names never leak | `test_agent_brief_refuses_public_effect`, `test_check_public_passes_cleanly`, `test_invalid_kit_id_is_rejected_with_400`, `test_edge_lockdown_blocks_direct_origin_requests` |
 | E9 | A referenced example kit takes its content only from its seed pack: every pin matches the noun's digest, and every step matches its verb template's title and claimant | `test_a_changed_library_noun_is_refused`, `test_the_example_cannot_carry_kit_content`, `test_each_step_must_match_its_verb_template` |
+| E10 | The site's example needs and example-run count come from nouns: each kit's need from its seed pack, and the count from one recorded run per example kit whose example and inputs still match their digests | `test_every_example_kit_has_a_current_recorded_run`, `test_the_site_reads_needs_and_run_counts_from_these_nouns` |
 
 ## Trust boundaries
 
@@ -652,6 +655,7 @@ root health and AI-agent discovery endpoints remain publicly reachable at both t
 | `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and `synthetic: true` |
 | `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
 | `GET /api/tracks` | Every `TrackPack` definition loaded from `tracks/*/track.json` |
+| `GET /api/examples` | Each seed-pack kit's need in the organization's own words, and the count of recorded example runs (`examples/runs/`), as the snapshot built with the deploy holds them |
 | `GET /api/catalog` | Filtered list of verified `PublishedKit` entries (`?domain=`, `?track=`, `?tag=`, `?cohort=`, `?spdx=`, `?q=`; unreviewed `status:quarantined` items excluded; omitted `?cohort=` returns universal `"all"` kits only) |
 | `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including governance envelope, skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown or quarantined) |
 | `POST /api/practice` | Zero-storage deterministic verifier (`persisted: false`, open-SPDX check, boundary & copy guards, SHA-256 practice receipt) |

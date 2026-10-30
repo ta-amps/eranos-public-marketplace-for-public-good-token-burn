@@ -22,12 +22,15 @@ from eranos import __version__, config
 from eranos.adapter import get_adapter
 from eranos.api.public_feed import public_feed_payload
 from eranos.pipeline import (
+    SeedPackError,
     ensure_queues,
     filter_published_kits,
     get_published_kit,
     list_published_kits,
+    load_example_bundles,
     practice_verify_kit,
 )
+from eranos.pipeline.examples import examples_payload, load_example_runs
 from eranos.queues import QUEUE_LABELS, STAGES
 from eranos.schemas import KIT_ID, OPEN_SPDX_ALLOWLIST, TaskBrief
 from eranos.tracks import load_tracks
@@ -373,6 +376,16 @@ async def practice_endpoint(
         else None
     )
     return practice_verify_kit(body, track_id=explicit_track)
+
+
+@app.get("/api/examples")
+def examples() -> dict[str, Any]:
+    """Example needs in organizations' own words and the recorded example runs, read from nouns."""
+    try:
+        bundles = load_example_bundles()
+    except SeedPackError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    return examples_payload(bundles, load_example_runs())
 
 
 @app.get("/api/requests")

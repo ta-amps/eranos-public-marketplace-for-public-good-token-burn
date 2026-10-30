@@ -233,14 +233,14 @@
   "reviewed_by_key": "key_reviewer_14",
   "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
   "steward_signoff": null,
-  "draft_receipt": "99dd941312fa0ffe7264e852ad9ffe72050e93e76391c681237d1e23eab1e11a",
-  "review_receipt": "17d835aa7c3843787f72f7d517922a3565ae08e1638ddfe03c41f3506fa7e8d1",
+  "draft_receipt": "92eae3c4459190ce1df4de0740e945d0efb6d1aea463b74616c8a928313559c9",
+  "review_receipt": "3efc78a96576e5af0bb813c56fc7898db50630bf9fb897853c8192a7d2aa0d13",
   "blob_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
   "catalog_version": 1,
-  "review_task_id": "er_dd52fa56bf65:KIT-FLYER-14:review",
-  "draft_task_id": "er_dd52fa56bf65:KIT-FLYER-14:draft",
+  "review_task_id": "er_a73268f5afe9:KIT-FLYER-14:review",
+  "draft_task_id": "er_a73268f5afe9:KIT-FLYER-14:draft",
   "draft_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
   "drafter_key_id": "key_drafter_14",
   "reviewer_key_id": "key_reviewer_14",
-  "publication_sha256": "70f10b08a51ac28f081b622bb33a2134e224b9e8fe97581381597898692634b2"
+  "publication_sha256": "02165d487e104fe4837cef571af7db080ac243a55f8eb5ab17d40c03e1ec3469"
 }

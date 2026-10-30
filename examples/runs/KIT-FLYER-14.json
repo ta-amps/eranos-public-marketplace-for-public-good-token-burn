@@ -1,0 +1,96 @@
+{
+  "schema": "eranos.example-run.v1",
+  "synthetic": true,
+  "kit_id": "KIT-FLYER-14",
+  "title": "Multilingual Service Flyer Translation Check Kit",
+  "example": {
+    "path": "examples/kits/14-multilingual-flyer-translation-check.json",
+    "sha256": "41ecefbd85db54a72ea4958bcc5197b9da8da1f3b84f7b03ed17f196d1136081"
+  },
+  "inputs_sha256": "1004df483ce7516747724aa35d4023e353c8ad13a5be807ac6655c99d5992f78",
+  "seed_pack": {
+    "pack_id": "kit-flyer-translation-check",
+    "kit": {
+      "store": "seedpack.kit-flyer-translation-check",
+      "key": "kit-flyer-translation-check.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "3fcf7700dc7666eefd861575e1bd1d795d054d0cab584fb7a46d186f9ab2b26b"
+    },
+    "request": {
+      "store": "seedpack.kit-flyer-translation-check",
+      "key": "kit-flyer-translation-check.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "c653118eba30d76e9e0426783d9b9fdda07303163177f2d753259e8e7bc50308"
+    }
+  },
+  "verbs": [
+    {
+      "verb": "check",
+      "queue": "eq01",
+      "task_id": "er_b465f99c19b2:KIT-FLYER-14:spec",
+      "worker": "spec-gate-14",
+      "key_id": "key_spec_14",
+      "ok": true,
+      "receipt_sha256": "289211b37a9717918a7c23f943ef94dab45eea16071437bc64bb64116b21f226",
+      "state_after": "done",
+      "submitted_at": "1793334713.0205789"
+    },
+    {
+      "verb": "build",
+      "queue": "eq02",
+      "task_id": "er_b465f99c19b2:KIT-FLYER-14:draft",
+      "worker": "volunteer-drafter-14",
+      "key_id": "key_drafter_14",
+      "ok": true,
+      "receipt_sha256": "8d96e0c45c618c2b502412bdc3acb3f4f983e7700db693797f253b395cdda6b4",
+      "state_after": "done",
+      "submitted_at": "1793334713.0224748",
+      "draft_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+      "verification": {
+        "passed": true,
+        "checks_run": 8,
+        "fixtures": 2,
+        "human_only_steps": [
+          "fluent-review",
+          "print-and-post"
+        ]
+      }
+    },
+    {
+      "verb": "review",
+      "queue": "eq03",
+      "task_id": "er_b465f99c19b2:KIT-FLYER-14:review",
+      "worker": "volunteer-reviewer-14",
+      "key_id": "key_reviewer_14",
+      "ok": true,
+      "receipt_sha256": "341f95fd28ec66984701aae8290a191356e2ba6d82b20b23cbd26f5c3fb1bbe1",
+      "state_after": "done",
+      "submitted_at": "1793334713.0276103",
+      "parked_for_steward": false,
+      "steward_signoff": null,
+      "publication_sha256": "a589d057e5ca6173bf53c41ec9bcba9e1e37217e37b840b7ab500583c97efe5a"
+    }
+  ],
+  "outcome": "published",
+  "catalog_version": 1,
+  "where": "a desktop computer",
+  "data": "synthetic",
+  "summary_label": "example runs on a desktop computer, synthetic data",
+  "machine": {
+    "class": "desktop",
+    "os": "Linux",
+    "python": "3.12.13"
+  },
+  "source": {
+    "repository": "eranos-public-marketplace-for-public-good-token-burn",
+    "commit": "b69cbd1c3233253a1f1a666f8e3a3f0f8bd930dc",
+    "tree_clean": true,
+    "seed_pack_library": {
+      "commit": "5d11d8f323469366b66aab4e4270a432b46863c9",
+      "tree_clean": true
+    }
+  },
+  "store": "local Tessera store in a temporary folder, discarded after the run",
+  "model_calls": 0,
+  "recorded_at": "2026-10-30T04:31:53Z"
+}

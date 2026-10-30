@@ -21,6 +21,11 @@ const catalog = JSON.parse(
 ) as { kits: { kit: { kit_id: string } }[] };
 const KIT_IDS = catalog.kits.map((entry) => entry.kit.kit_id);
 
+// Needs in organizations' own words and the recorded example runs: nouns the snapshot carries.
+const examples = JSON.parse(
+  fs.readFileSync(new URL("../snapshot/examples.json", import.meta.url), "utf8"),
+) as { needs: { kit_id: string; says: string; mark: string }[]; runs: { count: number; label: string } };
+
 const ROUTES = [
   "/",
   "/help",
@@ -249,6 +254,23 @@ test("/nonprofits explains agent kits, shows every reviewed example and the requ
   await expect(request).toContainText("A volunteer will check your request before it becomes work.");
   await expect(request).toContainText("Kits are reviewed, not certified.");
   await expect(request.getByRole("link", { name: "Request a kit" })).toHaveAttribute("href", REQUEST_KIT_URL);
+});
+
+test("/nonprofits shows each kit's need in the organization's words, and the recorded example runs", async ({
+  page,
+}) => {
+  await page.goto("/nonprofits");
+  const needs = page.getByTestId("example-need");
+  await expect(needs).toHaveCount(examples.needs.length);
+  expect(examples.needs.length).toBeGreaterThan(0);
+  for (const need of examples.needs) {
+    expect(need.mark).toBe("SYNTHETIC");
+    expect(need.says.toLowerCase()).not.toContain("request a kit");
+    await expect(page.getByTestId("example-kit").filter({ hasText: need.says })).toHaveCount(1);
+  }
+  const runs = page.getByTestId("example-runs");
+  await expect(runs).toHaveText(`${examples.runs.count} ${examples.runs.label}`);
+  expect(examples.runs.label).toMatch(/^example runs on .+, synthetic data$/);
 });
 
 test("no visible text, title or label names a retired pack", async ({ page }) => {

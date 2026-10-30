@@ -55,8 +55,9 @@ make web               # local API on http://127.0.0.1:7720 and web app on http:
 
 ## Status, October 29, 2026
 
-- **On your computer:** `make check` passes (55 tests passed, 1 skipped). `make verify-examples` takes all five
-  example kits through building, checking and independent review. Tessera's test suite also passes through
+- **On your computer:** `make check` passes (79 tests passed, 1 skipped). `make verify-examples` takes all fourteen
+  example kits through building, checking and independent review, and `make record-runs` records one example run per
+  kit in `examples/runs/`: example runs on one computer, with synthetic data. Tessera's test suite also passes through
   Eranos's adapter (30 passed, 6 skipped).
 - **Hosted site:** the public site depends on Tessera for tasks, queue counts and publishing. Hosted Tessera was
   down for part of October 29 after it reached Cloudflare's free daily limit on storage writes. Don't assume the

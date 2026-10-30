@@ -7,7 +7,7 @@ import {
   REQUEST_KIT_URL,
   WHOLE_SETUP,
 } from "../lib/marketplace";
-import type { CatalogResponse } from "../lib/types";
+import type { CatalogResponse, ExampleNeed, ExamplesResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
 
@@ -16,6 +16,10 @@ const EXPLOITATION_PACK_URL = `${PACK_LIBRARY_URL}/tree/main/packs/exploitation-
 /** The nonprofit side of the marketplace: NGOs and public-good groups looking for agentic solutions. */
 export function Nonprofits() {
   const catalog = useResource<CatalogResponse>("/api/catalog");
+  const examples = useResource<ExamplesResponse>("/api/examples");
+  const needs = new Map<string, ExampleNeed>(
+    examples.state.status === "ready" ? examples.state.data.needs.map((need) => [need.kit_id, need]) : [],
+  );
 
   return (
     <div>
@@ -62,6 +66,7 @@ export function Nonprofits() {
           <div className="er-grid er-grid-kits">
             {catalog.state.data.kits.map((entry) => {
               const license = entry.spdx_license || entry.kit.spdx_license || "Apache-2.0";
+              const need = needs.get(entry.kit.kit_id);
               return (
                 <article key={entry.kit.kit_id} className="er-card" data-testid="example-kit">
                   <div className="er-chip-row">
@@ -76,6 +81,14 @@ export function Nonprofits() {
                     <strong>For:</strong> {entry.kit.target_org}
                   </p>
                   <p className="er-muted">{entry.kit.summary}</p>
+                  {need && (
+                    <figure className="er-need" data-testid="example-need">
+                      <figcaption>
+                        {need.title} <span className="er-chip er-chip-neutral">{need.mark}</span>
+                      </figcaption>
+                      <blockquote>{need.says}</blockquote>
+                    </figure>
+                  )}
                   <h4 className="er-card-subhead">Step map</h4>
                   <StepMap steps={entry.kit.steps} />
                   <p className="er-small">

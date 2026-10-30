@@ -81,6 +81,7 @@ const FALLBACK_LLMS_TXT = `# Eranos: spare AI capacity builds tested agent kits 
 - /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
 - /api/catalog: Verified two-step reviewed NGO kits (?domain=&track=&tag=&cohort=&spdx=&q=)
 - /api/tracks: Public-good NGO and nonprofit build tracks
+- /api/examples: Synthetic example needs in organizations' own words, and the count of recorded example runs
 - /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
 - /mcp: Stateless JSON-RPC 2.0 MCP endpoint (list_tracks, search_catalog, get_kit, practice_verify_kit)
 - /.well-known/agent-card.json: Machine-readable agent capability card
@@ -1096,6 +1097,15 @@ async function handleCloudApi(request, env, pathname) {
 
   if (pathname === "/api/tracks") {
     return jsonResp(await loadTracksPayload(request, env));
+  }
+
+  if (pathname === "/api/examples") {
+    // Example needs and recorded example runs are repository nouns, built into this deploy's snapshot.
+    const examples = await fetchAssetJson(request, env, "/snapshot/examples.json");
+    if (!examples) {
+      return problem(404, "Not Found", "this build has no example nouns", "not_found");
+    }
+    return jsonResp(examples);
   }
 
   if (pathname === "/api/requests") {

@@ -335,14 +335,14 @@
   "reviewed_by_key": "key_reviewer_07",
   "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
   "steward_signoff": "records-steward-lead",
-  "draft_receipt": "82beb1bb7ab258c244e7a5882580a70e344fdcbb0ece555a091f00be5b2bcf10",
-  "review_receipt": "daf8689f2ccad733d38594d9267623fd69070b99230e15aea4eb2afd1c5c636e",
+  "draft_receipt": "fd8dd03006b02adf6e2b0d9dc78b694c15d10c094f93ad0c7924cb0abe47090c",
+  "review_receipt": "0d3e7934b4073695837f56f8363a571579582070e66910f15396815a8c0182d8",
   "blob_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
   "catalog_version": 1,
-  "review_task_id": "er_3eaedb3d79ca:KIT-TRANSCR-07:review",
-  "draft_task_id": "er_3eaedb3d79ca:KIT-TRANSCR-07:draft",
+  "review_task_id": "er_b260329357d8:KIT-TRANSCR-07:review",
+  "draft_task_id": "er_b260329357d8:KIT-TRANSCR-07:draft",
   "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
   "drafter_key_id": "key_drafter_07",
   "reviewer_key_id": "key_reviewer_07",
-  "publication_sha256": "2e60d78ee2e64fbfeebc05c1ea909a8aab645433fdc78639b0ef5c6768a64cf0"
+  "publication_sha256": "dfffc1ae321fc664562f624faa64b8d5a5178d6f6792c25c04747f2b0cb818dc"
 }

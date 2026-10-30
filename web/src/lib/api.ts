@@ -18,6 +18,7 @@ export type ApiPath =
   | `/api/catalog?${string}`
   | `/api/catalog/${string}`
   | "/api/tracks"
+  | "/api/examples"
   | "/api/requests"
   | "/api/fabric";
 
