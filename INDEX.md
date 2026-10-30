@@ -164,11 +164,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (5)
+## instructions/ (6)
 
 | File | What it is |
 |---|---|
 | [instructions/classify.json](instructions/classify.json) | Classify a request and break it into parts |
+| [instructions/connect.json](instructions/connect.json) | Connect to Eranos |
 | [instructions/help.json](instructions/help.json) | Help in six steps |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
@@ -220,7 +221,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (110)
+## web/ (113)
 
 | File | What it is |
 |---|---|
@@ -249,6 +250,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/fabric.json](web/public/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/public/snapshot/nouns/eranos.instructions.json](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: synthetic, store, records |
 | [web/public/snapshot/nouns/eranos.instructions/classify.json](web/public/snapshot/nouns/eranos.instructions/classify.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/connect.json](web/public/snapshot/nouns/eranos.instructions/connect.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/help.json](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/nonprofits.json](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/public-research.json](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
@@ -281,6 +283,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/fabric.json](web/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/snapshot/nouns/eranos.instructions.json](web/snapshot/nouns/eranos.instructions.json) | JSON object: synthetic, store, records |
 | [web/snapshot/nouns/eranos.instructions/classify.json](web/snapshot/nouns/eranos.instructions/classify.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/connect.json](web/snapshot/nouns/eranos.instructions/connect.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/help.json](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/nonprofits.json](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/public-research.json](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
@@ -317,6 +320,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/main.tsx](web/src/main.tsx) |  |
 | [web/src/pages/About.tsx](web/src/pages/About.tsx) |  |
 | [web/src/pages/Catalog.tsx](web/src/pages/Catalog.tsx) |  |
+| [web/src/pages/Connect.tsx](web/src/pages/Connect.tsx) |  |
 | [web/src/pages/Contribute.tsx](web/src/pages/Contribute.tsx) |  |
 | [web/src/pages/Fabric.tsx](web/src/pages/Fabric.tsx) |  |
 | [web/src/pages/Help.tsx](web/src/pages/Help.tsx) |  |

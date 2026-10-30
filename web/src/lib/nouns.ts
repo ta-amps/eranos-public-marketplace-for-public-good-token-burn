@@ -58,12 +58,33 @@ export interface RequestForm {
 
 export interface NonprofitsNoun {
   title: string;
+  /** The page's opening, in plain words: what a nonprofit can ask for. */
+  lede: string;
+  /** Who needs an AI agent of their own, and for what. */
+  no_agent: string;
   warning: string;
   form: RequestForm;
+  /** The heading over the steps, which come before the box. */
+  next_title: string;
   steps: Step[];
+  /** The honest state of the hosted queues. */
+  hosted: string;
   follow: string;
   form_on_github: string;
   links: { roll_your_own: string };
+}
+
+/** The connect page's text: the `eranos.instructions/connect` noun. The same two sentences are in /connect.json. */
+export interface ConnectNoun {
+  title: string;
+  authentication: string;
+  restrictions: string;
+  anonymous_link: string;
+  key_link: string;
+  anonymous_note: string;
+  bearer_note: string;
+  machine_link: string;
+  links: { fabric_connect: string; machine: string };
 }
 
 export interface PlanNoun {
@@ -79,11 +100,13 @@ export function briefWithInterests(noun: HelpNoun, interests: string): string {
   return `${noun.brief_interests_goal} ${JSON.stringify(interests.trim().slice(0, 1500))}\n\n${body}`;
 }
 
-/** The site's headline, subline, title and intro: the `eranos.instructions/site` noun. */
+/** The site's headline, subline, title, intro and privacy line: the `eranos.instructions/site` noun. */
 export interface SiteNoun {
   headline: string;
   subline: string;
   title: string;
   brand_sub: string;
   intro: string;
+  /** What the site loads and keeps: no analytics, ads or cookies, and where requests go. */
+  privacy: string;
 }

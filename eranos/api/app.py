@@ -679,7 +679,7 @@ def connect_info() -> dict[str, Any]:
 
 @app.get("/connect", response_class=HTMLResponse)
 def connect_page() -> str:
-    return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect</title><h1>Connect to eranos</h1><p>Public tools require no key. Use Tessera for tracked work.</p><p><a href="https://tessera.ta-amps.workers.dev/connect">Get an anonymous demo session</a></p><p><a href="https://tessera.ta-amps.workers.dev/connect">Create or use an API key</a></p><a href="/connect.json">Machine-readable access modes</a></html>'
+    return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect to Eranos</title><h1>Connect to Eranos</h1><p>Public tools require no key. Use Tessera for tracked work.</p><p><a href="https://tessera.ta-amps.workers.dev/connect">Get an anonymous demo session</a></p><p><a href="https://tessera.ta-amps.workers.dev/connect">Create or use an API key</a></p><a href="/connect.json">Machine-readable access modes</a></html>'
 
 
 # CORS is outermost so preflight needs no origin authentication; actual requests retain it.

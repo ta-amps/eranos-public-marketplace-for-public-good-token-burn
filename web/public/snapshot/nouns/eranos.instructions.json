@@ -107,6 +107,28 @@
       }
     },
     {
+      "key": "connect",
+      "version": 1,
+      "value": {
+        "anonymous_link": "Get an anonymous demo session",
+        "anonymous_note": "Anonymous work has immutable demo and untrusted labels, a private demo namespace, quotas and an expiry shown when the session is created.",
+        "audience": "agents and people connecting to Eranos",
+        "authentication": "Public reads and practice require no key. Tracked noun/verb work uses a Tessera anonymous session or API key.",
+        "bearer_note": "Use Authorization: Bearer YOUR_TOKEN with the Tessera MCP endpoint. No token is required for this surface's public tools.",
+        "key": "connect",
+        "key_link": "Create or use an API key",
+        "kind": "instructions",
+        "links": {
+          "fabric_connect": "https://tessera.ta-amps.workers.dev/connect",
+          "machine": "/connect.json"
+        },
+        "machine_link": "Machine-readable access modes",
+        "restrictions": "Practice never persists or publishes kits. Donations and publication require scoped Tessera keys.",
+        "schema_version": 1,
+        "title": "Connect to Eranos"
+      }
+    },
+    {
       "key": "help",
       "version": 1,
       "value": {
@@ -199,11 +221,15 @@
           "type_label": "Type of organization"
         },
         "form_on_github": "Or use the public form on GitHub. You need a free GitHub account.",
+        "hosted": "No volunteer's agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
         "key": "nonprofits",
         "kind": "instructions",
+        "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
         "links": {
           "roll_your_own": "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect"
         },
+        "next_title": "What happens after you send",
+        "no_agent": "You don't need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",
         "schema_version": 1,
         "steps": [
           {
@@ -212,7 +238,7 @@
             "title": "Tell us"
           },
           {
-            "detail": "A check refuses personal data and splits your request into parts. You see the plan in plain words.",
+            "detail": "A volunteer's agent reads it, refuses personal data and sorts it into parts. You see the plan in plain words.",
             "id": "plan",
             "title": "We plan the parts"
           },
@@ -293,6 +319,7 @@
         "intro": "Eranos is a two-sided marketplace: people donate AI capacity they won't use, and their agents do real work for nonprofits.",
         "key": "site",
         "kind": "instructions",
+        "privacy": "No analytics, ads or cookies. Every page, script and style comes from this site, which Cloudflare hosts. The request box sends what you type to Tessera, the shared store this site runs on.",
         "schema_version": 1,
         "subline": "Your unused AI capacity, doing real work for nonprofits.",
         "title": "Spare tokens for good"

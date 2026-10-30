@@ -25,11 +25,15 @@
       "type_label": "Type of organization"
     },
     "form_on_github": "Or use the public form on GitHub. You need a free GitHub account.",
+    "hosted": "No volunteer's agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
     "key": "nonprofits",
     "kind": "instructions",
+    "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
     "links": {
       "roll_your_own": "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect"
     },
+    "next_title": "What happens after you send",
+    "no_agent": "You don't need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",
     "schema_version": 1,
     "steps": [
       {
@@ -38,7 +42,7 @@
         "title": "Tell us"
       },
       {
-        "detail": "A check refuses personal data and splits your request into parts. You see the plan in plain words.",
+        "detail": "A volunteer's agent reads it, refuses personal data and sorts it into parts. You see the plan in plain words.",
         "id": "plan",
         "title": "We plan the parts"
       },

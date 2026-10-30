@@ -8,6 +8,7 @@ import type { SiteNoun } from "./lib/nouns";
 import { useSite } from "./lib/useSite";
 import { About } from "./pages/About";
 import { Catalog } from "./pages/Catalog";
+import { CONNECT_TITLE, Connect } from "./pages/Connect";
 import { Contribute } from "./pages/Contribute";
 import { Fabric } from "./pages/Fabric";
 import { Help } from "./pages/Help";
@@ -38,6 +39,8 @@ function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
       return <Fabric />;
     case "about":
       return <About />;
+    case "connect":
+      return <Connect />;
     case "notFound":
       return <NotFound path={route.path} />;
   }
@@ -63,6 +66,8 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string {
       return `Work queues · ${SURFACE_DISPLAY_NAME}`;
     case "about":
       return `About and safety · ${SURFACE_DISPLAY_NAME}`;
+    case "connect":
+      return CONNECT_TITLE;
     case "notFound":
       return `Page not found · ${SURFACE_DISPLAY_NAME}`;
   }
@@ -94,6 +99,11 @@ export function App() {
             infrastructure for tasks, storage and receipts. <a href={AGORA_URL}>Agora</a> explains how everything fits together. Every example is{" "}
             <code>SYNTHETIC</code>, and people keep every interview and every decision about a person.
           </p>
+          {site && (
+            <p className="er-muted er-small" data-testid="privacy-line">
+              {site.privacy}
+            </p>
+          )}
           <nav className="er-footer-links" aria-label="Footer and agent discovery links">
             <AppLink to="/help">I want to help</AppLink>
             <AppLink to="/nonprofits">For nonprofits</AppLink>

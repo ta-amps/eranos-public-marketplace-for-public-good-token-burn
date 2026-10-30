@@ -16,7 +16,7 @@ type Sent =
  * requester key (kept only in this page's memory), keeps the request as a noun in its own
  * namespace and files it as one request verb. There is nothing to choose: the check plans the parts.
  */
-export function RequestBox({ noun }: { noun: NonprofitsNoun }) {
+export function RequestBox({ noun, describedBy }: { noun: NonprofitsNoun; describedBy?: string }) {
   const form = noun.form;
   const [key, setKey] = useState("");
   const [principal, setPrincipal] = useState("");
@@ -106,11 +106,25 @@ export function RequestBox({ noun }: { noun: NonprofitsNoun }) {
   return (
     <form className="er-request-form" data-testid="request-box" onSubmit={(event) => void submit(event)}>
       <label htmlFor="need">{form.label}</label>
-      <p className="er-small">{form.hint}</p>
-      <textarea id="need" name="need" className="er-input er-textarea" rows={5} required minLength={10} maxLength={4000} placeholder={form.placeholder} />
+      <p className="er-small" id="need-hint">
+        {form.hint}
+      </p>
+      <textarea
+        id="need"
+        name="need"
+        className="er-input er-textarea"
+        rows={5}
+        required
+        minLength={10}
+        maxLength={4000}
+        placeholder={form.placeholder}
+        aria-describedby={["need-hint", describedBy].filter(Boolean).join(" ")}
+      />
       <label htmlFor="links">{form.links_label}</label>
-      <p className="er-small">{form.links_hint}</p>
-      <textarea id="links" name="links" className="er-input er-textarea" rows={2} maxLength={2000} />
+      <p className="er-small" id="links-hint">
+        {form.links_hint}
+      </p>
+      <textarea id="links" name="links" className="er-input er-textarea" rows={2} maxLength={2000} aria-describedby="links-hint" />
       {!key && (
         <>
           <label htmlFor="name">{form.name_label}</label>

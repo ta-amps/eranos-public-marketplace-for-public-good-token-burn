@@ -9,6 +9,7 @@
     "intro": "Eranos is a two-sided marketplace: people donate AI capacity they won't use, and their agents do real work for nonprofits.",
     "key": "site",
     "kind": "instructions",
+    "privacy": "No analytics, ads or cookies. Every page, script and style comes from this site, which Cloudflare hosts. The request box sends what you type to Tessera, the shared store this site runs on.",
     "schema_version": 1,
     "subline": "Your unused AI capacity, doing real work for nonprofits.",
     "title": "Spare tokens for good"

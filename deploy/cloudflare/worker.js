@@ -6,6 +6,8 @@ import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } fro
 // AI-agent discovery endpoints (/favicon.svg, /healthz, /robots.txt, /llms.txt, /llms-full.txt,
 // /.well-known/agent-card.json, POST /mcp) before SPA fallback, and serves /api/* natively 24/7 from
 // Cloudflare D1 (ta-amps-fabric) + env.TESSERA Service Binding, with optional Fly.io origin fallback.
+// An address outside the app's pages answers 404 with the app's "Page not found" view, and /connect is the
+// app's own page, with its text rendered in for readers that run no script.
 
 const DEFAULT_API_ORIGIN = "https://eranos-api.fly.dev";
 const ERANOS_VERSION = "0.1.0";
@@ -568,6 +570,63 @@ function unwrapDraftPayload(payload) {
 async function withDraftDigest(result, body) {
   const draft = body && typeof body.draft === "object" && body.draft !== null && !Array.isArray(body.draft) ? body.draft : body;
   return { ...result, draft_sha256: await sha256Hex(canonicalJson(draft)) };
+}
+
+// The web app's pages, as web/src/router.tsx lists them (tests/test_marketplace_site.py keeps the two equal).
+// Any other page address gets the app shell, whose router shows "Page not found", with status 404, so agents
+// and link checkers can tell a missing page from a real one.
+const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect"];
+const APP_KIT_PAGE_RE = /^\/catalog\/[^/]+$/;
+
+function isAppPage(pathname) {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  return APP_PAGES.includes(path) || APP_KIT_PAGE_RE.test(path);
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+}
+
+// /connect in the site's own layout: the app shell, titled from the `eranos.instructions/connect` noun, with that
+// noun's text in its page for readers that run no script. The app then renders the same noun with the site's
+// navigation, skip link and light and dark themes. /connect.json, the machine-readable access modes, is unchanged.
+async function connectPage(request, env) {
+  const found = await loadNoun(request, env, "eranos.instructions", "connect");
+  const noun = found && found.value && typeof found.value === "object" ? found.value : {};
+  const descriptor = accessDescriptor("eranos");
+  const links = noun.links || {};
+  const tessera = links.fabric_connect || descriptor.fabric_connect_url;
+  const title = noun.title || "Connect to Eranos";
+  const lines = [
+    `<h1>${escapeHtml(title)}</h1>`,
+    `<p>${escapeHtml(noun.authentication || descriptor.authentication)}</p>`,
+    `<p>${escapeHtml(noun.restrictions || descriptor.restrictions)}</p>`,
+    noun.anonymous_link ? `<p><a href="${escapeHtml(tessera)}">${escapeHtml(noun.anonymous_link)}</a></p>` : "",
+    noun.key_link ? `<p><a href="${escapeHtml(tessera)}">${escapeHtml(noun.key_link)}</a></p>` : "",
+    noun.anonymous_note ? `<p>${escapeHtml(noun.anonymous_note)}</p>` : "",
+    noun.bearer_note ? `<p>${escapeHtml(noun.bearer_note)}</p>` : "",
+    `<p><a href="${escapeHtml(links.machine || "/connect.json")}">${escapeHtml(noun.machine_link || "Machine-readable access modes")}</a></p>`,
+  ];
+  const main = `<main id="main">${lines.join("")}</main>`;
+  const page = /<main\b[^>]*>[\s\S]*?<\/main>/;
+  let html = null;
+  if (env && env.ASSETS) {
+    try {
+      const shell = await env.ASSETS.fetch(new Request(new URL("/", request.url), { method: "GET" }));
+      if (shell.ok && (shell.headers.get("content-type") || "").includes("text/html")) html = await shell.text();
+    } catch {
+      html = null;
+    }
+  }
+  if (html && page.test(html)) {
+    html = html.replace(/<title>[^<]*<\/title>/, () => `<title>${escapeHtml(title)}</title>`).replace(page, () => main);
+  } else {
+    html = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><body>${main}</body></html>`;
+  }
+  return new Response(request.method === "HEAD" ? null : html, {
+    status: 200,
+    headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
+  });
 }
 
 // Public Eranos nouns (page text, plans, requests, delivered reports, sources, verb templates):
@@ -1328,9 +1387,12 @@ async function handleDiscoveryRoute(request, env, pathname) {
 
 const onboardingApplication = {
   async fetch(request, env = {}) {
+    const { pathname } = new URL(request.url);
+    if (pathname.replace(/\/+$/, "") === "/connect" && (request.method === "GET" || request.method === "HEAD")) {
+      return finish(await connectPage(request, env), request.method);
+    }
     const access = accessResponse(request, "eranos");
     if (access) return finish(access, request.method);
-    const { pathname } = new URL(request.url);
     let response = await handleDiscoveryRoute(request, env, pathname);
     if (!response) {
       if (pathname === "/api" || pathname.startsWith("/api/")) {
@@ -1343,6 +1405,10 @@ const onboardingApplication = {
         response = env.ASSETS
           ? await env.ASSETS.fetch(request)
           : new Response("Not Found", { status: 404 });
+        const html = (response.headers.get("content-type") || "").includes("text/html");
+        if (response.status === 200 && html && !isAppPage(pathname)) {
+          response = new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers });
+        }
       } else {
         response = new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD" } });
       }

@@ -10,6 +10,7 @@ export type RouteMatch =
   | { name: "tracks" }
   | { name: "fabric" }
   | { name: "about" }
+  | { name: "connect" }
   | { name: "notFound"; path: string };
 
 const STATIC_ROUTES: Record<string, RouteMatch> = {
@@ -21,6 +22,7 @@ const STATIC_ROUTES: Record<string, RouteMatch> = {
   "/tracks": { name: "tracks" },
   "/fabric": { name: "fabric" },
   "/about": { name: "about" },
+  "/connect": { name: "connect" },
 };
 
 export function matchPath(rawPath: string): RouteMatch {
