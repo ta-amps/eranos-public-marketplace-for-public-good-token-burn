@@ -33,6 +33,23 @@ def _host(url: str) -> str:
     return host[4:] if host.startswith("www.") else host
 
 
+def _strings(value: Any, path: str) -> dict[str, str]:
+    """Every string in a report, keys included, by its path (`sources.0.title`)."""
+    if isinstance(value, str):
+        return {path: value}
+    if isinstance(value, dict):
+        out: dict[str, str] = {}
+        for key, item in value.items():
+            out[f"{path}.{key}:key"] = str(key)
+            out.update(_strings(item, f"{path}.{key}"))
+        return out
+    if isinstance(value, list):
+        return {
+            k: v for i, item in enumerate(value) for k, v in _strings(item, f"{path}.{i}").items()
+        }
+    return {}
+
+
 def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
     """Every reason this report cannot be delivered; an empty list means it may be."""
     if not isinstance(report, dict):
@@ -48,6 +65,14 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
     sources = {str(s.get("id")): s for s in report.get("sources") or [] if isinstance(s, dict)}
     for sid, source in sources.items():
         url, how = str(source.get("url") or ""), str(source.get("access") or "")
+        # Only the brief's sources can be checked: their address and text came with the brief.
+        if sid not in known:
+            findings.append(
+                f"source {sid} is not one of the brief's sources, so its quotes cannot be checked;"
+                " a person must review it"
+            )
+        elif url.strip() != str(known[sid].get("url") or "").strip():
+            findings.append(f"source {sid} does not point where the brief's source {sid} does")
         if urlsplit(url).scheme != "https" or source.get("public") is False:
             findings.append(f"source {sid} is not a public https source")
         host = _host(url)
@@ -73,16 +98,15 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
             quote = str(citation.get("quote") or "") if isinstance(citation, dict) else ""
             if sid not in sources:
                 findings.append(f"claim {cid} cites unknown source {sid!r}")
-            elif sid in known and (not quote or quote not in str(known[sid].get("text", ""))):
+            elif sid not in known:
+                findings.append(f"claim {cid} cites source {sid}, which the brief did not give")
+            elif not quote or quote not in str(known[sid].get("text", "")):
                 findings.append(f"claim {cid}: the quote is not in source {sid}")
-            elif sid not in known and not quote:
-                findings.append(f"claim {cid} gives no quote from source {sid}")
-    text_fields = {
-        "summary": str(report.get("summary") or ""),
-        "claims": " ".join(str(c.get("text", "")) for c in claims if isinstance(c, dict)),
-    }
-    findings += [f"report {f}" for f in personal_data_findings(text_fields)]
-    if words := find_accusatory_words(" ".join(text_fields.values())):
+    # The report is delivered to the public commons, so every string in it is screened.
+    strings = _strings(report, "report")
+    findings += personal_data_findings(strings)
+    own_words = " ".join(v for k, v in strings.items() if not k.endswith(".quote"))
+    if words := find_accusatory_words(own_words):
         findings.append(f"report uses accusatory words ({', '.join(words)})")
     disclaimer = str(rules.get("legal_disclaimer") or "not legal advice")
     if brief.get("legal") and disclaimer.lower() not in str(report.get("disclaimer") or "").lower():

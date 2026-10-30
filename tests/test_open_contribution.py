@@ -145,6 +145,64 @@ def test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimer
         assert report_findings(report, brief), name
 
 
+def test_report_review_refuses_citations_it_cannot_verify() -> None:
+    """Finding E1: only the brief's sources, at the brief's addresses, can back a delivered
+    report, and personal data anywhere in the report keeps it from the public commons."""
+    rules = instruction_nouns()["public-research"]
+    source = {
+        "id": "S1",
+        "title": "SYNTHETIC bill",
+        "url": "https://legislature.example.gov/bill-12",
+        "access": "official_download",
+        "public": True,
+        "synthetic": True,
+        "text": "SYNTHETIC stand-in. Deposits must be returned within 21 days.",
+    }
+    brief = {"report_id": "RPT-X-01", "legal": True, "guardrails": rules, "sources": [source]}
+    quote = "Deposits must be returned within 21 days."
+    good = {
+        "report_id": "RPT-X-01",
+        "title": "SYNTHETIC deposit rules",
+        "sources": [{k: v for k, v in source.items() if k != "text"}],
+        "claims": [{"id": "C1", "text": quote, "citations": [{"source": "S1", "quote": quote}]}],
+        "summary": "One cited point.",
+        "decision": rules["decision"],
+        "disclaimer": rules["disclaimer_text"],
+    }
+    assert report_findings(good, brief) == []
+    invented_source = {
+        "id": "S9",
+        "url": "https://made-up.example/page",
+        "access": "official_download",
+        "public": True,
+    }
+    cases = {
+        "a brief source at another address": {
+            **good,
+            "sources": [{**good["sources"][0], "url": "https://attacker.example/login"}],
+        },
+        "a source the brief did not give, with an invented quote": {
+            **good,
+            "sources": [invented_source],
+            "claims": [
+                {
+                    "id": "C1",
+                    "text": "Landlords may keep any deposit.",
+                    "citations": [{"source": "S9", "quote": "an invented sentence"}],
+                }
+            ],
+        },
+        "personal data in the title": {**good, "title": "Call Jane at 555-201-3344"},
+        "personal data in a source title": {
+            **good,
+            "sources": [{**good["sources"][0], "title": "jane.doe@gmail.com"}],
+        },
+        "personal data in a key": {**good, "stages": {"jane.doe@gmail.com": 1}},
+    }
+    for name, report in cases.items():
+        assert report_findings(report, brief), name
+
+
 def test_personal_data_screen_names_kinds_never_text() -> None:
     found = personal_data_findings(
         {
