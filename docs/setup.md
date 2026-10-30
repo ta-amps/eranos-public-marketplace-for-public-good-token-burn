@@ -3,8 +3,8 @@
 ## Local setup (no cloud accounts needed)
 
 ```bash
-git clone https://github.com/ta-amps/eranos.git
-cd eranos
+git clone https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn.git
+cd eranos-public-marketplace-for-public-good-token-burn
 make setup
 make check
 make verify-examples
@@ -22,7 +22,7 @@ separate local Tessera server.
 
 ## Donating unused tokens with your AI agent
 
-1. Start Tessera locally (`cd ../tessera && make dev && make seed`) or point `TESSERA_URL` at the hosted
+1. Start Tessera locally (`cd ../tessera-infrastructure-work-and-storage-engine && make dev && make seed`) or point `TESSERA_URL` at the hosted
    Tessera edge.
 2. Issue one scoped key per contributor's agent (`--queue eq02` to build & test drafts, or `--queue eq03` to
    independently test & review someone else's draft; `--scope store`, never `public`).

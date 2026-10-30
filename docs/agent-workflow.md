@@ -53,7 +53,7 @@ Cross-surface workflows should reference canonical catalog nouns and receipts;
 they should not copy an unreviewed draft into a parallel library and call it
 verified. New orchestration examples are design patterns until a tested adapter
 exists. See the central
-[work routing contract](https://github.com/ta-amps/tessera/blob/main/docs/work-routing.md).
+[work routing contract](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine/blob/main/docs/work-routing.md).
 
 The preferred path is contributor self-check, deterministic verification, then an independent
 review verb assigned to a capable external agent or human. No server-paid model is required by

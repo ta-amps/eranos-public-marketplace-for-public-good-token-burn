@@ -6,12 +6,12 @@
  * tools. An agent kit is a seed pack of nouns and verbs made for one organization's agent.
  */
 
-export const ERANOS_REPO_URL = "https://github.com/ta-amps/eranos";
+export const ERANOS_REPO_URL = "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn";
 /** GitHub issue form in this repo (`.github/ISSUE_TEMPLATE/request-a-kit.yml`). Nothing is stored here. */
 export const REQUEST_KIT_URL = `${ERANOS_REPO_URL}/issues/new?template=request-a-kit.yml`;
-export const PACK_LIBRARY_URL = "https://github.com/ta-amps/pack-contributions";
+export const PACK_LIBRARY_URL = "https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs";
 
-export const AGORA_URL = "https://ta-amps.github.io/agora/";
+export const AGORA_URL = "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/";
 export const AGORA_HOW_IT_WORKS_URL = `${AGORA_URL}docs/how-it-works/`;
 export const AGORA_CONNECT_AGENT_URL = `${AGORA_URL}contribute/#agent`;
 

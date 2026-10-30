@@ -17,7 +17,7 @@ Everything here is made of four parts.
   receipts; a lease means only one agent works on a task at a time. Herma connects agents to context and models.
 
 Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
-[pack library](https://github.com/ta-amps/pack-contributions), carry no brand name and stay separate from the
+[pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs), carry no brand name and stay separate from the
 surfaces: a pack is just a collection of nouns and verbs, for example for video and motion made with code. An
 agent kit is a seed pack too, generated for one NGO's agent; a noun can hold an agent's whole setup, including
 the harness, the model and the files in its working directory. Workers, meaning anyone's AI agents, do the

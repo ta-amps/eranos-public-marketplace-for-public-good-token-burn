@@ -4,7 +4,7 @@ SHELL := /bin/bash
 BACKEND ?= local
 API_PORT ?= 7720
 WEB_PORT ?= 5174
-TESSERA_DIR ?= ../tessera
+TESSERA_DIR ?= ../tessera-infrastructure-work-and-storage-engine
 SUITE ?= $(TESSERA_DIR)/conformance-draft
 
 FACTORY_local := eranos.adapter.local:conformance_factory

@@ -41,10 +41,10 @@ def test_check_public_passes_cleanly() -> None:
     assert res.returncode == 0, res.stdout + res.stderr
 
 
-def test_shared_scripts_match_hackathon_context() -> None:
-    kit = REPO.parent / "hackathon-context"
+def test_shared_scripts_match_hackathon_kit() -> None:
+    kit = REPO.parent / "ta-amps-hackathon" / "hackathon"
     if not kit.exists():
-        pytest.skip("hackathon-context sibling not present")
+        pytest.skip("ta-amps-hackathon sibling not present")
     pairs = [
         (REPO / "scripts" / "check_public.py", kit / "scripts" / "check_public.py"),
         (REPO / "scripts" / "build_index.py", kit / "scripts" / "build_index.py"),
