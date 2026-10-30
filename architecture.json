@@ -56,7 +56,8 @@
     "run": "make web",
     "web_check": "make web-check",
     "architecture": "make architecture",
-    "index": "make index"
+    "index": "make index",
+    "record_runs": "make record-runs"
   },
   "components": [
     {
@@ -223,7 +224,7 @@
       ],
       "kind": "cli",
       "domain": "neutral",
-      "role": "eranos tracks, verify-examples, practice, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot",
+      "role": "eranos tracks, verify-examples, practice, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot, and record-example-runs (one example-run evidence noun per example kit)",
       "depends_on": [
         "adapter",
         "copy",
@@ -238,6 +239,7 @@
         "cli"
       ],
       "tests": [
+        "tests/test_example_runs.py",
         "tests/test_pipeline.py"
       ]
     },
@@ -316,7 +318,8 @@
         "eranos practice <kit.json> [--dry-run]",
         "eranos donor-demo [--live-ollama]",
         "eranos seed-requests",
-        "eranos export-snapshot [OUT_DIR]"
+        "eranos export-snapshot [OUT_DIR]",
+        "eranos record-example-runs [OUT_DIR]"
       ]
     },
     {

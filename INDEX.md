@@ -83,7 +83,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/status.md](docs/status.md) | Status |
 | [docs/summary.md](docs/summary.md) | Summary |
 
-## eranos/ (25)
+## eranos/ (26)
 
 | File | What it is |
 |---|---|
@@ -102,6 +102,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/jsonfile.py](eranos/jsonfile.py) | Strict JSON loader: rejects repeated object keys and NaN/Infinity so track and kit files stay unambiguous. |
 | [eranos/log.py](eranos/log.py) | Structured JSON Lines run logger (ts, level, event, taskid, kitid, queue, leaseid, costusd). |
 | [eranos/pipeline/__init__.py](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
+| [eranos/pipeline/examples.py](eranos/pipeline/examples.py) | Example needs and recorded example runs: the nouns the marketplace shows about its example kits. |
 | [eranos/pipeline/publication.py](eranos/pipeline/publication.py) | Durable review intent, independent proof and retryable catalog publication. |
 | [eranos/pipeline/run.py](eranos/pipeline/run.py) | Two-step volunteer agent pipeline on Tessera (eq01 spec -> eq02 draft -> eq03 review -> CAS catalog). |
 | [eranos/pipeline/seed_packs.py](eranos/pipeline/seed_packs.py) | Example kits whose nouns and verbs live in the seed-pack library. |
@@ -142,13 +143,14 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (11)
+## tests/ (12)
 
 | File | What it is |
 |---|---|
 | [tests/test_agent_access.py](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
 | [tests/test_api_and_edge.py](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
+| [tests/test_example_runs.py](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
 | [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |

@@ -4,9 +4,13 @@ Tessera pipeline on example kits, seed volunteer requests, and export static web
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
+import platform
 import shutil
+import subprocess
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +22,8 @@ from eranos.donor_worker import DEFAULT_CHAT_BASE, DEFAULT_DONOR_MODEL, run_dono
 from eranos.jsonfile import load_json
 from eranos.pipeline import (
     ensure_queues,
+    example_paths,
+    library_root,
     list_published_kits,
     load_example_bundles,
     resume_steward_signoff,
@@ -26,6 +32,7 @@ from eranos.pipeline import (
     run_spec_step,
     submit_kit_request,
 )
+from eranos.pipeline.examples import RUN_SCHEMA, bundle_sha256
 from eranos.queues import QUEUE_LABELS, STAGES
 from eranos.schemas import KitRequest, ReviewDecision, TaskBrief
 from eranos.tracks import load_tracks
@@ -34,12 +41,14 @@ from eranos.verifier import practice_verify_kit
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
-def _run_all_examples(backend: Any) -> list[dict[str, Any]]:
+def _run_all_examples(backend: Any, graphs: list[Any] | None = None) -> list[dict[str, Any]]:
     bundles = load_example_bundles()
     results: list[dict[str, Any]] = []
     for idx, bundle in enumerate(bundles, start=1):
         req = KitRequest.model_validate(bundle["request"])
         graph = submit_kit_request(backend, req)
+        if graphs is not None:
+            graphs.append(graph)
         run_spec_step(backend, worker=f"spec-gate-{idx:02d}", key_id=f"key_spec_{idx:02d}")
         run_draft_step(
             backend,
@@ -83,6 +92,160 @@ def _run_all_examples(backend: Any) -> list[dict[str, Any]]:
                 raise RuntimeError(f"Expected {req.kit_id} to publish on review")
             results.append(first_review)
     return results
+
+
+# DMI chassis types (SMBIOS 3.x), read only to say honestly what kind of computer ran the examples.
+LAPTOP_CHASSIS = frozenset({8, 9, 10, 14, 30, 31, 32})
+DESKTOP_CHASSIS = frozenset({3, 4, 5, 6, 7, 13, 15, 16, 24, 35, 36})
+WHERE = {"laptop": "a laptop", "desktop": "a desktop computer", "unknown": "a local computer"}
+
+
+def _machine_class() -> str:
+    try:
+        chassis = int(Path("/sys/class/dmi/id/chassis_type").read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return "unknown"
+    if chassis in LAPTOP_CHASSIS:
+        return "laptop"
+    return "desktop" if chassis in DESKTOP_CHASSIS else "unknown"
+
+
+def _git_state(path: Path) -> dict[str, Any]:
+    try:
+        commit = subprocess.run(
+            ["git", "-C", str(path), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+        dirty = subprocess.run(
+            ["git", "-C", str(path), "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+    except (OSError, subprocess.CalledProcessError):
+        return {"commit": None, "tree_clean": None}
+    return {"commit": commit, "tree_clean": not dirty}
+
+
+def _task_receipt(backend: Any, task_id: str, workers: dict[str, str]) -> dict[str, Any]:
+    results = backend.results(task_id)
+    if not results:
+        raise RuntimeError(f"example run left no result for {task_id}")
+    last = results[-1]
+    return {
+        "task_id": task_id,
+        "worker": workers.get(task_id),
+        "key_id": last.completed_by_key,
+        "ok": last.ok,
+        "receipt_sha256": last.receipt_hash,
+        "state_after": str(last.state_after),
+        "submitted_at": last.created_at.isoformat()
+        if hasattr(last.created_at, "isoformat")
+        else str(last.created_at),
+    }
+
+
+def cmd_record_example_runs(out_dir: Path) -> int:
+    """Check, build and review every example kit on this store; write one evidence noun per kit."""
+    repo = _git_state(REPO_ROOT)
+    library = _git_state(library_root())
+    machine = _machine_class()
+    bundles = load_example_bundles()
+    paths = example_paths()
+    graphs: list[Any] = []
+    backend = get_adapter()
+    try:
+        results = _run_all_examples(backend, graphs)
+        workers: dict[str, str] = {}
+        after = 0
+        while True:
+            events = backend.events(after=after, limit=1000)
+            if not events:
+                break
+            for event in events:
+                if event.type == "claimed" and event.task_id and event.worker:
+                    workers[event.task_id] = event.worker
+            after = events[-1].seq
+        records = []
+        for path, bundle, graph, final in zip(paths, bundles, graphs, results, strict=True):
+            published = final["published"]
+            draft_receipt = _task_receipt(backend, graph.draft_task_id, workers)
+            draft_output = backend.results(graph.draft_task_id)[-1].output
+            review_task = backend.task(graph.review_task_id)
+            records.append(
+                {
+                    "schema": RUN_SCHEMA,
+                    "synthetic": True,
+                    "kit_id": graph.kit_id,
+                    "title": bundle["request"]["title"],
+                    "example": {
+                        "path": path.relative_to(REPO_ROOT).as_posix(),
+                        "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                    },
+                    "inputs_sha256": bundle_sha256(bundle),
+                    "seed_pack": bundle.get("seed_pack"),
+                    "verbs": [
+                        {
+                            "verb": "check",
+                            "queue": "eq01",
+                            **_task_receipt(backend, graph.spec_task_id, workers),
+                        },
+                        {
+                            "verb": "build",
+                            "queue": "eq02",
+                            **draft_receipt,
+                            "draft_sha256": draft_output["blob_sha256"],
+                            "verification": {
+                                "passed": draft_output["verification"]["passed"],
+                                "checks_run": len(draft_output["verification"]["checks_run"]),
+                                "fixtures": draft_output["verification"]["fixture_count"],
+                                "human_only_steps": draft_output["verification"][
+                                    "human_only_steps"
+                                ],
+                            },
+                        },
+                        {
+                            "verb": "review",
+                            "queue": "eq03",
+                            **_task_receipt(backend, graph.review_task_id, workers),
+                            "parked_for_steward": int(review_task.parks) > 0,
+                            "steward_signoff": published.get("steward_signoff"),
+                            "publication_sha256": published.get("publication_sha256"),
+                        },
+                    ],
+                    "outcome": final["status"],
+                    "catalog_version": published["catalog_version"],
+                    "where": WHERE[machine],
+                    "data": "synthetic",
+                    "summary_label": f"example runs on {WHERE[machine]}, synthetic data",
+                    "machine": {
+                        "class": machine,
+                        "os": platform.system(),
+                        "python": platform.python_version(),
+                    },
+                    "source": {
+                        "repository": "eranos-public-marketplace-for-public-good-token-burn",
+                        **repo,
+                        "seed_pack_library": library,
+                    },
+                    "store": "local Tessera store in a temporary folder, discarded after the run",
+                    "model_calls": 0,
+                    "recorded_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                }
+            )
+    finally:
+        backend.close()
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for stale in out_dir.glob("*.json"):
+        stale.unlink()
+    for record in records:
+        (out_dir / f"{record['kit_id']}.json").write_text(
+            json.dumps(record, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+        )
+    print(f"recorded {len(records)} example runs in {out_dir} on {WHERE[machine]}")
+    return 0
 
 
 def cmd_tracks() -> int:
@@ -308,6 +471,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     donor.add_argument("--model", default=DEFAULT_DONOR_MODEL)
     donor.add_argument("--base-url", default=DEFAULT_CHAT_BASE)
+    rec = sub.add_parser(
+        "record-example-runs",
+        help="Check, build and review every example kit and write one example-run evidence noun per kit",
+    )
+    rec.add_argument("out", type=Path, default=REPO_ROOT / "examples" / "runs", nargs="?")
     snap = sub.add_parser(
         "export-snapshot", help="Write static snapshot JSON files for the web app"
     )
@@ -328,6 +496,8 @@ def main(argv: list[str] | None = None) -> int:
             model=str(args.model),
             base_url=str(args.base_url),
         )
+    if args.cmd == "record-example-runs":
+        return cmd_record_example_runs(args.out)
     if args.cmd == "export-snapshot":
         return cmd_export_snapshot(args.out)
     return 1
