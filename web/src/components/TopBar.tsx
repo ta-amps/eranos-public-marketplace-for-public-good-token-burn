@@ -1,12 +1,11 @@
-import { FABRIC_DISPLAY_NAME, SURFACE_DISPLAY_NAME } from "../config";
+import { SURFACE_DISPLAY_NAME } from "../config";
+import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
 import { AppLink, type RouteMatch } from "../router";
 
 const NAV_ITEMS = [
-  { to: "/", label: "Overview", match: "overview" },
-  { to: "/catalog", label: "Off-the-Shelf Catalog", match: "catalog" },
-  { to: "/contribute", label: "Donate Tokens", match: "contribute" },
-  { to: "/tracks", label: "Public-Good Tracks", match: "tracks" },
-  { to: "/fabric", label: FABRIC_DISPLAY_NAME, match: "fabric" },
+  { to: "/help", label: "I want to help", match: "help" },
+  { to: "/nonprofits", label: "For nonprofits", match: "nonprofits" },
+  { to: "/catalog", label: "Kit catalog", match: "catalog" },
   { to: "/about", label: "About", match: "about" },
 ] as const;
 
@@ -15,7 +14,7 @@ export function TopBar({ route }: { route: RouteMatch }) {
   return (
     <header className="er-topbar">
       <div className="er-topbar-inner">
-        <AppLink to="/" className="er-brand">
+        <AppLink to="/" className="er-brand" aria-current={active === "overview" ? "page" : undefined}>
           <svg
             className="er-brand-logo"
             width="28"
@@ -44,7 +43,7 @@ export function TopBar({ route }: { route: RouteMatch }) {
             <polygon points="32,23 39,32 32,41 25,32" fill="#ffffff" />
           </svg>
           <span>{SURFACE_DISPLAY_NAME}</span>
-          <span className="er-brand-sub">Donate unused tokens · Off-the-shelf AI tools for NGOs</span>
+          <span className="er-brand-sub">Spare AI capacity · Agent kits for nonprofits</span>
         </AppLink>
         <nav className="er-nav" aria-label="Primary navigation">
           {NAV_ITEMS.map((item) => (
@@ -56,6 +55,7 @@ export function TopBar({ route }: { route: RouteMatch }) {
               {item.label}
             </AppLink>
           ))}
+          <a href={AGORA_HOW_IT_WORKS_URL}>How it works</a>
         </nav>
       </div>
     </header>

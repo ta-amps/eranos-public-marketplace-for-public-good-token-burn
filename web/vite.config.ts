@@ -1,7 +1,23 @@
 import { fileURLToPath } from "node:url";
 
 import react from "@vitejs/plugin-react";
-import { defineConfig, loadEnv, type Plugin } from "vite";
+import { defineConfig, loadEnv, searchForWorkspaceRoot, type Plugin } from "vite";
+
+/**
+ * The Worker's onboarding module, vendored unchanged from Tessera. It also builds the `/agent-start.json`
+ * noun, so importing it keeps the brief that the /help page copies identical to what the Worker serves.
+ */
+const AGENT_START_MODULE = fileURLToPath(new URL("../deploy/cloudflare/agent_start.js", import.meta.url));
+
+/** `virtual:agent-start` resolves to the onboarding module above. */
+function agentStart(): Plugin {
+  return {
+    name: "eranos-agent-start",
+    resolveId(id) {
+      return id === "virtual:agent-start" ? AGENT_START_MODULE : null;
+    },
+  };
+}
 
 /**
  * `virtual:snapshot-data` resolves to the bundled snapshot (VITE_SNAPSHOT=1) or to an empty map.
@@ -51,8 +67,12 @@ export default defineConfig(({ mode }) => {
   const offline = (process.env.VITE_SNAPSHOT ?? env.VITE_SNAPSHOT) === "1";
   const apiOrigin = process.env.VITE_API_ORIGIN ?? env.VITE_API_ORIGIN ?? "http://127.0.0.1:7720";
   return {
-    plugins: [react(), snapshotData(offline), stripEmDashes()],
-    server: { port: 5174, proxy: { "/api": apiOrigin } },
+    plugins: [react(), snapshotData(offline), agentStart(), stripEmDashes()],
+    server: {
+      port: 5174,
+      proxy: { "/api": apiOrigin },
+      fs: { allow: [searchForWorkspaceRoot(process.cwd()), AGENT_START_MODULE] },
+    },
     preview: { port: 4174 },
     build: { outDir: "dist", sourcemap: true },
   };

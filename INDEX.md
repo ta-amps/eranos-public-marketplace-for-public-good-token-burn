@@ -27,10 +27,11 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [.claude/hooks/guard.py](.claude/hooks/guard.py) | Claude Code PreToolUse guard: enforces the hard rules in every permission mode. |
 | [.claude/settings.json](.claude/settings.json) | JSON object: $schema, permissions, hooks |
 
-## .github/ (2)
+## .github/ (3)
 
 | File | What it is |
 |---|---|
+| [.github/ISSUE_TEMPLATE/request-a-kit.yml](.github/ISSUE_TEMPLATE/request-a-kit.yml) |  |
 | [.github/workflows/ci.yml](.github/workflows/ci.yml) |  |
 | [.github/workflows/deploy.yml](.github/workflows/deploy.yml) |  |
 
@@ -131,7 +132,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (9)
+## tests/ (10)
 
 | File | What it is |
 |---|---|
@@ -139,6 +140,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_api_and_edge.py](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
+| [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
 | [tests/test_public_feed.py](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
 | [tests/test_review_contract.py](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
@@ -151,13 +153,13 @@ Every file in this repo with a one-line description taken from the file itself. 
 |---|---|
 | [tracks/README.md](tracks/README.md) | Eranos Tracks |
 | [tracks/coerced-work-hotline-routing/track.json](tracks/coerced-work-hotline-routing/track.json) | Coerced Recruitment & Crisis Helpline Routing Kits |
-| [tracks/grant-and-compliance-ops/track.json](tracks/grant-and-compliance-ops/track.json) | Small-Nonprofit Grant Reporting & Restricted-Fund Tools |
+| [tracks/grant-and-compliance-ops/track.json](tracks/grant-and-compliance-ops/track.json) | Small-Nonprofit Grant Reporting & Restricted-Fund Kits |
 | [tracks/housing-and-charity-verification/track.json](tracks/housing-and-charity-verification/track.json) | Rental Deposit & Disaster-Relief Charity Check Kits |
 | [tracks/intake-and-referral-triage/track.json](tracks/intake-and-referral-triage/track.json) | Multilingual Service-Finder & Warm-Referral Operations |
 | [tracks/job-recruitment-triage/track.json](tracks/job-recruitment-triage/track.json) | Cross-Border Job Offer & Fee-Shift Intake Kits |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (53)
+## web/ (60)
 
 | File | What it is |
 |---|---|
@@ -186,13 +188,17 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: synthetic, tracks |
 | [web/src/App.tsx](web/src/App.tsx) |  |
+| [web/src/components/AgentBrief.tsx](web/src/components/AgentBrief.tsx) |  |
 | [web/src/components/BoundaryBadge.tsx](web/src/components/BoundaryBadge.tsx) |  |
 | [web/src/components/ErrorAlert.tsx](web/src/components/ErrorAlert.tsx) |  |
+| [web/src/components/Marketplace.tsx](web/src/components/Marketplace.tsx) |  |
+| [web/src/components/OpenTasks.tsx](web/src/components/OpenTasks.tsx) |  |
 | [web/src/components/SyntheticBanner.tsx](web/src/components/SyntheticBanner.tsx) |  |
 | [web/src/components/TopBar.tsx](web/src/components/TopBar.tsx) |  |
 | [web/src/config.ts](web/src/config.ts) |  |
 | [web/src/lib/api.ts](web/src/lib/api.ts) |  |
 | [web/src/lib/copy.ts](web/src/lib/copy.ts) |  |
+| [web/src/lib/marketplace.ts](web/src/lib/marketplace.ts) |  |
 | [web/src/lib/snapshot-data.live.ts](web/src/lib/snapshot-data.live.ts) |  |
 | [web/src/lib/snapshot-data.offline.ts](web/src/lib/snapshot-data.offline.ts) |  |
 | [web/src/lib/types.ts](web/src/lib/types.ts) |  |
@@ -202,7 +208,9 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/pages/Catalog.tsx](web/src/pages/Catalog.tsx) |  |
 | [web/src/pages/Contribute.tsx](web/src/pages/Contribute.tsx) |  |
 | [web/src/pages/Fabric.tsx](web/src/pages/Fabric.tsx) |  |
+| [web/src/pages/Help.tsx](web/src/pages/Help.tsx) |  |
 | [web/src/pages/KitDetail.tsx](web/src/pages/KitDetail.tsx) |  |
+| [web/src/pages/Nonprofits.tsx](web/src/pages/Nonprofits.tsx) |  |
 | [web/src/pages/NotFound.tsx](web/src/pages/NotFound.tsx) |  |
 | [web/src/pages/Overview.tsx](web/src/pages/Overview.tsx) |  |
 | [web/src/pages/Tracks.tsx](web/src/pages/Tracks.tsx) |  |
@@ -211,6 +219,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/styles/tokens.css](web/src/styles/tokens.css) |  |
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
+| [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |
 | [web/tests/shell.spec.ts](web/tests/shell.spec.ts) |  |
 | [web/tsconfig.json](web/tsconfig.json) | JSON object: compilerOptions, include |
 | [web/vite.config.ts](web/vite.config.ts) |  |

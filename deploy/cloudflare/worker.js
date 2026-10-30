@@ -1,4 +1,4 @@
-import { agentStartAsset, withAgentStart } from "./agent_start.js";
+import { agentStartAsset } from "./agent_start.js";
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
 import { schemaIssues } from "./schema.js";
 import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
@@ -69,12 +69,16 @@ Allow: /llms-full.txt
 Allow: /.well-known/agent-card.json
 `;
 
-const FALLBACK_LLMS_TXT = `# Eranos: donate unused AI tokens to build & test off-the-shelf tools for NGOs
+const FALLBACK_LLMS_TXT = `# Eranos: spare AI capacity builds tested agent kits for nonprofits
 
-- /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
-> Public-good NGO volunteer agent tooling foundry running on Tessera (eq01 -> eq02 -> eq03 -> eranos.catalog).
+> A two-sided marketplace. People donate AI capacity they won't use; their agents build, check and independently review agent kits for nonprofits, NGOs and public-good groups (eq01 check -> eq02 build -> eq03 review -> eranos.catalog). An agent kit is a seed pack of nouns and verbs made for one organization's agent. Tessera is the shared infrastructure underneath; Agora (https://ta-amps.github.io/agora/) explains how it all works.
+
+## The two sides
+- /help: I want to help. Connect your own agent, copy a starting brief and see the open tasks.
+- /nonprofits: I'm an NGO looking for agentic solutions. Browse reviewed example kits or request a kit.
 
 ## Discovery & API
+- /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
 - /api/catalog: Verified two-step reviewed NGO kits (?domain=&track=&tag=&cohort=&spdx=&q=)
 - /api/tracks: Six public-good NGO and nonprofit build tracks
 - /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
@@ -106,10 +110,10 @@ const FALLBACK_TRACKS = [
   },
   {
     id: "grant-and-compliance-ops",
-    title: "Small-Nonprofit Grant Reporting & Restricted-Fund Tools",
+    title: "Small-Nonprofit Grant Reporting & Restricted-Fund Kits",
     domain: "nonprofit_ops",
     summary:
-      "Gives small nonprofits deterministic budget-reconciliation tools, restricted-grant deadline trackers, and audit-prep checklists.",
+      "Gives small nonprofits deterministic budget-reconciliation checks, restricted-grant deadline trackers, and audit-prep checklists.",
     sister_area: null,
     organizations: [],
     allowed_artifacts: ["agent_skill", "mcp_tool_spec", "compliance_checklist", "synthetic_test_pack"],
@@ -148,7 +152,7 @@ const FALLBACK_TRACKS = [
     title: "Cross-Border Job Offer & Fee-Shift Intake Kits",
     domain: "anti_exploitation",
     summary:
-      "Equips migrant-worker centres and labour-rights clinics with fee arithmetic tools, contract comparison checklists, and escalation workflows.",
+      "Equips migrant-worker centres and labour-rights clinics with fee arithmetic checks, contract comparison checklists, and escalation workflows.",
     sister_area: "recruitment",
     organizations: [],
     allowed_artifacts: ["agent_skill", "mcp_tool_spec", "intake_checklist", "synthetic_test_pack"],
@@ -752,7 +756,7 @@ function buildStaticAgentCard(request) {
     name: "Eranos",
     surface_id: "surface:eranos",
     description:
-      "Public-good NGO tooling foundry where contributors donate unused AI tokens to build, deterministically verify, and independently review (drafter != reviewer) off-the-shelf agent skills, read-only MCP tools, SOPs, and workflows.",
+      "Two-sided marketplace where people donate spare AI capacity and their agents build, deterministically check, and independently review (drafter != reviewer) agent kits for nonprofits, NGOs and public-good groups. A kit bundles instructions, skills, knowledge, read-only service connections, a step map with person-only steps, and synthetic checks and tests.",
     version: ERANOS_VERSION,
     url: origin,
     synthetic_only: true,
@@ -1292,9 +1296,12 @@ const onboardingApplication = {
   },
 };
 
+// The vendored onboarding module still serves /agent-start.{js,css,json}. Its landing banner is not
+// injected here: the home page opens on the marketplace's two front doors, and the /help page copies the
+// same starting brief, built in the browser with this same module.
 export default {
   ...onboardingApplication,
   async fetch(request, env, ctx) {
-    return agentStartAsset(request) || withAgentStart(request, await onboardingApplication.fetch(request, env, ctx));
+    return agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
   },
 };

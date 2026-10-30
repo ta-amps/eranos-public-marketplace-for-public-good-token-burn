@@ -11,9 +11,10 @@ export function Fabric() {
   return (
     <div>
       <section className="er-section">
-        <h1>Tessera queues &amp; atomic CAS publication</h1>
+        <h1>Work queues on Tessera</h1>
         <p className="er-lede">
-          Eranos uses three leased queues on Tessera (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
+          Tessera is the shared infrastructure underneath Eranos. Eranos uses three leased queues on it{" "}
+          (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
           quarantining unreviewed drafts as <code>surface_only</code> and promoting independently reviewed packages via
           content-addressed SHA-256 blobs and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
           <code>eranos.index</code>).

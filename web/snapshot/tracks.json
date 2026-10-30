@@ -46,10 +46,10 @@
     },
     {
       "id": "grant-and-compliance-ops",
-      "title": "Small-Nonprofit Grant Reporting & Restricted-Fund Tools",
+      "title": "Small-Nonprofit Grant Reporting & Restricted-Fund Kits",
       "domain": "nonprofit_ops",
       "domain_label": null,
-      "summary": "Gives small nonprofits with no dedicated finance staff deterministic budget-reconciliation tools, restricted-grant deadline trackers, and audit-prep checklists.",
+      "summary": "Gives small nonprofits with no dedicated finance staff deterministic budget-reconciliation checks, restricted-grant deadline trackers, and audit-prep checklists.",
       "sister_area": null,
       "organizations": [
         {
@@ -85,7 +85,7 @@
       "title": "Rental Deposit & Disaster-Relief Charity Check Kits",
       "domain": "anti_exploitation",
       "domain_label": null,
-      "summary": "Provides community legal-aid clinics and disaster-response coalitions with public-registry lookup schemas, deposit-escrow checklists, and fee-comparison tools.",
+      "summary": "Provides community legal-aid clinics and disaster-response coalitions with public-registry lookup schemas, deposit-escrow checklists, and fee-comparison checks.",
       "sister_area": "charity",
       "organizations": [
         {
@@ -162,7 +162,7 @@
       "title": "Cross-Border Job Offer & Fee-Shift Intake Kits",
       "domain": "anti_exploitation",
       "domain_label": null,
-      "summary": "Equips migrant-worker centres and labour-rights clinics with agent-assisted fee arithmetic tools, contract comparison checklists, and escalation workflows derived from Shamash's recruitment indicators.",
+      "summary": "Equips migrant-worker centres and labour-rights clinics with agent-assisted fee arithmetic checks, contract comparison checklists, and escalation workflows drawn from the recruitment indicators in the exploitation-evidence pack.",
       "sister_area": "recruitment",
       "organizations": [
         {

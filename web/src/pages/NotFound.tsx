@@ -8,7 +8,7 @@ export function NotFound({ path }: { path: string }) {
         No Eranos page matches <code>{path}</code>.
       </p>
       <p>
-        <AppLink to="/">Return to Overview</AppLink>
+        <AppLink to="/">Go to the home page</AppLink>
       </p>
     </section>
   );

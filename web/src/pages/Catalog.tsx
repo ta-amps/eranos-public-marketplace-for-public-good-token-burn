@@ -103,12 +103,12 @@ export function Catalog() {
   return (
     <div>
       <section className="er-section">
-        <h1>Off-the-Shelf NGO Catalog: Skills, Tools, Files &amp; Agentic Processes</h1>
+        <h1>Kit catalog: reviewed agent kits</h1>
         <p className="er-lede">
-          Ready-to-use public-good packages built and tested with donated tokens. Every kit below passed deterministic
-          boundary, open-SPDX, and test-fixture verification on <code>eq02</code> plus independent review (
-          <code>drafter != reviewer</code>) on <code>eq03</code> before atomic publication to{" "}
-          <code>eranos.catalog</code>.
+          Every kit here passed its checks and tests on <code>eq02</code>, then a review by a different volunteer
+          on <code>eq03</code> (<code>drafter != reviewer</code>), before it was published to{" "}
+          <code>eranos.catalog</code>. All of them use synthetic data. A reviewed kit is not certified for your
+          organization.
         </p>
 
         <div className="er-filter-bar" role="group" aria-label="Quick category filter buttons">
@@ -242,7 +242,7 @@ export function Catalog() {
           )}
         </div>
 
-        {activeState.status === "loading" && <p className="er-muted">Loading verified kits...</p>}
+        {activeState.status === "loading" && <p className="er-muted">Loading kits...</p>}
         {activeState.status === "error" && (
           <ErrorAlert
             title="Error loading catalog"
@@ -293,13 +293,12 @@ export function Catalog() {
                     <strong>Cohorts:</strong> <code>{kitCohorts.join(", ")}</code>
                   </p>
                   <p className="er-muted">
-                    <strong>Autonomy split:</strong> {entry.kit.steps.length} workflow steps ({humanCount} strictly
-                    human-only) · {skills.length} skill(s) · {tools.length} MCP tool(s) ·{" "}
-                    {entry.kit.artifacts.length} custom artifact(s)
+                    <strong>Step map:</strong> {entry.kit.steps.length} steps, {humanCount} person only ·{" "}
+                    {skills.length} skill(s) · {tools.length} connection(s) · {entry.kit.artifacts.length} file(s)
                   </p>
                   <div className="er-actions er-mt-auto" >
                     <AppLink to={`/catalog/${entry.kit.kit_id}`} className="er-btn-secondary">
-                      Inspect deliverables, schemas &amp; receipts
+                      Open the kit
                     </AppLink>
                   </div>
                 </article>

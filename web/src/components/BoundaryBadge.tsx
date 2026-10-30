@@ -7,7 +7,7 @@ export function BoundaryBadge({ boundary }: { boundary: AutonomyBoundary }) {
   if (boundary === "assists") {
     return <span className="er-chip er-chip-assists">Agent assists</span>;
   }
-  return <span className="er-chip er-chip-human">Human only</span>;
+  return <span className="er-chip er-chip-human">Person only</span>;
 }
 
 export function DomainBadge({ domain, label }: { domain: TrackDomain; label?: string | null }) {

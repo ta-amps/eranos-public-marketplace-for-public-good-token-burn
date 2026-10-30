@@ -2,6 +2,8 @@ import { useSyncExternalStore, type AnchorHTMLAttributes, type MouseEvent, type 
 
 export type RouteMatch =
   | { name: "overview" }
+  | { name: "help" }
+  | { name: "nonprofits" }
   | { name: "catalog" }
   | { name: "kit"; id: string }
   | { name: "contribute" }
@@ -12,6 +14,8 @@ export type RouteMatch =
 
 const STATIC_ROUTES: Record<string, RouteMatch> = {
   "/": { name: "overview" },
+  "/help": { name: "help" },
+  "/nonprofits": { name: "nonprofits" },
   "/catalog": { name: "catalog" },
   "/contribute": { name: "contribute" },
   "/tracks": { name: "tracks" },
