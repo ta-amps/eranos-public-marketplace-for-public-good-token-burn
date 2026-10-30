@@ -399,13 +399,15 @@ def test_handshake_fallback_and_tessera_upstream(
 def test_feed_fallback_and_tessera_upstream(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    empty = client.get("/api/feed?after=7&limit=10")
+    # One promotion per published example kit, so a cursor past them finds no new entries.
+    past_end = len(load_example_bundles()) + 2
+    empty = client.get(f"/api/feed?after={past_end}&limit=10")
     assert empty.status_code == 200
     assert empty.json() == {
         "synthetic": True,
         "feed": "noun.promotions",
         "entries": [],
-        "next_cursor": 7,
+        "next_cursor": past_end,
     }
 
     captured: dict[str, Any] = {}

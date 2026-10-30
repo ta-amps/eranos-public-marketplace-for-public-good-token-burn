@@ -10,8 +10,8 @@ stored in this repository.
 ## Kits that point at a seed pack
 
 An example with a `seed_pack` block holds only this catalog's envelope: the kit id, track, license and
-governance fields, the scripted review and any steward sign-off. It names its pack's kit noun and example
-request noun by exact NounRef pins. Everything else, from the step map to the synthetic test cases, is read
+governance fields, the scripted review and any steward sign-off. It names its pack's kit noun, and the noun
+holding the organization's need in its own plain words, by exact NounRef pins. Everything else, from the step map to the synthetic test cases, is read
 from `packs/<pack>/nouns.json` in the seed-pack library (`ERANOS_SEED_PACKS`, by default
 `../seed-packs-library-of-nouns-and-verbs`), so each kit has one source.
 

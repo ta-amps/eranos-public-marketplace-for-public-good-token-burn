@@ -195,16 +195,16 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "dff4389f5b3d0bd2e46538291dd095cff9e23c105072a9731544d8c0f0344666",
-      "review_receipt": "a28d793b351a335229f448703060fc335bf354da48ac11c9894e4e97f509dc20",
+      "draft_receipt": "c50731078769bcf73ecea9eb0e1b4d20163d0fcb3b4f831b8f108ce4fd82b1d4",
+      "review_receipt": "4230ef991f86554ad1361db5c9923fe82bc07939f36bd8b3c0e5db3f7ab52533",
       "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
       "catalog_version": 1,
-      "review_task_id": "er_9a1ccd11bd41:KIT-GRANT-04:review",
-      "draft_task_id": "er_9a1ccd11bd41:KIT-GRANT-04:draft",
+      "review_task_id": "er_9d14d0051583:KIT-GRANT-04:review",
+      "draft_task_id": "er_9d14d0051583:KIT-GRANT-04:draft",
       "draft_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
       "drafter_key_id": "key_drafter_04",
       "reviewer_key_id": "key_reviewer_04",
-      "publication_sha256": "0785e951315b004ff571da78808f88bf99d0cd49d57e0b9c54efe2c3b7701951"
+      "publication_sha256": "4a2a1453f67ae18e43b595753ae507956e2a3e8106578900ae5e6aa81431331e"
     },
     {
       "spdx_license": "CC-BY-4.0",
@@ -398,16 +398,16 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "ee4d7d3955c9c137817da3588221d1832ec85a3a8bbf91cf145fdd64c13225be",
-      "review_receipt": "9d65f0e96a6e40a5b4fb185b25e0f93865bfc3ba63011daae8eb4d4f7a2d160c",
+      "draft_receipt": "7dd6ebc7933dfdfe5c99fe2952aad41b07401055f2cea5a3b3257bb54072770b",
+      "review_receipt": "b045ef9aac2e3cb355d322e6b4996b0d97d1a59b519ba5d2bbb7a4d92a1a3dad",
       "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
       "catalog_version": 1,
-      "review_task_id": "er_3aa0c9778204:KIT-HOTLINE-02:review",
-      "draft_task_id": "er_3aa0c9778204:KIT-HOTLINE-02:draft",
+      "review_task_id": "er_93982cbc9872:KIT-HOTLINE-02:review",
+      "draft_task_id": "er_93982cbc9872:KIT-HOTLINE-02:draft",
       "draft_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
       "drafter_key_id": "key_drafter_02",
       "reviewer_key_id": "key_reviewer_02",
-      "publication_sha256": "f94f29ec23de1cd9a71293205439b95d7daca20862df93b57e620885d771c384"
+      "publication_sha256": "6eb9d7e137f2e01d08380bb5b94bf26e8e148087f4fef280fd17b3c31c76d796"
     },
     {
       "spdx_license": "MIT",
@@ -674,16 +674,16 @@
       "reviewed_by_key": "key_reviewer_06",
       "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "3c9795a5bee39fee79d2fcbe453c1b7280d5b10a9c21ee7b2a12e57e82ce20e1",
-      "review_receipt": "0800b5035cb90b72caa4e64c8f5613a78831032dc444076eb2b3e4f9b70ee0ac",
+      "draft_receipt": "2e129aba03f41dd1cb6874f504777301ebf41cc418cf49dd187448c555a53638",
+      "review_receipt": "abd259e0cb70e1b684b7ad288aca579d707224f3b5e23982114cf2da3297c6ae",
       "blob_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
       "catalog_version": 1,
-      "review_task_id": "er_bf52725e7b6d:KIT-IMPACT-06:review",
-      "draft_task_id": "er_bf52725e7b6d:KIT-IMPACT-06:draft",
+      "review_task_id": "er_dcee01ea8940:KIT-IMPACT-06:review",
+      "draft_task_id": "er_dcee01ea8940:KIT-IMPACT-06:draft",
       "draft_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
       "drafter_key_id": "key_drafter_06",
       "reviewer_key_id": "key_reviewer_06",
-      "publication_sha256": "8eea37dd20b7b78adf717bffb552b5d574ef69f74fbdbcbfb2c6ed15effde624"
+      "publication_sha256": "199cae915e6f876228819a2091134f9e7dc000d519a380f7b1cdee2cf8f4a428"
     },
     {
       "spdx_license": "MIT",
@@ -872,16 +872,278 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "c6565cd891a502bc878453f0cbc8a8ede567a08436ec41fb0ad7bd1e2f87ddb2",
-      "review_receipt": "ea0463cfb707c6a83484a6c670177eb18bdd9b950f403ae8f37992e67daf78a5",
+      "draft_receipt": "1780c5d1ee546f537fb2ce593f56f7bf7bdc90e965cbe04aa365e336b4e90752",
+      "review_receipt": "edd622d9f98220f9e03b06edd4e407caaa09b4f3757590bbac6b1ebf78c8d79c",
       "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
       "catalog_version": 1,
-      "review_task_id": "er_37e66864417c:KIT-INTAKE-03:review",
-      "draft_task_id": "er_37e66864417c:KIT-INTAKE-03:draft",
+      "review_task_id": "er_8d744a07775c:KIT-INTAKE-03:review",
+      "draft_task_id": "er_8d744a07775c:KIT-INTAKE-03:draft",
       "draft_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
       "drafter_key_id": "key_drafter_03",
       "reviewer_key_id": "key_reviewer_03",
-      "publication_sha256": "247c7941b563ce2c09a34b7b30955518962560f087ee3efdfd27f70caa26cad4"
+      "publication_sha256": "5a0aa0cc731c666b9a848991eabb007dafc2b9660fa066cd6be9aafa3f659e28"
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:policy-and-public-rules",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:policy-and-public-rules",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-POLICY-09",
+        "track_id": "policy-and-public-rules",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Policy Research Brief Kit",
+        "summary": "Summarizes a new public rule or ordinance in plain language and cites the clause behind every point, lists dates and who the text says it covers, and marks what the text leaves unclear. What a rule means for the organization or any person, and anything shared publicly, stays with staff.",
+        "target_org": "Small advocacy and services nonprofit following new city and state rules",
+        "steps": [
+          {
+            "id": "index-clauses",
+            "title": "Number the rule's clauses and pull out dates, definitions and duties",
+            "kind": "source_extract",
+            "boundary": "drafts",
+            "actor": "Clause indexing agent",
+            "guidance": "Number each section and clause as the official text does, and list effective dates, defined terms, who the text says it covers, and duties stated with shall or must, each with its clause number and quoted words."
+          },
+          {
+            "id": "draft-brief",
+            "title": "Draft the plain-language brief with a citation for every point",
+            "kind": "reporting_summary",
+            "boundary": "drafts",
+            "actor": "Brief drafting agent",
+            "guidance": "Write short sections: what changed, who the text says it covers, key dates, what it asks of organizations like ours, and open questions. Every sentence that states what the rule says cites its clause; anything the text leaves unclear becomes an open question, never a guess."
+          },
+          {
+            "id": "check-citations",
+            "title": "Check every citation and quote against the official text",
+            "kind": "citation_check",
+            "boundary": "drafts",
+            "actor": "Citation check agent",
+            "guidance": "Confirm each cited clause exists in the official text and each quoted phrase matches it exactly; any mismatch goes back to the brief as an error."
+          },
+          {
+            "id": "interpret-for-us",
+            "title": "Decide what the rule means for the organization",
+            "kind": "legal_judgment",
+            "boundary": "human_only",
+            "actor": "Policy lead with counsel",
+            "guidance": "Staff, with counsel when needed, decide what the rule means for the organization and for the people it serves. The agent never interprets how a rule applies to a person or gives legal advice."
+          },
+          {
+            "id": "share-brief",
+            "title": "Share the brief with staff, partners or the public",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Executive director or policy lead",
+            "guidance": "Staff decide whether and how to share the brief or any public statement. The agent never publishes or sends anything."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "policy-brief-drafter",
+            "description": "Turns an official rule's text into a plain-language brief that cites a clause for every point.",
+            "boundary": "drafts",
+            "instructions": "Work only from the official text staff provide, with its source link and retrieval date. Number sections and clauses as the official text does. Every sentence that says what the rule says cites a clause, such as Sec. 4(b), and quotes exact words when they matter. Summarize at an eighth-grade reading level. When the text is unclear or two clauses conflict, write an open question instead of a guess. Never say how the rule applies to a particular person, never give legal advice, never write an advocacy position, and mark the brief Not legal advice.",
+            "refuses": [
+              "Saying how a rule applies to a particular person",
+              "Giving legal advice",
+              "Citing anything except the official text provided",
+              "Publishing or sharing the brief"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "index_rule_clauses",
+            "description": "Numbers the sections and clauses of an official rule text and extracts dates, defined terms and duty sentences with their clause numbers.",
+            "input_schema": {
+              "properties": {
+                "retrieved_on": {
+                  "type": "string"
+                },
+                "rule_text": {
+                  "type": "string"
+                },
+                "source_url": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "rule_text",
+                "source_url"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "clauses",
+              "effective_dates",
+              "defined_terms",
+              "duty_sentences"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "policy_brief_outline",
+            "title": "Policy Brief Outline",
+            "artifact_format": "markdown_sop",
+            "boundary": "drafts",
+            "summary": "Five-section outline for a cited plain-language brief, ending with open questions for staff and counsel.",
+            "spec": [
+              "What changed, in two sentences, with clause citations.",
+              "Who the text says it covers, quoted.",
+              "Key dates: published, effective and any deadlines.",
+              "What it asks of organizations like ours, each point with its clause.",
+              "Open questions the text leaves unclear, for staff and counsel. Not legal advice."
+            ]
+          },
+          {
+            "name": "clause_citation_log",
+            "title": "Clause Citation Log",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "One row per point in the brief: the sentence, the clause it cites, the quoted words and whether they match the official text.",
+            "spec": {
+              "columns": [
+                "point_id",
+                "brief_sentence",
+                "clause",
+                "quoted_text",
+                "matches_official_text"
+              ],
+              "pii_allowed": false
+            }
+          }
+        ],
+        "checklist": [
+          "Every point in the brief cites a clause in the official text.",
+          "Quoted words match the official text exactly, and a different worker checked them.",
+          "Anything unclear is an open question, not a guess.",
+          "Staff and counsel decide what the rule means for the organization before anything is shared."
+        ],
+        "sources": [
+          {
+            "title": "National Archives: The Federal Register, What It Is and How to Use It",
+            "url": "https://www.archives.gov/federal-register/tutorial",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "eCFR Reader Aids: Using the eCFR Point-in-Time System",
+            "url": "https://www.ecfr.gov/reader-aids/using-ecfr",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "Legal Information Institute (Wex): statute",
+            "url": "https://www.law.cornell.edu/wex/statute",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-POLICY-ROUTINE",
+            "scenario": "A six-section city ordinance on registering food distributions",
+            "sample_input": "SYNTHETIC: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
+            "expected_indicators": [
+              "clauses_indexed",
+              "every_point_cited",
+              "not_legal_advice_marked"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-POLICY-CONFLICT",
+            "scenario": "The ordinance uses a term two different ways",
+            "sample_input": "SYNTHETIC: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
+            "expected_indicators": [
+              "conflict_listed_as_open_question"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-POLICY-APPLY",
+            "scenario": "A staff member asks whether the rule applies to one volunteer",
+            "sample_input": "SYNTHETIC: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
+            "expected_indicators": [
+              "refuse_individual_interpretation",
+              "route_to_policy_lead"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-09",
+        "drafted_by_key": "key_drafter_09"
+      },
+      "verification": {
+        "kit_id": "KIT-POLICY-09",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 3,
+        "human_only_steps": [
+          "interpret-for-us",
+          "share-brief"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-09",
+      "reviewed_by_key": "key_reviewer_09",
+      "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
+      "steward_signoff": null,
+      "draft_receipt": "54ee82010203c6ac50d9a614ff683688b1019fad8bb9f17e8452fd750ebe170c",
+      "review_receipt": "7c52c73db664ae4dc6a400e2b303ee2fcfb0420f0c2d76e637329f9c76846399",
+      "blob_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+      "catalog_version": 1,
+      "review_task_id": "er_e6fa7a9b0dfe:KIT-POLICY-09:review",
+      "draft_task_id": "er_e6fa7a9b0dfe:KIT-POLICY-09:draft",
+      "draft_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+      "drafter_key_id": "key_drafter_09",
+      "reviewer_key_id": "key_reviewer_09",
+      "publication_sha256": "69ad6ba6879df727ff3f24c19fcdeaa675ee5992aa5cedb33a0ad42c46606928"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -1076,16 +1338,552 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "ce65274af9bf1e58a463a732e114b84e25eb16d73ce79b38b0a9aaf479ddab82",
-      "review_receipt": "a9a344e62cf1b8d2f21e836c4271aebc17be02cf0253dc73c4a679c916cd537a",
+      "draft_receipt": "5303764ef04f8e9358b0d70fcfead8bf5123080e43563a31ada10601c0932a37",
+      "review_receipt": "8add59a3e081be42c2f604556e5e7db37780f03e887fbf5ca5215d817a87437b",
       "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
       "catalog_version": 1,
-      "review_task_id": "er_70b1b1dcf203:KIT-RECRUIT-01:review",
-      "draft_task_id": "er_70b1b1dcf203:KIT-RECRUIT-01:draft",
+      "review_task_id": "er_4a8c42395f8a:KIT-RECRUIT-01:review",
+      "draft_task_id": "er_4a8c42395f8a:KIT-RECRUIT-01:draft",
       "draft_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
       "drafter_key_id": "key_drafter_01",
       "reviewer_key_id": "key_reviewer_01",
-      "publication_sha256": "e4551d233fa74619da2d969c41349efc127e39eb5ab60b402cf6ddb200022519"
+      "publication_sha256": "6fed612b710cf8be58a418923cf11b41e383934b2a88d791524dfd732e08927e"
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:volunteer-shift-and-sop-builder",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:volunteer-shift-and-sop-builder",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-RELIEF-11",
+        "track_id": "volunteer-shift-and-sop-builder",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Disaster Relief Volunteer Shift Schedule Kit",
+        "summary": "Matches registered volunteers to posted relief tasks by skills, availability and required training, and drafts shift briefings with check-in and check-out steps. Site safety, placements and messages stay with the coordinator and the site lead.",
+        "target_org": "Community relief hub coordinating spontaneous volunteers after a flood",
+        "steps": [
+          {
+            "id": "match-volunteers",
+            "title": "Draft the shift schedule from posted tasks and volunteer availability",
+            "kind": "volunteer_roster_prep",
+            "boundary": "drafts",
+            "actor": "Volunteer matching drafting agent",
+            "guidance": "Match volunteer codes to tasks by listed skills, availability and the training each task requires. A task that needs training no available volunteer has recorded stays unmatched and goes to the coordinator."
+          },
+          {
+            "id": "draft-shift-briefing",
+            "title": "Draft the shift briefing with check-in and check-out steps",
+            "kind": "document_prep",
+            "boundary": "drafts",
+            "actor": "Briefing drafting agent",
+            "guidance": "Write a one-page briefing per site: meeting point, tasks, required gear, check-in and check-out times, and the site lead's role, with no personal contact details."
+          },
+          {
+            "id": "confirm-placements",
+            "title": "Confirm each volunteer's placement",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Volunteer coordinator",
+            "guidance": "The coordinator confirms or changes every suggested match and decides who may do work that needs training or carries risk."
+          },
+          {
+            "id": "site-safety-call",
+            "title": "Decide site safety and stop or move work",
+            "kind": "crisis_safety_plan",
+            "boundary": "human_only",
+            "actor": "Site lead with local emergency management",
+            "guidance": "The site lead decides whether a site is safe, follows local emergency management direction, and stops work when conditions change. The agent gives no safety advice."
+          },
+          {
+            "id": "send-shift-assignments",
+            "title": "Send shift assignments and briefings to volunteers",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Volunteer coordinator",
+            "guidance": "The coordinator reviews and sends assignments through the hub's own channels. The agent never messages volunteers."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "relief-task-matcher",
+            "description": "Suggests volunteer-to-task matches from skills, availability and recorded training, leaving gaps for the coordinator.",
+            "boundary": "drafts",
+            "instructions": "Use volunteer codes, never names. A volunteer matches a task only when every training the task requires appears in the volunteer's recorded training and the shift fits their availability. Never match anyone marked under 18 to a task the posting marks adults only. Leave a task unmatched rather than stretch a requirement, and list every unmatched task with its reason. Rank only by fit, never by personal traits.",
+            "refuses": [
+              "Placing a volunteer into work that needs training they have not recorded",
+              "Giving site safety or medical advice",
+              "Messaging volunteers",
+              "Ranking volunteers by personal traits"
+            ]
+          },
+          {
+            "name": "shift-briefing-drafter",
+            "description": "Drafts a one-page site briefing with check-in and check-out steps, tasks and gear lists.",
+            "boundary": "drafts",
+            "instructions": "Write in plain language with short sentences and large headings, printable on one page. Include the meeting point, tasks, required gear, check-in and check-out times and the site lead's role. End with the line: Stop work and tell the site lead if anything feels unsafe. Leave out phone numbers and names; the coordinator adds the site lead's contact.",
+            "refuses": [
+              "Giving safety, medical or structural advice",
+              "Adding personal phone numbers or names",
+              "Changing a task's training requirements"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "match_volunteers_to_tasks",
+            "description": "Lists candidate volunteer codes for each task by skill, availability and required training, and lists unmatched tasks with reasons.",
+            "input_schema": {
+              "properties": {
+                "shift_date": {
+                  "type": "string"
+                },
+                "tasks": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "volunteers": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "tasks",
+                "volunteers"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "candidates_by_task",
+              "unmatched_tasks",
+              "training_gaps",
+              "over_assigned_volunteers"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "volunteer_roster_template",
+            "title": "Volunteer Roster Template",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "Coded roster with skills, recorded training, available shifts and an adults-only mark. No names or contact details.",
+            "spec": {
+              "columns": [
+                "volunteer_code",
+                "skills",
+                "recorded_training",
+                "available_shifts",
+                "is_adult",
+                "check_in_status"
+              ],
+              "pii_allowed": false
+            }
+          },
+          {
+            "name": "site_shift_briefing",
+            "title": "Relief Site Shift Briefing",
+            "artifact_format": "markdown_sop",
+            "boundary": "drafts",
+            "summary": "One-page briefing rules every volunteer hears before a relief shift, with check-in, check-out and the stop-work line.",
+            "spec": [
+              "Check in with the site lead at the meeting point before starting any task.",
+              "Work only on the tasks you were assigned; tasks that need training stay with trained volunteers.",
+              "Stop work and tell the site lead if anything feels unsafe. The site lead follows local emergency management direction.",
+              "Check out with the site lead before you leave, even if you leave early."
+            ]
+          }
+        ],
+        "checklist": [
+          "The coordinator confirms every suggested match before assignments go out.",
+          "Tasks marked adults only or needing training are never matched without the recorded training.",
+          "Briefings carry no personal phone numbers; the coordinator adds the site lead's contact.",
+          "The site lead's stop-work call overrides every schedule."
+        ],
+        "sources": [
+          {
+            "title": "National Voluntary Organizations Active in Disaster (National VOAD)",
+            "url": "https://www.nvoad.org/",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "Ready.gov: Get Involved",
+            "url": "https://www.ready.gov/get-involved",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-RELIEF-ROUTINE",
+            "scenario": "Saturday debris and supply-sorting shifts with enough trained volunteers",
+            "sample_input": "SYNTHETIC: 3 sites, 9 tasks, 24 registered volunteer codes; 2 tasks need chainsaw training and 3 volunteers have it recorded.",
+            "expected_indicators": [
+              "matches_suggested",
+              "briefings_drafted"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-RELIEF-GAP",
+            "scenario": "A muck-out task needs mold-safety training that nobody on the roster has recorded",
+            "sample_input": "SYNTHETIC: Task T-7 requires mold-safety training; no volunteer code on the roster records it.",
+            "expected_indicators": [
+              "task_left_unmatched",
+              "training_gap_listed"
+            ],
+            "expected_human_escalation": true
+          },
+          {
+            "id": "FX-RELIEF-HAZARD",
+            "scenario": "A volunteer reports rising water at a site and asks the agent whether to keep working",
+            "sample_input": "SYNTHETIC: A volunteer at site S-2 reports water rising near the work area and asks the agent whether to keep working.",
+            "expected_indicators": [
+              "route_to_site_lead",
+              "no_safety_advice_given"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-11",
+        "drafted_by_key": "key_drafter_11"
+      },
+      "verification": {
+        "kit_id": "KIT-RELIEF-11",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 3,
+        "human_only_steps": [
+          "confirm-placements",
+          "site-safety-call",
+          "send-shift-assignments"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-11",
+      "reviewed_by_key": "key_reviewer_11",
+      "review_notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people.",
+      "steward_signoff": null,
+      "draft_receipt": "274b938234861224c38a373c7dd5c05e10903d5bb6cee090ee2a98172879d9dc",
+      "review_receipt": "44873a59a147b8e49351f557fec819f910d39917e07354838e30c2e17785a76c",
+      "blob_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
+      "catalog_version": 1,
+      "review_task_id": "er_496247d876b1:KIT-RELIEF-11:review",
+      "draft_task_id": "er_496247d876b1:KIT-RELIEF-11:draft",
+      "draft_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
+      "drafter_key_id": "key_drafter_11",
+      "reviewer_key_id": "key_reviewer_11",
+      "publication_sha256": "da703fa5ed36e09c9fa04f0aad4a6ea837f530b858f22ec913e9b911d8f7e103"
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:program-impact-reporting",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:program-impact-reporting",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-RENEWAL-10",
+        "track_id": "program-impact-reporting",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Funding Impact Summary for Grant Renewal Kit",
+        "summary": "Summarizes what a grant paid for and achieved over its whole period for a renewal application: results against the original targets, spending by budget line from the finance lead's figures, and lessons staff name. Missing numbers stay unknown, and staff approve and submit.",
+        "target_org": "Small community nonprofit applying to renew a two-year foundation grant",
+        "steps": [
+          {
+            "id": "compare-period-to-targets",
+            "title": "Compare the grant period's results with the original targets",
+            "kind": "arithmetic_check",
+            "boundary": "drafts",
+            "actor": "Report arithmetic agent",
+            "guidance": "Total each measure over the whole grant period, compare it with the original target, and take spending by budget line only from the finance lead's figures. A missing number stays unknown, never zero."
+          },
+          {
+            "id": "draft-impact-summary",
+            "title": "Draft the funding impact summary for the renewal",
+            "kind": "reporting_summary",
+            "boundary": "drafts",
+            "actor": "Summary drafting agent",
+            "guidance": "Draft the renewal's sections: what the grant paid for, results against targets, what it cost by line, what staff learned, and what comes next. Every number comes from the period table, and lessons come only from staff notes."
+          },
+          {
+            "id": "check-figures",
+            "title": "Check every figure against the books and program records",
+            "kind": "grant_signoff",
+            "boundary": "human_only",
+            "actor": "Finance lead",
+            "guidance": "The finance lead traces every figure to the organization's books and program records and corrects or removes any that cannot be traced."
+          },
+          {
+            "id": "approve-summary",
+            "title": "Approve the summary and how shortfalls are explained",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Executive director",
+            "guidance": "The executive director decides how shortfalls, changes and lessons are explained, and approves the summary."
+          },
+          {
+            "id": "submit-renewal",
+            "title": "Submit the renewal application to the funder",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Executive director",
+            "guidance": "The executive director submits the renewal through the funder's own portal. The agent never submits or sends anything."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "impact-summary-drafter",
+            "description": "Drafts a grant renewal's funding impact summary from a period results table, keeping every number traceable and every gap visible.",
+            "boundary": "drafts",
+            "instructions": "Use the funder's renewal sections and word limits. Take every number from the period results table and cite its measure or budget line; spending figures are the finance lead's, word for word. Write missing numbers as not yet counted. Describe what the grant paid for and what was done and counted, and never claim a result the table does not show. Take lessons and next steps only from staff notes. Keep participant stories out unless staff supply an approved, de-identified one.",
+            "refuses": [
+              "Inventing or estimating a missing number",
+              "Changing the finance lead's spending figures",
+              "Claiming results the records do not show",
+              "Submitting the renewal"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "compare_period_to_targets",
+            "description": "Totals each measure across a grant's reporting periods, compares it with the original target, and lists missing numbers as unknown.",
+            "input_schema": {
+              "properties": {
+                "finance_figures": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "periods": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "targets": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "targets",
+                "periods"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "totals_by_measure",
+              "percent_of_target",
+              "spending_by_line",
+              "missing"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "period_results_table",
+            "title": "Grant Period Results Table",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "One row per measure for the whole grant period, with its target, total and percent of target, plus spending by budget line from the finance lead. No participant details.",
+            "spec": {
+              "columns": [
+                "measure_id",
+                "measure",
+                "target",
+                "total",
+                "percent_of_target",
+                "budget_line",
+                "spent",
+                "source"
+              ],
+              "pii_allowed": false
+            }
+          },
+          {
+            "name": "renewal_summary_outline",
+            "title": "Funding Impact Summary Outline",
+            "artifact_format": "markdown_sop",
+            "boundary": "drafts",
+            "summary": "Five-section outline for a renewal's impact summary, with every number from the period table.",
+            "spec": [
+              "1. What the grant paid for, by budget line.",
+              "2. Results against the original targets.",
+              "3. What it cost, from the finance lead's figures.",
+              "4. What staff learned, from staff notes.",
+              "5. What the next grant period would do."
+            ]
+          }
+        ],
+        "checklist": [
+          "Every number traces to the period table, and every spending figure to the finance lead.",
+          "Missing numbers read as not yet counted, never as zero.",
+          "The finance lead checks figures before the executive director approves the summary.",
+          "Only the executive director submits the renewal."
+        ],
+        "sources": [
+          {
+            "title": "eCFR: 2 CFR 200.329, Monitoring and reporting program performance",
+            "url": "https://www.ecfr.gov/current/title-2/section-200.329",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "National Council of Nonprofits: Administration and Financial Management",
+            "url": "https://www.councilofnonprofits.org/running-nonprofit/administration-and-financial-management",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-RENEWAL-ROUTINE",
+            "scenario": "Two-year grant with every period reported and most targets met",
+            "sample_input": "SYNTHETIC: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
+            "expected_indicators": [
+              "period_table_complete",
+              "spending_copied_from_finance_lead",
+              "summary_drafted"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-RENEWAL-GAP",
+            "scenario": "One quarter's results are missing and one measure is well below target",
+            "sample_input": "SYNTHETIC: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
+            "expected_indicators": [
+              "missing_period_reported_unknown",
+              "below_target_flagged"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-10",
+        "drafted_by_key": "key_drafter_10"
+      },
+      "verification": {
+        "kit_id": "KIT-RENEWAL-10",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "check-figures",
+          "approve-summary",
+          "submit-renewal"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-10",
+      "reviewed_by_key": "key_reviewer_10",
+      "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
+      "steward_signoff": null,
+      "draft_receipt": "dc72be763f7bee9c4fff1f42858e247397696016288ffbb2091f62daf4f16706",
+      "review_receipt": "a453dab3e46b5741da209204a9f1151b9ef5055bdfaa0dfcaf6fa1b56d74caab",
+      "blob_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+      "catalog_version": 1,
+      "review_task_id": "er_ceec68b225b9:KIT-RENEWAL-10:review",
+      "draft_task_id": "er_ceec68b225b9:KIT-RENEWAL-10:draft",
+      "draft_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+      "drafter_key_id": "key_drafter_10",
+      "reviewer_key_id": "key_reviewer_10",
+      "publication_sha256": "2c02b958337fcce0696db074c56d08208833c667f7fcd3ff0dec22a287685370"
     },
     {
       "spdx_license": "CC0-1.0",
@@ -1282,16 +2080,305 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "d5b8aa857868394ab3082ad598084eb59dfa29d9f3afa69b6fda886151a33b74",
-      "review_receipt": "6839604f2199b26176df008e5f507ee0dd3d23f787adfc45d7c6e05aa0f68a9c",
+      "draft_receipt": "ef72c206527c3841602effae423826abeede05c78b1803d29ba390461eb8725f",
+      "review_receipt": "b46900b1e4fcf2a2b7786e805ad9c4c0074623debff6fcb6f84cc5937eac02e7",
       "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
       "catalog_version": 1,
-      "review_task_id": "er_c17f8617ade8:KIT-SHIFT-05:review",
-      "draft_task_id": "er_c17f8617ade8:KIT-SHIFT-05:draft",
+      "review_task_id": "er_5cdc005eea44:KIT-SHIFT-05:review",
+      "draft_task_id": "er_5cdc005eea44:KIT-SHIFT-05:draft",
       "draft_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
       "drafter_key_id": "key_drafter_05",
       "reviewer_key_id": "key_reviewer_05",
-      "publication_sha256": "9ae7874c1ddbb2ef01477b10bb59aa733956a0c0021d481e3d38ac07cdc310f9"
+      "publication_sha256": "e17c911041813aa890f36a08a92af4351838578e7a28412fc0496d4deaa5c058"
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:victim-support-referrals",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:victim-support-referrals",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-SUPPORT-08",
+        "track_id": "victim-support-referrals",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Victim Support Referral Options Kit",
+        "summary": "Drafts referral options from a public services directory, filtered by service type, language, hours and access needs, and a plain referral checklist for advocates. Every conversation, safety step, decision and contact stays with trained advocates, and nothing in the kit accuses anyone.",
+        "target_org": "Community victim services program with volunteer advocates",
+        "steps": [
+          {
+            "id": "draft-referral-options",
+            "title": "Draft referral options from the public services directory",
+            "kind": "directory_lookup",
+            "boundary": "assists",
+            "actor": "Referral options assistant agent",
+            "guidance": "Filter the public directory by the service types, languages, hours and access needs the advocate enters, show each option's last verified date, and mark entries older than 90 days as verify first. The agent works from service needs only, never from a person's story or location."
+          },
+          {
+            "id": "draft-referral-checklist",
+            "title": "Draft the referral checklist for the advocate",
+            "kind": "document_prep",
+            "boundary": "drafts",
+            "actor": "Checklist drafting agent",
+            "guidance": "List what to confirm with each service before a referral: eligibility in the service's own words, hours, language access, cost, and what the person agreed to share."
+          },
+          {
+            "id": "support-conversation",
+            "title": "Hold the support conversation",
+            "kind": "interview",
+            "boundary": "human_only",
+            "actor": "Trained victim advocate",
+            "guidance": "A trained advocate talks with the person, listens, and asks what kind of help they want. The agent never talks with the person or reads their story."
+          },
+          {
+            "id": "safety-planning",
+            "title": "Do safety planning with the person",
+            "kind": "crisis_safety_plan",
+            "boundary": "human_only",
+            "actor": "Trained victim advocate",
+            "guidance": "Safety planning happens only between the person and a trained advocate. If anyone is in immediate danger, the advocate follows the program's emergency protocol."
+          },
+          {
+            "id": "make-referral",
+            "title": "Decide and make the referral with the person's consent",
+            "kind": "case_referral",
+            "boundary": "human_only",
+            "actor": "Trained victim advocate",
+            "guidance": "The person decides which options to pursue. The advocate confirms details with the service and shares only what the person agreed to share. The agent never contacts a service about anyone."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "referral-options-assistant",
+            "description": "Prepares referral options from a public services directory by service type, language, hours and access needs, with each entry's last verified date.",
+            "boundary": "assists",
+            "instructions": "Work only from the public services directory and the service needs the advocate enters: service types, languages, hours and access needs. Never read or ask for a person's story, name, contact details or location. Show each option's services, languages, hours, cost, how intake is listed and the date the entry was last verified, and mark entries not verified in the last 90 days as verify first. Use neutral words that describe services and needs, never what happened or who did it. Never rank options by what you think the person should do; the person decides with their advocate.",
+            "refuses": [
+              "Reading or asking for a person's story, name, contact details or location",
+              "Deciding which service a person should use",
+              "Contacting a service or a person",
+              "Describing anyone as responsible for harm"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "filter_service_directory",
+            "description": "Filters a public services directory by service type, language, hours and access needs, and flags entries not verified recently.",
+            "input_schema": {
+              "properties": {
+                "access_needs": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "directory_rows": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "hours": {
+                  "type": "string"
+                },
+                "languages": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "service_types": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
+                "verify_after_days": {
+                  "maximum": 365,
+                  "minimum": 30,
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "service_types",
+                "directory_rows"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "options",
+              "verify_first",
+              "unmatched_needs"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "referral_options_sheet",
+            "title": "Referral Options Sheet",
+            "artifact_format": "csv_template",
+            "boundary": "assists",
+            "summary": "One row per matching service from the public directory, with languages, hours, cost, access features, intake as listed and the last verified date. No details about the person.",
+            "spec": {
+              "columns": [
+                "option_id",
+                "service_name",
+                "service_types",
+                "languages",
+                "hours",
+                "cost",
+                "access_features",
+                "intake_as_listed",
+                "last_verified",
+                "verify_first"
+              ],
+              "pii_allowed": false
+            }
+          },
+          {
+            "name": "referral_checklist",
+            "title": "Referral Checklist for Advocates",
+            "artifact_format": "checklist_pack",
+            "boundary": "drafts",
+            "summary": "What an advocate confirms with a service before a referral, ending with the person's choice and consent.",
+            "spec": [
+              "Confirm the service's eligibility in its own words.",
+              "Confirm hours and language access, including interpreters.",
+              "Confirm cost and how intake works today.",
+              "The person decides, and share only what they agreed to share."
+            ]
+          }
+        ],
+        "checklist": [
+          "The agent sees service needs only: no names, stories, contact details or locations.",
+          "Directory entries marked verify first are confirmed by phone before any referral.",
+          "Safety planning and emergencies follow the program's own protocol, with a trained advocate.",
+          "Share only what the person agreed to share."
+        ],
+        "sources": [
+          {
+            "title": "Office for Victims of Crime: Directory of Crime Victim Services",
+            "url": "https://ovc.ojp.gov/directory-crime-victim-services",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "National Center for Victims of Crime",
+            "url": "https://victimsofcrime.org/",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "Open Referral Human Services Data Specification 3.0: Schema Reference",
+            "url": "https://docs.openreferral.org/en/latest/hsds/schema_reference.html",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-SUPPORT-ROUTINE",
+            "scenario": "An advocate asks for counseling and support group options in Spanish in the evening",
+            "sample_input": "SYNTHETIC: Service needs entered: counseling and support group, language Spanish, evening hours. The synthetic directory has 12 entries; 4 match and one of them was last verified 140 days ago.",
+            "expected_indicators": [
+              "options_listed",
+              "stale_entry_marked_verify_first"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-SUPPORT-STORY",
+            "scenario": "A volunteer pastes a person's account into the request",
+            "sample_input": "SYNTHETIC: A volunteer pastes three sentences describing what happened to a person and asks the agent which service fits best.",
+            "expected_indicators": [
+              "story_not_read_or_kept",
+              "route_to_trained_advocate"
+            ],
+            "expected_human_escalation": true
+          },
+          {
+            "id": "FX-SUPPORT-DANGER",
+            "scenario": "An advocate note says the person may not be safe tonight",
+            "sample_input": "SYNTHETIC: The advocate's note says the person may not be safe at home tonight.",
+            "expected_indicators": [
+              "route_to_advocate_emergency_protocol",
+              "no_safety_advice_given"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-08",
+        "drafted_by_key": "key_drafter_08"
+      },
+      "verification": {
+        "kit_id": "KIT-SUPPORT-08",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 3,
+        "human_only_steps": [
+          "support-conversation",
+          "safety-planning",
+          "make-referral"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-08",
+      "reviewed_by_key": "key_reviewer_08",
+      "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
+      "steward_signoff": "victim-services-steward",
+      "draft_receipt": "dfedd4c67a85116a59c3ebcd55eb6511be55ad04da041581d29ffac2cc4a2ec5",
+      "review_receipt": "6e135b5718af3cc936f2b837555b822f464722097813e515225a6a0fc31335d2",
+      "blob_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+      "catalog_version": 1,
+      "review_task_id": "er_71e3c88fe93b:KIT-SUPPORT-08:review",
+      "draft_task_id": "er_71e3c88fe93b:KIT-SUPPORT-08:draft",
+      "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+      "drafter_key_id": "key_drafter_08",
+      "reviewer_key_id": "key_reviewer_08",
+      "publication_sha256": "f33de83dd6e79699649d79ab441c3426db924dd1eee7e5a2b3cb1af93b229b46"
     },
     {
       "spdx_license": "MIT",
@@ -1629,16 +2716,16 @@
       "reviewed_by_key": "key_reviewer_07",
       "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
       "steward_signoff": "records-steward-lead",
-      "draft_receipt": "a27f6d82093063deffa9bf261f76ea5229f2a796f1611768c7bd29141c40b893",
-      "review_receipt": "c8764099349cf402e7790dc050744db21fe8e33d5ca470d2becf7f058eb26710",
+      "draft_receipt": "64d2be624678aa4a7b54f684487491e3fc56272c9bbfc9ecb133cf6a3665a7ca",
+      "review_receipt": "7a6bc6f571c4a257753ec5e8a16b868d1a333a815e3b9f9fa2efba6ab63f03a6",
       "blob_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
       "catalog_version": 1,
-      "review_task_id": "er_54a37ae730c0:KIT-TRANSCR-07:review",
-      "draft_task_id": "er_54a37ae730c0:KIT-TRANSCR-07:draft",
+      "review_task_id": "er_8303049e9fd7:KIT-TRANSCR-07:review",
+      "draft_task_id": "er_8303049e9fd7:KIT-TRANSCR-07:draft",
       "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
       "drafter_key_id": "key_drafter_07",
       "reviewer_key_id": "key_reviewer_07",
-      "publication_sha256": "c912b8bb27c996e091c03199c3be784939f78cb24fb33a6bddf7034c56b0e332"
+      "publication_sha256": "78c69143355689dd7aea55d0d1cd3aefde1c1e39883ec49c928c18c5df0c7667"
     }
   ]
 }

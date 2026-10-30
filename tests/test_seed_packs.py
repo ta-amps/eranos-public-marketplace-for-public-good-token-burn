@@ -59,13 +59,9 @@ def test_referenced_example_composes_from_its_pack_and_verifies(path: Path) -> N
     assert report.passed, report.issues
 
     asked = bundle["example_request"]
-    assert [a["question"] for a in asked["answers"]] == [
-        "Organization type",
-        "The job to be done",
-        "Steps that must stay with a person",
-        "Constraints",
-    ]
-    assert "SYNTHETIC" in asked["answers"][1]["answer"]
+    assert asked["mark"] == "SYNTHETIC"
+    assert asked["says"].startswith("We need ")
+    assert "request a kit" not in asked["says"].lower()
     assert asked["noun"] == raw["seed_pack"]["request"]
     # The example itself repeats no kit content: only catalog fields and pins.
     assert set(raw["request"]) <= {

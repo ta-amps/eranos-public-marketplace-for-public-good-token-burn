@@ -1,0 +1,38 @@
+{
+  "id": "victim-support-referrals",
+  "title": "Victim Support Referrals",
+  "domain": "nonprofit_ops",
+  "summary": "Helps victim services programs prepare referral options from public services directories using only the service needs an advocate enters, while advocates hold every conversation, do all safety planning and make every referral with the person's consent.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Victim services program or helpline with trained advocates",
+      "serves": "People seeking support after harm, and the advocates who help them",
+      "mandate": "Offer choices from verified public services, let each person decide, and keep their story and safety with trained advocates"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "csv_template",
+    "checklist_pack",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "interview",
+    "crisis_safety_plan",
+    "case_referral"
+  ],
+  "never": [
+    "Read, ask for or store a person's story, name, contact details or location",
+    "Describe anyone as responsible for harm",
+    "Contact a service or a person on the program's behalf"
+  ],
+  "sources": [
+    {
+      "title": "Office for Victims of Crime: Directory of Crime Victim Services",
+      "url": "https://ovc.ojp.gov/directory-crime-victim-services",
+      "checked_date": "2026-10-30"
+    }
+  ]
+}

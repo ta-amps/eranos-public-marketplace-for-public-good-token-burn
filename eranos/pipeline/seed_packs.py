@@ -2,7 +2,8 @@
 
 A referenced example (`examples/kits/*.json` with a `seed_pack` block) keeps only this catalog's
 envelope: the kit id, track, license and governance, and the scripted review used by the example
-run. It names the pack's kit noun and example request noun by exact NounRef pins. Everything else
+run. It names the pack's kit noun, and the noun holding the organization's need in its own plain
+words, by exact NounRef pins. Everything else
 (the step map, skills, read-only tool cards, files, checklist, sources and synthetic test cases)
 is read from the library's `packs/<pack>/nouns.json`, so each kit has one source.
 
@@ -213,9 +214,15 @@ def compose_bundle(
     composed["request"] = request
     composed["draft"] = draft
     composed["seed_pack"] = dict(ref)
+    says = asked.get("says")
+    if not isinstance(says, str) or not says.strip() or asked.get("mark") != "SYNTHETIC":
+        raise SeedPackError(
+            "the pack's request says what is needed in plain words and is marked SYNTHETIC"
+        )
     composed["example_request"] = {
         "title": asked["title"],
-        "answers": asked["answers"],
+        "says": says,
+        "mark": asked["mark"],
         "noun": dict(ref["request"]),
     }
     return composed

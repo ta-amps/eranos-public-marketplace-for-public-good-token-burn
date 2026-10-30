@@ -16,3 +16,5 @@ track IDs; adding a new track is pure data.
 | `volunteer-shift-and-sop-builder` | `nonprofit_ops` | Volunteer shift checklists, multilingual role cards, and human escalation SOPs |
 | `program-impact-reporting` | `nonprofit_ops` | Monthly program impact reports and funding impact summaries with every figure traced and every gap visible |
 | `statement-transcription` | `nonprofit_ops` | Handwritten statements, cards and forms typed exactly as written, with uncertain readings flagged for a person |
+| `victim-support-referrals` | `nonprofit_ops` | Referral options from public services directories using only entered service needs; every conversation, safety step and referral stays with advocates |
+| `policy-and-public-rules` | `nonprofit_ops` | Plain-language briefs of new public rules that cite the clause behind every point; interpretation stays with staff and counsel |

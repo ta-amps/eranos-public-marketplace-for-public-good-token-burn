@@ -1,0 +1,48 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-volunteer-shift-schedule",
+    "kit": {
+      "store": "seedpack.kit-volunteer-shift-schedule",
+      "key": "kit-volunteer-shift-schedule.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "ca06a9390cd41678f8731ed03988f6d2bb0531d47b28db7c1babef1d807afca0"
+    },
+    "request": {
+      "store": "seedpack.kit-volunteer-shift-schedule",
+      "key": "kit-volunteer-shift-schedule.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "d16c4b42f7619c121dc3839bf8eb7c2f3e448cd3e06c816236500de975002564"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-RELIEF-11",
+    "track_id": "volunteer-shift-and-sop-builder",
+    "deliverable_kind": "full_kit",
+    "needs_steward_signoff": false,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:volunteer-shift-and-sop-builder",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "review": {
+    "kit_id": "KIT-RELIEF-11",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people."
+  }
+}

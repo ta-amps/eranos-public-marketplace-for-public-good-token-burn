@@ -112,7 +112,7 @@ onboarding with incident steps, and program impact reports.
 
 Newer example kits point at a seed pack in the [library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)
 instead of repeating its content: the example keeps only this catalog's fields and the exact pins of the pack's kit
-and example request nouns, so each kit has one source. See [examples/kits/README.md](examples/kits/README.md).
+noun and of the noun holding the organization's need in its own plain words, so each kit has one source. See [examples/kits/README.md](examples/kits/README.md).
 
 ## Rules that never bend
 

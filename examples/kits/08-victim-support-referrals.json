@@ -1,0 +1,52 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-victim-support-referrals",
+    "kit": {
+      "store": "seedpack.kit-victim-support-referrals",
+      "key": "kit-victim-support-referrals.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "efa495d7cd4704dff11c6df6c11ae970ad6929aba87205784840b627ca9c533d"
+    },
+    "request": {
+      "store": "seedpack.kit-victim-support-referrals",
+      "key": "kit-victim-support-referrals.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "3f9b99d6a1fd93fad773f3ebe8d92c34d5da41224b36dfa89a3852acba046f96"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-SUPPORT-08",
+    "track_id": "victim-support-referrals",
+    "deliverable_kind": "full_kit",
+    "needs_steward_signoff": true,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:victim-support-referrals",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "steward_signoff": {
+    "steward": "victim-services-steward",
+    "notes": "Steward confirmed the agent sees service needs only, never a person's story, name or location, and that every conversation, safety step, decision and contact stays with trained advocates."
+  },
+  "review": {
+    "kit_id": "KIT-SUPPORT-08",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates."
+  }
+}

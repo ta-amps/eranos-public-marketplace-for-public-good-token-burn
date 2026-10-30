@@ -200,6 +200,44 @@
       ]
     },
     {
+      "id": "policy-and-public-rules",
+      "title": "Public Rules and Policy Briefs",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps nonprofits follow new public rules and ordinances with plain-language briefs that cite the clause behind every point, while staff and counsel decide what a rule means and what is said publicly.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Small advocacy or services nonprofit",
+          "serves": "Staff, boards and partners who need to understand new public rules",
+          "mandate": "Understand new rules accurately from the official text, and leave interpretation to staff and counsel"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "markdown_sop",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "legal_judgment",
+        "external_send"
+      ],
+      "never": [
+        "Say how a rule applies to a particular person, or give legal advice",
+        "Cite anything other than the official text",
+        "Publish or share a brief on the organization's behalf"
+      ],
+      "sources": [
+        {
+          "title": "National Archives: The Federal Register, What It Is and How to Use It",
+          "url": "https://www.archives.gov/federal-register/tutorial",
+          "checked_date": "2026-10-30"
+        }
+      ]
+    },
+    {
       "id": "program-impact-reporting",
       "title": "Program Impact and Funding Reports",
       "domain": "nonprofit_ops",
@@ -271,6 +309,45 @@
         {
           "title": "National Archives: Citizen Archivist resources for transcribing records",
           "url": "https://www.archives.gov/citizen-archivist/resources",
+          "checked_date": "2026-10-30"
+        }
+      ]
+    },
+    {
+      "id": "victim-support-referrals",
+      "title": "Victim Support Referrals",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps victim services programs prepare referral options from public services directories using only the service needs an advocate enters, while advocates hold every conversation, do all safety planning and make every referral with the person's consent.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Victim services program or helpline with trained advocates",
+          "serves": "People seeking support after harm, and the advocates who help them",
+          "mandate": "Offer choices from verified public services, let each person decide, and keep their story and safety with trained advocates"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "checklist_pack",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "interview",
+        "crisis_safety_plan",
+        "case_referral"
+      ],
+      "never": [
+        "Read, ask for or store a person's story, name, contact details or location",
+        "Describe anyone as responsible for harm",
+        "Contact a service or a person on the program's behalf"
+      ],
+      "sources": [
+        {
+          "title": "Office for Victims of Crime: Directory of Crime Victim Services",
+          "url": "https://ovc.ojp.gov/directory-crime-victim-services",
           "checked_date": "2026-10-30"
         }
       ]
