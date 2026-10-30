@@ -380,10 +380,12 @@ async function fetchAssetText(request, env, assetPath) {
 }
 
 async function loadTracksPayload(request, env) {
-  const stored = await getHeadRecord(env.FABRIC_DB, "eranos.meta", "tracks");
-  if (stored && Array.isArray(stored.tracks)) return stored;
+  // Tracks are repository data, so the snapshot built with this deploy is the source of truth.
+  // The stored record is only a fallback, so an older stored copy can never outlive a new build.
   const snap = await fetchAssetJson(request, env, "/snapshot/tracks.json");
   if (snap && Array.isArray(snap.tracks)) return snap;
+  const stored = await getHeadRecord(env.FABRIC_DB, "eranos.meta", "tracks");
+  if (stored && Array.isArray(stored.tracks)) return stored;
   return { synthetic: true, tracks: FALLBACK_TRACKS };
 }
 
