@@ -10,6 +10,7 @@ quote; legal summaries say they are not legal advice; a person decides what to d
 from __future__ import annotations
 
 import hashlib
+import re
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -22,6 +23,12 @@ from eranos.pipeline.run import SelfReviewRefused, _claim_with_key
 from eranos.privacy import personal_data_findings
 
 SOLUTIONS_STORE = "eranos.solutions"
+# A quote shorter than this must be a whole sentence of its source, so that a fragment such as
+# "be" cannot "verify" a claim; every quote must match whole words of the source.
+MIN_QUOTE = 20
+_SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+# Public contact details a verified source quote may carry into a report; nothing else personal.
+CONTACT_KINDS = frozenset({"a phone number", "a street address"})
 
 
 def report_digest(report: Any) -> str:
@@ -48,6 +55,22 @@ def _strings(value: Any, path: str) -> dict[str, str]:
             k: v for i, item in enumerate(value) for k, v in _strings(item, f"{path}.{i}").items()
         }
     return {}
+
+
+def quote_finding(cid: str, sid: str, quote: str, text: str) -> str | None:
+    """Why a quote cannot verify a claim from source text, or None when it can."""
+    quote = quote.strip()
+    if not quote:
+        return f"claim {cid} gives no quote from source {sid}"
+    sentences = {sentence.strip() for sentence in _SENTENCE_END.split(text)}
+    if len(quote) < MIN_QUOTE and quote not in sentences:
+        return (
+            f"claim {cid}: the quote from source {sid} is too short to check; quote at least"
+            f" {MIN_QUOTE} characters or a whole sentence"
+        )
+    if not re.search(rf"(?<!\w){re.escape(quote)}(?!\w)", text):
+        return f"claim {cid}: the quote is not in source {sid}"
+    return None
 
 
 def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
@@ -87,6 +110,7 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
     if not isinstance(claims, list) or not claims:
         findings.append("the report makes no cited claims")
         claims = []
+    verified: set[str] = set()
     for claim in claims:
         cid = str(claim.get("id") if isinstance(claim, dict) else "?")
         citations = claim.get("citations") if isinstance(claim, dict) else None
@@ -100,12 +124,30 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
                 findings.append(f"claim {cid} cites unknown source {sid!r}")
             elif sid not in known:
                 findings.append(f"claim {cid} cites source {sid}, which the brief did not give")
-            elif not quote or quote not in str(known[sid].get("text", "")):
-                findings.append(f"claim {cid}: the quote is not in source {sid}")
-    # The report is delivered to the public commons, so every string in it is screened.
+            elif problem := quote_finding(cid, sid, quote, str(known[sid].get("text", ""))):
+                findings.append(problem)
+            else:
+                verified.add(quote.strip())
+    # The report is delivered to the public commons, so every string in it is screened. Text that
+    # repeats a verified source quote is the source's own words: it may carry the source's public
+    # phone numbers and addresses, never any other personal data.
+    quoted = sorted(verified, key=len, reverse=True)
+
+    def own(text: str) -> str:
+        for quote in quoted:
+            text = text.replace(quote, " ")
+        return text
+
     strings = _strings(report, "report")
-    findings += personal_data_findings(strings)
-    own_words = " ".join(v for k, v in strings.items() if not k.endswith(".quote"))
+    findings += personal_data_findings({k: own(v) for k, v in strings.items()})
+    findings += [
+        finding
+        for finding in personal_data_findings(
+            {f"cited quote {i + 1}": q for i, q in enumerate(quoted)}
+        )
+        if finding.split(": ", 1)[1] not in CONTACT_KINDS
+    ]
+    own_words = " ".join(own(v) for k, v in strings.items() if not k.endswith(".quote"))
     if words := find_accusatory_words(own_words):
         findings.append(f"report uses accusatory words ({', '.join(words)})")
     disclaimer = str(rules.get("legal_disclaimer") or "not legal advice")
