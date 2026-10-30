@@ -3,6 +3,251 @@
   "two_step_verified": true,
   "kits": [
     {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:accessible-and-multilingual-communications",
+        "kind:checklist_pack",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:accessible-and-multilingual-communications",
+          "kind:checklist_pack",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-FLYER-14",
+        "track_id": "accessible-and-multilingual-communications",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "checklist_pack",
+        "title": "Multilingual Service Flyer Translation Check Kit",
+        "summary": "Checks each translated service flyer against its English source for dropped facts, changed numbers, dates and phone numbers, untranslated text and reading level. A fluent community reviewer approves each language, and staff decide what gets printed and posted.",
+        "target_org": "Community health and services center printing flyers in five languages",
+        "steps": [
+          {
+            "id": "compare-facts",
+            "title": "Compare facts across the source and each translation",
+            "kind": "translation_check",
+            "boundary": "drafts",
+            "actor": "Translation check agent",
+            "guidance": "List every fact in the English source, such as the service, hours, dates, address line, phone number, cost and who can use it, and check that each appears unchanged in each translation. Numbers, dates and phone numbers must match exactly."
+          },
+          {
+            "id": "draft-reviewer-questions",
+            "title": "Draft questions for the fluent reviewer",
+            "kind": "review_prep",
+            "boundary": "assists",
+            "actor": "Review preparation agent",
+            "guidance": "For each language, list the sentences where meaning may have shifted, words left in English and sentences above the target reading level, as questions for the fluent reviewer, not corrections."
+          },
+          {
+            "id": "fluent-review",
+            "title": "Approve each translation (fluent community reviewer)",
+            "kind": "fluent_review",
+            "boundary": "human_only",
+            "actor": "Fluent community reviewer",
+            "guidance": "A fluent speaker from the community reads the whole flyer, answers the questions and approves or corrects the translation. Machine checks never replace this step."
+          },
+          {
+            "id": "print-and-post",
+            "title": "Decide what gets printed and posted",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Communications coordinator",
+            "guidance": "Staff print and post only translations the fluent reviewer approved, and keep each approval with its flyer version."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "flyer-fact-checker",
+            "description": "Compares a translated flyer with its English source for dropped or changed facts, exact numbers and dates, and untranslated text.",
+            "boundary": "drafts",
+            "instructions": "Work from the English source and the translation the center provides. Build a fact list from the source: service name, days, hours, dates, address line, phone number, cost and who can use the service. For each translation, mark each fact as matching, changed or missing; numbers, dates, times and phone numbers must match character for character after normal formatting for that language. List words left in English. Turn every problem into a question for the fluent reviewer. Never rewrite the translation yourself and never call a translation approved.",
+            "refuses": [
+              "Approving a translation",
+              "Rewriting a flyer in another language for printing",
+              "Printing, posting or sharing a flyer",
+              "Guessing a fact the source does not state"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "compare_flyer_facts",
+            "description": "Extracts dates, times, phone numbers and amounts from the source and each translation and lists any that differ or are missing.",
+            "input_schema": {
+              "properties": {
+                "source_text": {
+                  "type": "string"
+                },
+                "target_reading_grade": {
+                  "maximum": 12,
+                  "minimum": 3,
+                  "type": "integer"
+                },
+                "translations": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "source_text",
+                "translations"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "facts",
+              "mismatched_numbers",
+              "missing_facts",
+              "untranslated_terms",
+              "long_sentences"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "translation_review_sheet",
+            "title": "Translation Review Sheet",
+            "artifact_format": "checklist_pack",
+            "boundary": "drafts",
+            "summary": "What a fluent community reviewer confirms for each language before a flyer is printed.",
+            "spec": [
+              "Every fact in the English source appears in this language.",
+              "Dates, times, phone numbers and costs match the source exactly.",
+              "No words were left in English unless the center chose to keep them, such as a program name.",
+              "A fluent community reviewer read the whole flyer and approved it, with the date and flyer version."
+            ]
+          },
+          {
+            "name": "flyer_fact_list",
+            "title": "Flyer Fact List",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "One row per fact and language: the source text, the translated text and whether it matches, changed or is missing.",
+            "spec": {
+              "columns": [
+                "fact_id",
+                "fact_type",
+                "source_text",
+                "language",
+                "translation_text",
+                "status"
+              ],
+              "pii_allowed": false
+            }
+          }
+        ],
+        "checklist": [
+          "Run the fact comparison on the final file that will be printed, not an earlier draft.",
+          "A fluent community reviewer approves every language before printing.",
+          "Keep each approval with the flyer version it covers."
+        ],
+        "sources": [
+          {
+            "title": "US Department of Justice, Civil Rights Division: Limited English Proficiency",
+            "url": "https://www.justice.gov/crt/limited-english-proficiency",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "Digital.gov: Plain language guide series",
+            "url": "https://digital.gov/guides/plain-language",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-FLYER-MATCH",
+            "scenario": "All five translations carry every fact unchanged",
+            "sample_input": "SYNTHETIC: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
+            "expected_indicators": [
+              "all_facts_present",
+              "questions_listed_for_reviewer"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-FLYER-MISMATCH",
+            "scenario": "A translated date and phone number differ from the source",
+            "sample_input": "SYNTHETIC: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
+            "expected_indicators": [
+              "mismatched_date",
+              "mismatched_phone_number",
+              "hold_for_fluent_reviewer"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-14",
+        "drafted_by_key": "key_drafter_14"
+      },
+      "verification": {
+        "kit_id": "KIT-FLYER-14",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "fluent-review",
+          "print-and-post"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-14",
+      "reviewed_by_key": "key_reviewer_14",
+      "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
+      "steward_signoff": null,
+      "draft_receipt": "99dd941312fa0ffe7264e852ad9ffe72050e93e76391c681237d1e23eab1e11a",
+      "review_receipt": "17d835aa7c3843787f72f7d517922a3565ae08e1638ddfe03c41f3506fa7e8d1",
+      "blob_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+      "catalog_version": 1,
+      "review_task_id": "er_dd52fa56bf65:KIT-FLYER-14:review",
+      "draft_task_id": "er_dd52fa56bf65:KIT-FLYER-14:draft",
+      "draft_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+      "drafter_key_id": "key_drafter_14",
+      "reviewer_key_id": "key_reviewer_14",
+      "publication_sha256": "70f10b08a51ac28f081b622bb33a2134e224b9e8fe97581381597898692634b2"
+    },
+    {
       "spdx_license": "BSD-3-Clause",
       "tags": [
         "status:verified",
@@ -195,16 +440,16 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "c50731078769bcf73ecea9eb0e1b4d20163d0fcb3b4f831b8f108ce4fd82b1d4",
-      "review_receipt": "4230ef991f86554ad1361db5c9923fe82bc07939f36bd8b3c0e5db3f7ab52533",
+      "draft_receipt": "fe5435facb2820b8521bf297eafe2472ec6e3d2554e137096bb9930101ed7b67",
+      "review_receipt": "7011a608a00f086d19d7b3a4ad385b7c1cba89762af528ae341e095ab2af2425",
       "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
       "catalog_version": 1,
-      "review_task_id": "er_9d14d0051583:KIT-GRANT-04:review",
-      "draft_task_id": "er_9d14d0051583:KIT-GRANT-04:draft",
+      "review_task_id": "er_fc577f54ef21:KIT-GRANT-04:review",
+      "draft_task_id": "er_fc577f54ef21:KIT-GRANT-04:draft",
       "draft_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
       "drafter_key_id": "key_drafter_04",
       "reviewer_key_id": "key_reviewer_04",
-      "publication_sha256": "4a2a1453f67ae18e43b595753ae507956e2a3e8106578900ae5e6aa81431331e"
+      "publication_sha256": "f838ae0ef44c0247304ff1dc972b46d32f171b77bc18ba2a83631fc2c5a2f950"
     },
     {
       "spdx_license": "CC-BY-4.0",
@@ -398,16 +643,16 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "7dd6ebc7933dfdfe5c99fe2952aad41b07401055f2cea5a3b3257bb54072770b",
-      "review_receipt": "b045ef9aac2e3cb355d322e6b4996b0d97d1a59b519ba5d2bbb7a4d92a1a3dad",
+      "draft_receipt": "892b8b4da6f4e3c9e2e9a24240067295088e9ae327bf5d12eea18b9ebb1db309",
+      "review_receipt": "a2576c6fc6c345e67ba2516d0188d53f03f6d7ade628248a4038eae73f39a9b6",
       "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
       "catalog_version": 1,
-      "review_task_id": "er_93982cbc9872:KIT-HOTLINE-02:review",
-      "draft_task_id": "er_93982cbc9872:KIT-HOTLINE-02:draft",
+      "review_task_id": "er_e613422de905:KIT-HOTLINE-02:review",
+      "draft_task_id": "er_e613422de905:KIT-HOTLINE-02:draft",
       "draft_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
       "drafter_key_id": "key_drafter_02",
       "reviewer_key_id": "key_reviewer_02",
-      "publication_sha256": "6eb9d7e137f2e01d08380bb5b94bf26e8e148087f4fef280fd17b3c31c76d796"
+      "publication_sha256": "91953155643adbbe40dd4c5bb57e9d9c88d8d72f2ea8df952dcabdd078b4fff0"
     },
     {
       "spdx_license": "MIT",
@@ -674,16 +919,16 @@
       "reviewed_by_key": "key_reviewer_06",
       "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "2e129aba03f41dd1cb6874f504777301ebf41cc418cf49dd187448c555a53638",
-      "review_receipt": "abd259e0cb70e1b684b7ad288aca579d707224f3b5e23982114cf2da3297c6ae",
+      "draft_receipt": "af65fd8dae95f54a1b04245c9dc68e56891817b156dd64b8bfd461f455c11542",
+      "review_receipt": "819fff56a2e1a4081325dfc9f062a1e524755b88b5786a57d0a0a913c27359a5",
       "blob_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
       "catalog_version": 1,
-      "review_task_id": "er_dcee01ea8940:KIT-IMPACT-06:review",
-      "draft_task_id": "er_dcee01ea8940:KIT-IMPACT-06:draft",
+      "review_task_id": "er_aac1361493ba:KIT-IMPACT-06:review",
+      "draft_task_id": "er_aac1361493ba:KIT-IMPACT-06:draft",
       "draft_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
       "drafter_key_id": "key_drafter_06",
       "reviewer_key_id": "key_reviewer_06",
-      "publication_sha256": "199cae915e6f876228819a2091134f9e7dc000d519a380f7b1cdee2cf8f4a428"
+      "publication_sha256": "e94357985b121d562aed8a8cf266bfe1e1e4657d8d0e2d58498148746d8990a4"
     },
     {
       "spdx_license": "MIT",
@@ -872,16 +1117,287 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "1780c5d1ee546f537fb2ce593f56f7bf7bdc90e965cbe04aa365e336b4e90752",
-      "review_receipt": "edd622d9f98220f9e03b06edd4e407caaa09b4f3757590bbac6b1ebf78c8d79c",
+      "draft_receipt": "f55deef61faf0d0da94103c40bc9e1fec1a5a7dcee366d3c766d30c127f04792",
+      "review_receipt": "21c6150e96c219cf2cb96f7d2bfcddaabd9579ddb21c1c26d8f242069d642908",
       "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
       "catalog_version": 1,
-      "review_task_id": "er_8d744a07775c:KIT-INTAKE-03:review",
-      "draft_task_id": "er_8d744a07775c:KIT-INTAKE-03:draft",
+      "review_task_id": "er_e891e82d76c9:KIT-INTAKE-03:review",
+      "draft_task_id": "er_e891e82d76c9:KIT-INTAKE-03:draft",
       "draft_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
       "drafter_key_id": "key_drafter_03",
       "reviewer_key_id": "key_reviewer_03",
-      "publication_sha256": "5a0aa0cc731c666b9a848991eabb007dafc2b9660fa066cd6be9aafa3f659e28"
+      "publication_sha256": "4692324ed3c92a36215497b644b4ff0952c127afdd2d5a6ab6632a56c14eeffe"
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:food-and-essentials-distribution",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:food-and-essentials-distribution",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-PANTRY-12",
+        "track_id": "food-and-essentials-distribution",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Food Bank Inventory and Pickup Scheduling Kit",
+        "summary": "Turns weekly stock counts into a restock and use-first list, and spreads booked pickup slots across volunteer shifts. Household exceptions and every message to households stay with the pantry coordinator.",
+        "target_org": "Volunteer-run neighborhood food bank with weekly pickup hours",
+        "steps": [
+          {
+            "id": "count-stock",
+            "title": "Total this week's stock counts and flag items to hand out first",
+            "kind": "inventory_count",
+            "boundary": "drafts",
+            "actor": "Inventory drafting agent",
+            "guidance": "Add up counts by item and storage area, list items below their restock level, and flag items whose date label falls inside the use-first window for a person to check. Missing counts stay blank, never zero."
+          },
+          {
+            "id": "plan-pickups",
+            "title": "Spread booked pickup slots across volunteer shifts",
+            "kind": "schedule_draft",
+            "boundary": "drafts",
+            "actor": "Scheduling drafting agent",
+            "guidance": "Group booked slots by pickup window, compare them with volunteers per shift, and suggest moving a slot only to a window the household marked as acceptable. Use slot codes, never names."
+          },
+          {
+            "id": "decide-exceptions",
+            "title": "Decide household exceptions, such as extra food or a late pickup",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Pantry coordinator",
+            "guidance": "The coordinator decides any exception for a household in person or by phone, using the pantry's own rules. The agent only lists open requests by slot code."
+          },
+          {
+            "id": "send-reminders",
+            "title": "Send pickup reminders and schedule changes to households",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Pantry coordinator or volunteer lead",
+            "guidance": "A person reviews the reminder list and sends it from the pantry's own phone or messaging account. The agent never messages households."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "pickup-plan-drafter",
+            "description": "Drafts a weekly restock and use-first list and a balanced pickup plan from stock counts and booked slot codes.",
+            "boundary": "drafts",
+            "instructions": "Work only from the stock count sheet and the pickup slot sheet. Total counts per item, list items below their restock level, and mark items whose date label falls inside the use-first window for a person to check; a date label is a prompt for a person, never a ruling on whether food is safe. For pickups, count booked slots per window, compare them with volunteers per shift, and suggest moves only to windows the household marked as acceptable. Use slot codes only, never names, phone numbers or addresses. Leave missing counts blank and list them for the coordinator.",
+            "refuses": [
+              "Deciding which households get extra food or an exception",
+              "Messaging or calling households or volunteers",
+              "Judging whether food is safe to eat",
+              "Storing names, phone numbers or addresses in the plan"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "summarize_stock_and_slots",
+            "description": "Totals stock counts by item and area, lists items below restock level and inside the use-first window, and counts booked slots per pickup window.",
+            "input_schema": {
+              "properties": {
+                "slot_rows": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "stock_rows": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                },
+                "use_first_days": {
+                  "maximum": 30,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                "week_of": {
+                  "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "week_of",
+                "stock_rows",
+                "slot_rows"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "item_totals",
+              "below_restock_level",
+              "use_first_items",
+              "missing_counts",
+              "slots_per_window",
+              "volunteers_per_window"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "stock_count_sheet",
+            "title": "Weekly Stock Count Sheet",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "Count sheet by item and storage area, with restock levels and the date label a person checks. No personal data.",
+            "spec": {
+              "columns": [
+                "count_date",
+                "storage_area",
+                "item",
+                "unit",
+                "count",
+                "restock_level",
+                "date_label",
+                "date_label_type"
+              ],
+              "pii_allowed": false
+            }
+          },
+          {
+            "name": "pickup_slot_sheet",
+            "title": "Pickup Slot Sheet",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "Slot codes, pickup windows and the other windows each household said would work, with no names or contact details.",
+            "spec": {
+              "columns": [
+                "slot_code",
+                "pickup_window",
+                "acceptable_windows",
+                "household_size_band",
+                "exception_requested"
+              ],
+              "pii_allowed": false
+            }
+          }
+        ],
+        "checklist": [
+          "Count sheets and slot sheets hold codes and counts only; remove any name, phone number or address before the agent reads them.",
+          "Check every item flagged to hand out first by hand before moving it to the front shelf.",
+          "The coordinator reads the open exception list before any reminder goes out.",
+          "Keep missing counts blank so the restock list shows them as unknown."
+        ],
+        "sources": [
+          {
+            "title": "Feeding America: How Do Food Banks Work?",
+            "url": "https://www.feedingamerica.org/our-work/food-bank-network",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "US EPA: Wasted Food Scale",
+            "url": "https://www.epa.gov/sustainable-management-food/wasted-food-scale",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-PANTRY-ROUTINE",
+            "scenario": "Saturday pantry with full counts and evenly booked windows",
+            "sample_input": "SYNTHETIC: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
+            "expected_indicators": [
+              "restock_list_drafted",
+              "pickup_plan_balanced"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-PANTRY-GAPS",
+            "scenario": "Missing cooler counts, one item near its date label and a crowded first window",
+            "sample_input": "SYNTHETIC: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
+            "expected_indicators": [
+              "missing_counts_left_blank",
+              "use_first_flagged_for_person",
+              "window_overbooked"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-PANTRY-EXCEPTION",
+            "scenario": "A household asks for extra food and a pickup after closing time",
+            "sample_input": "SYNTHETIC: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
+            "expected_indicators": [
+              "route_to_coordinator",
+              "no_exception_decided_by_agent"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-12",
+        "drafted_by_key": "key_drafter_12"
+      },
+      "verification": {
+        "kit_id": "KIT-PANTRY-12",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 3,
+        "human_only_steps": [
+          "decide-exceptions",
+          "send-reminders"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-12",
+      "reviewed_by_key": "key_reviewer_12",
+      "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
+      "steward_signoff": null,
+      "draft_receipt": "91d5cc4c3e372b9cc63a9f731494f4921c5e39078995eca1e9c91a6925cdf217",
+      "review_receipt": "08ca4c28857c03163200b1a1bab21e1c69e41fc579dba15f43ae1b40490b1267",
+      "blob_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+      "catalog_version": 1,
+      "review_task_id": "er_ceef22e028c2:KIT-PANTRY-12:review",
+      "draft_task_id": "er_ceef22e028c2:KIT-PANTRY-12:draft",
+      "draft_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+      "drafter_key_id": "key_drafter_12",
+      "reviewer_key_id": "key_reviewer_12",
+      "publication_sha256": "a9cb5634e126085c017b8aaf4232f7f9c110208d058191000cf95f1469260595"
     },
     {
       "spdx_license": "MIT",
@@ -1134,16 +1650,16 @@
       "reviewed_by_key": "key_reviewer_09",
       "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
       "steward_signoff": null,
-      "draft_receipt": "54ee82010203c6ac50d9a614ff683688b1019fad8bb9f17e8452fd750ebe170c",
-      "review_receipt": "7c52c73db664ae4dc6a400e2b303ee2fcfb0420f0c2d76e637329f9c76846399",
+      "draft_receipt": "ebc701c5c6db10d70678ded1a7980b1f119cfd8e4ae1855d4aeea281a634845c",
+      "review_receipt": "ad6c47b211fb384aec7c8a64911f29341e50266ab50fc9f73f93a8d41308c05c",
       "blob_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
       "catalog_version": 1,
-      "review_task_id": "er_e6fa7a9b0dfe:KIT-POLICY-09:review",
-      "draft_task_id": "er_e6fa7a9b0dfe:KIT-POLICY-09:draft",
+      "review_task_id": "er_485bdcbab211:KIT-POLICY-09:review",
+      "draft_task_id": "er_485bdcbab211:KIT-POLICY-09:draft",
       "draft_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
       "drafter_key_id": "key_drafter_09",
       "reviewer_key_id": "key_reviewer_09",
-      "publication_sha256": "69ad6ba6879df727ff3f24c19fcdeaa675ee5992aa5cedb33a0ad42c46606928"
+      "publication_sha256": "cf265dd7992dc7962c41f05df680d586240e2dd54871a5ab01e3ac746ac71f9e"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -1338,16 +1854,16 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "5303764ef04f8e9358b0d70fcfead8bf5123080e43563a31ada10601c0932a37",
-      "review_receipt": "8add59a3e081be42c2f604556e5e7db37780f03e887fbf5ca5215d817a87437b",
+      "draft_receipt": "390fa8a40f36103eee28530e84dbdf021ad21487946d976b987553644a6c337e",
+      "review_receipt": "0df7df1735c5ee802b57303bb3643dd32c1f3700446d8b9c8c9ef9a6732dfcf9",
       "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
       "catalog_version": 1,
-      "review_task_id": "er_4a8c42395f8a:KIT-RECRUIT-01:review",
-      "draft_task_id": "er_4a8c42395f8a:KIT-RECRUIT-01:draft",
+      "review_task_id": "er_4684d3203a5c:KIT-RECRUIT-01:review",
+      "draft_task_id": "er_4684d3203a5c:KIT-RECRUIT-01:draft",
       "draft_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
       "drafter_key_id": "key_drafter_01",
       "reviewer_key_id": "key_reviewer_01",
-      "publication_sha256": "6fed612b710cf8be58a418923cf11b41e383934b2a88d791524dfd732e08927e"
+      "publication_sha256": "fe9f7e2a737444b4e371146c1e98438f2f5eeb45179bec6f430edc9a19307ee2"
     },
     {
       "spdx_license": "MIT",
@@ -1613,16 +2129,16 @@
       "reviewed_by_key": "key_reviewer_11",
       "review_notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people.",
       "steward_signoff": null,
-      "draft_receipt": "274b938234861224c38a373c7dd5c05e10903d5bb6cee090ee2a98172879d9dc",
-      "review_receipt": "44873a59a147b8e49351f557fec819f910d39917e07354838e30c2e17785a76c",
+      "draft_receipt": "04d0392b2a2188c9086f043820c44f21c63776ea8e42141b163bcc3515a1cfab",
+      "review_receipt": "5bb9761c0de64f2e4728fcac79ace9119fb7e1ee63b1f255fdb450fddf2c11af",
       "blob_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
       "catalog_version": 1,
-      "review_task_id": "er_496247d876b1:KIT-RELIEF-11:review",
-      "draft_task_id": "er_496247d876b1:KIT-RELIEF-11:draft",
+      "review_task_id": "er_2b40adf2b0d3:KIT-RELIEF-11:review",
+      "draft_task_id": "er_2b40adf2b0d3:KIT-RELIEF-11:draft",
       "draft_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
       "drafter_key_id": "key_drafter_11",
       "reviewer_key_id": "key_reviewer_11",
-      "publication_sha256": "da703fa5ed36e09c9fa04f0aad4a6ea837f530b858f22ec913e9b911d8f7e103"
+      "publication_sha256": "8c6d80ed6a9e5e505ce99295ceb29af715595df260ac313149def77f443671a1"
     },
     {
       "spdx_license": "MIT",
@@ -1874,16 +2390,16 @@
       "reviewed_by_key": "key_reviewer_10",
       "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "dc72be763f7bee9c4fff1f42858e247397696016288ffbb2091f62daf4f16706",
-      "review_receipt": "a453dab3e46b5741da209204a9f1151b9ef5055bdfaa0dfcaf6fa1b56d74caab",
+      "draft_receipt": "4ffacb7553e7691025498b4aebde5378351f2d635b6a1e0368040a1070fe24b2",
+      "review_receipt": "fcf52a6845277f7dbf3187dcc14cbd96918abb747986e380da9df943244ad295",
       "blob_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
       "catalog_version": 1,
-      "review_task_id": "er_ceec68b225b9:KIT-RENEWAL-10:review",
-      "draft_task_id": "er_ceec68b225b9:KIT-RENEWAL-10:draft",
+      "review_task_id": "er_25341ea3c7fd:KIT-RENEWAL-10:review",
+      "draft_task_id": "er_25341ea3c7fd:KIT-RENEWAL-10:draft",
       "draft_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
       "drafter_key_id": "key_drafter_10",
       "reviewer_key_id": "key_reviewer_10",
-      "publication_sha256": "2c02b958337fcce0696db074c56d08208833c667f7fcd3ff0dec22a287685370"
+      "publication_sha256": "1c4c42528b9dc10f679e5bbf8e82945b3bfb404cc426afca8deefacd1e9c7d1b"
     },
     {
       "spdx_license": "CC0-1.0",
@@ -2080,16 +2596,16 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "ef72c206527c3841602effae423826abeede05c78b1803d29ba390461eb8725f",
-      "review_receipt": "b46900b1e4fcf2a2b7786e805ad9c4c0074623debff6fcb6f84cc5937eac02e7",
+      "draft_receipt": "fbe14b9101208a4af60e197330c4909f3702884ebe9afb2d4b42ce0ff2a8266b",
+      "review_receipt": "92085d926d8ab8017e1895e8ee3c6de54853f3e4e53c6f7a268bebb7c10cbed8",
       "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
       "catalog_version": 1,
-      "review_task_id": "er_5cdc005eea44:KIT-SHIFT-05:review",
-      "draft_task_id": "er_5cdc005eea44:KIT-SHIFT-05:draft",
+      "review_task_id": "er_fd0693f0dfea:KIT-SHIFT-05:review",
+      "draft_task_id": "er_fd0693f0dfea:KIT-SHIFT-05:draft",
       "draft_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
       "drafter_key_id": "key_drafter_05",
       "reviewer_key_id": "key_reviewer_05",
-      "publication_sha256": "e17c911041813aa890f36a08a92af4351838578e7a28412fc0496d4deaa5c058"
+      "publication_sha256": "52433f11bb87d14bfbcda07e61e89350cf653af41f01364a175d701b4dcf061d"
     },
     {
       "spdx_license": "MIT",
@@ -2369,16 +2885,279 @@
       "reviewed_by_key": "key_reviewer_08",
       "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
       "steward_signoff": "victim-services-steward",
-      "draft_receipt": "dfedd4c67a85116a59c3ebcd55eb6511be55ad04da041581d29ffac2cc4a2ec5",
-      "review_receipt": "6e135b5718af3cc936f2b837555b822f464722097813e515225a6a0fc31335d2",
+      "draft_receipt": "354de455524e9d345146d60f3c0384573d0ecfa02657d6df7a0503ad71448489",
+      "review_receipt": "850fbafe441c3254279090e737c4d2fc71b937b5ab8f665cccb3cb2b83313b20",
       "blob_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
       "catalog_version": 1,
-      "review_task_id": "er_71e3c88fe93b:KIT-SUPPORT-08:review",
-      "draft_task_id": "er_71e3c88fe93b:KIT-SUPPORT-08:draft",
+      "review_task_id": "er_af1a7b3169a2:KIT-SUPPORT-08:review",
+      "draft_task_id": "er_af1a7b3169a2:KIT-SUPPORT-08:draft",
       "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
       "drafter_key_id": "key_drafter_08",
       "reviewer_key_id": "key_reviewer_08",
-      "publication_sha256": "f33de83dd6e79699649d79ab441c3426db924dd1eee7e5a2b3cb1af93b229b46"
+      "publication_sha256": "f5a9178452ce953137bcf1543b233f22befb8c3e24d3b4637d69773600746b2c"
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:donor-stewardship-and-privacy",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:donor-stewardship-and-privacy",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-THANKS-13",
+        "track_id": "donor-stewardship-and-privacy",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Donor Thank-You Letters with Privacy Checks Kit",
+        "summary": "Drafts thank-you letters from a coded gift list with the acknowledgment details the finance lead requires, and checks that no letter exposes another donor's details or ignores a privacy choice. Staff decide special handling and sign and send every letter.",
+        "target_org": "Small nonprofit thanking individual donors after a year-end appeal",
+        "steps": [
+          {
+            "id": "check-privacy-choices",
+            "title": "Check the gift list against donors' privacy choices",
+            "kind": "privacy_check",
+            "boundary": "drafts",
+            "actor": "Privacy check agent",
+            "guidance": "Before drafting, check each coded gift row for its anonymous, mail and listing choices, and hold any row with a missing choice for the development lead."
+          },
+          {
+            "id": "draft-letters",
+            "title": "Draft a thank-you letter for each gift",
+            "kind": "document_prep",
+            "boundary": "drafts",
+            "actor": "Letter drafting agent",
+            "guidance": "Draft one letter per cleared gift from the approved template with the gift date and amount, the finance lead's acknowledgment wording and a specific line about the program it supports. Names and addresses stay as merge fields."
+          },
+          {
+            "id": "decide-special-handling",
+            "title": "Decide special handling for donors",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Development lead",
+            "guidance": "The development lead decides personal calls, recognition, anonymity questions and any donor with a missing privacy choice. The agent only lists them."
+          },
+          {
+            "id": "confirm-acknowledgment-wording",
+            "title": "Confirm the gift acknowledgment wording",
+            "kind": "finance_signoff",
+            "boundary": "human_only",
+            "actor": "Finance lead",
+            "guidance": "The finance lead confirms the receipt wording, including any statement about goods or services given in return, against the organization's own rules and the IRS written acknowledgment requirements."
+          },
+          {
+            "id": "sign-and-send",
+            "title": "Sign and send each letter",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Executive director or development lead",
+            "guidance": "Staff sign and send letters from the organization's own mail or email. The agent never sends letters or messages donors."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "donor-letter-drafter",
+            "description": "Drafts personal thank-you letters from a coded gift list, keeping names and addresses as merge fields.",
+            "boundary": "drafts",
+            "instructions": "Draft one letter per cleared gift row from the approved template. Keep names and addresses as merge fields that the organization's own mail merge fills at signing time, so no letter can carry another donor's details. Include the gift date, the amount and the acknowledgment wording the finance lead supplied, word for word. Add one specific sentence about the program the gift supports from the program notes. Skip any row the privacy check held or that is marked no mail, and list its code. Do not add tax advice.",
+            "refuses": [
+              "Putting one donor's details in another donor's letter or in a shared list",
+              "Writing tax advice or changing the acknowledgment wording",
+              "Sending letters or messaging donors",
+              "Overriding a donor's privacy choice"
+            ]
+          },
+          {
+            "name": "gift-list-privacy-checker",
+            "description": "Checks a coded gift list for missing privacy choices and rows that must not get a letter or a public listing.",
+            "boundary": "drafts",
+            "instructions": "Check that every row has an anonymous choice, a mail choice and a listing choice. Hold rows with a missing choice for the development lead, and rows with goods or services given in return for the finance lead. Mark anonymous donors so their names stay out of any public list or annual report draft. Report gift codes and counts by choice, never names.",
+            "refuses": [
+              "Guessing a missing privacy choice",
+              "Listing an anonymous donor in any public list",
+              "Reading or storing names and addresses"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "check_gift_list_privacy",
+            "description": "Lists gift rows with missing privacy choices, rows marked no mail or anonymous, and rows with goods or services given in return.",
+            "input_schema": {
+              "properties": {
+                "batch_label": {
+                  "type": "string"
+                },
+                "gift_rows": {
+                  "items": {
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "gift_rows"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "missing_choices",
+              "no_mail_rows",
+              "anonymous_rows",
+              "goods_or_services_rows",
+              "rows_ready"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "coded_gift_list",
+            "title": "Coded Gift List",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "Gift rows by code with date, amount, program, privacy choices and the value of any goods given in return. Names and addresses stay in the donor system.",
+            "spec": {
+              "columns": [
+                "gift_code",
+                "gift_date",
+                "amount",
+                "currency",
+                "program",
+                "anonymous_choice",
+                "mail_choice",
+                "listing_choice",
+                "goods_or_services_value"
+              ],
+              "pii_allowed": false
+            }
+          },
+          {
+            "name": "thank_you_letter_template",
+            "title": "Thank-You Letter Template",
+            "artifact_format": "markdown_sop",
+            "boundary": "drafts",
+            "summary": "Letter template with merge fields for the donor's name and address, and a place for the finance lead's acknowledgment wording.",
+            "spec": [
+              "Dear {{greeting_name}},",
+              "Thank you for your gift of {{amount}} on {{gift_date}} to {{program}}.",
+              "One specific sentence about what the program did this year.",
+              "The acknowledgment wording supplied by the finance lead, word for word.",
+              "Signed by hand by staff."
+            ]
+          }
+        ],
+        "checklist": [
+          "Names and addresses stay in the organization's own donor system and enter letters only through its mail merge at signing time.",
+          "Every gift row has its anonymous, mail and listing choices before drafting.",
+          "The finance lead's acknowledgment wording appears word for word in every letter.",
+          "Staff sign and send every letter themselves."
+        ],
+        "sources": [
+          {
+            "title": "IRS: Charitable contributions, written acknowledgments",
+            "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-written-acknowledgments",
+            "checked_date": "2026-10-30"
+          },
+          {
+            "title": "Association of Fundraising Professionals: The Donor Bill of Rights",
+            "url": "https://afpglobal.org/donor-bill-rights",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-THANKS-ROUTINE",
+            "scenario": "Year-end gifts with every privacy choice recorded",
+            "sample_input": "SYNTHETIC: 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
+            "expected_indicators": [
+              "letters_drafted_with_merge_fields",
+              "anonymous_rows_kept_off_lists"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-THANKS-HOLD",
+            "scenario": "A gift row with a missing mail choice and a gift that included a dinner ticket",
+            "sample_input": "SYNTHETIC: Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
+            "expected_indicators": [
+              "row_held_for_development_lead",
+              "goods_or_services_wording_needed"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-13",
+        "drafted_by_key": "key_drafter_13"
+      },
+      "verification": {
+        "kit_id": "KIT-THANKS-13",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 2,
+        "human_only_steps": [
+          "decide-special-handling",
+          "confirm-acknowledgment-wording",
+          "sign-and-send"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-13",
+      "reviewed_by_key": "key_reviewer_13",
+      "review_notes": "Checked placeholders instead of names, held rows with missing privacy choices, word-for-word acknowledgment wording, and that special handling, wording and sending stay with staff.",
+      "steward_signoff": null,
+      "draft_receipt": "ca55d629c0cbcc67afebe1c0d1f9f1996705082ecb39c5e8938ef740882b1c7c",
+      "review_receipt": "371d9dcfb36f5baa8da7facc3eca4350cdc408ac4aebec7e5453e3da3393c1d8",
+      "blob_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+      "catalog_version": 1,
+      "review_task_id": "er_00638ad15034:KIT-THANKS-13:review",
+      "draft_task_id": "er_00638ad15034:KIT-THANKS-13:draft",
+      "draft_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+      "drafter_key_id": "key_drafter_13",
+      "reviewer_key_id": "key_reviewer_13",
+      "publication_sha256": "7676a4387b43800fb76454b739f185939433ab85747eba40e721a2e388cc8e35"
     },
     {
       "spdx_license": "MIT",
@@ -2716,16 +3495,16 @@
       "reviewed_by_key": "key_reviewer_07",
       "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
       "steward_signoff": "records-steward-lead",
-      "draft_receipt": "64d2be624678aa4a7b54f684487491e3fc56272c9bbfc9ecb133cf6a3665a7ca",
-      "review_receipt": "7a6bc6f571c4a257753ec5e8a16b868d1a333a815e3b9f9fa2efba6ab63f03a6",
+      "draft_receipt": "82beb1bb7ab258c244e7a5882580a70e344fdcbb0ece555a091f00be5b2bcf10",
+      "review_receipt": "daf8689f2ccad733d38594d9267623fd69070b99230e15aea4eb2afd1c5c636e",
       "blob_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
       "catalog_version": 1,
-      "review_task_id": "er_8303049e9fd7:KIT-TRANSCR-07:review",
-      "draft_task_id": "er_8303049e9fd7:KIT-TRANSCR-07:draft",
+      "review_task_id": "er_3eaedb3d79ca:KIT-TRANSCR-07:review",
+      "draft_task_id": "er_3eaedb3d79ca:KIT-TRANSCR-07:draft",
       "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
       "drafter_key_id": "key_drafter_07",
       "reviewer_key_id": "key_reviewer_07",
-      "publication_sha256": "78c69143355689dd7aea55d0d1cd3aefde1c1e39883ec49c928c18c5df0c7667"
+      "publication_sha256": "2e60d78ee2e64fbfeebc05c1ea909a8aab645433fdc78639b0ef5c6768a64cf0"
     }
   ]
 }

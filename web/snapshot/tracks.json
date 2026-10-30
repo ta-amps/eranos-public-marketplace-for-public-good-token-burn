@@ -2,6 +2,43 @@
   "synthetic": true,
   "tracks": [
     {
+      "id": "accessible-and-multilingual-communications",
+      "title": "Accessible and Multilingual Communications",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps nonprofits check translated materials and web pages for dropped facts, changed numbers, reading level and common accessibility barriers, while fluent reviewers, assistive technology users and staff make the final calls.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Community services center or small nonprofit communications team",
+          "serves": "Community members who read in many languages or use assistive technology",
+          "mandate": "Make sure every flyer and web page says the same thing in every language and works for people with disabilities"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "checklist_pack",
+        "csv_template",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "external_send"
+      ],
+      "never": [
+        "Approve a translation without a fluent reviewer",
+        "Call a page accessible or compliant from automatic checks alone",
+        "Publish, print or post materials on the organization's behalf"
+      ],
+      "sources": [
+        {
+          "title": "US Department of Justice, Civil Rights Division: Limited English Proficiency",
+          "url": "https://www.justice.gov/crt/limited-english-proficiency",
+          "checked_date": "2026-10-30"
+        }
+      ]
+    },
+    {
       "id": "coerced-work-hotline-routing",
       "title": "Coerced Recruitment & Crisis Helpline Routing Kits",
       "domain": "anti_exploitation",
@@ -41,6 +78,80 @@
           "title": "ILO Operational Indicators of Trafficking in Human Beings",
           "url": "https://www.ilo.org/publications/operational-indicators-trafficking-human-beings",
           "checked_date": "2026-10-26"
+        }
+      ]
+    },
+    {
+      "id": "donor-stewardship-and-privacy",
+      "title": "Donor Stewardship and Privacy",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps small nonprofits thank donors with accurate, personal letters and the acknowledgment details their finance lead requires, while honoring every donor's privacy choices; staff decide special handling and sign and send every letter.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Small nonprofit development or finance office",
+          "serves": "Individual donors and the staff who thank them",
+          "mandate": "Thank every donor promptly and accurately, honor privacy choices, and keep donor records inside the organization's own systems"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Put one donor's details in another donor's letter or in a shared list",
+        "Override a donor's anonymity or contact choices",
+        "Give tax advice or change the finance lead's acknowledgment wording"
+      ],
+      "sources": [
+        {
+          "title": "IRS: Charitable contributions, written acknowledgments",
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-written-acknowledgments",
+          "checked_date": "2026-10-30"
+        }
+      ]
+    },
+    {
+      "id": "food-and-essentials-distribution",
+      "title": "Food Bank and Pantry Distribution",
+      "domain": "nonprofit_ops",
+      "domain_label": null,
+      "summary": "Helps food banks, pantries and essentials closets turn stock counts and pickup bookings into restock lists and balanced pickup plans, while household decisions and messages stay with staff.",
+      "sister_area": null,
+      "organizations": [
+        {
+          "org_type": "Volunteer-run food bank, pantry or essentials closet",
+          "serves": "Households collecting food or essentials at set pickup times",
+          "mandate": "Keep shelves stocked, hand out food before its quality date passes, and keep pickup lines short and fair"
+        }
+      ],
+      "allowed_artifacts": [
+        "agent_skill",
+        "mcp_tool_spec",
+        "csv_template",
+        "synthetic_test_pack"
+      ],
+      "required_human_only": [
+        "individual_decision",
+        "external_send"
+      ],
+      "never": [
+        "Decide which households get food, extra food or an exception",
+        "Message or call households or volunteers on the organization's behalf",
+        "Judge whether food is safe to eat from a date label alone"
+      ],
+      "sources": [
+        {
+          "title": "Feeding America: How Do Food Banks Work?",
+          "url": "https://www.feedingamerica.org/our-work/food-bank-network",
+          "checked_date": "2026-10-30"
         }
       ]
     },

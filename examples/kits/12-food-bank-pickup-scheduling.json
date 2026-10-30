@@ -1,0 +1,48 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-food-bank-pickups",
+    "kit": {
+      "store": "seedpack.kit-food-bank-pickups",
+      "key": "kit-food-bank-pickups.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "21c07cd04580223be8ad2c2d6d35810392cbe2eeef54cd37fb3cdaf9abe5e048"
+    },
+    "request": {
+      "store": "seedpack.kit-food-bank-pickups",
+      "key": "kit-food-bank-pickups.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "1a8dda65eb64a9910843578281a2d2f33c237207a18c7148d4431a0473099d42"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-PANTRY-12",
+    "track_id": "food-and-essentials-distribution",
+    "deliverable_kind": "full_kit",
+    "needs_steward_signoff": false,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:food-and-essentials-distribution",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "review": {
+    "kit_id": "KIT-PANTRY-12",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator."
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "id": "food-and-essentials-distribution",
+  "title": "Food Bank and Pantry Distribution",
+  "domain": "nonprofit_ops",
+  "summary": "Helps food banks, pantries and essentials closets turn stock counts and pickup bookings into restock lists and balanced pickup plans, while household decisions and messages stay with staff.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Volunteer-run food bank, pantry or essentials closet",
+      "serves": "Households collecting food or essentials at set pickup times",
+      "mandate": "Keep shelves stocked, hand out food before its quality date passes, and keep pickup lines short and fair"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "csv_template",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "individual_decision",
+    "external_send"
+  ],
+  "never": [
+    "Decide which households get food, extra food or an exception",
+    "Message or call households or volunteers on the organization's behalf",
+    "Judge whether food is safe to eat from a date label alone"
+  ],
+  "sources": [
+    {
+      "title": "Feeding America: How Do Food Banks Work?",
+      "url": "https://www.feedingamerica.org/our-work/food-bank-network",
+      "checked_date": "2026-10-30"
+    }
+  ]
+}

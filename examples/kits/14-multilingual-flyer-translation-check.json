@@ -1,0 +1,48 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-flyer-translation-check",
+    "kit": {
+      "store": "seedpack.kit-flyer-translation-check",
+      "key": "kit-flyer-translation-check.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "3fcf7700dc7666eefd861575e1bd1d795d054d0cab584fb7a46d186f9ab2b26b"
+    },
+    "request": {
+      "store": "seedpack.kit-flyer-translation-check",
+      "key": "kit-flyer-translation-check.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "c653118eba30d76e9e0426783d9b9fdda07303163177f2d753259e8e7bc50308"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-FLYER-14",
+    "track_id": "accessible-and-multilingual-communications",
+    "deliverable_kind": "checklist_pack",
+    "needs_steward_signoff": false,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:accessible-and-multilingual-communications",
+      "kind:checklist_pack",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "review": {
+    "kit_id": "KIT-FLYER-14",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people."
+  }
+}

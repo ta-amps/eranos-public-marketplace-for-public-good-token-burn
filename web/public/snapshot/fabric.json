@@ -9,7 +9,7 @@
       "ready": 0,
       "leased": 0,
       "waiting": 0,
-      "done": 11,
+      "done": 14,
       "dead": 0,
       "cancelled": 0
     },
@@ -19,7 +19,7 @@
       "ready": 0,
       "leased": 0,
       "waiting": 0,
-      "done": 11,
+      "done": 14,
       "dead": 0,
       "cancelled": 0
     },
@@ -29,7 +29,7 @@
       "ready": 0,
       "leased": 0,
       "waiting": 0,
-      "done": 11,
+      "done": 14,
       "dead": 0,
       "cancelled": 0
     }
