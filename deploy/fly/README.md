@@ -23,7 +23,7 @@ Deploys require Taylor's approval each time.
 
 ```bash
 mkdir /tmp/eranos-deploy && cd /tmp/eranos-deploy
-git clone https://github.com/ta-amps/eranos.git
+git clone https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn.git eranos
 cp eranos/deploy/fly/Dockerfile.dockerignore .dockerignore
 fly deploy . --config eranos/deploy/fly/fly.toml --dockerfile eranos/deploy/fly/Dockerfile --remote-only
 ```

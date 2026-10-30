@@ -2,7 +2,7 @@
 
 Anyone with unused AI coding tokens or local/cloud open-weight capacity can connect an agent to
 Eranos's scoped queues (`eq01` spec, `eq02` draft & self-test, `eq03` independent review) on
-[Tessera](https://github.com/ta-amps/tessera) to build and verify agent kits for NGOs: seed packs of
+[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) to build and verify agent kits for NGOs: seed packs of
 nouns and verbs holding skills, read-only MCP tool definitions, operational SOPs, and `SYNTHETIC`
 self-test fixtures. Eranos and Agora are the only public surfaces; Tessera and Herma are infrastructure.
 

@@ -9,7 +9,7 @@ const HELP_LABEL = "I want to help";
 const NGO_LABEL = "I'm an NGO looking for agentic solutions";
 const OLD_NAMES = /shamash|kinema|kothar/i;
 const TOOLS_WORD = /\btools?\b/i;
-const REQUEST_KIT_URL = "https://github.com/ta-amps/eranos/issues/new?template=request-a-kit.yml";
+const REQUEST_KIT_URL = "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues/new?template=request-a-kit.yml";
 
 const VIEWPORTS = [
   { name: "desktop", width: 1440, height: 900 },
@@ -139,11 +139,11 @@ test("/help explains helping, the four steps, connecting, open tasks and what st
   await expect(page.getByRole("link", { name: "Connection details for this site" })).toHaveAttribute("href", "/connect");
   await expect(page.getByRole("link", { name: "Connect any agent, step by step, on Agora" })).toHaveAttribute(
     "href",
-    "https://ta-amps.github.io/agora/contribute/#agent",
+    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/contribute/#agent",
   );
   await expect(page.getByRole("link", { name: "How the whole system works, on Agora" })).toHaveAttribute(
     "href",
-    "https://ta-amps.github.io/agora/docs/how-it-works/",
+    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/docs/how-it-works/",
   );
   await expect(page.getByRole("link", { name: "Setup for MCP, HTTP and command-line agents" })).toHaveAttribute(
     "href",
@@ -237,11 +237,11 @@ test("/nonprofits explains agent kits, shows the five reviewed examples and the 
   }
   await expect(page.getByRole("link", { name: "exploitation-evidence pack" })).toHaveAttribute(
     "href",
-    "https://github.com/ta-amps/pack-contributions/tree/main/packs/exploitation-evidence",
+    "https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence",
   );
   await expect(page.getByRole("link", { name: "pack library" })).toHaveAttribute(
     "href",
-    "https://github.com/ta-amps/pack-contributions",
+    "https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs",
   );
 
   const request = page.getByTestId("request-kit");

@@ -1,12 +1,12 @@
 {
-  "$schema": "https://github.com/ta-amps/hackathon-context/blob/main/agents/schemas/architecture.schema.json",
+  "$schema": "https://github.com/ta-amps/ta-amps-hackathon/blob/main/hackathon/agents/schemas/architecture.schema.json",
   "schema_version": 1,
   "name": "eranos",
   "summary": "Eranos lets people donate unused AI tokens to build, test, and independently review off-the-shelf agent skills, read-only MCP tools, operational files (SOPs, checklists, CSV templates, Open Referral directories), and multi-step agentic processes for NGOs, nonprofits, and public-good teams. Contributors connect agents to scoped queues on Tessera (eq01 spec, eq02 build & test, eq03 independent review); deterministic checks verify SYNTHETIC test fixtures and step autonomy boundaries so interviews, crisis safety planning, individual decisions, and external sends stay strictly human-only; and a second contributor's agent or human steward (drafter != reviewer across both worker ID and Tessera key ID) approves each package before atomic compare-and-set publication into eranos.catalog. Alongside Shamash (shamash.<domain>), Eranos (eranos.<domain>) runs on Tessera (tessera.<domain>) under a single shared domain.",
   "status": {
     "as_of": "2026-10-29",
     "stage": "prototype",
-    "notes": "Schemas, copy and topic guards, strict JSON loader, six NGO and nonprofit tracks, deterministic verifier, two-step Tessera pipeline (eq01 -> eq02 -> eq03) with steward park/resume and CAS catalog publication, traced local/HTTP adapter, FastAPI service with edge lockdown, React 19 + Astryx web app with offline snapshot mode, and task briefs E1-E4 built and tested (56 pytest tests, one of which needs a hackathon-context checkout alongside, plus Tessera's conformance suite through the adapter: 30 passed, 6 skipped)."
+    "notes": "Schemas, copy and topic guards, strict JSON loader, six NGO and nonprofit tracks, deterministic verifier, two-step Tessera pipeline (eq01 -> eq02 -> eq03) with steward park/resume and CAS catalog publication, traced local/HTTP adapter, FastAPI service with edge lockdown, React 19 + Astryx web app with offline snapshot mode, and task briefs E1-E4 built and tested (56 pytest tests, one of which needs a ta-amps-hackathon checkout alongside, plus Tessera's conformance suite through the adapter: 30 passed, 6 skipped)."
   },
   "docs": {
     "summary": "docs/summary.md",
@@ -773,6 +773,6 @@
   ],
   "feedback": {
     "how": "Open an issue on GitHub; docs/review.md lists the sharpest review questions",
-    "url": "https://github.com/ta-amps/eranos/issues"
+    "url": "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues"
   }
 }

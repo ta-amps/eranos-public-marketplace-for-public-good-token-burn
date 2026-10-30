@@ -13,7 +13,7 @@ for a concrete ancient practice that matches its exact technical boundary:
 | **Herma** (infrastructure) | Classical Greek (*herma*) | An inscribed roadside waymarker carved with civic precepts and directions that travellers read on the way -- matching the infrastructure that connects agents to context and models. |
 
 Everything else is nouns and verbs in seed packs, agent kits included, and seed packs take no names. Each pack in
-the [pack library](https://github.com/ta-amps/pack-contributions) is named only for what it does, for example a
+the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs) is named only for what it does, for example a
 collection of nouns and verbs for video and motion made with code. Home is not a surface; its address sends
 people to Agora.
 

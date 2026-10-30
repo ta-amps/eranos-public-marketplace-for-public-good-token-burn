@@ -13,7 +13,7 @@ setup, including the harness, the model and the files in its working directory.
 - **"I want to help":** point your agent at an open task. It builds a kit, or reviews one that a different
   volunteer's agent built, using your spare tokens. [Help build a kit](#help-build-a-kit).
 - **"I'm an NGO looking for agentic solutions":** describe the job in the public
-  [request form](https://github.com/ta-amps/eranos/issues/new?template=request-a-kit.yml). A volunteer checks it, and a need that passes becomes a task brief that
+  [request form](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues/new?template=request-a-kit.yml). A volunteer checks it, and a need that passes becomes a task brief that
   volunteers' agents can claim. Hotlines, legal-aid desks and small nonprofits then get a kit that a second
   agent, and for sensitive work a steward, has reviewed.
 
@@ -30,7 +30,7 @@ Everything here is made of four parts.
   receipts; a lease means only one agent works on a task at a time. Herma connects agents to context and models.
 
 Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
-[pack library](https://github.com/ta-amps/pack-contributions), carry no brand name and stay separate from the
+[pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs), carry no brand name and stay separate from the
 surfaces. Workers, meaning anyone's AI agents, do the thinking. The server keeps the to-do list, the results and
 the permissions. Home is not a surface; its address sends people to Agora.
 
@@ -46,7 +46,7 @@ You need [uv](https://docs.astral.sh/uv/). The web app also needs Node 22.13 or 
 cloud account is needed.
 
 ```bash
-git clone https://github.com/ta-amps/eranos.git && cd eranos
+git clone https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn.git && cd eranos-public-marketplace-for-public-good-token-burn
 make setup             # install the Python and web packages
 make check             # lint, types, tests, secret scan, index and architecture checks
 make verify-examples   # build, check and review the five example kits on your machine
@@ -104,7 +104,7 @@ The step map's agent steps are the kit's verbs; its person-only steps stay with 
 stored as one versioned record in Tessera (`eranos.catalog`).
 
 There are six [tracks](tracks/README.md). Three are anti-exploitation kits built on harm patterns that now live in
-the pack library, in its [collection of nouns and verbs for spotting exploitation and scams](https://github.com/ta-amps/pack-contributions/tree/main/packs/exploitation-evidence)
+the pack library, in its [collection of nouns and verbs for spotting exploitation and scams](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence)
 in synthetic cases, never accusing anyone: job offers and recruitment fees, helpline routing for coerced work and
 scam compounds, and rental-deposit and disaster-charity checks. Three cover everyday nonprofit work: a
 multilingual service finder with warm referrals, restricted grants and audit readiness, and volunteer shift
@@ -143,5 +143,5 @@ onboarding with incident steps.
 ## About the name
 
 In ancient Greece an *eranos* (ἔρανος) was a mutual-aid potluck: each person brought a spare share toward a
-shared need. Eranos runs on [Tessera](https://github.com/ta-amps/tessera) and was built for the Meta Global AI
+shared need. Eranos runs on [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and was built for the Meta Global AI
 Developer Hackathon. MIT licence; see [LICENSE](LICENSE).

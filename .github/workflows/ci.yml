@@ -15,28 +15,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: eranos
+          path: eranos-public-marketplace-for-public-good-token-burn
       - uses: actions/checkout@v4
         with:
-          repository: ta-amps/tessera
+          repository: ta-amps/tessera-infrastructure-work-and-storage-engine
           ref: ecca97deb88b82e627df66c98400b3a302e2bdb0
-          path: tessera
+          path: tessera-infrastructure-work-and-storage-engine
           token: ${{ secrets.TESSERA_READ_TOKEN || github.token }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - uses: astral-sh/setup-uv@v6
       - name: Install
-        working-directory: eranos
+        working-directory: eranos-public-marketplace-for-public-good-token-burn
         run: uv sync --all-groups
       - name: Lint, types, tests, leak scan, index and architecture checks
-        working-directory: eranos
+        working-directory: eranos-public-marketplace-for-public-good-token-burn
         run: make check
       - name: Two-step volunteer pipeline verification
-        working-directory: eranos
+        working-directory: eranos-public-marketplace-for-public-good-token-burn
         run: make verify-examples
       - name: Tessera conformance suite through Eranos's adapter
-        working-directory: eranos
+        working-directory: eranos-public-marketplace-for-public-good-token-burn
         run: make suite BACKEND=local
 
   web:
