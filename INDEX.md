@@ -113,7 +113,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/tracks.py](eranos/tracks.py) | Load public-good build tracks (tracks/<id>/track.json). |
 | [eranos/verifier.py](eranos/verifier.py) | Deterministic verifier for volunteer-submitted kits: checks track fit, human-only lines, synthetic fixtures,… |
 
-## examples/ (7)
+## examples/ (8)
 
 | File | What it is |
 |---|---|
@@ -123,6 +123,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/kits/04-grant-and-compliance-ops.json](examples/kits/04-grant-and-compliance-ops.json) | JSON object: request, draft, review |
 | [examples/kits/05-volunteer-shift-sop-pack.json](examples/kits/05-volunteer-shift-sop-pack.json) | JSON object: request, draft, review |
 | [examples/kits/06-monthly-program-impact-report.json](examples/kits/06-monthly-program-impact-report.json) | JSON object: seed_pack, request, review |
+| [examples/kits/07-handwritten-statements-to-text.json](examples/kits/07-handwritten-statements-to-text.json) | JSON object: seed_pack, request, steward_signoff, review |
 | [examples/kits/README.md](examples/kits/README.md) | Synthetic Example Kit Bundles |
 
 ## scripts/ (4)
@@ -150,7 +151,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_seed_packs.py](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
 | [tests/test_tracks_and_verifier.py](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
 
-## tracks/ (8)
+## tracks/ (9)
 
 | File | What it is |
 |---|---|
@@ -161,9 +162,10 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/intake-and-referral-triage/track.json](tracks/intake-and-referral-triage/track.json) | Multilingual Service-Finder & Warm-Referral Operations |
 | [tracks/job-recruitment-triage/track.json](tracks/job-recruitment-triage/track.json) | Cross-Border Job Offer & Fee-Shift Intake Kits |
 | [tracks/program-impact-reporting/track.json](tracks/program-impact-reporting/track.json) | Program Impact and Funding Reports |
+| [tracks/statement-transcription/track.json](tracks/statement-transcription/track.json) | Handwritten Statements and Records |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (62)
+## web/ (64)
 
 | File | What it is |
 |---|---|
@@ -180,6 +182,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/catalog/KIT-INTAKE-03.json](web/public/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-RECRUIT-01.json](web/public/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-SHIFT-05.json](web/public/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-TRANSCR-07.json](web/public/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/fabric.json](web/public/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/public/snapshot/requests.json](web/public/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/public/snapshot/tracks.json](web/public/snapshot/tracks.json) | JSON object: synthetic, tracks |
@@ -190,6 +193,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/catalog/KIT-INTAKE-03.json](web/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-RECRUIT-01.json](web/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-SHIFT-05.json](web/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-TRANSCR-07.json](web/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/fabric.json](web/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: synthetic, tracks |

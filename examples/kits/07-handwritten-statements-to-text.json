@@ -1,0 +1,52 @@
+{
+  "seed_pack": {
+    "pack_id": "kit-handwritten-statements",
+    "kit": {
+      "store": "seedpack.kit-handwritten-statements",
+      "key": "kit-handwritten-statements.v0.1.0.kit",
+      "version": 1,
+      "value_sha256": "66ff6202a4b6d9a416adeb68e3571c21c51b3d73a64368ecc18f3ebf044fd25c"
+    },
+    "request": {
+      "store": "seedpack.kit-handwritten-statements",
+      "key": "kit-handwritten-statements.v0.1.0.example.request",
+      "version": 1,
+      "value_sha256": "60f9b52972c68361cd1f8e6adef80a85b9fe54a7273e50173b629f43aad77dd5"
+    }
+  },
+  "request": {
+    "kit_id": "KIT-TRANSCR-07",
+    "track_id": "statement-transcription",
+    "deliverable_kind": "full_kit",
+    "needs_steward_signoff": true,
+    "spdx_license": "MIT",
+    "tags": [
+      "domain:nonprofit_ops",
+      "track:statement-transcription",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "steward_signoff": {
+    "steward": "records-steward-lead",
+    "notes": "Steward confirmed the sample pages are synthetic and stamped, the writer's words are kept exactly, every uncertain reading goes to a person, and safety follow-up, sign-off and sharing stay with staff."
+  },
+  "review": {
+    "kit_id": "KIT-TRANSCR-07",
+    "verdict": "approved",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people."
+  }
+}

@@ -1,0 +1,348 @@
+{
+  "synthetic": true,
+  "spdx_license": "MIT",
+  "tags": [
+    "status:verified",
+    "domain:nonprofit_ops",
+    "track:statement-transcription",
+    "kind:full_kit",
+    "spdx:MIT",
+    "cohort:nonprofit_ops"
+  ],
+  "target_cohorts": [
+    "all",
+    "nonprofit_ops"
+  ],
+  "producer_surface": "surface:eranos",
+  "visibility_scope": "public_commons",
+  "allowed_surfaces": [
+    "surface:eranos",
+    "surface:herma"
+  ],
+  "kit": {
+    "spdx_license": "MIT",
+    "tags": [
+      "status:verified",
+      "domain:nonprofit_ops",
+      "track:statement-transcription",
+      "kind:full_kit",
+      "spdx:MIT",
+      "cohort:nonprofit_ops"
+    ],
+    "target_cohorts": [
+      "all",
+      "nonprofit_ops"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "kit_id": "KIT-TRANSCR-07",
+    "track_id": "statement-transcription",
+    "domain": "nonprofit_ops",
+    "deliverable_kind": "full_kit",
+    "title": "Handwritten Statements to Text Kit",
+    "summary": "Types handwritten statements and forms dropped into a folder exactly as written, keeping slang, spelling, acronyms and the writer's own words, and flags every uncertain reading for a person. A local acronym glossary helps readers but never changes the text, and a person checks every flag and signs off.",
+    "target_org": "Community center that collects handwritten statements and sign-up cards at community nights",
+    "steps": [
+      {
+        "id": "transcribe-pages",
+        "title": "Type each page exactly as written",
+        "kind": "transcription",
+        "boundary": "drafts",
+        "actor": "Transcription drafting agent",
+        "guidance": "Type each line as written, keeping spelling, slang, grammar, acronyms, crossings-out and line breaks. Mark every unsure reading with [?], mark unreadable words [illegible], and never correct or tidy the writer's words."
+      },
+      {
+        "id": "list-acronyms",
+        "title": "List acronyms and local terms against the glossary",
+        "kind": "glossary_check",
+        "boundary": "assists",
+        "actor": "Glossary assistant agent",
+        "guidance": "List every acronym or local term found, with its glossary meaning when the glossary has one; unknown ones go to the reviewer. The glossary never changes the transcription."
+      },
+      {
+        "id": "verify-readings",
+        "title": "Check every flagged reading against the original page",
+        "kind": "transcription_review",
+        "boundary": "human_only",
+        "actor": "Trained staff reviewer",
+        "guidance": "A person compares every flag and a sample of other lines with the original page, fixes misreadings only, and keeps the writer's own words, spelling and slang."
+      },
+      {
+        "id": "safety-follow-up",
+        "title": "Follow up in person when a statement raises safety",
+        "kind": "crisis_safety_plan",
+        "boundary": "human_only",
+        "actor": "Trained staff member",
+        "guidance": "When a statement mentions danger or not feeling safe, trained staff follow up under the organization's own safety protocol. The agent gives no advice and takes no other step."
+      },
+      {
+        "id": "sign-off-statement",
+        "title": "Sign off the transcription and decide how it is used",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Program lead (steward)",
+        "guidance": "The program lead signs off each transcription and decides how the statement is used, under the organization's consent and records rules."
+      },
+      {
+        "id": "share-statement",
+        "title": "Share a statement outside the organization",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Program lead",
+        "guidance": "Only staff share a statement outside the organization, and only with the writer's consent. The agent never shares or sends anything."
+      }
+    ],
+    "skill": null,
+    "skills": [
+      {
+        "name": "verbatim-transcriber",
+        "description": "Types handwritten pages exactly as written and flags every uncertain reading for a person.",
+        "boundary": "drafts",
+        "instructions": "Type what is on the page, line by line, exactly as written: keep the writer's spelling, slang, grammar, capital letters, abbreviations, acronyms and punctuation, and write a crossed-out word as [crossed out: word]. Never correct, tidy, translate, summarize or expand anything. When you are not sure of a word, write your best reading followed by [?] and list the alternatives; when you cannot read it at all, write [illegible]. Keep the page and line number for every flag. Never add a name, date or detail that is not on the page. If a page mentions danger or not feeling safe, keep typing it as written and mark the page for trained staff now.",
+        "refuses": [
+          "Correcting spelling, grammar or slang",
+          "Summarizing or rewording a statement",
+          "Expanding acronyms inside the transcription",
+          "Guessing a word without flagging it"
+        ]
+      },
+      {
+        "name": "acronym-glossary-assistant",
+        "description": "Lists acronyms and local terms in a transcription with their glossary meanings, without changing the text.",
+        "boundary": "assists",
+        "instructions": "Find acronyms, abbreviations and local terms in the transcription. Give the glossary's meaning, word for word, when the glossary has the term, and list unknown terms for the reviewer to add or explain. Never replace, expand or translate a term inside the transcription; the glossary is a reading aid only.",
+        "refuses": [
+          "Changing the transcription",
+          "Guessing the meaning of an unknown local term"
+        ]
+      }
+    ],
+    "tool": null,
+    "tools": [
+      {
+        "name": "list_dropped_pages",
+        "description": "Lists the page images in the intake drop folder with page numbers, sizes and SHA-256 digests, without moving or changing them.",
+        "input_schema": {
+          "properties": {
+            "batch_label": {
+              "type": "string"
+            },
+            "folder": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "folder"
+          ],
+          "type": "object"
+        },
+        "output_fields": [
+          "pages",
+          "file_sha256",
+          "page_count",
+          "unreadable_files"
+        ],
+        "read_only": true
+      }
+    ],
+    "artifacts": [
+      {
+        "name": "transcription_rules",
+        "title": "Verbatim Transcription Rules",
+        "artifact_format": "markdown_sop",
+        "boundary": "drafts",
+        "summary": "The rules every transcription follows: type exactly what is written, flag what is uncertain, and leave the writer's words alone.",
+        "spec": [
+          "Type exactly what is written: spelling, slang, grammar and acronyms stay as they are.",
+          "Write a crossed-out word as [crossed out: word].",
+          "Mark an unsure word with [?] and list alternatives; mark an unreadable word [illegible].",
+          "A person checks every flag against the original page before anyone uses the text."
+        ]
+      },
+      {
+        "name": "transcription_sheet",
+        "title": "Transcription Sheet",
+        "artifact_format": "csv_template",
+        "boundary": "drafts",
+        "summary": "One row per written line: the batch, page, line, the text as written, whether it holds a flag, the alternatives and whether a reviewer checked it.",
+        "spec": {
+          "columns": [
+            "batch_label",
+            "page",
+            "line",
+            "text_as_written",
+            "has_flag",
+            "alternatives",
+            "reviewer_checked"
+          ],
+          "pii_allowed": false
+        }
+      },
+      {
+        "name": "local_acronym_glossary",
+        "title": "Local Acronym Glossary",
+        "artifact_format": "csv_template",
+        "boundary": "assists",
+        "summary": "Acronyms, local terms and common writing abbreviations with their meanings, as a reading aid that never changes a transcription.",
+        "spec": {
+          "columns": [
+            "term",
+            "meaning",
+            "kind"
+          ],
+          "pii_allowed": false,
+          "rows": [
+            [
+              "SNAP",
+              "Supplemental Nutrition Assistance Program",
+              "public program"
+            ],
+            [
+              "WIC",
+              "Special Supplemental Nutrition Program for Women, Infants, and Children",
+              "public program"
+            ],
+            [
+              "ESL",
+              "English as a second language",
+              "class"
+            ],
+            [
+              "GED",
+              "General Educational Development, a high school equivalency test",
+              "class"
+            ],
+            [
+              "TMC",
+              "Tuesday Market Center (a SYNTHETIC local term used only in this kit's examples)",
+              "local term"
+            ],
+            [
+              "NEC",
+              "Northside Elders Club (a SYNTHETIC local term used only in this kit's examples)",
+              "local term"
+            ],
+            [
+              "w/",
+              "with",
+              "writing abbreviation"
+            ],
+            [
+              "bc",
+              "because",
+              "writing abbreviation"
+            ],
+            [
+              "rn",
+              "right now",
+              "writing abbreviation"
+            ]
+          ],
+          "rule": "The glossary helps readers. It never changes a transcription."
+        }
+      }
+    ],
+    "checklist": [
+      "Only synthetic or consented pages go in the drop folder; this kit's samples are synthetic, rendered from handwriting fonts and stamped SYNTHETIC.",
+      "A person checks every [?] and [illegible] flag against the original page.",
+      "Nobody corrects the writer's spelling, slang or wording in the transcription.",
+      "Trained staff follow up the same day on any statement about safety.",
+      "The program lead signs off before any statement is used or shared."
+    ],
+    "sources": [
+      {
+        "title": "National Archives: Citizen Archivist resources for transcribing records",
+        "url": "https://www.archives.gov/citizen-archivist/resources",
+        "checked_date": "2026-10-30"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-TRANSCR-VERBATIM",
+        "scenario": "A handwritten statement with slang, acronyms, a crossed-out word and a smudged reading",
+        "sample_input": "SYNTHETIC: Page statement-01.png, rendered from the Patrick Hand font and stamped SYNTHETIC: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
+        "expected_indicators": [
+          "slang_kept_as_written",
+          "crossed_out_word_marked",
+          "smudged_reading_flagged",
+          "acronyms_listed_not_expanded"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-TRANSCR-CARD",
+        "scenario": "A handwritten sign-up card with acronyms, a Spanish word and a smudged word",
+        "sample_input": "SYNTHETIC: Page signup-card-01.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
+        "expected_indicators": [
+          "spanish_word_kept",
+          "acronyms_listed_not_expanded",
+          "smudged_reading_flagged"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-TRANSCR-SAFETY",
+        "scenario": "A statement that says the writer does not feel safe at home",
+        "sample_input": "SYNTHETIC: Page statement-02.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a statement that says the writer does not feel safe at home and asks that it not be shared.",
+        "expected_indicators": [
+          "transcribed_as_written",
+          "route_to_trained_staff_now",
+          "sharing_held_for_consent"
+        ],
+        "expected_human_escalation": true
+      },
+      {
+        "id": "FX-TRANSCR-CORRECT",
+        "scenario": "A volunteer asks the agent to fix the spelling and grammar before filing",
+        "sample_input": "SYNTHETIC: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
+        "expected_indicators": [
+          "refuse_to_correct_the_writer",
+          "route_to_reviewer"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "volunteer-drafter-07",
+    "drafted_by_key": "key_drafter_07"
+  },
+  "verification": {
+    "kit_id": "KIT-TRANSCR-07",
+    "passed": true,
+    "checks_run": [
+      "track_alignment",
+      "human_only_boundaries",
+      "synthetic_fixtures",
+      "non_accusatory_copy",
+      "prohibited_topics",
+      "spdx_license_allowlist",
+      "cited_sources",
+      "deliverable_alignment"
+    ],
+    "issues": [],
+    "fixture_count": 4,
+    "human_only_steps": [
+      "verify-readings",
+      "safety-follow-up",
+      "sign-off-statement",
+      "share-statement"
+    ]
+  },
+  "reviewed_by": "volunteer-reviewer-07",
+  "reviewed_by_key": "key_reviewer_07",
+  "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
+  "steward_signoff": "records-steward-lead",
+  "draft_receipt": "a27f6d82093063deffa9bf261f76ea5229f2a796f1611768c7bd29141c40b893",
+  "review_receipt": "c8764099349cf402e7790dc050744db21fe8e33d5ca470d2becf7f058eb26710",
+  "blob_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+  "catalog_version": 1,
+  "review_task_id": "er_54a37ae730c0:KIT-TRANSCR-07:review",
+  "draft_task_id": "er_54a37ae730c0:KIT-TRANSCR-07:draft",
+  "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+  "drafter_key_id": "key_drafter_07",
+  "reviewer_key_id": "key_reviewer_07",
+  "publication_sha256": "c912b8bb27c996e091c03199c3be784939f78cb24fb33a6bddf7034c56b0e332"
+}

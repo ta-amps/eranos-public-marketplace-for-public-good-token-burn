@@ -36,6 +36,15 @@ GOVERNANCE_FIELDS = (
     "visibility_scope",
     "allowed_surfaces",
 )
+# Test cases may carry more, such as a rendered page and its expected transcription; the catalog
+# fixture keeps these fields.
+FIXTURE_FIELDS = (
+    "id",
+    "scenario",
+    "sample_input",
+    "expected_indicators",
+    "expected_human_escalation",
+)
 ENVELOPE_FIELDS = frozenset(
     {"kit_id", "track_id", "deliverable_kind", "needs_steward_signoff", *GOVERNANCE_FIELDS}
 )
@@ -196,7 +205,9 @@ def compose_bundle(
         ],
         "checklist": pack.value(kit["checklist"], "kit.checklist", "checklist")["items"],
         "sources": pack.value(kit["sources"], "kit.sources", "sources")["sources"],
-        "fixtures": tests["cases"],
+        "fixtures": [
+            {name: case[name] for name in FIXTURE_FIELDS if name in case} for case in tests["cases"]
+        ],
     }
     composed = {key: item for key, item in bundle.items() if key not in {"request", "seed_pack"}}
     composed["request"] = request

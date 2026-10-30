@@ -195,16 +195,16 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "778e77bf783d1ee9a6b50c4a99e1421af53634f4404b71ef0052f902c0e63f69",
-      "review_receipt": "3d1df8c6f4ffd1821fdb3e247648650a939d3f639bc60d6a2c572437233267cb",
+      "draft_receipt": "dff4389f5b3d0bd2e46538291dd095cff9e23c105072a9731544d8c0f0344666",
+      "review_receipt": "a28d793b351a335229f448703060fc335bf354da48ac11c9894e4e97f509dc20",
       "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
       "catalog_version": 1,
-      "review_task_id": "er_b93b11c79b54:KIT-GRANT-04:review",
-      "draft_task_id": "er_b93b11c79b54:KIT-GRANT-04:draft",
+      "review_task_id": "er_9a1ccd11bd41:KIT-GRANT-04:review",
+      "draft_task_id": "er_9a1ccd11bd41:KIT-GRANT-04:draft",
       "draft_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
       "drafter_key_id": "key_drafter_04",
       "reviewer_key_id": "key_reviewer_04",
-      "publication_sha256": "3ec1906396998444664f8dc6f59248cc0fd4c8f3613c60949b7f1ef8d3e1bdeb"
+      "publication_sha256": "0785e951315b004ff571da78808f88bf99d0cd49d57e0b9c54efe2c3b7701951"
     },
     {
       "spdx_license": "CC-BY-4.0",
@@ -398,16 +398,16 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "3cc4f2956f7de28db483385337f716825fab10ca821ca0de427156e63cd57537",
-      "review_receipt": "8863935b736eafcd27e6cda499876e2182bffac9cdd5c8940b853fd5b4b866f4",
+      "draft_receipt": "ee4d7d3955c9c137817da3588221d1832ec85a3a8bbf91cf145fdd64c13225be",
+      "review_receipt": "9d65f0e96a6e40a5b4fb185b25e0f93865bfc3ba63011daae8eb4d4f7a2d160c",
       "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
       "catalog_version": 1,
-      "review_task_id": "er_878f187b43bc:KIT-HOTLINE-02:review",
-      "draft_task_id": "er_878f187b43bc:KIT-HOTLINE-02:draft",
+      "review_task_id": "er_3aa0c9778204:KIT-HOTLINE-02:review",
+      "draft_task_id": "er_3aa0c9778204:KIT-HOTLINE-02:draft",
       "draft_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
       "drafter_key_id": "key_drafter_02",
       "reviewer_key_id": "key_reviewer_02",
-      "publication_sha256": "14df07366cc82edd0afac67930b96f6f514afb5fb1fc991cb50db8f6aed957a4"
+      "publication_sha256": "f94f29ec23de1cd9a71293205439b95d7daca20862df93b57e620885d771c384"
     },
     {
       "spdx_license": "MIT",
@@ -674,16 +674,16 @@
       "reviewed_by_key": "key_reviewer_06",
       "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "d064368c19fb0b3d69f68a5abd268cd735c675b30547854482dcb6e48377e0c4",
-      "review_receipt": "67478958b453b5b5481969c5694262142fd9acf1e2d7d5e5a92127be5a1344f1",
+      "draft_receipt": "3c9795a5bee39fee79d2fcbe453c1b7280d5b10a9c21ee7b2a12e57e82ce20e1",
+      "review_receipt": "0800b5035cb90b72caa4e64c8f5613a78831032dc444076eb2b3e4f9b70ee0ac",
       "blob_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
       "catalog_version": 1,
-      "review_task_id": "er_eec2826744b1:KIT-IMPACT-06:review",
-      "draft_task_id": "er_eec2826744b1:KIT-IMPACT-06:draft",
+      "review_task_id": "er_bf52725e7b6d:KIT-IMPACT-06:review",
+      "draft_task_id": "er_bf52725e7b6d:KIT-IMPACT-06:draft",
       "draft_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
       "drafter_key_id": "key_drafter_06",
       "reviewer_key_id": "key_reviewer_06",
-      "publication_sha256": "cda61d59656dd2ff3934142740afb1f370ffe5b500c028de70ad0d0d79bbcb01"
+      "publication_sha256": "8eea37dd20b7b78adf717bffb552b5d574ef69f74fbdbcbfb2c6ed15effde624"
     },
     {
       "spdx_license": "MIT",
@@ -872,16 +872,16 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "e1913c1544217abc9e8906411d7fe38b25f6613a835fbdcf5e7d2a937a5291c1",
-      "review_receipt": "8867e942f6ef50ba8d05fe3c50ab73f656d063c2ce38cf8332a8121049910975",
+      "draft_receipt": "c6565cd891a502bc878453f0cbc8a8ede567a08436ec41fb0ad7bd1e2f87ddb2",
+      "review_receipt": "ea0463cfb707c6a83484a6c670177eb18bdd9b950f403ae8f37992e67daf78a5",
       "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
       "catalog_version": 1,
-      "review_task_id": "er_fd68936eb1e6:KIT-INTAKE-03:review",
-      "draft_task_id": "er_fd68936eb1e6:KIT-INTAKE-03:draft",
+      "review_task_id": "er_37e66864417c:KIT-INTAKE-03:review",
+      "draft_task_id": "er_37e66864417c:KIT-INTAKE-03:draft",
       "draft_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
       "drafter_key_id": "key_drafter_03",
       "reviewer_key_id": "key_reviewer_03",
-      "publication_sha256": "d6565a8ee807f1e949b4b0b188e947401265ea19805f1d677b866ab0dd9fc384"
+      "publication_sha256": "247c7941b563ce2c09a34b7b30955518962560f087ee3efdfd27f70caa26cad4"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -1076,16 +1076,16 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "d45a92e548584a8145aa0896f9eff9967f97144ec79f8cb04e915d4b59b88140",
-      "review_receipt": "89757bae721fdc44e39568a2a2a92421b956d4cd7b492d49368f9bf7def35c1d",
+      "draft_receipt": "ce65274af9bf1e58a463a732e114b84e25eb16d73ce79b38b0a9aaf479ddab82",
+      "review_receipt": "a9a344e62cf1b8d2f21e836c4271aebc17be02cf0253dc73c4a679c916cd537a",
       "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
       "catalog_version": 1,
-      "review_task_id": "er_ef8dd446c57c:KIT-RECRUIT-01:review",
-      "draft_task_id": "er_ef8dd446c57c:KIT-RECRUIT-01:draft",
+      "review_task_id": "er_70b1b1dcf203:KIT-RECRUIT-01:review",
+      "draft_task_id": "er_70b1b1dcf203:KIT-RECRUIT-01:draft",
       "draft_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
       "drafter_key_id": "key_drafter_01",
       "reviewer_key_id": "key_reviewer_01",
-      "publication_sha256": "95b13486faf6415995c3eab0750532700d9759e5741aac7c6f4d5a7b8ba97f97"
+      "publication_sha256": "e4551d233fa74619da2d969c41349efc127e39eb5ab60b402cf6ddb200022519"
     },
     {
       "spdx_license": "CC0-1.0",
@@ -1282,16 +1282,363 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "7988c6f21f487d2e293172ead9b899fecf36b8a3c1ab32a7641a5e7de88f5023",
-      "review_receipt": "33503211f04febe83ad56c03f6926d16cc00d286ea7617e67fb0128401d38070",
+      "draft_receipt": "d5b8aa857868394ab3082ad598084eb59dfa29d9f3afa69b6fda886151a33b74",
+      "review_receipt": "6839604f2199b26176df008e5f507ee0dd3d23f787adfc45d7c6e05aa0f68a9c",
       "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
       "catalog_version": 1,
-      "review_task_id": "er_a505b02583f3:KIT-SHIFT-05:review",
-      "draft_task_id": "er_a505b02583f3:KIT-SHIFT-05:draft",
+      "review_task_id": "er_c17f8617ade8:KIT-SHIFT-05:review",
+      "draft_task_id": "er_c17f8617ade8:KIT-SHIFT-05:draft",
       "draft_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
       "drafter_key_id": "key_drafter_05",
       "reviewer_key_id": "key_reviewer_05",
-      "publication_sha256": "dafe81a34dbb5de476af2ecc7bdb458a8823bf599ece9e68f8513e7d833d19c4"
+      "publication_sha256": "9ae7874c1ddbb2ef01477b10bb59aa733956a0c0021d481e3d38ac07cdc310f9"
+    },
+    {
+      "spdx_license": "MIT",
+      "tags": [
+        "status:verified",
+        "domain:nonprofit_ops",
+        "track:statement-transcription",
+        "kind:full_kit",
+        "spdx:MIT",
+        "cohort:nonprofit_ops"
+      ],
+      "target_cohorts": [
+        "all",
+        "nonprofit_ops"
+      ],
+      "producer_surface": "surface:eranos",
+      "visibility_scope": "public_commons",
+      "allowed_surfaces": [
+        "surface:eranos",
+        "surface:herma"
+      ],
+      "kit": {
+        "spdx_license": "MIT",
+        "tags": [
+          "status:verified",
+          "domain:nonprofit_ops",
+          "track:statement-transcription",
+          "kind:full_kit",
+          "spdx:MIT",
+          "cohort:nonprofit_ops"
+        ],
+        "target_cohorts": [
+          "all",
+          "nonprofit_ops"
+        ],
+        "producer_surface": "surface:eranos",
+        "visibility_scope": "public_commons",
+        "allowed_surfaces": [
+          "surface:eranos",
+          "surface:herma"
+        ],
+        "kit_id": "KIT-TRANSCR-07",
+        "track_id": "statement-transcription",
+        "domain": "nonprofit_ops",
+        "deliverable_kind": "full_kit",
+        "title": "Handwritten Statements to Text Kit",
+        "summary": "Types handwritten statements and forms dropped into a folder exactly as written, keeping slang, spelling, acronyms and the writer's own words, and flags every uncertain reading for a person. A local acronym glossary helps readers but never changes the text, and a person checks every flag and signs off.",
+        "target_org": "Community center that collects handwritten statements and sign-up cards at community nights",
+        "steps": [
+          {
+            "id": "transcribe-pages",
+            "title": "Type each page exactly as written",
+            "kind": "transcription",
+            "boundary": "drafts",
+            "actor": "Transcription drafting agent",
+            "guidance": "Type each line as written, keeping spelling, slang, grammar, acronyms, crossings-out and line breaks. Mark every unsure reading with [?], mark unreadable words [illegible], and never correct or tidy the writer's words."
+          },
+          {
+            "id": "list-acronyms",
+            "title": "List acronyms and local terms against the glossary",
+            "kind": "glossary_check",
+            "boundary": "assists",
+            "actor": "Glossary assistant agent",
+            "guidance": "List every acronym or local term found, with its glossary meaning when the glossary has one; unknown ones go to the reviewer. The glossary never changes the transcription."
+          },
+          {
+            "id": "verify-readings",
+            "title": "Check every flagged reading against the original page",
+            "kind": "transcription_review",
+            "boundary": "human_only",
+            "actor": "Trained staff reviewer",
+            "guidance": "A person compares every flag and a sample of other lines with the original page, fixes misreadings only, and keeps the writer's own words, spelling and slang."
+          },
+          {
+            "id": "safety-follow-up",
+            "title": "Follow up in person when a statement raises safety",
+            "kind": "crisis_safety_plan",
+            "boundary": "human_only",
+            "actor": "Trained staff member",
+            "guidance": "When a statement mentions danger or not feeling safe, trained staff follow up under the organization's own safety protocol. The agent gives no advice and takes no other step."
+          },
+          {
+            "id": "sign-off-statement",
+            "title": "Sign off the transcription and decide how it is used",
+            "kind": "individual_decision",
+            "boundary": "human_only",
+            "actor": "Program lead (steward)",
+            "guidance": "The program lead signs off each transcription and decides how the statement is used, under the organization's consent and records rules."
+          },
+          {
+            "id": "share-statement",
+            "title": "Share a statement outside the organization",
+            "kind": "external_send",
+            "boundary": "human_only",
+            "actor": "Program lead",
+            "guidance": "Only staff share a statement outside the organization, and only with the writer's consent. The agent never shares or sends anything."
+          }
+        ],
+        "skill": null,
+        "skills": [
+          {
+            "name": "verbatim-transcriber",
+            "description": "Types handwritten pages exactly as written and flags every uncertain reading for a person.",
+            "boundary": "drafts",
+            "instructions": "Type what is on the page, line by line, exactly as written: keep the writer's spelling, slang, grammar, capital letters, abbreviations, acronyms and punctuation, and write a crossed-out word as [crossed out: word]. Never correct, tidy, translate, summarize or expand anything. When you are not sure of a word, write your best reading followed by [?] and list the alternatives; when you cannot read it at all, write [illegible]. Keep the page and line number for every flag. Never add a name, date or detail that is not on the page. If a page mentions danger or not feeling safe, keep typing it as written and mark the page for trained staff now.",
+            "refuses": [
+              "Correcting spelling, grammar or slang",
+              "Summarizing or rewording a statement",
+              "Expanding acronyms inside the transcription",
+              "Guessing a word without flagging it"
+            ]
+          },
+          {
+            "name": "acronym-glossary-assistant",
+            "description": "Lists acronyms and local terms in a transcription with their glossary meanings, without changing the text.",
+            "boundary": "assists",
+            "instructions": "Find acronyms, abbreviations and local terms in the transcription. Give the glossary's meaning, word for word, when the glossary has the term, and list unknown terms for the reviewer to add or explain. Never replace, expand or translate a term inside the transcription; the glossary is a reading aid only.",
+            "refuses": [
+              "Changing the transcription",
+              "Guessing the meaning of an unknown local term"
+            ]
+          }
+        ],
+        "tool": null,
+        "tools": [
+          {
+            "name": "list_dropped_pages",
+            "description": "Lists the page images in the intake drop folder with page numbers, sizes and SHA-256 digests, without moving or changing them.",
+            "input_schema": {
+              "properties": {
+                "batch_label": {
+                  "type": "string"
+                },
+                "folder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "folder"
+              ],
+              "type": "object"
+            },
+            "output_fields": [
+              "pages",
+              "file_sha256",
+              "page_count",
+              "unreadable_files"
+            ],
+            "read_only": true
+          }
+        ],
+        "artifacts": [
+          {
+            "name": "transcription_rules",
+            "title": "Verbatim Transcription Rules",
+            "artifact_format": "markdown_sop",
+            "boundary": "drafts",
+            "summary": "The rules every transcription follows: type exactly what is written, flag what is uncertain, and leave the writer's words alone.",
+            "spec": [
+              "Type exactly what is written: spelling, slang, grammar and acronyms stay as they are.",
+              "Write a crossed-out word as [crossed out: word].",
+              "Mark an unsure word with [?] and list alternatives; mark an unreadable word [illegible].",
+              "A person checks every flag against the original page before anyone uses the text."
+            ]
+          },
+          {
+            "name": "transcription_sheet",
+            "title": "Transcription Sheet",
+            "artifact_format": "csv_template",
+            "boundary": "drafts",
+            "summary": "One row per written line: the batch, page, line, the text as written, whether it holds a flag, the alternatives and whether a reviewer checked it.",
+            "spec": {
+              "columns": [
+                "batch_label",
+                "page",
+                "line",
+                "text_as_written",
+                "has_flag",
+                "alternatives",
+                "reviewer_checked"
+              ],
+              "pii_allowed": false
+            }
+          },
+          {
+            "name": "local_acronym_glossary",
+            "title": "Local Acronym Glossary",
+            "artifact_format": "csv_template",
+            "boundary": "assists",
+            "summary": "Acronyms, local terms and common writing abbreviations with their meanings, as a reading aid that never changes a transcription.",
+            "spec": {
+              "columns": [
+                "term",
+                "meaning",
+                "kind"
+              ],
+              "pii_allowed": false,
+              "rows": [
+                [
+                  "SNAP",
+                  "Supplemental Nutrition Assistance Program",
+                  "public program"
+                ],
+                [
+                  "WIC",
+                  "Special Supplemental Nutrition Program for Women, Infants, and Children",
+                  "public program"
+                ],
+                [
+                  "ESL",
+                  "English as a second language",
+                  "class"
+                ],
+                [
+                  "GED",
+                  "General Educational Development, a high school equivalency test",
+                  "class"
+                ],
+                [
+                  "TMC",
+                  "Tuesday Market Center (a SYNTHETIC local term used only in this kit's examples)",
+                  "local term"
+                ],
+                [
+                  "NEC",
+                  "Northside Elders Club (a SYNTHETIC local term used only in this kit's examples)",
+                  "local term"
+                ],
+                [
+                  "w/",
+                  "with",
+                  "writing abbreviation"
+                ],
+                [
+                  "bc",
+                  "because",
+                  "writing abbreviation"
+                ],
+                [
+                  "rn",
+                  "right now",
+                  "writing abbreviation"
+                ]
+              ],
+              "rule": "The glossary helps readers. It never changes a transcription."
+            }
+          }
+        ],
+        "checklist": [
+          "Only synthetic or consented pages go in the drop folder; this kit's samples are synthetic, rendered from handwriting fonts and stamped SYNTHETIC.",
+          "A person checks every [?] and [illegible] flag against the original page.",
+          "Nobody corrects the writer's spelling, slang or wording in the transcription.",
+          "Trained staff follow up the same day on any statement about safety.",
+          "The program lead signs off before any statement is used or shared."
+        ],
+        "sources": [
+          {
+            "title": "National Archives: Citizen Archivist resources for transcribing records",
+            "url": "https://www.archives.gov/citizen-archivist/resources",
+            "checked_date": "2026-10-30"
+          }
+        ],
+        "fixtures": [
+          {
+            "id": "FX-TRANSCR-VERBATIM",
+            "scenario": "A handwritten statement with slang, acronyms, a crossed-out word and a smudged reading",
+            "sample_input": "SYNTHETIC: Page statement-01.png, rendered from the Patrick Hand font and stamped SYNTHETIC: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
+            "expected_indicators": [
+              "slang_kept_as_written",
+              "crossed_out_word_marked",
+              "smudged_reading_flagged",
+              "acronyms_listed_not_expanded"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-TRANSCR-CARD",
+            "scenario": "A handwritten sign-up card with acronyms, a Spanish word and a smudged word",
+            "sample_input": "SYNTHETIC: Page signup-card-01.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
+            "expected_indicators": [
+              "spanish_word_kept",
+              "acronyms_listed_not_expanded",
+              "smudged_reading_flagged"
+            ],
+            "expected_human_escalation": false
+          },
+          {
+            "id": "FX-TRANSCR-SAFETY",
+            "scenario": "A statement that says the writer does not feel safe at home",
+            "sample_input": "SYNTHETIC: Page statement-02.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a statement that says the writer does not feel safe at home and asks that it not be shared.",
+            "expected_indicators": [
+              "transcribed_as_written",
+              "route_to_trained_staff_now",
+              "sharing_held_for_consent"
+            ],
+            "expected_human_escalation": true
+          },
+          {
+            "id": "FX-TRANSCR-CORRECT",
+            "scenario": "A volunteer asks the agent to fix the spelling and grammar before filing",
+            "sample_input": "SYNTHETIC: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
+            "expected_indicators": [
+              "refuse_to_correct_the_writer",
+              "route_to_reviewer"
+            ],
+            "expected_human_escalation": true
+          }
+        ],
+        "drafted_by": "volunteer-drafter-07",
+        "drafted_by_key": "key_drafter_07"
+      },
+      "verification": {
+        "kit_id": "KIT-TRANSCR-07",
+        "passed": true,
+        "checks_run": [
+          "track_alignment",
+          "human_only_boundaries",
+          "synthetic_fixtures",
+          "non_accusatory_copy",
+          "prohibited_topics",
+          "spdx_license_allowlist",
+          "cited_sources",
+          "deliverable_alignment"
+        ],
+        "issues": [],
+        "fixture_count": 4,
+        "human_only_steps": [
+          "verify-readings",
+          "safety-follow-up",
+          "sign-off-statement",
+          "share-statement"
+        ]
+      },
+      "reviewed_by": "volunteer-reviewer-07",
+      "reviewed_by_key": "key_reviewer_07",
+      "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
+      "steward_signoff": "records-steward-lead",
+      "draft_receipt": "a27f6d82093063deffa9bf261f76ea5229f2a796f1611768c7bd29141c40b893",
+      "review_receipt": "c8764099349cf402e7790dc050744db21fe8e33d5ca470d2becf7f058eb26710",
+      "blob_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+      "catalog_version": 1,
+      "review_task_id": "er_54a37ae730c0:KIT-TRANSCR-07:review",
+      "draft_task_id": "er_54a37ae730c0:KIT-TRANSCR-07:draft",
+      "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+      "drafter_key_id": "key_drafter_07",
+      "reviewer_key_id": "key_reviewer_07",
+      "publication_sha256": "c912b8bb27c996e091c03199c3be784939f78cb24fb33a6bddf7034c56b0e332"
     }
   ]
 }

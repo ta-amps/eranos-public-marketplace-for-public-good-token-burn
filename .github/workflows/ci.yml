@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ta-amps/seed-packs-library-of-nouns-and-verbs
-          ref: f99ae4fad940cf2f80b5de197c7731e6038c08d2
+          ref: f969214becf3e29fc84e3f870418a6cad60926ff
           path: seed-packs-library-of-nouns-and-verbs
       - uses: actions/setup-node@v4
         with:

@@ -577,6 +577,7 @@ track IDs; adding a new track is pure data.
 | `grant-and-compliance-ops` | `nonprofit_ops` | Restricted grant ledger reconciliation & audit-readiness prep for small nonprofits |
 | `volunteer-shift-and-sop-builder` | `nonprofit_ops` | Volunteer shift checklists, multilingual role cards, and human escalation SOPs |
 | `program-impact-reporting` | `nonprofit_ops` | Monthly program impact reports and funding impact summaries with every figure traced and every gap visible |
+| `statement-transcription` | `nonprofit_ops` | Handwritten statements, cards and forms typed exactly as written, with uncertain readings flagged for a person |
 
 ========================================================================
 FILE: examples/kits/README.md
