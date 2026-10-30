@@ -441,6 +441,38 @@ test("the need box's hints and warning describe it for screen readers", async ({
   await expect(page.locator("#links")).toHaveAccessibleDescription(nonprofitsNoun.form.links_hint);
 });
 
+// Hunt, October 30: right-to-left needs were laid out left to right, a broken percent escape in a kit address left
+// a blank page, and a kit link that names no kit offered a Retry that could never help.
+test("the request box lays out right-to-left text from its first letter", async ({ page }) => {
+  await page.goto("/nonprofits");
+  for (const id of ["need", "links", "name", "type", "causes"]) {
+    await expect(page.locator(`#${id}`), id).toHaveAttribute("dir", "auto");
+  }
+  await page.locator("#need").fill("نحتاج ملخصاً لقوانين الإيجار (2026).");
+  expect(await page.locator("#need").evaluate((node) => node.matches(":dir(rtl)"))).toBe(true);
+  await page.locator("#need").fill("");
+});
+
+test("a kit address with a broken percent escape is a missing page, not a blank one", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/catalog");
+  await page.evaluate(() => {
+    window.history.pushState(null, "", "/catalog/%E0%A4%A");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+  });
+  await expect(page.getByRole("heading", { level: 1, name: "Page not found" })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test("a kit link that names no kit explains, links back, and offers no pointless Retry", async ({ page }) => {
+  await page.goto("/catalog/KIT-MISSING-99");
+  const alert = page.getByRole("alert");
+  await expect(alert).toBeVisible();
+  await expect(alert.getByRole("button", { name: "Retry" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Back to catalog" })).toBeVisible();
+});
+
 test("/connect is a page of the site, with its layout, title and both themes", async ({ page }) => {
   await page.goto("/connect");
   await expect(page).toHaveTitle("Connect to Eranos");

@@ -28,7 +28,11 @@ export function KitDetail({ id }: { id: string }) {
     return (
       <section className="er-card">
         <h1>Kit unavailable</h1>
-        <ErrorAlert title={`Could not load ${id}`} message={state.message} onRetry={reload} />
+        <ErrorAlert
+          title={`Could not load ${id}`}
+          message={state.message}
+          onRetry={state.httpStatus === 400 || state.httpStatus === 404 ? undefined : reload}
+        />
         <p>
           <AppLink to="/catalog">Back to catalog</AppLink>
         </p>

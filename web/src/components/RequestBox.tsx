@@ -114,6 +114,7 @@ export function RequestBox({ noun, describedBy }: { noun: NonprofitsNoun; descri
         name="need"
         className="er-input er-textarea"
         rows={5}
+        dir="auto"
         required
         minLength={10}
         maxLength={4000}
@@ -124,15 +125,15 @@ export function RequestBox({ noun, describedBy }: { noun: NonprofitsNoun; descri
       <p className="er-small" id="links-hint">
         {form.links_hint}
       </p>
-      <textarea id="links" name="links" className="er-input er-textarea" rows={2} maxLength={2000} aria-describedby="links-hint" />
+      <textarea id="links" name="links" className="er-input er-textarea" rows={2} dir="auto" maxLength={2000} aria-describedby="links-hint" />
       {!key && (
         <>
           <label htmlFor="name">{form.name_label}</label>
-          <input id="name" name="name" className="er-input" required minLength={2} maxLength={80} />
+          <input id="name" name="name" className="er-input" dir="auto" required minLength={2} maxLength={80} />
           <label htmlFor="type">{form.type_label}</label>
-          <input id="type" name="type" className="er-input" required minLength={3} maxLength={120} />
+          <input id="type" name="type" className="er-input" dir="auto" required minLength={3} maxLength={120} />
           <label htmlFor="causes">{form.causes_label}</label>
-          <input id="causes" name="causes" className="er-input" maxLength={300} />
+          <input id="causes" name="causes" className="er-input" dir="auto" maxLength={300} />
         </>
       )}
       <label className="er-consent">

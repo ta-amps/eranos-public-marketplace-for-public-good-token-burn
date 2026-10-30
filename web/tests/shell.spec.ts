@@ -87,12 +87,11 @@ test("kit detail runs zero-storage practice verifier with persisted: false", asy
   await expect(result).toContainText("SPDX: CC-BY-4.0");
 });
 
-test("missing kit renders accessible role=alert banner with Retry button", async ({ page }) => {
+test("missing kit renders an accessible role=alert banner, without a Retry that cannot help", async ({ page }) => {
   await page.goto("/catalog/KIT-MISSING-99");
   const alert = page.getByRole("alert");
   await expect(alert).toBeVisible();
-  const retryBtn = alert.getByRole("button", { name: "Retry" });
-  await expect(retryBtn).toBeVisible();
-  await retryBtn.click();
-  await expect(alert).toBeVisible();
+  // A 404 comes back the same every time, so the banner offers the way back instead of Retry.
+  await expect(alert.getByRole("button", { name: "Retry" })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "Back to catalog" })).toBeVisible();
 });
