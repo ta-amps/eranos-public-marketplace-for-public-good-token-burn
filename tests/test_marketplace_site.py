@@ -150,9 +150,10 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
     assert {t["name"] for t in tools} >= {"list_tracks", "search_catalog", "get_kit"}
 
 
-def test_request_a_kit_form_warns_first_and_asks_the_four_questions() -> None:
+def test_request_form_warns_first_and_asks_the_four_questions() -> None:
     text = ISSUE_FORM.read_text(encoding="utf-8")
-    assert text.startswith("name: Request a kit\n")
+    assert text.startswith("name: Tell us what you need\n")
+    assert not re.search(r"request a (kit|verb)", text, re.IGNORECASE)
     warning = "Don't include anyone's personal information. Requests are public."
     assert warning in text.splitlines()[1], "the chooser description leads with the warning"
     body = text.split("\nbody:\n", 1)[1]
@@ -198,3 +199,50 @@ def test_data_the_site_shows_never_names_a_retired_pack() -> None:
     assert [line for line in shown if OLD_NAMES.search(line)] == []
     for path in [ROOT / "web" / "index.html", *sorted((ROOT / "web" / "src").rglob("*.ts*"))]:
         assert not OLD_NAMES.search(path.read_text(encoding="utf-8")), path.name
+
+
+def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
+    import hashlib
+
+    from tessera.receipts import canonical_json
+
+    bundle = json.loads(
+        (ROOT / "examples" / "kits" / "05-volunteer-shift-sop-pack.json").read_text()
+    )
+    draft = bundle["draft"]
+    out = _worker(
+        [
+            ("help", "GET", "/api/nouns/eranos.instructions/help", None),
+            ("listing", "GET", "/api/nouns/eranos.instructions", None),
+            ("private_store", "GET", "/api/nouns/eranos.steward_requests/x", None),
+            ("catalog_store", "GET", "/api/nouns/eranos.catalog/KIT-SHIFT-05", None),
+            ("missing", "GET", "/api/nouns/eranos.plans/rq-none", None),
+            ("practice", "POST", "/api/practice", {"draft": draft}),
+        ]
+    )
+    help_noun = json.loads(out["help"]["body"])
+    assert out["help"]["status"] == 200 and help_noun["value"]["title"] == "Help in six steps"
+    keys = [r["key"] for r in json.loads(out["listing"]["body"])["records"]]
+    assert keys == ["classify", "help", "nonprofits", "public-research"]
+    for name in ("private_store", "catalog_store", "missing"):
+        assert out[name]["status"] == 404, name
+    practice = json.loads(out["practice"]["body"])
+    expected = hashlib.sha256(canonical_json(draft).encode("utf-8")).hexdigest()
+    assert practice["draft_sha256"] == expected
+    assert "connect-src 'self' https://tessera.ta-amps.workers.dev" in out["help"]["csp"]
+
+
+def test_starting_brief_noun_is_the_canonical_brief() -> None:
+    """The help noun's brief is the onboarding module's text for the home origin, which is also
+    Agora's site/agent-brief.txt without its final newline."""
+    script = (
+        "import { buildAgentPrompt } from "
+        + json.dumps((ROOT / "deploy" / "cloudflare" / "agent_start.js").as_uri())
+        + "; console.log(JSON.stringify(buildAgentPrompt('https://home.ta-amps.workers.dev', 'any')));"
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    noun = json.loads((ROOT / "instructions" / "help.json").read_text(encoding="utf-8"))
+    assert noun["brief"] == json.loads(run.stdout)
+    assert not re.search(r"\btools?\b", " ".join(s["title"] + s["detail"] for s in noun["steps"]))

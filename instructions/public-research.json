@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "instructions",
+  "key": "public-research",
+  "title": "Rules for public-only research",
+  "rules": [
+    "No personal data, in sources, claims or summaries.",
+    "No platform reached against its terms. Facebook and Instagram only through Meta's official access, never by scraping.",
+    "Every claim cites a public source, with an exact quote from it.",
+    "A legal summary says it is not legal advice.",
+    "A person decides what to do with the result."
+  ],
+  "access": {
+    "allowed": [
+      "official_api",
+      "official_download",
+      "public_web_page"
+    ],
+    "platforms": {
+      "facebook.com": [
+        "meta_content_library",
+        "meta_graph_api"
+      ],
+      "instagram.com": [
+        "meta_content_library",
+        "meta_graph_api"
+      ],
+      "threads.net": [
+        "meta_content_library",
+        "meta_graph_api"
+      ]
+    },
+    "never": [
+      "scrape"
+    ]
+  },
+  "legal_disclaimer": "not legal advice",
+  "disclaimer_text": "This summary of public information is not legal advice.",
+  "decision": "A person decides what to do with this result.",
+  "citation": {
+    "required": true,
+    "quote": "exact text from the cited source"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "store": "eranos.sources",
+  "key": "SRC-TENANT-03",
+  "version": 1,
+  "value": {
+    "access": "public_web_page",
+    "id": "SRC-TENANT-03",
+    "public": true,
+    "published": "2026-10-01",
+    "publisher": "SYNTHETIC City C Housing Office",
+    "synthetic": true,
+    "text": "SYNTHETIC stand-in text. The City C housing office now explains new state tenant laws in plain language each week. Its notes are general information and are not legal advice.",
+    "title": "SYNTHETIC City C news release on the tenant help line",
+    "topics": [
+      "tenant",
+      "tenants",
+      "news",
+      "housing"
+    ],
+    "url": "https://example.org/synthetic/city-c/tenant-help-line"
+  }
+}

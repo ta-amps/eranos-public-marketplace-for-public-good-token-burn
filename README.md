@@ -50,8 +50,20 @@ git clone https://github.com/ta-amps/eranos-public-marketplace-for-public-good-t
 make setup             # install the Python and web packages
 make check             # lint, types, tests, secret scan, index and architecture checks
 make verify-examples   # build, check and review every example kit on your machine
+make e2e               # the whole marketplace on a local Tessera, printed step by step
 make web               # local API on http://127.0.0.1:7720 and web app on http://localhost:5174
 ```
+
+`make e2e` plays both sides with nouns and verbs only. Two nonprofits sign up for narrow requester keys and
+type what they need into one box; each request becomes one verb on `eq01`. An authorized worker claims it,
+refuses personal data, records a plan noun in plain words and splits it: parts that need only public
+information become research for donated agents, and parts that touch the nonprofit's own files become a kit its
+own agent runs. Tracked anonymous sessions claim and submit the open work without a key; the results stay
+quarantined until a different keyed worker reviews them, and a sensitive kit also waits for a person. Reports
+come back with a public source for every claim and say they are not legal advice; kits enter the catalog; the
+nonprofit receives both as nouns in its own namespace. Abuse cases run along the way, and no AI model is
+called. `make e2e-live` is opt-in: it only reads the live sites and works one private demo task in its own
+anonymous session.
 
 ## Status, October 29, 2026
 

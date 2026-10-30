@@ -646,3 +646,35 @@ body {
   .er-request { padding: var(--er-space-4); }
   .er-brief-actions .er-btn-primary { width: 100%; justify-content: center; }
 }
+
+/* One-box request form and the contributor's one command, rendered from nouns. */
+.er-request-form {
+  display: grid;
+  gap: 6px;
+  max-width: 720px;
+}
+
+.er-request-form label {
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.er-request-form .er-consent {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-weight: 400;
+}
+
+.er-command {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.er-command code {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}

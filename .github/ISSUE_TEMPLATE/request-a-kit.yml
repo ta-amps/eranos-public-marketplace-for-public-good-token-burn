@@ -1,7 +1,7 @@
-name: Request a kit
-description: "Don't include anyone's personal information. Requests are public. Ask volunteers to build an agent kit for a job your organization needs done."
-title: "Kit request: "
-labels: ["kit request"]
+name: Tell us what you need
+description: "Don't include anyone's personal information. Requests are public. Tell volunteers about a job your organization needs done."
+title: "Request: "
+labels: ["request"]
 body:
   - type: markdown
     attributes:
@@ -10,7 +10,7 @@ body:
 
         Leave out names, contact details, case notes, photos and stories about real people, including clients, staff and volunteers. Describe the job, not the people. Use made-up examples only.
 
-        **What happens next.** A volunteer will check your request before it becomes work. The check looks at fit with a track, the safety rules and the synthetic-data rule. If it passes, it becomes a task brief: one volunteer's agent builds the kit, and a different volunteer reviews it. Volunteers pick up requests when they can, so there is no set timeline.
+        **What happens next.** A volunteer will check your request before it becomes work. The check refuses personal information, applies the safety rules and plans the parts. Parts that need only public information are researched by volunteers' agents and come back as a report with a source for every point. Parts that touch your files become a kit your own agent runs, so your data stays with you. A different volunteer reviews every part. Volunteers pick up requests when they can, so there is no set timeline.
 
         **Kits are reviewed, not certified.** Check any kit with your own staff and rules before you use it.
   - type: dropdown

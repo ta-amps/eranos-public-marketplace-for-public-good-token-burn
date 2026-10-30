@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "kind": "public_sources",
+  "synthetic": true,
+  "note": "SYNTHETIC stand-ins for public legal sources, used offline by the end-to-end check. No real law is described.",
+  "sources": [
+    {
+      "id": "SRC-TENANT-01",
+      "title": "SYNTHETIC State A Assembly Bill 1201 (2026), Rent Notice Act",
+      "publisher": "SYNTHETIC State A Legislature",
+      "url": "https://example.org/synthetic/state-a/ab-1201",
+      "access": "official_download",
+      "public": true,
+      "synthetic": true,
+      "published": "2026-06-30",
+      "topics": ["tenant", "tenants", "rent", "notice", "laws", "state"],
+      "text": "SYNTHETIC stand-in text. Section 2 requires a landlord to give tenants 60 days of written notice before any rent increase above 5 percent. Section 3 makes the act take effect on 1 January 2027. Section 4 lets a tenant ask the housing office to review a notice that lacks the required period."
+    },
+    {
+      "id": "SRC-TENANT-02",
+      "title": "SYNTHETIC State B Senate Bill 88 (2026), Security Deposit Return",
+      "publisher": "SYNTHETIC State B Senate",
+      "url": "https://example.org/synthetic/state-b/sb-88",
+      "access": "official_api",
+      "public": true,
+      "synthetic": true,
+      "published": "2026-09-15",
+      "topics": ["tenant", "tenants", "deposit", "laws", "state"],
+      "text": "SYNTHETIC stand-in text. A landlord must return a security deposit within 21 days after a tenant moves out. Any amount withheld must come with an itemized list of deductions. The bill applies to leases signed after 1 March 2027."
+    },
+    {
+      "id": "SRC-TENANT-03",
+      "title": "SYNTHETIC City C news release on the tenant help line",
+      "publisher": "SYNTHETIC City C Housing Office",
+      "url": "https://example.org/synthetic/city-c/tenant-help-line",
+      "access": "public_web_page",
+      "public": true,
+      "synthetic": true,
+      "published": "2026-10-01",
+      "topics": ["tenant", "tenants", "news", "housing"],
+      "text": "SYNTHETIC stand-in text. The City C housing office now explains new state tenant laws in plain language each week. Its notes are general information and are not legal advice."
+    }
+  ]
+}

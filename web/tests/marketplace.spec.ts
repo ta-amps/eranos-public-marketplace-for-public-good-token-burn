@@ -3,7 +3,7 @@ import fs from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 
 // The two-sided marketplace: two equal front doors on the home page, the /help and /nonprofits pages,
-// the canonical starting brief, the request-a-kit form link and the wording rules.
+// the starting brief noun, the one request box, the public request form link and the wording rules.
 
 const HELP_LABEL = "I want to help";
 const NGO_LABEL = "I'm an NGO looking for agentic solutions";
@@ -39,13 +39,29 @@ const ROUTES = [
   "/no-such-page",
 ];
 
-type BuildAgentPrompt = (origin: string, mode: "any" | "interests", interests?: string) => string;
+interface HelpNoun {
+  brief: string;
+  brief_interests_goal: string;
+  steps: { title: string }[];
+  command: string;
+}
 
-/** The Worker's vendored onboarding module: the one source of the starting brief. */
-async function canonicalBrief(): Promise<BuildAgentPrompt> {
-  const href = new URL("../../deploy/cloudflare/agent_start.js", import.meta.url).href;
-  const module = (await import(href)) as { buildAgentPrompt: BuildAgentPrompt };
-  return module.buildAgentPrompt;
+/** The starting brief is a noun: `eranos.instructions/help`, exported from Tessera with the snapshot. */
+const helpNoun = (
+  JSON.parse(
+    fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/help.json", import.meta.url), "utf8"),
+  ) as { value: HelpNoun }
+).value;
+const nonprofitsNoun = (
+  JSON.parse(
+    fs.readFileSync(new URL("../snapshot/nouns/eranos.instructions/nonprofits.json", import.meta.url), "utf8"),
+  ) as { value: { form: { label: string }; form_on_github: string } }
+).value;
+
+function briefFor(mode: "any" | "interests", interests = ""): string {
+  if (mode === "any") return helpNoun.brief;
+  const body = helpNoun.brief.split("\n\n").slice(1).join("\n\n");
+  return `${helpNoun.brief_interests_goal} ${JSON.stringify(interests.trim().slice(0, 1500))}\n\n${body}`;
 }
 
 /** Replaces the clipboard with a recorder, or with one that refuses every write. */
@@ -142,13 +158,16 @@ test("/help explains helping, the four steps, connecting, open tasks and what st
   // The existing connect path: the Worker's /connect page, Agora's guide and the detailed setup page.
   await expect(page.getByRole("button", { name: "Copy: work on anything" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Connection details for this site" })).toHaveAttribute("href", "/connect");
+  const onboarding = page.getByTestId("onboarding-steps");
+  await expect(onboarding.getByTestId("one-command")).toHaveText(helpNoun.command);
+  await expect(onboarding.locator("ol > li")).toHaveCount(helpNoun.steps.length);
   await expect(page.getByRole("link", { name: "Connect any agent, step by step, on Agora" })).toHaveAttribute(
     "href",
-    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/contribute/#agent",
+    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect",
   );
   await expect(page.getByRole("link", { name: "How the whole system works, on Agora" })).toHaveAttribute(
     "href",
-    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/docs/how-it-works/",
+    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/overview-and-architecture/#nouns-and-verbs",
   );
   await expect(page.getByRole("link", { name: "Setup for MCP, HTTP and command-line agents" })).toHaveAttribute(
     "href",
@@ -161,20 +180,18 @@ test("/help explains helping, the four steps, connecting, open tasks and what st
   await expect(page.getByTestId("status-note")).toContainText("Hosted volunteer runs");
 });
 
-test("/help copies the same starting brief the Worker serves, keeping interest text local", async ({ page }) => {
-  const buildAgentPrompt = await canonicalBrief();
+test("/help copies the starting brief noun, keeping interest text local", async ({ page }) => {
   await stubClipboard(page);
   const traffic: string[] = [];
   page.on("request", (request) => traffic.push(`${request.url()}\n${request.postData() ?? ""}`));
 
   await page.goto("/help");
-  const origin = new URL(page.url()).origin;
   const brief = page.getByTestId("agent-brief");
   const status = brief.getByRole("status");
 
   await brief.getByRole("button", { name: "Copy: work on anything" }).click();
   await expect(status).toHaveText("Copied. Paste these instructions into your agent.");
-  expect(await copiedBriefs(page)).toEqual([buildAgentPrompt(origin, "any")]);
+  expect(await copiedBriefs(page)).toEqual([briefFor("any")]);
 
   await brief.getByText("Follow my interests", { exact: true }).click();
   await brief.getByRole("button", { name: "Copy: follow my interests" }).click();
@@ -185,22 +202,16 @@ test("/help copies the same starting brief the Worker serves, keeping interest t
   await brief.getByLabel("Your topics or project goals").fill(topic);
   await brief.getByRole("button", { name: "Copy: follow my interests" }).click();
   await expect(status).toHaveText("Copied. Paste these instructions into your agent.");
-  expect(await copiedBriefs(page)).toEqual([
-    buildAgentPrompt(origin, "any"),
-    buildAgentPrompt(origin, "interests", topic),
-  ]);
+  expect(await copiedBriefs(page)).toEqual([briefFor("any"), briefFor("interests", topic)]);
 
   await brief.getByText("View instructions", { exact: true }).click();
-  await expect(brief.getByLabel("Instructions to copy into your agent")).toHaveValue(
-    buildAgentPrompt(origin, "interests", topic),
-  );
+  await expect(brief.getByLabel("Instructions to copy into your agent")).toHaveValue(briefFor("interests", topic));
   const leaked = traffic.filter((line) => line.includes(topic) || line.includes(encodeURIComponent(topic)));
   expect(leaked).toEqual([]);
   expect(await page.evaluate(() => [localStorage.length, sessionStorage.length])).toEqual([0, 0]);
 });
 
 test("/help falls back to selected text when the clipboard refuses", async ({ page }) => {
-  const buildAgentPrompt = await canonicalBrief();
   await stubClipboard(page, true);
   await page.goto("/help");
   const brief = page.getByTestId("agent-brief");
@@ -211,7 +222,7 @@ test("/help falls back to selected text when the clipboard refuses", async ({ pa
   const text = brief.getByLabel("Instructions to copy into your agent");
   await expect(text).toBeVisible();
   await expect(text).toBeFocused();
-  const expected = buildAgentPrompt(new URL(page.url()).origin, "any");
+  const expected = briefFor("any");
   await expect(text).toHaveValue(expected);
   const selection = await text.evaluate((node) => {
     const area = node as HTMLTextAreaElement;
@@ -251,9 +262,27 @@ test("/nonprofits explains agent kits, shows every reviewed example and the requ
 
   const request = page.getByTestId("request-kit");
   await expect(request.getByRole("note")).toHaveText("Don't include anyone's personal information. Requests are public.");
-  await expect(request).toContainText("A volunteer will check your request before it becomes work.");
-  await expect(request).toContainText("Kits are reviewed, not certified.");
-  await expect(request.getByRole("link", { name: "Request a kit" })).toHaveAttribute("href", REQUEST_KIT_URL);
+  await expect(request.getByLabel(nonprofitsNoun.form.label)).toBeVisible();
+  await expect(request.getByRole("link", { name: nonprofitsNoun.form_on_github })).toHaveAttribute("href", REQUEST_KIT_URL);
+});
+
+test("/nonprofits asks for one plain request and never asks to pick a verb or a kit", async ({ page }) => {
+  await page.goto("/nonprofits");
+  const request = page.getByTestId("request-kit");
+  await expect(request.getByRole("textbox", { name: nonprofitsNoun.form.label })).toBeVisible();
+  await expect(request.locator("select, input[type=radio]")).toHaveCount(0);
+  const choices = await page.locator("main").evaluate((main) =>
+    Array.from(main.querySelectorAll("button, a, label, option, legend"))
+      .map((node) => node.textContent ?? "")
+      .filter((text) => /\b(request|pick|choose|select)\b[^.]*\b(verb|kit)\b/i.test(text)),
+  );
+  expect(choices).toEqual([]);
+  await request.getByRole("textbox", { name: nonprofitsNoun.form.label }).fill("Summarize new public budget documents for our city.");
+  await request.getByLabel("Your organization's name").fill("Synthetic Pantry");
+  await request.getByLabel("Type of organization").fill("Food pantry");
+  await request.getByRole("checkbox").check();
+  await request.getByRole("button", { name: "Send" }).click();
+  await expect(request.getByRole("status")).toContainText("This offline copy of the site does not send requests.");
 });
 
 test("/nonprofits shows each kit's need in the organization's words, and the recorded example runs", async ({

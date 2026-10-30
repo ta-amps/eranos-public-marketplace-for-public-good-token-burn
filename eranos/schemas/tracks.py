@@ -61,6 +61,8 @@ class TrackPack(_Strict):
     required_human_only: list[StepKind] = Field(min_length=1)
     never: list[str] = Field(min_length=1)
     sources: list[SourceRef] = Field(min_length=1)
+    # Kits on a sensitive track wait for a person's sign-off after review, whoever built them.
+    needs_steward_signoff: bool = False
 
     @field_validator("title", "summary")
     @classmethod

@@ -33,5 +33,6 @@
       "url": "https://www.archives.gov/citizen-archivist/resources",
       "checked_date": "2026-10-30"
     }
-  ]
+  ],
+  "needs_steward_signoff": true
 }

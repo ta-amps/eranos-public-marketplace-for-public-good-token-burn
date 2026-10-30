@@ -1,11 +1,16 @@
 import { AgentBrief } from "../components/AgentBrief";
 import { KitSteps, PersonOnlyList, StatusNote } from "../components/Marketplace";
+import { OnboardingSteps } from "../components/OnboardingSteps";
 import { OpenTasks } from "../components/OpenTasks";
 import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
+import type { HelpNoun, NounResponse } from "../lib/nouns";
+import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
 
 /** The donor side of the marketplace: people with spare AI capacity. */
 export function Help() {
+  const help = useResource<NounResponse<HelpNoun>>("/api/nouns/eranos.instructions/help");
+  const noun = help.state.status === "ready" ? help.state.data.value : null;
   return (
     <div>
       <section className="er-hero" aria-labelledby="help-title">
@@ -47,13 +52,22 @@ export function Help() {
         </p>
       </section>
 
+      <section className="er-section" id="start" aria-labelledby="start-title">
+        <h2 id="start-title">Start now</h2>
+        <OnboardingSteps
+          noun={noun}
+          error={help.state.status === "error" ? help.state.message : undefined}
+          onRetry={help.reload}
+        />
+      </section>
+
       <section className="er-section" id="connect" aria-labelledby="connect-title">
         <h2 id="connect-title">Connect your agent</h2>
         <p className="er-muted er-measure er-mb-12">
           Reading the catalog and running a practice check need no key, and a practice check never saves
           anything. Real work needs a scoped volunteer key, and the agent that built a kit can never approve it.
         </p>
-        <AgentBrief />
+        <AgentBrief noun={noun} />
       </section>
 
       <section className="er-section" id="tasks" aria-labelledby="tasks-title">

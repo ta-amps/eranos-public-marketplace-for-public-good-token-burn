@@ -20,7 +20,8 @@ export type ApiPath =
   | "/api/tracks"
   | "/api/examples"
   | "/api/requests"
-  | "/api/fabric";
+  | "/api/fabric"
+  | `/api/nouns/${string}`;
 
 export class ApiError extends Error {
   constructor(

@@ -10,7 +10,7 @@ SUITE ?= $(TESSERA_DIR)/conformance-draft
 FACTORY_local := eranos.adapter.local:conformance_factory
 FACTORY_tessera := tessera.testing:create_http_backend
 
-.PHONY: help setup check lint types test public suite verify-examples record-runs donor-demo seed-requests web web-check snapshot api index index-check architecture
+.PHONY: help setup check lint types test public suite verify-examples record-runs donor-demo seed-requests e2e e2e-live web web-check snapshot api index index-check architecture
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -45,6 +45,12 @@ suite: ## Tessera's conformance suite through Eranos's adapter: make suite BACKE
 
 verify-examples: ## Run the two-step volunteer pipeline (spec -> draft -> independent review -> catalog)
 	ERANOS_LOCAL_DB=$$(mktemp -d)/eranos.db uv run eranos verify-examples
+
+e2e: ## Whole marketplace flow on a local Tessera and Eranos, with a transcript (no model calls)
+	uv run eranos e2e
+
+e2e-live: ## Opt-in: read the live sites and work one private demo verb; nothing outside demo queues
+	uv run eranos e2e --live
 
 donor-demo: ## Run two-donor (drafter != reviewer) kit synthesis & review over Tessera HTTP
 	uv run eranos donor-demo

@@ -79,6 +79,9 @@ flowchart LR
 | E8 | Agent briefs never carry public effect, API routes reject invalid kit IDs and unauthenticated origin traffic, and private names never leak | `test_agent_brief_refuses_public_effect`, `test_check_public_passes_cleanly`, `test_invalid_kit_id_is_rejected_with_400`, `test_edge_lockdown_blocks_direct_origin_requests` |
 | E9 | A referenced example kit takes its content only from its seed pack: every pin matches the noun's digest, and every step matches its verb template's title and claimant | `test_a_changed_library_noun_is_refused`, `test_the_example_cannot_carry_kit_content`, `test_each_step_must_match_its_verb_template` |
 | E10 | The site's example needs and example-run count come from nouns: each kit's need from its seed pack, and the count from one recorded run per example kit whose example and inputs still match their digests | `test_every_example_kit_has_a_current_recorded_run`, `test_the_site_reads_needs_and_run_counts_from_these_nouns` |
+| E11 | Work by a tracked anonymous session is published or delivered only after review by a different keyed worker or a person; anonymous sessions never claim review verbs or write the catalog | `test_only_reviewed_work_is_published_or_delivered`, `test_abuse_cases_hold` |
+| E12 | A nonprofit's request becomes exactly one eq01 verb, which an authorized worker classifies and splits into public research and kit parts, recorded as a plan noun | `test_typing_a_request_enqueues_exactly_one_verb`, `test_classify_then_split_routes_public_private_and_mixed_requests` |
+| E13 | Personal data is refused before a request is stored, and public reports cite a public source for every claim, say they are not legal advice when legal, and leave the decision to a person | `test_personal_data_screen_names_kinds_never_text`, `test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimers` |
 
 ## Trust boundaries
 

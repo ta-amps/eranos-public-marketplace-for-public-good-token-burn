@@ -431,6 +431,104 @@ def cmd_export_snapshot(target: Path) -> int:
         shutil.copytree(target, public_snapshot)
 
     print(f"wrote static snapshot to {target} ({len(kits)} kits)")
+    return cmd_export_nouns(
+        [
+            target,
+            *(
+                [REPO_ROOT / "web" / "public" / "snapshot"]
+                if target.resolve() == default_snapshot_dir
+                else []
+            ),
+        ]
+    )
+
+
+def cmd_export_nouns(targets: list[Path]) -> int:
+    """Seed a scratch store with the nouns, then export them for the offline snapshot."""
+    import tempfile
+
+    from tessera import Store
+
+    from eranos.nouns import export_nouns, seed_nouns
+
+    with tempfile.TemporaryDirectory() as tmp:
+        store = Store(f"{tmp}/nouns.db")
+        try:
+            with store.scope_context(surface="surface:eranos"):
+                seed_nouns(store)
+            for target in targets:
+                count = export_nouns(store, target)
+                print(f"wrote {count} nouns to {target / 'nouns'}")
+        finally:
+            store.close()
+    return 0
+
+
+def cmd_seed_nouns() -> int:
+    """Write the page-text, onboarding, rules, source and verb-template nouns to the fabric."""
+    from eranos.nouns import seed_nouns
+
+    backend = get_adapter()
+    try:
+        versions = seed_nouns(backend)
+    finally:
+        backend.close()
+    for name, version in versions.items():
+        print(f"  {name} v{version}")
+    return 0
+
+
+def cmd_request(path: Path) -> int:
+    """Intake one request from a public issue-form body: one request verb, or a refusal."""
+    from eranos.intake import parse_issue_form
+    from eranos.pipeline.requests import PersonalDataRefused, submit_request
+
+    backend = get_adapter()
+    try:
+        fields = parse_issue_form(path.read_text(encoding="utf-8"))
+        intake = submit_request(backend, fields, source={"kind": "file"})
+    except PersonalDataRefused as exc:
+        print(f"refused before storage: {'; '.join(exc.findings)}")
+        return 1
+    finally:
+        backend.close()
+    print(f"request verb {intake.check_task_id} queued on eq01")
+    return 0
+
+
+def cmd_classify(worker: str) -> int:
+    """Claim one request verb and classify and split it, or close it once its parts resolved."""
+    from eranos.pipeline.requests import run_request_check
+
+    backend = get_adapter()
+    try:
+        out = run_request_check(backend, worker=worker)
+    finally:
+        backend.close()
+    print(json.dumps(out, indent=2) if out else "no request verb is ready")
+    return 0
+
+
+def cmd_contribute(tessera_url: str, practice_url: str | None, label: str) -> int:
+    """Work one open verb as a tracked anonymous session: no key, no model call."""
+    from eranos.contributor import NoOpenWork, contribute_once
+
+    try:
+        done = contribute_once(tessera_url, label=label, practice_url=practice_url)
+    except NoOpenWork:
+        print("no open verb is ready; try again later")
+        return 0
+    receipt = done["receipt"]
+    print(f"claimed {done['task_id']} ({done['kind']}) as {done['principal_id']}")
+    print(f"self-test passed; submitted with receipt {receipt['receipt_hash']}")
+    print(f"labels {receipt['labels']}; it waits for review by a different worker")
+    return 0
+
+
+def cmd_e2e(*, live: bool) -> int:
+    from eranos.e2e import run_live, run_local
+
+    (run_live if live else run_local)(print)
     return 0
 
 
@@ -464,6 +562,25 @@ def main(argv: list[str] | None = None) -> int:
         help="Explicit dry-run flag (practice never persists to storage)",
     )
     sub.add_parser("seed-requests", help="Seed open volunteer agent briefs into eq02")
+    sub.add_parser("seed-nouns", help="Write page-text, onboarding and rules nouns to the fabric")
+    req = sub.add_parser("request", help="Intake a request from a public issue-form body")
+    req.add_argument("body", type=Path, help="Path to the issue body (GitHub's rendered form)")
+    cls = sub.add_parser("classify", help="Claim one request verb: classify and split, or close")
+    cls.add_argument("--worker", default="eranos-classifier")
+    con = sub.add_parser(
+        "contribute", help="Work one open verb as a tracked anonymous session (no key)"
+    )
+    con.add_argument("--tessera", default=config.public_tessera_url())
+    con.add_argument("--practice", default=config.surface_public_url() + "/api/practice")
+    con.add_argument("--label", default="reference-volunteer")
+    exp = sub.add_parser("export-nouns", help="Export page-text nouns for the offline snapshot")
+    exp.add_argument(
+        "out", type=Path, nargs="*", default=[Path("web/snapshot"), Path("web/public/snapshot")]
+    )
+    e2e = sub.add_parser("e2e", help="Run the end-to-end marketplace check and print a transcript")
+    e2e.add_argument(
+        "--live", action="store_true", help="Read-only and demo-queue smoke on the live sites"
+    )
     donor = sub.add_parser(
         "donor-demo",
         help="Run a two-donor (drafter != reviewer) kit build and review over Tessera HTTP",
@@ -494,6 +611,18 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_practice(args.kit, track_id=args.track_id)
     if args.cmd == "seed-requests":
         return cmd_seed_requests()
+    if args.cmd == "seed-nouns":
+        return cmd_seed_nouns()
+    if args.cmd == "request":
+        return cmd_request(args.body)
+    if args.cmd == "classify":
+        return cmd_classify(str(args.worker))
+    if args.cmd == "contribute":
+        return cmd_contribute(str(args.tessera), str(args.practice) or None, str(args.label))
+    if args.cmd == "export-nouns":
+        return cmd_export_nouns(list(args.out))
+    if args.cmd == "e2e":
+        return cmd_e2e(live=bool(args.live))
     if args.cmd == "donor-demo":
         return cmd_donor_demo(
             live_ollama=bool(args.live_ollama),

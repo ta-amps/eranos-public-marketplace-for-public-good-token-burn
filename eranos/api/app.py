@@ -5,6 +5,7 @@ AI-agent discovery endpoints (/favicon.svg, /healthz, /robots.txt, /llms.txt, /l
 
 from __future__ import annotations
 
+import hashlib
 import hmac
 import json
 import os
@@ -17,10 +18,13 @@ from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.middleware.cors import CORSMiddleware
+from tessera import NotFound
+from tessera.receipts import canonical_json
 
 from eranos import __version__, config
 from eranos.adapter import get_adapter
 from eranos.api.public_feed import public_feed_payload
+from eranos.nouns import PUBLIC_STORES, public_noun
 from eranos.pipeline import (
     SeedPackError,
     ensure_queues,
@@ -36,6 +40,7 @@ from eranos.schemas import KIT_ID, OPEN_SPDX_ALLOWLIST, TaskBrief
 from eranos.tracks import load_tracks
 
 KIT_ID_RE = re.compile(KIT_ID)
+NOUN_KEY_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")
 EDGE_SECRET_ENV = "ERANOS_EDGE_SECRET"  # noqa: S105 - variable name, not a secret
 EDGE_EXEMPT = frozenset(
     {
@@ -375,7 +380,58 @@ async def practice_endpoint(
         if "draft" in body and isinstance(body.get("track_id"), str) and body["track_id"].strip()
         else None
     )
-    return practice_verify_kit(body, track_id=explicit_track)
+    return with_draft_digest(practice_verify_kit(body, track_id=explicit_track), body)
+
+
+def with_draft_digest(result: dict[str, Any], body: dict[str, Any]) -> dict[str, Any]:
+    """Add the digest a build submission carries: SHA-256 of the draft as canonical JSON."""
+    draft = body.get("draft") if isinstance(body.get("draft"), dict) else body
+    digest = hashlib.sha256(canonical_json(draft).encode("utf-8")).hexdigest()
+    return {**result, "draft_sha256": digest}
+
+
+@app.get("/api/nouns/{store}")
+def noun_list(store: str, limit: int = Query(default=50, ge=1, le=100)) -> dict[str, Any]:
+    """Public Eranos nouns in one store (page text, requests, delivered reports, sources)."""
+    if store not in PUBLIC_STORES:
+        raise HTTPException(status_code=404, detail=f"{store} is not a public noun store")
+    backend = get_adapter()
+    try:
+        records = backend.list_records(store, limit=limit)
+    finally:
+        backend.close()
+    return {
+        "synthetic": True,
+        "store": store,
+        "records": [
+            {"key": r.key, "version": r.version, "value": r.value}
+            for r in records
+            if public_noun(r)
+        ],
+    }
+
+
+@app.get("/api/nouns/{store}/{key}")
+def noun(store: str, key: str) -> dict[str, Any]:
+    """One public Eranos noun; quarantined, private or unverified records are never shown."""
+    if store not in PUBLIC_STORES or not NOUN_KEY_RE.match(key):
+        raise HTTPException(status_code=404, detail="no such public noun")
+    backend = get_adapter()
+    try:
+        record = backend.get_record(store, key)
+    except NotFound as exc:
+        raise HTTPException(status_code=404, detail="no such public noun") from exc
+    finally:
+        backend.close()
+    if not public_noun(record):
+        raise HTTPException(status_code=404, detail="no such public noun")
+    return {
+        "synthetic": True,
+        "store": store,
+        "key": key,
+        "version": record.version,
+        "value": record.value,
+    }
 
 
 @app.get("/api/examples")
@@ -525,7 +581,7 @@ def _execute_mcp_tool(tool_name: str, arguments: dict[str, Any]) -> tuple[dict[s
         explicit_track = (
             raw_track.strip() if isinstance(raw_track, str) and raw_track.strip() else None
         )
-        res = practice_verify_kit(draft_in, track_id=explicit_track)
+        res = with_draft_digest(practice_verify_kit(draft_in, track_id=explicit_track), arguments)
         return res, False
     raise KeyError(tool_name)
 

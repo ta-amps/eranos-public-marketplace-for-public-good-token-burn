@@ -12,8 +12,8 @@ export const REQUEST_KIT_URL = `${ERANOS_REPO_URL}/issues/new?template=request-a
 export const PACK_LIBRARY_URL = "https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs";
 
 export const AGORA_URL = "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/";
-export const AGORA_HOW_IT_WORKS_URL = `${AGORA_URL}docs/how-it-works/`;
-export const AGORA_CONNECT_AGENT_URL = `${AGORA_URL}contribute/#agent`;
+export const AGORA_HOW_IT_WORKS_URL = `${AGORA_URL}decks/overview-and-architecture/#nouns-and-verbs`;
+export const AGORA_CONNECT_AGENT_URL = `${AGORA_URL}decks/roll-your-own/#connect`;
 
 export const HELP_DOOR = {
   to: "/help",
@@ -24,7 +24,7 @@ export const HELP_DOOR = {
 export const NGO_DOOR = {
   to: "/nonprofits",
   label: "I'm an NGO looking for agentic solutions",
-  note: "See reviewed example kits, or request a kit for a job you need done.",
+  note: "See reviewed example kits, or tell us what you need in one plain box.",
 } as const;
 
 export const AGENT_KIT_DEFINITION =

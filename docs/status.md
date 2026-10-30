@@ -1,6 +1,6 @@
 # Status
 
-Updated by hand. Last update: **October 29, 2026**. This page does not refresh itself, so check the date before
+Updated by hand. Last update: **October 30, 2026**. This page does not refresh itself, so check the date before
 you rely on it.
 
 ## On your computer
@@ -13,6 +13,20 @@ Checked on October 29, 2026, in a fresh clone of `main` with this page's documen
 | `make verify-examples` | Every example kit is built, checked, independently reviewed and published to a local catalog. Kits that point at a seed pack are composed from the library first. Sensitive kits wait for a steward's sign-off and then resume |
 | `make record-runs` | Every example kit is checked, built and independently reviewed with this repository's own pipeline on a throwaway local store, and one evidence noun per kit is written to `examples/runs/`. These are example runs on one computer with synthetic data, not hosted volunteer runs |
 | `make suite BACKEND=local` | Tessera's conformance suite through Eranos's adapter: 30 passed, 6 skipped, using the Tessera revision that CI uses |
+
+## Open contribution and the nonprofit side, October 30, 2026
+
+On branch `t/e2e-open-contribution-20261030`, not merged or deployed:
+
+- `make e2e` passes locally against an in-process Tessera at the pinned revision: sign-up, browsing, one
+  request verb per typed request, classify and split for public-only, private-files and mixed requests,
+  anonymous work, quarantine, review by a different keyed worker, a person's sign-off on a sensitive kit,
+  delivery into the nonprofit's namespace and receipts. The abuse checks hold.
+- The hosted sites do not have this yet. It needs the Tessera release with open verbs and requester keys,
+  the Eranos Worker, and the page-text nouns seeded with `eranos seed-nouns`. Until then the pages fall back to
+  the nouns exported with the build, and the request box answers only on a deployed stack.
+- The classify, build and research steps in `make e2e` are deterministic stand-ins for the reasoning a
+  volunteer's own agent does. They show the contract, not the quality of real work.
 
 ## Hosted site
 

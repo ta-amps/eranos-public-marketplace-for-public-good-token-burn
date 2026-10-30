@@ -36,7 +36,8 @@
           "url": "https://www.justice.gov/crt/limited-english-proficiency",
           "checked_date": "2026-10-30"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "coerced-work-hotline-routing",
@@ -79,7 +80,8 @@
           "url": "https://www.ilo.org/publications/operational-indicators-trafficking-human-beings",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
     },
     {
       "id": "donor-stewardship-and-privacy",
@@ -116,7 +118,8 @@
           "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-written-acknowledgments",
           "checked_date": "2026-10-30"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "food-and-essentials-distribution",
@@ -153,7 +156,8 @@
           "url": "https://www.feedingamerica.org/our-work/food-bank-network",
           "checked_date": "2026-10-30"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "grant-and-compliance-ops",
@@ -189,7 +193,8 @@
           "url": "https://www.irs.gov/forms-pubs/about-publication-4221-pc",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "housing-and-charity-verification",
@@ -230,7 +235,8 @@
           "url": "https://consumer.ftc.gov/articles/rental-listing-scams",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
     },
     {
       "id": "intake-and-referral-triage",
@@ -266,7 +272,8 @@
           "url": "https://docs.openreferral.org/en/latest/hsds/",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "job-recruitment-triage",
@@ -308,7 +315,8 @@
           "url": "https://www.eaa.labour.gov.hk/en/operator.html",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
     },
     {
       "id": "policy-and-public-rules",
@@ -346,7 +354,8 @@
           "url": "https://www.archives.gov/federal-register/tutorial",
           "checked_date": "2026-10-30"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "program-impact-reporting",
@@ -384,7 +393,8 @@
           "url": "https://www.ecfr.gov/current/title-2/section-200.329",
           "checked_date": "2026-10-30"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     },
     {
       "id": "statement-transcription",
@@ -422,7 +432,8 @@
           "url": "https://www.archives.gov/citizen-archivist/resources",
           "checked_date": "2026-10-30"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
     },
     {
       "id": "victim-support-referrals",
@@ -461,7 +472,8 @@
           "url": "https://ovc.ojp.gov/directory-crime-victim-services",
           "checked_date": "2026-10-30"
         }
-      ]
+      ],
+      "needs_steward_signoff": true
     },
     {
       "id": "volunteer-shift-and-sop-builder",
@@ -497,7 +509,8 @@
           "url": "https://www.ready.gov/cert",
           "checked_date": "2026-10-26"
         }
-      ]
+      ],
+      "needs_steward_signoff": false
     }
   ]
 }

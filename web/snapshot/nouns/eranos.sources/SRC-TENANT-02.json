@@ -1,0 +1,24 @@
+{
+  "synthetic": true,
+  "store": "eranos.sources",
+  "key": "SRC-TENANT-02",
+  "version": 1,
+  "value": {
+    "access": "official_api",
+    "id": "SRC-TENANT-02",
+    "public": true,
+    "published": "2026-09-15",
+    "publisher": "SYNTHETIC State B Senate",
+    "synthetic": true,
+    "text": "SYNTHETIC stand-in text. A landlord must return a security deposit within 21 days after a tenant moves out. Any amount withheld must come with an itemized list of deductions. The bill applies to leases signed after 1 March 2027.",
+    "title": "SYNTHETIC State B Senate Bill 88 (2026), Security Deposit Return",
+    "topics": [
+      "tenant",
+      "tenants",
+      "deposit",
+      "laws",
+      "state"
+    ],
+    "url": "https://example.org/synthetic/state-b/sb-88"
+  }
+}

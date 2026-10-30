@@ -1,6 +1,7 @@
 import { DomainBadge } from "../components/BoundaryBadge";
 import { ErrorAlert } from "../components/ErrorAlert";
 import { KitParts, PersonOnlyList, StatusNote, StepMap } from "../components/Marketplace";
+import { RequestBox } from "../components/RequestBox";
 import {
   AGENT_KIT_DEFINITION,
   PACK_LIBRARY_URL,
@@ -8,6 +9,7 @@ import {
   WHOLE_SETUP,
 } from "../lib/marketplace";
 import type { CatalogResponse, ExampleNeed, ExamplesResponse } from "../lib/types";
+import type { NonprofitsNoun, NounResponse } from "../lib/nouns";
 import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
 
@@ -20,6 +22,8 @@ export function Nonprofits() {
   const needs = new Map<string, ExampleNeed>(
     examples.state.status === "ready" ? examples.state.data.needs.map((need) => [need.kit_id, need]) : [],
   );
+  const guide = useResource<NounResponse<NonprofitsNoun>>("/api/nouns/eranos.instructions/nonprofits");
+  const noun = guide.state.status === "ready" ? guide.state.data.value : null;
 
   return (
     <div>
@@ -34,9 +38,11 @@ export function Nonprofits() {
           <a className="er-btn-primary" href="#examples">
             Browse example kits
           </a>
-          <a className="er-btn-secondary" href="#request">
-            Request a kit
-          </a>
+          {noun && (
+            <a className="er-btn-secondary" href="#request">
+              {noun.form.label}
+            </a>
+          )}
         </div>
       </section>
 
@@ -112,36 +118,29 @@ export function Nonprofits() {
       </section>
 
       <section className="er-section er-request" id="request" aria-labelledby="request-title" data-testid="request-kit">
-        <h2 id="request-title">Request a kit</h2>
-        <p className="er-warning" role="note">
-          <strong>Don&apos;t include anyone&apos;s personal information. Requests are public.</strong>
-        </p>
-        <p className="er-muted er-measure er-mb-12">
-          Tell volunteers about a job your organization needs done. The form asks for your type of
-          organization, the job, the steps that must stay with a person, and any limits, such as languages or
-          rules you follow.
-        </p>
-        <ol className="er-plain-steps">
-          <li>Open the request form on GitHub. You need a free GitHub account.</li>
-          <li>
-            A volunteer will check your request before it becomes work. The check looks at fit with a track,
-            the safety rules and the synthetic-data rule.
-          </li>
-          <li>
-            If it passes, it becomes a task brief. One volunteer&apos;s agent builds the kit, and a different
-            volunteer reviews it.
-          </li>
-        </ol>
-        <p className="er-muted er-measure er-mt-12">
-          Kits are reviewed, not certified. Check any kit with your own staff and rules before you use it.
-          Volunteers pick up requests when they can, so there is no set timeline.
-        </p>
-        <div className="er-actions er-mt-12">
-          <a className="er-btn-primary" href={REQUEST_KIT_URL}>
-            Request a kit
-          </a>
-        </div>
-        <p className="er-small er-mt-10">Opens a public form on GitHub. This site does not store requests.</p>
+        {guide.state.status === "error" && (
+          <ErrorAlert title="The request form is unavailable" message={guide.state.message} onRetry={guide.reload} />
+        )}
+        {noun && (
+          <>
+            <h2 id="request-title">{noun.title}</h2>
+            <p className="er-warning" role="note">
+              <strong>{noun.warning}</strong>
+            </p>
+            <RequestBox noun={noun} />
+            <ol className="er-plain-steps er-mt-12" data-testid="request-steps">
+              {noun.steps.map((step) => (
+                <li key={step.id}>
+                  <strong>{step.title}.</strong> {step.detail}
+                </li>
+              ))}
+            </ol>
+            <p className="er-muted er-measure er-mt-12">{noun.follow}</p>
+            <p className="er-small er-mt-10">
+              <a href={REQUEST_KIT_URL}>{noun.form_on_github}</a>
+            </p>
+          </>
+        )}
       </section>
 
       <section className="er-section" aria-labelledby="people-title">

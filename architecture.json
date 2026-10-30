@@ -72,6 +72,17 @@
       ]
     },
     {
+      "id": "privacy",
+      "title": "Personal-data screen",
+      "path": "eranos/privacy.py",
+      "kind": "library",
+      "domain": "neutral",
+      "role": "Finds common contact, identity and payment patterns and record-like lines in requests and reports, naming kinds and fields but never the matched text",
+      "tests": [
+        "tests/test_open_contribution.py"
+      ]
+    },
+    {
       "id": "records",
       "title": "Schemas and records",
       "path": [
@@ -153,7 +164,9 @@
       "domain": "neutral",
       "role": "Runs eq01 -> eq02 -> eq03, stores canonical SHA-256 blobs, enforces drafter != reviewer and deterministic re-verification, parks/resumes for steward sign-off, and writes atomically via CAS; composes example kits that point at seed packs from the library, refusing any pin or step that drifted",
       "depends_on": [
+        "copy",
         "jsonfile",
+        "privacy",
         "queues",
         "records",
         "tracks",
@@ -220,7 +233,11 @@
       "title": "CLI and donor worker",
       "path": [
         "eranos/cli.py",
-        "eranos/donor_worker.py"
+        "eranos/donor_worker.py",
+        "eranos/contributor.py",
+        "eranos/requester.py",
+        "eranos/intake.py",
+        "eranos/e2e.py"
       ],
       "kind": "cli",
       "domain": "neutral",
@@ -240,6 +257,7 @@
       ],
       "tests": [
         "tests/test_example_runs.py",
+        "tests/test_open_contribution.py",
         "tests/test_pipeline.py"
       ]
     },
@@ -278,6 +296,26 @@
       "depends_on": [
         "api",
         "web"
+      ]
+    },
+    {
+      "id": "nouns",
+      "title": "Page, onboarding and rules nouns",
+      "path": [
+        "eranos/nouns.py",
+        "instructions",
+        "examples/sources",
+        "examples/requests"
+      ],
+      "kind": "data",
+      "domain": "neutral",
+      "role": "Versioned source files for the onboarding steps, starting brief, request guidance, classify and research rules and stand-in sources, plus the public-research packs read from the seed-pack library; seeded to Tessera and rendered by the surfaces",
+      "depends_on": [
+        "jsonfile"
+      ],
+      "tests": [
+        "tests/test_open_contribution.py",
+        "tests/test_marketplace_site.py"
       ]
     }
   ],
@@ -400,6 +438,17 @@
       "path": "examples/runs",
       "holds": [
         "one evidence noun per example kit: the receipts of checking, building and reviewing it on a throwaway local store, input digests, source commits, the kind of computer and zero model calls"
+      ]
+    },
+    {
+      "id": "request-nouns",
+      "kind": "Tessera records",
+      "owned_by": "pipeline",
+      "path": "eranos/pipeline/request_noun.py",
+      "holds": [
+        "eranos.requests: each request's state and parts",
+        "eranos.plans: the classify step's plan in plain words, tied to its receipt",
+        "eranos.solutions: delivered reports with their review receipts"
       ]
     }
   ],
@@ -546,6 +595,33 @@
         "tests/test_example_runs.py::test_every_example_kit_has_a_current_recorded_run",
         "tests/test_example_runs.py::test_the_site_reads_needs_and_run_counts_from_these_nouns"
       ]
+    },
+    {
+      "id": "E11",
+      "statement": "Work by a tracked anonymous session is published or delivered only after review by a different keyed worker or a person; anonymous sessions never claim review verbs or write the catalog",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_open_contribution.py::test_only_reviewed_work_is_published_or_delivered",
+        "tests/test_open_contribution.py::test_abuse_cases_hold"
+      ]
+    },
+    {
+      "id": "E12",
+      "statement": "A nonprofit's request becomes exactly one eq01 verb, which an authorized worker classifies and splits into public research and kit parts, recorded as a plan noun",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_open_contribution.py::test_typing_a_request_enqueues_exactly_one_verb",
+        "tests/test_open_contribution.py::test_classify_then_split_routes_public_private_and_mixed_requests"
+      ]
+    },
+    {
+      "id": "E13",
+      "statement": "Personal data is refused before a request is stored, and public reports cite a public source for every claim, say they are not legal advice when legal, and leave the decision to a person",
+      "enforced_by": "privacy",
+      "checked_by": [
+        "tests/test_open_contribution.py::test_personal_data_screen_names_kinds_never_text",
+        "tests/test_open_contribution.py::test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimers"
+      ]
     }
   ],
   "import_rules": [
@@ -555,7 +631,8 @@
       "package_root": "eranos",
       "files": [
         "eranos/schemas",
-        "eranos/copy.py"
+        "eranos/copy.py",
+        "eranos/privacy.py"
       ],
       "must_not_import": [
         "eranos.tracks",
@@ -607,7 +684,11 @@
         "starlette",
         "sqlite3",
         "subprocess",
-        "socket"
+        "socket",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 1 runs deterministic verification and strict JSON loading without touching Tessera, adapters, or network"
     },
@@ -637,7 +718,11 @@
         "httpx",
         "requests",
         "fastapi",
-        "sqlite3"
+        "sqlite3",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 2 orchestrates eq01 -> eq02 -> eq03 against an injected Tessera Backend port without knowing local SQLite vs HTTP"
     },
@@ -657,7 +742,11 @@
         "eranos.cli",
         "eranos.donor_worker",
         "fastapi",
-        "starlette"
+        "starlette",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 3 constructs backends and trace logs; it never calls the pipeline or HTTP/CLI doors"
     },
@@ -675,12 +764,18 @@
         "eranos/pipeline",
         "eranos/adapter",
         "eranos/config.py",
-        "eranos/log.py"
+        "eranos/log.py",
+        "eranos/privacy.py",
+        "eranos/nouns.py"
       ],
       "must_not_import": [
         "eranos.api",
         "eranos.cli",
-        "eranos.donor_worker"
+        "eranos.donor_worker",
+        "eranos.contributor",
+        "eranos.requester",
+        "eranos.e2e",
+        "eranos.intake"
       ],
       "why": "Ring 4 (API and CLI) are leaf entry points; nothing inward depends on them"
     },
