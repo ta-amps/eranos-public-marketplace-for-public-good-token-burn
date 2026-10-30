@@ -208,6 +208,16 @@ def test_data_the_site_shows_never_names_a_retired_pack() -> None:
         assert not OLD_NAMES.search(path.read_text(encoding="utf-8")), path.name
 
 
+def test_the_worker_code_never_names_a_retired_surface() -> None:
+    """Hunt, October 30: access.js still branched on an archived surface's name (MUST-FOLLOW item 9)."""
+    named = [
+        path.name
+        for path in sorted((ROOT / "deploy" / "cloudflare").glob("*.js"))
+        if OLD_NAMES.search(path.read_text(encoding="utf-8"))
+    ]
+    assert named == []
+
+
 def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     import hashlib
 
