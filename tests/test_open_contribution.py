@@ -207,6 +207,56 @@ def test_report_review_refuses_citations_it_cannot_verify() -> None:
         assert report_findings(report, brief), name
 
 
+def _quoting(source_text: str, *quotes: str, **extra: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+    """A brief with one source of this text, and a report citing it with these quotes."""
+    rules = instruction_nouns()["public-research"]
+    source = {
+        "id": "S1",
+        "title": "SYNTHETIC agency notice",
+        "url": "https://housing.example.gov/notice",
+        "access": "official_download",
+        "public": True,
+        "synthetic": True,
+        "text": source_text,
+    }
+    brief = {"report_id": "RPT-X-01", "legal": True, "guardrails": rules, "sources": [source]}
+    claims = [
+        {"id": f"C{i + 1}", "text": q, "citations": [{"source": "S1", "quote": q}]}
+        for i, q in enumerate(quotes)
+    ]
+    report = {
+        "report_id": "RPT-X-01",
+        "title": "SYNTHETIC notice summary",
+        "sources": [{k: v for k, v in source.items() if k != "text"}],
+        "claims": claims,
+        "summary": "Cited points. " + " ".join(quotes),
+        "decision": rules["decision"],
+        "disclaimer": rules["disclaimer_text"],
+        **extra,
+    }
+    return report, brief
+
+
+def test_report_quotes_must_be_long_enough_and_match_whole_words() -> None:
+    """Re-review D: a fragment such as "be" cannot verify a claim."""
+    text = "SYNTHETIC stand-in. Deposits must be returned within 21 days. Rent is due."
+    for quotes in (("Deposits must be returned within 21 days.",), ("Rent is due.",)):
+        assert report_findings(*_quoting(text, *quotes)) == [], quotes
+    for quote in ("be", "within 21 days", "posits must be returned with", "ithin 21 days. Rent is"):
+        assert report_findings(*_quoting(text, quote)), quote
+
+
+def test_report_may_repeat_public_contact_details_from_a_verified_quote() -> None:
+    """Re-review E: a public agency's phone number and address can be cited; nothing else
+    personal can, and an uncited one is still refused."""
+    notice = "Call the housing agency at (212) 555-0100 or visit 111 Centre Street."
+    text = f"SYNTHETIC stand-in. {notice} Write to the clerk at clerk@agency.gov today."
+    assert report_findings(*_quoting(text, notice)) == []
+    assert report_findings(*_quoting(text, notice, title="Call (212) 555-0100 for help"))
+    assert report_findings(*_quoting(text, "Write to the clerk at clerk@agency.gov today."))
+    assert report_findings(*_quoting("SYNTHETIC stand-in.", notice))
+
+
 def test_personal_data_screen_names_kinds_never_text() -> None:
     found = personal_data_findings(
         {
