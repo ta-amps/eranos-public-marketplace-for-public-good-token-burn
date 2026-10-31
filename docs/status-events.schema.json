@@ -285,6 +285,125 @@
           }
         }
       }
+    },
+    "request_brief": {
+      "description": "The brief of the request verb on eq01 (kind 'request'), as the request box files it with the requester key. The same fields are written to the requester's org.requests noun.",
+      "type": "object",
+      "required": [
+        "text",
+        "organization_type",
+        "output_type",
+        "frequency"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "organization_type": {
+          "type": "string"
+        },
+        "output_type": {
+          "enum": [
+            "process",
+            "information",
+            "both"
+          ]
+        },
+        "frequency": {
+          "enum": [
+            "one-off",
+            "recurring"
+          ]
+        },
+        "cadence": {
+          "enum": [
+            "weekly",
+            "monthly",
+            "quarterly",
+            "yearly"
+          ]
+        },
+        "follows": {
+          "type": "object",
+          "description": "An improvement of an earlier request ('Improve an earlier request'), or a part sent back with a note.",
+          "properties": {
+            "request_id": {
+              "type": "string"
+            },
+            "part": {
+              "type": "integer"
+            }
+          }
+        },
+        "prefs": {
+          "type": "object",
+          "description": "Advanced settings, only what was chosen (RequestForm board).",
+          "properties": {
+            "start": {
+              "enum": [
+                "Something new",
+                "Improve an earlier request"
+              ]
+            },
+            "skill": {
+              "type": "string"
+            },
+            "runs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "agents": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "limits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "other": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Text typed into a question's Other box, by question id (skill, runs, agents, models, tools, limits)."
+            },
+            "improve_link": {
+              "type": "string"
+            },
+            "improve_what": {
+              "type": "string"
+            }
+          }
+        },
+        "decision": {
+          "$ref": "#/$defs/decision_task_brief/properties/decision"
+        }
+      }
     }
   },
   "examples": [
