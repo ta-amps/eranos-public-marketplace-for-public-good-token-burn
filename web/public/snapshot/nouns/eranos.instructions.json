@@ -146,7 +146,7 @@
         "kind": "instructions",
         "links": {
           "connect": "https://tessera.ta-amps.workers.dev/connect.json",
-          "roll_your_own": "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect"
+          "roll_your_own": "https://agora.ta-amps.workers.dev/decks/roll-your-own/#connect"
         },
         "schema_version": 1,
         "steps": [
@@ -226,7 +226,7 @@
         "kind": "instructions",
         "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
         "links": {
-          "roll_your_own": "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect"
+          "roll_your_own": "https://agora.ta-amps.workers.dev/decks/roll-your-own/#connect"
         },
         "next_title": "What happens after you send",
         "no_agent": "You don't need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",

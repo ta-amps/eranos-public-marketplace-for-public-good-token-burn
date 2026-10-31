@@ -11,7 +11,7 @@ export const ERANOS_REPO_URL = "https://github.com/ta-amps/eranos-public-marketp
 export const REQUEST_KIT_URL = `${ERANOS_REPO_URL}/issues/new?template=request-a-kit.yml`;
 export const PACK_LIBRARY_URL = "https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs";
 
-export const AGORA_URL = "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/";
+export const AGORA_URL = "https://agora.ta-amps.workers.dev/";
 export const AGORA_HOW_IT_WORKS_URL = `${AGORA_URL}decks/overview-and-architecture/#nouns-and-verbs`;
 export const AGORA_CONNECT_AGENT_URL = `${AGORA_URL}decks/roll-your-own/#connect`;
 

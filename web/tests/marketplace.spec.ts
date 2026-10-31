@@ -201,11 +201,11 @@ test("/help explains helping, the four steps, connecting, open tasks and what st
   await expect(onboarding.locator("ol > li")).toHaveCount(helpNoun.steps.length);
   await expect(page.getByRole("link", { name: "Connect any agent, step by step, on Agora" })).toHaveAttribute(
     "href",
-    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect",
+    "https://agora.ta-amps.workers.dev/decks/roll-your-own/#connect",
   );
   await expect(page.getByRole("link", { name: "How the whole system works, on Agora" })).toHaveAttribute(
     "href",
-    "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/overview-and-architecture/#nouns-and-verbs",
+    "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
   );
   await expect(page.getByRole("link", { name: "Setup for MCP, HTTP and command-line agents" })).toHaveAttribute(
     "href",

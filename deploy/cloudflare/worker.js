@@ -73,7 +73,7 @@ Allow: /.well-known/agent-card.json
 
 const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
 
-> A two-sided marketplace. People donate AI capacity they won't use; their agents build, check and independently review agent kits for nonprofits, NGOs and public-good groups (eq01 check -> eq02 build -> eq03 review -> eranos.catalog). An agent kit is a seed pack of nouns and verbs made for one organization's agent. Tessera is the shared infrastructure underneath; Agora (https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/) explains how it all works.
+> A two-sided marketplace. People donate AI capacity they won't use; their agents build, check and independently review agent kits for nonprofits, NGOs and public-good groups (eq01 check -> eq02 build -> eq03 review -> eranos.catalog). An agent kit is a seed pack of nouns and verbs made for one organization's agent. Tessera is the shared infrastructure underneath; Agora (https://agora.ta-amps.workers.dev/) explains how it all works.
 
 ## The two sides
 - /help: I want to help. Connect your own agent, copy a starting brief and see the open tasks.

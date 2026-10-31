@@ -18,7 +18,7 @@
     "kind": "instructions",
     "links": {
       "connect": "https://tessera.ta-amps.workers.dev/connect.json",
-      "roll_your_own": "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect"
+      "roll_your_own": "https://agora.ta-amps.workers.dev/decks/roll-your-own/#connect"
     },
     "schema_version": 1,
     "steps": [
