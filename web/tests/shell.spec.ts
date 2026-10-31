@@ -120,7 +120,8 @@ test("kit detail says a different volunteer reviewed it, with the real reviewer 
   await expect(line).toContainText(`receipt ${kit.review_receipt.slice(0, 4)}`);
   await expect(line).toContainText("You decide whether to use it.");
   await expect(page.getByTestId("kit-tested-on")).toHaveText("Tested on synthetic sample files (no real case data).");
-  expect(await page.locator("body").innerText()).not.toMatch(/\bSYNTHETIC\b/);
+  // No SYNTHETIC chip or tag; each made-up case keeps its own SYNTHETIC mark in its text (AGENTS.md rule 1).
+  expect(await page.locator(".er-chip", { hasText: /SYNTHETIC/ }).count()).toBe(0);
   expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
 });
 

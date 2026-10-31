@@ -12,14 +12,14 @@ const PRINCIPAL = `r_${"cd".repeat(16)}`;
 const REQUEST_ID = `rq-${PRINCIPAL}-mvwv3xwe`;
 
 async function fillRequest(page: Page) {
-  await page.getByRole("button", { name: "Tenant deposit laws" }).click();
+  await page.getByRole("button", { name: "Tenant deposit rules" }).click();
   await page.getByLabel("Your organization's name").fill("Riverside Tenant Clinic");
   await page.getByLabel("Type of organization").fill("Tenant legal-aid clinic");
-  await page.getByRole("checkbox", { name: /personal information/ }).check();
+  await page.getByRole("checkbox", { name: /private information/ }).check();
 }
 
 async function send(page: Page) {
-  await page.getByRole("button", { name: "Send", exact: true }).click();
+  await page.getByRole("button", { name: "Send request", exact: true }).click();
   const again = page.getByRole("button", { name: "Send as a new request" });
   await again.waitFor({ timeout: 3000 }).catch(() => undefined);
   if (await again.isVisible()) await again.click();
@@ -87,7 +87,8 @@ test.describe("on the hosted build", () => {
     await send(page);
     await page.waitForFunction(() => location.pathname.startsWith("/requests/rq-"));
     expect(await page.evaluate(() => (window as unknown as { transitions: number }).transitions)).toBe(1);
-    expect(await page.locator('[data-node="request"]').evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe("request");
+    // The box lands on the plain view's first stage, "Sent" (the diagram's request node in the technical view).
+    expect(await page.locator('[data-stage="sent"]').evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe("request");
     const duration = await page.evaluate(() => {
       const rule = [...document.styleSheets].flatMap((s) => [...s.cssRules]).find((r) => r.cssText.startsWith("::view-transition-group(request)"));
       return rule?.cssText ?? "";
@@ -144,7 +145,7 @@ test.describe("on the hosted build", () => {
       event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "llama-3.3-70b", lease_ends: now + 600 }),
     ];
     const seen = await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
-    await page.goto(`/requests/${REQUEST_ID}`);
+    await page.goto(`/requests/${REQUEST_ID}?view=technical`);
     await expect(page.locator('[data-node="worker-1"]')).toHaveAttribute("data-state", "working");
     await expect(page.locator('[data-node="worker-1"]')).toHaveAttribute("data-receipt", "c".repeat(64));
     await expect(page.locator('[data-node="worker-1"]')).toHaveAttribute("data-record", `/api/nouns/eranos.requests/${REQUEST_ID}/history#v3`);
@@ -178,14 +179,14 @@ test.describe("on the hosted build", () => {
     const tessera = new FakeTessera();
     tessera.keys.set(KEY, PRINCIPAL);
     await tessera.install(page);
-    await page.goto(`/requests/${REQUEST_ID}#k=${KEY}`);
+    await page.goto(`/requests/${REQUEST_ID}?view=technical#k=${KEY}`);
     await expect(page.getByTestId("notice-sent-back")).toContainText("Sent back: two points had no source");
     await expect(page.getByTestId("notice-signoff")).toContainText("This kit has steps only a person may do.");
     await expect(page.locator('[data-node="review-1"]')).toHaveAttribute("data-state", "sent_back");
     await expect(page.locator('[data-node="result-2"]')).toHaveAttribute("data-state", "person");
     tessera.taskState = "cancelled";
     await page.goto("about:blank");
-    await page.goto(`/requests/${REQUEST_ID}#k=${KEY}`);
+    await page.goto(`/requests/${REQUEST_ID}?view=technical#k=${KEY}`);
     await expect(page.getByTestId("notice-withdrawn")).toContainText("Parts already finished stay on the record");
   });
 
@@ -198,15 +199,15 @@ test.describe("on the hosted build", () => {
     await tessera.install(page);
     await page.goto(`/requests/${REQUEST_ID}/result?part=1`);
     await expect(page.getByTestId("decision-read-only")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Use this report" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Yes, use it" })).toHaveCount(0);
     expect(tessera.calls.filter((c) => c.method === "POST")).toEqual([]);
 
     tessera.keys.set(KEY, PRINCIPAL);
     await page.goto("about:blank");
     await page.goto(`/requests/${REQUEST_ID}/result?part=1#k=${KEY}`);
-    await page.getByRole("button", { name: "Use this report" }).click();
+    await page.getByRole("button", { name: "Yes, use it" }).click();
     const recorded = page.getByTestId("decision-recorded");
-    await expect(recorded).toContainText("You chose to use it");
+    await expect(recorded).toContainText("You\u2019re using it.");
     await expect(recorded).toContainText("version 1");
     const write = tessera.calls.find((c) => c.method === "POST" && c.url.includes("/v1/stores/org.decisions/records/"));
     expect(write?.auth).toBe(`Bearer ${KEY}`);
@@ -232,7 +233,7 @@ test.describe("on the hosted build", () => {
     await page.goto(`/requests/${REQUEST_ID}/result?part=1#k=${KEY}`);
     await page.getByRole("button", { name: "Ask for changes" }).click();
     await page.getByLabel("What should change?").fill("Add the date each change takes effect.");
-    await page.getByRole("button", { name: "Send back" }).click();
+    await page.getByRole("button", { name: "Send my changes" }).click();
     await expect(page.getByTestId("decision-revising")).toContainText("Your note is filed as task");
     const filed = tessera.calls.find((c) => c.url.endsWith("/v1/tasks"));
     expect(filed?.body).toMatchObject({
@@ -244,6 +245,31 @@ test.describe("on the hosted build", () => {
 });
 
 test.describe("E04 and E05: the example request", () => {
+  test("Flow-Prototype step 3: the plain view is the default; technical details switch on and off", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/requests/example?moment=review");
+    const plain = page.getByTestId("plain-status");
+    await expect(plain).toBeVisible();
+    await expect(page.getByTestId("status-diagram")).toHaveCount(0);
+    await expect(plain.locator("[data-stage]")).toHaveCount(6);
+    await expect(plain.locator('[data-stage="checked"]')).toHaveAttribute("data-state", "now");
+    await expect(plain.locator('[data-stage="sent"]')).toHaveAttribute("data-state", "done");
+    await expect(page.getByTestId("overall")).toHaveText(/Being checked|Waiting for a second volunteer/);
+    const text = await plain.innerText();
+    expect(text).not.toMatch(/\b[0-9a-f]{12,}\b|receipt|R-[A-Z0-9]{4}|wren-|kestrel-|heron-/);
+    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("second volunteer");
+    await page.getByTestId("view-switch").click();
+    await expect(page.getByTestId("status-diagram")).toBeVisible();
+    await expect(page).toHaveURL(/view=technical/);
+    await page.getByTestId("view-switch").click();
+    await expect(page.getByTestId("plain-status")).toBeVisible();
+    await expect(page).not.toHaveURL(/view=technical/);
+    await page.goto("/requests/example?moment=your-turn");
+    await expect(page.getByTestId("overall")).toHaveText("Ready for your team to review");
+    await expect(page).toHaveTitle(/^Ready for you · Your request · Eranos$/);
+  });
+
+
   const MOMENTS: Record<string, Record<string, string>> = {
     received: { request: "noun", plan: "waiting" },
     planned: { plan: "done", "queue-1": "waiting", "worker-1": "idle", "review-1": "idle", "result-1": "idle" },
@@ -256,7 +282,7 @@ test.describe("E04 and E05: the example request", () => {
   for (const [moment, expected] of Object.entries(MOMENTS)) {
     test(`E04 at '${moment}' the nodes carry the recorded states, each with its receipt`, async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 800 });
-      await page.goto(`/requests/example?moment=${moment}`);
+      await page.goto(`/requests/example?moment=${moment}&view=technical`);
       const diagram = page.getByTestId("status-diagram");
       await expect(diagram).toBeVisible();
       for (const [node, state] of Object.entries(expected)) {
@@ -273,10 +299,10 @@ test.describe("E04 and E05: the example request", () => {
   }
 
   test("B2: once a part is delivered, 'Added to the shared library' links only records that open", async ({ page, request }) => {
-    await page.goto("/requests/example?moment=working");
+    await page.goto("/requests/example?moment=working&view=technical");
     await expect(page.getByTestId("status-diagram")).toBeVisible();
     await expect(page.getByTestId("added-panel")).toHaveCount(0);
-    await page.goto("/requests/example?moment=your-turn");
+    await page.goto("/requests/example?moment=your-turn&view=technical");
     const panel = page.getByTestId("added-panel");
     await expect(panel).toContainText("Added to the shared library");
     const hrefs = await panel.locator("a").evaluateAll((links) => links.map((a) => a.getAttribute("href") ?? ""));
@@ -303,7 +329,7 @@ test.describe("E04 and E05: the example request", () => {
         return real.call(this, keyframes, options);
       };
     });
-    await page.goto("/requests/example?speed=4");
+    await page.goto("/requests/example?speed=4&view=technical");
     await expect(page.locator('[data-node="result-1"]')).toHaveAttribute("data-state", "decided", { timeout: 10_000 });
     await page.waitForTimeout(1500);
     const calls = await page.evaluate(() => (window as unknown as { animateCalls: { cls: string }[] }).animateCalls);
@@ -326,7 +352,7 @@ test.describe("E04 and E05: the example request", () => {
         return real.call(this, keyframes, options);
       };
     });
-    await page.goto("/requests/example?speed=4");
+    await page.goto("/requests/example?speed=4&view=technical");
     await expect(page.locator('[data-node="result-1"]')).toHaveAttribute("data-state", "decided", { timeout: 10_000 });
     const frames = await page.evaluate(() => (window as unknown as { frames: string[] }).frames);
     expect(frames.length).toBeGreaterThan(0);

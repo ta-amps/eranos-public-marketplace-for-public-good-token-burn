@@ -144,8 +144,17 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
     assert "agent kits" in card["description"]
     assert not re.search(r"\btools?\b", card["description"])
     llms = out["llms"]["body"]
-    assert "/help: I want to help." in llms
-    assert "/nonprofits: I'm an NGO looking for agentic solutions." in llms
+    # The banner tells every agent to read /llms.txt and follow it: it comes from the eranos.instructions/llms noun.
+    noun = json.loads((ROOT / "instructions" / "llms.json").read_text())
+    assert noun["text"].strip().splitlines()[0] in llms
+    for line in (
+        "Ask for help for a nonprofit, without private information",
+        "Pick up open tasks as a volunteer",
+        "The agent that builds something can't approve it",
+        "/connect.json",
+    ):
+        assert line in llms, line
+    assert "github.com" not in llms
     assert json.loads(out["health"]["body"])["surface"] == "eranos"
     snapshot_kits = json.loads(
         (ROOT / "web" / "public" / "snapshot" / "catalog.json").read_text(encoding="utf-8")
@@ -591,12 +600,11 @@ def test_open_tasks_are_read_with_the_surface_key_and_show_only_the_brief_title(
     assert unreachable["tasks"]["status"] == 503
 
 
-def test_the_agent_banner_copies_the_canonical_brief_and_pages_link_no_dead_github_address() -> (
-    None
-):
+def test_the_agent_banner_copies_the_llms_line_and_pages_link_no_dead_github_address() -> None:
     banner = json.loads((ROOT / "instructions" / "agent-banner.json").read_text(encoding="utf-8"))
-    help_noun = json.loads((ROOT / "instructions" / "help.json").read_text(encoding="utf-8"))
-    assert banner["brief"] == help_noun["brief"]
+    # AgentBanner board: Copy puts exactly this line on the clipboard, and /llms.txt answers it.
+    assert banner["copy_text"] == "Read https://eranos.ta-amps.workers.dev/llms.txt and follow it."
+    assert banner["chip"] == "Read eranos.ta-amps.workers.dev/llms.txt"
     assert all(
         link["href"].startswith(("/", "https://agora.ta-amps.workers.dev/"))
         for link in banner["links"]
@@ -616,3 +624,31 @@ def test_the_favicon_is_the_tile_mark_without_provenance_metadata() -> None:
         for x, y in ((0, 0), (56, 0), (0, 56), (56, 56)):
             assert f'x="{x}" y="{y}" width="44" height="44" rx="10"' in path
         assert "metadata" not in path and "155e49" not in path
+
+
+def test_process_results_are_plain_markdown_for_any_agent() -> None:
+    """/p/<id>/agent.md and practice.md render the result's own nouns; nothing else answers there."""
+    out = _worker(
+        [
+            ("agent", "GET", "/p/example-process/agent.md", None),
+            ("practice", "GET", "/p/example-process/practice.md", None),
+            ("report_only", "GET", "/p/example/practice.md", None),
+            ("unknown", "GET", "/p/rq-r_" + "0" * 32 + "-abc/agent.md", None),
+            ("requests_page", "GET", "/requests", None),
+        ]
+    )
+    example = json.loads((ROOT / "instructions" / "request-example-process.json").read_text())
+    process = example["solution"]["process"]
+    agent = out["agent"]
+    assert agent["status"] == 200 and "markdown" in agent["type"]
+    assert process["task"]["title"] in agent["body"]
+    for line in process["task_object"]["how_to"] + process["task_object"]["person_only"]:
+        assert line in agent["body"], line
+    assert "/p/example-process/practice.md" in agent["body"]
+    practice = out["practice"]
+    assert practice["status"] == 200
+    for case in process["practice"]:
+        assert case["input"].startswith("SYNTHETIC")
+        assert case["input"] in practice["body"]
+    assert out["unknown"]["status"] == 404
+    assert out["requests_page"]["status"] == 200

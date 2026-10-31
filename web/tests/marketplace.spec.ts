@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
+import type { NonprofitsPageNoun } from "../src/lib/nouns";
 import { LIVE, mockSite, noun } from "./support/mocks";
 
 // The two-sided marketplace after the Paper & Ink redesign: the agent banner on every page (owner requirement 1),
@@ -13,7 +14,7 @@ const TOOLS_WORD = /\btools?\b/i;
 
 const helpNoun = noun<{ brief: string; brief_interests_goal: string }>("help");
 const siteNoun = noun<{ headline: string; subline: string; title: string; privacy: string }>("site");
-const askNoun = noun<{ bounds: { head: string; body: string }; form: { label: string; hint: string } }>("nonprofits-page");
+const askNoun = noun<NonprofitsPageNoun>("nonprofits-page");
 const connectNoun = noun<{ title: string; authentication: string; machine_link: string; links: { machine: string } }>("connect");
 
 const ROUTES = ["/", "/help", "/nonprofits", "/library", "/requests/example", "/requests/example/result?part=1", "/catalog", "/catalog/KIT-SHIFT-05", "/contribute", "/tracks", "/fabric", "/about", "/no-such-page"];
@@ -72,7 +73,7 @@ test.describe("owner 1: the agent instructions banner", () => {
         await expect(banner).toHaveAttribute("data-ready", "true");
         const box = await banner.boundingBox();
         const header = await page.locator("header.er-header").boundingBox();
-        expect(box && header && box.y === 0 && box.height <= 40 && box.y + box.height <= header.y + 1, route).toBe(true);
+        expect(box && header && box.y === 0 && box.height <= 41 && box.y + box.height <= header.y + 1, route).toBe(true);
         const copy = banner.locator(".bar button.copy");
         await expect(copy).toBeVisible();
         const copyBox = await copy.boundingBox();
@@ -81,26 +82,29 @@ test.describe("owner 1: the agent instructions banner", () => {
     });
   }
 
-  test("Copy puts the brief on the clipboard; More opens the instructions; Escape closes and returns focus", async ({ page }) => {
+  test("AgentBanner board: Copy puts the llms.txt line on the clipboard; How opens the panel; Escape closes and returns focus", async ({ page }) => {
     await stubClipboard(page);
     await page.goto("/nonprofits");
     const banner = page.locator("ta-agent-banner");
     await expect(banner).toHaveAttribute("data-ready", "true");
+    await expect(banner.locator(".bar")).toContainText("Have an AI agent?");
+    await expect(banner.getByRole("region", { name: "Use this site with your AI agent" })).toBeVisible();
     await banner.locator(".bar button.copy").click();
-    expect(await copied(page)).toEqual([helpNoun.brief]);
-    const more = banner.locator("button.more");
-    await expect(more).toHaveAttribute("aria-expanded", "false");
-    await more.click();
-    await expect(more).toHaveAttribute("aria-expanded", "true");
+    expect(await copied(page)).toEqual(["Read https://eranos.ta-amps.workers.dev/llms.txt and follow it."]);
+    const toggle = banner.locator("button.toggle");
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await toggle.click();
+    await expect(toggle).toHaveAttribute("aria-expanded", "true");
     const panel = banner.locator(".panel");
     await expect(panel).toBeVisible();
-    await expect(panel.locator("textarea")).toHaveValue(helpNoun.brief);
-    await expect(panel.getByRole("link", { name: "MCP, HTTP or command line" })).toBeVisible();
-    expect(await panel.evaluate((el) => el.getRootNode() instanceof ShadowRoot && (el.getRootNode() as ShadowRoot).activeElement === el)).toBe(true);
+    for (const text of ["Paste this into your agent", "What it can do here", "Rules it follows", "Pick up open tasks as a volunteer"]) {
+      await expect(panel).toContainText(text);
+    }
+    await expect(panel.getByRole("link", { name: "Full agent guide (/connect)" })).toHaveAttribute("href", /\/connect$/);
     await page.keyboard.press("Escape");
     await expect(panel).toBeHidden();
-    await expect(more).toHaveAttribute("aria-expanded", "false");
-    expect(await more.evaluate((el) => (el.getRootNode() as ShadowRoot).activeElement === el)).toBe(true);
+    await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(await toggle.evaluate((el) => (el.getRootNode() as ShadowRoot).activeElement === el)).toBe(true);
   });
 });
 
@@ -148,64 +152,108 @@ test.describe("owner 2: the landing", () => {
   });
 });
 
-test.describe("owner 3: the request page", () => {
-  test("states the bounds first, asks the kind of output (one or both) and how often, and its examples need no private data", async ({ page }) => {
+test.describe("owner 3: the request page (RequestForm board)", () => {
+  test("states the bounds first, asks what would help most (one or both) and how often, with the board's tooltip and 3 examples", async ({ page }) => {
     await page.goto("/nonprofits");
     const bounds = page.getByTestId("request-bounds");
     await expect(bounds).toHaveText(`${askNoun.bounds.head} ${askNoun.bounds.body}`);
     const box = await page.locator("#need").boundingBox();
     const boundsBox = await bounds.boundingBox();
     expect(boundsBox && box && boundsBox.y < box.y).toBe(true);
+    await expect(page.getByText("What would help most?")).toBeVisible();
     const process = page.getByRole("checkbox", { name: /A reusable process/ });
     const information = page.getByRole("checkbox", { name: /Information/ });
-    await process.check();
     await information.check();
+    await process.check();
     await expect(process).toBeChecked();
     await expect(information).toBeChecked();
-    await page.getByRole("radio", { name: "Recurring" }).check();
-    await expect(page.getByLabel("How often should it run?")).toBeVisible();
-    // The tooltip on "A reusable process".
+    await expect(page.getByTestId("frequency-help")).toHaveText(askNoun.frequency.help.none);
+    await page.getByRole("radio", { name: "Regularly" }).check();
+    // Regularly adds a second row, Every month by default, and the help line follows type and frequency.
+    await expect(page.getByRole("radio", { name: "Every month" })).toBeChecked();
+    await expect(page.getByRole("radio", { name: "Every quarter" })).toBeVisible();
+    await expect(page.getByTestId("frequency-help")).toContainText("We run it again every month");
     await page.getByRole("button", { name: "What is a reusable process?" }).focus();
-    await expect(page.getByRole("tooltip")).toContainText("ready to launch locally or in the cloud");
-    for (const name of ["Tenant deposit laws", "Grant deadlines every month", "A process for handwritten case notes"]) {
-      await page.getByRole("button", { name }).click();
-      const text = await page.locator("#need").inputValue();
-      expect(text.length).toBeGreaterThan(20);
-      expect(text).not.toMatch(/\b(transcribe|intake statements?|client files?)\b/i);
+    const tip = page.getByRole("tooltip");
+    await expect(tip).toContainText("A reusable process");
+    await expect(tip).toContainText("It is also saved to the shared library, so other groups can use it.");
+    const chips = page.locator(".er-examples").first().getByRole("button");
+    await expect(chips).toHaveText(["Tenant deposit rules", "Read handwritten intake forms", "New grants every month"]);
+    for (const example of askNoun.form.examples) {
+      await page.getByRole("button", { name: example.short }).click();
+      await expect(page.locator("#need")).toHaveValue(example.text);
+      expect(example.text).not.toMatch(/\b(transcribe|intake statements?|client files?)\b/i);
     }
-    await expect(page.getByRole("checkbox", { name: /A reusable process/ })).toBeChecked();
-    await expect(page.getByRole("radio", { name: "Recurring" })).toBeChecked();
+    await expect(page.getByRole("radio", { name: "Every month" })).toBeChecked();
   });
 
-  test("E02: examples fill the box; personal data is flagged within a second; Send waits for text and consent; details start closed", async ({ page }) => {
+  test("E02: the privacy check runs as you type over every box; Send needs a type, 20 characters, nothing private and the tick", async ({ page }) => {
     await page.goto("/nonprofits");
     await expect(page.locator("#need")).toHaveAccessibleDescription(askNoun.form.hint);
-    const send = page.getByRole("button", { name: "Send", exact: true });
-    await expect(send).toBeDisabled();
-    await page.getByRole("button", { name: "Tenant deposit laws" }).click();
-    await expect(page.locator("#need")).not.toHaveValue("");
-    await expect(send).toBeDisabled();
-    await page.getByRole("checkbox", { name: /personal information/ }).check();
-    await expect(send).toBeEnabled();
+    const send = page.getByRole("button", { name: "Send request", exact: true });
+    await expect(send).toHaveAttribute("aria-disabled", "true");
+    await expect(page.getByTestId("check-line")).toHaveText(askNoun.form.check.empty);
+    await expect(page.getByTestId("send-note")).toHaveText(
+      "Before sending: choose what would help most, describe it in a sentence or two, tick the box, add your organization\u2019s name and add the type of organization.",
+    );
+    await page.getByRole("button", { name: "Tenant deposit rules" }).click();
+    await expect(page.getByTestId("check-line")).toHaveText(askNoun.form.check.clean);
+    await page.getByLabel("Your organization's name").fill("Riverside Tenant Clinic");
+    await page.getByLabel("Type of organization").fill("Tenant legal-aid clinic");
+    await expect(send).toHaveAttribute("aria-disabled", "true");
+    await page.getByRole("checkbox", { name: /private information/ }).check();
+    await expect(send).toHaveAttribute("aria-disabled", "false");
+    await expect(page.getByTestId("send-note")).toHaveText(askNoun.form.ready_note);
     for (const sample of ["Call me at 555-123-4567 about this.", "Write to dana@clinic-mail.org about this."]) {
       await page.locator("#need").fill(sample);
-      await expect(page.getByTestId("personal-data-hint")).toBeVisible({ timeout: 1000 });
+      await expect(page.getByTestId("personal-data-hint")).toBeVisible();
+      await expect(send).toHaveAttribute("aria-disabled", "true");
     }
-    await expect(page.getByTestId("personal-data-hint")).toContainText("Please take it out: requests are public.");
-    await expect(page.locator("details.er-more-details")).not.toHaveAttribute("open", "");
-    await expect(page.getByText(askNoun.form.label, { exact: true })).toBeVisible();
+    await expect(page.getByTestId("personal-data-hint")).toContainText("Please take it out before sending.");
     await page.locator("#need").fill("Help us.");
-    await expect(page.getByTestId("too-short-hint")).toBeVisible({ timeout: 1000 });
+    await expect(send).toHaveAttribute("aria-disabled", "true");
+    // aria-disabled keeps the button reachable: a click explains what is missing (Playwright needs force for that).
+    await send.click({ force: true });
+    await expect(page.getByTestId("send-note")).toHaveText("To send it, describe it in a sentence or two.");
+    // An "Other" box and the improvement note are checked too, even with the main box empty.
+    await page.locator("#need").fill("");
+    await page.getByTestId("advanced-settings").locator("summary").click();
+    const tools = page.locator('[data-question="tools"]');
+    await tools.getByRole("button", { name: "Other\u2026" }).click();
+    await tools.getByLabel("Tools your team works in: other").fill("Email dana@clinic-mail.org");
+    await expect(page.getByTestId("personal-data-hint")).toBeVisible();
+    await expect(tools.getByRole("button", { name: /^\u2713 Other: / })).toBeVisible();
+    await expect(page.locator("details.er-more-details")).not.toHaveAttribute("open", "");
+  });
+
+  test("Advanced settings: 'Improve an earlier request' asks for the link and what should be better, and lists this browser's requests", async ({ page }) => {
+    const id = `rq-r_${"ab".repeat(16)}-${(Date.UTC(2026, 9, 12, 15) ).toString(36)}`;
+    await page.addInitScript((saved) => window.localStorage.setItem(`eranos.requester.${saved}`, `tsk_${"cd".repeat(32)}`), id);
+    await page.goto("/nonprofits");
+    const advanced = page.getByTestId("advanced-settings");
+    await expect(page.getByTestId("advanced-count")).toHaveText("none chosen");
+    await advanced.locator("summary").click();
+    for (const question of askNoun.advanced.questions.slice(1)) {
+      await expect(advanced.locator(`[data-question="${question.id}"]`).getByRole("button", { name: "Other\u2026" })).toBeVisible();
+    }
+    await expect(advanced.locator('[data-question="start"]').getByRole("button", { name: "Other\u2026" })).toHaveCount(0);
+    await advanced.getByRole("radio", { name: "Improve an earlier request" }).check();
+    const improve = page.getByTestId("improve-panel");
+    await expect(improve.getByLabel("Link to the earlier request or result")).toBeVisible();
+    await expect(improve.getByLabel("What should be better?")).toBeVisible();
+    await improve.getByRole("button", { name: /^R-/ }).click();
+    await expect(improve.getByLabel("Link to the earlier request or result")).toHaveValue(new RegExp(`/requests/${id}$`));
+    await advanced.getByRole("checkbox", { name: "Spreadsheets" }).check();
+    await expect(page.getByTestId("advanced-count")).toHaveText("2 chosen");
   });
 
   test("the offline copy of the site says it does not send", async ({ page }) => {
     await page.goto("/nonprofits");
-    await page.getByRole("button", { name: "Grant deadlines every month" }).click();
+    await page.getByRole("button", { name: "New grants every month" }).click();
     await page.getByLabel("Your organization's name").fill("Synthetic Pantry");
     await page.getByLabel("Type of organization").fill("Food pantry");
-    await page.getByLabel("How often should it run?").selectOption("monthly");
-    await page.getByRole("checkbox", { name: /personal information/ }).check();
-    await page.getByRole("button", { name: "Send", exact: true }).click();
+    await page.getByRole("checkbox", { name: /private information/ }).check();
+    await page.getByRole("button", { name: "Send request", exact: true }).click();
     await expect(page.getByTestId("request-problem")).toContainText("This offline copy of the site does not send requests.");
   });
 
@@ -233,7 +281,8 @@ test.describe("on the hosted build", () => {
     const list = page.getByTestId("open-task-list");
     await expect(list.locator("li")).toHaveCount(2);
     await expect(list.locator("li").first()).toContainText("Summarize tenant deposit rules");
-    await expect(list).not.toContainText("SYNTHETIC");
+    // An example task keeps its SYNTHETIC mark (AGENTS.md rule 1); it is data, not a stamp.
+    await expect(list.locator("li").first()).toContainText("SYNTHETIC: Summarize tenant deposit rules");
     await expect(list.locator("li").nth(1)).toContainText("needs a volunteer key");
     await list.locator("li").first().getByRole("button", { name: "Copy for my agent" }).click();
     expect((await copied(page)).at(-1)).toContain("Claim the open task t-research-1 on Eranos's queue eq02");
@@ -349,11 +398,14 @@ test.describe("wording and accessibility", () => {
     for (const route of ["/", "/nonprofits", "/help"]) {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      // The brief is the agents' own canonical text, and the tooltip is the owner's wording about the
-      // organization's own tools; neither calls a kit a tool.
+      // The brief is the agents' own canonical text, the tooltip is the owner's wording, and the Advanced settings ask
+      // about the team's own software ("Tools your team works in", "Free tools only", RequestForm board); none of
+      // them calls a kit a tool.
       const copy = await page.locator("main").evaluate((main) => {
         const clone = main.cloneNode(true) as HTMLElement;
-        clone.querySelectorAll('[data-testid="brief-text"], [role="tooltip"]').forEach((node) => node.remove());
+        clone
+          .querySelectorAll('[data-testid="brief-text"], [role="tooltip"], [data-testid="advanced-settings"]')
+          .forEach((node) => node.remove());
         return clone.innerText ?? clone.textContent ?? "";
       });
       expect(copy, route).not.toMatch(TOOLS_WORD);
@@ -409,7 +461,7 @@ test.describe("wording and accessibility", () => {
     await expect(menu).toHaveAttribute("aria-expanded", "false");
     await menu.click();
     await expect(menu).toHaveAttribute("aria-expanded", "true");
-    await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "I want to help" })).toBeFocused();
+    await expect(page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "My NGO needs help" })).toBeFocused();
     await page.keyboard.press("Escape");
     await expect(menu).toHaveAttribute("aria-expanded", "false");
     await expect(menu).toBeFocused();
