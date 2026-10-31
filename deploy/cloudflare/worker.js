@@ -68,7 +68,9 @@ Allow: /api/catalog
 Allow: /api/tracks
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /agent.md
 Allow: /.well-known/agent-card.json
+Allow: /.well-known/agent.json
 `;
 
 const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
@@ -1689,7 +1691,9 @@ async function handleDiscoveryRoute(request, env, pathname) {
     pathname === "/robots.txt" ||
     pathname === "/llms.txt" ||
     pathname === "/llms-full.txt" ||
-    pathname === "/.well-known/agent-card.json"
+    pathname === "/agent.md" ||
+    pathname === "/.well-known/agent-card.json" ||
+    pathname === "/.well-known/agent.json"
   ) {
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD" } });
@@ -1718,7 +1722,18 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const fromAsset = await fetchAssetText(request, env, "/llms-full.txt");
       return textResp((fromAsset || FALLBACK_LLMS_FULL_TXT) + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
     }
-    if (pathname === "/.well-known/agent-card.json") {
+    if (pathname === "/agent.md") {
+      const fromAsset = await fetchAssetText(request, env, "/llms.txt");
+      const agentMd = `${fromAsset || FALLBACK_LLMS_TXT}
+## Live Agent E2E Contract (No Auth Required for Discovery, Practice, or Anonymous Demo Session)
+1. **Discovery**: \`GET /connect.json\` and \`GET /.well-known/agent.json\` (or \`/.well-known/agent-card.json\`).
+2. **Public Reads (Zero Key)**: \`GET /api/tracks\`, \`GET /api/requests\`, \`GET /api/requests/REQ-INTAKE-07\`, \`GET /api/catalog\`.
+3. **Stateless Deterministic Practice Check**: \`POST /api/practice\` with a kit draft JSON to run all 8 deterministic safety/SPDX/provenance gates (\`persisted: false\`).
+4. **Tracked Tessera Session (\`claim · do · report\`)**: \`POST https://tessera.ta-amps.workers.dev/v1/session/anonymous\` with \`{"agent_label":"meta-muse"}\` to mint a \`tan_\` bearer token in an isolated \`demo.<principal_id>\` namespace, or send \`X-Namespace: main\` to claim verbs tagged \`open:anonymous\`.
+`;
+      return textResp(agentMd, "text/markdown; charset=utf-8");
+    }
+    if (pathname === "/.well-known/agent-card.json" || pathname === "/.well-known/agent.json") {
       return jsonResp(buildAgentCard(request));
     }
   }
