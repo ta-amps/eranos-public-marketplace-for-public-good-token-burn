@@ -15,7 +15,9 @@
     "preview": "vite preview --port 4174",
     "snapshot:build": "VITE_SNAPSHOT=1 vite build",
     "test:e2e": "playwright test",
-    "astryx": "astryx"
+    "astryx": "astryx",
+    "build:live-test": "vite build --outDir dist-live",
+    "preview:live-test": "vite preview --outDir dist-live --port 4175 --strictPort"
   },
   "dependencies": {
     "@astryxdesign/core": "0.7.4",

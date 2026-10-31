@@ -23,7 +23,9 @@ import worker from WORKER;
 
 const publicDir = PUBLIC_DIR;
 const shell = fs.readFileSync(INDEX_HTML, "utf8");
+const extra = EXTRA_ENV;
 const env = {
+  ...extra,
   ASSETS: {
     async fetch(req) {
       const url = new URL(typeof req === "string" ? req : req.url);
@@ -61,9 +63,12 @@ console.log(JSON.stringify(out));
 """
 
 
-def _worker(requests: list[tuple[str, str, str, Any]]) -> dict[str, dict[str, Any]]:
+def _worker(
+    requests: list[tuple[str, str, str, Any]], extra_env: str = "({})"
+) -> dict[str, dict[str, Any]]:
     script = (
-        WORKER_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
+        WORKER_SCRIPT.replace("EXTRA_ENV", extra_env)
+        .replace("WORKER", json.dumps(WORKER.as_uri()))
         .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
         .replace("INDEX_HTML", json.dumps((ROOT / "web" / "index.html").as_posix()))
         .replace("REQUESTS", json.dumps(requests))
@@ -240,7 +245,16 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     help_noun = json.loads(out["help"]["body"])
     assert out["help"]["status"] == 200 and help_noun["value"]["title"] == "Help in six steps"
     keys = [r["key"] for r in json.loads(out["listing"]["body"])["records"]]
-    assert keys == ["classify", "connect", "help", "nonprofits", "public-research", "site"]
+    assert keys == sorted(p.stem for p in (ROOT / "instructions").glob("*.json"))
+    assert {
+        "shell",
+        "home",
+        "nonprofits-page",
+        "request-status",
+        "help-page",
+        "library",
+        "agent-banner",
+    } <= set(keys)
     for name in ("private_store", "catalog_store", "missing"):
         assert out[name]["status"] == 404, name
     practice = json.loads(out["practice"]["body"])
@@ -255,7 +269,6 @@ def test_static_page_and_readme_match_the_site_noun() -> None:
     html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
     assert f"<title>Eranos · {site['title']}</title>" in html
     assert f"<h1>{site['headline']}</h1>" in html
-    assert f"<span>{site['brand_sub']}</span>" in html
     readme = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
     assert readme[2] == f"{site['headline']} {site['subline']}"
     # Readers that run no script get the skip link and the privacy line too.
@@ -443,10 +456,15 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
     assert (
         plan["detail"].startswith("A volunteer's agent") and "sorts it into parts" in plan["detail"]
     )
-    assert "hosted queues yet" in noun["hosted"]
+    # The redesigned page (the nonprofits-page noun) states its bounds before the box, in plain words.
+    redesign = json.loads(
+        (ROOT / "instructions" / "nonprofits-page.json").read_text(encoding="utf-8")
+    )
+    opening = f"{redesign['heading']} {redesign['lead']} {redesign['bounds']['head']} {redesign['bounds']['body']}"
+    assert not re.search(r"\b(nouns?|verbs?|seed packs?)\b", opening, re.IGNORECASE)
+    assert redesign["bounds"]["head"] == "We don't accept private information at this stage."
     page = (ROOT / "web" / "src" / "pages" / "Nonprofits.tsx").read_text(encoding="utf-8")
-    assert page.index("noun.next_title") < page.index("noun.steps.map") < page.index("<RequestBox")
-    assert page.index("noun.hosted") < page.index("<RequestBox")
+    assert page.index("page.bounds.head") < page.index("<RequestBox")
 
 
 def test_the_privacy_line_matches_what_the_site_loads() -> None:
@@ -466,10 +484,135 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
         assert directives[name] == "'self'", name
     assert directives["img-src"] == "'self' data:"
     assert directives["connect-src"] == "'self' https://tessera.ta-amps.workers.dev"
-    # No cookies or stored data: nothing in the app reads or writes them.
+    # No cookies and no stored data, except the two things the footer names: a request's private link
+    # (lib/status/keys.ts) and request text not yet sent (components/RequestBox.tsx).
+    allowed = {"keys.ts", "RequestBox.tsx"}
     for path in sorted((ROOT / "web" / "src").rglob("*.ts*")):
         text = path.read_text(encoding="utf-8")
-        assert not re.search(r"document\.cookie|localStorage|sessionStorage|indexedDB", text), (
-            path.name
-        )
+        assert not re.search(r"document\.cookie|sessionStorage|indexedDB", text), path.name
+        if path.name not in allowed:
+            assert "localStorage" not in text, path.name
+    shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
+    assert (
+        "private links" in shell["footer"]["storage"]
+        and "haven't sent" in shell["footer"]["storage"]
+    )
     assert "set-cookie" not in worker.lower()
+
+
+# Paper & Ink redesign and the request flow, October 31 ----------------------------------------------------------
+
+
+def test_the_worker_knows_the_request_pages() -> None:
+    out = _worker(
+        [
+            ("status", "GET", "/requests/rq-r_" + "a" * 32 + "-mvwv3xwe", None),
+            ("result", "GET", "/requests/example/result", None),
+            ("example", "GET", "/requests/example", None),
+            ("deep", "GET", "/requests/x/result/more", None),
+            ("library", "GET", "/library", None),
+        ]
+    )
+    for name in ("status", "result", "example", "library"):
+        assert out[name]["status"] == 200, name
+    assert out["deep"]["status"] == 404
+
+
+FAULTY_DB = """({ FABRIC_DB: { prepare() { throw new Error("no such table: record_heads"); } } })"""
+
+
+def test_a_mirror_fault_falls_back_to_the_snapshot_instead_of_500() -> None:
+    out = _worker(
+        [
+            ("site", "GET", "/api/nouns/eranos.instructions/site", None),
+            ("listing", "GET", "/api/nouns/eranos.instructions", None),
+            ("catalog", "GET", "/api/catalog", None),
+            ("history", "GET", "/api/nouns/eranos.requests/rq-x/history", None),
+        ],
+        FAULTY_DB,
+    )
+    assert out["site"]["status"] == 200
+    assert json.loads(out["site"]["body"])["value"]["headline"] == "Spare tokens for good."
+    assert json.loads(out["listing"]["body"])["records"]
+    assert len(json.loads(out["catalog"]["body"])["kits"]) >= 5
+    assert out["history"]["status"] == 404
+
+
+HISTORY_DB = """({ FABRIC_DB: { prepare(sql) { return { bind() { return { async all() {
+  return { results: sql.includes("ORDER BY r.version") ? [
+    { version: 2, created_at: 1793474165, value: JSON.stringify({ status: "open_for_build", event: { type: "planned", at: 1793474200, receipt: "e".repeat(64) } }) },
+    { version: 3, created_at: 1793474352, value: JSON.stringify({ status: "open_for_build", event: { type: "work_claimed", part: 1, at: 1793474352, receipt: "f".repeat(64), worker: "kestrel-41" } }) },
+  ] : [] }; }, async first() { return null; } }; } }; } } })"""
+
+
+def test_a_request_record_history_is_public_and_only_for_requests_and_plans() -> None:
+    out = _worker(
+        [
+            ("history", "GET", "/api/nouns/eranos.requests/rq-x/history", None),
+            ("plans", "GET", "/api/nouns/eranos.plans/rq-x/history", None),
+            ("other", "GET", "/api/nouns/eranos.instructions/site/history", None),
+            ("escape", "GET", "/api/nouns/eranos.requests/%E0%A4%A/history", None),
+        ],
+        HISTORY_DB,
+    )
+    history = json.loads(out["history"]["body"])
+    assert out["history"]["status"] == 200
+    assert [v["version"] for v in history["versions"]] == [2, 3]
+    assert history["versions"][1]["value"]["event"]["worker"] == "kestrel-41"
+    assert out["plans"]["status"] == 200
+    assert out["other"]["status"] == 404
+    assert out["escape"]["status"] == 400
+
+
+OPEN_TASKS = """({ TESSERA_SURFACE_KEY: "test-surface-key", TESSERA: { async fetch(url) {
+  const queue = new URL(url).searchParams.get("queue");
+  return new Response(JSON.stringify({ verbs: [{ task_id: "t_" + queue, kind: queue === "eq02" ? "research" : "report_review",
+    created_at: 1793474000, tags: queue === "eq02" ? ["open:anonymous"] : [], brief: { title: "Clinic: summarize the laws", request_id: "rq-x", part: 1, secret_output: "never shown" },
+    output: "never shown" }], next: null }), { headers: { "content-type": "application/json" } });
+} } })"""
+
+
+def test_open_tasks_are_read_with_the_surface_key_and_show_only_the_brief_title() -> None:
+    out = _worker([("tasks", "GET", "/api/open-tasks", None)], OPEN_TASKS)
+    tasks = json.loads(out["tasks"]["body"])["tasks"]
+    assert [t["queue"] for t in tasks] == ["eq02", "eq03"]
+    assert tasks[0] == {
+        "task_id": "t_eq02",
+        "queue": "eq02",
+        "kind": "research",
+        "title": "Clinic: summarize the laws",
+        "request_id": "rq-x",
+        "part": 1,
+        "created_at": 1793474000,
+        "open_to_anonymous": True,
+    }
+    assert "never shown" not in out["tasks"]["body"]
+    unreachable = _worker([("tasks", "GET", "/api/open-tasks", None)])
+    assert unreachable["tasks"]["status"] == 503
+
+
+def test_the_agent_banner_copies_the_canonical_brief_and_pages_link_no_dead_github_address() -> (
+    None
+):
+    banner = json.loads((ROOT / "instructions" / "agent-banner.json").read_text(encoding="utf-8"))
+    help_noun = json.loads((ROOT / "instructions" / "help.json").read_text(encoding="utf-8"))
+    assert banner["brief"] == help_noun["brief"]
+    assert all(
+        link["href"].startswith(("/", "https://agora.ta-amps.workers.dev/"))
+        for link in banner["links"]
+    )
+    dead = re.compile(r"github\.com/ta-amps")
+    shown = [ROOT / "web" / "index.html", ROOT / "web" / "public" / "agent-banner.js"]
+    shown += sorted((ROOT / "instructions").glob("*.json"))
+    shown += sorted((ROOT / "web" / "src").rglob("*.ts*"))
+    assert [p.name for p in shown if dead.search(p.read_text(encoding="utf-8"))] == []
+
+
+def test_the_favicon_is_the_tile_mark_without_provenance_metadata() -> None:
+    out = _worker([("favicon", "GET", "/favicon.svg", None)])
+    svg = out["favicon"]["body"]
+    for path in (svg, (ROOT / "web" / "public" / "favicon.svg").read_text(encoding="utf-8")):
+        assert 'viewBox="0 0 100 100"' in path
+        for x, y in ((0, 0), (56, 0), (0, 56), (56, 56)):
+            assert f'x="{x}" y="{y}" width="44" height="44" rx="10"' in path
+        assert "metadata" not in path and "155e49" not in path

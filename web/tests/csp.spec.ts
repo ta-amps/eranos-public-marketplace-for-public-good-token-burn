@@ -17,10 +17,23 @@ if (!policySource) throw new Error("Worker CSP declaration not found");
 const policy = (
   JSON.parse(`[${policySource[1]!.replace(/,\s*$/, "")}]`) as string[]
 ).join("; ");
-const routes = ["/", "/help", "/nonprofits", "/catalog", "/tracks", "/catalog/KIT-RECRUIT-01"];
+const routes = [
+  "/",
+  "/help",
+  "/nonprofits",
+  "/library",
+  "/requests/example",
+  "/requests/example/result?part=1",
+  "/requests/example-process/result?part=1",
+  "/catalog",
+  "/tracks",
+  "/catalog/KIT-RECRUIT-01",
+];
 
 for (const width of [1440, 390]) {
-  test(`strict CSP loads external theme at ${width}px`, async ({ page }) => {
+  test(`strict CSP loads the Paper & Ink tokens, fonts and the agent banner at ${width}px`, async ({ page }) => {
+    // Ten full page loads through a re-headering proxy; under a parallel run that takes longer than one page's budget.
+    test.setTimeout(90_000);
     await page.setViewportSize({ width, height: 900 });
     await page.addInitScript(() => {
       const state = window;
@@ -40,26 +53,24 @@ for (const width of [1440, 390]) {
     });
     for (const path of routes) {
       await page.goto(path);
-      await expect(
-        page.locator('#root > [data-astryx-theme="neutral"]'),
-      ).toBeAttached();
       await expect(page.locator("main")).toBeVisible();
-      const check = await page.evaluate(() => {
-        const theme = document.querySelector('#root > [data-astryx-theme="neutral"]')!;
-        return {
-          violations: window.cspViolations,
-          themeToken: getComputedStyle(theme)
-            .getPropertyValue("--font-size-base")
-            .trim(),
-          injectedStyles: document.querySelectorAll(
-            "style[data-astryx-theme], style[data-astryx-theme-prose]",
-          ).length,
-          overflow: document.documentElement.scrollWidth > window.innerWidth,
-        };
-      });
+      await expect(page.locator("ta-agent-banner")).toHaveAttribute("data-ready", "true");
+      await page.evaluate(() => document.fonts.ready);
+      const check = await page.evaluate(() => ({
+        violations: window.cspViolations,
+        paper: getComputedStyle(document.documentElement).getPropertyValue("--bg").trim(),
+        font: getComputedStyle(document.body).fontFamily,
+        plexLoaded: document.fonts.check('16px "IBM Plex Sans"'),
+        inlineStyles: document.querySelectorAll("style").length,
+        bannerStyled: getComputedStyle(document.querySelector("ta-agent-banner")!.shadowRoot!.querySelector(".bar")!).display,
+        overflow: document.documentElement.scrollWidth > window.innerWidth,
+      }));
       expect(check.violations, path).toEqual([]);
-      expect(check.injectedStyles, path).toBe(0);
-      expect(check.themeToken, path).not.toBe("");
+      expect(check.paper, path).not.toBe("");
+      expect(check.font, path).toContain("IBM Plex Sans");
+      expect(check.plexLoaded, path).toBe(true);
+      expect(check.inlineStyles, path).toBe(0);
+      expect(check.bannerStyled, path).toBe("flex");
       expect(check.overflow, path).toBe(false);
     }
   });
