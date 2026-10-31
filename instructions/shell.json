@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "kind": "instructions",
+  "key": "shell",
+  "audience": "everyone who reads Eranos",
+  "title": "Header, menu and footer",
+  "skip": "Skip to content",
+  "home_label": "Eranos home",
+  "nav_label": "Primary navigation",
+  "nav": [
+    {
+      "to": "/help",
+      "label": "I want to help",
+      "match": "help"
+    },
+    {
+      "to": "/nonprofits",
+      "label": "For nonprofits",
+      "match": "nonprofits"
+    },
+    {
+      "to": "/library",
+      "label": "Library",
+      "match": "library"
+    },
+    {
+      "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
+      "label": "Overview deck",
+      "external": true
+    }
+  ],
+  "external_note": "opens the overview deck on Agora",
+  "menu": {
+    "button": "Menu",
+    "open_label": "Open menu",
+    "close": "Close",
+    "close_label": "Close menu",
+    "sheet_label": "Menu"
+  },
+  "footer": {
+    "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
+    "links_label": "Footer and agent discovery links",
+    "links": [
+      {
+        "label": "Agora",
+        "href": "https://agora.ta-amps.workers.dev/"
+      },
+      {
+        "label": "Source",
+        "href": "https://agora.ta-amps.workers.dev/source/"
+      },
+      {
+        "label": "Run your own",
+        "href": "https://agora.ta-amps.workers.dev/deploy/"
+      },
+      {
+        "label": "About and safety",
+        "to": "/about"
+      },
+      {
+        "label": "Agent setup",
+        "to": "/contribute"
+      },
+      {
+        "label": "Connect",
+        "href": "/connect"
+      },
+      {
+        "label": "llms.txt",
+        "href": "/llms.txt"
+      },
+      {
+        "label": "Agent card",
+        "href": "/.well-known/agent-card.json"
+      }
+    ],
+    "storage": "This browser keeps two things for you: your requests' private links and any request text you haven't sent. Nothing else is stored."
+  }
+}
