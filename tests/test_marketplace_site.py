@@ -473,3 +473,31 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
             path.name
         )
     assert "set-cookie" not in worker.lower()
+
+
+def test_request_status_page_and_api_answer_cleanly() -> None:
+    out = _worker(
+        [
+            ("req_page", "GET", "/requests/REQ-INTAKE-07", None),
+            ("req_page_slash", "GET", "/requests/REQ-INTAKE-07/", None),
+            ("req_live_page", "GET", "/requests/rq-demo1234", None),
+            ("req_missing_page", "GET", "/requests/REQ-MISSING-99", None),
+            ("req_api", "GET", "/api/requests/REQ-INTAKE-07", None),
+            ("req_live_api", "GET", "/api/requests/rq-demo1234", None),
+            ("req_missing_api", "GET", "/api/requests/REQ-MISSING-99", None),
+            ("req_bad_api", "GET", "/api/requests/%E0%A4%A", None),
+        ]
+    )
+    for name in ("req_page", "req_page_slash", "req_live_page"):
+        assert out[name]["status"] == 200, name
+        assert out[name]["type"].startswith("text/html"), name
+    assert out["req_missing_page"]["status"] == 404
+    assert out["req_api"]["status"] == 200
+    payload = json.loads(out["req_api"]["body"])
+    assert payload["request_id"] == "REQ-INTAKE-07"
+    assert payload["kit_id"] == "KIT-TRANSCR-07"
+    assert payload["independent_review"]["self_approval_refusal"]["http_status"] == 409
+    assert payload["steward_and_delivery"]["catalog_path"] == "/catalog/KIT-TRANSCR-07"
+    assert json.loads(out["req_live_api"]["body"])["status"] == "queued"
+    assert out["req_missing_api"]["status"] == 404
+    assert out["req_bad_api"]["status"] == 400

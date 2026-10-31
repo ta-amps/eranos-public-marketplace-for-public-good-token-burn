@@ -41,6 +41,111 @@ from eranos.tracks import load_tracks
 
 KIT_ID_RE = re.compile(KIT_ID)
 NOUN_KEY_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")
+REQUEST_STATUS_ID_RE = re.compile(r"^(?:REQ-[A-Z0-9-]{2,40}|rq-[A-Za-z0-9_-]{3,80})$")
+
+
+def _load_showcase_request_statuses() -> dict[str, dict[str, Any]]:
+    snapshot_file = (
+        Path(__file__).resolve().parents[2] / "web" / "snapshot" / "request-statuses.json"
+    )
+    if not snapshot_file.is_file():
+        return {}
+    raw = json.loads(snapshot_file.read_text(encoding="utf-8"))
+    return raw if isinstance(raw, dict) else {}
+
+
+def _build_queued_request_status(request_id: str) -> dict[str, Any]:
+    return {
+        "synthetic": True,
+        "request_id": request_id,
+        "kit_id": "KIT-PENDING-00",
+        "kit_title": "Pending Scope & Kit Assignment",
+        "status": "queued",
+        "submitted_at": "2026-10-31T19:00:00Z",
+        "organization_type": "Nonprofit requester session",
+        "plain_need": (
+            "Submitted nonprofit request filed onto Tessera queue eq01 (scope and sort-and-split). "
+            "Waiting for an authorized volunteer worker to claim."
+        ),
+        "privacy_guarantee": (
+            "Requests hold only plain-words job descriptions and public links. Private files stay "
+            "with your organization."
+        ),
+        "split": {
+            "verb": "eranos.triage-and-split",
+            "queue": "eq01",
+            "receipt": "queued-on-tessera-eq01",
+            "private_lane": {
+                "label": "Their own files",
+                "policy": "Files stay inside the nonprofit",
+                "items": ["Any step touching internal folders or records becomes a local kit"],
+                "outcome_title": "Local agent kit (queued)",
+                "outcome_detail": "A volunteer's agent will draft and test a kit you run locally.",
+            },
+            "public_lane": {
+                "label": "Only public information",
+                "policy": "Donated volunteer agents finish and cite it",
+                "items": ["Publicly published budgets, statutes, or directories"],
+                "outcome_title": "Cited public research (queued)",
+                "checks": [
+                    "Every claim cited to public sources",
+                    "Reviewed by a second volunteer's agent",
+                    "Your staff decide how to use it",
+                ],
+            },
+        },
+        "queue_build": {
+            "queue": "eq02",
+            "verb": "eranos.draft-and-verify-kit",
+            "worker_id": "waiting-for-volunteer-claim",
+            "harness": "Any connected MCP / Herma worker",
+            "lease_minutes": 30,
+            "fencing_token": 0,
+            "claim_receipt": "awaiting-claim",
+            "reused_pieces": [
+                {"name": "skills", "kind": "noun", "status": "checked"},
+                {"name": "connection", "kind": "noun", "status": "checked"},
+                {"name": "knowledge", "kind": "noun", "status": "checked"},
+                {"name": "working files", "kind": "noun", "status": "checked"},
+                {"name": "step map", "kind": "verb", "status": "checked"},
+                {"name": "tests", "kind": "noun", "status": "checked"},
+            ],
+            "build_receipt": "awaiting-build",
+        },
+        "independent_review": {
+            "queue": "eq03",
+            "rule": "drafter != reviewer across both worker ID and Tessera key ID",
+            "self_approval_refusal": {
+                "actor": "builder-guard",
+                "role": "builder",
+                "http_status": 409,
+                "reason": "Enforced automatically: the builder cannot approve its own kit.",
+                "receipt": "two-step-guard-active",
+            },
+            "reviewer_approval": {
+                "actor": "awaiting-second-volunteer",
+                "role": "independent reviewer",
+                "harness": "Pending eq03 claim",
+                "checks_passed": 0,
+                "summary": "Waiting for an independent second volunteer worker after eq02 finishes.",
+                "receipt": "awaiting-review",
+            },
+            "cli_transcript": [
+                f"$ tessera put eranos.requests/{request_id} && enqueue eq01",
+                "  queued on Tessera eq01 · waiting for volunteer claim",
+            ],
+        },
+        "steward_and_delivery": {
+            "steward_signed_off": False,
+            "steward_id": "pending-steward-review",
+            "steward_note": "Sensitive kits wait for human steward sign-off before publication.",
+            "steward_receipt": "awaiting-steward",
+            "catalog_path": "/catalog",
+            "public_report_summary": "Pending volunteer claim and independent review.",
+        },
+    }
+
+
 EDGE_SECRET_ENV = "ERANOS_EDGE_SECRET"  # noqa: S105 - variable name, not a secret
 EDGE_EXEMPT = frozenset(
     {
@@ -465,6 +570,18 @@ def open_requests() -> dict[str, Any]:
         ],
         "requests": rows,
     }
+
+
+@app.get("/api/requests/{request_id}")
+def request_status(request_id: str) -> dict[str, Any]:
+    if not REQUEST_STATUS_ID_RE.fullmatch(request_id):
+        raise HTTPException(status_code=400, detail="invalid request id")
+    showcase = _load_showcase_request_statuses()
+    if request_id in showcase:
+        return showcase[request_id]
+    if request_id.startswith("rq-"):
+        return _build_queued_request_status(request_id)
+    raise HTTPException(status_code=404, detail=f"request {request_id} is not found")
 
 
 @app.get("/api/fabric")

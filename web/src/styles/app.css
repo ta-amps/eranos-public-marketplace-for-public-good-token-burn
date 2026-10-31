@@ -673,3 +673,211 @@ code.er-small { overflow-wrap: anywhere; }
   border-radius: var(--er-radius-chip);
   background: var(--er-surface);
 }
+
+/* Live Request Status & Execution Page (/requests/:id) */
+.er-req-page {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.er-req-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.er-req-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.er-req-quote {
+  margin-top: 8px;
+  padding: 12px 16px;
+  background: var(--er-bg);
+  border-radius: var(--er-radius-chip);
+  border: 1px solid var(--er-border);
+  border-left: 4px solid var(--er-accent);
+}
+
+.er-req-stepper {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.er-req-step-pill {
+  margin: 0;
+}
+
+.er-req-step-btn {
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: var(--er-radius-chip);
+  border: 1px solid var(--er-border-strong);
+  background: var(--er-bg);
+  color: var(--er-text-muted);
+  font-size: var(--er-font-14);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.er-req-step-pill.is-active .er-req-step-btn {
+  background: var(--er-accent);
+  color: var(--er-on-accent);
+  border-color: var(--er-accent);
+}
+
+.er-req-band {
+  background: var(--er-surface-warm);
+  border: 1px solid var(--er-border);
+  border-radius: var(--er-radius-card);
+  padding: var(--er-space-6);
+}
+
+.er-req-band-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.er-req-band-head h2 {
+  margin: 8px 0 0;
+  font-size: 21px;
+}
+
+.er-req-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--er-space-4);
+}
+
+.er-lane-private {
+  border-top: 4px solid var(--er-human-text);
+}
+
+.er-lane-public {
+  border-top: 4px solid var(--er-assists-text);
+}
+
+.er-lane-outcome {
+  margin-top: auto;
+  padding: 12px 14px;
+  border-radius: var(--er-radius-chip);
+  border: 1px solid var(--er-border);
+  background: var(--er-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.er-lane-outcome-private {
+  background: var(--er-human-fill);
+  color: var(--er-human-text);
+  border-color: var(--er-human-text);
+}
+
+.er-lane-outcome-private .er-small {
+  color: var(--er-human-text);
+}
+
+.er-lane-outcome-public {
+  background: var(--er-assists-fill);
+  color: var(--er-assists-text);
+  border-color: var(--er-assists-text);
+}
+
+.er-req-checks {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--er-font-14);
+}
+
+.er-piece-grid {
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.er-piece-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--er-radius-chip);
+  border: 1px solid var(--er-border);
+  background: var(--er-surface);
+  font-size: var(--er-font-14);
+  font-weight: 600;
+}
+
+.er-piece-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.er-piece-check {
+  color: var(--er-drafts-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--er-font-12);
+}
+
+.er-review-refused {
+  border: 2px solid var(--er-human-text);
+  background: var(--er-human-fill);
+}
+
+.er-review-refused h3,
+.er-review-refused .er-muted,
+.er-review-refused .er-small {
+  color: var(--er-human-text);
+}
+
+.er-review-approved {
+  border: 2px solid var(--er-drafts-text);
+  background: var(--er-drafts-fill);
+}
+
+.er-review-approved h3,
+.er-review-approved .er-muted,
+.er-review-approved .er-small {
+  color: var(--er-drafts-text);
+}
+
+@media (max-width: 899px) {
+  .er-req-grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .er-req-stepper {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 599px) {
+  .er-piece-grid,
+  .er-req-stepper {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

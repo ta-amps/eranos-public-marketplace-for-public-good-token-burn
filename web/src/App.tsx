@@ -16,6 +16,7 @@ import { KitDetail } from "./pages/KitDetail";
 import { Nonprofits } from "./pages/Nonprofits";
 import { NotFound } from "./pages/NotFound";
 import { Overview } from "./pages/Overview";
+import { RequestStatus } from "./pages/RequestStatus";
 import { Tracks } from "./pages/Tracks";
 import { AppLink, matchPath, usePath, type RouteMatch } from "./router";
 
@@ -27,6 +28,8 @@ function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
       return <Help />;
     case "nonprofits":
       return <Nonprofits />;
+    case "request":
+      return <RequestStatus id={route.id} />;
     case "catalog":
       return <Catalog />;
     case "kit":
@@ -54,6 +57,8 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string {
       return `I want to help · ${SURFACE_DISPLAY_NAME}`;
     case "nonprofits":
       return `Agent kits for nonprofits · ${SURFACE_DISPLAY_NAME}`;
+    case "request":
+      return `Request ${route.id} · ${SURFACE_DISPLAY_NAME}`;
     case "catalog":
       return `Kit catalog · ${SURFACE_DISPLAY_NAME}`;
     case "kit":

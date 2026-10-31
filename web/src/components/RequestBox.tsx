@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 
 import { FABRIC_PUBLIC_URL, SNAPSHOT } from "../config";
 import type { NonprofitsNoun, NounResponse, PlanNoun } from "../lib/nouns";
+import { AppLink } from "../router";
 
 type Sent =
   | { state: "idle" }
@@ -140,9 +141,17 @@ export function RequestBox({ noun, describedBy }: { noun: NonprofitsNoun; descri
         <input type="checkbox" name="consent" required /> {form.consent}
       </label>
       <div className="er-actions er-mt-12">
-        <button type="submit" className="er-btn-primary" disabled={sent.state === "sending"}>
+        <button type="submit" className="er-btn-primary" id="submit-request-btn" disabled={sent.state === "sending"}>
           {sent.state === "sending" ? form.sending : form.submit}
         </button>
+        <AppLink
+          to="/requests/REQ-INTAKE-07"
+          className="er-btn-secondary"
+          id="open-example-request"
+          data-testid="open-example-request"
+        >
+          See live status example (REQ-INTAKE-07)
+        </AppLink>
       </div>
       <div role="status" aria-live="polite" className="er-mt-10">
         {sent.state === "offline" && <p className="er-muted">{form.offline}</p>}
@@ -156,6 +165,15 @@ export function RequestBox({ noun, describedBy }: { noun: NonprofitsNoun; descri
             <p>
               {form.sent} <code className="er-small">{sent.taskId}</code>
             </p>
+            <div className="er-actions er-mt-10">
+              <AppLink
+                to={`/requests/${encodeURIComponent(sent.taskId)}`}
+                className="er-btn-primary"
+                data-testid="open-submitted-request"
+              >
+                Open live request status ({sent.taskId})
+              </AppLink>
+            </div>
             {sent.plan.length > 0 && (
               <>
                 <p>{form.planned}</p>

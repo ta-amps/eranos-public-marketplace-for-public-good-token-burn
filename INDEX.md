@@ -221,7 +221,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (113)
+## web/ (117)
 
 | File | What it is |
 |---|---|
@@ -262,6 +262,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/nouns/eranos.verb_templates.json](web/public/snapshot/nouns/eranos.verb_templates.json) | JSON object: synthetic, store, records |
 | [web/public/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json](web/public/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.verb_templates/public-budget-report.json](web/public/snapshot/nouns/eranos.verb_templates/public-budget-report.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/request-statuses.json](web/public/snapshot/request-statuses.json) | JSON object: REQ-INTAKE-07, REQ-SHIFT-05 |
 | [web/public/snapshot/requests.json](web/public/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/public/snapshot/tracks.json](web/public/snapshot/tracks.json) | JSON object: synthetic, tracks |
 | [web/snapshot/catalog.json](web/snapshot/catalog.json) | JSON object: synthetic, two_step_verified, kits |
@@ -295,6 +296,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/nouns/eranos.verb_templates.json](web/snapshot/nouns/eranos.verb_templates.json) | JSON object: synthetic, store, records |
 | [web/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json](web/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.verb_templates/public-budget-report.json](web/snapshot/nouns/eranos.verb_templates/public-budget-report.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/request-statuses.json](web/snapshot/request-statuses.json) | JSON object: REQ-INTAKE-07, REQ-SHIFT-05 |
 | [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: synthetic, tracks |
 | [web/src/App.tsx](web/src/App.tsx) |  |
@@ -312,6 +314,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/lib/copy.ts](web/src/lib/copy.ts) |  |
 | [web/src/lib/marketplace.ts](web/src/lib/marketplace.ts) |  |
 | [web/src/lib/nouns.ts](web/src/lib/nouns.ts) |  |
+| [web/src/lib/requestStatus.ts](web/src/lib/requestStatus.ts) |  |
 | [web/src/lib/snapshot-data.live.ts](web/src/lib/snapshot-data.live.ts) |  |
 | [web/src/lib/snapshot-data.offline.ts](web/src/lib/snapshot-data.offline.ts) |  |
 | [web/src/lib/types.ts](web/src/lib/types.ts) |  |
@@ -328,6 +331,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/pages/Nonprofits.tsx](web/src/pages/Nonprofits.tsx) |  |
 | [web/src/pages/NotFound.tsx](web/src/pages/NotFound.tsx) |  |
 | [web/src/pages/Overview.tsx](web/src/pages/Overview.tsx) |  |
+| [web/src/pages/RequestStatus.tsx](web/src/pages/RequestStatus.tsx) |  |
 | [web/src/pages/Tracks.tsx](web/src/pages/Tracks.tsx) |  |
 | [web/src/router.tsx](web/src/router.tsx) |  |
 | [web/src/styles/app.css](web/src/styles/app.css) |  |

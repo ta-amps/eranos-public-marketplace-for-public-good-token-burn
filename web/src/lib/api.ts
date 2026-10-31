@@ -2,6 +2,7 @@ import { SNAPSHOT_DATA } from "virtual:snapshot-data";
 
 import { SNAPSHOT } from "../config";
 import { findBannedWords } from "./copy";
+import { buildLiveQueuedRequestStatus, SHOWCASE_REQUESTS } from "./requestStatus";
 import {
   OPEN_SPDX_ALLOWLIST,
   allSkills,
@@ -20,6 +21,7 @@ export type ApiPath =
   | "/api/tracks"
   | "/api/examples"
   | "/api/requests"
+  | `/api/requests/${string}`
   | "/api/fabric"
   | `/api/nouns/${string}`;
 
@@ -107,6 +109,16 @@ function filterCatalogSnapshot(raw: CatalogResponse, search: string): CatalogRes
 
 export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T> {
   if (SNAPSHOT) {
+    if (path.startsWith("/api/requests/")) {
+      const reqId = decodeURIComponent(path.slice("/api/requests/".length));
+      if (reqId in SHOWCASE_REQUESTS) {
+        return SHOWCASE_REQUESTS[reqId] as unknown as T;
+      }
+      if (/^rq-[a-z0-9-]+$/i.test(reqId)) {
+        return buildLiveQueuedRequestStatus(reqId) as unknown as T;
+      }
+      throw new ApiError(`No recorded request status for ${reqId}`, 404);
+    }
     if (path === "/api/catalog" || path.startsWith("/api/catalog?")) {
       const base = SNAPSHOT_DATA["catalog"] as CatalogResponse | undefined;
       if (!base) {

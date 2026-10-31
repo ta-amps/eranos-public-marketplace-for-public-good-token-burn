@@ -4,6 +4,7 @@ export type RouteMatch =
   | { name: "overview" }
   | { name: "help" }
   | { name: "nonprofits" }
+  | { name: "request"; id: string }
   | { name: "catalog" }
   | { name: "kit"; id: string }
   | { name: "contribute" }
@@ -36,6 +37,15 @@ export function matchPath(rawPath: string): RouteMatch {
     // blank page. It is a page that does not exist.
     try {
       return { name: "kit", id: decodeURIComponent(rawId) };
+    } catch {
+      return { name: "notFound", path };
+    }
+  }
+  const reqMatch = /^\/requests\/([^/]+)$/.exec(path);
+  const rawReqId = reqMatch?.[1];
+  if (reqMatch && rawReqId) {
+    try {
+      return { name: "request", id: decodeURIComponent(rawReqId) };
     } catch {
       return { name: "notFound", path };
     }
