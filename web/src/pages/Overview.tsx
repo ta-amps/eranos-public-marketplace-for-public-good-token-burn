@@ -1,90 +1,150 @@
-import { DomainBadge } from "../components/BoundaryBadge";
-import { ErrorAlert } from "../components/ErrorAlert";
-import { FrontDoors, KitSteps, StatusNote } from "../components/Marketplace";
-import { SURFACE_DISPLAY_NAME } from "../config";
-import { AGENT_KIT_DEFINITION_GENERAL, AGORA_HOW_IT_WORKS_URL, NOUNS_AND_VERBS_LINE } from "../lib/marketplace";
-import type { SiteNoun } from "../lib/nouns";
-import type { CatalogResponse } from "../lib/types";
+import { SNAPSHOT } from "../config";
+import { countWords, fill, type HomeNoun, type SiteNoun } from "../lib/nouns";
+import type { CatalogResponse, FabricResponse } from "../lib/types";
+import { useNoun } from "../lib/useNoun";
 import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
+import { Icon } from "../components/Icon";
 
-function stepCount(n: number): string {
-  return n === 1 ? "1 step" : `${n} steps`;
+/** Tiles of the mark at three depths behind the landing. They move only while the page scrolls. */
+const LAYERS = [
+  { id: "a", depth: "far" },
+  { id: "b", depth: "far" },
+  { id: "c", depth: "mid" },
+  { id: "d", depth: "mid" },
+  { id: "e", depth: "near" },
+  { id: "f", depth: "near" },
+] as const;
+
+function clock(at: number): string {
+  return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(at));
 }
 
-/** The home page. `site` is the `eranos.instructions/site` noun, or null while it loads. */
-export function Overview({ site }: { site: SiteNoun | null }) {
+/** Live counts from the queue. Absent, not zeros, when the queue can't be reached or this copy is offline. */
+function RightNow({ home }: { home: HomeNoun }) {
+  const fabric = useResource<FabricResponse>("/api/fabric");
   const catalog = useResource<CatalogResponse>("/api/catalog");
+  if (SNAPSHOT || fabric.state.status !== "ready" || fabric.state.data.queues.length === 0) return null;
+  const queues = new Map(fabric.state.data.queues.map((q) => [q.name, q]));
+  const intake = queues.get("eq01");
+  const requests = (intake?.ready ?? 0) + (intake?.leased ?? 0) + (intake?.waiting ?? 0);
+  const open = ["eq01", "eq02", "eq03"].reduce((sum, name) => sum + (queues.get(name)?.ready ?? 0), 0);
+  const working = ["eq01", "eq02", "eq03"].reduce((sum, name) => sum + (queues.get(name)?.leased ?? 0), 0);
+  const kits = catalog.state.status === "ready" ? catalog.state.data.kits.length : null;
+  return (
+    <section className="er-container er-now" aria-labelledby="now-title" data-testid="right-now">
+      <h2 id="now-title" className="er-now-title">
+        {home.now.title}
+      </h2>
+      <ul>
+        <li>{countWords(home.now.requests, requests)}</li>
+        <li>{countWords(home.now.open, open)}</li>
+        <li>{countWords(home.now.working, working)}</li>
+        {kits !== null && <li>{countWords(home.now.kits, kits)}</li>}
+      </ul>
+      <p className="er-small">{fill(home.now.note, { time: clock(Date.now()) })}</p>
+    </section>
+  );
+}
+
+/** The home page: a quiet landing with exactly two buttons, then what you can ask for, how it works and answers. */
+export function Overview({ site }: { site: SiteNoun | null }) {
+  const home = useNoun<HomeNoun>("home").value;
 
   return (
-    <div>
-      <section className="er-hero er-hero-home" aria-labelledby="hero-title">
-        <span className="er-chip er-chip-drafts er-mb-12">A two-sided marketplace</span>
-        <h1 id="hero-title">{site?.headline ?? SURFACE_DISPLAY_NAME}</h1>
-        {site && <p className="er-lede">{site.subline}</p>}
-        <FrontDoors />
-      </section>
-
-      <section className="er-section" aria-labelledby="kit-title">
-        <h2 id="kit-title">What is an agent kit?</h2>
-        <p className="er-lede">{AGENT_KIT_DEFINITION_GENERAL}</p>
-        <p className="er-muted er-measure">{NOUNS_AND_VERBS_LINE}</p>
-      </section>
-
-      <section className="er-section" aria-labelledby="steps-title">
-        <h2 id="steps-title">How a kit gets made</h2>
-        <KitSteps />
-        <p className="er-muted er-mt-12">
-          <a href={AGORA_HOW_IT_WORKS_URL}>How it all works, on Agora</a>
-        </p>
-      </section>
-
-      <section className="er-section" aria-labelledby="examples-title">
-        <h2 id="examples-title">Reviewed example kits</h2>
-        <p className="er-muted er-measure er-mb-12">
-          Examples built and reviewed with synthetic data. Each one shows which steps an agent drafts and
-          which stay with a person.
-        </p>
-        {catalog.state.status === "loading" && <p className="er-muted">Loading example kits...</p>}
-        {catalog.state.status === "error" && (
-          <ErrorAlert title="Example kits unavailable" message={catalog.state.message} onRetry={catalog.reload} />
-        )}
-        {catalog.state.status === "ready" && (
-          <div className="er-grid er-grid-kits">
-            {catalog.state.data.kits.map((entry) => {
-              const agentSteps = entry.kit.steps.filter((s) => s.boundary !== "human_only").length;
-              const personSteps = entry.kit.steps.length - agentSteps;
-              return (
-                <article key={entry.kit.kit_id} className="er-card">
-                  <div className="er-chip-row">
-                    <DomainBadge domain={entry.kit.domain} />
-                  </div>
-                  <h3>
-                    <AppLink to={`/catalog/${entry.kit.kit_id}`}>{entry.kit.title}</AppLink>
-                  </h3>
-                  <p className="er-muted">
-                    <strong>For:</strong> {entry.kit.target_org}
-                  </p>
-                  <div className="er-chip-row">
-                    <span className="er-chip er-chip-drafts">Agent: {stepCount(agentSteps)}</span>
-                    <span className="er-chip er-chip-human">Person only: {stepCount(personSteps)}</span>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        )}
-        <div className="er-actions">
-          <AppLink to="/nonprofits" className="er-btn-secondary">
-            See each kit&apos;s step map
-          </AppLink>
-          <AppLink to="/catalog" className="er-btn-secondary">
-            Open the full catalog
-          </AppLink>
+    <div className="er-home">
+      <section className="er-landing" aria-labelledby="hero-title" data-testid="landing">
+        <div className="er-landing-layers" aria-hidden="true">
+          {LAYERS.map((layer) => (
+            <span key={layer.id} className={`er-layer er-layer-${layer.id} er-depth-${layer.depth}`} />
+          ))}
+        </div>
+        <div className="er-landing-inner">
+          {home && <p className="er-eyebrow">{home.eyebrow}</p>}
+          <h1 id="hero-title" className="er-display">
+            {site?.headline ?? ""}
+          </h1>
+          {site && <p className="er-landing-lead">{site.subline}</p>}
+          {home && (
+            <div className="er-landing-buttons" role="group" aria-label={home.buttons_label}>
+              {home.buttons.map((button) => (
+                <AppLink key={button.id} to={button.to} className="er-btn-primary er-btn-hero" data-door={button.id}>
+                  {button.label}
+                  <Icon name="arrow-right" size={20} />
+                </AppLink>
+              ))}
+            </div>
+          )}
+          {home && <p className="er-honesty">{home.honesty}</p>}
         </div>
       </section>
 
-      <StatusNote />
+      {home && (
+        <>
+          <section className="er-band" aria-labelledby="gets-title">
+            <div className="er-container">
+              <h2 id="gets-title">{home.gets.title}</h2>
+              <div className="er-gets">
+                {home.gets.items.map((item) => (
+                  <div key={item.id} className="er-get">
+                    <span className="er-feature-tile" aria-hidden="true">
+                      <Icon name={item.id === "process" ? "package" : "file-text"} size={24} />
+                    </span>
+                    <div>
+                      <h3>{item.title}</h3>
+                      <p>
+                        {item.line}
+                        {item.link && item.to && (
+                          <>
+                            {" "}
+                            <AppLink to={item.to}>{item.link}</AppLink>
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          <section className="er-container er-how" aria-labelledby="how-title">
+            <div className="er-how-head">
+              <h2 id="how-title">{home.how.title}</h2>
+              <AppLink to={home.how.to} className="er-text-link">
+                {home.how.link} →
+              </AppLink>
+            </div>
+            <ol className="er-how-steps">
+              {home.how.steps.map((step, index) => (
+                <li key={step.title}>
+                  <span className="er-step-number">{index + 1}</span>
+                  <strong>{step.title}</strong>
+                  <span>{step.detail}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <RightNow home={home} />
+
+          <section className="er-safety" aria-labelledby="safety-title">
+            <div className="er-container">
+              <h2 id="safety-title" className="er-visually-hidden">
+                {home.safety.title}
+              </h2>
+              <dl className="er-safety-grid">
+                {home.safety.items.map((item) => (
+                  <div key={item.q}>
+                    <dt>{item.q}</dt>
+                    <dd>{item.a}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

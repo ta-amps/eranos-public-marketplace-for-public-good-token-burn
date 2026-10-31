@@ -21,6 +21,7 @@ export type ApiPath =
   | "/api/examples"
   | "/api/requests"
   | "/api/fabric"
+  | "/api/open-tasks"
   | `/api/nouns/${string}`;
 
 export class ApiError extends Error {

@@ -1,0 +1,417 @@
+{
+  "synthetic": true,
+  "store": "eranos.instructions",
+  "key": "request-status",
+  "version": 1,
+  "value": {
+    "about": {
+      "agora": "The overview deck, on Agora",
+      "as_sent": "Your request, as sent",
+      "hosted": "Your request is in line for a volunteer's agent. Its place and any pick-up time show here once the queue reports them.",
+      "how_body": "Volunteers' agents pick up parts when they have spare capacity, so a part can wait. The agent that does a part can never approve it. A person on your team decides what to use.",
+      "how_title": "How this works",
+      "legal": "Reports are not legal advice.",
+      "live_line": "Right now: {waiting} waiting in Eranos's queue, {working} being worked on.",
+      "public_note": "Requests are public. The sender confirmed this one contains no one's personal information.",
+      "removed": "The text was removed from the public record.",
+      "unseen": "This page shows a part's work once it is recorded. Until a part's check is recorded, it shows as open to volunteers."
+    },
+    "actions": {
+      "copied": "Copied. Keep it private: anyone with it can decide on this request.",
+      "copy_failed": "Select the address bar and copy it.",
+      "copy_link": "Copy private link",
+      "diagram": "Diagram",
+      "list": "List",
+      "replay": "Replay what happened",
+      "view_label": "View"
+    },
+    "added": {
+      "kit": "Reusable process {id}",
+      "lead": "What this request made, as task objects and tasks anyone can reuse.",
+      "objects": "Task objects",
+      "plan": "Plan {short}",
+      "record_note": "Each link opens the public record itself.",
+      "report": "Cited report {id}",
+      "request": "Request record {short}",
+      "run": "Run it: {id}",
+      "tasks": "Tasks",
+      "title": "Added to the shared library"
+    },
+    "audience": "nonprofits following a request, and anyone reading a public one",
+    "chips": {
+      "agent": "a volunteer's agent",
+      "by_team": "by your team · {time}",
+      "estimate": "usually {a}–{b} min",
+      "in_line": "{nth} in line",
+      "lease": "lease until {time}",
+      "one_source": "1 source",
+      "read_report": "Read the report",
+      "receipt": "receipt {r}",
+      "see_process": "See the process",
+      "sources": "{n} sources",
+      "worker_model": "{who} · {model}",
+      "worker_receipt": "{who} · receipt {r}"
+    },
+    "choices": {
+      "cadence": {
+        "monthly": "every month",
+        "quarterly": "every three months",
+        "weekly": "every week",
+        "yearly": "every year"
+      },
+      "frequency": {
+        "one-off": "one-off",
+        "recurring": "recurring"
+      },
+      "output": {
+        "both": "A reusable process and information",
+        "information": "Information",
+        "process": "A reusable process"
+      }
+    },
+    "diagram": {
+      "label": "Live view of your request",
+      "packet": "Your request",
+      "plan_hint": "Parts appear here when a volunteer's agent plans the request",
+      "row_held": "Part {n} · a person looks at it first",
+      "row_process": "Part {n} · a reusable process your own agent runs",
+      "row_report": "Part {n} · information → a cited report",
+      "summary_label": "What's happening now"
+    },
+    "key": "request-status",
+    "kind": "instructions",
+    "legend": {
+      "items": [
+        {
+          "state": "waiting",
+          "text": "Dashed: waiting in line."
+        },
+        {
+          "state": "working",
+          "text": "Orange: an agent is working, and the ring is the time left on its lease."
+        },
+        {
+          "state": "noun",
+          "text": "Blue: something new exists."
+        },
+        {
+          "state": "approved",
+          "text": "Green: a different volunteer approved it."
+        },
+        {
+          "state": "yourturn",
+          "text": "Amber: your turn."
+        }
+      ],
+      "motion": "Dots move only when a step really finishes. Nothing moves while nothing happens.",
+      "title": "How to read this"
+    },
+    "library_link": "How this request is stored, in the shared library",
+    "list": {
+      "held_sub": "A person needs to look at this part before work starts.",
+      "held_title": "Part {n} · A person looks first",
+      "plan_title": "Plan",
+      "process_note": "Your files never come here. The process runs on your own agent.",
+      "process_sub": "Your own agent runs it, on your own files",
+      "process_title": "Part {n} · A reusable process",
+      "queue": "In the queue",
+      "read_report": "Read the report",
+      "report_sub": "Becomes a cited report",
+      "report_title": "Part {n} · Information",
+      "result": "The result",
+      "review": "Independent review",
+      "see_process": "See the process",
+      "signoff_note": "Sensitive processes also need a person's sign-off.",
+      "worker": "The work"
+    },
+    "log": {
+      "approved": "Part {n} approved by {who}.",
+      "approved_anon": "Part {n} approved by a different volunteer.",
+      "blocked": "Not taken: {reason}",
+      "check_claimed": "Part {n} claimed for checking by {who}, a different volunteer.",
+      "closed": "All parts finished. The request is closed.",
+      "count_many": "What happened ({n} records)",
+      "count_one": "What happened (1 record)",
+      "decided_changes": "Your team asked for changes to part {n}.",
+      "decided_dont": "Your team chose not to use part {n}.",
+      "decided_use": "Your team chose to use part {n}.",
+      "delivered": "Part {n} delivered: a cited report.",
+      "empty": "Nothing has happened yet.",
+      "heartbeat": "",
+      "in_review": "Part {n} is being checked by a different volunteer.",
+      "lease": " Lease {m} min.",
+      "library_added": "Part {n} added to the shared library.",
+      "models_note": "Models are what each volunteer's agent says it runs.",
+      "plan_claimed": "Claimed by {who} to plan it.",
+      "plan_claimed_anon": "A volunteer's agent claimed it to plan it.",
+      "plan_released": "{who} let the request go when its lease ended. It's back in line.",
+      "planned": "Split into {n} parts by {who}.",
+      "planned_anon": "Split into {n} parts.",
+      "planned_one": "Kept as 1 part by {who}.",
+      "planned_one_anon": "Kept as 1 part.",
+      "published": "Part {n} published: an agent kit.",
+      "queued": "In line: {nth} for part {n}.",
+      "queued_plan": "In line: {nth}.",
+      "received": "Request received.",
+      "record_note": "Lines without a time come from public records, which don't carry their write time yet.",
+      "released": "{who} let part {n} go when its lease ended. It's back in line.",
+      "sent_back": "Part {n} sent back: {reason}",
+      "signed_off": "A person signed off part {n}.",
+      "signoff_required": "Part {n} waits for a person's sign-off.",
+      "title": "What happened",
+      "withdrawn": "This request was withdrawn.",
+      "work_claimed": "Part {n} claimed by {who}.",
+      "work_submitted": "Part {n} draft submitted.",
+      "work_submitted_summary": "Part {n} draft submitted with {summary}."
+    },
+    "meta": {
+      "example": "Example request",
+      "request": "Request",
+      "sent": "sent {time}"
+    },
+    "modes": {
+      "ago_minutes": "{n} min ago",
+      "ago_now": "just now",
+      "ago_seconds": "{n} s ago",
+      "example": "Replayed at reading speed. Nothing here was sent.",
+      "live": "Live",
+      "rule": "every change comes from a receipt or a public record",
+      "updated": "updated {ago}"
+    },
+    "nodes": {
+      "approved": "Approved",
+      "changes": "Changes asked",
+      "checking": "Checking",
+      "draft_ready": "Draft ready",
+      "held": "A person looks first",
+      "in_library": "In the library",
+      "not_taken": "Not taken",
+      "not_used": "Not used",
+      "one_part": "1 part",
+      "parts": "{n} parts",
+      "picked_up": "Picked up",
+      "plan": "Plan",
+      "planned": "Split",
+      "planning": "Planning",
+      "process": "Reusable process",
+      "queue": "In the queue",
+      "report": "Cited report",
+      "request": "Your request",
+      "review": "Review",
+      "sent_back": "Sent back",
+      "signoff": "A person signs off",
+      "used": "You used it",
+      "worker": "Worker",
+      "working": "A worker is now working on this",
+      "your_turn": "Your turn"
+    },
+    "notices": {
+      "blocked": {
+        "action": "Edit my request",
+        "head": "We can't take this request.",
+        "personal": "It seems to include personal information. Requests are public, so the text was removed from the public record.",
+        "scope": "Eranos doesn't do work about specific people. Describe the job instead, like “sort referral notes by program”."
+      },
+      "key_missing": {
+        "body": "Open the link you saved, or ask again from the same browser.",
+        "head": "This browser doesn't have your private link."
+      },
+      "no_agents": {
+        "action": "Share Eranos",
+        "body": "Your request keeps its place in line. Nothing is lost.",
+        "head": "No volunteer's agent has picked up work in the last day.",
+        "shared": "Link copied."
+      },
+      "paused": {
+        "action": "Try now",
+        "body": "Showing what we knew at {time}. We'll try again in {n} s.",
+        "head": "Live updates paused."
+      },
+      "read_only": {
+        "body": "Only the person with the private link can make decisions.",
+        "head": "You're viewing a public request."
+      },
+      "released": {
+        "body": "It's back in line. Another agent can claim it.",
+        "head": "{who} let this part go when its lease ended."
+      },
+      "sent_back": {
+        "action": "See the notes",
+        "body": "An agent will fix it, and a different volunteer checks it again.",
+        "head": "Sent back: {reason}"
+      },
+      "signoff": {
+        "action": "Review the steps",
+        "body": "Someone at your organization signs off before you get it.",
+        "head": "This kit has steps only a person may do."
+      },
+      "unknown": {
+        "action": "Go to For nonprofits",
+        "body": "Check the link, or ask again: it only takes one box.",
+        "head": "We can't find request {id}."
+      },
+      "withdrawn": {
+        "body": "Parts already finished stay on the record with their receipts.",
+        "head": "This request was withdrawn on {date}."
+      }
+    },
+    "overall": {
+      "blocked": "Not taken",
+      "decided": "Decided · the rest in progress",
+      "finished": "Finished",
+      "planned": "Parts waiting in line",
+      "planning": "A volunteer's agent is reading it",
+      "progress": "In progress",
+      "read_only": "Public request",
+      "used_progress": "Part {n} used · the rest in progress",
+      "waiting": "Waiting for a volunteer's agent",
+      "withdrawn": "Withdrawn",
+      "your_turn": "Your turn: Part {n} is ready"
+    },
+    "queue": {
+      "agents": "Agents holding work now: {names}",
+      "checking": "checking",
+      "estimates": "Estimates use the middle half of the last 50 pick-up times and hide when there is too little data.",
+      "no_agents": "No agent is holding work right now.",
+      "title": "Eranos queue right now",
+      "title_short": "Queue right now",
+      "updated": "updated {ago}",
+      "waiting": "waiting",
+      "working": "working"
+    },
+    "report": {
+      "approved_badge": "A different volunteer reviewed this",
+      "back": "← Request {short}",
+      "bridge_body": "Volunteers' agents, tasks and receipts, explained in the overview deck.",
+      "bridge_link": "The overview deck, on Agora",
+      "bridge_title": "How did this get made?",
+      "cancel": "Cancel",
+      "change_mind": "Change my decision",
+      "changes": "Ask for changes",
+      "changes_label": "What should change?",
+      "changes_note": "Part {n} goes back in line with your note, and a different volunteer checks the new version.",
+      "changes_placeholder": "For example: add the date each change takes effect.",
+      "changes_text": "Decision on part {n} of request {id}: changes. {note}",
+      "checked": "checked",
+      "decision_filed": "Filed as task {short}; its receipt appears on the request page when a volunteer's agent records it.",
+      "decision_label": "Your decision",
+      "decision_text": "Decision on part {n} of request {id}: {choice}.",
+      "dont": "Don't use it",
+      "download": "Download",
+      "download_json": "All receipts (JSON)",
+      "download_md": "Report and sources as Markdown",
+      "download_pdf": "Report as PDF (print)",
+      "findings": "What it found",
+      "follow_link": "Follow the new request",
+      "in_short": "In short",
+      "meta_anon": "Researched and checked by two different volunteers' agents",
+      "meta_named": "Built by {builder} (says it runs {builder_model}) · checked by {checker} (says it runs {checker_model})",
+      "missing": "This request has no cited report for part {n}.",
+      "not_ready": "This report isn't ready yet. It appears here once a different volunteer has checked it.",
+      "note": "A person on your team decides what to do with this report. It is not legal advice.",
+      "note_plain": "A person on your team decides what to do with this report.",
+      "part_badge": "Part {n} · cited report",
+      "published": "published {date}",
+      "read_only": "You're viewing a public report. Only the person with the private link can decide.",
+      "receipts": "receipts {list}",
+      "recorded_at": "Recorded at {time} as version {v} of your decision, in your own space on Tessera. You can change your mind here.",
+      "recorded_changes": "You asked for changes",
+      "recorded_dont": "You chose not to use it",
+      "recorded_example": "Recorded at {time} in this example. Nothing was sent.",
+      "recorded_use": "You chose to use it",
+      "reviewed_line": "A different volunteer reviewed this: {who}",
+      "revising_body": "Your note is filed as task {short}. Part {n} goes back in line when a volunteer's agent records it.",
+      "revising_example": "Part {n} is back in line with your note. In this example nothing was sent.",
+      "revising_head": "Being revised",
+      "save_failed": "We couldn't record your decision: {reason}. Nothing changed.",
+      "saving": "Saving...",
+      "send_back": "Send back",
+      "show_all": "Show all {n} sources",
+      "sources": "Sources ({n})",
+      "sources_count": "{n} sources",
+      "synthetic_sources": "These sources are synthetic stand-ins made for this example, not real laws.",
+      "unclear": "The reviewer flagged one point as unclear in the sources. It is marked “unclear” in the text, not guessed.",
+      "use": "Use this report",
+      "use_process": "Use this process",
+      "you_decide": "You decide whether to use it.",
+      "your_turn": "Your turn to decide"
+    },
+    "result": {
+      "approved_badge": "A different volunteer reviewed this",
+      "back": "← Request {short}",
+      "container": "Container",
+      "copied": "Copied. Paste it into your agent.",
+      "copy_task": "Copy the task for my agent",
+      "embodiments": "Ways to run it",
+      "example_note": "This is an example: nothing here was built or run.",
+      "holds": "What it holds",
+      "how_to": "How to use it",
+      "input": "Input",
+      "install": "How to install it",
+      "kit_link": "Open the published process",
+      "meta_anon": "Built and checked by two different volunteers' agents",
+      "not_ready": "This process isn't ready yet. It appears here once a different volunteer has checked it.",
+      "output": "Output",
+      "person_only": "Steps only a person does",
+      "process_badge": "Part {n} · reusable process",
+      "real_note": "The published process holds its instructions, skills, checks and test cases.",
+      "run_lead": "The task your organization launches whenever it wants a result.",
+      "run_title": "Run it",
+      "schedule": "How often",
+      "task": "Task",
+      "task_object": "Task Object",
+      "use": "Use this process",
+      "what": "What it is"
+    },
+    "rule": "Every node, chip and log line comes from a receipt or a public record. Nothing shows as done without its record.",
+    "schema_version": 1,
+    "states": {
+      "approved": "Approved",
+      "decided": "Decided by a person",
+      "done": "Done",
+      "held": "A person looks first",
+      "idle": "Not started",
+      "noun": "Recorded",
+      "open": "Open to volunteers' agents",
+      "person": "Waiting for a person's sign-off",
+      "sent_back": "Sent back",
+      "stopped": "Stopped",
+      "waiting": "Waiting in line",
+      "working": "Being worked on",
+      "yourturn": "Your turn to decide"
+    },
+    "stay": {
+      "blocked": "This browser blocks notifications for this site. The tab title still changes.",
+      "notice_body": "A part of your request is ready for your decision.",
+      "notice_title": "Your turn · {short}",
+      "notify": "Tell me in this browser when it's my turn",
+      "tab_note": "The tab title also changes: “Your turn · {short}”.",
+      "title": "Stay updated"
+    },
+    "summary": {
+      "blocked": "We couldn't take this request.",
+      "closed": "Your request is closed.",
+      "decided": "Part {n} decided.",
+      "part_approved": "Part {n} approved.",
+      "part_checking": "Part {n} is being checked.",
+      "part_ready": "Part {n} has a draft.",
+      "part_released": "Part {n} is back in line.",
+      "part_sent_back": "Part {n} was sent back.",
+      "part_working": "Part {n} is being worked on.",
+      "planned": "Split into {n} parts.",
+      "planning": "A volunteer's agent is reading your request and splitting it into parts.",
+      "signoff": "Part {n} waits for a person's sign-off.",
+      "waiting": "Waiting for a volunteer's agent to plan your request.",
+      "your_turn": "Your turn."
+    },
+    "title": "Request status and report pages",
+    "titles": {
+      "doc": "Request {short} · Eranos",
+      "doc_example": "Example request · Eranos",
+      "doc_report": "Report · {short} · Eranos",
+      "doc_turn": "Your turn · {short}",
+      "example": "Example request",
+      "yours": "Your request"
+    }
+  }
+}

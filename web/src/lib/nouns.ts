@@ -110,3 +110,193 @@ export interface SiteNoun {
   /** What the site loads and keeps: no analytics, ads or cookies, and where requests go. */
   privacy: string;
 }
+
+/** A link a noun names: an app page (`to`) or any other address (`href`). */
+export interface NounLink {
+  label: string;
+  to?: string;
+  href?: string;
+  external?: boolean;
+  match?: string;
+}
+
+/** Plural-aware wording: "1 open task" or "{n} open tasks". */
+export interface CountWords {
+  none?: string;
+  one: string;
+  many: string;
+}
+
+/** The header, phone menu, notice line and footer: `eranos.instructions/shell`. */
+export interface ShellNoun {
+  skip: string;
+  home_label: string;
+  nav_label: string;
+  nav: NounLink[];
+  external_note: string;
+  menu: { button: string; open_label: string; close: string; close_label: string; sheet_label: string };
+  footer: { line: string; links_label: string; links: NounLink[]; storage: string };
+}
+
+/** The home page: `eranos.instructions/home`. */
+export interface HomeNoun {
+  eyebrow: string;
+  buttons_label: string;
+  /** Exactly two, in this order: "My NGO needs help", then "I want to help". */
+  buttons: { id: string; label: string; to: string }[];
+  honesty: string;
+  gets: { title: string; items: { id: string; title: string; line: string; link?: string; to?: string }[] };
+  how: { title: string; title_short: string; link: string; to: string; steps: { title: string; detail: string; short: string }[] };
+  now: { title: string; requests: CountWords; open: CountWords; working: CountWords; kits: CountWords; note: string };
+  safety: { title: string; items: { q: string; a: string; a_short: string }[] };
+}
+
+/** The request box and its page: `eranos.instructions/nonprofits-page`. */
+export interface ChoiceOption {
+  value: string;
+  label: string;
+  hint?: string;
+  tip?: string;
+  tip_label?: string;
+}
+
+export interface NonprofitsPageNoun {
+  eyebrow: string;
+  heading: string;
+  lead: string;
+  bounds: { head: string; body: string };
+  output: { legend: string; hint: string; options: ChoiceOption[] };
+  frequency: { legend: string; options: ChoiceOption[]; cadence_label: string; cadences: ChoiceOption[] };
+  form: {
+    label: string;
+    hint: string;
+    placeholder: string;
+    examples_label: string;
+    examples: { id: string; short: string; text: string; output_type: string; frequency: string; cadence?: string }[];
+    privacy: string;
+    check: { lead: string; ask: string; kinds: Record<string, string>; and: string };
+    too_short: { head: string; body: string };
+    name_label: string;
+    type_label: string;
+    type_placeholder: string;
+    profile_note: string;
+    details_summary: string;
+    links_label: string;
+    links_hint: string;
+    causes_label: string;
+    consent: string;
+    send: string;
+    sending: string;
+    waiting_connection: string;
+    after_send: string;
+    hosted: string;
+    missing: { need: string; name: string; type: string; consent: string; output: string; frequency: string; cadence: string };
+    draft_saved: string;
+  };
+  states: {
+    refused: { head: string; personal: string; other: string; not_filed: string; action: string };
+    quota: { head: string; body: string; action: string; copied: string };
+    rate: { head: string; body: string };
+    offline: { head: string; body: string };
+    snapshot: string;
+  };
+  aside: {
+    next_title: string;
+    steps: { title: string; detail: string }[];
+    example_link: string;
+    example_to: string;
+    kinds_title: string;
+    kinds: { name: string; line: string; link: string; to: string }[];
+    kits_link: string;
+    kits_to: string;
+  };
+}
+
+type Words = Record<string, string>;
+
+/** The request status and report pages: `eranos.instructions/request-status`. */
+export interface RequestStatusNoun {
+  titles: Words;
+  meta: Words;
+  /** How the request's own choices read: what kind of output, and how often. */
+  choices: { output: Words; frequency: Words };
+  result: Words;
+  modes: Words;
+  actions: Words;
+  diagram: Words;
+  nodes: Words;
+  states: Words;
+  chips: Words;
+  overall: Words;
+  list: Words;
+  log: Words;
+  queue: Words;
+  stay: Words;
+  about: Words;
+  summary: Words;
+  notices: Record<string, Words>;
+  report: Words;
+  legend: { title: string; items: { state: string; text: string }[]; motion: string };
+  added: Words;
+  library_link: string;
+}
+
+/** The volunteer page: `eranos.instructions/help-page`. */
+export interface HelpPageNoun {
+  eyebrow: string;
+  heading: string;
+  lead: string;
+  connect: Words;
+  tasks: HelpTasksWords;
+  tokens: {
+    title: string;
+    empty: string;
+    key_note: string;
+    example_title: string;
+    example_chip: string;
+    example_caption: string;
+    rows: { tone: "real" | "caution"; head: string; body: string; receipts: string }[];
+  };
+  agent: Words;
+  rules: { title: string; lines: string[] };
+  safety: string;
+  safety_link: string;
+  states: Words;
+}
+
+/** The `tasks` part of the volunteer page noun, whose `kinds` names each Eranos queue's work. */
+export interface HelpTasksWords {
+  title: string;
+  live: string;
+  kinds: Record<string, string>;
+  count_one: string;
+  count_many: string;
+  guard_note: string;
+  list_note: string;
+  empty_head: string;
+  empty_body: string;
+  unavailable: string;
+  slow_down: { head: string; body: string };
+  by_kind: Record<string, string>;
+  copy_for_agent: string;
+  copied: string;
+  claim_text: string;
+  waiting: string;
+  minutes: string;
+  hours: string;
+  days: string;
+  check_needs_key: string;
+}
+
+/** Fills `{name}` holes in noun text. A hole without a value stays visible, so a gap is never hidden. */
+export function fill(template: string, values: Record<string, string | number> = {}): string {
+  return template.replace(/\{(\w+)\}/g, (hole, name: string) =>
+    Object.hasOwn(values, name) ? String(values[name]) : hole,
+  );
+}
+
+/** "1 open task" or "3 open tasks" (or the `none` wording for zero, when the noun has one). */
+export function countWords(words: CountWords, n: number): string {
+  if (n === 0 && words.none) return words.none;
+  return n === 1 ? words.one : fill(words.many, { n });
+}

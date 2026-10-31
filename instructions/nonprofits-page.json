@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "kind": "instructions",
+  "key": "nonprofits-page",
+  "audience": "nonprofits, NGOs and public-good groups",
+  "title": "Tell us what you need",
+  "eyebrow": "For nonprofits, NGOs and public-good groups",
+  "heading": "Tell us what you need.",
+  "lead": "In plain words. You don't need your own AI agent to ask.",
+  "form": {
+    "label": "Describe what you need",
+    "hint": "Describe the job, not the people.",
+    "placeholder": "For example: summarize this year's changes to tenant deposit laws for our staff, with a source for every point.",
+    "examples_label": "Try an example:",
+    "examples": [
+      {
+        "id": "laws",
+        "short": "Tenant deposit laws",
+        "output_type": "information",
+        "frequency": "one-off",
+        "text": "Summarize this year's changes to our state's tenant deposit laws for our staff, with a source for every point."
+      },
+      {
+        "id": "grants",
+        "short": "Grant deadlines every month",
+        "output_type": "information",
+        "frequency": "recurring",
+        "text": "Every month, list the public grant programs a small food pantry in our county can apply to, with deadlines and eligibility rules, and cite each one.",
+        "cadence": "monthly"
+      },
+      {
+        "id": "notes",
+        "short": "A process for handwritten case notes",
+        "output_type": "process",
+        "frequency": "recurring",
+        "text": "Give us a process our own agent can run each week to read, summarize and sort our handwritten case notes so each family gets the right referral. The notes stay on our computers.",
+        "cadence": "weekly"
+      }
+    ],
+    "privacy": "Requests are public. Leave out names, contact details and case details.",
+    "check": {
+      "lead": "This looks like {kinds}.",
+      "ask": "Please take it out: requests are public.",
+      "kinds": {
+        "email": "an email address",
+        "phone": "a phone number",
+        "identity": "an identity number",
+        "card": "a payment card number",
+        "iban": "a bank account number",
+        "address": "a street address"
+      },
+      "and": " and "
+    },
+    "too_short": {
+      "head": "Tell us a little more.",
+      "body": "What should the result help your team do?"
+    },
+    "name_label": "Your organization's name",
+    "type_label": "Type of organization",
+    "type_placeholder": "For example: tenant legal-aid clinic",
+    "profile_note": "Your private link needs these two answers. Volunteers see the type of organization with your request.",
+    "details_summary": "Add details (optional): public links, causes",
+    "links_label": "Public links, one per line",
+    "links_hint": "One public https link per line, such as a law, a budget or a news page.",
+    "causes_label": "Causes, separated by commas",
+    "consent": "This request contains no one's personal information, and I understand that requests are public.",
+    "send": "Send",
+    "sending": "Sending...",
+    "waiting_connection": "Waiting for connection",
+    "after_send": "You'll get a private link to follow your request and make decisions.",
+    "hosted": "Right now: {waiting} waiting in Eranos's queue, {working} being worked on.",
+    "missing": {
+      "need": "Add at least a sentence about the job.",
+      "name": "Add your organization's name.",
+      "type": "Add the type of organization.",
+      "consent": "Please confirm before sending.",
+      "output": "Choose at least one kind of output.",
+      "frequency": "Choose how often you need it.",
+      "cadence": "Choose how often it should run."
+    },
+    "draft_saved": "Your text is saved in this browser."
+  },
+  "states": {
+    "refused": {
+      "head": "We couldn't send this request.",
+      "personal": "It seems to include a person's contact details. Take them out and send again. Nothing was saved.",
+      "other": "Tessera answered: {reason}. Nothing was saved.",
+      "not_filed": "Tessera answered: {reason}. Your request wasn't filed, so no volunteer will see it.",
+      "action": "Edit and send again"
+    },
+    "quota": {
+      "head": "Eranos can't take new requests right now.",
+      "body": "The shared queue is full for today and resets at {time}. Your text is saved in this browser.",
+      "action": "Copy my text",
+      "copied": "Copied."
+    },
+    "rate": {
+      "head": "Too many requests from this connection.",
+      "body": "Please try again after {time}. Your text is saved in this browser."
+    },
+    "offline": {
+      "head": "You're offline.",
+      "body": "Your text is saved in this browser. Send when you're back online."
+    },
+    "snapshot": "This offline copy of the site does not send requests."
+  },
+  "aside": {
+    "next_title": "What happens after you send",
+    "steps": [
+      {
+        "title": "We plan it.",
+        "detail": "A volunteer's agent reads it, refuses personal data, and plans the work in plain words."
+      },
+      {
+        "title": "Volunteers' agents do each part.",
+        "detail": "A part can wait until an agent has spare capacity."
+      },
+      {
+        "title": "A different volunteer checks it.",
+        "detail": "Sensitive processes also wait for a person's sign-off."
+      },
+      {
+        "title": "You decide.",
+        "detail": "A person on your team decides what to use. Reports are not legal advice."
+      }
+    ],
+    "example_link": "See what happens after you send",
+    "example_to": "/requests/example",
+    "kinds_title": "Two kinds of results",
+    "kinds": [
+      {
+        "name": "Information",
+        "line": "a cited answer or report, every point with a public source.",
+        "link": "See an example",
+        "to": "/requests/example/result?part=1"
+      },
+      {
+        "name": "A reusable process",
+        "line": "runs on your own agent and your own files, with instructions, how-to and install.",
+        "link": "See an example",
+        "to": "/requests/example-process/result?part=1"
+      }
+    ],
+    "kits_link": "Browse reviewed example kits",
+    "kits_to": "/catalog"
+  },
+  "bounds": {
+    "head": "We don't accept private information at this stage.",
+    "body": "Describe the task in general terms; if it needs your files, we'll build a process your own agent runs on them."
+  },
+  "output": {
+    "legend": "What kind of output?",
+    "options": [
+      {
+        "value": "process",
+        "label": "A reusable process",
+        "hint": "Your own agent runs it on your own files.",
+        "tip_label": "What is a reusable process?",
+        "tip": "A process your organization can run on its own AI agents, set up for the tools you use: instructions, how-to and install, ready to launch locally or in the cloud."
+      },
+      {
+        "value": "information",
+        "label": "Information",
+        "hint": "A cited answer or report from public sources."
+      }
+    ],
+    "hint": "Choose one or both."
+  },
+  "frequency": {
+    "legend": "How often?",
+    "options": [
+      {
+        "value": "one-off",
+        "label": "One-off",
+        "hint": "Once."
+      },
+      {
+        "value": "recurring",
+        "label": "Recurring",
+        "hint": "Again on your own schedule. Nothing runs by itself."
+      }
+    ],
+    "cadence_label": "How often should it run?",
+    "cadences": [
+      {
+        "value": "weekly",
+        "label": "Every week"
+      },
+      {
+        "value": "monthly",
+        "label": "Every month"
+      },
+      {
+        "value": "quarterly",
+        "label": "Every three months"
+      },
+      {
+        "value": "yearly",
+        "label": "Every year"
+      }
+    ]
+  }
+}

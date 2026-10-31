@@ -54,13 +54,8 @@ const ZERO_QUEUE_COUNTS = {
   cancelled: 0,
 };
 
-const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Eranos civic wreath token">
-  <rect width="64" height="64" rx="14" fill="#155e49"/>
-  <circle cx="32" cy="32" r="21" fill="none" stroke="#e3f2ed" stroke-width="2.5" stroke-dasharray="6 4"/>
-  <path d="M20 38c0-9 5.5-16 12-18 6.5 2 12 9 12 18" fill="none" stroke="#6ee0be" stroke-width="3" stroke-linecap="round"/>
-  <polygon points="32,23 39,32 32,41 25,32" fill="#ffffff"/>
-</svg>
-`;
+// The tile mark (Paper & Ink). The ink tile turns paper in a dark browser theme.
+const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.i{fill:#11161F}@media (prefers-color-scheme:dark){.i{fill:#F5F2EA}}</style><rect x="0" y="0" width="44" height="44" rx="10" fill="#2A5DB0"/><rect x="56" y="0" width="44" height="44" rx="10" fill="#B8541F"/><rect class="i" x="0" y="56" width="44" height="44" rx="10"/><rect x="56" y="56" width="44" height="44" rx="10" fill="#2A5DB0"/></svg>`;
 
 const ROBOTS_TXT = `User-agent: *
 Allow: /
@@ -329,8 +324,18 @@ function problem(status, title, detail, code = "invalid_request", extraHeaders =
   });
 }
 
+// A D1 fault (an unreachable or uninitialised mirror) falls back to the snapshot exported with this deploy, the
+// same as a missing record, instead of answering 500.
 async function getHeadRecord(db, store, key) {
   if (!db) return null;
+  try {
+    return await readHeadRecord(db, store, key);
+  } catch {
+    return null;
+  }
+}
+
+async function readHeadRecord(db, store, key) {
   const row = await db
     .prepare(
       "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.key = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') AND (h.store != 'eranos.catalog' OR EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:verified'))"
@@ -340,8 +345,17 @@ async function getHeadRecord(db, store, key) {
   return row ? JSON.parse(row.value) : null;
 }
 
+// Null when the mirror faults, so the caller can fall back to the snapshot; an empty list is a real answer.
 async function listHeadRecords(db, store) {
   if (!db) return [];
+  try {
+    return await readHeadRecords(db, store);
+  } catch {
+    return null;
+  }
+}
+
+async function readHeadRecords(db, store) {
   const res = await db
     .prepare(
       "SELECT r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') AND (h.store != 'eranos.catalog' OR EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:verified')) ORDER BY h.key"
@@ -404,7 +418,7 @@ async function loadRequestsPayload(request, env) {
 async function loadRawCatalogList(request, env) {
   if (env && env.FABRIC_DB) {
     const fromDb = await listHeadRecords(env.FABRIC_DB, "eranos.catalog");
-    return fromDb;
+    if (fromDb !== null) return fromDb;
   }
   const snap = await fetchAssetJson(request, env, "/snapshot/catalog.json");
   if (snap && Array.isArray(snap.kits)) return snap.kits;
@@ -575,12 +589,15 @@ async function withDraftDigest(result, body) {
 // The web app's pages, as web/src/router.tsx lists them (tests/test_marketplace_site.py keeps the two equal).
 // Any other page address gets the app shell, whose router shows "Page not found", with status 404, so agents
 // and link checkers can tell a missing page from a real one.
-const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect"];
+const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library"];
 const APP_KIT_PAGE_RE = /^\/catalog\/[^/]+$/;
+// A request's status page and its result page (the private link's key stays in the #k= fragment, which never
+// reaches this Worker).
+const APP_REQUEST_PAGE_RE = /^\/requests\/[^/]+(?:\/result)?$/;
 
 function isAppPage(pathname) {
   const path = pathname.replace(/\/+$/, "") || "/";
-  return APP_PAGES.includes(path) || APP_KIT_PAGE_RE.test(path);
+  return APP_PAGES.includes(path) || APP_KIT_PAGE_RE.test(path) || APP_REQUEST_PAGE_RE.test(path);
 }
 
 // A path segment, percent-decoded, or BROKEN_ESCAPE when it holds a broken escape such as "%E0%A4%A". Before,
@@ -653,6 +670,64 @@ async function connectPage(request, env) {
   });
 }
 
+// Every public version of a request or plan record, oldest first. The volunteer worker writes each state change of
+// a request as a new version of eranos.requests/<id> that cites its receipt, so this history is the status page's
+// event source. Null when the mirror faults or holds no public version.
+const HISTORY_STORES = new Set(["eranos.requests", "eranos.plans"]);
+
+async function readRecordHistory(db, store, key) {
+  if (!db) return null;
+  try {
+    const res = await db
+      .prepare(
+        "SELECT r.version AS version, r.created_at AS created_at, r.value AS value FROM records r JOIN record_heads h ON h.namespace = r.namespace AND h.store = r.store AND h.key = r.key WHERE r.store = ? AND r.key = ? AND r.namespace = 'main' AND r.producer_surface = 'surface:eranos' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') ORDER BY r.version"
+      )
+      .bind(store, key)
+      .all();
+    const versions = (res.results || []).map((r) => ({ version: Number(r.version), created_at: Number(r.created_at), value: JSON.parse(r.value) }));
+    return versions.length ? versions : null;
+  } catch {
+    return null;
+  }
+}
+
+// Public noun reads are cached at the edge for 10 s, so many viewers polling one request page cost one D1 read
+// each 10 s instead of one each. Outside a Cloudflare runtime there is no cache and the read runs every time.
+const NOUN_CACHE_SECONDS = 10;
+
+async function edgeCached(request, compute) {
+  const cache = typeof caches !== "undefined" && caches.default ? caches.default : null;
+  if (!cache || request.method !== "GET") return compute();
+  const key = new Request(new URL(request.url).toString(), { method: "GET" });
+  const hit = await cache.match(key);
+  if (hit) return hit;
+  const response = await compute();
+  if (response.status !== 200) return response;
+  const fresh = new Response(response.body, response);
+  fresh.headers.set("cache-control", `public, max-age=${NOUN_CACHE_SECONDS}`);
+  await cache.put(key, fresh.clone());
+  return fresh;
+}
+
+// The open verbs a volunteer's agent can claim, read with this surface's own key: only what an open brief already
+// shows (its title, kind and the request and part it serves), never outputs, keys or attempts.
+const OPEN_TASK_QUEUES = ["eq02", "eq03"];
+
+function openTaskView(verb, queue) {
+  const brief = verb && typeof verb.brief === "object" && verb.brief ? verb.brief : {};
+  const tags = Array.isArray(verb.tags) ? verb.tags : [];
+  return {
+    task_id: String(verb.task_id || ""),
+    queue,
+    kind: String(verb.kind || ""),
+    title: String(brief.title || brief.goal || "").slice(0, 140),
+    request_id: brief.request_id ? String(brief.request_id) : null,
+    part: Number.isInteger(brief.part) ? brief.part : null,
+    created_at: Number(verb.created_at) || null,
+    open_to_anonymous: tags.includes("open:anonymous"),
+  };
+}
+
 // Public Eranos nouns (page text, plans, requests, delivered reports, sources, verb templates):
 // Tessera's mirror first, then the snapshot exported from Tessera with this deploy.
 const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
@@ -667,9 +742,14 @@ async function loadNoun(request, env, store, key) {
 
 async function loadNounList(request, env, store) {
   if (env && env.FABRIC_DB) {
-    const res = await env.FABRIC_DB.prepare(
+    let res = { results: [] };
+    try {
+      res = await env.FABRIC_DB.prepare(
       "SELECT h.key AS key, h.version AS version, r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') ORDER BY h.key LIMIT 100"
     ).bind(store).all();
+    } catch {
+      res = { results: [] };
+    }
     const records = (res.results || []).map((r) => ({ key: r.key, version: Number(r.version), value: JSON.parse(r.value) }));
     if (records.length) return { synthetic: true, store, records };
   }
@@ -1224,6 +1304,47 @@ async function handleCloudApi(request, env, pathname) {
     return jsonResp(examples);
   }
 
+  const historyMatch = /^\/api\/nouns\/([a-z0-9_.-]+)\/([^/]+)\/history$/.exec(pathname);
+  if (historyMatch) {
+    const store = historyMatch[1];
+    const key = decodeSegment(historyMatch[2]);
+    if (key === BROKEN_ESCAPE) {
+      return problem(400, "Bad Request", "the noun key is not valid percent-encoding", "invalid_request");
+    }
+    if (!HISTORY_STORES.has(store) || !NOUN_KEY_RE.test(key)) {
+      return problem(404, "Not Found", "no such public record history", "not_found");
+    }
+    return edgeCached(request, async () => {
+      const versions = await readRecordHistory(env.FABRIC_DB, store, key);
+      return versions ? jsonResp({ synthetic: false, store, key, versions }) : problem(404, "Not Found", "no such public record history", "not_found");
+    });
+  }
+
+  if (pathname === "/api/open-tasks") {
+    let reachable = false;
+    const tasks = [];
+    if (env.TESSERA && env.TESSERA_SURFACE_KEY) {
+      for (const queue of OPEN_TASK_QUEUES) {
+        try {
+          const resp = await env.TESSERA.fetch(`https://tessera.ta-amps.workers.dev/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`, {
+            headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
+          });
+          if (resp.ok) {
+            reachable = true;
+            const body = await resp.json();
+            for (const verb of Array.isArray(body.verbs) ? body.verbs : []) tasks.push(openTaskView(verb, queue));
+          } else {
+            await resp.body?.cancel();
+          }
+        } catch {
+          // an unreachable queue is reported below, never as an empty list
+        }
+      }
+    }
+    if (!reachable) return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
+    return jsonResp({ synthetic: false, tasks });
+  }
+
   const nounMatch = /^\/api\/nouns\/([a-z0-9_.-]+)(?:\/([^/]+))?$/.exec(pathname);
   if (nounMatch) {
     const store = nounMatch[1];
@@ -1234,9 +1355,11 @@ async function handleCloudApi(request, env, pathname) {
     if (!PUBLIC_NOUN_STORES.has(store) || (key !== null && !NOUN_KEY_RE.test(key))) {
       return problem(404, "Not Found", "no such public noun", "not_found");
     }
-    if (key === null) return jsonResp(await loadNounList(request, env, store));
-    const found = await loadNoun(request, env, store, key);
-    return found ? jsonResp(found) : problem(404, "Not Found", "no such public noun", "not_found");
+    if (key === null) return edgeCached(request, async () => jsonResp(await loadNounList(request, env, store)));
+    return edgeCached(request, async () => {
+      const found = await loadNoun(request, env, store, key);
+      return found ? jsonResp(found) : problem(404, "Not Found", "no such public noun", "not_found");
+    });
   }
 
   if (pathname === "/api/requests") {

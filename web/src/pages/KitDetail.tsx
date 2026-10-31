@@ -10,10 +10,14 @@ import {
   type PublishedKit,
 } from "../lib/types";
 import { useResource } from "../lib/useResource";
+import { fill, type RequestStatusNoun } from "../lib/nouns";
+import { shortReceipt } from "../lib/status/receipts";
+import { useNoun } from "../lib/useNoun";
 import { AppLink } from "../router";
 
 export function KitDetail({ id }: { id: string }) {
   const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}`);
+  const words = useNoun<RequestStatusNoun>("request-status").value;
   const [practiceState, setPracticeState] = useState<
     | { status: "idle" }
     | { status: "running" }
@@ -84,6 +88,20 @@ export function KitDetail({ id }: { id: string }) {
         </div>
         <h1>{kit.title}</h1>
         <p className="er-lede">{kit.summary}</p>
+        {words && (
+          <p className="er-reviewed-line" data-testid="kit-reviewed">
+            <span>
+              {fill(words.report.reviewed_line ?? "", { who: entry.reviewed_by })}
+              {entry.review_receipt && (
+                <span className="er-receipt" title={entry.review_receipt}>
+                  {" "}
+                  · {fill(words.chips.receipt ?? "", { r: shortReceipt(entry.review_receipt) })}
+                </span>
+              )}
+            </span>
+            <span className="er-small">{words.report.you_decide}</span>
+          </p>
+        )}
         <p className="er-muted">
           <strong>Target organization:</strong> {kit.target_org} · <strong>Track:</strong>{" "}
           <code>{kit.track_id}</code> · <strong>Catalog version:</strong> v{entry.catalog_version} ·{" "}
@@ -109,7 +127,7 @@ export function KitDetail({ id }: { id: string }) {
           <h2>Run the practice check yourself</h2>
           <p className="er-muted">
             Run the kit&apos;s deterministic checks again, in memory, with nothing saved: the step boundaries, the
-            open license, the wording rules, the source links and the <code>SYNTHETIC</code> test cases.
+            open license, the wording rules, the source links and the made-up test cases.
           </p>
           <div className="er-actions">
             <button
@@ -271,7 +289,10 @@ export function KitDetail({ id }: { id: string }) {
         </section>
 
         <section className="er-card">
-          <h2>Synthetic test cases ({verification.fixture_count})</h2>
+          <h2>Test cases ({verification.fixture_count})</h2>
+          <p className="er-muted" data-testid="kit-tested-on">
+            Tested on synthetic sample files (no real case data).
+          </p>
           {kit.fixtures.map((fx) => (
             <div key={fx.id}  className="er-fixture-divider">
               <div className="er-chip-row">
@@ -281,7 +302,7 @@ export function KitDetail({ id }: { id: string }) {
                 </span>
               </div>
               <p className="er-muted">
-                <strong>{fx.scenario}:</strong> {fx.sample_input}
+                <strong>{fx.scenario}:</strong> {fx.sample_input.replace(/^SYNTHETIC[:\s-]*/i, "")}
               </p>
             </div>
           ))}

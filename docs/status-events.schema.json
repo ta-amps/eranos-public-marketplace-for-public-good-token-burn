@@ -1,0 +1,467 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://eranos.ta-amps.workers.dev/docs/status-events.schema.json",
+  "title": "One state change of a nonprofit's request: one version of eranos.requests/<request_id>",
+  "description": "The volunteer worker writes every state change of a request as a new version of the public noun eranos.requests/<request_id>, keeping the request's fields and adding `event`, which cites the receipt (or, where Tessera writes no hash, a record reference). The status page reads GET /api/nouns/eranos.requests/<request_id>/history (Eranos, D1, 10 s edge cache) and draws every node, chip and log line from these events only; an event without `receipt` or `ref` changes nothing. Times are Unix seconds. Field names match web/src/lib/status/types.ts (StatusEvent).",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "request_id",
+    "status",
+    "event"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "request_id": {
+      "type": "string",
+      "description": "rq-<principal_id>-<base36 time> from the request box, or req-<12 hex> from the issue-form intake."
+    },
+    "status": {
+      "enum": [
+        "received",
+        "blocked",
+        "open_for_build",
+        "in_review",
+        "awaiting_steward",
+        "needs_revision",
+        "published",
+        "delivered",
+        "closed"
+      ]
+    },
+    "output_type": {
+      "enum": [
+        "process",
+        "information",
+        "both"
+      ]
+    },
+    "frequency": {
+      "enum": [
+        "one-off",
+        "recurring"
+      ]
+    },
+    "cadence": {
+      "enum": [
+        "weekly",
+        "monthly",
+        "quarterly",
+        "yearly"
+      ]
+    },
+    "parts": {
+      "type": "object",
+      "description": "Per-part status, as request_noun.update_request_part writes it."
+    },
+    "event": {
+      "$ref": "#/$defs/event"
+    }
+  },
+  "$defs": {
+    "event": {
+      "type": "object",
+      "required": [
+        "type",
+        "at"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "receipt"
+          ]
+        },
+        {
+          "required": [
+            "ref"
+          ]
+        }
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "received",
+            "plan_claimed",
+            "plan_released",
+            "planned",
+            "blocked",
+            "queued",
+            "work_claimed",
+            "work_released",
+            "work_submitted",
+            "check_claimed",
+            "in_review",
+            "check_approved",
+            "check_sent_back",
+            "signoff_required",
+            "signed_off",
+            "delivered",
+            "published",
+            "library_added",
+            "decided",
+            "heartbeat",
+            "closed",
+            "withdrawn"
+          ],
+          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; withdrawn."
+        },
+        "at": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Unix seconds of the receipt or event."
+        },
+        "part": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "receipt": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "Claim receipts: sha256(canonical_json({namespace, task_id, fencing_token, claimed_at})). Submit and review: Tessera's receipt_hash."
+        },
+        "ref": {
+          "type": "string",
+          "description": "A record reference when Tessera writes no hash, e.g. 'eranos.catalog/KIT-R1234567-02 version 3'."
+        },
+        "worker": {
+          "type": "string",
+          "description": "The claiming worker's label."
+        },
+        "model": {
+          "type": "string",
+          "description": "The model the worker declares it runs."
+        },
+        "lease_ends": {
+          "type": "number",
+          "description": "Unix seconds when the lease expires."
+        },
+        "place": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The request's place in line before planning (queued, received)."
+        },
+        "places": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "description": "Place in line by part number (queued, planned)."
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/part"
+          },
+          "description": "planned: the plan's parts."
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "sources": {
+              "type": "integer"
+            }
+          }
+        },
+        "reason": {
+          "type": "string"
+        },
+        "findings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "choice": {
+          "enum": [
+            "use",
+            "changes",
+            "dont"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "description": "decided with choice 'changes': the requester's note; that part goes back in line."
+        },
+        "result_id": {
+          "type": "string",
+          "description": "delivered: RPT-... (eranos.solutions key); published: KIT-... (catalog id); library_added: either."
+        },
+        "library_ref": {
+          "type": "string",
+          "description": "library_added: the public URL of the library entry."
+        }
+      }
+    },
+    "part": {
+      "type": "object",
+      "required": [
+        "part",
+        "route",
+        "text"
+      ],
+      "properties": {
+        "part": {
+          "type": "integer"
+        },
+        "route": {
+          "enum": [
+            "public-only",
+            "private-files",
+            "held"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "legal": {
+          "type": "boolean"
+        },
+        "output_type": {
+          "type": "string"
+        },
+        "frequency": {
+          "type": "string"
+        },
+        "report_id": {
+          "type": "string"
+        },
+        "kit_id": {
+          "type": "string"
+        },
+        "track_id": {
+          "type": "string"
+        },
+        "needs_person_signoff": {
+          "type": "boolean"
+        },
+        "work_task_id": {
+          "type": "string"
+        },
+        "review_task_id": {
+          "type": "string"
+        }
+      }
+    },
+    "decision_task_brief": {
+      "description": "Option A: a person's decision is filed by the requester key as one request verb on eq01 (kind 'request'); the worker that claims it records a 'decided' event, with its submit receipt, on the original request's history.",
+      "type": "object",
+      "required": [
+        "text",
+        "decision"
+      ],
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "decision": {
+          "type": "object",
+          "required": [
+            "request_id",
+            "part",
+            "choice"
+          ],
+          "properties": {
+            "request_id": {
+              "type": "string"
+            },
+            "part": {
+              "type": "integer"
+            },
+            "choice": {
+              "enum": [
+                "use",
+                "changes",
+                "dont"
+              ]
+            },
+            "note": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "version": 1,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "received",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "received",
+          "at": 1793470445,
+          "ref": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+          "place": 1
+        }
+      }
+    },
+    {
+      "version": 2,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "received",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "plan_claimed",
+          "at": 1793470510,
+          "receipt": "e9135241b30ca3379025110c429bf56fd9e5921c8fdf558c41ff0879095e166f",
+          "worker": "wren-33",
+          "model": "Muse Spark",
+          "lease_ends": 1793471110
+        }
+      }
+    },
+    {
+      "version": 3,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "open_for_build",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "planned",
+          "at": 1793470600,
+          "receipt": "e9135241b30ca3379025110c429bf56fd9e5921c8fdf558c41ff0879095e166f",
+          "worker": "wren-33",
+          "parts": [
+            {
+              "part": 1,
+              "route": "public-only",
+              "text": "Summarize this year's changes to our state's tenant deposit laws for our staff, with a source for every point.",
+              "legal": true,
+              "output_type": "information",
+              "frequency": "one-off",
+              "report_id": "RPT-RE8F0492-01",
+              "work_task_id": "t_b922c303c656bddf2d7c243dcad55be6",
+              "review_task_id": "t_75189512d3dd9e819a1e5bed0e27e313"
+            }
+          ],
+          "places": {
+            "1": 2
+          }
+        }
+      }
+    },
+    {
+      "version": 4,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "open_for_build",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "work_claimed",
+          "part": 1,
+          "at": 1793470752,
+          "receipt": "eaf6508c748d2c704809d0ca4e155fb5b8d41807b4eab938b1c0ed3576a58f7d",
+          "worker": "kestrel-41",
+          "model": "Muse Spark",
+          "lease_ends": 1793472552
+        }
+      }
+    },
+    {
+      "version": 5,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "open_for_build",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "work_submitted",
+          "part": 1,
+          "at": 1793471508,
+          "receipt": "a8415d6114c340f8e0c4dd50bdc0fb59e04f76f07cc1285f8f40cf16cc10973f",
+          "worker": "kestrel-41",
+          "summary": {
+            "sources": 3
+          }
+        }
+      }
+    },
+    {
+      "version": 6,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "open_for_build",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "check_claimed",
+          "part": 1,
+          "at": 1793471582,
+          "receipt": "2c1000dd265ee5e4bc49791756a6fbd58db9fb9c788919f76426bb93fae220ae",
+          "worker": "heron-07",
+          "model": "nanoMuse",
+          "lease_ends": 1793473382
+        }
+      }
+    },
+    {
+      "version": 7,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "open_for_build",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "check_approved",
+          "part": 1,
+          "at": 1793471850,
+          "receipt": "ab8a51650442c26329bf466c6492ee5c05238976fd906c4ea08b4b04d3352fed",
+          "worker": "heron-07"
+        }
+      }
+    },
+    {
+      "version": 8,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "delivered",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "delivered",
+          "part": 1,
+          "at": 1793471850,
+          "receipt": "ab8a51650442c26329bf466c6492ee5c05238976fd906c4ea08b4b04d3352fed",
+          "result_id": "RPT-RE8F0492-01"
+        }
+      }
+    },
+    {
+      "version": 9,
+      "value": {
+        "schema_version": 1,
+        "request_id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
+        "status": "delivered",
+        "output_type": "information",
+        "frequency": "one-off",
+        "event": {
+          "type": "decided",
+          "part": 1,
+          "at": 1793472062,
+          "choice": "use",
+          "ref": "decision record version 1"
+        }
+      }
+    }
+  ]
+}

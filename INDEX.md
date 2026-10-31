@@ -61,7 +61,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
 
-## docs/ (17)
+## docs/ (18)
 
 | File | What it is |
 |---|---|
@@ -80,6 +80,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models |
 | [docs/review.md](docs/review.md) | Review Guide & Cold-Start Handoff |
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
+| [docs/status-events.schema.json](docs/status-events.schema.json) | One state change of a nonprofit's request: one version of eranos.requests/<requestid> |
 | [docs/status.md](docs/status.md) | Status |
 | [docs/summary.md](docs/summary.md) | Summary |
 
@@ -164,15 +165,24 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (6)
+## instructions/ (15)
 
 | File | What it is |
 |---|---|
+| [instructions/agent-banner.json](instructions/agent-banner.json) | The agent instructions line above every page |
 | [instructions/classify.json](instructions/classify.json) | Classify a request and break it into parts |
 | [instructions/connect.json](instructions/connect.json) | Connect to Eranos |
+| [instructions/help-page.json](instructions/help-page.json) | I want to help |
 | [instructions/help.json](instructions/help.json) | Help in six steps |
+| [instructions/home.json](instructions/home.json) | Home page |
+| [instructions/library.json](instructions/library.json) | Shared library |
+| [instructions/nonprofits-page.json](instructions/nonprofits-page.json) | Tell us what you need |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
+| [instructions/request-example-process.json](instructions/request-example-process.json) | The SYNTHETIC example request the status page replays: a reusable process |
+| [instructions/request-example.json](instructions/request-example.json) | The SYNTHETIC example request the status page replays: information, from public sources |
+| [instructions/request-status.json](instructions/request-status.json) | Request status and report pages |
+| [instructions/shell.json](instructions/shell.json) | Header, menu and footer |
 | [instructions/site.json](instructions/site.json) | Spare tokens for good |
 
 ## scripts/ (4)
@@ -221,7 +231,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (113)
+## web/ (158)
 
 | File | What it is |
 |---|---|
@@ -231,6 +241,10 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/package.json](web/package.json) | Eranos public-good & nonprofit volunteer agent tooling catalog. |
 | [web/playwright.config.ts](web/playwright.config.ts) |  |
 | [web/pnpm-workspace.yaml](web/pnpm-workspace.yaml) | Astryx postinstall scripts only print a hint to run astryx init, which would |
+| [web/public/agent-banner.js](web/public/agent-banner.js) |  |
+| [web/public/fonts/OFL-IBMPlexSans.txt](web/public/fonts/OFL-IBMPlexSans.txt) |  |
+| [web/public/fonts/OFL-JetBrainsMono.txt](web/public/fonts/OFL-JetBrainsMono.txt) |  |
+| [web/public/fonts/OFL-SpaceGrotesk.txt](web/public/fonts/OFL-SpaceGrotesk.txt) |  |
 | [web/public/snapshot/catalog.json](web/public/snapshot/catalog.json) | JSON object: synthetic, two_step_verified, kits |
 | [web/public/snapshot/catalog/KIT-FLYER-14.json](web/public/snapshot/catalog/KIT-FLYER-14.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-GRANT-04.json](web/public/snapshot/catalog/KIT-GRANT-04.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
@@ -249,11 +263,20 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/examples.json](web/public/snapshot/examples.json) | JSON object: synthetic, needs, runs |
 | [web/public/snapshot/fabric.json](web/public/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/public/snapshot/nouns/eranos.instructions.json](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: synthetic, store, records |
+| [web/public/snapshot/nouns/eranos.instructions/agent-banner.json](web/public/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/classify.json](web/public/snapshot/nouns/eranos.instructions/classify.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/connect.json](web/public/snapshot/nouns/eranos.instructions/connect.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/help-page.json](web/public/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/help.json](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/home.json](web/public/snapshot/nouns/eranos.instructions/home.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/library.json](web/public/snapshot/nouns/eranos.instructions/library.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json](web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/nonprofits.json](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/public-research.json](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/request-example-process.json](web/public/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/request-example.json](web/public/snapshot/nouns/eranos.instructions/request-example.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/request-status.json](web/public/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/shell.json](web/public/snapshot/nouns/eranos.instructions/shell.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/site.json](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources.json](web/public/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
@@ -282,11 +305,20 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/examples.json](web/snapshot/examples.json) | JSON object: synthetic, needs, runs |
 | [web/snapshot/fabric.json](web/snapshot/fabric.json) | JSON object: display_name, plan, synthetic, queues |
 | [web/snapshot/nouns/eranos.instructions.json](web/snapshot/nouns/eranos.instructions.json) | JSON object: synthetic, store, records |
+| [web/snapshot/nouns/eranos.instructions/agent-banner.json](web/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/classify.json](web/snapshot/nouns/eranos.instructions/classify.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/connect.json](web/snapshot/nouns/eranos.instructions/connect.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/help-page.json](web/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/help.json](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/home.json](web/snapshot/nouns/eranos.instructions/home.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/library.json](web/snapshot/nouns/eranos.instructions/library.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/nonprofits-page.json](web/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/nonprofits.json](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/public-research.json](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/request-example-process.json](web/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/request-example.json](web/snapshot/nouns/eranos.instructions/request-example.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/request-status.json](web/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/shell.json](web/snapshot/nouns/eranos.instructions/shell.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/site.json](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources.json](web/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
@@ -298,23 +330,37 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: synthetic, tracks |
 | [web/src/App.tsx](web/src/App.tsx) |  |
-| [web/src/components/AgentBrief.tsx](web/src/components/AgentBrief.tsx) |  |
 | [web/src/components/BoundaryBadge.tsx](web/src/components/BoundaryBadge.tsx) |  |
 | [web/src/components/ErrorAlert.tsx](web/src/components/ErrorAlert.tsx) |  |
-| [web/src/components/Marketplace.tsx](web/src/components/Marketplace.tsx) |  |
-| [web/src/components/OnboardingSteps.tsx](web/src/components/OnboardingSteps.tsx) |  |
+| [web/src/components/Footer.tsx](web/src/components/Footer.tsx) |  |
+| [web/src/components/Icon.tsx](web/src/components/Icon.tsx) |  |
+| [web/src/components/Mark.tsx](web/src/components/Mark.tsx) |  |
 | [web/src/components/OpenTasks.tsx](web/src/components/OpenTasks.tsx) |  |
 | [web/src/components/RequestBox.tsx](web/src/components/RequestBox.tsx) |  |
-| [web/src/components/SyntheticBanner.tsx](web/src/components/SyntheticBanner.tsx) |  |
 | [web/src/components/TopBar.tsx](web/src/components/TopBar.tsx) |  |
+| [web/src/components/status/StatusParts.tsx](web/src/components/status/StatusParts.tsx) |  |
 | [web/src/config.ts](web/src/config.ts) |  |
 | [web/src/lib/api.ts](web/src/lib/api.ts) |  |
 | [web/src/lib/copy.ts](web/src/lib/copy.ts) |  |
+| [web/src/lib/library.ts](web/src/lib/library.ts) |  |
 | [web/src/lib/marketplace.ts](web/src/lib/marketplace.ts) |  |
 | [web/src/lib/nouns.ts](web/src/lib/nouns.ts) |  |
+| [web/src/lib/privacy.ts](web/src/lib/privacy.ts) |  |
 | [web/src/lib/snapshot-data.live.ts](web/src/lib/snapshot-data.live.ts) |  |
 | [web/src/lib/snapshot-data.offline.ts](web/src/lib/snapshot-data.offline.ts) |  |
+| [web/src/lib/status/derive.ts](web/src/lib/status/derive.ts) |  |
+| [web/src/lib/status/estimate.ts](web/src/lib/status/estimate.ts) |  |
+| [web/src/lib/status/example.ts](web/src/lib/status/example.ts) |  |
+| [web/src/lib/status/handoff.ts](web/src/lib/status/handoff.ts) |  |
+| [web/src/lib/status/keys.ts](web/src/lib/status/keys.ts) |  |
+| [web/src/lib/status/live.ts](web/src/lib/status/live.ts) |  |
+| [web/src/lib/status/motion.ts](web/src/lib/status/motion.ts) |  |
+| [web/src/lib/status/receipts.ts](web/src/lib/status/receipts.ts) |  |
+| [web/src/lib/status/tessera.ts](web/src/lib/status/tessera.ts) |  |
+| [web/src/lib/status/types.ts](web/src/lib/status/types.ts) |  |
 | [web/src/lib/types.ts](web/src/lib/types.ts) |  |
+| [web/src/lib/useMediaQuery.ts](web/src/lib/useMediaQuery.ts) |  |
+| [web/src/lib/useNoun.ts](web/src/lib/useNoun.ts) |  |
 | [web/src/lib/useResource.ts](web/src/lib/useResource.ts) |  |
 | [web/src/lib/useSite.ts](web/src/lib/useSite.ts) |  |
 | [web/src/main.tsx](web/src/main.tsx) |  |
@@ -325,16 +371,25 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/pages/Fabric.tsx](web/src/pages/Fabric.tsx) |  |
 | [web/src/pages/Help.tsx](web/src/pages/Help.tsx) |  |
 | [web/src/pages/KitDetail.tsx](web/src/pages/KitDetail.tsx) |  |
+| [web/src/pages/Library.tsx](web/src/pages/Library.tsx) |  |
 | [web/src/pages/Nonprofits.tsx](web/src/pages/Nonprofits.tsx) |  |
 | [web/src/pages/NotFound.tsx](web/src/pages/NotFound.tsx) |  |
 | [web/src/pages/Overview.tsx](web/src/pages/Overview.tsx) |  |
+| [web/src/pages/RequestResult.tsx](web/src/pages/RequestResult.tsx) |  |
+| [web/src/pages/RequestStatus.tsx](web/src/pages/RequestStatus.tsx) |  |
 | [web/src/pages/Tracks.tsx](web/src/pages/Tracks.tsx) |  |
 | [web/src/router.tsx](web/src/router.tsx) |  |
 | [web/src/styles/app.css](web/src/styles/app.css) |  |
-| [web/src/styles/tokens.css](web/src/styles/tokens.css) |  |
+| [web/src/styles/base.css](web/src/styles/base.css) |  |
+| [web/src/styles/eranos.css](web/src/styles/eranos.css) |  |
+| [web/src/styles/fonts.css](web/src/styles/fonts.css) |  |
+| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Generated from tokens.json v2 by tools/buildtokenscss.py. |
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
 | [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |
 | [web/tests/shell.spec.ts](web/tests/shell.spec.ts) |  |
+| [web/tests/status-logic.spec.ts](web/tests/status-logic.spec.ts) |  |
+| [web/tests/status.spec.ts](web/tests/status.spec.ts) |  |
+| [web/tests/support/mocks.ts](web/tests/support/mocks.ts) |  |
 | [web/tsconfig.json](web/tsconfig.json) | JSON object: compilerOptions, include |
 | [web/vite.config.ts](web/vite.config.ts) |  |

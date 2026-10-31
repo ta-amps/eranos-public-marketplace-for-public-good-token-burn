@@ -50,6 +50,11 @@ FIELD_LIMITS = {
     "constraints": (0, 1000),
 }
 OPEN_VERB_TAG = "open:anonymous"
+# What the nonprofit asked for, from the request box: a reusable process its own agent runs, or information (a
+# cited report from public sources); once, or again on a schedule the nonprofit keeps.
+OUTPUT_TYPES = ("process", "information", "both")
+FREQUENCIES = ("one-off", "recurring")
+CADENCES = ("weekly", "monthly", "quarterly", "yearly")
 DIGEST_RULE = "sha256 of the object as canonical JSON: sorted keys, no spaces, UTF-8"
 INSTRUCTIONS_STORE = "eranos.instructions"
 SOURCES_STORE = "eranos.sources"
@@ -175,17 +180,37 @@ def match_track(fields: dict[str, str], tracks: dict[str, TrackPack]) -> TrackPa
     return scored[0][2]
 
 
+def request_terms(brief: dict[str, Any]) -> dict[str, str]:
+    """The requester's own choices, kept only when they are one of the known values."""
+    terms: dict[str, str] = {}
+    output_type = str(brief.get("output_type") or "")
+    frequency = str(brief.get("frequency") or "")
+    if output_type in OUTPUT_TYPES:
+        terms["output_type"] = output_type
+    if frequency in FREQUENCIES:
+        terms["frequency"] = frequency
+    cadence = str(brief.get("cadence") or "")
+    if frequency == "recurring" and cadence in CADENCES:
+        terms["cadence"] = cadence
+    return terms
+
+
 def _marker(words: list[str]) -> re.Pattern[str]:
     alternatives = "|".join(re.escape(w) for w in sorted(words, key=len, reverse=True))
     return re.compile(rf"\b(?:{alternatives})\b", re.IGNORECASE)
 
 
-def classify_parts(text: str, rules: dict[str, Any]) -> list[dict[str, Any]]:
+def classify_parts(
+    text: str, rules: dict[str, Any], output_type: str | None = None
+) -> list[dict[str, Any]]:
     """Break a request into parts with one route each, using the classify noun's markers.
 
     A stand-in for the authorized worker's reasoning that follows the same noun: a sentence that
     touches the organization's files is private; one that needs only public information is public;
     an unclear sentence joins its neighbour, and an unclear request stays with the organization.
+    When the nonprofit chose what it wants back, that choice leads: a reusable process is one part
+    its own agent runs; for information, an unclear sentence is researched from public sources; with
+    both, each sentence goes where its words point, as without a choice.
     """
     markers = rules["markers"]
     private, public, legal = (
@@ -193,6 +218,12 @@ def classify_parts(text: str, rules: dict[str, Any]) -> list[dict[str, Any]]:
         _marker(markers["public_only"]),
         _marker(markers["legal"]),
     )
+    if output_type == "process":
+        whole = " ".join(s.strip() for s in _SENTENCE.split(text) if s.strip())
+        return [
+            {"route": "private-files", "text": whole, "part": 1, "legal": bool(legal.search(whole))}
+        ]
+    unclear = "public-only" if output_type == "information" else None
     parts: list[dict[str, Any]] = []
     pending: list[str] = []
     for sentence in (s.strip() for s in _SENTENCE.split(text)):
@@ -203,7 +234,7 @@ def classify_parts(text: str, rules: dict[str, Any]) -> list[dict[str, Any]]:
             if private.search(sentence)
             else "public-only"
             if public.search(sentence)
-            else None
+            else unclear
         )
         if route is None:
             if parts:
@@ -241,10 +272,17 @@ def _first_sentence(text: str) -> str:
     return sentence.rstrip(".!?")
 
 
-def _common_brief(request_id: str, part: dict[str, Any], org: str, prefix: str) -> dict[str, Any]:
+def _common_brief(
+    request_id: str,
+    part: dict[str, Any],
+    org: str,
+    prefix: str,
+    terms: dict[str, str] | None = None,
+) -> dict[str, Any]:
     digest = hashlib.sha256(f"{request_id}:{part['part']}".encode()).hexdigest()
     title = f"{org}: {_first_sentence(part['text'])}"[:140]
     return {
+        **(terms or {}),
         "schema_version": 1,
         "request_id": request_id,
         "part": part["part"],
@@ -258,9 +296,15 @@ def _common_brief(request_id: str, part: dict[str, Any], org: str, prefix: str) 
     }
 
 
-def kit_brief(request_id: str, part: dict[str, Any], org: str, track: TrackPack) -> dict[str, Any]:
+def kit_brief(
+    request_id: str,
+    part: dict[str, Any],
+    org: str,
+    track: TrackPack,
+    terms: dict[str, str] | None = None,
+) -> dict[str, Any]:
     """A kit build's whole input: an anonymous claimant sees this brief and nothing else."""
-    brief = _common_brief(request_id, part, org, "KIT")
+    brief = _common_brief(request_id, part, org, "KIT", terms)
     brief["kit_id"] = brief.pop("noun_id")
     return {
         **brief,
@@ -290,9 +334,10 @@ def research_brief(
     guardrails: dict[str, Any],
     sources: list[dict[str, Any]],
     links: list[str],
+    terms: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     """A research verb's whole input, including the public sources it may cite."""
-    brief = _common_brief(request_id, part, org, "RPT")
+    brief = _common_brief(request_id, part, org, "RPT", terms)
     brief["report_id"] = brief.pop("noun_id")
     return {
         **brief,
@@ -338,6 +383,7 @@ def plan_children(
     org: str,
     links: list[str],
     tracks_root: Path | None = None,
+    terms: dict[str, str] | None = None,
 ) -> tuple[list[ChildSpec], list[dict[str, Any]]]:
     """The work and review verbs for every part, in waves, and each part's plan entry."""
     guardrails = _noun(backend, INSTRUCTIONS_STORE, "public-research")
@@ -346,10 +392,11 @@ def plan_children(
     plan: list[dict[str, Any]] = []
     for part in parts:
         entry: dict[str, Any] = {k: part[k] for k in ("part", "route", "text", "legal")}
+        entry.update(terms or {})
         review: dict[str, Any]
         if part["route"] == "public-only" and guardrails is not None:
             sources = _stand_in_sources(backend, part["text"])
-            brief = research_brief(request_id, part, org, guardrails, sources, links)
+            brief = research_brief(request_id, part, org, guardrails, sources, links, terms)
             entry.update(report_id=brief["report_id"])
             review = {k: brief[k] for k in ("request_id", "part", "report_id", "title", "legal")}
             work_kind, review_kind = "research", "report_review"
@@ -359,7 +406,7 @@ def plan_children(
                 entry["route"] = "held"
                 plan.append(entry)
                 continue
-            brief = kit_brief(request_id, part, org, track)
+            brief = kit_brief(request_id, part, org, track, terms)
             entry.update(
                 kit_id=brief["kit_id"],
                 track_id=track.id,
@@ -422,6 +469,7 @@ def run_request_check(
     text = _CONTROL.sub("", str(brief.get("text") or "")).strip()[:4000]
     org = _CONTROL.sub("", str(brief.get("organization_type") or "")).strip()[:120] or "Nonprofit"
     links = [str(link) for link in brief.get("links") or [] if _LINK.match(str(link))][:10]
+    terms = request_terms(brief)
     if read_request(backend, request_id) is None:
         source = brief.get("source") if isinstance(brief.get("source"), dict) else None
         value = {
@@ -430,6 +478,7 @@ def run_request_check(
             "status": "received",
             "text": text,
             "source": source or {"kind": "requester"},
+            **terms,
         }
         with contextlib.suppress(VersionConflict):  # a retried claim finds its noun written
             write_request(backend, request_id, value, expected_version=0)
@@ -440,8 +489,10 @@ def run_request_check(
     children: list[ChildSpec] = []
     plan: list[dict[str, Any]] = []
     if not findings:
-        parts = classify_parts(text, rules)
-        children, plan = plan_children(backend, request_id, parts, org, links, tracks_root)
+        parts = classify_parts(text, rules, terms.get("output_type"))
+        children, plan = plan_children(
+            backend, request_id, parts, org, links, tracks_root, terms=terms
+        )
         if not children:
             findings.append("no part can start yet; a person looks at the request first")
     if findings:
