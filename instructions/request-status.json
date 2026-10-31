@@ -266,6 +266,10 @@
       "personal": "It seems to include personal information. Requests are public, so the text was removed from the public record.",
       "scope": "Eranos doesn't do work about specific people. Describe the job instead, like “sort referral notes by program”.",
       "action": "Edit my request"
+    },
+    "example_alias": {
+      "head": "This is an example request.",
+      "body": "This address now shows Eranos's example request. It is not a real nonprofit's request, and nothing here was built or run."
     }
   },
   "report": {

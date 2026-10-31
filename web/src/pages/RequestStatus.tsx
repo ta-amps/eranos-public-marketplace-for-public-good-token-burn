@@ -20,7 +20,9 @@ import { REDUCED_MOTION, useMediaQuery } from "../lib/useMediaQuery";
 import { useNoun } from "../lib/useNoun";
 import { AppLink, useSearch } from "../router";
 
-export const EXAMPLES: Record<string, string> = { example: "request-example", "example-process": "request-example-process" };
+export const EXAMPLES: Record<string, string> = { example: "request-example", "example-process": "request-example-process", "REQ-INTAKE-07": "request-example" };
+/** Older addresses that now open the example request; the page says plainly that it is an example. */
+const EXAMPLE_ALIASES = new Set(["REQ-INTAKE-07"]);
 
 export function formatTime(at: number): string {
   return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", second: "2-digit" }).format(new Date(at * 1000));
@@ -362,6 +364,13 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
       now={exampleNow(noun, count)}
       routeId={routeId}
       example={{ mark: noun.mark, onReplay: replayable && !moment ? () => setRun((n) => n + 1) : undefined }}
+      notices={
+        EXAMPLE_ALIASES.has(routeId) ? (
+          <div className="er-notices">
+            <StateNotice tone="info" head={words.notices.example_alias?.head ?? ""} body={words.notices.example_alias?.body} testId="notice-example-alias" />
+          </div>
+        ) : null
+      }
     />
   );
 }

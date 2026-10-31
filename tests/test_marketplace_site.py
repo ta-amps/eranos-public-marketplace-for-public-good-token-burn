@@ -652,3 +652,39 @@ def test_process_results_are_plain_markdown_for_any_agent() -> None:
         assert case["input"] in practice["body"]
     assert out["unknown"]["status"] == 404
     assert out["requests_page"]["status"] == 200
+
+
+def test_request_pages_and_the_request_api_show_only_real_records_or_the_example() -> None:
+    """Merged from the 22:14Z deploy: /requests/<id> is the plain status page for any id (the page itself says when a
+    request is unknown); /api/requests/<id> reads the public record, and REQ-INTAKE-07 (an earlier film's address)
+    is the example request and says so. Nothing is made up per id."""
+    out = _worker(
+        [
+            ("req_page", "GET", "/requests/REQ-INTAKE-07", None),
+            ("req_live_page", "GET", "/requests/rq-r_" + "0" * 32 + "-abc", None),
+            ("req_api", "GET", "/api/requests/REQ-INTAKE-07", None),
+            ("req_missing_api", "GET", "/api/requests/rq-r_" + "0" * 32 + "-abc", None),
+            ("req_bad_api", "GET", "/api/requests/%E0%A4%A", None),
+            ("agent_json", "GET", "/.well-known/agent.json", None),
+            ("agent_md", "GET", "/agent.md", None),
+            ("llms", "GET", "/llms.txt", None),
+        ]
+    )
+    for name in ("req_page", "req_live_page"):
+        assert out[name]["status"] == 200, name
+        assert out[name]["type"].startswith("text/html"), name
+    payload = json.loads(out["req_api"]["body"])
+    assert out["req_api"]["status"] == 200 and payload["example"] is True
+    assert payload["page"] == "/requests/REQ-INTAKE-07"
+    assert out["req_missing_api"]["status"] == 404
+    assert out["req_bad_api"]["status"] == 400
+    assert out["agent_json"]["status"] == 200 and json.loads(out["agent_json"]["body"])["name"]
+    # /agent.md is the same guide as /llms.txt, plus the access lines.
+    assert out["agent_md"]["status"] == 200 and "markdown" in out["agent_md"]["type"]
+    guide = (
+        json.loads((ROOT / "instructions" / "llms.json").read_text())["text"]
+        .strip()
+        .splitlines()[0]
+    )
+    assert guide in out["agent_md"]["body"] and guide in out["llms"]["body"]
+    assert "POST /api/handshake" in out["agent_md"]["body"]

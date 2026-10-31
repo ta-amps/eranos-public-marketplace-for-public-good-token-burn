@@ -63,7 +63,9 @@ Allow: /api/catalog
 Allow: /api/tracks
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /agent.md
 Allow: /.well-known/agent-card.json
+Allow: /.well-known/agent.json
 `;
 
 const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
@@ -594,6 +596,9 @@ const APP_KIT_PAGE_RE = /^\/catalog\/[^/]+$/;
 // A request's status page and its result page (the private link's key stays in the #k= fragment, which never
 // reaches this Worker).
 const APP_REQUEST_PAGE_RE = /^\/requests\/[^/]+(?:\/result)?$/;
+// Example request addresses: these show the example request (instructions/request-example), never a real record.
+// REQ-INTAKE-07 is the address an earlier film used; it now opens the same example, and the page says so.
+const EXAMPLE_REQUEST_ALIASES = { example: "request-example", "example-process": "request-example-process", "REQ-INTAKE-07": "request-example" };
 
 function isAppPage(pathname) {
   const path = pathname.replace(/\/+$/, "") || "/";
@@ -1262,7 +1267,7 @@ async function handleCloudApi(request, env, pathname) {
     return jsonResp(await withDraftDigest(result, body));
   }
 
-  if (request.method !== "GET" && request.method !== "HEAD") {
+  if (request.method !== "GET" && request.method !== "HEAD" && !(pathname === "/api/handshake" && request.method === "POST")) {
     return problem(405, "Method Not Allowed", "Eranos public API routes are read-only GET/HEAD.", "method_not_allowed", {
       allow: "GET, HEAD",
     });
@@ -1345,11 +1350,51 @@ async function handleCloudApi(request, env, pathname) {
       }
     }
 
+    let tesseraSession = null;
+    if (request.method === "POST" && env.TESSERA) {
+      let agentLabel = "external-agent";
+      try {
+        const reqJson = await request.clone().json();
+        const rawLabel = reqJson?.agent_label || reqJson?.agent || reqJson?.model;
+        if (typeof rawLabel === "string" && rawLabel.trim()) {
+          agentLabel = rawLabel.trim().slice(0, 48).replace(/[^a-zA-Z0-9._-]/g, "-");
+        }
+      } catch {
+        // empty or non-JSON body still gets default label
+      }
+      try {
+        const sHeaders = { "Content-Type": "application/json" };
+        const clientIp = request.headers.get("CF-Connecting-IP");
+        if (clientIp) sHeaders["CF-Connecting-IP"] = clientIp;
+        const sResp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/session/anonymous", {
+          method: "POST",
+          headers: sHeaders,
+          body: JSON.stringify({ agent_label: agentLabel }),
+        });
+        if (sResp.ok) {
+          const parsedSession = await sResp.json();
+          if (parsedSession && typeof parsedSession === "object") tesseraSession = parsedSession;
+        } else {
+          await sResp.body?.cancel();
+        }
+      } catch {
+        // graceful fallback if anonymous session minting is rate-limited
+      }
+    }
+
     return jsonResp({
       ...fallbackHandshake,
       ...(tesseraHandshake || {}),
       ...(tesseraHandshake ? { tessera: tesseraHandshake } : {}),
       ...(hermaHandshake ? { herma: hermaHandshake } : {}),
+      ...(tesseraSession
+        ? {
+            session_id: tesseraSession.session_id,
+            session_token: tesseraSession.session_token,
+            tessera_namespace: tesseraSession.namespace,
+            tessera_session: tesseraSession,
+          }
+        : {}),
     });
   }
 
@@ -1426,6 +1471,27 @@ async function handleCloudApi(request, env, pathname) {
 
   if (pathname === "/api/requests") {
     return jsonResp(await loadRequestsPayload(request, env));
+  }
+
+  // /api/requests/<id>: one request as its public records hold it (the eranos.requests noun and the versions the
+  // volunteer worker wrote), or the example request for the example addresses. Nothing here is made up per id.
+  const reqStatusMatch = /^\/api\/requests\/([^/]+)$/.exec(pathname);
+  if (reqStatusMatch) {
+    const reqId = decodeSegment(reqStatusMatch[1]);
+    if (reqId === BROKEN_ESCAPE || !NOUN_KEY_RE.test(reqId)) {
+      return problem(400, "Bad Request", "invalid request id", "invalid_request");
+    }
+    if (Object.prototype.hasOwnProperty.call(EXAMPLE_REQUEST_ALIASES, reqId)) {
+      const example = await loadNoun(request, env, "eranos.instructions", EXAMPLE_REQUEST_ALIASES[reqId]);
+      if (!example) return problem(404, "Not Found", "the example request is not in this build", "not_found");
+      return jsonResp({ example: true, request_id: reqId, page: `/requests/${encodeURIComponent(reqId)}`, value: example.value });
+    }
+    return edgeCached(request, async () => {
+      const record = await loadNoun(request, env, "eranos.requests", reqId).catch(() => null);
+      if (!record) return problem(404, "Not Found", `request ${reqId} is not found`, "not_found");
+      const history = await readRecordHistory(env.FABRIC_DB, "eranos.requests", reqId).catch(() => null);
+      return jsonResp({ example: false, request_id: reqId, page: `/requests/${encodeURIComponent(reqId)}`, value: record.value, versions: history || [] });
+    });
   }
 
   if (pathname === "/api/catalog") {
@@ -1563,7 +1629,9 @@ async function handleDiscoveryRoute(request, env, pathname) {
     pathname === "/robots.txt" ||
     pathname === "/llms.txt" ||
     pathname === "/llms-full.txt" ||
+    pathname === "/agent.md" ||
     pathname === "/.well-known/agent-card.json" ||
+    pathname === "/.well-known/agent.json" ||
     PROCESS_DOC_RE.test(pathname)
   ) {
     if (request.method !== "GET" && request.method !== "HEAD") {
@@ -1604,7 +1672,15 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const fromAsset = await fetchAssetText(request, env, "/llms-full.txt");
       return textResp((fromAsset || FALLBACK_LLMS_FULL_TXT) + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
     }
-    if (pathname === "/.well-known/agent-card.json") {
+    if (pathname === "/agent.md") {
+      const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
+      const guide = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : FALLBACK_LLMS_TXT;
+      return textResp(
+        `${guide}\n## Agent access\n- Discovery: /connect.json, /.well-known/agent.json (also /.well-known/agent-card.json).\n- A tracked anonymous session: POST /api/handshake; Eranos asks Tessera to mint it and returns what Tessera answers.\n- One request: /api/requests/<request id> returns its public record and recorded versions.\n`,
+        "text/markdown; charset=utf-8",
+      );
+    }
+    if (pathname === "/.well-known/agent-card.json" || pathname === "/.well-known/agent.json") {
       return jsonResp(buildAgentCard(request));
     }
   }
@@ -1632,7 +1708,12 @@ const onboardingApplication = {
           ? await env.ASSETS.fetch(request)
           : new Response("Not Found", { status: 404 });
         const html = (response.headers.get("content-type") || "").includes("text/html");
-        if (response.status === 200 && html && (!isAppPage(pathname) || (await isMissingKitPage(request, env, pathname)))) {
+        if (
+          response.status === 200 &&
+          html &&
+          (!isAppPage(pathname) ||
+            (await isMissingKitPage(request, env, pathname)))
+        ) {
           response = new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers });
         }
       } else {

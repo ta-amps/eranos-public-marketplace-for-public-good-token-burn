@@ -41,6 +41,17 @@ from eranos.tracks import load_tracks
 
 KIT_ID_RE = re.compile(KIT_ID)
 NOUN_KEY_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")
+
+
+# Example request addresses show the example request noun, never a real record (REQ-INTAKE-07 is an earlier film's
+# address for the same example).
+EXAMPLE_REQUEST_ALIASES = {
+    "example": "request-example",
+    "example-process": "request-example-process",
+    "REQ-INTAKE-07": "request-example",
+}
+
+
 EDGE_SECRET_ENV = "ERANOS_EDGE_SECRET"  # noqa: S105 - variable name, not a secret
 EDGE_EXEMPT = frozenset(
     {
@@ -464,6 +475,28 @@ def open_requests() -> dict[str, Any]:
             for s in STAGES
         ],
         "requests": rows,
+    }
+
+
+@app.get("/api/requests/{request_id}")
+def request_status(request_id: str) -> dict[str, Any]:
+    """One request as its public record holds it, or the example request for the example addresses."""
+    if not NOUN_KEY_RE.fullmatch(request_id):
+        raise HTTPException(status_code=400, detail="invalid request id")
+    page = f"/requests/{request_id}"
+    if request_id in EXAMPLE_REQUEST_ALIASES:
+        found = noun("eranos.instructions", EXAMPLE_REQUEST_ALIASES[request_id])
+        return {"example": True, "request_id": request_id, "page": page, "value": found["value"]}
+    try:
+        found = noun("eranos.requests", request_id)
+    except HTTPException as exc:
+        raise HTTPException(status_code=404, detail=f"request {request_id} is not found") from exc
+    return {
+        "example": False,
+        "request_id": request_id,
+        "page": page,
+        "value": found["value"],
+        "versions": [],
     }
 
 

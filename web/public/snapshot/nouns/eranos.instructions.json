@@ -1843,6 +1843,10 @@
             "personal": "It seems to include personal information. Requests are public, so the text was removed from the public record.",
             "scope": "Eranos doesn't do work about specific people. Describe the job instead, like “sort referral notes by program”."
           },
+          "example_alias": {
+            "body": "This address now shows Eranos's example request. It is not a real nonprofit's request, and nothing here was built or run.",
+            "head": "This is an example request."
+          },
           "key_missing": {
             "body": "Open the link you saved, or ask again from the same browser.",
             "head": "This browser doesn't have your private link."

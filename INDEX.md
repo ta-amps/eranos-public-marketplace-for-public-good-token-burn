@@ -44,7 +44,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [briefs/E3.json](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [briefs/E4.json](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (12)
+## deploy/ (14)
 
 | File | What it is |
 |---|---|
@@ -55,6 +55,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/cloudflare/agent_start.js](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
 | [deploy/cloudflare/kit-draft.schema.json](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
 | [deploy/cloudflare/schema.js](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
+| [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) |  |
+| [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) |  |
 | [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) |  |
 | [deploy/cloudflare/wrangler.jsonc](deploy/cloudflare/wrangler.jsonc) | Eranos Cloud Worker: serves the React web app plus native 24/7 /api/ endpoints backed by |
 | [deploy/fly/Dockerfile](deploy/fly/Dockerfile) | Build from the workspace root so both tessera and eranos are in the build context. |
@@ -195,7 +197,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (14)
+## tests/ (16)
 
 | File | What it is |
 |---|---|
@@ -205,6 +207,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
 | [tests/test_example_runs.py](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
+| [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
+| [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [tests/test_open_contribution.py](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
