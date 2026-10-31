@@ -8,7 +8,7 @@ Contents: README.md, docs/nouns-and-verbs.md, docs/status.md, docs/summary.md, d
 
 ========================================================================
 FILE: README.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/README.md
+PATH: README.md
 ========================================================================
 
 # Eranos – the two-sided marketplace
@@ -195,7 +195,7 @@ Developer Hackathon. MIT licence; see [LICENSE](LICENSE).
 
 ========================================================================
 FILE: docs/nouns-and-verbs.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/nouns-and-verbs.md
+PATH: docs/nouns-and-verbs.md
 ========================================================================
 
 # Nouns, verbs, surfaces and infrastructure
@@ -273,7 +273,7 @@ Keep the words, the SVG and this Mermaid source in step. If one changes, change 
 
 ========================================================================
 FILE: docs/status.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/status.md
+PATH: docs/status.md
 ========================================================================
 
 # Status
@@ -338,7 +338,7 @@ shows that the hosted site is up.
 
 ========================================================================
 FILE: docs/summary.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/summary.md
+PATH: docs/summary.md
 ========================================================================
 
 # Summary
@@ -381,7 +381,7 @@ make web-check         # strict TypeScript check and Vite production bundle
 
 ========================================================================
 FILE: docs/architecture.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/architecture.md
+PATH: docs/architecture.md
 ========================================================================
 
 # Eranos: architecture
@@ -489,7 +489,7 @@ flowchart LR
 
 ========================================================================
 FILE: docs/generalizing.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/generalizing.md
+PATH: docs/generalizing.md
 ========================================================================
 
 # Generalizing: Adding Tracks and Kits Without Engine Code
@@ -513,7 +513,7 @@ blocks these topics automatically.
 
 ========================================================================
 FILE: docs/naming-and-extensions.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/naming-and-extensions.md
+PATH: docs/naming-and-extensions.md
 ========================================================================
 
 # Naming, Mythology & Extending Eranos
@@ -606,7 +606,7 @@ source code. Below are the sibling names explored during design:
 
 ========================================================================
 FILE: tracks/README.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/tracks/README.md
+PATH: tracks/README.md
 ========================================================================
 
 # Eranos Tracks
@@ -635,7 +635,7 @@ track IDs; adding a new track is pure data.
 
 ========================================================================
 FILE: examples/kits/README.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/examples/kits/README.md
+PATH: examples/kits/README.md
 ========================================================================
 
 # Synthetic Example Kit Bundles
@@ -661,7 +661,7 @@ nothing.
 
 ========================================================================
 FILE: docs/frontend.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/frontend.md
+PATH: docs/frontend.md
 ========================================================================
 
 # Eranos: frontend and API surface
@@ -725,7 +725,7 @@ for edge Worker fallback as well as `VITE_SNAPSHOT=1` offline builds.
 
 ========================================================================
 FILE: docs/setup.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/setup.md
+PATH: docs/setup.md
 ========================================================================
 
 # Setup and Single-Domain Hosting
@@ -774,7 +774,7 @@ deploying anything.
 
 ========================================================================
 FILE: docs/opencode-donors.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/opencode-donors.md
+PATH: docs/opencode-donors.md
 ========================================================================
 
 # Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models
@@ -862,7 +862,7 @@ review or `eranos.catalog` write authority.
 
 ========================================================================
 FILE: docs/comparison.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/comparison.md
+PATH: docs/comparison.md
 ========================================================================
 
 # Comparison
@@ -880,7 +880,7 @@ and verbs generated for the NGO's agent, holding skills, read-only tool definiti
 
 ========================================================================
 FILE: docs/decisions.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/decisions.md
+PATH: docs/decisions.md
 ========================================================================
 
 # Decisions and Glossary
@@ -898,7 +898,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ========================================================================
 FILE: docs/glossary.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/glossary.md
+PATH: docs/glossary.md
 ========================================================================
 
 # Glossary
@@ -919,7 +919,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ========================================================================
 FILE: docs/review.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/review.md
+PATH: docs/review.md
 ========================================================================
 
 # Review Guide & Cold-Start Handoff
@@ -938,7 +938,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ========================================================================
 FILE: docs/handoff.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/handoff.md
+PATH: docs/handoff.md
 ========================================================================
 
 # Handoff
@@ -993,7 +993,7 @@ away.
 
 ========================================================================
 FILE: AGENTS.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/AGENTS.md
+PATH: AGENTS.md
 ========================================================================
 
 # Eranos: instructions for every coding agent

@@ -601,6 +601,13 @@ def main(argv: list[str] | None = None) -> int:
         "export-snapshot", help="Write static snapshot JSON files for the web app"
     )
     snap.add_argument("out", type=Path, default=Path("web/snapshot"), nargs="?")
+    work = sub.add_parser(
+        "work", help="Run one volunteer worker loop on Eranos's queues with this role's scoped key"
+    )
+    work.add_argument("--role", required=True, choices=["planner", "builder", "reviewer"])
+    work.add_argument("--label", default=None, help="Worker label shown on the request's record")
+    work.add_argument("--once", action="store_true", help="Claim at most one verb, then stop")
+    work.add_argument("--max-leases", type=int, default=None, help="Stop after this many verbs")
 
     args = parser.parse_args(argv)
     if args.cmd == "tracks":
@@ -633,7 +640,20 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_record_example_runs(args.out)
     if args.cmd == "export-snapshot":
         return cmd_export_snapshot(args.out)
+    if args.cmd == "work":
+        return cmd_work(
+            str(args.role), label=args.label, once=bool(args.once), max_leases=args.max_leases
+        )
     return 1
+
+
+def cmd_work(role: str, *, label: str | None, once: bool, max_leases: int | None) -> int:
+    """One worker loop; the key comes from the environment (an 0600 env file) and is never printed."""
+    from eranos.worker_loop import run_cli
+
+    stats = run_cli(role, once=once, max_leases=max_leases, label=label)
+    print(json.dumps({"role": role, **stats}, sort_keys=True))
+    return 0
 
 
 if __name__ == "__main__":

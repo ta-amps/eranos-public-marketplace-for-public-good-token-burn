@@ -240,7 +240,15 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     help_noun = json.loads(out["help"]["body"])
     assert out["help"]["status"] == 200 and help_noun["value"]["title"] == "Help in six steps"
     keys = [r["key"] for r in json.loads(out["listing"]["body"])["records"]]
-    assert keys == ["classify", "connect", "help", "nonprofits", "public-research", "site"]
+    assert keys == [
+        "classify",
+        "connect",
+        "help",
+        "nonprofits",
+        "public-research",
+        "site",
+        "worker",
+    ]
     for name in ("private_store", "catalog_store", "missing"):
         assert out[name]["status"] == 404, name
     practice = json.loads(out["practice"]["body"])

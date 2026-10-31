@@ -27,6 +27,7 @@ SOLUTIONS_STORE = "eranos.solutions"
 # "be" cannot "verify" a claim; every quote must match whole words of the source.
 MIN_QUOTE = 20
 _SENTENCE_END = re.compile(r"(?<=[.!?])\s+")
+_DIGEST = re.compile(r"[0-9a-f]{64}")
 # Public contact details a verified source quote may carry into a report; nothing else personal.
 CONTACT_KINDS = frozenset({"a phone number", "a street address"})
 
@@ -138,7 +139,13 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
             text = text.replace(quote, " ")
         return text
 
-    strings = _strings(report, "report")
+    # A source's SHA-256 digests are identifiers, not personal data: a 64-hex value under a
+    # `*_sha256` key is not screened, so a digest that starts with 13 digits is not a card number.
+    strings = {
+        k: v
+        for k, v in _strings(report, "report").items()
+        if not (k.endswith("_sha256") and _DIGEST.fullmatch(v))
+    }
     findings += personal_data_findings({k: own(v) for k, v in strings.items()})
     findings += [
         finding

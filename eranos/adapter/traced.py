@@ -82,9 +82,22 @@ class TracedBackend:
         idempotency_key: str,
         ok: bool = True,
         error: str | None = None,
+        execution_report: dict[str, Any] | None = None,
     ) -> Receipt:
+        extra: dict[str, Any] = {}
+        if (
+            execution_report is not None
+            and "execution_report" in inspect.signature(self._inner.submit).parameters
+        ):
+            extra["execution_report"] = execution_report
         receipt = self._inner.submit(
-            task_id, fencing_token, output, idempotency_key=idempotency_key, ok=ok, error=error
+            task_id,
+            fencing_token,
+            output,
+            idempotency_key=idempotency_key,
+            ok=ok,
+            error=error,
+            **extra,
         )
         cost = output.get("cost_usd") if isinstance(output.get("cost_usd"), int | float) else None
         self._trace.write(
