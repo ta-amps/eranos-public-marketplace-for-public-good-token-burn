@@ -1420,7 +1420,7 @@ async function handleCloudApi(request, env, pathname) {
     return jsonResp(await withDraftDigest(result, body));
   }
 
-  if (request.method !== "GET" && request.method !== "HEAD") {
+  if (request.method !== "GET" && request.method !== "HEAD" && !(pathname === "/api/handshake" && request.method === "POST")) {
     return problem(405, "Method Not Allowed", "Eranos public API routes are read-only GET/HEAD.", "method_not_allowed", {
       allow: "GET, HEAD",
     });
@@ -1503,11 +1503,51 @@ async function handleCloudApi(request, env, pathname) {
       }
     }
 
+    let tesseraSession = null;
+    if (request.method === "POST" && env.TESSERA) {
+      let agentLabel = "external-agent";
+      try {
+        const reqJson = await request.clone().json();
+        const rawLabel = reqJson?.agent_label || reqJson?.agent || reqJson?.model;
+        if (typeof rawLabel === "string" && rawLabel.trim()) {
+          agentLabel = rawLabel.trim().slice(0, 48).replace(/[^a-zA-Z0-9._-]/g, "-");
+        }
+      } catch {
+        // empty or non-JSON body still gets default label
+      }
+      try {
+        const sHeaders = { "Content-Type": "application/json" };
+        const clientIp = request.headers.get("CF-Connecting-IP");
+        if (clientIp) sHeaders["CF-Connecting-IP"] = clientIp;
+        const sResp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/session/anonymous", {
+          method: "POST",
+          headers: sHeaders,
+          body: JSON.stringify({ agent_label: agentLabel }),
+        });
+        if (sResp.ok) {
+          const parsedSession = await sResp.json();
+          if (parsedSession && typeof parsedSession === "object") tesseraSession = parsedSession;
+        } else {
+          await sResp.body?.cancel();
+        }
+      } catch {
+        // graceful fallback if anonymous session minting is rate-limited
+      }
+    }
+
     return jsonResp({
       ...fallbackHandshake,
       ...(tesseraHandshake || {}),
       ...(tesseraHandshake ? { tessera: tesseraHandshake } : {}),
       ...(hermaHandshake ? { herma: hermaHandshake } : {}),
+      ...(tesseraSession
+        ? {
+            session_id: tesseraSession.session_id,
+            session_token: tesseraSession.session_token,
+            tessera_namespace: tesseraSession.namespace,
+            tessera_session: tesseraSession,
+          }
+        : {}),
     });
   }
 
