@@ -100,6 +100,7 @@ export interface RequestInfo {
   /** What the nonprofit asked for: a reusable process its own agent runs, or information from public sources. */
   output_type?: OutputType;
   frequency?: Frequency;
+  cadence?: string;
   sent_at?: number | null;
 }
 

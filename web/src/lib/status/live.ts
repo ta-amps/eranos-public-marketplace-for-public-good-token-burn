@@ -286,6 +286,7 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
       organization_type: own?.organization_type,
       output_type: own?.output_type ?? request?.output_type,
       frequency: own?.frequency ?? request?.frequency,
+      cadence: (own as { cadence?: string } | undefined)?.cadence ?? (request as { cadence?: string } | null | undefined)?.cadence,
       sent_at: sentAt,
     },
     events,

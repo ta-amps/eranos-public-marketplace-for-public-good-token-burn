@@ -133,6 +133,8 @@ export interface ShellNoun {
   home_label: string;
   nav_label: string;
   nav: NounLink[];
+  /** The right-hand link: the requests whose private links this browser holds. */
+  yours?: NounLink;
   external_note: string;
   menu: { button: string; open_label: string; close: string; close_label: string; sheet_label: string };
   footer: { line: string; links_label: string; links: NounLink[]; storage: string };
@@ -143,8 +145,9 @@ export interface HomeNoun {
   eyebrow: string;
   buttons_label: string;
   /** Exactly two, in this order: "My NGO needs help", then "I want to help". */
-  buttons: { id: string; label: string; to: string }[];
+  buttons: { id: string; label: string; to: string; sub?: string; sub_short?: string }[];
   honesty: string;
+  honesty_short?: string;
   gets: { title: string; items: { id: string; title: string; line: string; link?: string; to?: string }[] };
   how: { title: string; title_short: string; link: string; to: string; steps: { title: string; detail: string; short: string }[] };
   now: { title: string; requests: CountWords; open: CountWords; working: CountWords; kits: CountWords; note: string };
@@ -158,6 +161,40 @@ export interface ChoiceOption {
   hint?: string;
   tip?: string;
   tip_label?: string;
+  tip_title?: string;
+  example?: string;
+}
+
+export interface AdvancedQuestion {
+  id: "start" | "skill" | "runs" | "agents" | "models" | "tools" | "limits";
+  label: string;
+  pick: "one" | "any";
+  other?: boolean;
+  default?: string;
+  options: string[];
+}
+
+export interface AdvancedWords {
+  summary: string;
+  optional: string;
+  count_none: string;
+  count_some: string;
+  intro: string;
+  questions: AdvancedQuestion[];
+  pick_one: string;
+  pick_any: string;
+  other: { button: string; open: string; chosen: string; placeholder: string; aria: string };
+  improve: {
+    value: string;
+    link_label: string;
+    link_placeholder: string;
+    what_label: string;
+    what_placeholder: string;
+    recent_label: string;
+    recent_none: string;
+  };
+  footer: string;
+  clear: string;
 }
 
 export interface NonprofitsPageNoun {
@@ -166,7 +203,15 @@ export interface NonprofitsPageNoun {
   lead: string;
   bounds: { head: string; body: string };
   output: { legend: string; hint: string; options: ChoiceOption[] };
-  frequency: { legend: string; options: ChoiceOption[]; cadence_label: string; cadences: ChoiceOption[] };
+  frequency: {
+    legend: string;
+    options: ChoiceOption[];
+    cadence_label: string;
+    default_cadence: string;
+    cadences: ChoiceOption[];
+    help: Record<"process_once" | "process_regular" | "information_once" | "information_regular" | "none", string>;
+  };
+  advanced: AdvancedWords;
   form: {
     label: string;
     hint: string;
@@ -174,7 +219,11 @@ export interface NonprofitsPageNoun {
     examples_label: string;
     examples: { id: string; short: string; text: string; output_type: string; frequency: string; cadence?: string }[];
     privacy: string;
-    check: { lead: string; ask: string; kinds: Record<string, string>; and: string };
+    check: { lead: string; ask: string; kinds: Record<string, string>; and: string; empty: string; clean: string };
+    placeholders: { process: string; information: string; none: string };
+    min_chars: number;
+    ready_note: string;
+    not_ready: Record<"lead" | "lead_after" | "and" | "output" | "need" | "private" | "consent" | "name" | "type" | "improve", string>;
     too_short: { head: string; body: string };
     name_label: string;
     type_label: string;
@@ -238,6 +287,10 @@ export interface RequestStatusNoun {
   report: Words;
   legend: { title: string; items: { state: string; text: string }[]; motion: string };
   added: Words;
+  yours: Words;
+  plain: PlainWords;
+  steps: Record<"tag_process" | "tag_information" | "tag_checked" | "tag_updating" | "tag_updated" | "back" | "what" | "only_person" | "practice" | "practice_lead" | "practice_message" | "run" | "run_lead" | "agent_message" | "copy" | "copied" | "show_how" | "hide_how" | "in_short" | "in_short_note" | "checked_how", string>;
+  decide: Record<"title" | "lead_process" | "lead_information" | "yes" | "changes" | "changes_label" | "changes_note" | "send" | "cancel" | "done_head" | "done_body" | "pending_head" | "pending_body" | "band_title" | "band_adding" | "band_added" | "band_none" | "band_some" | "band_link", string>;
   library_link: string;
 }
 
@@ -299,4 +352,55 @@ export function fill(template: string, values: Record<string, string | number> =
 export function countWords(words: CountWords, n: number): string {
   if (n === 0 && words.none) return words.none;
   return n === 1 ? words.one : fill(words.many, { n });
+}
+
+type T = string;
+/** The request page's plain view (Flow-Prototype step 3). */
+export interface PlainWords {
+  sent_line: T;
+  sent_line_key: T;
+  technical_line: T;
+  show_technical: T;
+  show_simple: T;
+  chip: Record<
+    | "in_line"
+    | "planning"
+    | "waiting_volunteer"
+    | "making"
+    | "waiting_check"
+    | "checking"
+    | "changes"
+    | "ready"
+    | "in_use"
+    | "in_use_regular"
+    | "in_use_plain"
+    | "decided"
+    | "not_used"
+    | "withdrawn"
+    | "blocked",
+    T
+  >;
+  stages_label: T;
+  stages: {
+    sent: { title: T; done: T };
+    line: { title: T; ahead_many: T; ahead_one: T; next: T; waiting: T; done: T };
+    made: { title: T; upcoming: T; planning: T; between: T; making: T; changes: T; done: T };
+    checked: { title: T; upcoming: T; waiting: T; checking: T; done: T };
+    ready: { title: T; upcoming: T; now: T; done: T; decided: T };
+    shared: { title: T; upcoming: T; done: T };
+  };
+  making_title: T;
+  making: { process: T[]; information: T[] };
+  kind: { process: T; information: T };
+  tags: { not_yet: T; made: T; checked: T; changing: T };
+  happened_title: T;
+  happened_more: T;
+  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed", T>;
+  share_lead: T;
+  share: T;
+  shared: T;
+  share_text: T;
+  ready_title: T;
+  every: Record<string, T>;
+  tab_title: T;
 }

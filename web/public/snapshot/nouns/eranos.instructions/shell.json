@@ -5,10 +5,22 @@
   "version": 1,
   "value": {
     "audience": "everyone who reads Eranos",
-    "external_note": "opens the overview deck on Agora",
+    "external_note": "(opens the overview deck on Agora)",
     "footer": {
       "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
       "links": [
+        {
+          "label": "Library",
+          "to": "/library"
+        },
+        {
+          "label": "Your requests",
+          "to": "/requests"
+        },
+        {
+          "label": "Status",
+          "to": "/fabric"
+        },
         {
           "href": "https://agora.ta-amps.workers.dev/",
           "label": "Agora"
@@ -57,14 +69,14 @@
     },
     "nav": [
       {
+        "label": "My NGO needs help",
+        "match": "nonprofits",
+        "to": "/nonprofits"
+      },
+      {
         "label": "I want to help",
         "match": "help",
         "to": "/help"
-      },
-      {
-        "label": "For nonprofits",
-        "match": "nonprofits",
-        "to": "/nonprofits"
       },
       {
         "label": "Library",
@@ -74,12 +86,16 @@
       {
         "external": true,
         "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
-        "label": "Overview deck"
+        "label": "How it works"
       }
     ],
     "nav_label": "Primary navigation",
     "schema_version": 1,
     "skip": "Skip to content",
-    "title": "Header, menu and footer"
+    "title": "Header, menu and footer",
+    "yours": {
+      "label": "Your requests",
+      "to": "/requests"
+    }
   }
 }

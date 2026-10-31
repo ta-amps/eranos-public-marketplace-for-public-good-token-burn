@@ -68,14 +68,27 @@ export function Overview({ site }: { site: SiteNoun | null }) {
           {home && (
             <div className="er-landing-buttons" role="group" aria-label={home.buttons_label}>
               {home.buttons.map((button) => (
-                <AppLink key={button.id} to={button.to} className="er-btn-primary er-btn-hero" data-door={button.id}>
-                  {button.label}
-                  <Icon name="arrow-right" size={20} />
+                <AppLink key={button.id} to={button.to} className="er-btn-primary er-btn-hero er-door" data-door={button.id}>
+                  <span className="er-door-label">
+                    {button.label}
+                    <Icon name="arrow-right" size={20} />
+                  </span>
+                  {button.sub && (
+                    <span className="er-door-sub">
+                      <span className="er-long">{button.sub}</span>
+                      <span className="er-short">{button.sub_short ?? button.sub}</span>
+                    </span>
+                  )}
                 </AppLink>
               ))}
             </div>
           )}
-          {home && <p className="er-honesty">{home.honesty}</p>}
+          {home && (
+            <p className="er-honesty">
+              <span className="er-long">{home.honesty}</span>
+              <span className="er-short">{home.honesty_short ?? home.honesty}</span>
+            </p>
+          )}
         </div>
       </section>
 

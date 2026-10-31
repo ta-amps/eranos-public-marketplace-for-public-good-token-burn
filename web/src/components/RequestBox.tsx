@@ -1,10 +1,12 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
+
+import { AdvancedSettings, EMPTY_PREFS, improvedRequest, improving, parsePrefs, prefsBrief, prefsText, type Prefs } from "./AdvancedSettings";
 import { flushSync } from "react-dom";
 
 import { FABRIC_PUBLIC_URL, SNAPSHOT } from "../config";
 import { loadLibrary, searchLibrary, type LibraryItem } from "../lib/library";
 import { fill, type NonprofitsPageNoun } from "../lib/nouns";
-import { personalDataKinds, wordCount } from "../lib/privacy";
+import { personalDataKinds } from "../lib/privacy";
 import { queueFromFabric } from "../lib/status/live";
 import type { FabricResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
@@ -29,10 +31,12 @@ interface Draft {
   type: string;
   links: string;
   causes: string;
+  /** The optional settings, kept as JSON text like the rest of the draft. */
+  prefs: string;
 }
 
 const DRAFT_KEY = "eranos.request-draft.v1";
-const EMPTY: Draft = { text: "", output: "", frequency: "", cadence: "", name: "", type: "", links: "", causes: "" };
+const EMPTY: Draft = { text: "", output: "", frequency: "", cadence: "", name: "", type: "", links: "", causes: "", prefs: "" };
 
 /** Library items are read once per visit, for the check before sending. */
 let library: Promise<LibraryItem[]> | null = null;
@@ -87,6 +91,19 @@ async function failure(response: Response, filed: boolean): Promise<SendError> {
   return new SendError(detail, response.status, code, Number.isFinite(retry) && retry > 0 ? retry : undefined, filed);
 }
 
+function frequencyHelp(page: NonprofitsPageNoun, outputs: string[], frequency: string, cadence: string): string {
+  const help = page.frequency.help;
+  if (!outputs.length || !frequency) return help.none;
+  const every = (page.frequency.cadences.find((c) => c.value === cadence)?.label ?? "").toLowerCase();
+  const regular = frequency === "recurring";
+  return outputs
+    .map((kind) => {
+      const line = help[`${kind === "process" ? "process" : "information"}_${regular ? "regular" : "once"}` as keyof typeof help];
+      return fill(line, { every });
+    })
+    .join(" ");
+}
+
 function clock(at: number): string {
   return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(at * 1000));
 }
@@ -106,8 +123,6 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
   const [tried, setTried] = useState(false);
   const [sending, setSending] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
-  const [flags, setFlags] = useState<string[]>([]);
-  const [short, setShort] = useState(false);
   const [online, setOnline] = useState(() => navigator.onLine);
   const [copied, setCopied] = useState(false);
   const [hits, setHits] = useState<LibraryItem[] | null>(null);
@@ -122,16 +137,6 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
   const queue = !SNAPSHOT && fabric.state.status === "ready" ? queueFromFabric(fabric.state.data.queues) : null;
 
   useEffect(() => saveDraft(draft), [draft]);
-
-  // The personal-data hint waits for a 600 ms pause in typing, then mirrors the server's own screen.
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setFlags(personalDataKinds(draft.text));
-      const words = wordCount(draft.text);
-      setShort(words > 0 && words < 8);
-    }, 600);
-    return () => window.clearTimeout(timer);
-  }, [draft.text]);
 
   useEffect(() => {
     const up = () => setOnline(true);
@@ -156,6 +161,12 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
   }, [waitingUntil]);
 
   const set = (field: keyof Draft) => (value: string) => setDraft((current) => ({ ...current, [field]: value }));
+  const prefs: Prefs = draft.prefs ? parsePrefs(draft.prefs) : EMPTY_PREFS;
+  const setPrefs = (next: Prefs) => set("prefs")(next === EMPTY_PREFS ? "" : JSON.stringify(next));
+  // The privacy check reads the main box, every "Other" box and the improvement note together, as you type.
+  const flags = personalDataKinds([draft.text, prefsText(prefs, page.advanced)].filter(Boolean).join("\n"));
+  const chooseFrequency = (value: string) =>
+    setDraft((current) => ({ ...current, frequency: value, cadence: value === "recurring" ? current.cadence || page.frequency.default_cadence : "" }));
   const outputs = draft.output.split(",").filter(Boolean);
   const toggleOutput = (value: string) =>
     set("output")(
@@ -165,14 +176,22 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
     );
   const missing = {
     output: outputs.length === 0,
-    frequency: !draft.frequency,
-    cadence: draft.frequency === "recurring" && !draft.cadence,
-    need: draft.text.trim().length < 10,
+    need: draft.text.trim().length < form.min_chars,
+    private: flags.length > 0,
+    improve: improving(prefs, page.advanced) && !prefs.improve_link.trim(),
     name: draft.name.trim().length < 2,
     type: draft.type.trim().length < 3,
     consent: !consent,
   };
-  const canSend = Boolean(draft.text.trim()) && consent && online && !sending && !waitingUntil;
+  const unmet = (Object.keys(missing) as (keyof typeof missing)[]).filter((field) => missing[field]);
+  const canSend = unmet.length === 0 && online && !sending && !waitingUntil;
+  const notReady = (() => {
+    const order = ["output", "need", "private", "consent", "name", "type", "improve"] as const;
+    const parts = order.filter((field) => missing[field]).map((field) => form.not_ready[field]);
+    if (!parts.length) return "";
+    const list = parts.length > 1 ? `${parts.slice(0, -1).join(", ")}${form.not_ready.and}${parts[parts.length - 1]}` : parts[0];
+    return `${tried ? form.not_ready.lead_after : form.not_ready.lead} ${list}.`;
+  })();
   const sendLabel = sending ? form.sending : online ? form.send : form.waiting_connection;
 
   function pick(example: (typeof form.examples)[number]) {
@@ -186,9 +205,9 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
     event.preventDefault();
     setTried(true);
     setProblem(null);
-    const first = (Object.keys(missing) as (keyof typeof missing)[]).find((field) => missing[field]);
+    const first = unmet[0];
     if (first) {
-      const target = box.current?.querySelector<HTMLElement>(`[data-field="${first}"]`);
+      const target = box.current?.querySelector<HTMLElement>(`[data-field="${first === "private" ? "need" : first}"]`);
       target?.focus();
       return;
     }
@@ -244,8 +263,10 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
         links,
         organization_type: organizationType,
         output_type: outputType,
-        frequency: draft.frequency,
-        ...(draft.frequency === "recurring" ? { cadence: draft.cadence } : {}),
+        frequency: draft.frequency || "one-off",
+        ...(draft.frequency === "recurring" ? { cadence: draft.cadence || page.frequency.default_cadence } : {}),
+        ...(prefsBrief(prefs, page.advanced) ? { prefs: prefsBrief(prefs, page.advanced) } : {}),
+        ...(improvedRequest(prefs, page.advanced) ? { follows: { request_id: improvedRequest(prefs, page.advanced) } } : {}),
       };
       const taskId = `rq-${minted.current.principal}-${Date.now().toString(36)}`;
       const call = (path: string, body: unknown, shared = false) =>
@@ -261,7 +282,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
       const verb = await call("/v1/tasks", { queue: "eq01", kind: "request", effect_class: "write-internal", task_id: taskId, brief }, true);
       if (!verb.ok) throw await failure(verb, true);
       rememberKey(taskId, token);
-      rememberSent(taskId, { text, organization_type: organizationType, output_type: outputType, frequency: draft.frequency, sent_at: Date.now() / 1000 });
+      rememberSent(taskId, { text, organization_type: organizationType, output_type: outputType, frequency: draft.frequency || "one-off", sent_at: Date.now() / 1000 });
       setDraft(EMPTY);
       saveDraft(EMPTY);
       navigateWithTransition(`/requests/${encodeURIComponent(taskId)}#k=${token}`, (commit) => flushSync(commit));
@@ -317,6 +338,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
                         <span className="er-visually-hidden">{option.tip_label}</span>
                       </button>
                       <span role="tooltip" id={`${ids}-${option.value}-tip`} className="er-tip-text">
+                        {option.tip_title && <strong className="er-tip-title">{option.tip_title}</strong>}
                         {option.tip}
                       </span>
                     </span>
@@ -324,6 +346,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
                 </span>
                 <span id={`${ids}-${option.value}-hint`} className="er-choice-hint">
                   {option.hint}
+                  {option.example && <span className="er-choice-example">{option.example}</span>}
                 </span>
               </span>
             </label>
@@ -346,36 +369,31 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
                 name="frequency"
                 value={option.value}
                 checked={draft.frequency === option.value}
-                onChange={() => set("frequency")(option.value)}
+                onChange={() => chooseFrequency(option.value)}
               />
               <span>{option.label}</span>
             </label>
           ))}
         </div>
-        {draft.frequency && (
-          <p className="er-small">{page.frequency.options.find((o) => o.value === draft.frequency)?.hint}</p>
-        )}
         {draft.frequency === "recurring" && (
-          <div className="er-field er-cadence">
-            <label htmlFor={`${ids}-cadence`}>{page.frequency.cadence_label}</label>
-            <select
-              id={`${ids}-cadence`}
-              className="er-select"
-              data-field="cadence"
-              value={draft.cadence}
-              onChange={(event) => set("cadence")(event.target.value)}
-            >
-              <option value="" />
-              {page.frequency.cadences.map((cadence) => (
-                <option key={cadence.value} value={cadence.value}>
-                  {cadence.label}
-                </option>
-              ))}
-            </select>
-            {showMissing("cadence") && <p className="er-field-error">{form.missing.cadence}</p>}
+          <div className="er-choice-options er-choice-pills er-cadence" role="radiogroup" aria-label={page.frequency.cadence_label}>
+            {page.frequency.cadences.map((cadence) => (
+              <label key={cadence.value} className="er-choice-pill">
+                <input
+                  type="radio"
+                  name="cadence"
+                  value={cadence.value}
+                  checked={draft.cadence === cadence.value}
+                  onChange={() => set("cadence")(cadence.value)}
+                />
+                <span>{cadence.label}</span>
+              </label>
+            ))}
           </div>
         )}
-        {showMissing("frequency") && <p className="er-field-error">{form.missing.frequency}</p>}
+        <p className="er-small" data-testid="frequency-help">
+          {frequencyHelp(page, outputs, draft.frequency, draft.cadence)}
+        </p>
       </fieldset>
 
       <div className="er-describe">
@@ -395,7 +413,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
           dir="auto"
           maxLength={4000}
           value={draft.text}
-          placeholder={form.placeholder}
+          placeholder={outputs.length === 1 ? form.placeholders[outputs[0] as "process" | "information"] : outputs.length ? form.placeholders.process : form.placeholders.none}
           aria-describedby={["need-hint", flags.length ? `${ids}-flag` : "", showMissing("need") ? `${ids}-need-missing` : ""].filter(Boolean).join(" ")}
           aria-invalid={showMissing("need") || undefined}
           onChange={(event) => set("text")(event.target.value)}
@@ -414,24 +432,22 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
           ))}
         </div>
         <div role="status" aria-live="polite" className="er-describe-checks">
-          {flags.length > 0 && (
+          {flags.length > 0 ? (
             <p id={`${ids}-flag`} className="er-flag" data-testid="personal-data-hint">
               <Icon name="circle-alert" size={20} strokeWidth={2} />
               <span>
                 {fill(form.check.lead, { kinds: kindWords.join(form.check.and) })} {form.check.ask}
               </span>
             </p>
-          )}
-          {flags.length === 0 && short && (
-            <p className="er-gentle" data-testid="too-short-hint">
-              <Icon name="info" size={20} strokeWidth={2} />
-              <span>
-                <strong>{form.too_short.head}</strong> {form.too_short.body}
-              </span>
+          ) : (
+            <p className="er-small er-check-line" data-testid="check-line">
+              {draft.text.trim() ? form.check.clean : form.check.empty}
             </p>
           )}
         </div>
       </div>
+
+      <AdvancedSettings words={page.advanced} prefs={prefs} onChange={setPrefs} />
 
       <div className="er-profile">
         <div className="er-field">
@@ -594,10 +610,12 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
       )}
 
       <div className="er-send-row">
-        <button type="submit" className="er-btn-primary er-btn-large" disabled={!canSend}>
+        <button type="submit" className="er-btn-primary er-btn-large" aria-disabled={!canSend} disabled={sending}>
           {sendLabel}
         </button>
-        <p className="er-send-note">{form.after_send}</p>
+        <p className="er-send-note" data-testid="send-note">
+          {canSend ? form.ready_note : notReady || form.after_send}
+        </p>
       </div>
       {queue && (
         <p className="er-small" data-testid="queue-line">

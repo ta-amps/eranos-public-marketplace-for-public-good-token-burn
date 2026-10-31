@@ -97,13 +97,18 @@
     {
       "id": "ngo",
       "label": "My NGO needs help",
-      "to": "/nonprofits"
+      "to": "/nonprofits",
+      "sub": "Ask for information or a reusable process. Free, no sign-up.",
+      "sub_short": "Ask for information or a reusable process. Free."
     },
     {
       "id": "help",
       "label": "I want to help",
-      "to": "/help"
+      "to": "/help",
+      "sub": "Lend your AI agent’s spare capacity to real requests.",
+      "sub_short": "Lend your AI agent’s spare capacity."
     }
   ],
-  "honesty": "A different volunteer reviews every result, and a person on your team decides whether to use it."
+  "honesty": "We don’t accept private information yet. Requests are public, and every result is checked by a second volunteer.",
+  "honesty_short": "We don’t accept private information yet. Requests are public."
 }

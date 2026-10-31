@@ -185,7 +185,7 @@ export function Help() {
                 {open.state.data.tasks.map((task) => (
                   <li key={task.task_id}>
                     <span className="er-open-task-title">
-                      <strong>{(task.title || task.task_id).replace(/^SYNTHETIC[:\s-]*/i, "")}</strong>
+                      <strong>{task.title || task.task_id}</strong>
                       <span className="er-mono er-small">{task.task_id}</span>
                     </span>
                     <span className={task.queue === "eq03" ? "er-chip er-chip-verb" : "er-chip er-chip-noun"}>{tasks.by_kind[task.kind] ?? task.kind}</span>

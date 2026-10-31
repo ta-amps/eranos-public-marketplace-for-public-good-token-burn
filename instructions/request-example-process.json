@@ -261,7 +261,21 @@
             "container": "The same container image, run as a scheduled job in your own account"
           }
         ]
-      }
+      },
+      "practice": [
+        {
+          "input": "SYNTHETIC: Scanned note, Tuesday. A family of four is two months behind on rent after a job loss and asks about help with rent and groceries.",
+          "expect": "A two-sentence summary in plain words, and one suggested referral from the organization's own list, such as emergency rental help. A person decides the referral."
+        },
+        {
+          "input": "SYNTHETIC: Scanned note, Thursday. An older man needs rides to weekly medical appointments; the handwriting is hard to read in one line.",
+          "expect": "A short summary that marks the unreadable line instead of guessing, and a suggested transport partner from the organization's own list."
+        },
+        {
+          "input": "SYNTHETIC: Scanned note, Friday. A young woman asks for help applying to a job-training program and for childcare during classes.",
+          "expect": "A summary with both needs, and two suggested partners from the organization's own list, one for training and one for childcare."
+        }
+      ]
     },
     "review_receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
     "build_receipt": "c7211baf14a8b7e9d9b750fc10aef034805ca051bc69c7923cef55e01b4e8f0e",

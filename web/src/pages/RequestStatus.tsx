@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { Icon } from "../components/Icon";
 import { SNAPSHOT } from "../config";
+import { PlainStatus, plainSummary } from "../components/status/PlainStatus";
 import { QueuePanel, StateNotice, StatusDiagram, StatusList, StatusLog } from "../components/status/StatusParts";
 import { getJson } from "../lib/api";
 import { fill, type RequestStatusNoun } from "../lib/nouns";
@@ -63,6 +64,16 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
   const [copied, setCopied] = useState("");
   const host = useRef<HTMLDivElement>(null);
   const listHost = useRef<HTMLDivElement>(null);
+  // The plain view is the default; `?view=technical` (or the switch) shows the diagram, names and receipts.
+  const [technical, setTechnical] = useState(() => new URLSearchParams(window.location.search).get("view") === "technical");
+  function toggleView() {
+    const next = !technical;
+    setTechnical(next);
+    const url = new URL(window.location.href);
+    if (next) url.searchParams.set("view", "technical");
+    else url.searchParams.delete("view");
+    window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+  }
   const derived: StatusView = useMemo(
     () =>
       deriveView(record, words, {
@@ -73,16 +84,18 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
       }),
     [record, words, now, routeId],
   );
+  const every = record.request.frequency === "recurring" ? (words.plain.every[record.request.cadence ?? ""] ?? "") : "";
+  const plain = useMemo(() => plainSummary(derived.facts, words.plain, formatClock, every), [derived.facts, words.plain, every]);
   const showDiagram = wide && view === "diagram";
   useStatusMotion(showDiagram ? host : listHost, record.events, derived, {
     reduced,
-    frozen: Boolean(live?.paused),
+    frozen: Boolean(live?.paused) || !technical,
     packetText: words.diagram.packet ?? "",
   });
 
   useEffect(() => {
-    document.title = derived.docTitle;
-  }, [derived.docTitle]);
+    document.title = technical ? derived.docTitle : `${plain.yourTurn ? `${words.plain.ready_title} \u00b7 ` : ""}${words.plain.tab_title}`;
+  }, [technical, derived.docTitle, plain.yourTurn, words.plain]);
 
   const choices = choiceLine(words, record);
   const sent = record.request.sent_at ? fill(words.meta.sent ?? "", { time: formatClock(record.request.sent_at) }) : null;
@@ -103,22 +116,34 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
       <div className="er-status-head">
         <div className="er-status-titles">
           <p className="er-status-meta">
-            {example ? (
+            {!technical ? (
+              <>
+                {example && <span>{words.meta.example} · </span>}
+                <span data-testid="plain-sent">
+                  {record.request.sent_at
+                    ? fill(live?.key ? words.plain.sent_line_key : words.plain.sent_line, { time: formatClock(record.request.sent_at) })
+                    : ""}
+                </span>
+              </>
+            ) : example ? (
               <span>{words.meta.example}</span>
             ) : (
               <>
                 {words.meta.request} <span className="er-mono">{derived.shortId}</span>
               </>
             )}
-            {sent && <span>· {sent}</span>}
-            {choices && <span>· {choices}</span>}
+            {technical && sent && <span>· {sent}</span>}
+            {technical && choices && <span>· {choices}</span>}
           </p>
           <h1>{derived.title || (example ? words.titles.example : words.titles.yours)}</h1>
         </div>
         <div className="er-status-actions">
           <span className={`er-chip er-overall er-overall-${derived.overall.tone}`} data-motion="overall" data-testid="overall">
-            {derived.overall.label}
+            {technical ? derived.overall.label : plain.chip}
           </span>
+          <button type="button" className="er-btn-secondary er-btn-small" aria-pressed={technical} onClick={toggleView} data-testid="view-switch">
+            {technical ? words.plain.show_simple : words.plain.show_technical}
+          </button>
           {live?.key && (
             <button type="button" className="er-btn-secondary" onClick={() => void copyLink()}>
               <Icon name="link" size={18} />
@@ -133,6 +158,18 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
         </p>
       )}
 
+      {!technical && (
+        <PlainStatus
+          summary={plain}
+          facts={derived.facts}
+          events={record.events}
+          words={words.plain}
+          clock={formatClock}
+          shareUrl={`${window.location.origin}/requests/${encodeURIComponent(routeId)}`}
+        />
+      )}
+
+      {technical && (
       <section className="er-live" aria-label={words.diagram.label}>
         <div className="er-live-bar">
           <p className="er-mode-line" data-testid="mode-line">
@@ -191,15 +228,16 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           <p className="er-small">{words.legend.motion}</p>
         </div>
       </section>
+      )}
 
       {notices}
 
-      <AddedPanel view={derived} words={words} routeId={routeId} example={Boolean(example)} />
+      {technical && <AddedPanel view={derived} words={words} routeId={routeId} example={Boolean(example)} />}
 
-      <div className="er-status-lower">
-        <StatusLog rows={derived.log} words={words} formatTime={formatTime} />
+      <div className={technical ? "er-status-lower" : "er-status-lower er-status-lower-plain"}>
+        {technical && <StatusLog rows={derived.log} words={words} formatTime={formatTime} />}
         <aside className="er-status-side">
-          {queue && <QueuePanel queue={queue} words={words} showAgents={Boolean(example)} />}
+          {technical && queue && <QueuePanel queue={queue} words={words} showAgents={Boolean(example)} />}
           <section className="er-panel">
             <h2 className="er-panel-title">{words.about.as_sent}</h2>
             <p>{record.request.text ?? words.about.removed}</p>

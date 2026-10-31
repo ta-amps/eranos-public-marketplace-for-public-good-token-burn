@@ -19,6 +19,7 @@ const Catalog = lazy(() => import("./pages/Catalog").then((page) => ({ default: 
 const Contribute = lazy(() => import("./pages/Contribute").then((page) => ({ default: page.Contribute })));
 const Fabric = lazy(() => import("./pages/Fabric").then((page) => ({ default: page.Fabric })));
 const KitDetail = lazy(() => import("./pages/KitDetail").then((page) => ({ default: page.KitDetail })));
+const YourRequests = lazy(() => import("./pages/YourRequests").then((page) => ({ default: page.YourRequests })));
 const Library = lazy(() => import("./pages/Library").then((page) => ({ default: page.Library })));
 const RequestResult = lazy(() => import("./pages/RequestResult").then((page) => ({ default: page.RequestResult })));
 const Tracks = lazy(() => import("./pages/Tracks").then((page) => ({ default: page.Tracks })));
@@ -47,6 +48,8 @@ function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
       return <Connect />;
     case "library":
       return <Library />;
+    case "yours":
+      return <YourRequests />;
     case "request":
       return <RequestStatus id={route.id} />;
     case "report":
@@ -81,6 +84,8 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string | null {
       return CONNECT_TITLE;
     case "library":
       return `Shared library · ${SURFACE_DISPLAY_NAME}`;
+    case "yours":
+      return `Your requests · ${SURFACE_DISPLAY_NAME}`;
     case "request":
     case "report":
       return null;

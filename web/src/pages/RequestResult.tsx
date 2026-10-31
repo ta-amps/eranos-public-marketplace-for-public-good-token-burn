@@ -27,6 +27,8 @@ interface ProcessSolution {
     holds: string[];
     person_only: string[];
   };
+  /** Made-up examples to try the process on before any real files (each marked SYNTHETIC). */
+  practice?: { input: string; expect: string }[];
   task: {
     id: string;
     title: string;
@@ -50,6 +52,80 @@ interface Loaded {
   checker?: { who?: string; model?: string };
   decision: { choice: DecisionChoice; at: number; version?: number } | null;
   decisionsVersion: number;
+}
+
+function sentences(text: string): string[] {
+  return text
+    .split(/(?<=[.!?])\s+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+/** The Markdown address of a process result, which any agent can read (served by the Worker from the same nouns). */
+function processDoc(id: string, part: number, doc: "agent" | "practice"): string {
+  return `${window.location.origin}/p/${encodeURIComponent(id)}/${doc}.md${part > 1 ? `?part=${part}` : ""}`;
+}
+
+function CopyLine({ text, words }: { text: string; words: RequestStatusNoun }) {
+  const [done, setDone] = useState(false);
+  return (
+    <div className="er-copy-line">
+      <code>{text}</code>
+      <button
+        type="button"
+        className="er-btn-secondary er-btn-small"
+        onClick={() =>
+          void navigator.clipboard.writeText(text).then(
+            () => {
+              setDone(true);
+              window.setTimeout(() => setDone(false), 2400);
+            },
+            () => setDone(false),
+          )
+        }
+      >
+        {done ? words.steps.copied : words.steps.copy}
+      </button>
+    </div>
+  );
+}
+
+function RunChoice({
+  way,
+  words,
+  open: initial,
+  first,
+  children,
+}: {
+  way: { id: string; name: string; how: string; container: string | null };
+  words: RequestStatusNoun;
+  open: boolean;
+  first: boolean;
+  children?: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(initial);
+  return (
+    <li className="er-run-choice" data-embodiment={way.id} data-first={first || undefined}>
+      <div className="er-run-head">
+        <strong>{way.name}</strong>
+        <button type="button" className="er-btn-quiet er-btn-small" aria-expanded={open} onClick={() => setOpen(!open)}>
+          {open ? words.steps.hide_how : words.steps.show_how}
+        </button>
+      </div>
+      <span className="er-small">{way.how}</span>
+      {open && (
+        <div className="er-run-body">
+          {children}
+          {way.container && (
+            <span className="er-embodiment-container">
+              <span className="er-small">{words.result.container}</span>
+              <code>{way.container}</code>
+            </span>
+          )}
+        </div>
+      )}
+    </li>
+  );
 }
 
 function host(url: string): string {
@@ -178,7 +254,7 @@ function DecisionPanel({
       <div className="er-decision er-decision-done" data-testid="decision-revising">
         <p className="er-decision-head">
           <Icon name="circle-dashed" size={20} strokeWidth={2} />
-          {r.revising_head}
+          {words.decide.pending_head}
         </p>
         <p className="er-small">
           {revision.id
@@ -197,7 +273,7 @@ function DecisionPanel({
     return (
       <div className="er-decision er-decision-open" data-testid="decision-changes">
         <label htmlFor="changes-note" className="er-decision-head">
-          {r.changes_label}
+          {words.decide.changes_label}
         </label>
         <textarea
           id="changes-note"
@@ -209,12 +285,12 @@ function DecisionPanel({
           placeholder={r.changes_placeholder}
           onChange={(event) => setNote(event.target.value)}
         />
-        <p className="er-small">{fill(r.changes_note ?? "", { n: partNumber })}</p>
+        <p className="er-small">{words.decide.changes_note}</p>
         <button type="button" className="er-btn-primary" disabled={saving || note.trim().length < 3} onClick={() => onDecide("changes", note.trim())}>
-          {saving ? r.saving : r.send_back}
+          {saving ? r.saving : words.decide.send}
         </button>
         <button type="button" className="er-btn-quiet" onClick={() => setAsking(false)}>
-          {r.cancel}
+          {words.decide.cancel}
         </button>
         {error && (
           <p className="er-field-error" role="alert">
@@ -225,13 +301,14 @@ function DecisionPanel({
     );
   }
   if (loaded.decision) {
-    const label = loaded.decision.choice === "use" ? r.recorded_use : loaded.decision.choice === "changes" ? r.recorded_changes : r.recorded_dont;
+    const label = loaded.decision.choice === "use" ? words.decide.done_head : loaded.decision.choice === "changes" ? r.recorded_changes : r.recorded_dont;
     return (
       <div className="er-decision er-decision-done" data-testid="decision-recorded">
         <p className="er-decision-head">
           <Icon name="user-round-check" size={20} strokeWidth={2} />
           {label}
         </p>
+        {loaded.decision.choice === "use" && <p className="er-small">{words.decide.done_body}</p>}
         <p className="er-small">
           {loaded.example
             ? fill(r.recorded_example ?? "", { time: formatClock(loaded.decision.at) })
@@ -259,19 +336,14 @@ function DecisionPanel({
     <div className="er-decision er-decision-open" data-testid="decision-open">
       <p className="er-decision-head er-decision-turn">
         <Icon name="circle-alert" size={20} strokeWidth={2} />
-        {r.your_turn}
+        {words.decide.title}
       </p>
-      <p className="er-small">
-        {r.you_decide} {legal ? r.note : r.note_plain}
-      </p>
+      <p className="er-small">{processPart ? words.decide.lead_process : legal ? words.decide.lead_information : r.note_plain}</p>
       <button type="button" className="er-btn-primary er-btn-large" disabled={saving} onClick={() => onDecide("use")}>
-        {saving ? r.saving : processPart ? words.result.use : r.use}
+        {saving ? r.saving : words.decide.yes}
       </button>
       <button type="button" className="er-btn-secondary" disabled={saving} onClick={() => setAsking(true)}>
-        {r.changes}
-      </button>
-      <button type="button" className="er-btn-quiet" disabled={saving} onClick={() => onDecide("dont")}>
-        {r.dont}
+        {words.decide.changes}
       </button>
       {error && (
         <p className="er-field-error" role="alert">
@@ -305,7 +377,7 @@ export function RequestResult({ id }: { id: string }) {
   const shortId = shortRequestId(loaded?.requestId ?? id);
   const back = (
     <AppLink to={`/requests/${encodeURIComponent(id)}`} className="er-text-link">
-      {fill(words.result.back ?? "", { short: shortId })}
+      {words.steps.back}
     </AppLink>
   );
   if (missing) {
@@ -383,24 +455,31 @@ export function RequestResult({ id }: { id: string }) {
     <div className="er-result-page" data-testid="request-result">
       <article className="er-result-main">
         {back}
-        <p className="er-chip-row">
-          <span className="er-chip er-chip-noun">{fill(processPart ? (words.result.process_badge ?? "") : (r.part_badge ?? ""), { n: partNumber })}</span>
-          {approved && (
-            <span className="er-reviewed-line" data-testid="reviewed-badge">
-              {view.checker?.who ? fill(r.reviewed_line ?? "", { who: view.checker.who }) : r.approved_badge}
-              {solution?.review_receipt && <span className="er-receipt"> · {fill(words.chips.receipt ?? "", { r: shortReceipt(solution.review_receipt) })}</span>}
-            </span>
+        <p className="er-chip-row" data-testid="result-tags">
+          <span className="er-chip er-chip-noun">{processPart ? words.steps.tag_process : words.steps.tag_information}</span>
+          {revision ? (
+            <span className="er-chip">{words.steps.tag_updating}</span>
+          ) : (
+            approved && <span className="er-chip er-chip-real">{words.steps.tag_checked}</span>
           )}
         </p>
         {!solution && <StateNotice tone="wait" head={processPart ? (words.result.not_ready ?? "") : (r.not_ready ?? "")} testId="result-not-ready" />}
         {report && (
           <>
             <h1>{report.title}</h1>
-            <p className="er-result-meta">{meta.join(" · ")}</p>
             {report.summary && (
-              <section className="er-panel">
-                <h2 className="er-panel-title">{r.in_short}</h2>
-                <p>{Array.isArray(report.summary) ? report.summary.join(" ") : report.summary}</p>
+              <section className="er-panel" data-testid="in-short">
+                <h2 className="er-panel-title">{words.steps.in_short}</h2>
+                {Array.isArray(report.summary) ? (
+                  <ol className="er-plain-steps">
+                    {report.summary.map((point) => (
+                      <li key={point}>{point}</li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p>{report.summary}</p>
+                )}
+                <p className="er-small">{words.steps.in_short_note}</p>
               </section>
             )}
             <section className="er-result-section" aria-labelledby="findings-title">
@@ -431,7 +510,7 @@ export function RequestResult({ id }: { id: string }) {
               <ol className="er-sources">
                 {report.sources.map((source, i) => (
                   <li key={source.id} id={`source-${i + 1}`}>
-                    {source.title.replace(/^SYNTHETIC\s+/, "")} · <span className="er-mono">{host(source.url)}</span>
+                    {source.title} · <span className="er-mono">{host(source.url)}</span>
                     {source.published ? ` · ${fill(r.published ?? "", { date: source.published })}` : ""} ·{" "}
                     <span className="er-checked">{r.checked}</span>
                   </li>
@@ -445,101 +524,71 @@ export function RequestResult({ id }: { id: string }) {
         {process && (
           <>
             <h1>{process.task_object.title}</h1>
-            <p className="er-result-meta">{meta.join(" · ")}</p>
             {view.example && <p className="er-small">{words.result.example_note}</p>}
-            <section className="er-panel er-process" aria-labelledby="process-title" data-testid="task-object">
-              <p className="er-chip-row">
-                <span className="er-chip er-chip-noun er-chip-mono">{words.result.task_object}</span>
-                <span className="er-mono er-small">{process.task_object.id}</span>
-              </p>
-              <h2 id="process-title">{words.result.what}</h2>
-              <p>{process.task_object.description}</p>
-              <h3>{words.result.holds}</h3>
+            <section className="er-panel er-process er-step" aria-labelledby="process-title" data-testid="task-object" data-object-id={process.task_object.id}>
+              <h2 id="process-title">{words.steps.what}</h2>
               <ul className="er-plain-list">
-                {process.task_object.holds.map((line) => (
+                {sentences(process.task_object.description).map((line) => (
                   <li key={line}>{line}</li>
                 ))}
               </ul>
-              <div className="er-process-columns">
-                <div>
-                  <h3>{words.result.how_to}</h3>
-                  <ol className="er-plain-steps">
-                    {process.task_object.how_to.map((line) => (
+              {process.task_object.person_only.length > 0 && (
+                <>
+                  <p className="er-small er-step-sub">{words.steps.only_person}</p>
+                  <ul className="er-person-list">
+                    {process.task_object.person_only.map((line) => (
                       <li key={line}>{line}</li>
                     ))}
-                  </ol>
-                </div>
-                <div>
-                  <h3>{words.result.install}</h3>
-                  <ol className="er-plain-steps">
-                    {process.task_object.install.map((line) => (
-                      <li key={line}>{line}</li>
-                    ))}
-                  </ol>
-                </div>
-              </div>
-              <h3>{words.result.person_only}</h3>
-              <ul className="er-person-list">
-                {process.task_object.person_only.map((line) => (
-                  <li key={line}>{line}</li>
-                ))}
-              </ul>
+                  </ul>
+                </>
+              )}
             </section>
-            <section className="er-panel er-process" aria-labelledby="task-title" data-testid="runnable-task">
-              <p className="er-chip-row">
-                <span className="er-chip er-chip-verb er-chip-mono">{words.result.task}</span>
-                <span className="er-mono er-small">{process.task.id}</span>
-              </p>
-              <h2 id="task-title">{words.result.run_title}</h2>
-              <p className="er-small">{words.result.run_lead}</p>
-              <p>
-                <strong>{process.task.title}</strong>
-              </p>
-              <dl className="er-task-facts">
-                <div>
-                  <dt>{words.result.input}</dt>
-                  <dd>{process.task.input}</dd>
-                </div>
-                <div>
-                  <dt>{words.result.output}</dt>
-                  <dd>{process.task.output}</dd>
-                </div>
-                <div>
-                  <dt>{words.result.schedule}</dt>
-                  <dd>{process.task.schedule}</dd>
-                </div>
-              </dl>
-              <h3>{words.result.embodiments}</h3>
-              <ul className="er-embodiments">
-                {process.task.embodiments.map((way) => (
-                  <li key={way.id} data-embodiment={way.id}>
-                    <strong>{way.name}</strong>
-                    <span>{way.how}</span>
-                    {way.container && (
-                      <span className="er-embodiment-container">
-                        <span className="er-small">{words.result.container}</span>
-                        <code>{way.container}</code>
-                      </span>
+            {(process.practice?.length ?? 0) > 0 && (
+              <section className="er-panel er-process er-step" aria-labelledby="practice-title" data-testid="practice-step">
+                <h2 id="practice-title">{words.steps.practice}</h2>
+                <p>{words.steps.practice_lead}</p>
+                <CopyLine text={fill(words.steps.practice_message, { url: processDoc(id, partNumber, "practice") })} words={words} />
+              </section>
+            )}
+            <section className="er-panel er-process er-step" aria-labelledby="task-title" data-testid="runnable-task" data-task-id={process.task.id}>
+              <h2 id="task-title">{words.steps.run}</h2>
+              <p>{words.steps.run_lead}</p>
+              <ul className="er-run-choices">
+                {process.task.embodiments.map((way, index) => (
+                  <RunChoice key={way.id} way={way} words={words} open={false} first={index === 0}>
+                    {way.id === "agent" && <CopyLine text={fill(words.steps.agent_message, { url: processDoc(id, partNumber, "agent") })} words={words} />}
+                    {way.id === "agent" && (
+                      <ol className="er-plain-steps">
+                        {process.task_object.how_to.map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                      </ol>
                     )}
-                  </li>
+                    {way.id !== "agent" && (
+                      <ol className="er-plain-steps">
+                        {process.task_object.install.map((line) => (
+                          <li key={line}>{line}</li>
+                        ))}
+                      </ol>
+                    )}
+                  </RunChoice>
                 ))}
               </ul>
-              <div className="er-actions">
-                <button
-                  type="button"
-                  className="er-btn-secondary"
-                  onClick={() =>
-                    void navigator.clipboard
-                      .writeText([process.task.title, process.task.input, process.task.output, ...process.task_object.how_to].join("\n"))
-                      .then(() => setCopied(true), () => setCopied(false))
-                  }
-                >
-                  <Icon name="copy" size={18} />
-                  {copied ? words.result.copied : words.result.copy_task}
-                </button>
-              </div>
+              <p className="er-small">
+                {process.task.input} → {process.task.output}. {process.task.schedule}
+              </p>
             </section>
           </>
+        )}
+        {approved && (
+          <details className="er-details er-checked-how">
+            <summary>{words.steps.checked_how}</summary>
+            <p className="er-reviewed-line" data-testid="reviewed-badge">
+              {view.checker?.who ? fill(r.reviewed_line ?? "", { who: view.checker.who }) : r.approved_badge}
+              {solution?.review_receipt && <span className="er-receipt"> · {fill(words.chips.receipt ?? "", { r: shortReceipt(solution.review_receipt) })}</span>}
+            </p>
+            <p className="er-result-meta">{meta.join(" · ")}</p>
+          </details>
         )}
         {solution && (
           <section className="er-bridge">

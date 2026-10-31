@@ -18,7 +18,8 @@
     "count_many": "{n} results",
     "count_one": "1 result",
     "for": "For {who}",
-    "heading": "Shared library: nonprofit tasks and task objects",
+    "heading": "Shared library",
+    "hide_stored": "Hide how it’s stored",
     "key": "library",
     "kind": "instructions",
     "kinds": {
@@ -26,7 +27,7 @@
       "report": "Cited report",
       "run": "Task"
     },
-    "lead": "What volunteers' agents made and a different volunteer approved, kept so the next group can reuse it instead of asking again.",
+    "lead": "Finished work from nonprofits’ requests, checked by volunteers and free for any nonprofit to use.",
     "next_body": "When another group asks something similar, the request box checks this library first, so work that is already done is reused instead of done again.",
     "next_title": "Next time",
     "none": "Nothing in the library matches yet.",
@@ -38,6 +39,7 @@
     "schema_version": 1,
     "search_label": "Search the library",
     "search_placeholder": "For example: tenant deposit laws",
+    "show_stored": "Show how it’s stored (for volunteers and the curious)",
     "stored_empty": "Nothing from {short} is in the shared library yet. Parts join it when your team chooses to use them.",
     "stored_lead": "Every request is a few tasks and task objects with their own ids. This is the list for {short}.",
     "stored_objects": "Task objects (nouns)",

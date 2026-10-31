@@ -72,7 +72,7 @@ const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
 
 ## The two sides
 - /help: I want to help. Connect your own agent, copy a starting brief and see the open tasks.
-- /nonprofits: I'm an NGO looking for agentic solutions. Browse reviewed example kits, or tell us what you need in one plain box.
+- /nonprofits: My NGO needs help. Ask for information or a reusable process, in plain words, with no private information.
 
 ## Discovery & API
 - /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
@@ -589,7 +589,7 @@ async function withDraftDigest(result, body) {
 // The web app's pages, as web/src/router.tsx lists them (tests/test_marketplace_site.py keeps the two equal).
 // Any other page address gets the app shell, whose router shows "Page not found", with status 404, so agents
 // and link checkers can tell a missing page from a real one.
-const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library"];
+const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library", "/requests"];
 const APP_KIT_PAGE_RE = /^\/catalog\/[^/]+$/;
 // A request's status page and its result page (the private link's key stays in the #k= fragment, which never
 // reaches this Worker).
@@ -755,6 +755,68 @@ async function loadNounList(request, env, store) {
   }
   const snap = await fetchAssetJson(request, env, `/snapshot/nouns/${store}.json`);
   return snap && snap.store === store && Array.isArray(snap.records) ? snap : { synthetic: true, store, records: [] };
+}
+
+// /p/<request id>/agent.md and /p/<request id>/practice.md: a process result as Markdown any agent can read. It is
+// rendered from the public nouns that hold the result (the example's own noun, or the plan and the solution it
+// names), so the page and the agent read the same thing. Nothing is stored and nothing runs here.
+const PROCESS_DOC_RE = /^\/p\/([A-Za-z0-9][A-Za-z0-9_.:-]{0,159})\/(agent|practice)\.md$/;
+const EXAMPLE_RESULT_NOUNS = { example: "request-example", "example-process": "request-example-process" };
+
+async function loadProcessResult(request, env, id, partNumber) {
+  if (Object.prototype.hasOwnProperty.call(EXAMPLE_RESULT_NOUNS, id)) {
+    const found = await loadNoun(request, env, "eranos.instructions", EXAMPLE_RESULT_NOUNS[id]);
+    const solution = found && found.value && found.value.solution;
+    return solution && solution.process ? { process: solution.process, review_receipt: solution.review_receipt || null } : null;
+  }
+  if (!NOUN_KEY_RE.test(id)) return null;
+  const plan = await loadNoun(request, env, "eranos.plans", id);
+  const parts = plan && plan.value && Array.isArray(plan.value.parts) ? plan.value.parts : [];
+  const part = parts.find((p) => p && p.part === partNumber) || parts.find((p) => p && p.route === "private-files");
+  const resultId = part && (part.kit_id || part.report_id);
+  if (!resultId || !NOUN_KEY_RE.test(String(resultId))) return null;
+  const solution = await loadNoun(request, env, "eranos.solutions", String(resultId));
+  const value = solution && solution.value;
+  return value && value.process ? { process: value.process, review_receipt: value.review_receipt || null } : null;
+}
+
+function mdList(items, numbered) {
+  return (Array.isArray(items) ? items : []).map((line, i) => `${numbered ? `${i + 1}.` : "-"} ${String(line)}`).join("\n");
+}
+
+function processAgentMarkdown(origin, id, found) {
+  const o = found.process.task_object || {};
+  const t = found.process.task || {};
+  return [
+    `# ${t.title || o.title || "A reusable process"}`,
+    o.description || "",
+    "## What you need",
+    `- Input: ${t.input || ""}\n- Output: ${t.output || ""}\n- Schedule: ${t.schedule || ""}`,
+    "## Set it up",
+    mdList(o.install, true),
+    "## Run it",
+    mdList(o.how_to, true),
+    "## Only a person does this",
+    mdList(o.person_only, false),
+    "## Rules",
+    `- Work only on the folder the person chooses. Nothing leaves their computer.\n- Never send anything outside their organization.\n- Before real files, try the made-up examples: ${origin}/p/${id}/practice.md`,
+    found.review_receipt ? `Checked by a second volunteer. Review receipt: ${found.review_receipt}` : "",
+  ].filter(Boolean).join("\n\n") + "\n";
+}
+
+function processPracticeMarkdown(origin, id, found) {
+  const cases = Array.isArray(found.process.practice) ? found.process.practice : [];
+  if (!cases.length) return null;
+  const o = found.process.task_object || {};
+  const lines = [
+    `# Practice: ${o.title || "a reusable process"}`,
+    `These examples are made up; each is marked SYNTHETIC and holds no real person's information. Try the process on them before any real files: ${origin}/p/${id}/agent.md`,
+    "Then tell the person what it got right and what it got wrong.",
+  ];
+  cases.forEach((c, i) => {
+    lines.push(`## Example ${i + 1}`, `Input: ${String(c.input || "")}`, `A good result: ${String(c.expect || "")}`);
+  });
+  return lines.join("\n\n") + "\n";
 }
 
 async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
@@ -1501,7 +1563,8 @@ async function handleDiscoveryRoute(request, env, pathname) {
     pathname === "/robots.txt" ||
     pathname === "/llms.txt" ||
     pathname === "/llms-full.txt" ||
-    pathname === "/.well-known/agent-card.json"
+    pathname === "/.well-known/agent-card.json" ||
+    PROCESS_DOC_RE.test(pathname)
   ) {
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD" } });
@@ -1522,9 +1585,20 @@ async function handleDiscoveryRoute(request, env, pathname) {
     if (pathname === "/robots.txt") {
       return textResp(ROBOTS_TXT, "text/plain; charset=utf-8");
     }
+    const processDoc = PROCESS_DOC_RE.exec(pathname);
+    if (processDoc) {
+      const id = processDoc[1];
+      const part = Number(new URL(request.url).searchParams.get("part")) || 1;
+      const found = await loadProcessResult(request, env, id, part);
+      const origin = new URL(request.url).origin;
+      const text = found ? (processDoc[2] === "agent" ? processAgentMarkdown(origin, id, found) : processPracticeMarkdown(origin, id, found)) : null;
+      return text ? textResp(text, "text/markdown; charset=utf-8") : textResp("No reusable process is published at this address.\n", "text/plain; charset=utf-8", 404);
+    }
     if (pathname === "/llms.txt") {
-      const fromAsset = await fetchAssetText(request, env, "/llms.txt");
-      return textResp((fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.ta-amps.workers.dev/connect.\n", "text/plain; charset=utf-8");
+      const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
+      const fromNoun = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : null;
+      const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms.txt");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.ta-amps.workers.dev/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
       const fromAsset = await fetchAssetText(request, env, "/llms-full.txt");

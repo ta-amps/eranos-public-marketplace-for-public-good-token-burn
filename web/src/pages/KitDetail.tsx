@@ -302,7 +302,7 @@ export function KitDetail({ id }: { id: string }) {
                 </span>
               </div>
               <p className="er-muted">
-                <strong>{fx.scenario}:</strong> {fx.sample_input.replace(/^SYNTHETIC[:\s-]*/i, "")}
+                <strong>{fx.scenario}:</strong> {fx.sample_input}
               </p>
             </div>
           ))}

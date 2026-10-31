@@ -54,3 +54,39 @@ export function requesterKeyFor(requestId: string, hash: string): string | null 
 export function privateLink(origin: string, requestId: string, key: string): string {
   return `${origin}/requests/${encodeURIComponent(requestId)}#k=${key}`;
 }
+
+export interface SavedRequest {
+  id: string;
+  /** When it was sent, read from the request id itself (rq-<principal>-<base36 milliseconds>). */
+  sentAt: number | null;
+}
+
+/** The requests whose private links this browser holds, newest first. Only ids are listed; keys stay in storage. */
+export function savedRequests(): SavedRequest[] {
+  const ids = new Set(inMemory.keys());
+  try {
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const name = window.localStorage.key(i);
+      if (name?.startsWith(STORAGE_PREFIX) && isRequesterKey(window.localStorage.getItem(name))) ids.add(name.slice(STORAGE_PREFIX.length));
+    }
+  } catch {
+    // Storage can be blocked; this tab's links still count.
+  }
+  return [...ids]
+    .filter((id) => /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/.test(id))
+    .map((id) => {
+      const sent = parseInt(id.slice(id.lastIndexOf("-") + 1), 36);
+      return { id, sentAt: Number.isFinite(sent) && sent > 1.6e12 && sent < 4.1e12 ? sent : null };
+    })
+    .sort((a, b) => (b.sentAt ?? 0) - (a.sentAt ?? 0));
+}
+
+/** Forget one request's private link in this browser. */
+export function forgetKey(requestId: string): void {
+  inMemory.delete(requestId);
+  try {
+    window.localStorage.removeItem(STORAGE_PREFIX + requestId);
+  } catch {
+    // Nothing else to do.
+  }
+}

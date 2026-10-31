@@ -9,14 +9,14 @@
   "nav_label": "Primary navigation",
   "nav": [
     {
+      "to": "/nonprofits",
+      "label": "My NGO needs help",
+      "match": "nonprofits"
+    },
+    {
       "to": "/help",
       "label": "I want to help",
       "match": "help"
-    },
-    {
-      "to": "/nonprofits",
-      "label": "For nonprofits",
-      "match": "nonprofits"
     },
     {
       "to": "/library",
@@ -25,11 +25,11 @@
     },
     {
       "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
-      "label": "Overview deck",
+      "label": "How it works",
       "external": true
     }
   ],
-  "external_note": "opens the overview deck on Agora",
+  "external_note": "(opens the overview deck on Agora)",
   "menu": {
     "button": "Menu",
     "open_label": "Open menu",
@@ -41,6 +41,18 @@
     "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
     "links_label": "Footer and agent discovery links",
     "links": [
+      {
+        "label": "Library",
+        "to": "/library"
+      },
+      {
+        "label": "Your requests",
+        "to": "/requests"
+      },
+      {
+        "label": "Status",
+        "to": "/fabric"
+      },
       {
         "label": "Agora",
         "href": "https://agora.ta-amps.workers.dev/"
@@ -75,5 +87,9 @@
       }
     ],
     "storage": "This browser keeps two things for you: your requests' private links and any request text you haven't sent. Nothing else is stored."
+  },
+  "yours": {
+    "label": "Your requests",
+    "to": "/requests"
   }
 }

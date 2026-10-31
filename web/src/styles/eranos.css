@@ -200,11 +200,28 @@
 }
 
 /* ---------------------------------------------------------------- banner, header and menu */
+/* The shared <ta-agent-banner> (the same file as Agora's) draws itself in its shadow root; these rules hold its
+   place before it runs and give it the same dark strip as on Agora (AgentBanner and BannerSpec boards). */
 ta-agent-banner {
   display: block;
-  min-height: 36px;
-  background: var(--sunken);
-  border-bottom: 1px solid var(--line);
+  min-height: 37px;
+  background: var(--agent-banner-bg);
+  color: var(--agent-banner-ink);
+  border-bottom: 1px solid var(--agent-banner-line);
+  --agent-banner-bg: #11161f;
+  --agent-banner-ink: #f5f2ea;
+  --agent-banner-muted: #c8d0dc;
+  --agent-banner-raised: #222732;
+  --agent-banner-line: #2b313d;
+  --agent-banner-edge: #3b4252;
+  --agent-banner-link: #9dbbf0;
+  --agent-banner-focus: #f0884f;
+}
+@media (prefers-color-scheme: dark) {
+  ta-agent-banner {
+    --agent-banner-bg: #0b0f16;
+    --agent-banner-raised: #1b2230;
+  }
 }
 .er-header {
   background: var(--bg);
@@ -383,7 +400,8 @@ ta-agent-banner {
   }
 }
 @media (max-width: 599px) {
-  .er-header .er-nav {
+  .er-header .er-nav,
+  .er-header .er-yours-link {
     display: none;
   }
   .er-menu-button {
@@ -2119,4 +2137,312 @@ ta-agent-banner {
   margin: 8px 0 0;
   font-size: var(--fs-ui);
   overflow-wrap: anywhere;
+}
+
+/* RequestForm board: example lines, the tip's title, the live privacy line and the advanced settings. */
+.er-choice-example {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-2, inherit);
+  font-style: italic;
+}
+.er-tip-title {
+  display: block;
+  margin-bottom: 4px;
+}
+.er-check-line {
+  margin: 0;
+}
+.er-cadence {
+  margin-top: 10px;
+}
+button.er-choice-pill {
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+}
+.er-choice-pill.er-pill-on {
+  border-color: var(--text);
+}
+.er-other-input {
+  min-width: min(240px, 100%);
+}
+.er-advanced > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.er-advanced-title {
+  font-weight: 600;
+}
+.er-adv-question {
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+}
+.er-adv-question legend {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.er-improve {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.er-yours-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-left: 24px;
+  padding: 0 14px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.er-yours-link[aria-current="page"] {
+  border-color: var(--text);
+}
+.er-yours-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.er-yours-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+/* ---------------------------------------------------------- plain view */
+.er-plain {
+  display: grid;
+  gap: 20px;
+  margin-top: 20px;
+}
+.er-stages {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+.er-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 12px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  transition: border-color 240ms ease, background-color 240ms ease;
+}
+.er-stage-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+}
+.er-stage-title {
+  font-weight: 600;
+}
+.er-stage-line {
+  font-size: var(--fs-small);
+  color: var(--text-2);
+}
+.er-stage-done .er-stage-dot {
+  background: var(--text);
+  border-color: var(--text);
+}
+.er-stage-now {
+  border-color: var(--text);
+  border-width: 2px;
+}
+.er-stage-now .er-stage-dot {
+  border-color: var(--text);
+}
+.er-stage-upcoming {
+  opacity: 0.72;
+}
+.er-plain-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.er-making,
+.er-happened {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.er-making li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.er-making-kind {
+  margin: 12px 0 0;
+  font-size: 1rem;
+}
+.er-tag {
+  flex-shrink: 0;
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--text-2);
+}
+.er-happened li {
+  display: flex;
+  gap: 12px;
+}
+.er-happened-time {
+  flex-shrink: 0;
+  min-width: 4.5em;
+}
+.er-share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.er-share p {
+  margin: 0;
+}
+.er-block {
+  display: block;
+}
+.er-link-button {
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+.er-status-lower-plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (max-width: 899px) {
+  .er-stages {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .er-stage {
+    display: grid;
+    grid-template-columns: 16px minmax(0, 1fr);
+    column-gap: 10px;
+    align-items: center;
+  }
+  .er-stage-line {
+    grid-column: 2;
+  }
+  .er-plain-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .er-stage {
+    transition: none;
+  }
+}
+/* The request box morphs into the plain view's first stage, as it does into the diagram's request node. */
+.er-plain .er-stage[data-stage="sent"] {
+  view-transition-name: request;
+}
+
+/* Result page: three numbered steps, copyable lines and run choices. */
+.er-step h2 {
+  margin-top: 0;
+}
+.er-step-sub {
+  margin: 12px 0 4px;
+}
+.er-copy-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.er-copy-line code {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-2, var(--surface));
+  border: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  overflow-wrap: anywhere;
+}
+.er-run-choices {
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.er-run-choice {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.er-run-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.er-run-body {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+.er-checked-how {
+  margin-top: 16px;
+}
+
+/* Home doors: the label with its arrow, then the sub-line (long on wide screens, short on phones). */
+.er-door {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  height: auto;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  text-align: left;
+}
+.er-door-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.er-door-sub {
+  font-size: var(--fs-small);
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: normal;
+}
+.er-short {
+  display: none;
+}
+@media (max-width: 599px) {
+  .er-long {
+    display: none;
+  }
+  .er-short {
+    display: inline;
+  }
 }

@@ -212,6 +212,20 @@
       "build_receipt": "c7211baf14a8b7e9d9b750fc10aef034805ca051bc69c7923cef55e01b4e8f0e",
       "next_step": "A person at the nonprofit decides whether to use this process.",
       "process": {
+        "practice": [
+          {
+            "expect": "A two-sentence summary in plain words, and one suggested referral from the organization's own list, such as emergency rental help. A person decides the referral.",
+            "input": "SYNTHETIC: Scanned note, Tuesday. A family of four is two months behind on rent after a job loss and asks about help with rent and groceries."
+          },
+          {
+            "expect": "A short summary that marks the unreadable line instead of guessing, and a suggested transport partner from the organization's own list.",
+            "input": "SYNTHETIC: Scanned note, Thursday. An older man needs rides to weekly medical appointments; the handwriting is hard to read in one line."
+          },
+          {
+            "expect": "A summary with both needs, and two suggested partners from the organization's own list, one for training and one for childcare.",
+            "input": "SYNTHETIC: Scanned note, Friday. A young woman asks for help applying to a job-training program and for childcare during classes."
+          }
+        ],
         "task": {
           "embodiments": [
             {

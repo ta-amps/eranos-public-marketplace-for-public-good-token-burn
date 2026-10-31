@@ -165,7 +165,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (15)
+## instructions/ (16)
 
 | File | What it is |
 |---|---|
@@ -176,6 +176,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [instructions/help.json](instructions/help.json) | Help in six steps |
 | [instructions/home.json](instructions/home.json) | Home page |
 | [instructions/library.json](instructions/library.json) | Shared library |
+| [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos |
 | [instructions/nonprofits-page.json](instructions/nonprofits-page.json) | Tell us what you need |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
@@ -194,11 +195,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (13)
+## tests/ (14)
 
 | File | What it is |
 |---|---|
 | [tests/test_agent_access.py](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
+| [tests/test_agent_banner_shared.py](tests/test_agent_banner_shared.py) | The agent banner is one shared file: Agora and Eranos serve the same bytes, so the two sites never drift. |
 | [tests/test_api_and_edge.py](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
 | [tests/test_example_runs.py](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
@@ -231,7 +233,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (158)
+## web/ (163)
 
 | File | What it is |
 |---|---|
@@ -270,6 +272,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/nouns/eranos.instructions/help.json](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/home.json](web/public/snapshot/nouns/eranos.instructions/home.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/library.json](web/public/snapshot/nouns/eranos.instructions/library.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/llms.json](web/public/snapshot/nouns/eranos.instructions/llms.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json](web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/nonprofits.json](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/public-research.json](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
@@ -312,6 +315,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/nouns/eranos.instructions/help.json](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/home.json](web/snapshot/nouns/eranos.instructions/home.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/library.json](web/snapshot/nouns/eranos.instructions/library.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/llms.json](web/snapshot/nouns/eranos.instructions/llms.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/nonprofits-page.json](web/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/nonprofits.json](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/public-research.json](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
@@ -330,6 +334,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: synthetic, stages, requests |
 | [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: synthetic, tracks |
 | [web/src/App.tsx](web/src/App.tsx) |  |
+| [web/src/components/AdvancedSettings.tsx](web/src/components/AdvancedSettings.tsx) |  |
 | [web/src/components/BoundaryBadge.tsx](web/src/components/BoundaryBadge.tsx) |  |
 | [web/src/components/ErrorAlert.tsx](web/src/components/ErrorAlert.tsx) |  |
 | [web/src/components/Footer.tsx](web/src/components/Footer.tsx) |  |
@@ -338,6 +343,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/components/OpenTasks.tsx](web/src/components/OpenTasks.tsx) |  |
 | [web/src/components/RequestBox.tsx](web/src/components/RequestBox.tsx) |  |
 | [web/src/components/TopBar.tsx](web/src/components/TopBar.tsx) |  |
+| [web/src/components/status/PlainStatus.tsx](web/src/components/status/PlainStatus.tsx) |  |
 | [web/src/components/status/StatusParts.tsx](web/src/components/status/StatusParts.tsx) |  |
 | [web/src/config.ts](web/src/config.ts) |  |
 | [web/src/lib/api.ts](web/src/lib/api.ts) |  |
@@ -378,6 +384,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/pages/RequestResult.tsx](web/src/pages/RequestResult.tsx) |  |
 | [web/src/pages/RequestStatus.tsx](web/src/pages/RequestStatus.tsx) |  |
 | [web/src/pages/Tracks.tsx](web/src/pages/Tracks.tsx) |  |
+| [web/src/pages/YourRequests.tsx](web/src/pages/YourRequests.tsx) |  |
 | [web/src/router.tsx](web/src/router.tsx) |  |
 | [web/src/styles/app.css](web/src/styles/app.css) |  |
 | [web/src/styles/base.css](web/src/styles/base.css) |  |

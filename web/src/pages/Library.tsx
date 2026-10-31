@@ -31,6 +31,8 @@ interface LibraryNoun {
   count_one: string;
   count_many: string;
   stored_title: string;
+  show_stored: string;
+  hide_stored: string;
   stored_lead: string;
   stored_objects: string;
   stored_tasks: string;
@@ -109,6 +111,8 @@ export function Library() {
   const requestId = params.get("request");
   const [query, setQuery] = useState(params.get("q") ?? "");
   const [tab, setTab] = useState<"all" | "objects" | "tasks">("all");
+  // The plain library first; how it is stored (task objects, tasks, records) opens on request.
+  const [showStored, setShowStored] = useState(false);
   const [items, setItems] = useState<LibraryItem[] | null>(null);
   const stored = useStored(requestId, words);
 
@@ -135,6 +139,11 @@ export function Library() {
       )}
       <h1>{words.heading}</h1>
       <p className="er-lede">{words.lead}</p>
+      {stored && (
+        <button type="button" className="er-btn-secondary er-btn-small" aria-expanded={showStored} onClick={() => setShowStored(!showStored)} data-testid="stored-switch">
+          {showStored ? words.hide_stored : words.show_stored}
+        </button>
+      )}
       <div className="er-library-tools">
         <label className="er-field er-library-search">
           <span>{words.search_label}</span>
@@ -161,7 +170,7 @@ export function Library() {
       )}
 
       {stored && (
-        <section className="er-panel er-stored" aria-labelledby="stored-title" data-testid="stored">
+        <section className="er-panel er-stored" aria-labelledby="stored-title" data-testid="stored" hidden={!showStored}>
           <h2 id="stored-title">{fill(words.stored_title, { short })}</h2>
           <p className="er-small">{fill(words.stored_lead, { short })}</p>
           <div className="er-stored-columns">

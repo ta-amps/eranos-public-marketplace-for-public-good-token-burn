@@ -4,8 +4,8 @@
   "key": "library",
   "audience": "nonprofits and volunteers looking for work that is already done",
   "title": "Shared library",
-  "heading": "Shared library: nonprofit tasks and task objects",
-  "lead": "What volunteers' agents made and a different volunteer approved, kept so the next group can reuse it instead of asking again.",
+  "heading": "Shared library",
+  "lead": "Finished work from nonprofits’ requests, checked by volunteers and free for any nonprofit to use.",
   "search_label": "Search the library",
   "search_placeholder": "For example: tenant deposit laws",
   "tabs_label": "Show",
@@ -57,5 +57,7 @@
     "read_note": "Found by search. Reading it needs no new agent work.",
     "send": "Send as a new request",
     "send_note": "Only if these don't answer it."
-  }
+  },
+  "show_stored": "Show how it’s stored (for volunteers and the curious)",
+  "hide_stored": "Hide how it’s stored"
 }

@@ -1,106 +1,134 @@
 /*
- * <ta-agent-banner>: one thin line above a site's header, "Use this site from your AI agent", with a Copy button
- * and a More toggle. More opens a full-width panel under the line with the instructions to paste and the other
- * ways to connect. One file, no framework: Eranos and Agora include the same file.
+ * <ta-agent-banner>: the one thin line above a site's header that says an AI agent can use the site, with a
+ * Copy button and a "How" toggle that opens a panel under the line (it pushes the page down; it never overlays).
+ * One file, no framework, no network calls of its own unless `src` asks for one: Eranos and Agora include the
+ * same file. It follows the AgentBanner and BannerSpec boards of October 31, 2026.
  *
- *   <script src="https://eranos.ta-amps.workers.dev/agent-banner.js" defer></script>
- *   <ta-agent-banner src="https://eranos.ta-amps.workers.dev/api/nouns/eranos.instructions/agent-banner"
- *                    base="https://eranos.ta-amps.workers.dev"></ta-agent-banner>
+ * Every word comes from the agent-banner noun, given one of two ways:
+ *   <ta-agent-banner><script type="application/json">{ ...the noun... }</script> fallback markup </ta-agent-banner>
+ *   <ta-agent-banner src="/api/nouns/eranos.instructions/agent-banner" fallback-src="/snapshot/..."></ta-agent-banner>
+ * The fallback markup (light DOM) stays visible until the noun loads, and is all a reader without scripts sees.
  *
- * Attributes:
- *   src           the `eranos.instructions/agent-banner` noun: its words, links and the brief to copy.
- *   fallback-src  read when `src` does not answer JSON, such as the noun exported with an offline build.
- *   base          where the noun's relative links point; the page's own origin when left out.
- * Every word comes from the noun, so nothing shows until it loads. Colours follow the page's Paper & Ink tokens
- * when it has them. The toggle reports aria-expanded, focus moves into the panel, and Escape closes it and
- * returns focus. Styles are a constructed stylesheet, so a strict style-src policy needs no exception.
+ * Noun fields (the Eranos noun's older fields still work: `line`, `brief`, `other_title`, `links`):
+ *   label                 the region's accessible name
+ *   lead_strong, lead     "Have an AI agent?" and the sentence after it; lead_short on narrow screens
+ *   chip                  the short "Read …/llms.txt" chip (hidden on narrow screens)
+ *   copy_text             exactly what Copy puts on the clipboard (falls back to `brief`)
+ *   copy, copy_short, copied, copied_status, copy_failed, more, less
+ *   panel_title, panel_note, panel_line, can_title, can[], rules_title, rules[], links[{label, href}]
+ * Attributes: src, fallback-src, base (where relative links point; the page's origin by default).
+ * Theme: the page may set --agent-banner-bg, --agent-banner-ink, --agent-banner-muted, --agent-banner-raised,
+ * --agent-banner-line, --agent-banner-link and --agent-banner-focus on the element.
+ * Honesty: when copying fails, the button says so and the line is selected, instead of claiming success.
  */
 (() => {
-  if (customElements.get("ta-agent-banner")) return;
+  if (typeof customElements === "undefined" || customElements.get("ta-agent-banner")) return;
 
   const CSS = `
-:host { display: block; position: relative; z-index: 60; font-family: var(--font-text, "IBM Plex Sans", system-ui, sans-serif);
-  --b-bg: var(--sunken, #EDE8DC); --b-surface: var(--surface, #FFFDF8); --b-text: var(--text, #11161F);
-  --b-text-2: var(--text-2, #3B4252); --b-line: var(--line, #E2DCCF); --b-line-strong: var(--line-strong, #8A8476);
-  --b-action: var(--action, #11161F); --b-action-text: var(--action-text, #F5F2EA); --b-link: var(--link, #24519B);
-  --b-focus: var(--focus, #2A5DB0); --b-mono: var(--font-mono, "JetBrains Mono", ui-monospace, Menlo, monospace); }
-@media (prefers-color-scheme: dark) {
-  :host { --b-bg: var(--sunken, #0B0F16); --b-surface: var(--surface, #1B2230); --b-text: var(--text, #F5F2EA);
-    --b-text-2: var(--text-2, #C8D0DC); --b-line: var(--line, #2C3443); --b-line-strong: var(--line-strong, #6B7487);
-    --b-action: var(--action, #F5F2EA); --b-action-text: var(--action-text, #11161F); --b-link: var(--link, #8DB7F4);
-    --b-focus: var(--focus, #8DB7F4); }
-}
+:host { display: block; position: relative; z-index: 40; font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --bg: var(--agent-banner-bg, #11161F); --ink: var(--agent-banner-ink, #F5F2EA); --muted: var(--agent-banner-muted, #C8D0DC);
+  --raised: var(--agent-banner-raised, #222732); --line: var(--agent-banner-line, #2B313D); --edge: var(--agent-banner-edge, #3B4252);
+  --link: var(--agent-banner-link, #9DBBF0); --focus: var(--agent-banner-focus, #F0884F); --can: #6E9BE8; --rule: #7FC29B;
+  background: var(--bg); color: var(--ink); border-bottom: 1px solid var(--line); }
 :host([hidden]) { display: none; }
 * { box-sizing: border-box; }
-.bar { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 36px; padding: 2px 16px;
-  background: var(--b-bg); color: var(--b-text-2); border-bottom: 1px solid var(--b-line); font-size: 14px; line-height: 20px; }
-.line { display: inline-flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.line span { overflow: hidden; text-overflow: ellipsis; }
-.line svg { flex-shrink: 0; }
-.actions { display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; }
-button { font: inherit; font-size: 14px; font-weight: 600; line-height: 1; cursor: pointer; border-radius: 8px; min-height: 30px; padding: 0 12px; }
-.copy { background: var(--b-action); color: var(--b-action-text); border: 1.5px solid var(--b-action); }
-.more { background: transparent; color: var(--b-text); border: 1.5px solid var(--b-line-strong); display: inline-flex; align-items: center; gap: 6px; }
-.caret { display: inline-block; transition: transform 120ms cubic-bezier(0.2, 0, 0, 1); }
-.more[aria-expanded="true"] .caret { transform: rotate(180deg); }
-button:focus-visible, a:focus-visible, textarea:focus-visible, .panel:focus-visible { outline: 3px solid var(--b-focus); outline-offset: 2px; }
+section { margin: 0; }
+.bar { max-width: 1248px; margin: 0 auto; padding: 0 24px; min-height: 36px; display: flex; align-items: center; gap: 12px;
+  font-size: 14px; line-height: 20px; }
+.icon { flex: none; width: 18px; height: 18px; }
+.lead { flex: 0 1 auto; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lead b { font-weight: 600; }
 .short { display: none; }
-.panel { position: absolute; left: 0; right: 0; top: 100%; background: var(--b-surface); color: var(--b-text);
-  border-bottom: 1px solid var(--b-line); box-shadow: 0 10px 30px rgb(17 22 31 / 0.12); }
+.chip { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; font-weight: 500;
+  color: var(--muted); background: var(--raised); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+.space { flex: 1 1 0; }
+button { font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; white-space: nowrap; border-radius: 8px;
+  min-height: 28px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; }
+.copy { background: transparent; border: 1px solid var(--edge); }
+.copy:hover { border-color: var(--muted); }
+.copy svg { width: 14px; height: 14px; flex: none; }
+.toggle { background: var(--raised); border: 1px solid transparent; }
+.toggle:hover { border-color: var(--edge); }
+button:focus-visible, a:focus-visible, .line:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.panel { border-top: 1px solid var(--line); }
 .panel[hidden] { display: none; }
-.inner { max-width: 1200px; margin: 0 auto; padding: 20px 32px 24px; display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 32px; }
-.title { margin: 0 0 6px; font-weight: 600; font-size: 16px; color: var(--b-text); }
-.note { margin: 0 0 10px; font-size: 14px; color: var(--b-text-2); line-height: 1.45; }
-textarea { width: 100%; min-height: 150px; resize: vertical; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--b-line-strong);
-  background: var(--b-bg); color: var(--b-text); font: 500 13px/1.6 var(--b-mono); }
-.row { display: flex; align-items: center; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
-.row .copy { min-height: 40px; padding: 0 16px; font-size: 15px; }
-.status { font-size: 14px; color: var(--b-text-2); }
-ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-a { color: var(--b-link); font-size: 15px; text-underline-offset: 0.18em; }
-.sr { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-@media (max-width: 599px) {
-  .bar { justify-content: space-between; padding: 2px 12px; gap: 8px; }
-  .long { display: none; } .short { display: inline; }
-  .inner { grid-template-columns: minmax(0, 1fr); padding: 16px; gap: 20px; }
+.grid { max-width: 1248px; margin: 0 auto; padding: 18px 24px 22px; display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
+.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.col + .col { gap: 8px; }
+.title { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
+.line { display: block; margin: 0; font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 14px;
+  line-height: 22px; color: var(--ink); background: var(--raised); padding: 12px 14px; border-radius: 10px;
+  white-space: pre-wrap; word-break: break-word; user-select: all; -webkit-user-select: all; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.big { font-size: 15px; min-height: 40px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--bg); }
+.big:hover { opacity: 0.92; }
+.note, .item { margin: 0; font-size: 14px; line-height: 20px; color: var(--muted); }
+ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.item { display: flex; gap: 8px; }
+.mark { flex: none; }
+.can .mark { color: var(--can); }
+.rules .mark { color: var(--rule); }
+.links { display: flex; gap: 8px 16px; flex-wrap: wrap; margin-top: 4px; font-size: 14px; }
+a { color: var(--link); text-decoration: underline; text-underline-offset: 0.18em; }
+.sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (max-width: 719.98px) {
+  .bar { min-height: 40px; padding: 0 16px; gap: 8px; }
+  .long, .chip { display: none; }
+  .short { display: inline; }
+  .grid { grid-template-columns: minmax(0, 1fr); padding: 16px 16px 20px; gap: 20px; }
 }
-@media (prefers-reduced-motion: reduce) { .caret { transition: none; } }
+@media (prefers-reduced-motion: no-preference) { button { transition: border-color 120ms ease-out, opacity 120ms ease-out; } }
+@media (forced-colors: active) { :host { border-bottom: 1px solid CanvasText; } .chip, .line, .toggle { border: 1px solid CanvasText; } }
 `;
 
-  const ICON =
-    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="14" height="14" x="8" y="8" rx="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>';
+  const NS = "http://www.w3.org/2000/svg";
 
-  let sheet = null;
-  function styles(root) {
-    if ("adoptedStyleSheets" in Document.prototype && "replaceSync" in CSSStyleSheet.prototype) {
-      if (!sheet) {
-        sheet = new CSSStyleSheet();
-        sheet.replaceSync(CSS);
-      }
-      root.adoptedStyleSheets = [sheet];
+  function icon(kind) {
+    const svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("aria-hidden", "true");
+    svg.setAttribute("focusable", "false");
+    if (kind === "agent") {
+      // A small robot head in a circle, drawn for the AgentBanner board.
+      svg.setAttribute("viewBox", "0 0 40 40");
+      svg.setAttribute("class", "icon");
+      svg.innerHTML = '<circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="2.6"></circle>'
+        + '<path d="M20 12v-3h-3" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path>'
+        + '<rect x="12" y="14" width="16" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="2.6"></rect>'
+        + '<path d="M17 19v2M23 19v2" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path>';
+    } else {
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.innerHTML = '<rect x="9" y="9" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"></rect>'
+        + '<path d="M5 15V5a2 2 0 0 1 2-2h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>';
     }
+    return svg;
   }
 
-  function el(tag, props = {}, children = []) {
+  function el(tag, props, children) {
     const node = document.createElement(tag);
-    for (const [name, value] of Object.entries(props)) {
+    for (const [name, value] of Object.entries(props || {})) {
       if (value === undefined || value === null || value === false) continue;
-      if (name === "text") node.textContent = value;
+      if (name === "text") node.textContent = String(value);
       else if (name.startsWith("on")) node.addEventListener(name.slice(2), value);
       else node.setAttribute(name, value === true ? "" : String(value));
     }
-    for (const child of children) node.append(child);
+    for (const child of children || []) if (child) node.append(child);
     return node;
   }
 
-  async function readNoun(url) {
+  function words(raw) {
+    const value = raw && typeof raw === "object" && "value" in raw && !("copy" in raw) ? raw.value : raw;
+    if (!value || typeof value !== "object") throw new Error("not an agent banner noun");
+    const copyText = typeof value.copy_text === "string" ? value.copy_text : value.brief;
+    if (typeof copyText !== "string" || !copyText.trim()) throw new Error("the agent banner noun has nothing to copy");
+    return Object.assign({}, value, { copy_text: copyText });
+  }
+
+  async function fetchNoun(url) {
     const response = await fetch(url, { headers: { accept: "application/json" }, credentials: "omit" });
     const type = response.headers.get("content-type") || "";
-    if (!response.ok || !type.includes("json")) throw new Error(`${url} answered ${response.status}`);
-    const body = await response.json();
-    const value = body && typeof body === "object" && "value" in body ? body.value : body;
-    if (!value || typeof value.brief !== "string") throw new Error(`${url} is not the agent banner noun`);
-    return value;
+    if (!response.ok || !type.includes("json")) throw new Error(url + " answered " + response.status);
+    return words(await response.json());
   }
 
   let count = 0;
@@ -109,120 +137,176 @@ a { color: var(--b-link); font-size: 15px; text-underline-offset: 0.18em; }
     constructor() {
       super();
       this.root = this.attachShadow({ mode: "open" });
-      styles(this.root);
-      this.words = null;
+      this.noun = null;
       this.open = false;
+      this.timer = 0;
       this.onKey = (event) => {
-        if (event.key === "Escape" && this.open) {
-          event.preventDefault();
-          this.setOpen(false, true);
-        }
-      };
-      this.onPointer = (event) => {
-        if (this.open && !event.composedPath().includes(this)) this.setOpen(false, false);
+        if (event.key !== "Escape" || !this.open) return;
+        const inside = event.composedPath().includes(this);
+        this.setOpen(false, inside);
+        if (inside) event.stopPropagation();
       };
     }
 
     connectedCallback() {
       document.addEventListener("keydown", this.onKey);
-      document.addEventListener("pointerdown", this.onPointer);
-      if (!this.loading) this.load();
+      if (!this.started) {
+        this.started = true;
+        this.load();
+      }
     }
 
     disconnectedCallback() {
       document.removeEventListener("keydown", this.onKey);
-      document.removeEventListener("pointerdown", this.onPointer);
+      clearTimeout(this.timer);
     }
 
     async load() {
-      this.loading = true;
-      const sources = [this.getAttribute("src"), this.getAttribute("fallback-src")].filter(Boolean);
-      for (const src of sources) {
+      const inline = this.querySelector('script[type="application/json"]');
+      if (inline) {
         try {
-          this.words = await readNoun(src);
-          this.render();
+          this.render(words(JSON.parse(inline.textContent)));
           return;
-        } catch {
+        } catch (error) {
+          // fall through to src, then leave the fallback markup in place
+        }
+      }
+      for (const src of [this.getAttribute("src"), this.getAttribute("fallback-src")].filter(Boolean)) {
+        try {
+          this.render(await fetchNoun(src));
+          return;
+        } catch (error) {
           // try the next source
         }
       }
-      this.loading = false;
     }
 
-    link(href) {
+    href(value) {
       try {
-        return new URL(href, this.getAttribute("base") || window.location.origin).href;
-      } catch {
-        return href;
+        return new URL(value || "/", this.getAttribute("base") || window.location.origin).href;
+      } catch (error) {
+        return value;
       }
     }
 
-    async copy() {
-      const words = this.words;
+    label(button, long, short) {
+      button.querySelector(".long").textContent = long;
+      button.querySelector(".short").textContent = short;
+    }
+
+    async copy(fromPanel) {
+      const w = this.noun;
+      clearTimeout(this.timer);
+      let ok = false;
       try {
-        await navigator.clipboard.writeText(words.brief);
-        this.say(words.copied);
-      } catch {
+        if (!navigator.clipboard || !window.isSecureContext) throw new Error("no clipboard");
+        await navigator.clipboard.writeText(w.copy_text);
+        ok = true;
+      } catch (error) {
+        ok = false;
+      }
+      const message = ok ? (w.copied || "Copied") : (w.copy_failed || "Select the line to copy");
+      for (const button of [this.copyButton, this.bigButton]) {
+        this.label(button, message, message);
+        button.dataset.state = ok ? "copied" : "failed";
+      }
+      this.status.textContent = ok ? (w.copied_status || message) : message;
+      if (!ok) {
         this.setOpen(true, false);
-        this.say(words.copy_failed);
-        this.text.focus();
-        this.text.select();
+        const selection = window.getSelection && window.getSelection();
+        if (selection) {
+          try {
+            selection.selectAllChildren(this.lineBox);
+          } catch (error) {
+            // the line stays visible to select by hand
+          }
+        }
+        this.lineBox.focus();
+      } else if (fromPanel) {
+        this.bigButton.focus();
       }
+      this.timer = setTimeout(() => this.resetCopy(), 2400);
     }
 
-    say(message) {
-      this.status.textContent = message;
-      this.visibleStatus.textContent = message;
+    resetCopy() {
+      const w = this.noun;
+      this.label(this.copyButton, w.copy || "Copy for your agent", w.copy_short || "Copy");
+      this.label(this.bigButton, w.copy || "Copy for your agent", w.copy_short || "Copy");
+      delete this.copyButton.dataset.state;
+      delete this.bigButton.dataset.state;
     }
 
     setOpen(open, returnFocus) {
+      const w = this.noun;
       this.open = open;
-      this.toggle.setAttribute("aria-expanded", String(open));
-      this.toggleLabel.textContent = open ? this.words.less : this.words.more;
       this.panel.hidden = !open;
-      if (open) this.panel.focus();
-      else if (returnFocus) this.toggle.focus();
+      this.toggle.setAttribute("aria-expanded", String(open));
+      this.label(this.toggle, (open ? (w.less || "Hide") + " ▴" : (w.more || "How") + " ▾"), open ? "▴" : "▾");
+      this.toggle.setAttribute("aria-label", open ? (w.less || "Hide") : (w.more || "How"));
+      this.dataset.open = String(open);
+      if (!open && returnFocus) this.toggle.focus();
     }
 
-    render() {
-      const w = this.words;
-      const id = `ta-agent-panel-${++count}`;
+    list(items, cls, mark) {
+      return el("ul", { class: cls }, (items || []).map((item) =>
+        el("li", { class: "item" }, [el("span", { class: "mark", "aria-hidden": "true", text: mark }), el("span", { text: item })])));
+    }
+
+    render(w) {
+      this.noun = w;
+      const id = "ta-agent-banner-panel-" + (++count);
+      const both = (long, short) => [el("span", { class: "long", text: long }), el("span", { class: "short", text: short })];
+      const lead = el("span", { class: "lead" }, [
+        w.lead_strong ? el("b", { text: w.lead_strong }) : null,
+        w.lead_strong ? document.createTextNode(" ") : null,
+        el("span", { class: "long", text: w.lead || w.line || "" }),
+        el("span", { class: "short", text: w.lead_short || w.lead || w.line || "" }),
+      ]);
+      this.copyButton = el("button", { type: "button", class: "copy", onclick: () => this.copy(false) },
+        [icon("copy")].concat(both(w.copy || "Copy for your agent", w.copy_short || "Copy")));
+      this.toggle = el("button", { type: "button", class: "toggle", "aria-expanded": "false", "aria-controls": id,
+        onclick: () => this.setOpen(!this.open, false) }, both((w.more || "How") + " ▾", "▾"));
       this.status = el("span", { class: "sr", role: "status", "aria-live": "polite" });
-      this.visibleStatus = el("span", { class: "status", "aria-hidden": "true" });
-      this.toggleLabel = el("span", { text: w.more });
-      this.toggle = el("button", { type: "button", class: "more", "aria-expanded": "false", "aria-controls": id, onclick: () => this.setOpen(!this.open, false) }, [
-        this.toggleLabel,
-        el("span", { class: "caret", "aria-hidden": "true", text: "▾" }),
+      const bar = el("div", { class: "bar" }, [
+        icon("agent"), lead, w.chip ? el("code", { class: "chip", text: w.chip }) : null,
+        el("span", { class: "space" }), this.copyButton, this.toggle, this.status,
       ]);
-      const line = el("span", { class: "line" });
-      line.insertAdjacentHTML("afterbegin", ICON);
-      line.append(el("span", { text: w.line }));
-      const copyButton = el("button", { type: "button", class: "copy", "aria-label": w.copy, onclick: () => this.copy() }, [
-        el("span", { class: "long", text: w.copy }),
-        el("span", { class: "short", text: w.copy_short }),
+
+      this.lineBox = el("code", { class: "line", tabindex: "0", text: w.copy_text });
+      this.bigButton = el("button", { type: "button", class: "big", onclick: () => this.copy(true) },
+        both(w.copy || "Copy for your agent", w.copy_short || "Copy"));
+      const first = el("div", { class: "col" }, [
+        el("p", { class: "title", text: w.panel_title || "Paste this into your agent" }),
+        this.lineBox,
+        el("div", { class: "row" }, [this.bigButton, w.panel_note ? el("span", { class: "note", text: w.panel_note }) : null]),
+        w.panel_line ? el("p", { class: "note", text: w.panel_line }) : null,
       ]);
-      const bar = el("section", { class: "bar", "aria-label": w.label }, [line, el("span", { class: "actions" }, [copyButton, this.toggle]), this.status]);
-      const textId = `${id}-brief`;
-      this.text = el("textarea", { id: textId, readonly: true, rows: "7" });
-      this.text.value = w.brief;
-      const links = el(
-        "ul",
-        {},
-        (w.links || []).map((item) => el("li", {}, [el("a", { href: this.link(item.href || item.to || "/"), text: item.label })])),
-      );
-      this.panel = el("div", { id, class: "panel", hidden: true, tabindex: "-1", role: "region", "aria-label": w.panel_title }, [
-        el("div", { class: "inner" }, [
-          el("div", {}, [
-            el("label", { class: "title", for: textId, text: w.panel_title }),
-            el("p", { class: "note", text: w.panel_note }),
-            this.text,
-            el("div", { class: "row" }, [el("button", { type: "button", class: "copy", onclick: () => this.copy(), text: w.copy }), this.visibleStatus]),
-          ]),
-          el("nav", { "aria-label": w.other_title }, [el("p", { class: "title", text: w.other_title }), links]),
-        ]),
-      ]);
-      this.root.replaceChildren(bar, this.panel);
+      const columns = [first];
+      if (Array.isArray(w.can) && w.can.length) {
+        columns.push(el("div", { class: "col" }, [el("p", { class: "title", text: w.can_title || "" }), this.list(w.can, "can", "→")]));
+      }
+      const links = Array.isArray(w.links) ? w.links : [];
+      const linkRow = links.length
+        ? el("p", { class: "links" }, links.map((item) => el("a", { href: this.href(item.href || item.to), text: item.label })))
+        : null;
+      if (Array.isArray(w.rules) && w.rules.length) {
+        columns.push(el("div", { class: "col" }, [el("p", { class: "title", text: w.rules_title || "" }), this.list(w.rules, "rules", "✓"), linkRow]));
+      } else if (linkRow) {
+        columns.push(el("nav", { class: "col", "aria-label": w.other_title || "Links" }, [el("p", { class: "title", text: w.other_title || "" }), linkRow]));
+      }
+      this.panel = el("div", { class: "panel", id, hidden: true }, [el("div", { class: "grid" }, columns)]);
+
+      const section = el("section", { "aria-label": w.label || "Use this site with your AI agent" }, [bar, this.panel]);
+      if ("adoptedStyleSheets" in Document.prototype && "replaceSync" in CSSStyleSheet.prototype) {
+        const sheet = new CSSStyleSheet();
+        sheet.replaceSync(CSS);
+        this.root.adoptedStyleSheets = [sheet];
+        this.root.replaceChildren(section);
+      } else {
+        this.root.replaceChildren(el("style", { text: CSS }), section);
+      }
       this.dataset.ready = "true";
+      this.dispatchEvent(new CustomEvent("ta-agent-banner-ready", { bubbles: true }));
     }
   }
 

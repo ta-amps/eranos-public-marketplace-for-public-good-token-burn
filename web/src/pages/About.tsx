@@ -35,7 +35,7 @@ export function About() {
         <section className="er-card">
           <h2>Synthetic-only &amp; non-accusatory</h2>
           <p className="er-muted">
-            Every example fixture in Eranos is marked as made up and holds no personal data. Copy
+            Every example fixture in Eranos carries a visible SYNTHETIC mark and holds no personal data. Copy
             validators reject accusatory labels and prohibit surveillance, scraping, or personal-data-harvesting
             requests.
           </p>

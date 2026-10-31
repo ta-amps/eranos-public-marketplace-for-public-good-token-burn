@@ -77,6 +77,11 @@ export function TopBar({ route, shell, compact = false }: { route: RouteMatch; s
                 <NavLink key={link.label} link={link} active={active} note={shell.external_note} />
               ))}
             </nav>
+            {shell.yours && (
+              <AppLink to={shell.yours.to ?? "/requests"} className="er-yours-link" aria-current={active === "yours" ? "page" : undefined}>
+                {shell.yours.label}
+              </AppLink>
+            )}
             <button
               ref={button}
               type="button"
@@ -108,6 +113,7 @@ export function TopBar({ route, shell, compact = false }: { route: RouteMatch; s
                   {shell.nav.map((link) => (
                     <NavLink key={link.label} link={link} active={active} note={shell.external_note} onNavigate={() => setOpen(false)} />
                   ))}
+                  {shell.yours && <NavLink link={{ ...shell.yours, match: "yours" }} active={active} note={shell.external_note} onNavigate={() => setOpen(false)} />}
                 </nav>
                 <button type="button" className="er-btn-secondary er-menu-close" onClick={close}>
                   {shell.menu.close}
