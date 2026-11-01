@@ -425,6 +425,9 @@ def review_process(package, request, plan_part, *, bundle_path=None, records=Non
               "the build's key is a trusted builder" if builder_key_id in trusted_builder_keys else "UNTRUSTED BUILDER",
               "both drafts were written by the build's key" if set(writers.values()) == {builder_key_id} else "OTHER WRITER"]
     verified = {name: {"value_sha256": record_digest(rec["value"])} for name, rec in (records or {}).items()}
+    # Rebuilt from the bundle and the request, never copied from the drafts.
+    verified["catalog_value"] = {"title": "Made-up sample data-cleaning process", "request_id": request["request_id"]}
+    verified["template_value"] = {"kind": "run_process", "pack": "data-cleaning"}
     return {"passed": not any(c.isupper() for c in checks), "checks": checks, "verified": verified}
 """
 

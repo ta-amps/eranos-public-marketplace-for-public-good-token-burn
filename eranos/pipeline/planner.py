@@ -527,14 +527,36 @@ class Planner:
                     )
                     done.append({"task_id": child.task_id, "published": True})
             except Exception as exc:
-                done.append({"task_id": child.task_id, "error": type(exc).__name__})
+                done.append(
+                    {
+                        "task_id": child.task_id,
+                        "part": out.get("part"),
+                        "error": f"{type(exc).__name__}: {exc}"[:400],
+                    }
+                )
         return done
 
     def finish(self, latest: dict[str, Any]) -> dict[str, Any]:
         noun = read_request(self.b, self.request_id)
         value = noun[0] if noun else {}
         occurrences = list(value.get("occurrences") or [latest])
-        self.recover(list(latest.get("children") or []))
+        failed = [d for d in self.recover(list(latest.get("children") or [])) if d.get("error")]
+        if (
+            failed
+        ):  # an approved result that could not be delivered or published stays on the record
+            self._facts(
+                [
+                    fact(
+                        "work_failed",
+                        part=d.get("part"),
+                        ref=f"{d['task_id']} publication",
+                        worker=self.worker,
+                        reason=f"approved, but not published: {d['error']}",
+                        summary={"role": "planner"},
+                    )
+                    for d in failed
+                ]
+            )
         outcomes = self._outcomes(list(latest.get("children") or []))
         latest = {
             **latest,

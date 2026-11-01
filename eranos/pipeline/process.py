@@ -96,6 +96,18 @@ def is_stub(handler: Any) -> bool:
 
 
 DRAFT_STORES = ("eranos.processes", "eranos.process_templates")
+NO_REBUILT_VALUES = (
+    "the process check returned no rebuilt catalog and template values; nothing was published "
+    "(a draft's own text is never published)"
+)
+
+
+def _has_rebuilt(verified: dict[str, Any]) -> bool:
+    return isinstance(verified.get("catalog_value"), dict) and isinstance(
+        verified.get("template_value"), dict
+    )
+
+
 CATALOG_STORE = "eranos.catalog"
 _PACK_ID = re.compile(r"[a-z0-9][a-z0-9-]{0,63}")
 _KIT_ID = re.compile(r"[A-Z]{2,4}-[A-Z0-9]{2,8}-[0-9]{2}")
@@ -375,6 +387,10 @@ def ensure_published(
     finds everything published and changes nothing.
     """
     ids, verified = review["ids"], review.get("verified") or {}
+    if not isinstance(review.get("catalog_value"), dict) or not isinstance(
+        review.get("template_value"), dict
+    ):
+        raise ValueError(NO_REBUILT_VALUES)  # the recorded approval lacks them: publish nothing
     final = {
         **review["catalog_value"],
         "review_receipt": review_receipt,
@@ -398,7 +414,7 @@ def ensure_published(
                 backend,
                 ref["store"],
                 ref["key"],
-                final if name == "catalog_record" else review.get("template_value", value),
+                final if name == "catalog_record" else review["template_value"],
                 public=True,
             )
         )
@@ -548,6 +564,9 @@ def review_package(
             for name in records
         ):
             findings.append("the records the review verified are not the records stored now")
+        if not findings and not _has_rebuilt(verified):
+            # Never fall back to the draft's own text: without rebuilt values nothing is published.
+            findings.append(NO_REBUILT_VALUES)
     if findings:
         receipt = backend.submit(
             lease.task_id,
@@ -562,7 +581,7 @@ def review_package(
     rebuilt = verdict.get("verified") or {}
     value = reviewed_value(
         handler,
-        rebuilt.get("catalog_value", records["catalog_record"]["value"]),
+        rebuilt["catalog_value"],
         {
             "reviewed_by": key_id,
             "reviewed_by_key": key_id,
@@ -592,7 +611,7 @@ def review_package(
         "ids": ids,
         "verified": verdict.get("verified") or {},
         "catalog_value": value,
-        "template_value": rebuilt.get("template_value", records["task_template_record"]["value"]),
+        "template_value": rebuilt["template_value"],
         "part": part,
         "checks": [str(c) for c in verdict.get("checks") or []][:20],
     }

@@ -476,6 +476,97 @@ def test_a_process_reviewer_refuses_to_start_without_trusted_builder_keys(
     )  # builders need no list
 
 
+NO_REBUILT_HANDLER = """
+import hashlib, json
+def expected_records(request, plan_part):
+    rid, part = request["request_id"], int(plan_part["part"])
+    return {"kit_id": "PRC-NOREBU-01", "pack_id": "p",
+            "catalog_record": {"store": "eranos.processes", "key": f"{rid}.{part}.PRC-NOREBU-01"},
+            "task_template_record": {"store": "eranos.process_templates", "key": f"{rid}.{part}.p"}}
+def record_digest(value):
+    return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+def build_process(request, plan_part):
+    raise AssertionError("not used here")
+def review_process(package, request, plan_part, **kw):
+    # passes, but returns no rebuilt catalog_value or template_value
+    return {"passed": True, "checks": ["ok"], "verified": {n: {"value_sha256": record_digest(r["value"])} for n, r in kw["records"].items()}}
+"""
+
+
+def test_hardening_no_rebuilt_values_means_nothing_is_published(tmp_path: Path) -> None:
+    import hashlib
+
+    handler_file = tmp_path / "handler.py"
+    handler_file.write_text(NO_REBUILT_HANDLER)
+    handler = process_part.load_handler(str(handler_file))
+    mem = Mem()
+    bundle = b"made-up sample bundle"
+    digest = mem.put_blob(bundle)
+    ids = handler.expected_records({"request_id": "rq-n"}, {"part": 1})
+    for name in ("catalog_record", "task_template_record"):
+        mem.put_record(
+            ids[name]["store"],
+            ids[name]["key"],
+            {"draft": "the builder's own text"},
+            expected_version=0,
+            owner_key_id="k_builder",
+        )
+    output = {
+        "node": "process_package",
+        "draft": {"kit_id": ids["kit_id"]},
+        "blob_sha256": digest,
+        "bundle_sha256": digest,
+        "catalog_record": {**ids["catalog_record"], "version": 1},
+        "task_template_record": {**ids["task_template_record"], "version": 1},
+        "verification": {"passed": True},
+        "test_report": {"passed": True, "pack_id": "p"},
+    }
+    dep = ChildResult(
+        task_id="build-task",
+        state="done",
+        ok=True,
+        output=output,
+        receipt_hash="r-build",
+        completed_by_key="k_builder",
+    )
+    brief = {
+        "request_id": "rq-n",
+        "part": 1,
+        "request": {"request_id": "rq-n"},
+        "plan_part": {"part": 1},
+    }
+    before = len(mem.puts)
+    out = process_part.review_package(
+        mem,
+        _lease("process_review", "eq03", brief, [dep]),
+        handler=handler,
+        key_id="k_reviewer",
+        trusted_keys=frozenset({"k_builder"}),
+    )
+    assert out["status"] == "needs_revision" and process_part.NO_REBUILT_VALUES in out["findings"]
+    assert not [p for p in mem.puts[before:] if p.get("visibility_scope") == "public_commons"]
+    assert hashlib.sha256(bundle).hexdigest() == digest
+    approval = {
+        "ids": {**ids, "listed_catalog_record": None},
+        "verified": {},
+        "catalog_value": {"kit": {}},
+        "publication_sha256": "p" * 64,
+        "bundle_sha256": digest,
+        "part": 1,
+    }
+    with pytest.raises(ValueError, match="no rebuilt"):
+        process_part.ensure_published(
+            mem,
+            approval,
+            review_task_id="t",
+            review_receipt="r",
+            request_id="rq-n",
+            part=1,
+            handler=handler,
+        )
+    assert not [p for p in mem.puts[before:] if p.get("visibility_scope") == "public_commons"]
+
+
 def test_m3_the_stub_never_claims_process_verbs(tmp_path: Path) -> None:
     for role in ("builder", "reviewer"):
         config = WorkerConfig(
