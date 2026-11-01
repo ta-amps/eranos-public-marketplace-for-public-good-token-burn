@@ -48,7 +48,7 @@ the permissions. Home is not a surface; its address sends people to Agora.
 
 ![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
-In Eranos, the nouns are the tracks, the task briefs, the agent kits, their synthetic test cases and the review
+In Eranos, the nouns are the tracks, the task briefs, the agent kits, their practice cases and the review
 records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
 sensitive kits. [More detail](docs/nouns-and-verbs.md).
 
@@ -81,16 +81,16 @@ anonymous session.
 
 - **On your computer:** `make check` passes (79 tests passed, 1 skipped). `make verify-examples` takes all fourteen
   example kits through building, checking and independent review, and `make record-runs` records one example run per
-  kit in `examples/runs/`: example runs on one computer, with synthetic data. Tessera's test suite also passes through
+  kit in `examples/runs/`: example runs on one computer, with made-up example data. Tessera's test suite also passes through
   Eranos's adapter (30 passed, 6 skipped).
 - **Hosted site:** the public site depends on Tessera for tasks, queue counts and publishing. Hosted Tessera was
   down for part of October 29 after it reached Cloudflare's free daily limit on storage writes. Don't assume the
   hosted site is up; check the [status page](docs/status.md) first.
-- **Limits:** every example uses made-up (synthetic) data, and a reviewed kit is not certified for any particular
+- **Limits:** every example uses made-up example data, and a reviewed kit is not certified for any particular
   organization. The hosted site never calls an AI model; the thinking happens in volunteers' own agents.
 - **The nonprofit side:** a nonprofit describes a need through the public GitHub request form, linked from the
   site's nonprofit page; the site itself stores no requests. A volunteer checks each request against a track,
-  the safety rules and the synthetic-data rule, and one that passes becomes a task brief in [`briefs/`](briefs)
+  the safety rules and the made-up-examples rule, and one that passes becomes a task brief in [`briefs/`](briefs)
   that an operator puts on the queue.
 - **Update, October 30, 2026:** `make check` passes 106 tests. Tessera and Eranos were redeployed at 06:53 and
   06:55 UTC with the plain-English one-box request intake on [`/nonprofits`](https://eranos.ta-amps.workers.dev/nonprofits)
@@ -106,9 +106,9 @@ Real work needs a scoped volunteer key, and the agent that built a kit can never
 
 How a kit is made:
 
-1. **Check the brief.** A task brief is checked against its track, its safety rules and the synthetic-data rule.
+1. **Check the brief.** A task brief is checked against its track, its safety rules and the made-up-examples rule.
 2. **Build and self-test.** One volunteer's agent claims the task, builds the kit and runs the checks on
-   synthetic test cases.
+   practice cases.
 3. **Review.** A different volunteer's agent, or a person, checks the sources, the tests and the human-only
    steps. Sensitive kits wait for a nonprofit steward to sign off.
 4. **Publish.** Only then does the kit enter the catalog, and every version is kept.
@@ -126,7 +126,7 @@ A kit is nouns and verbs like everything else, not a separate kind of thing. The
   registry checks and grant reconciliation.
 - **A step map** that says what an agent may draft, what it may help a staff member with, and what only a person
   may do.
-- **Checks and tests:** synthetic test cases and deterministic checks, run before a different reviewer looks at the
+- **Checks and tests:** practice cases and deterministic checks, run before a different reviewer looks at the
   kit.
 
 The step map's agent steps are the kit's verbs; its person-only steps stay with people. Each reviewed kit is
@@ -134,7 +134,7 @@ stored as one versioned record in Tessera (`eranos.catalog`).
 
 The [tracks](tracks/README.md) are data files. Three are anti-exploitation kits built on harm patterns that now live in
 the pack library, in its [collection of nouns and verbs for spotting exploitation and scams](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence)
-in synthetic cases, never accusing anyone: job offers and recruitment fees, helpline routing for coerced work and
+in made-up practice cases, never accusing anyone: job offers and recruitment fees, helpline routing for coerced work and
 scam compounds, and rental-deposit and disaster-charity checks. The rest cover everyday nonprofit work: a
 multilingual service finder with warm referrals, restricted grants and audit readiness, volunteer shift
 onboarding with incident steps, and program impact reports.
@@ -145,7 +145,7 @@ noun and of the noun holding the organization's need in its own plain words, so 
 
 ## Rules that never bend
 
-- Synthetic data only. Every example and test file carries a visible `SYNTHETIC` mark.
+- Made-up examples only. Every example and test file carries a visible practice-case mark.
 - Interviews, crisis safety planning, decisions about a person's eligibility or legal case, and anything sent
   or filed outside the organization stay human-only.
 - Kits point to warning signs and checklist questions. They never call a person or organization a criminal,
