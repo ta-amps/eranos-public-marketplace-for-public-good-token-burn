@@ -576,7 +576,9 @@
     "hide_how": "Hide ▴",
     "in_short": "In short",
     "in_short_note": "Every point links to its source.",
-    "checked_how": "How it was checked"
+    "checked_how": "How it was checked",
+    "download": "Download the process",
+    "download_note": "SHA-256 {sha}… A second volunteer’s key reviewed this exact package."
   },
   "decide": {
     "title": "Does this work for your team?",

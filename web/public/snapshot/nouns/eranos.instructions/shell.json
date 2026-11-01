@@ -5,7 +5,7 @@
   "version": 1,
   "value": {
     "audience": "everyone who reads Eranos",
-    "external_note": "(opens the overview deck on Agora)",
+    "external_note": "opens the overview deck on Agora",
     "footer": {
       "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
       "links": [

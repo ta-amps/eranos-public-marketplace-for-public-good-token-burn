@@ -160,6 +160,24 @@ test.describe("on the hosted build", () => {
     await expect(page.getByTestId("added-panel")).toHaveCount(0);
   });
 
+  test("B4: a published process package shows 'Download the process' with its SHA-256; an unreviewed one does not", async ({ page }) => {
+    const processExample = noun<{ solution: Record<string, unknown> }>("request-example-process");
+    const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "private-files", text: "A process.", kit_id: "PRC-35DE86-01" }] };
+    const sha = "a".repeat(64);
+    const published = { blob_sha256: sha, tags: ["kind:process", "status:verified"], review_receipt: "c".repeat(64), drafter_key_id: "kb_a", reviewer_key_id: "kb_b" };
+    const solutions = { "PRC-35DE86-01": { ...processExample.solution, request_id: REQUEST_ID } };
+    await mockSite(page, { plan, solutions, catalog: { "PRC-35DE86-01": published } });
+    await page.goto(`/requests/${REQUEST_ID}/result?part=1`);
+    const line = page.getByTestId("download-process");
+    await expect(line.getByRole("link", { name: "Download the process" })).toHaveAttribute("href", `/p/${REQUEST_ID}/download`);
+    await expect(line).toContainText(sha.slice(0, 12));
+    await page.unroute(`${LIVE}/api/**`);
+    await mockSite(page, { plan, solutions, catalog: { "PRC-35DE86-01": { ...published, reviewer_key_id: "kb_a" } } });
+    await page.goto(`/requests/${REQUEST_ID}/result?part=1`);
+    await expect(page.getByTestId("task-object")).toBeVisible();
+    await expect(page.getByTestId("download-process")).toHaveCount(0);
+  });
+
   test("E10: a request withdrawn by its key, a part sent back, and a sensitive kit waiting for sign-off", async ({ page }) => {
     const plan = {
       request_id: REQUEST_ID,

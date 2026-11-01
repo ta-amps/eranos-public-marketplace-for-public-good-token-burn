@@ -835,6 +835,142 @@ async function loadProcessResult(request, env, id, partNumber) {
   return value && value.process ? { process: value.process, review_receipt: value.review_receipt || null } : null;
 }
 
+// /p/<id>/download: a published process package, read from Tessera with this site's own key (never shown) and
+// served as the exact reviewed bytes. Only a catalog record that is published (status:verified, a review receipt)
+// and reviewed by a different key than its builder's is served, and the bytes must hash to its blob_sha256.
+// <id> is the catalog key (KIT-/PRC-) or a request id whose plan names the part's kit (?part=N).
+const PACKAGE_DOWNLOAD_RE = /^\/p\/([A-Za-z0-9][A-Za-z0-9_.:-]{0,159})\/download$/;
+const PACKAGE_MAX_BYTES = 25 * 1024 * 1024;
+const PACKAGE_RATE = { windowMs: 60_000, max: 10 };
+// Best effort, per isolate: a few downloads a minute for each address; the edge cache answers repeats.
+const packageHits = new Map();
+
+function packageRateLimited(request) {
+  const who = request.headers.get("cf-connecting-ip") || "anonymous";
+  const now = Date.now();
+  const hit = packageHits.get(who);
+  if (!hit || now - hit.start > PACKAGE_RATE.windowMs) {
+    if (packageHits.size > 5000) packageHits.clear();
+    packageHits.set(who, { start: now, n: 1 });
+    return false;
+  }
+  hit.n += 1;
+  return hit.n > PACKAGE_RATE.max;
+}
+
+/** Null when the catalog value may be served; otherwise why not. */
+function packageRefusal(value) {
+  if (!value || typeof value !== "object") return "no such catalog record";
+  if (!/^[0-9a-f]{64}$/.test(String(value.blob_sha256 || ""))) return "the record names no package";
+  const tags = Array.isArray(value.tags) ? value.tags : [];
+  if (tags.includes("status:quarantined") || !tags.includes("status:verified")) return "the package is not published";
+  if (!value.review_receipt) return "the package has no review receipt";
+  const builder = String(value.drafter_key_id || (value.kit && value.kit.drafted_by_key) || "");
+  const reviewer = String(value.reviewer_key_id || value.reviewed_by_key || "");
+  if (!builder || !reviewer || builder === reviewer) return "the package was not reviewed by a different key";
+  return null;
+}
+
+async function packageCatalogKey(request, env, id) {
+  if (/^(KIT|PRC)-[A-Z0-9-]{2,60}$/.test(id)) return id;
+  if (!NOUN_KEY_RE.test(id) || Object.prototype.hasOwnProperty.call(EXAMPLE_REQUEST_ALIASES, id)) return null;
+  const part = Number(new URL(request.url).searchParams.get("part")) || null;
+  const plan = await getHeadRecord(env.FABRIC_DB, "eranos.plans", id);
+  const parts = plan && Array.isArray(plan.parts) ? plan.parts : [];
+  const found = parts.find((p) => p && (part ? p.part === part : p.route === "private-files" && p.kit_id));
+  return found && found.kit_id && /^(KIT|PRC)-[A-Z0-9-]{2,60}$/.test(String(found.kit_id)) ? String(found.kit_id) : null;
+}
+
+/** The published package record for <id>, or null; read from the live mirror only (snapshot examples have none). */
+async function publishedPackage(request, env, id) {
+  const key = await packageCatalogKey(request, env, id);
+  const value = key ? await getHeadRecord(env.FABRIC_DB, "eranos.catalog", key) : null;
+  return key && value && !packageRefusal(value) ? { key, value } : null;
+}
+
+async function readCapped(response, max) {
+  const declared = Number(response.headers.get("content-length") || "0");
+  if (declared > max) return null;
+  const reader = response.body ? response.body.getReader() : null;
+  if (!reader) return new Uint8Array(await response.arrayBuffer());
+  const chunks = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) {
+      await reader.cancel();
+      return null;
+    }
+    chunks.push(value);
+  }
+  const out = new Uint8Array(size);
+  let at = 0;
+  for (const chunk of chunks) {
+    out.set(chunk, at);
+    at += chunk.byteLength;
+  }
+  return out;
+}
+
+async function servePackage(request, env, id) {
+  if (packageRateLimited(request)) {
+    return problem(429, "Too Many Requests", "Too many downloads from this address; try again in a minute.", "rate_limited", { "retry-after": "60" });
+  }
+  const key = await packageCatalogKey(request, env, id);
+  if (!key) return problem(404, "Not Found", "No process package is published at this address.", "not_found");
+  const value = await getHeadRecord(env.FABRIC_DB, "eranos.catalog", key);
+  const refusal = packageRefusal(value);
+  if (refusal) {
+    return problem(value ? 403 : 404, value ? "Forbidden" : "Not Found", `This process package is not served: ${refusal}.`, value ? "not_published" : "not_found");
+  }
+  if (!env.TESSERA || !env.TESSERA_SURFACE_KEY) {
+    return problem(503, "Service Unavailable", "The package store cannot be reached from this site right now.", "unavailable");
+  }
+  const sha = String(value.blob_sha256);
+  const filename = `${key.replace(/[^A-Za-z0-9._-]/g, "")}.tar.gz`;
+  const headers = (length) => ({
+    "content-type": "application/gzip",
+    "content-disposition": `attachment; filename="${filename}"`,
+    "x-content-sha256": sha,
+    "content-length": String(length),
+    "cache-control": "public, max-age=3600",
+    "x-content-type-options": "nosniff",
+  });
+  const edge = typeof caches !== "undefined" ? caches.default : null;
+  const cacheKey = new Request(`https://eranos.ta-amps.workers.dev/p/package/${sha}`);
+  const hit = edge ? await edge.match(cacheKey) : null;
+  if (hit) {
+    const bytes = new Uint8Array(await hit.arrayBuffer());
+    return new Response(request.method === "HEAD" ? null : bytes, { status: 200, headers: headers(bytes.byteLength) });
+  }
+  let upstream = null;
+  for (const path of [`/v1/blobs/${sha}`, `/ns/main/v1/blobs/${sha}`]) {
+    try {
+      upstream = await env.TESSERA.fetch(`https://tessera.ta-amps.workers.dev${path}`, {
+        headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
+      });
+    } catch {
+      upstream = null;
+    }
+    if (upstream && upstream.status !== 404) break;
+  }
+  if (!upstream || !upstream.ok) {
+    return problem(502, "Bad Gateway", "The package store did not return this package.", "unavailable");
+  }
+  const bytes = await readCapped(upstream, PACKAGE_MAX_BYTES);
+  if (!bytes) return problem(413, "Payload Too Large", "This package is larger than this site serves.", "too_large");
+  const digest = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  if (digest !== sha) {
+    return problem(502, "Bad Gateway", "The stored package did not match its published SHA-256, so it is not served.", "integrity");
+  }
+  if (edge && request.method === "GET") {
+    await edge.put(cacheKey, new Response(bytes, { headers: { "content-type": "application/gzip", "cache-control": "public, max-age=3600" } })).catch(() => undefined);
+  }
+  return new Response(request.method === "HEAD" ? null : bytes, { status: 200, headers: headers(bytes.byteLength) });
+}
+
 function mdList(items, numbered) {
   return (Array.isArray(items) ? items : []).map((line, i) => `${numbered ? `${i + 1}.` : "-"} ${String(line)}`).join("\n");
 }
@@ -1682,7 +1818,8 @@ async function handleDiscoveryRoute(request, env, pathname) {
     pathname === "/agent.md" ||
     pathname === "/.well-known/agent-card.json" ||
     pathname === "/.well-known/agent.json" ||
-    PROCESS_DOC_RE.test(pathname)
+    PROCESS_DOC_RE.test(pathname) ||
+    PACKAGE_DOWNLOAD_RE.test(pathname)
   ) {
     if (request.method !== "GET" && request.method !== "HEAD") {
       return new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD" } });
@@ -1703,13 +1840,23 @@ async function handleDiscoveryRoute(request, env, pathname) {
     if (pathname === "/robots.txt") {
       return textResp(ROBOTS_TXT, "text/plain; charset=utf-8");
     }
+    const download = PACKAGE_DOWNLOAD_RE.exec(pathname);
+    if (download) return servePackage(request, env, download[1]);
     const processDoc = PROCESS_DOC_RE.exec(pathname);
     if (processDoc) {
       const id = processDoc[1];
       const part = Number(new URL(request.url).searchParams.get("part")) || 1;
       const found = await loadProcessResult(request, env, id, part);
       const origin = new URL(request.url).origin;
-      const text = found ? (processDoc[2] === "agent" ? processAgentMarkdown(origin, id, found) : processPracticeMarkdown(origin, id, found)) : null;
+      const pkg = processDoc[2] === "agent" ? await publishedPackage(request, env, id) : null;
+      const download = pkg
+        ? `\n## Download the process\n${origin}/p/${id}/download${part > 1 ? `?part=${part}` : ""}\nSHA-256: ${pkg.value.blob_sha256}. A different volunteer's key reviewed it; check the hash before you run it.\n`
+        : "";
+      let text = found ? (processDoc[2] === "agent" ? processAgentMarkdown(origin, id, found) + download : processPracticeMarkdown(origin, id, found)) : null;
+      if (!text && pkg) {
+        const kit = pkg.value.kit || {};
+        text = `# ${kit.title || pkg.key}\n\n${kit.summary || ""}\n${download}`;
+      }
       return text ? textResp(text, "text/markdown; charset=utf-8") : textResp("No reusable process is published at this address.\n", "text/plain; charset=utf-8", 404);
     }
     if (pathname === "/llms.txt") {

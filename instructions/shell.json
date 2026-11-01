@@ -29,7 +29,7 @@
       "external": true
     }
   ],
-  "external_note": "(opens the overview deck on Agora)",
+  "external_note": "opens the overview deck on Agora",
   "menu": {
     "button": "Menu",
     "open_label": "Open menu",

@@ -2161,6 +2161,8 @@
           "checked_how": "How it was checked",
           "copied": "Copied",
           "copy": "Copy",
+          "download": "Download the process",
+          "download_note": "SHA-256 {sha}… A second volunteer’s key reviewed this exact package.",
           "hide_how": "Hide ▴",
           "in_short": "In short",
           "in_short_note": "Every point links to its source.",
@@ -2221,7 +2223,7 @@
       "version": 1,
       "value": {
         "audience": "everyone who reads Eranos",
-        "external_note": "(opens the overview deck on Agora)",
+        "external_note": "opens the overview deck on Agora",
         "footer": {
           "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
           "links": [

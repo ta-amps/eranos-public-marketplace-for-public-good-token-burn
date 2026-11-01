@@ -32,6 +32,8 @@ export interface SiteMocks {
   history?: { version: number; created_at: number; value: unknown }[];
   /** Open tasks as /api/open-tasks lists them. */
   openTasks?: unknown[];
+  /** Catalog records by key, as /api/catalog/<key> answers them. */
+  catalog?: Record<string, unknown>;
 }
 
 export async function mockSite(page: Page, mocks: SiteMocks = {}): Promise<string[]> {
@@ -62,6 +64,10 @@ export async function mockSite(page: Page, mocks: SiteMocks = {}): Promise<strin
     if (path === "/api/fabric") {
       if (mocks.fabricFails) return route.abort("failed");
       return json(200, mocks.fabric ?? { queues: ["eq01", "eq02", "eq03"].map((name) => ({ name, ready: 0, leased: 0, waiting: 0, done: 0, dead: 0, cancelled: 0 })) });
+    }
+    if (path.startsWith("/api/catalog/") && mocks.catalog) {
+      const found = mocks.catalog[path.split("/").pop() ?? ""];
+      return found ? json(200, found) : json(404, { detail: "no such kit" });
     }
     if (path.startsWith("/api/catalog")) return json(200, snapshot("catalog.json"));
     return json(404, { detail: "no such route" });

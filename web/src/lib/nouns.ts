@@ -289,7 +289,7 @@ export interface RequestStatusNoun {
   added: Words;
   yours: Words;
   plain: PlainWords;
-  steps: Record<"tag_process" | "tag_information" | "tag_checked" | "tag_updating" | "tag_updated" | "back" | "what" | "only_person" | "practice" | "practice_lead" | "practice_message" | "run" | "run_lead" | "agent_message" | "copy" | "copied" | "show_how" | "hide_how" | "in_short" | "in_short_note" | "checked_how", string>;
+  steps: Record<"tag_process" | "tag_information" | "tag_checked" | "tag_updating" | "tag_updated" | "back" | "what" | "only_person" | "practice" | "practice_lead" | "practice_message" | "run" | "run_lead" | "agent_message" | "copy" | "copied" | "show_how" | "hide_how" | "in_short" | "in_short_note" | "checked_how" | "download" | "download_note", string>;
   decide: Record<"title" | "lead_process" | "lead_information" | "yes" | "changes" | "changes_label" | "changes_note" | "send" | "cancel" | "done_head" | "done_body" | "pending_head" | "pending_body" | "band_title" | "band_adding" | "band_added" | "band_none" | "band_some" | "band_link", string>;
   library_link: string;
 }

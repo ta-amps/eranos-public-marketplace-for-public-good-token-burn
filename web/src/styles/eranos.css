@@ -2446,3 +2446,11 @@ button.er-choice-pill {
     display: inline;
   }
 }
+
+.er-download {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 12px;
+}

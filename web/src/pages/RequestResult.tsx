@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { Icon } from "../components/Icon";
 import { Evidence, StateNotice } from "../components/status/StatusParts";
+import { SNAPSHOT } from "../config";
 import { ApiError, getJson } from "../lib/api";
 import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
 import { fill, type NounResponse, type RequestStatusNoun } from "../lib/nouns";
@@ -52,6 +53,28 @@ interface Loaded {
   checker?: { who?: string; model?: string };
   decision: { choice: DecisionChoice; at: number; version?: number } | null;
   decisionsVersion: number;
+}
+
+interface PackageRecord {
+  blob_sha256?: string;
+  tags?: string[];
+  review_receipt?: string | null;
+  drafter_key_id?: string;
+  reviewer_key_id?: string;
+}
+
+/** The same rule the Worker applies before it serves /p/<id>/download. */
+function servable(value: PackageRecord): value is PackageRecord & { blob_sha256: string } {
+  const tags = value.tags ?? [];
+  return (
+    /^[0-9a-f]{64}$/.test(value.blob_sha256 ?? "") &&
+    tags.includes("status:verified") &&
+    !tags.includes("status:quarantined") &&
+    Boolean(value.review_receipt) &&
+    Boolean(value.drafter_key_id) &&
+    Boolean(value.reviewer_key_id) &&
+    value.drafter_key_id !== value.reviewer_key_id
+  );
 }
 
 function sentences(text: string): string[] {
@@ -194,9 +217,11 @@ function useResult(id: string, partNumber: number, key: string | null): { loaded
         const plan = await getJson<NounResponse<{ parts?: PartPlan[] }>>(`/api/nouns/eranos.plans/${encodeURIComponent(id)}`);
         const part = plan.value.parts?.find((p) => p.part === partNumber) ?? null;
         let solution: Solution | null = null;
-        if (part?.report_id) {
+        // A report part names its report; a process part names its kit. Both results are eranos.solutions nouns.
+        const resultId = part?.report_id ?? part?.kit_id;
+        if (resultId) {
           try {
-            solution = (await getJson<NounResponse<Solution>>(`/api/nouns/eranos.solutions/${encodeURIComponent(part.report_id)}`)).value;
+            solution = (await getJson<NounResponse<Solution>>(`/api/nouns/eranos.solutions/${encodeURIComponent(resultId)}`)).value;
           } catch (error) {
             if (!(error instanceof ApiError && error.status === 404)) throw error;
           }
@@ -367,6 +392,22 @@ export function RequestResult({ id }: { id: string }) {
   const [copied, setCopied] = useState(false);
   const [revision, setRevision] = useState<{ id: string | null } | null>(null);
   const [decisionTask, setDecisionTask] = useState<string | null>(null);
+  // A published process package (catalog record reviewed by a different key) can be downloaded as its exact bytes.
+  const [packageSha, setPackageSha] = useState<string | null>(null);
+  const kitId = loaded?.part?.kit_id;
+  useEffect(() => {
+    if (!kitId || EXAMPLES[id] || SNAPSHOT) return;
+    let live = true;
+    getJson<PackageRecord>(`/api/catalog/${encodeURIComponent(kitId)}`)
+      .then((found) => {
+        const value = (found as { value?: PackageRecord }).value ?? found;
+        if (live && servable(value)) setPackageSha(value.blob_sha256 ?? null);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [kitId, id]);
 
   useEffect(() => {
     if (words) document.title = fill(words.titles.doc_report ?? "", { short: shortRequestId(id) });
@@ -527,6 +568,14 @@ export function RequestResult({ id }: { id: string }) {
             {view.example && <p className="er-small">{words.result.example_note}</p>}
             <section className="er-panel er-process er-step" aria-labelledby="process-title" data-testid="task-object" data-object-id={process.task_object.id}>
               <h2 id="process-title">{words.steps.what}</h2>
+              {packageSha && (
+                <p className="er-download" data-testid="download-process">
+                  <a href={`/p/${encodeURIComponent(id)}/download${partNumber > 1 ? `?part=${partNumber}` : ""}`} className="er-btn-secondary er-btn-small" download>
+                    {words.steps.download}
+                  </a>
+                  <span className="er-small">{fill(words.steps.download_note, { sha: packageSha.slice(0, 12) })}</span>
+                </p>
+              )}
               <ul className="er-plain-list">
                 {sentences(process.task_object.description).map((line) => (
                   <li key={line}>{line}</li>

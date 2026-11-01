@@ -48,7 +48,13 @@ for (const [name, method, pathname, body] of requests) {
     init.headers = { "content-type": "application/json" };
   }
   const response = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev" + pathname, init), env);
+  const bytes = method === "HEAD" ? new Uint8Array() : new Uint8Array(await response.arrayBuffer());
+  const digest = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const binary = (response.headers.get("content-type") || "").includes("gzip");
   out[name] = {
+    sha256: digest,
+    xsha: response.headers.get("x-content-sha256") || "",
+    disposition: response.headers.get("content-disposition") || "",
     status: response.status,
     type: response.headers.get("content-type") || "",
     csp: response.headers.get("content-security-policy") || "",
@@ -56,7 +62,7 @@ for (const [name, method, pathname, body] of requests) {
     allow: response.headers.get("allow") || "",
     cache: response.headers.get("cache-control") || "",
     cors: response.headers.get("access-control-allow-origin") || "",
-    body: method === "HEAD" ? "" : await response.text(),
+    body: binary ? "" : new TextDecoder().decode(bytes),
   };
 }
 console.log(JSON.stringify(out));
@@ -811,3 +817,102 @@ def test_a_kit_draft_marked_as_practice_cases_passes_the_practice_check() -> Non
     assert refused["passed"] is False
     assert any("practice-case mark" in issue for issue in refused["issues"]), refused["issues"]
     assert "synthetic" not in (out["shown"]["body"] + out["unmarked"]["body"]).lower()
+
+
+def test_a_published_process_package_downloads_from_the_local_tessera_and_nothing_else_does() -> (
+    None
+):
+    """/p/<id>/download reads the bundle from Tessera with the site's own key and serves the exact bytes, with the
+    catalog's SHA-256; quarantined, self-reviewed, unknown, example and tampered ids are refused."""
+    import hashlib
+    import io
+    import tarfile
+    import tempfile
+
+    from tessera import Store
+    from tessera.service import ServiceSettings, create_app
+
+    from eranos.e2e import _free_port, _serve
+
+    buf = io.BytesIO()
+    with tarfile.open(fileobj=buf, mode="w:gz") as tar:
+        data = b"#!/bin/sh\necho 'Practice case: an example, not a real person or case.'\n"
+        info = tarfile.TarInfo("process/run.sh")
+        info.size = len(data)
+        tar.addfile(info, io.BytesIO(data))
+    bundle = buf.getvalue()
+    sha = hashlib.sha256(bundle).hexdigest()
+
+    def record(key: str, **over: Any) -> dict[str, Any]:
+        value: dict[str, Any] = {
+            "kit": {
+                "kit_id": key,
+                "title": "Clean volunteer sign-up sheets",
+                "summary": "A data-cleaning pipeline.",
+                "drafted_by_key": "kb_builder",
+            },
+            "blob_sha256": sha,
+            "tags": ["kind:process", "status:verified"],
+            "review_receipt": "c" * 64,
+            "drafter_key_id": "kb_builder",
+            "reviewer_key_id": "kb_reviewer",
+            "reviewed_by_key": "kb_reviewer",
+        }
+        value.update(over)
+        return value
+
+    records = {
+        "PRC-35DE86-01": record("PRC-35DE86-01"),
+        "PRC-QUAR-02": record("PRC-QUAR-02", tags=["kind:process", "status:quarantined"]),
+        "PRC-SELF-03": record(
+            "PRC-SELF-03", reviewer_key_id="kb_builder", reviewed_by_key="kb_builder"
+        ),
+        "PRC-NOREV-05": record("PRC-NOREV-05", review_receipt=None),
+        "PRC-WRONG-04": record("PRC-WRONG-04", blob_sha256="d" * 64),
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        store = Store(f"{tmp}/tessera.db")
+        reader, _ = store.issue_key(
+            "eranos-site", queues=["eranos.read"], scopes=["store", "surface:eranos"]
+        )
+        assert store.put_blob(bundle) == sha
+        port = _free_port()
+        settings = ServiceSettings(
+            db_path=f"{tmp}/tessera.db", public_url=f"http://127.0.0.1:{port}"
+        )
+        with _serve(create_app(store, settings), port, "/v1/health") as url:
+            env = (
+                "({ TESSERA_SURFACE_KEY: " + json.dumps(reader) + ", "
+                "TESSERA: { fetch: (target, init) => fetch(String(target).replace('https://tessera.ta-amps.workers.dev', "
+                + json.dumps(url)
+                + "), init) }, "
+                "FABRIC_DB: { prepare() { return { bind(store, key) { return { async first() { "
+                "const records = " + json.dumps(records) + "; "
+                "return store === 'eranos.catalog' && records[key] ? { value: JSON.stringify(records[key]) } : null; }, "
+                "async all() { return { results: [] }; } }; } }; } } })"
+            )
+            out = _worker(
+                [
+                    ("ok", "GET", "/p/PRC-35DE86-01/download", None),
+                    ("head", "HEAD", "/p/PRC-35DE86-01/download", None),
+                    ("quarantined", "GET", "/p/PRC-QUAR-02/download", None),
+                    ("self_reviewed", "GET", "/p/PRC-SELF-03/download", None),
+                    ("no_review", "GET", "/p/PRC-NOREV-05/download", None),
+                    ("tampered", "GET", "/p/PRC-WRONG-04/download", None),
+                    ("unknown", "GET", "/p/PRC-NONE-09/download", None),
+                    ("example", "GET", "/p/example-process/download", None),
+                    ("agent", "GET", "/p/PRC-35DE86-01/agent.md", None),
+                ],
+                env,
+            )
+    ok = out["ok"]
+    assert ok["status"] == 200 and ok["type"] == "application/gzip"
+    assert ok["sha256"] == sha == ok["xsha"] == records["PRC-35DE86-01"]["blob_sha256"]
+    assert ok["disposition"] == 'attachment; filename="PRC-35DE86-01.tar.gz"'
+    assert out["head"]["status"] == 200 and out["head"]["xsha"] == sha
+    for name in ("quarantined", "self_reviewed", "no_review"):
+        assert out[name]["status"] == 403, name
+    assert out["tampered"]["status"] == 502
+    assert out["unknown"]["status"] == 404 and out["example"]["status"] == 404
+    assert "/p/PRC-35DE86-01/download" in out["agent"]["body"] and sha in out["agent"]["body"]
+    assert reader not in json.dumps(out)
