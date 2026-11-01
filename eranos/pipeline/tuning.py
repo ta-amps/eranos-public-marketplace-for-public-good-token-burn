@@ -2,7 +2,7 @@
 
 The goal is requests delivered well, fast and cheap. A variant is a set of tunable choices for one
 step (a Meta Muse model, a persona prompt, reasoning effort, temperature); the tuning noun
-(`eranos.instructions/worker.tuning`) holds the variants, each step's mix and the tuner's version.
+(`eranos.instructions/worker.policy`) holds the variants, each step's mix and the tuner's version.
 
 - A worker draws each step's variant from the current mix and records the pick on the request's
   status facts and in its execution report: model, its display name, variant, persona, the tuner
@@ -35,8 +35,8 @@ from eranos.copy import find_accusatory_words
 from eranos.pipeline.plain_words import forbidden
 from eranos.privacy import personal_data_findings
 
-TUNING_STORE, TUNING_KEY = "eranos.instructions", "worker.tuning"
-LOCAL_TUNING = Path(__file__).resolve().parents[2] / "instructions" / "worker.tuning.json"
+TUNING_STORE, TUNING_KEY = "eranos.instructions", "worker.policy"
+LOCAL_TUNING = Path(__file__).resolve().parents[2] / "instructions" / "worker.policy.json"
 STEPS = ("make", "check")
 LIVE = ("active", "trial")
 DRAWS = 4000

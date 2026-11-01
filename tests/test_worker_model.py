@@ -24,7 +24,7 @@ from eranos.worker_loop import LOCAL_CATALOG, Worker, WorkerConfig
 ROOT = Path(__file__).resolve().parents[1]
 RULES = load_json(ROOT / "instructions" / "worker.json")
 CATALOG = load_json(LOCAL_CATALOG)
-TUNING = load_json(ROOT / "instructions" / "worker.tuning.json")
+TUNING = load_json(ROOT / "instructions" / "worker.policy.json")
 
 
 class Backend:
@@ -122,7 +122,7 @@ def test_the_noun_names_the_model_and_the_catalog_names_and_prices_it(
     assert isinstance(model, MetaModel)
     assert (model.model, model.display) == ("muse-spark-1.3", "Muse Spark 1.3")  # owner, Nov 1
     assert model.prices == {"input": 1.25, "output": 4.25}  # the catalog's rates, not code
-    assert CATALOG["runtime"]["dedicated_worker_default"] == RULES["model"]["id"]
+    assert "self-tuning" in CATALOG["runtime"]["selection"]  # catalog v4: no fixed default
     # Each step's pick comes from the tuning noun's mix and is recorded in full.
     lease = SimpleNamespace(task_id="t_make", fencing_token=1)
     pick = dedicated.pick_for("make", lease)
@@ -302,3 +302,18 @@ def test_the_cli_volunteer_flag_turns_on_the_volunteer_mode(
     import os
 
     assert os.environ["ERANOS_VOLUNTEER"] == "1"
+
+
+def test_every_model_a_worker_can_name_resolves_through_the_catalog() -> None:
+    """Claim facts carry model ids; pages name them through models.meta's runtime.display_by_id,
+    and a model without rates there is never called, so every id the workers can pick must have both."""
+    runtime = CATALOG["runtime"]
+    ids = {RULES["model"]["id"], RULES["model"]["volunteer_id"]}
+    ids |= {v["model"] for v in TUNING["variants"]}
+    ids.add(TUNING["propose"]["model"])
+    for model_id in sorted(ids):
+        assert runtime["display_by_id"][model_id].startswith("Muse "), model_id
+        assert {"input", "output"} <= set(runtime["rates_usd_per_million_tokens"][model_id]), (
+            model_id
+        )
+    assert runtime["tier"] == "standard"

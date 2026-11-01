@@ -187,7 +187,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
 | [instructions/site.json](instructions/site.json) | Spare tokens for good |
 | [instructions/worker.json](instructions/worker.json) | Rules for Eranos's volunteer workers |
-| [instructions/worker.tuning.json](instructions/worker.tuning.json) | How Eranos's workers tune themselves |
+| [instructions/worker.policy.json](instructions/worker.policy.json) | How Eranos's workers tune themselves |
 
 ## scripts/ (5)
 
@@ -279,7 +279,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/nouns/eranos.instructions/public-research.json](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/site.json](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/worker.json](web/public/snapshot/nouns/eranos.instructions/worker.json) | JSON object: synthetic, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/worker.tuning.json](web/public/snapshot/nouns/eranos.instructions/worker.tuning.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/worker.policy.json](web/public/snapshot/nouns/eranos.instructions/worker.policy.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources.json](web/public/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: synthetic, store, key, version, value |
@@ -315,7 +315,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/nouns/eranos.instructions/public-research.json](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/site.json](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/worker.json](web/snapshot/nouns/eranos.instructions/worker.json) | JSON object: synthetic, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/worker.tuning.json](web/snapshot/nouns/eranos.instructions/worker.tuning.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/worker.policy.json](web/snapshot/nouns/eranos.instructions/worker.policy.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources.json](web/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: synthetic, store, key, version, value |

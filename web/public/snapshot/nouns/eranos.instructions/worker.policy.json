@@ -1,7 +1,7 @@
 {
   "synthetic": true,
   "store": "eranos.instructions",
-  "key": "worker.tuning",
+  "key": "worker.policy",
   "version": 1,
   "value": {
     "about": "Each step that calls a model (make: research; check: the check of a report) draws a variant from this mix, and every pick is recorded on the request's facts and in its execution report. An hourly task (tune) rereads the recorded outcomes, moves each step's mix toward the variants that earn the most reward, keeps or drops trial variants by their results, and when a step keeps failing asks a Muse model to draft a new persona from the recorded failure reasons; a draft that passes the wording, accusation and personal-data checks enters as a trial at a small share. Tunable here: model, persona, effort, temperature and how often a check gets a second check. Not tunable: the owner's spending caps, the standard tier, a check by a different key, Muse models through the Meta API, every pick recorded, and the owner's wording rules.",
@@ -18,8 +18,8 @@
       "outcomes": 0,
       "refs": []
     },
-    "key": "worker.tuning",
-    "kind": "worker_tuning",
+    "key": "worker.policy",
+    "kind": "worker_policy",
     "method": "Thompson sampling: each variant's share is its chance of earning the most reward, from Beta posteriors over recorded outcomes (4,000 draws, seeded by the tuner version). Version 0 is the starting mix.",
     "mix": {
       "check": {

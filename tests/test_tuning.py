@@ -19,7 +19,7 @@ from eranos.pipeline import tuning
 from eranos.worker_loop import ExampleOnlyRefused, Worker, WorkerConfig
 
 ROOT = Path(__file__).resolve().parents[1]
-TUNING = load_json(ROOT / "instructions" / "worker.tuning.json")
+TUNING = load_json(ROOT / "instructions" / "worker.policy.json")
 RULES = load_json(ROOT / "instructions" / "worker.json")
 REWARDS = TUNING["rewards"]
 
@@ -298,7 +298,7 @@ def test_the_tuner_writes_the_next_version_and_adds_a_checked_trial(tmp_path: Pa
     lease = SimpleNamespace(task_id="tune-2026110105", fencing_token=1, kind="tune", brief={})
     out = worker.tune(backend, lease, worker_meter())
     ((store, key, value, kw),) = backend.puts
-    assert (store, key, kw["expected_version"]) == ("eranos.instructions", "worker.tuning", 0)
+    assert (store, key, kw["expected_version"]) == ("eranos.instructions", "worker.policy", 0)
     assert value["tuner_version"] == 1 and value["inputs"]["outcomes"] == 3
     trial = next(v for v in value["variants"] if v.get("status") == "trial")
     assert trial["origin"]["by"] == "tuner" and trial["origin"]["drafted_with"] == "muse-spark-1.3"

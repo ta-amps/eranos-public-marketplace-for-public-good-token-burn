@@ -298,7 +298,7 @@
     }
   },
   "model": {
-    "about": "The models these workers call: Meta's Muse models through the Meta API, at the standard tier only (a contributor-tier id is refused). Which model, persona and effort each step runs is tuned from recorded outcomes (eranos.instructions/worker.tuning); id is the model a step uses when no tuned variant can run, and volunteer_id is the volunteer mode's fixed model. Display names and token rates come from the model catalog, eranos.instructions/models.meta; a model with no rates there is never called.",
+    "about": "The models these workers call: Meta's Muse models through the Meta API, at the standard tier only (a contributor-tier id is refused). Which model, persona and effort each step runs is tuned from recorded outcomes (eranos.instructions/worker.policy); id is the model a step uses when no tuned variant can run, and volunteer_id is the volunteer mode's fixed model. Display names and token rates come from the model catalog, eranos.instructions/models.meta; a model with no rates there is never called.",
     "provider": "meta",
     "base_url": "https://api.meta.ai/v1",
     "tier": "standard",

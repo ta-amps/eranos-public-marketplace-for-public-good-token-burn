@@ -49,7 +49,8 @@
       "SAM and wav2vec 2.0: pending until the same check runs on the new cut.",
       "Added Kokoro 82M * (the film voice).",
       "Muse Glimmer 30B: shown as tuned and tested, not as running live.",
-      "Removed internal to-do and rule lines that named banned words."
+      "Removed internal to-do and rule lines that named banned words.",
+      "Steps name both Muse Spark 1.3 and Muse Wonder 1.0: the owner chose a self-tuning mix (D8). Pages show the live share."
     ],
     "created_at": "2026-11-01T05:45:00Z",
     "derived_from": "notes/coordination-2026-10-31/claude-design-models.v1.json (Claude Design, Nov 1) plus the corrections listed below",
@@ -190,7 +191,9 @@
         "model_id": "muse-wonder-1.0",
         "name": "Muse Wonder 1.0",
         "role": "Writes test scenarios and typed proposals, one at a time. Each one is checked against its schema and never runs by itself.",
+        "role_dedicated": "Also splits, makes and checks requests for the dedicated workers whenever the tuning picks it.",
         "state": "measured",
+        "state_dedicated": "pending",
         "tested": [
           {
             "source": "models-matrix",
@@ -263,7 +266,6 @@
       "No receipts, hashes or run ids on the page. Dates, durations, counts and versions only."
     ],
     "runtime": {
-      "dedicated_worker_default": "muse-spark-1.3",
       "display_by_id": {
         "facebook/musicgen-small": "MusicGen",
         "facebook/sam-vit-base": "SAM",
@@ -273,6 +275,7 @@
         "muse-spark-1.3": "Muse Spark 1.3",
         "muse-wonder-1.0": "Muse Wonder 1.0"
       },
+      "owner_decision": "D8, Nov 1: multiple Muse models with personas, self-tuning, not fixed",
       "rates_usd_per_million_tokens": {
         "muse-spark-1.3": {
           "input": 1.25,
@@ -283,6 +286,7 @@
           "output": 20
         }
       },
+      "selection": "self-tuning policy (Task Object worker.policy): Thompson sampling per role over model x persona profiles, recorded per claim",
       "tier": "standard"
     },
     "sources": {
@@ -302,15 +306,26 @@
         "text": "No model. The request waits in a durable queue."
       },
       {
+        "mix_source": "worker.policy summary (live share per model)",
         "model": "Muse Spark 1.3",
+        "models": [
+          "muse-spark-1.3",
+          "muse-wonder-1.0"
+        ],
         "station": "Picked up",
-        "text": "Muse Spark 1.3 splits it into Tasks."
+        "text": "Muse Spark 1.3 or Muse Wonder 1.0 splits it into Tasks.",
+        "text_design": "Muse Spark 1.3 splits it into Tasks."
       },
       {
         "agent_app": "Muse Code, when the work needs code",
+        "mix_source": "worker.policy summary (live share per model)",
         "model": "Muse Spark 1.3",
+        "models": [
+          "muse-spark-1.3",
+          "muse-wonder-1.0"
+        ],
         "station": "Being made",
-        "text": "Muse Spark 1.3 does the work.",
+        "text": "Muse Spark 1.3 or Muse Wonder 1.0 does the work.",
         "text_design": "Muse Spark 1.3, in Muse Code when it needs code.",
         "why_changed": "The dedicated workers call Muse Spark 1.3 directly; Muse Code ran the build only in the Oct 31 test run."
       },
@@ -320,9 +335,15 @@
         "text": "No model. The check waits for a second agent."
       },
       {
+        "mix_source": "worker.policy summary (live share per model)",
         "model": "Muse Spark 1.3",
+        "models": [
+          "muse-spark-1.3",
+          "muse-wonder-1.0"
+        ],
         "station": "Being checked",
-        "text": "Muse Spark 1.3, a second agent with its own key."
+        "text": "A different agent with its own key checks it, on Muse Spark 1.3 or Muse Wonder 1.0 with a different persona.",
+        "text_design": "Muse Spark 1.3, a second agent with its own key."
       },
       {
         "model": null,
@@ -331,7 +352,7 @@
       }
     ],
     "updated": "2026-11-01",
-    "version": 3,
+    "version": 4,
     "why": "The owner asked (Nov 1): 'why is nanomuse the reviewer, what is this', and for a 'Models used' page that explains how we use each model, emphasizes Meta's models, and marks fallbacks to other models with *. Every fact below comes from a run record or the owner's rules, listed under sources."
   }
 }

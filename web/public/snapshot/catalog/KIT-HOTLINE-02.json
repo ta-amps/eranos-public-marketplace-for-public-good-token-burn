@@ -196,14 +196,14 @@
   "reviewed_by_key": "key_reviewer_02",
   "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
   "steward_signoff": "helpline-steward-lead",
-  "draft_receipt": "5eb97b65b9849293d63d9a050be338bf01d4f4fc8fa1716d68b98f336be70dc1",
-  "review_receipt": "4a608c2f340e95a2f3691a4011cb2011e143684953aee0858d1350a41d4d1edf",
+  "draft_receipt": "58a3a1e6184bcf71fe6df482267c5f90fd558e0f21d94d8f50ef26f39b2f998d",
+  "review_receipt": "d6a482a95a5767318a9387825a513cedf19aa40ec54cefa49e0886a526cb6bb5",
   "blob_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
   "catalog_version": 1,
-  "review_task_id": "er_841566b51bf9:KIT-HOTLINE-02:review",
-  "draft_task_id": "er_841566b51bf9:KIT-HOTLINE-02:draft",
+  "review_task_id": "er_97ccf340ffbd:KIT-HOTLINE-02:review",
+  "draft_task_id": "er_97ccf340ffbd:KIT-HOTLINE-02:draft",
   "draft_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
   "drafter_key_id": "key_drafter_02",
   "reviewer_key_id": "key_reviewer_02",
-  "publication_sha256": "c6c48ccd851a438a7c44990b4cb34ed1f8a1c1cc20bb84a4c4b38b7ff77033e9"
+  "publication_sha256": "d49532b10f7543e2b3aef89d14f431fd4addfdbc230cb5523bf03e0a89245e79"
 }

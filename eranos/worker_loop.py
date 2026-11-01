@@ -1487,7 +1487,7 @@ class Worker:
                     producer_surface="surface:eranos",
                     brief={
                         "title": "Retune the workers' variant mix",
-                        "noun": "eranos.instructions/worker.tuning",
+                        "noun": "eranos.instructions/worker.policy",
                     },
                 )
             )
@@ -1533,7 +1533,7 @@ class Worker:
             expected_version=version,
             producer_surface="surface:eranos",
             visibility_scope="public_commons",
-            tags=["kind:instructions", "kind:worker_tuning"],
+            tags=["kind:instructions", "kind:worker_policy"],
         )
         self._tuning = (nxt, int(saved.version))
         output = {

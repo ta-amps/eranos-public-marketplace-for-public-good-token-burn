@@ -33,7 +33,7 @@ from eranos.worker_loop import Pacer, Worker, WorkerConfig
 
 ROOT = Path(__file__).resolve().parents[1]
 RULES = load_json(ROOT / "instructions" / "worker.json")
-TUNING = load_json(ROOT / "instructions" / "worker.tuning.json")
+TUNING = load_json(ROOT / "instructions" / "worker.policy.json")
 INFO_TEXT = "Summarize the tax law rules on political campaign activity for 501(c)(3) charities, with a citation for every point."
 REWORDED = "Our charity needs a cited overview of what the rules say about 501(c)(3) groups and political campaigns."
 
@@ -920,7 +920,7 @@ def test_the_hourly_tuner_reads_recorded_outcomes_and_writes_the_next_mix(fabric
             break
         assert time.time() < deadline, "the tuner task never ran"
         time.sleep(0.5)
-    saved = fabric.get("/v1/stores/eranos.instructions/records/worker.tuning")
+    saved = fabric.get("/v1/stores/eranos.instructions/records/worker.policy")
     value = saved["value"]
     assert saved["version"] >= 1 and value["tuner_version"] == 1
     assert value["inputs"]["outcomes"] >= 1  # the make outcome of the request above, at least

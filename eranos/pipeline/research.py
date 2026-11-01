@@ -311,7 +311,7 @@ def prompt_text(
     )
     if (
         persona
-    ):  # the variant's persona: a reviewed, recorded prompt (eranos.instructions/worker.tuning)
+    ):  # the variant's persona: a reviewed, recorded prompt (eranos.instructions/worker.policy)
         system += "\n\nHow to work: " + persona
     titles = {s["id"]: s.get("title") or s.get("publisher") for s in sources}
     lines = [f"Question: {question}", "", "Sentences:"]
