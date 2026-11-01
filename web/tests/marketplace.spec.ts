@@ -226,9 +226,7 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     await expect(page.locator("details.er-more-details")).not.toHaveAttribute("open", "");
   });
 
-  test("Advanced settings: 'Improve an earlier request' asks for the link and what should be better, and lists this browser's requests", async ({ page }) => {
-    const id = `rq-r_${"ab".repeat(16)}-${(Date.UTC(2026, 9, 12, 15) ).toString(36)}`;
-    await page.addInitScript((saved) => window.localStorage.setItem(`eranos.requester.${saved}`, `tsk_${"cd".repeat(32)}`), id);
+  test("Advanced settings: 'Improve an earlier request' asks for the link and what should be better, and offers recent public requests", async ({ page }) => {
     await page.goto("/nonprofits");
     const advanced = page.getByTestId("advanced-settings");
     await expect(page.getByTestId("advanced-count")).toHaveText("none chosen");
@@ -241,10 +239,22 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     const improve = page.getByTestId("improve-panel");
     await expect(improve.getByLabel("Link to the earlier request or result")).toBeVisible();
     await expect(improve.getByLabel("What should be better?")).toBeVisible();
-    await improve.getByRole("button", { name: /^R-/ }).click();
-    await expect(improve.getByLabel("Link to the earlier request or result")).toHaveValue(new RegExp(`/requests/${id}$`));
+    // Requests are public, so the recent ones come from their public records, never from this browser.
+    await expect(improve).toContainText("Or pick a recent public request:");
+    await expect(improve).toContainText("No public requests to pick from right now.");
     await advanced.getByRole("checkbox", { name: "Spreadsheets" }).check();
     await expect(page.getByTestId("advanced-count")).toHaveText("2 chosen");
+  });
+
+  test("a flagged request that isn't a reusable process offers to switch to one", async ({ page }) => {
+    await page.goto("/nonprofits");
+    await page.getByRole("checkbox", { name: /Information/ }).check();
+    await page.locator("#need").fill("Write to dana@clinic-mail.org about the forms.");
+    const banner = page.getByTestId("switch-to-process");
+    await expect(banner).toContainText("Need to work with private files? Ask for a reusable process instead.");
+    await banner.getByRole("button", { name: "Switch to a reusable process" }).click();
+    await expect(page.getByRole("checkbox", { name: /A reusable process/ })).toBeChecked();
+    await expect(page.getByTestId("switch-to-process")).toHaveCount(0);
   });
 
   test("the offline copy of the site says it does not send", async ({ page }) => {

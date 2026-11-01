@@ -34,7 +34,7 @@
           "to": "/library"
         },
         {
-          "label": "Your requests",
+          "label": "Requests",
           "to": "/requests"
         },
         {
@@ -95,23 +95,24 @@
         "to": "/help"
       },
       {
+        "label": "Requests",
+        "match": "yours",
+        "to": "/requests"
+      },
+      {
         "label": "Library",
         "match": "library",
         "to": "/library"
-      },
-      {
-        "external": true,
-        "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
-        "label": "How it works"
       }
     ],
     "nav_label": "Primary navigation",
+    "right": {
+      "external": true,
+      "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
+      "label": "How it works"
+    },
     "schema_version": 1,
     "skip": "Skip to content",
-    "title": "Header, menu and footer",
-    "yours": {
-      "label": "Your requests",
-      "to": "/requests"
-    }
+    "title": "Header, menu and footer"
   }
 }

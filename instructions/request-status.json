@@ -135,7 +135,7 @@
     "title": "What happened",
     "count_one": "What happened (1 record)",
     "count_many": "What happened ({n} records)",
-    "empty": "Nothing has happened yet.",
+    "empty": "No steps are recorded so far.",
     "received": "Request received.",
     "plan_claimed": "Claimed by {who} to plan it.",
     "plan_claimed_anon": "A volunteer's agent claimed it to plan it.",
@@ -163,7 +163,7 @@
     "closed": "All parts finished. The request is closed.",
     "withdrawn": "This request was withdrawn.",
     "models_note": "Models are what each volunteer's agent says it runs.",
-    "record_note": "Lines without a time come from public records, which don't carry their write time yet.",
+    "record_note": "Lines without a time come from public records, which don’t carry their write time.",
     "lease": " Lease {m} min.",
     "plan_released": "{who} let the request go when its lease ended. It's back in line.",
     "queued": "In line: {nth} for part {n}.",
@@ -310,7 +310,7 @@
     "download_md": "Report and sources as Markdown",
     "download_json": "All receipts (JSON)",
     "download_pdf": "Report as PDF (print)",
-    "not_ready": "This report isn't ready yet. It appears here once a different volunteer has checked it.",
+    "not_ready": "This report appears here once a different volunteer has checked it.",
     "missing": "This request has no cited report for part {n}.",
     "use_process": "Use this process",
     "reviewed_line": "A different volunteer reviewed this: {who}",
@@ -352,7 +352,7 @@
     "example_note": "This is an example: nothing here was built or run.",
     "meta_anon": "Built and checked by two different volunteers' agents",
     "use": "Use this process",
-    "not_ready": "This process isn't ready yet. It appears here once a different volunteer has checked it.",
+    "not_ready": "This process appears here once a different volunteer has checked it.",
     "kit_link": "Open the published process",
     "real_note": "The published process holds its instructions, skills, checks and test cases."
   },
@@ -413,38 +413,44 @@
     "record_note": "Each link opens the public record itself."
   },
   "yours": {
-    "title": "Your requests",
-    "lead": "The requests whose private links are saved in this browser. Anyone with a private link can follow that request and decide on its results, so keep the links to yourself.",
+    "title": "Requests",
+    "lead": "Recent public requests. Requests are public; the private link only adds your team’s decision buttons.",
     "empty": "No requests are saved in this browser. Requests you send from this browser appear here.",
     "ask": "Ask for help",
     "sent": "Sent {date}",
     "open": "Open",
     "forget": "Forget in this browser",
     "loading": "Reading the request…",
-    "untitled": "Request {short}"
+    "untitled": "Request {short}",
+    "public_title": "Recent public requests",
+    "public_none": "No public requests to show right now.",
+    "saved_title": "Private links this browser holds",
+    "saved_note": "Anyone with a private link can decide on that request’s results, so keep the links to yourself."
   },
   "plain": {
-    "sent_line": "Sent {time}",
-    "sent_line_key": "Sent {time} · a private link to this page is saved in your browser",
+    "sent_line": "Sent {time} · checked: no private info",
+    "sent_line_key": "Sent {time} · checked: no private info",
     "technical_line": "Request {short} · sent {time}",
     "show_technical": "Show technical details",
     "show_simple": "Back to the simple view",
     "chip": {
-      "in_line": "Waiting in line",
-      "planning": "Being planned",
+      "in_line": "Being sorted",
+      "planning": "Being sorted",
       "waiting_volunteer": "Waiting for a volunteer",
       "making": "Being made",
-      "waiting_check": "Waiting for a second volunteer",
+      "waiting_check": "Made · waiting for a check",
       "checking": "Being checked",
-      "changes": "Making your changes",
-      "ready": "Ready for your team to review",
-      "in_use": "In use · in the shared library",
-      "in_use_regular": "In use · runs {every}",
+      "changes": "Changes asked",
+      "ready": "Ready for your team",
+      "in_use": "In the shared library",
+      "in_use_regular": "Decided: use it · runs {every}",
       "decided": "Your team decided",
-      "not_used": "Not used",
+      "not_used": "Decided: not used",
       "withdrawn": "Withdrawn",
       "blocked": "Not accepted",
-      "in_use_plain": "In use"
+      "in_use_plain": "Decided: use it",
+      "sent_back": "Sent back for fixes",
+      "ready_public": "Ready for the nonprofit"
     },
     "stages_label": "Where your request is",
     "stages": {
@@ -540,7 +546,9 @@
       "decided_dont": "Your team decided not to use it.",
       "library_added": "It’s now in the shared library.",
       "withdrawn": "This request was withdrawn.",
-      "closed": "This request is closed."
+      "closed": "This request is closed.",
+      "check_refused": "The maker tried to approve its own work, and Tessera refused it.",
+      "work_claimed_eranos": "No volunteer was free, so one of Eranos’s own workers started making it."
     },
     "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
     "share": "Share this request",
@@ -553,7 +561,65 @@
       "quarterly": "every quarter",
       "yearly": "every year"
     },
-    "tab_title": "Your request · Eranos"
+    "tab_title": "Your request · Eranos",
+    "private_line": "Your private link lets your team decide on the result: use Copy private link and keep it. To share the request, use Copy link.",
+    "copy_link": "Copy link",
+    "copied_link": "Copied",
+    "strip": [
+      "Sent",
+      "Sorted",
+      "Being made",
+      "Being checked",
+      "Ready for you",
+      "In the library"
+    ],
+    "strip_ready_public": "Ready",
+    "bands": {
+      "sorted": {
+        "title": "Sorted and split",
+        "process": "Your files stay with you",
+        "information": "Public information",
+        "checked": "✓ No private information found in the request · checked {time}",
+        "waiting": "A volunteer’s AI splits it into parts it can make."
+      },
+      "made": {
+        "title_now": "Being made",
+        "title_done": "Made",
+        "helper_volunteer": "A volunteer’s AI",
+        "helper_eranos": "One of Eranos’s own workers",
+        "picked": "Picked it up at {time}.",
+        "picked_eranos": "Picked it up at {time}: no volunteer was free.",
+        "waiting": "Waiting for a volunteer · {nth} in line.",
+        "fallback": "If none is free by {time}, one of Eranos’s own workers will pick it up.",
+        "recorded": "Recorded ✓ Every step is recorded."
+      },
+      "checked": {
+        "title": "Checked by a second volunteer",
+        "rule": "The rule: the volunteer who made it can never approve it. A different volunteer always checks.",
+        "blocked": "✗ Blocked: the maker can’t approve its own work",
+        "sent_back_one": "↩ Sent back with 1 note",
+        "sent_back_many": "↩ Sent back with {n} notes",
+        "waiting": "Waiting for a second volunteer",
+        "checking": "A second volunteer’s AI is checking it",
+        "done": "Checked ✓",
+        "upcoming": "By a second volunteer’s AI"
+      },
+      "ready": {
+        "title": "Ready for you",
+        "title_public": "Ready",
+        "process": "Your process",
+        "information": "Your answer",
+        "open_process": "Open it →",
+        "open_information": "Read it, with sources →",
+        "decide": "Does this work for your team?",
+        "decide_link": "Decide on the result page →",
+        "library_title": "Shared library",
+        "library_added": "✓ Added to the shared library",
+        "library_link": "See it in the library →",
+        "library_how": "How it’s stored, on Agora ↗",
+        "upcoming": "Your team decides once a second volunteer has checked it."
+      }
+    }
   },
   "steps": {
     "tag_process": "A reusable process",
@@ -568,7 +634,7 @@
     "practice_lead": "Copy this message into the AI assistant you already use. These are practice cases, not real people or cases, so nothing private is involved.",
     "practice_message": "Read {url} and try the process on its practice cases. Tell me what it got right and wrong.",
     "run": "3 · Run it on your own files",
-    "run_lead": "Pick one. Everything runs where your files already are.",
+    "run_lead": "Pick one. It runs where your files already are, and nothing is sent to Eranos.",
     "agent_message": "Read {url} and run it on a folder I choose.",
     "copy": "Copy",
     "copied": "Copied",
@@ -578,7 +644,8 @@
     "in_short_note": "Every point links to its source.",
     "checked_how": "How it was checked",
     "download": "Download the process",
-    "download_note": "SHA-256 {sha}… A second volunteer’s key reviewed this exact package."
+    "download_note": "SHA-256 {sha}… A second volunteer’s key reviewed this exact package.",
+    "curious": "Curious how this works? How it works, on Agora ↗"
   },
   "decide": {
     "title": "Does this work for your team?",
@@ -597,7 +664,7 @@
     "band_title": "When you use it, these join the shared library:",
     "band_adding": "Adding to the shared library",
     "band_added": "Added to the shared library.",
-    "band_none": "Nothing added yet",
+    "band_none": "Nothing added so far",
     "band_some": "{n} items added · free for other nonprofits",
     "band_link": "See it in the shared library →"
   }

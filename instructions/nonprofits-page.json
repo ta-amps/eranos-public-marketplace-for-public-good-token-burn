@@ -98,6 +98,10 @@
       "name": "add your organization’s name",
       "type": "add the type of organization",
       "improve": "paste the link to the earlier request"
+    },
+    "switch": {
+      "text": "Need to work with private files? Ask for a reusable process instead. It runs on your own computer, so nothing private is sent.",
+      "action": "Switch to a reusable process"
     }
   },
   "states": {
@@ -319,8 +323,8 @@
       "link_placeholder": "Paste the link, or pick one below",
       "what_label": "What should be better?",
       "what_placeholder": "For example: also handle typed forms",
-      "recent_label": "Your recent requests, saved in this browser:",
-      "recent_none": "No requests are saved in this browser."
+      "recent_label": "Or pick a recent public request:",
+      "recent_none": "No public requests to pick from right now."
     },
     "footer": "These choices are public with your request. Never add keys, passwords, account names or links to private systems.",
     "clear": "Clear choices"

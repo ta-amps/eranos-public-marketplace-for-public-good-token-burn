@@ -49,6 +49,8 @@ export type NodeState =
 
 interface Agent {
   who?: string;
+  /** One of Eranos's own workers (the fallback when no volunteer is free), not a volunteer's agent. */
+  dedicated?: boolean;
   model?: string;
   claimedAt?: number | null;
   leaseEnds?: number;
@@ -98,7 +100,14 @@ function evidence(event: StatusEvent): Evidence {
 }
 
 function agent(event: StatusEvent): Agent {
-  return { who: event.worker, model: event.model, claimedAt: event.at ?? null, leaseEnds: event.lease_ends, receipt: event.receipt };
+  return {
+    who: event.worker,
+    dedicated: event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? ""),
+    model: event.model,
+    claimedAt: event.at ?? null,
+    leaseEnds: event.lease_ends,
+    receipt: event.receipt,
+  };
 }
 
 function hasEvidence(event: StatusEvent): boolean {

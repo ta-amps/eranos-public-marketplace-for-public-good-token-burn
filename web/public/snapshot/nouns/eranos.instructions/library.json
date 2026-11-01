@@ -30,7 +30,7 @@
     "lead": "Finished work from nonprofits’ requests, checked by volunteers and free for any nonprofit to use.",
     "next_body": "When another group asks something similar, the request box checks this library first, so work that is already done is reused instead of done again.",
     "next_title": "Next time",
-    "none": "Nothing in the library matches yet.",
+    "none": "Nothing in the library matches.",
     "objects_note": "Reusable things: cited reports and agent kits.",
     "objects_title": "task objects",
     "open": "Read it",
@@ -40,7 +40,7 @@
     "search_label": "Search the library",
     "search_placeholder": "For example: tenant deposit laws",
     "show_stored": "Show how it’s stored (for volunteers and the curious)",
-    "stored_empty": "Nothing from {short} is in the shared library yet. Parts join it when your team chooses to use them.",
+    "stored_empty": "Parts of {short} join the shared library when your team chooses to use them.",
     "stored_lead": "Tessera is the shared durable task queue and task objects store: every request is a few durable tasks (things to do) and task objects with their own ids. This is the list for {short}.",
     "stored_objects": "task objects",
     "stored_rows": {

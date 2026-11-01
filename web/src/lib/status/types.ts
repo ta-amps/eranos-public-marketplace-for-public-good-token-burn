@@ -49,6 +49,7 @@ export type StatusEventType =
   | "delivered"
   | "published"
   | "library_added"
+  | "check_refused"
   | "decided"
   | "heartbeat"
   | "closed"
@@ -68,6 +69,8 @@ export interface StatusEvent {
   worker?: string;
   model?: string;
   lease_ends?: number;
+  /** True when one of Eranos's own (dedicated) workers claimed it because no volunteer was free in time. */
+  dedicated?: boolean;
   parts?: PartPlan[];
   /** Places in line, by part number, after this fact. */
   places?: Record<string, number>;

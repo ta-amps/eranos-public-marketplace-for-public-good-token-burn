@@ -12,8 +12,8 @@
       "improve": {
         "link_label": "Link to the earlier request or result",
         "link_placeholder": "Paste the link, or pick one below",
-        "recent_label": "Your recent requests, saved in this browser:",
-        "recent_none": "No requests are saved in this browser.",
+        "recent_label": "Or pick a recent public request:",
+        "recent_none": "No public requests to pick from right now.",
         "value": "Improve an earlier request",
         "what_label": "What should be better?",
         "what_placeholder": "For example: also handle typed forms"
@@ -235,6 +235,10 @@
       "ready_note": "You’ll go straight to your request’s own page and can watch it move.",
       "send": "Send request",
       "sending": "Sending...",
+      "switch": {
+        "action": "Switch to a reusable process",
+        "text": "Need to work with private files? Ask for a reusable process instead. It runs on your own computer, so nothing private is sent."
+      },
       "too_short": {
         "body": "What should the result help your team do?",
         "head": "Tell us a little more."

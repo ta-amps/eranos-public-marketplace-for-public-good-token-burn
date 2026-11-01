@@ -444,6 +444,14 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
               {draft.text.trim() ? form.check.clean : form.check.empty}
             </p>
           )}
+          {flags.length > 0 && !outputs.includes("process") && (
+            <p className="er-switch" data-testid="switch-to-process">
+              <span>{form.switch.text}</span>
+              <button type="button" className="er-btn-secondary er-btn-small" onClick={() => toggleOutput("process")}>
+                {form.switch.action}
+              </button>
+            </p>
+          )}
         </div>
       </div>
 

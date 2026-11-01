@@ -93,7 +93,7 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string | null {
     case "library":
       return `Shared library · ${SURFACE_DISPLAY_NAME}`;
     case "yours":
-      return `Your requests · ${SURFACE_DISPLAY_NAME}`;
+      return `Requests · ${SURFACE_DISPLAY_NAME}`;
     case "privacy":
       return `Privacy · ${SURFACE_DISPLAY_NAME}`;
     case "terms":

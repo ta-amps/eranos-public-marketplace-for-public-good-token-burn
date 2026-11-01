@@ -133,8 +133,8 @@ export interface ShellNoun {
   home_label: string;
   nav_label: string;
   nav: NounLink[];
-  /** The right-hand link: the requests whose private links this browser holds. */
-  yours?: NounLink;
+  /** The right-hand link (SiteHeader, 20:15): How it works, on Agora. */
+  right?: NounLink;
   external_note: string;
   menu: { button: string; open_label: string; close: string; close_label: string; sheet_label: string };
   footer: { line: string; links_label: string; links: NounLink[]; storage: string };
@@ -222,6 +222,7 @@ export interface NonprofitsPageNoun {
     check: { lead: string; ask: string; kinds: Record<string, string>; and: string; empty: string; clean: string };
     placeholders: { process: string; information: string; none: string };
     min_chars: number;
+    switch: { text: string; action: string };
     ready_note: string;
     not_ready: Record<"lead" | "lead_after" | "and" | "output" | "need" | "private" | "consent" | "name" | "type" | "improve", string>;
     too_short: { head: string; body: string };
@@ -289,7 +290,7 @@ export interface RequestStatusNoun {
   added: Words;
   yours: Words;
   plain: PlainWords;
-  steps: Record<"tag_process" | "tag_information" | "tag_checked" | "tag_updating" | "tag_updated" | "back" | "what" | "only_person" | "practice" | "practice_lead" | "practice_message" | "run" | "run_lead" | "agent_message" | "copy" | "copied" | "show_how" | "hide_how" | "in_short" | "in_short_note" | "checked_how" | "download" | "download_note", string>;
+  steps: Record<"tag_process" | "tag_information" | "tag_checked" | "tag_updating" | "tag_updated" | "back" | "what" | "only_person" | "practice" | "practice_lead" | "practice_message" | "run" | "run_lead" | "agent_message" | "copy" | "copied" | "show_how" | "hide_how" | "in_short" | "in_short_note" | "checked_how" | "download" | "download_note" | "curious", string>;
   decide: Record<"title" | "lead_process" | "lead_information" | "yes" | "changes" | "changes_label" | "changes_note" | "send" | "cancel" | "done_head" | "done_body" | "pending_head" | "pending_body" | "band_title" | "band_adding" | "band_added" | "band_none" | "band_some" | "band_link", string>;
   library_link: string;
 }
@@ -339,6 +340,7 @@ export interface HelpTasksWords {
   hours: string;
   days: string;
   check_needs_key: string;
+  first_pick: string;
 }
 
 /** Fills `{name}` holes in noun text. A hole without a value stays visible, so a gap is never hidden. */
@@ -374,6 +376,8 @@ export interface PlainWords {
     | "in_use"
     | "in_use_regular"
     | "in_use_plain"
+    | "sent_back"
+    | "ready_public"
     | "decided"
     | "not_used"
     | "withdrawn"
@@ -395,7 +399,7 @@ export interface PlainWords {
   tags: { not_yet: T; made: T; checked: T; changing: T };
   happened_title: T;
   happened_more: T;
-  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed", T>;
+  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "check_refused" | "work_claimed_eranos", T>;
   share_lead: T;
   share: T;
   shared: T;
@@ -403,6 +407,21 @@ export interface PlainWords {
   ready_title: T;
   every: Record<string, T>;
   tab_title: T;
+  private_line: T;
+  copy_link: T;
+  copied_link: T;
+  strip: T[];
+  strip_ready_public: T;
+  bands: {
+    sorted: Record<"title" | "process" | "information" | "checked" | "waiting", T>;
+    made: Record<"title_now" | "title_done" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded", T>;
+    checked: Record<"title" | "rule" | "blocked" | "sent_back_one" | "sent_back_many" | "waiting" | "checking" | "done" | "upcoming", T>;
+    ready: Record<
+      | "title" | "title_public" | "process" | "information" | "open_process" | "open_information" | "decide" | "decide_link"
+      | "library_title" | "library_added" | "library_link" | "library_how" | "upcoming",
+      T
+    >;
+  };
 }
 
 export interface TrustAction {

@@ -2194,9 +2194,12 @@ button.er-choice-pill {
 
 .er-yours-link {
   display: inline-flex;
+  margin-left: 24px;
+}
+.er-yours-link > a {
+  display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-left: 24px;
   padding: 0 14px;
   border: 1.5px solid var(--line-strong);
   border-radius: var(--radius-pill);
@@ -2204,7 +2207,7 @@ button.er-choice-pill {
   text-decoration: none;
   white-space: nowrap;
 }
-.er-yours-link[aria-current="page"] {
+.er-yours-link > a[aria-current="page"] {
   border-color: var(--text);
 }
 .er-yours-list {
@@ -2356,7 +2359,7 @@ button.er-choice-pill {
   }
 }
 /* The request box morphs into the plain view's first stage, as it does into the diagram's request node. */
-.er-plain .er-stage[data-stage="sent"] {
+.er-plain .er-strip-step[data-step="0"] {
   view-transition-name: request;
 }
 
@@ -2453,4 +2456,110 @@ button.er-choice-pill {
   align-items: center;
   gap: 10px;
   margin: 4px 0 12px;
+}
+
+/* ------------------------------------------------- request page v6: strip and bands */
+.er-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.er-strip-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 3px solid var(--line);
+  font-weight: 600;
+  font-size: var(--fs-small);
+}
+.er-strip-step.er-stage-done {
+  border-top-color: var(--text);
+}
+.er-strip-step.er-stage-now {
+  border-top-color: var(--action);
+}
+.er-strip-step.er-stage-upcoming {
+  color: var(--text-2);
+  opacity: 1;
+}
+.er-band {
+  position: relative;
+}
+.er-band-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  font-size: var(--fs-small);
+}
+.er-band-done .er-band-n {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.er-band-now {
+  border-color: var(--text);
+}
+.er-band-upcoming {
+  border-style: dashed;
+}
+.er-band-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.er-band-list li {
+  display: grid;
+  gap: 2px;
+}
+.er-band-ok {
+  margin: 4px 0 0;
+}
+.er-band-part + .er-band-part {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.er-helper {
+  margin: 6px 0;
+}
+.er-ready-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.er-ready-card {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.er-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+}
+@media (max-width: 899px) {
+  .er-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 479px) {
+  .er-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }

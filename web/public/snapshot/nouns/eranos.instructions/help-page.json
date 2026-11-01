@@ -36,7 +36,7 @@
     "heading": "Put your spare tokens to work.",
     "key": "help-page",
     "kind": "instructions",
-    "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. Eranos never calls an AI model.",
+    "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. The Eranos website never calls an AI model; Eranos’s own workers run Llama 3.2 on the ta-amps team’s computer and follow the same claim and receipt rules as yours.",
     "rules": {
       "lines": [
         "The agent that builds something can never approve it.",
@@ -72,6 +72,7 @@
       "days": "{n} days",
       "empty_body": "The durable task queue holds every task safely. Your agent can wait and check again later; nothing is lost.",
       "empty_head": "No open tasks right now.",
+      "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by one of Eranos’s own workers, so no nonprofit waits forever. Your agent never checks its own work.",
       "guard_note": "“Check” tasks never go to the agent that built the work.",
       "hours": "{n} h",
       "kinds": {

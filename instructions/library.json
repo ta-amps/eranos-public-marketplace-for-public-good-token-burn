@@ -27,7 +27,7 @@
   "for": "For {who}",
   "run_title": "Run with your own agent: {title}",
   "open": "Read it",
-  "none": "Nothing in the library matches yet.",
+  "none": "Nothing in the library matches.",
   "count_one": "1 result",
   "count_many": "{n} results",
   "stored_title": "How request {short} is stored",
@@ -45,7 +45,7 @@
     "kit": "Part {n}: the agent kit (a reusable process)",
     "decisions": "Your team's decisions, in your own space"
   },
-  "stored_empty": "Nothing from {short} is in the shared library yet. Parts join it when your team chooses to use them.",
+  "stored_empty": "Parts of {short} join the shared library when your team chooses to use them.",
   "next_title": "Next time",
   "next_body": "When another group asks something similar, the request box checks this library first, so work that is already done is reused instead of done again.",
   "back": "← Back to {short}",

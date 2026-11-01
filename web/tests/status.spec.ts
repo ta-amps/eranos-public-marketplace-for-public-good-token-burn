@@ -105,7 +105,7 @@ test.describe("on the hosted build", () => {
     await page.waitForFunction(() => location.pathname.startsWith("/requests/rq-"));
     expect(await page.evaluate(() => (window as unknown as { transitions: number }).transitions)).toBe(1);
     // The box lands on the plain view's first stage, "Sent" (the diagram's request node in the technical view).
-    expect(await page.locator('[data-stage="sent"]').evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe("request");
+    expect(await page.locator('[data-step="0"]').evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe("request");
     const duration = await page.evaluate(() => {
       const rule = [...document.styleSheets].flatMap((s) => [...s.cssRules]).find((r) => r.cssText.startsWith("::view-transition-group(request)"));
       return rule?.cssText ?? "";
@@ -175,6 +175,25 @@ test.describe("on the hosted build", () => {
     expect(unlinked).toEqual([]);
     expect(seen).toContain(`/api/nouns/eranos.requests/${REQUEST_ID}/history`);
     await expect(page.getByTestId("added-panel")).toHaveCount(0);
+  });
+
+  test("v6: when one of Eranos's own workers picks a part up, the plain view says so", async ({ page }) => {
+    const now = Math.floor(Date.now() / 1000);
+    const event = (version: number, value: Record<string, unknown>) => ({
+      version,
+      created_at: now - 300 + version,
+      value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 300 + version, ...value } },
+    });
+    const history = [
+      event(1, { type: "received", receipt: "a".repeat(64) }),
+      event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "eranos-worker-1", dedicated: true, model: "llama-3.2-3b" }),
+    ];
+    await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(page.getByTestId("helper-1")).toContainText("One of Eranos\u2019s own workers");
+    await expect(page.getByTestId("helper-1")).toContainText("no volunteer was free");
+    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so one of Eranos\u2019s own workers started making it.");
   });
 
   test("B4: a published process package shows 'Download the process' with its SHA-256; an unreviewed one does not", async ({ page }) => {
@@ -280,18 +299,21 @@ test.describe("on the hosted build", () => {
 });
 
 test.describe("E04 and E05: the example request", () => {
-  test("Flow-Prototype step 3: the plain view is the default; technical details switch on and off", async ({ page }) => {
+  test("RequestStatusPage v6: a progress strip and four bands in plain words; technical details switch on and off", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/requests/example?moment=review");
     const plain = page.getByTestId("plain-status");
     await expect(plain).toBeVisible();
     await expect(page.getByTestId("status-diagram")).toHaveCount(0);
-    await expect(plain.locator("[data-stage]")).toHaveCount(6);
-    await expect(plain.locator('[data-stage="checked"]')).toHaveAttribute("data-state", "now");
-    await expect(plain.locator('[data-stage="sent"]')).toHaveAttribute("data-state", "done");
-    await expect(page.getByTestId("overall")).toHaveText(/Being checked|Waiting for a second volunteer/);
+    await expect(plain.locator("[data-step]")).toHaveText(["Sent", "Sorted", "Being made", "Being checked", "Ready for you", "In the library"]);
+    await expect(plain.locator("[data-band]")).toHaveCount(4);
+    await expect(plain.locator('[data-band="1"]')).toContainText("Sorted and split");
+    await expect(plain.locator('[data-band="1"]')).toContainText("No private information found in the request");
+    await expect(plain.locator('[data-band="3"]')).toHaveAttribute("data-state", "now");
+    await expect(plain.locator('[data-band="3"]')).toContainText("The rule: the volunteer who made it can never approve it.");
+    await expect(page.getByTestId("overall")).toHaveText(/Being checked|Made · waiting for a check/);
     const text = await plain.innerText();
-    expect(text).not.toMatch(/\b[0-9a-f]{12,}\b|receipt|R-[A-Z0-9]{4}|wren-|kestrel-|heron-/);
+    expect(text).not.toMatch(/\b[0-9a-f]{12,}\b|receipt|R-[A-Z0-9]{4}|wren-|kestrel-|heron-|\bnot yet\b|\bplanned\b/i);
     await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("second volunteer");
     await page.getByTestId("view-switch").click();
     await expect(page.getByTestId("status-diagram")).toBeVisible();
@@ -300,9 +322,19 @@ test.describe("E04 and E05: the example request", () => {
     await expect(page.getByTestId("plain-status")).toBeVisible();
     await expect(page).not.toHaveURL(/view=technical/);
     await page.goto("/requests/example?moment=your-turn");
-    await expect(page.getByTestId("overall")).toHaveText("Ready for your team to review");
+    await expect(page.getByTestId("overall")).toHaveText("Ready for your team");
+    await expect(plain.locator('[data-band="4"]')).toContainText("Does this work for your team?");
     await expect(page).toHaveTitle(/^Ready for you · Your request · Eranos$/);
   });
+
+  test("RequestStatusPage v6: a part nobody has picked up says when one of Eranos's own workers will, and says so when one did", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/requests/example?moment=planned");
+    const waiting = page.getByTestId("waiting-1");
+    await expect(waiting).toContainText("Waiting for a volunteer");
+    await expect(waiting).toContainText("one of Eranos\u2019s own workers will pick it up.");
+  });
+
 
 
   const MOMENTS: Record<string, Record<string, string>> = {

@@ -88,7 +88,8 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
     [record, words, now, routeId],
   );
   const every = record.request.frequency === "recurring" ? (words.plain.every[record.request.cadence ?? ""] ?? "") : "";
-  const plain = useMemo(() => plainSummary(derived.facts, words.plain, formatClock, every), [derived.facts, words.plain, every]);
+  const requester = Boolean(live?.key) || Boolean(example);
+  const plain = useMemo(() => plainSummary(derived.facts, words.plain, every, requester), [derived.facts, words.plain, every, requester]);
   const showDiagram = wide && view === "diagram";
   useStatusMotion(showDiagram ? host : listHost, record.events, derived, {
     reduced,
@@ -103,6 +104,17 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
   const choices = choiceLine(words, record);
   const sent = record.request.sent_at ? fill(words.meta.sent ?? "", { time: formatClock(record.request.sent_at) }) : null;
   const queue = example ? derived.queue : (live?.queue ?? null);
+
+  const [publicCopied, setPublicCopied] = useState(false);
+  async function copyPublicLink() {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/requests/${encodeURIComponent(routeId)}`);
+      setPublicCopied(true);
+      window.setTimeout(() => setPublicCopied(false), 2400);
+    } catch {
+      setPublicCopied(false);
+    }
+  }
 
   async function copyLink() {
     if (!live?.key) return;
@@ -147,6 +159,9 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           <button type="button" className="er-btn-secondary er-btn-small" aria-pressed={technical} onClick={toggleView} data-testid="view-switch">
             {technical ? words.plain.show_simple : words.plain.show_technical}
           </button>
+          <button type="button" className="er-btn-secondary" data-testid="copy-public-link" onClick={() => void copyPublicLink()}>
+            {publicCopied ? words.plain.copied_link : words.plain.copy_link}
+          </button>
           {live?.key && (
             <button type="button" className="er-btn-secondary" onClick={() => void copyLink()}>
               <Icon name="link" size={18} />
@@ -160,6 +175,11 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           {copied}
         </p>
       )}
+      {!technical && live?.key && (
+        <p className="er-small" data-testid="private-line">
+          {words.plain.private_line}
+        </p>
+      )}
 
       {!technical && (
         <PlainStatus
@@ -169,6 +189,8 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           words={words.plain}
           clock={formatClock}
           shareUrl={`${window.location.origin}/requests/${encodeURIComponent(routeId)}`}
+          routeId={routeId}
+          requester={requester}
         />
       )}
 

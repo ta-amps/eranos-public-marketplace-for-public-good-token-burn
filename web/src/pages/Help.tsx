@@ -180,6 +180,9 @@ export function Help() {
               </h2>
               {fabricLive && <span className="er-small">{tasks.live}</span>}
             </div>
+            <p className="er-small" data-testid="first-pick">
+              {tasks.first_pick}
+            </p>
             {!SNAPSHOT && open.state.status === "ready" && open.state.data.tasks.length > 0 ? (
               <ul className="er-open-tasks" data-testid="open-task-list">
                 {open.state.data.tasks.map((task) => (
