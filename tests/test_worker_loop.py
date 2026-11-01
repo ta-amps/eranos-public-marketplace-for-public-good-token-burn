@@ -771,9 +771,52 @@ def test_film_data_cleaning_request_is_built_reviewed_published_and_reused(
         plan["parts"][0]["reused_from"]["key"] == output["draft"]["kit_id"]
         and plan["parts"][0]["reused_from"]["score"] == 1.0
     )
+    report = output["test_report"]
+    assert report.get("model_calls") == 0  # the handler builds from fixed templates (FB1-020)
     assert_nothing_public_says_synthetic(
         fabric, [part["work_task_id"], part["review_task_id"], rid, reused]
     )
+    if os.environ.get("B4_E2E_EVIDENCE"):  # B4's film evidence, as its branch records it
+        again = _record(fabric, reused)
+        evidence = {
+            "request_events": [
+                e["type"] for e in record.get("events") or [] if e["type"] != "heartbeat"
+            ],
+            "bundle_sha256": output["bundle_sha256"],
+            "bundle_bytes": output["bundle_bytes"],
+            "build_checks": {k: v.get("passed") for k, v in report["checks"].items()},
+            "build_tests": report["tests"],
+            "model_calls": report.get("model_calls"),
+            "pieces": [(p["piece_id"], p["depends_on"], p["claimed_by"]) for p in report["pieces"]],
+            "approval": {
+                k: approval.get(k)
+                for k in (
+                    "status",
+                    "drafter_key_id",
+                    "reviewer_key_id",
+                    "kit_id",
+                    "draft_sha256",
+                    "publication_sha256",
+                    "checks",
+                )
+            },
+            "catalog": {
+                "key": output["draft"]["kit_id"],
+                "version": catalog["version"],
+                "tags": catalog["tags"],
+                "value_tags": value["tags"],
+                "review_receipt": value["review_receipt"],
+            },
+            "reuse": {
+                "request_events": [
+                    e["type"] for e in again.get("events") or [] if e["type"] != "heartbeat"
+                ],
+                "reused_from": plan["parts"][0]["reused_from"],
+            },
+        }
+        Path(os.environ["B4_E2E_EVIDENCE"]).write_text(
+            json.dumps(evidence, indent=1) + "\n", encoding="utf-8"
+        )
 
 
 @needs_workerd
