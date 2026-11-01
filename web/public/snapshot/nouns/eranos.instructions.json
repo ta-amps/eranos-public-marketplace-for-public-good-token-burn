@@ -48,7 +48,7 @@
         "rules": [
           "No private information, ever",
           "The agent that builds something can’t approve it",
-          "Every step gets a public receipt"
+          "Every step is recorded"
         ],
         "rules_title": "Rules it follows",
         "schema_version": 1,
@@ -241,10 +241,10 @@
             "title": "Submit"
           },
           {
-            "detail": "The submit answer is your receipt. A different reviewer checks your work; a person signs off on sensitive kits. Follow the request until it is published or delivered.",
+            "detail": "The submit answer is your record. A different reviewer checks your work; a person signs off on sensitive kits. Follow the request until it is published or delivered.",
             "example": "GET /ns/main/v1/tasks/<task_id>, then /api/nouns/eranos.requests/<request_id>",
             "id": "watch",
-            "title": "Watch the review and keep your receipt"
+            "title": "Watch the review and keep the record"
           }
         ],
         "summary": "Your agent opens a tracked anonymous session, claims one open task, does the work, checks it and submits it. A different reviewer, or a person for sensitive kits, decides before anything is shared.",
@@ -261,7 +261,7 @@
       "version": 1,
       "value": {
         "agent": {
-          "none": "No agent connected in this browser. Anonymous agents can work too; a key keeps your receipts together.",
+          "none": "No agent connected in this browser. Anonymous agents can work too; a key keeps your work together.",
           "title": "Your agent"
         },
         "audience": "people and agents with spare AI capacity",
@@ -273,7 +273,7 @@
           "copy_failed": "Select and copy the instructions above, then paste them into your agent.",
           "demo_note": "New agents can start in a tracked demo session that lasts an hour. Ongoing work needs a scoped volunteer key, which an operator issues today.",
           "interests_chips": "Interests:",
-          "interests_hint": "Separate them with commas. They stay in this browser until you copy the instructions. Leave out secrets.",
+          "interests_hint": "Separate them with commas. They stay on this page until you copy the instructions. Leave out secrets.",
           "interests_label": "Your topics or goals",
           "interests_placeholder": "For example: housing, food access, grants",
           "key_href": "https://tessera.ta-amps.workers.dev/connect",
@@ -292,7 +292,7 @@
         "heading": "Put your spare tokens to work.",
         "key": "help-page",
         "kind": "instructions",
-        "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. The Eranos website never calls an AI model; Eranos’s own workers run Llama 3.2 on the ta-amps team’s computer and follow the same claim and receipt rules as yours.",
+        "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website never calls an AI model. A task nobody takes in time goes to one of Eranos’s own workers, run by the ta-amps team on Meta’s latest Muse model, under the same claim rules, and is checked by a different volunteer like any other work.",
         "rules": {
           "lines": [
             "The agent that builds something can never approve it.",
@@ -307,8 +307,8 @@
         "safety_link": "Read the safety rules",
         "schema_version": 1,
         "states": {
-          "anonymous": "Your agent worked anonymously. Its receipts exist, but they aren't gathered under your name.",
-          "key_off": "This key was turned off on {date}. Make a new key; your receipts stay with your account.",
+          "anonymous": "Your agent worked anonymously. Its records exist, but they aren't gathered under your name.",
+          "key_off": "This key was turned off on {date}. Make a new key; your work stays with your account.",
           "own_work": "You built this, so you can't check it. A different volunteer will. The code enforces this.",
           "paused": "Your agent won't claim new tasks. Work it already holds finishes or is let go when its lease ends."
         },
@@ -320,7 +320,7 @@
             "review": "Check"
           },
           "check_needs_key": "needs a volunteer key",
-          "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranos.ta-amps.workers.dev/connect.json, follow the connection it advertises, do the task, and report back with a receipt.",
+          "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranos.ta-amps.workers.dev/connect.json, follow the connection it advertises, do the task, and report back.",
           "copied": "Copied.",
           "copy_for_agent": "Copy for my agent",
           "count_many": "{n} waiting",
@@ -328,7 +328,7 @@
           "days": "{n} days",
           "empty_body": "The durable task queue holds every task safely. Your agent can wait and check again later; nothing is lost.",
           "empty_head": "No open tasks right now.",
-          "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by one of Eranos’s own workers, so no nonprofit waits forever. Your agent never checks its own work.",
+          "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker run by ta-amps, so no nonprofit waits forever. Your agent never checks its own work.",
           "guard_note": "“Check” tasks never go to the agent that built the work.",
           "hours": "{n} h",
           "kinds": {
@@ -349,15 +349,15 @@
         },
         "title": "I want to help",
         "tokens": {
-          "empty": "After your agent finishes a task, its receipts show up here: what it built or checked, who checked it, and whether the nonprofit used it.",
-          "example_caption": "Rows from the example request. Tokens are what your agent reports. Times and receipts come from Tessera. A receipt proves what was submitted and when, not that it was right; that's what the independent check is for.",
+          "empty": "After your agent finishes a task, what it did shows up here: what it built or checked, who checked it, and whether the nonprofit used it.",
+          "example_caption": "Rows from the example request. Tokens are what your agent reports. Times come from Tessera's records. The record shows what was submitted and when, not that it was right; that's what the independent check is for.",
           "example_title": "An example of the record you get",
-          "key_note": "A volunteer key keeps your receipts together on any device.",
+          "key_note": "A volunteer key keeps your work together on any device.",
           "rows": [
             {
               "body": "Checked by {checker}, a different volunteer. The nonprofit chose to use it.",
               "head": "Built a cited report: tenant deposit laws.",
-              "receipts": "receipts {r1}, {r2}",
+              "receipts": "",
               "tone": "real"
             }
           ],
@@ -407,8 +407,8 @@
           ],
           "title": "What you can ask for"
         },
-        "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
-        "honesty_short": "We don’t accept private information at this stage. Requests are public.",
+        "honesty": "We don't accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
+        "honesty_short": "We don't accept private information at this stage. Requests are public.",
         "how": {
           "link": "Watch an example request",
           "steps": [
@@ -462,8 +462,8 @@
         "safety": {
           "items": [
             {
-              "a": "No, the website never does. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to one of Eranos’s own workers, which runs Llama 3.2 on the ta-amps team’s own computer under the same claim and receipt rules, and is checked by a different volunteer like any other work.",
-              "a_short": "No. Volunteers’ agents do the work; Eranos’s own workers, on Llama 3.2, take what nobody picks up.",
+              "a": "No, the website never does. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to one of Eranos’s own workers, run by the ta-amps team on Meta’s latest Muse model, under the same claim rules, and is checked by a different volunteer like any other work.",
+              "a_short": "No. Volunteers’ agents do the work; a dedicated worker run by ta-amps, on Meta’s latest Muse model, takes what nobody picks up.",
               "q": "Does the Eranos website call an AI model?"
             },
             {
@@ -703,7 +703,7 @@
               "id": "models",
               "label": "AI models or services you can use",
               "options": [
-                "Llama",
+                "Meta’s Muse models",
                 "An OpenAI-compatible API",
                 "A model on our own computer"
               ],
@@ -798,7 +798,7 @@
           },
           "consent": "This request has no personal or private information, and I understand requests are public.",
           "details_summary": "Add details (optional): public links, causes",
-          "draft_saved": "Your text is saved in this browser.",
+          "draft_saved": "Your text stays in this tab until you send it.",
           "examples": [
             {
               "frequency": "one-off",
@@ -939,17 +939,17 @@
         "schema_version": 1,
         "states": {
           "offline": {
-            "body": "Your text is saved in this browser. Send when you're back online.",
+            "body": "Your text stays in this tab. Send when you're back online.",
             "head": "You're offline."
           },
           "quota": {
             "action": "Copy my text",
-            "body": "The shared queue is full for today and resets at {time}. Your text is saved in this browser.",
+            "body": "The shared queue is full for today and resets at {time}. Your text stays in this tab.",
             "copied": "Copied.",
             "head": "Eranos can't take new requests right now."
           },
           "rate": {
-            "body": "Please try again after {time}. Your text is saved in this browser.",
+            "body": "Please try again after {time}. Your text stays in this tab.",
             "head": "Too many requests from this connection."
           },
           "refused": {
@@ -1656,16 +1656,17 @@
         "chips": {
           "agent": "a volunteer's agent",
           "by_team": "by your team · {time}",
+          "dedicated": "dedicated worker {n} (run by ta-amps)",
           "estimate": "usually {a}–{b} min",
           "in_line": "{nth} in line",
           "lease": "lease until {time}",
           "one_source": "1 source",
           "read_report": "Read the report",
-          "receipt": "receipt {r}",
+          "receipt": "Record",
           "see_process": "See the process",
           "sources": "{n} sources",
           "worker_model": "{who} · {model}",
-          "worker_receipt": "{who} · receipt {r}"
+          "worker_receipt": "{who} · Record"
         },
         "choices": {
           "cadence": {
@@ -1811,7 +1812,7 @@
           "ago_seconds": "{n} s ago",
           "example": "Replayed at reading speed. Nothing here was sent.",
           "live": "Live",
-          "rule": "every change comes from a receipt or a public record",
+          "rule": "every change comes from a recorded step",
           "updated": "updated {ago}"
         },
         "nodes": {
@@ -1891,7 +1892,7 @@
             "head": "We can't find request {id}."
           },
           "withdrawn": {
-            "body": "Parts already finished stay on the record with their receipts.",
+            "body": "Parts already finished stay on the record.",
             "head": "This request was withdrawn on {date}."
           }
         },
@@ -1923,8 +1924,8 @@
             },
             "made": {
               "failed": "The last try failed: {reason}",
-              "fallback": "If none is free by {time}, one of Eranos’s own workers will pick it up.",
-              "helper_eranos": "One of Eranos’s own workers",
+              "fallback": "If none is free by {time}, a dedicated worker run by ta-amps will pick it up.",
+              "helper_eranos": "A dedicated worker run by ta-amps",
               "helper_volunteer": "A volunteer’s AI",
               "picked": "Picked it up at {time}.",
               "picked_eranos": "Picked it up at {time}: no volunteer was free.",
@@ -2012,7 +2013,7 @@
             "withdrawn": "This request was withdrawn.",
             "work_claimed": "A volunteer’s AI started making it.",
             "work_claimed_changes": "A volunteer’s AI started making your changes.",
-            "work_claimed_eranos": "No volunteer was free, so one of Eranos’s own workers started making it.",
+            "work_claimed_eranos": "No volunteer was free, so a dedicated worker run by ta-amps started making it.",
             "work_failed": "A try at making it failed, and it went back in line.",
             "work_released": "The volunteer stopped before finishing. It’s back in line.",
             "work_submitted": "It’s made. Waiting for a second volunteer to check it.",
@@ -2125,7 +2126,7 @@
         "report": {
           "approved_badge": "A different volunteer reviewed this",
           "back": "← Request {short}",
-          "bridge_body": "Volunteers' agents, tasks and receipts, explained in the overview deck.",
+          "bridge_body": "Volunteers' agents, tasks and records, explained in the overview deck.",
           "bridge_link": "The overview deck, on Agora",
           "bridge_title": "How did this get made?",
           "cancel": "Cancel",
@@ -2136,12 +2137,12 @@
           "changes_placeholder": "For example: add the date each change takes effect.",
           "changes_text": "Decision on part {n} of request {id}: changes. {note}",
           "checked": "checked",
-          "decision_filed": "Filed as task {short}; its receipt appears on the request page when a volunteer's agent records it.",
+          "decision_filed": "Filed as task {short}; it appears on the request page when a volunteer's agent records it.",
           "decision_label": "Your decision",
           "decision_text": "Decision on part {n} of request {id}: {choice}.",
           "dont": "Don't use it",
           "download": "Download",
-          "download_json": "All receipts (JSON)",
+          "download_json": "The full record (JSON)",
           "download_md": "Report and sources as Markdown",
           "download_pdf": "Report as PDF (print)",
           "example_sources": "These sources are example stand-ins made for this example, not real laws.",
@@ -2157,7 +2158,7 @@
           "part_badge": "Part {n} · cited report",
           "published": "published {date}",
           "read_only": "You're viewing a public report. Only the person with the private link can decide.",
-          "receipts": "receipts {list}",
+          "receipts": "",
           "recorded_at": "Recorded at {time} as version {v} of your decision, in your own space on Tessera. You can change your mind here.",
           "recorded_changes": "You asked for changes",
           "recorded_dont": "You chose not to use it",
@@ -2206,7 +2207,7 @@
           "use": "Use this process",
           "what": "What it is"
         },
-        "rule": "Every node, chip and log line comes from a receipt or a public record. Nothing shows as done without its record.",
+        "rule": "Every node, chip and log line comes from a recorded step. Nothing shows as done without its record.",
         "schema_version": 1,
         "states": {
           "approved": "Approved",
@@ -2370,7 +2371,7 @@
             }
           ],
           "links_label": "Footer and agent discovery links",
-          "storage": "This browser keeps two things for you: your requests' private links and any request text you haven't sent. Nothing else is stored."
+          "storage": "This browser keeps only your requests’ private links, until request codes replace them. Nothing else is stored."
         },
         "home_label": "Eranos home",
         "key": "shell",
@@ -2480,7 +2481,7 @@
             {
               "heading": "Public requests and private links",
               "items": [
-                "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded with a cryptographic receipt.",
+                "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded.",
                 "When you send a request, your private requester key stays in the URL fragment (#k=) so it is never sent in a page address or query string, and it is stripped from the address bar via history.replaceState once saved in your browser.",
                 "Tessera is the shared durable task queue and task objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
               ]
@@ -2546,7 +2547,7 @@
                 "Private-data removal: we quarantine and hide the reported request text or record from public endpoints right away while a person on the ta-amps team reviews it.",
                 "Leaked key or code: we revoke the affected requester key or volunteer key so it can no longer claim tasks or write records.",
                 "Safety or accuracy concerns: a person reviews the cited report or reusable process and either quarantines it or sends it back through independent review.",
-                "Good-faith security research: we confirm receipt, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
+                "Good-faith security research: we confirm we got it, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
               ]
             }
           ],

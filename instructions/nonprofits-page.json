@@ -79,7 +79,7 @@
       "frequency": "Choose how often you need it.",
       "cadence": "Choose how often it should run."
     },
-    "draft_saved": "Your text is saved in this browser.",
+    "draft_saved": "Your text stays in this tab until you send it.",
     "placeholders": {
       "process": "What should the process do, and where will it run? For example: read scanned intake forms on our own computer and fill in our spreadsheet.",
       "information": "What should it cover, and who is it for? For example: this year’s changes to our state’s tenant deposit rules, for our housing counselors.",
@@ -114,17 +114,17 @@
     },
     "quota": {
       "head": "Eranos can't take new requests right now.",
-      "body": "The shared queue is full for today and resets at {time}. Your text is saved in this browser.",
+      "body": "The shared queue is full for today and resets at {time}. Your text stays in this tab.",
       "action": "Copy my text",
       "copied": "Copied."
     },
     "rate": {
       "head": "Too many requests from this connection.",
-      "body": "Please try again after {time}. Your text is saved in this browser."
+      "body": "Please try again after {time}. Your text stays in this tab."
     },
     "offline": {
       "head": "You're offline.",
-      "body": "Your text is saved in this browser. Send when you're back online."
+      "body": "Your text stays in this tab. Send when you're back online."
     },
     "snapshot": "This offline copy of the site does not send requests."
   },
@@ -282,7 +282,7 @@
         "label": "AI models or services you can use",
         "pick": "any",
         "options": [
-          "Llama",
+          "Meta’s Muse models",
           "An OpenAI-compatible API",
           "A model on our own computer"
         ]

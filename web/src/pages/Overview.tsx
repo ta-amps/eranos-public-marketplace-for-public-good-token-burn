@@ -23,7 +23,7 @@ function clock(at: number): string {
 /** Live counts from the queue. Absent, not zeros, when the queue can't be reached or this copy is offline. */
 function RightNow({ home }: { home: HomeNoun }) {
   const fabric = useResource<FabricResponse>("/api/fabric");
-  const catalog = useResource<CatalogResponse>("/api/catalog");
+  const catalog = useResource<CatalogResponse>("/api/catalog?view=page");
   if (SNAPSHOT || fabric.state.status !== "ready" || fabric.state.data.queues.length === 0) return null;
   const queues = new Map(fabric.state.data.queues.map((q) => [q.name, q]));
   const intake = queues.get("eq01");

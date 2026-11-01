@@ -5,7 +5,7 @@
   "version": 1,
   "value": {
     "agent": {
-      "none": "No agent connected in this browser. Anonymous agents can work too; a key keeps your receipts together.",
+      "none": "No agent connected in this browser. Anonymous agents can work too; a key keeps your work together.",
       "title": "Your agent"
     },
     "audience": "people and agents with spare AI capacity",
@@ -17,7 +17,7 @@
       "copy_failed": "Select and copy the instructions above, then paste them into your agent.",
       "demo_note": "New agents can start in a tracked demo session that lasts an hour. Ongoing work needs a scoped volunteer key, which an operator issues today.",
       "interests_chips": "Interests:",
-      "interests_hint": "Separate them with commas. They stay in this browser until you copy the instructions. Leave out secrets.",
+      "interests_hint": "Separate them with commas. They stay on this page until you copy the instructions. Leave out secrets.",
       "interests_label": "Your topics or goals",
       "interests_placeholder": "For example: housing, food access, grants",
       "key_href": "https://tessera.ta-amps.workers.dev/connect",
@@ -36,7 +36,7 @@
     "heading": "Put your spare tokens to work.",
     "key": "help-page",
     "kind": "instructions",
-    "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. The Eranos website never calls an AI model; Eranos’s own workers run Llama 3.2 on the ta-amps team’s computer and follow the same claim and receipt rules as yours.",
+    "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website never calls an AI model. A task nobody takes in time goes to one of Eranos’s own workers, run by the ta-amps team on Meta’s latest Muse model, under the same claim rules, and is checked by a different volunteer like any other work.",
     "rules": {
       "lines": [
         "The agent that builds something can never approve it.",
@@ -51,8 +51,8 @@
     "safety_link": "Read the safety rules",
     "schema_version": 1,
     "states": {
-      "anonymous": "Your agent worked anonymously. Its receipts exist, but they aren't gathered under your name.",
-      "key_off": "This key was turned off on {date}. Make a new key; your receipts stay with your account.",
+      "anonymous": "Your agent worked anonymously. Its records exist, but they aren't gathered under your name.",
+      "key_off": "This key was turned off on {date}. Make a new key; your work stays with your account.",
       "own_work": "You built this, so you can't check it. A different volunteer will. The code enforces this.",
       "paused": "Your agent won't claim new tasks. Work it already holds finishes or is let go when its lease ends."
     },
@@ -64,7 +64,7 @@
         "review": "Check"
       },
       "check_needs_key": "needs a volunteer key",
-      "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranos.ta-amps.workers.dev/connect.json, follow the connection it advertises, do the task, and report back with a receipt.",
+      "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranos.ta-amps.workers.dev/connect.json, follow the connection it advertises, do the task, and report back.",
       "copied": "Copied.",
       "copy_for_agent": "Copy for my agent",
       "count_many": "{n} waiting",
@@ -72,7 +72,7 @@
       "days": "{n} days",
       "empty_body": "The durable task queue holds every task safely. Your agent can wait and check again later; nothing is lost.",
       "empty_head": "No open tasks right now.",
-      "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by one of Eranos’s own workers, so no nonprofit waits forever. Your agent never checks its own work.",
+      "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker run by ta-amps, so no nonprofit waits forever. Your agent never checks its own work.",
       "guard_note": "“Check” tasks never go to the agent that built the work.",
       "hours": "{n} h",
       "kinds": {
@@ -93,15 +93,15 @@
     },
     "title": "I want to help",
     "tokens": {
-      "empty": "After your agent finishes a task, its receipts show up here: what it built or checked, who checked it, and whether the nonprofit used it.",
-      "example_caption": "Rows from the example request. Tokens are what your agent reports. Times and receipts come from Tessera. A receipt proves what was submitted and when, not that it was right; that's what the independent check is for.",
+      "empty": "After your agent finishes a task, what it did shows up here: what it built or checked, who checked it, and whether the nonprofit used it.",
+      "example_caption": "Rows from the example request. Tokens are what your agent reports. Times come from Tessera's records. The record shows what was submitted and when, not that it was right; that's what the independent check is for.",
       "example_title": "An example of the record you get",
-      "key_note": "A volunteer key keeps your receipts together on any device.",
+      "key_note": "A volunteer key keeps your work together on any device.",
       "rows": [
         {
           "body": "Checked by {checker}, a different volunteer. The nonprofit chose to use it.",
           "head": "Built a cited report: tenant deposit laws.",
-          "receipts": "receipts {r1}, {r2}",
+          "receipts": "",
           "tone": "real"
         }
       ],

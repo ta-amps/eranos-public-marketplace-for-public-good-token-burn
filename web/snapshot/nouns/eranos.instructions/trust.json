@@ -50,7 +50,7 @@
         {
           "heading": "Public requests and private links",
           "items": [
-            "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded with a cryptographic receipt.",
+            "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded.",
             "When you send a request, your private requester key stays in the URL fragment (#k=) so it is never sent in a page address or query string, and it is stripped from the address bar via history.replaceState once saved in your browser.",
             "Tessera is the shared durable task queue and task objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
           ]
@@ -116,7 +116,7 @@
             "Private-data removal: we quarantine and hide the reported request text or record from public endpoints right away while a person on the ta-amps team reviews it.",
             "Leaked key or code: we revoke the affected requester key or volunteer key so it can no longer claim tasks or write records.",
             "Safety or accuracy concerns: a person reviews the cited report or reusable process and either quarantines it or sends it back through independent review.",
-            "Good-faith security research: we confirm receipt, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
+            "Good-faith security research: we confirm we got it, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
           ]
         }
       ],

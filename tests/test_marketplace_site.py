@@ -499,9 +499,9 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
         assert directives[name] == "'self'", name
     assert directives["img-src"] == "'self' data:"
     assert directives["connect-src"] == "'self' https://tessera.ta-amps.workers.dev"
-    # No cookies and no stored data, except the two things the footer names: a request's private link
-    # (lib/status/keys.ts) and request text not yet sent (components/RequestBox.tsx).
-    allowed = {"keys.ts", "RequestBox.tsx"}
+    # Zero browser storage (owner, Nov 1), except, until request codes replace them (Phase C), a request's private
+    # link (lib/status/keys.ts), which the footer names.
+    allowed = {"keys.ts"}
     for path in sorted((ROOT / "web" / "src").rglob("*.ts*")):
         text = path.read_text(encoding="utf-8")
         assert not re.search(r"document\.cookie|sessionStorage|indexedDB", text), path.name
@@ -510,7 +510,7 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
     shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
     assert (
         "private links" in shell["footer"]["storage"]
-        and "haven't sent" in shell["footer"]["storage"]
+        and "Nothing else is stored" in shell["footer"]["storage"]
     )
     assert "set-cookie" not in worker.lower()
 

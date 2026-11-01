@@ -208,21 +208,16 @@ ta-agent-banner {
   background: var(--agent-banner-bg);
   color: var(--agent-banner-ink);
   border-bottom: 1px solid var(--agent-banner-line);
-  --agent-banner-bg: #11161f;
-  --agent-banner-ink: #f5f2ea;
-  --agent-banner-muted: #c8d0dc;
-  --agent-banner-raised: #222732;
-  --agent-banner-line: #2b313d;
-  --agent-banner-edge: #3b4252;
-  --agent-banner-link: #9dbbf0;
-  --agent-banner-focus: #f0884f;
+  --agent-banner-bg: #ede8dc;
+  --agent-banner-ink: #11161f;
+  --agent-banner-muted: #3b4252;
+  --agent-banner-raised: #f5f2ea;
+  --agent-banner-line: #d8d1c2;
+  --agent-banner-edge: #c9c1b0;
+  --agent-banner-link: #1d4fae;
+  --agent-banner-focus: #c2410c;
 }
-@media (prefers-color-scheme: dark) {
-  ta-agent-banner {
-    --agent-banner-bg: #0b0f16;
-    --agent-banner-raised: #1b2230;
-  }
-}
+
 .er-header {
   background: var(--bg);
   border-bottom: 1px solid var(--line);
@@ -2359,7 +2354,7 @@ button.er-choice-pill {
   }
 }
 /* The request box morphs into the plain view's first stage, as it does into the diagram's request node. */
-.er-plain .er-strip-step[data-step="0"] {
+.er-plain .er-track li[data-step="0"] {
   view-transition-name: request;
 }
 
@@ -2568,4 +2563,102 @@ button.er-choice-pill {
   padding: 8px 12px;
   border-left: 3px solid var(--danger, #b3261e);
   background: var(--surface);
+}
+
+/* ------------------------------------------------ the request track (RequestStatusPage, calm) */
+.er-track {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 12px 0 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.er-track ol {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.er-track ol::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: calc(100% / 12);
+  right: calc(100% / 12);
+  height: 2px;
+  background: var(--line);
+}
+.er-track a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+.er-track li[data-state="done"] a,
+.er-track a[aria-current="step"] {
+  color: var(--text);
+}
+.er-track-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--line-strong);
+  background: var(--bg);
+}
+.er-track li[data-state="done"] .er-track-dot {
+  background: var(--text);
+  border-color: var(--text);
+}
+.er-track a[aria-current="step"] .er-track-dot {
+  border-color: var(--action);
+}
+.er-track-token {
+  position: absolute;
+  top: 13px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--verb);
+  box-shadow: 0 0 0 4px var(--bg);
+  pointer-events: none;
+}
+.er-track[data-animate="true"] .er-track-token {
+  transition: left var(--dur-track) var(--ease-track), background-color var(--dur-base) var(--ease-standard);
+}
+.er-track-token[data-back="true"] {
+  background: var(--verb-text);
+  outline: 2px solid var(--verb-wash);
+}
+.er-ghosts {
+  display: inline-flex;
+  gap: 3px;
+}
+.er-ghost {
+  width: 14px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--line-strong);
+}
+.er-rq-band {
+  scroll-margin-top: 96px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .er-track[data-animate="true"] .er-track-token {
+    transition: opacity var(--dur-fast) linear;
+  }
+}
+@media (max-width: 599px) {
+  .er-track a {
+    font-size: 0.8125rem;
+  }
 }

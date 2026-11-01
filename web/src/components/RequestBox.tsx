@@ -45,24 +45,13 @@ export interface LibraryWords {
   check: { title: string; lead: string; read: string; read_note: string; send: string; send_note: string };
 }
 
+// Zero browser storage on Eranos (owner, Nov 1): an unsent request lives only in this tab's memory.
 function loadDraft(): Draft {
-  try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
-    if (!raw) return EMPTY;
-    const found = JSON.parse(raw) as Partial<Draft>;
-    return { ...EMPTY, ...Object.fromEntries(Object.entries(found).filter(([, v]) => typeof v === "string")) };
-  } catch {
-    return EMPTY;
-  }
+  return EMPTY;
 }
 
-function saveDraft(draft: Draft): void {
-  try {
-    if (Object.values(draft).every((value) => !value)) window.localStorage.removeItem(DRAFT_KEY);
-    else window.localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
-  } catch {
-    // Storage can be blocked; the text stays in the box.
-  }
+function saveDraft(_draft: Draft): void {
+  // Nothing is written to the browser.
 }
 
 class SendError extends Error {

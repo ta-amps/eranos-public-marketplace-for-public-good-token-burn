@@ -120,8 +120,88 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
 }
 
 /** The board's caption names for the film frame (RequestStatusPage onEvent), from the recorded event types. */
-/** Ids for the strip steps; the judge tour links to #step-ready. */
-const STEP_IDS = ["sent", "sorted", "made", "checked", "ready", "library"];
+/** The four bands' anchors (DESIGN-SPEC 0.2); the judge tour links to #step-ready. */
+const BAND_IDS = ["step-split", "step-build", "step-review", "step-ready"];
+/** Which band each of the six stations opens. */
+const STATION_BAND = [0, 0, 1, 2, 3, 3];
+/** The station each recorded fact moves the request to (request-status-events v1 tracks, live workers' names). */
+const STATION: Partial<Record<StatusEvent["type"], number>> = {
+  received: 0,
+  plan_claimed: 1,
+  planned: 1,
+  blocked: 1,
+  queued: 2,
+  work_claimed: 2,
+  work_released: 2,
+  work_submitted: 3,
+  check_claimed: 3,
+  check_refused: 3,
+  check_approved: 3,
+  check_sent_back: 2,
+  signoff_required: 4,
+  delivered: 4,
+  published: 4,
+  decided: 4,
+  library_added: 5,
+};
+
+/** Where the token stands now and where it stood one hop before, from the recorded facts only. */
+function trackPositions(events: StatusEvent[]): { pos: number; prev: number; back: boolean } {
+  const stations = events.filter((e) => (e.receipt || e.ref) && STATION[e.type] !== undefined).map((e) => ({ at: STATION[e.type] as number, type: e.type }));
+  const last = stations.at(-1);
+  if (!last) return { pos: 0, prev: 0, back: false };
+  const before = [...stations].reverse().find((x) => x.at !== last.at);
+  return { pos: last.at, prev: before?.at ?? last.at, back: last.type === "check_sent_back" || (before ? last.at < before.at : false) };
+}
+
+/**
+ * The request track: six stations, one token. The token moves only when a recorded fact arrives (900 ms, or a
+ * 120 ms fade with reduced motion); on load it shows only the last hop. "Sent back" moves it backwards. Ghost
+ * pills stand for the requests ahead in line.
+ */
+function RequestTrack({ summary, events, label, ahead }: { summary: PlainSummary; events: StatusEvent[]; label: string; ahead: number }) {
+  const { pos, prev, back } = trackPositions(events);
+  const [shown, setShown] = useState(prev);
+  const [animate, setAnimate] = useState(false);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      setAnimate(true);
+      setShown(pos);
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [pos]);
+  const current = summary.strip.findIndex((step) => step.state === "now");
+  const at = current >= 0 ? current : pos;
+  return (
+    <nav className="er-track" aria-label={label} data-animate={animate} data-testid="request-track">
+      <ol>
+        {summary.strip.map((step, i) => (
+          <li key={step.label} data-step={i} data-state={step.state}>
+            <a href={`#${BAND_IDS[STATION_BAND[i] ?? 0]}`} aria-current={i === at ? "step" : undefined}>
+              <span className="er-track-dot" aria-hidden="true" />
+              <span>{step.label}</span>
+              {i === 2 && ahead > 0 && (
+                <span className="er-ghosts" aria-hidden="true" data-testid="ghost-pills">
+                  {Array.from({ length: Math.min(ahead, 4) }, (_, k) => (
+                    <span key={k} className="er-ghost" />
+                  ))}
+                </span>
+              )}
+            </a>
+          </li>
+        ))}
+      </ol>
+      <span
+        className="er-track-token"
+        aria-hidden="true"
+        data-testid="track-token"
+        data-pos={shown}
+        data-back={back && shown === pos}
+        style={{ left: `calc(${((shown + 0.5) / 6) * 100}% - 7px)` }}
+      />
+    </nav>
+  );
+}
 
 const CAPTION: Partial<Record<StatusEvent["type"], { type: string; band: number }>> = {
   received: { type: "received", band: 1 },
@@ -247,7 +327,7 @@ function waitingSince(events: StatusEvent[], part: number): number | null {
 
 function Band({ n, title, state, children }: { n: number; title: string; state: StageState; children: React.ReactNode }) {
   return (
-    <section className={`er-panel er-rq-band er-rq-band-${state}`} data-band={n} data-state={state} aria-labelledby={`band-${n}`}>
+    <section id={BAND_IDS[n - 1]} className={`er-panel er-rq-band er-rq-band-${state}`} data-band={n} data-state={state} aria-labelledby={`band-${n}`}>
       <h2 id={`band-${n}`} className="er-panel-title">
         <span className="er-band-n" aria-hidden="true">
           {n}
@@ -323,14 +403,15 @@ export function PlainStatus({
 
   return (
     <div className="er-plain" data-testid="plain-status">
-      <ol className="er-strip" aria-label={words.stages_label}>
-        {summary.strip.map((step, i) => (
-          <li key={step.label} id={`step-${STEP_IDS[i]}`} className={`er-strip-step er-stage-${step.state}`} data-step={i} data-state={step.state}>
-            <span className="er-stage-dot" aria-hidden="true" />
-            <span>{step.label}</span>
-          </li>
-        ))}
-      </ol>
+      <RequestTrack
+        summary={summary}
+        events={events}
+        label={words.stages_label}
+        ahead={parts.some((p) => !p.workAgent && p.work !== "done") ? Math.max(0, (parts.find((p) => !p.workAgent && p.work !== "done")?.place ?? 1) - 1) : 0}
+      />
+      <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
+        {happened[0]?.text ?? ""}
+      </p>
 
       <Band n={1} title={b.sorted.title} state={stripState(1)}>
         {facts.received?.at != null && <p className="er-band-ok">{fill(b.sorted.checked, { time: clock(facts.received.at) })}</p>}

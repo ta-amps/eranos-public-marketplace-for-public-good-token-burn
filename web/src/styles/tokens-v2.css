@@ -1,6 +1,7 @@
+/* Paper & Ink tokens v3 (Claude Design, Nov 1). Light only, by the owner's rule: no dark palette anywhere. */
 /* Generated from tokens.json v2 by tools/build_tokens_css.py. Do not edit by hand. */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   --bg: #F5F2EA;
   --surface: #FFFDF8;
   --sunken: #EDE8DC;
@@ -49,87 +50,14 @@
   --fs-mono: 0.8125rem;
   --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px; --radius-pill: 999px;
   --e1: 0 1px 2px rgb(17 22 31 / 0.06); --e2: 0 10px 30px rgb(17 22 31 / 0.08), 0 2px 6px rgb(17 22 31 / 0.05); --e3: 0 24px 64px rgb(17 22 31 / 0.16), 0 4px 12px rgb(17 22 31 / 0.08);
+  --dur-track: 900ms; --ease-track: cubic-bezier(0.2, 0, 0, 1);
   --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms; --dur-deliberate: 480ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1); --ease-enter: cubic-bezier(0, 0, 0, 1); --ease-exit: cubic-bezier(0.3, 0, 1, 1); --ease-travel: cubic-bezier(0.45, 0, 0.55, 1);
   --header-h: 64px; --notice-h: 32px; --container: 1200px;
 }
 @media (max-width: 767px) { :root { --header-h: 56px; } }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-  --bg: #11161F;
-  --surface: #1B2230;
-  --sunken: #0B0F16;
-  --line: #2C3443;
-  --line-strong: #6B7487;
-  --text: #F5F2EA;
-  --text-2: #C8D0DC;
-  --text-3: #9AA3B2;
-  --text-inverse: #11161F;
-  --link: #8DB7F4;
-  --link-hover: #F5F2EA;
-  --action: #F5F2EA;
-  --action-hover: #C8D0DC;
-  --action-text: #11161F;
-  --action-2-border: #6B7487;
-  --focus: #8DB7F4;
-  --noun: #6FA3F0;
-  --noun-text: #8DB7F4;
-  --noun-wash: #1A2741;
-  --verb: #F0884F;
-  --verb-text: #F39A68;
-  --verb-wash: #35231A;
-  --real: #7FD3A0;
-  --real-wash: #15281D;
-  --attention: #F2C66B;
-  --attention-wash: #2B2210;
-  --caution: #F2A08C;
-  --caution-wash: #3A1F19;
-  --waiting: #9AA3B2;
-  --waiting-wash: #222936;
-  --mark-1: #6FA3F0;
-  --mark-2: #F0884F;
-  --mark-3: #F5F2EA;
-  --mark-4: #6FA3F0;
-  --e1: 0 1px 2px rgb(0 0 0 / 0.4); --e2: 0 10px 30px rgb(0 0 0 / 0.45), 0 0 0 1px #2C3443; --e3: 0 24px 64px rgb(0 0 0 / 0.55), 0 0 0 1px #2C3443;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #11161F;
-  --surface: #1B2230;
-  --sunken: #0B0F16;
-  --line: #2C3443;
-  --line-strong: #6B7487;
-  --text: #F5F2EA;
-  --text-2: #C8D0DC;
-  --text-3: #9AA3B2;
-  --text-inverse: #11161F;
-  --link: #8DB7F4;
-  --link-hover: #F5F2EA;
-  --action: #F5F2EA;
-  --action-hover: #C8D0DC;
-  --action-text: #11161F;
-  --action-2-border: #6B7487;
-  --focus: #8DB7F4;
-  --noun: #6FA3F0;
-  --noun-text: #8DB7F4;
-  --noun-wash: #1A2741;
-  --verb: #F0884F;
-  --verb-text: #F39A68;
-  --verb-wash: #35231A;
-  --real: #7FD3A0;
-  --real-wash: #15281D;
-  --attention: #F2C66B;
-  --attention-wash: #2B2210;
-  --caution: #F2A08C;
-  --caution-wash: #3A1F19;
-  --waiting: #9AA3B2;
-  --waiting-wash: #222936;
-  --mark-1: #6FA3F0;
-  --mark-2: #F0884F;
-  --mark-3: #F5F2EA;
-  --mark-4: #6FA3F0;
-  --e1: 0 1px 2px rgb(0 0 0 / 0.4); --e2: 0 10px 30px rgb(0 0 0 / 0.45), 0 0 0 1px #2C3443; --e3: 0 24px 64px rgb(0 0 0 / 0.55), 0 0 0 1px #2C3443;
-}
+
+
 @media (prefers-reduced-motion: reduce) {
   :root { --dur-base: 120ms; --dur-slow: 120ms; --dur-deliberate: 120ms; }
   *, *::before, *::after { animation-duration: 120ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }

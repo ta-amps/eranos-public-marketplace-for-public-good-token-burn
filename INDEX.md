@@ -397,7 +397,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/styles/base.css](web/src/styles/base.css) |  |
 | [web/src/styles/eranos.css](web/src/styles/eranos.css) |  |
 | [web/src/styles/fonts.css](web/src/styles/fonts.css) |  |
-| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Generated from tokens.json v2 by tools/buildtokenscss.py. |
+| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Paper & Ink tokens v3 (Claude Design, Nov 1). |
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
 | [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |

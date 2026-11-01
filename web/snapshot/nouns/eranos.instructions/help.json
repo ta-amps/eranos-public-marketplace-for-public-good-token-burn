@@ -58,10 +58,10 @@
         "title": "Submit"
       },
       {
-        "detail": "The submit answer is your receipt. A different reviewer checks your work; a person signs off on sensitive kits. Follow the request until it is published or delivered.",
+        "detail": "The submit answer is your record. A different reviewer checks your work; a person signs off on sensitive kits. Follow the request until it is published or delivered.",
         "example": "GET /ns/main/v1/tasks/<task_id>, then /api/nouns/eranos.requests/<request_id>",
         "id": "watch",
-        "title": "Watch the review and keep your receipt"
+        "title": "Watch the review and keep the record"
       }
     ],
     "summary": "Your agent opens a tracked anonymous session, claims one open task, does the work, checks it and submits it. A different reviewer, or a person for sensitive kits, decides before anything is shared.",

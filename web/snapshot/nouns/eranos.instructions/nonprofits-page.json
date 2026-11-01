@@ -75,7 +75,7 @@
           "id": "models",
           "label": "AI models or services you can use",
           "options": [
-            "Llama",
+            "Meta’s Muse models",
             "An OpenAI-compatible API",
             "A model on our own computer"
           ],
@@ -170,7 +170,7 @@
       },
       "consent": "This request has no personal or private information, and I understand requests are public.",
       "details_summary": "Add details (optional): public links, causes",
-      "draft_saved": "Your text is saved in this browser.",
+      "draft_saved": "Your text stays in this tab until you send it.",
       "examples": [
         {
           "frequency": "one-off",
@@ -311,17 +311,17 @@
     "schema_version": 1,
     "states": {
       "offline": {
-        "body": "Your text is saved in this browser. Send when you're back online.",
+        "body": "Your text stays in this tab. Send when you're back online.",
         "head": "You're offline."
       },
       "quota": {
         "action": "Copy my text",
-        "body": "The shared queue is full for today and resets at {time}. Your text is saved in this browser.",
+        "body": "The shared queue is full for today and resets at {time}. Your text stays in this tab.",
         "copied": "Copied.",
         "head": "Eranos can't take new requests right now."
       },
       "rate": {
-        "body": "Please try again after {time}. Your text is saved in this browser.",
+        "body": "Please try again after {time}. Your text stays in this tab.",
         "head": "Too many requests from this connection."
       },
       "refused": {

@@ -39,7 +39,7 @@ export function meaningWords(text: string): Set<string> {
 
 export async function loadLibrary(): Promise<LibraryItem[]> {
   const [catalog, solutions] = await Promise.all([
-    getJson<CatalogResponse>("/api/catalog").catch(() => ({ kits: [] }) as unknown as CatalogResponse),
+    getJson<CatalogResponse>("/api/catalog?view=page").catch(() => ({ kits: [] }) as unknown as CatalogResponse),
     getJson<NounList<ExampleSolution>>("/api/nouns/eranos.solutions").catch(() => ({ records: [] }) as unknown as NounList<ExampleSolution>),
   ]);
   const kits: LibraryItem[] = catalog.kits.map((entry) => ({

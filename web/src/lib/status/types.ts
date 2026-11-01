@@ -70,6 +70,8 @@ export interface StatusEvent {
   worker?: string;
   model?: string;
   lease_ends?: number;
+  /** The model's display name from the models.meta Task Object, as the worker's fact carries it with the id. */
+  model_name?: string;
   /** True when one of Eranos's own (dedicated) workers claimed it because no volunteer was free in time. */
   dedicated?: boolean;
   parts?: PartPlan[];

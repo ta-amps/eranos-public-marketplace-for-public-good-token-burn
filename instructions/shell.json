@@ -102,7 +102,7 @@
         "href": "/.well-known/agent-card.json"
       }
     ],
-    "storage": "This browser keeps two things for you: your requests' private links and any request text you haven't sent. Nothing else is stored."
+    "storage": "This browser keeps only your requests’ private links, until request codes replace them. Nothing else is stored."
   },
   "right": {
     "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",

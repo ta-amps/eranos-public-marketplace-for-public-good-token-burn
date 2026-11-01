@@ -16,7 +16,7 @@ import { useNoun } from "../lib/useNoun";
 import { AppLink } from "../router";
 
 export function KitDetail({ id }: { id: string }) {
-  const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}`);
+  const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}?view=page`);
   const words = useNoun<RequestStatusNoun>("request-status").value;
   const [practiceState, setPracticeState] = useState<
     | { status: "idle" }

@@ -159,7 +159,7 @@ test.describe("on the hosted build", () => {
     const history = [
       event(1, { type: "received", receipt: "a".repeat(64) }),
       event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
-      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "llama-3.3-70b", lease_ends: now + 600 }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark", lease_ends: now + 600 }),
     ];
     const seen = await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
     await page.goto(`/requests/${REQUEST_ID}?view=technical`);
@@ -187,13 +187,13 @@ test.describe("on the hosted build", () => {
     const history = [
       event(1, { type: "received", receipt: "a".repeat(64) }),
       event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
-      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "eranos-worker-1", dedicated: true, model: "llama-3.2-3b" }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "eranos-worker-1", dedicated: true, model: "muse-code" }),
     ];
     await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
     await page.goto(`/requests/${REQUEST_ID}`);
-    await expect(page.getByTestId("helper-1")).toContainText("One of Eranos\u2019s own workers");
+    await expect(page.getByTestId("helper-1")).toContainText("A dedicated worker run by ta-amps");
     await expect(page.getByTestId("helper-1")).toContainText("no volunteer was free");
-    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so one of Eranos\u2019s own workers started making it.");
+    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so a dedicated worker run by ta-amps started making it.");
   });
 
   for (const names of ["the live workers' names", "the page's own names"] as const) {
@@ -235,7 +235,7 @@ test.describe("on the hosted build", () => {
           result_id: "RPT-REUSED-01",
           summary: { nouns: ["eranos.solutions/RPT-REUSED-01@2"], tasks: [] },
         }),
-        event(5, { type: "work_claimed", part: 2, receipt: "d".repeat(64), worker: "volunteer-7", model: "llama-3.2-3b" }),
+        event(5, { type: "work_claimed", part: 2, receipt: "d".repeat(64), worker: "volunteer-7", model: "muse-code" }),
         event(6, {
           type: workers ? "work_failed" : "work_released",
           part: 2,
@@ -255,7 +255,7 @@ test.describe("on the hosted build", () => {
       const reused = page.getByTestId("reused-1");
       await expect(reused).toContainText("Answered from the library with no new work.");
       await expect(reused.getByRole("link")).toHaveAttribute("href", "/api/nouns/eranos.solutions/RPT-REUSED-01");
-      await expect(page.locator("#step-library")).toHaveAttribute("data-state", "done");
+      await expect(page.locator('.er-track li[data-step="5"]')).toHaveAttribute("data-state", "done");
       await expect(page.getByTestId("failed-2")).toContainText("The last try failed: self-test failed: two points had no source.");
       await expect(page.getByTestId("failed-2")).toContainText("(try 1 of 3)");
       await expect(page.getByTestId("next-run")).toContainText("Next run:");
@@ -266,6 +266,30 @@ test.describe("on the hosted build", () => {
       await expect(happened).toContainText("Answered from the library with no new work.");
     });
   }
+
+  test("the track moves backwards on 'sent back', and only on recorded facts", async ({ page }) => {
+    const now = Math.floor(Date.now() / 1000);
+    const event = (version: number, value: Record<string, unknown>) => ({
+      version,
+      created_at: now - 300 + version,
+      value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 300 + version, ...value } },
+    });
+    const history = [
+      event(1, { type: "received", receipt: "a".repeat(64) }),
+      event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark" }),
+      event(4, { type: "work_submitted", part: 1, receipt: "d".repeat(64) }),
+      event(5, { type: "check_claimed", part: 1, receipt: "e".repeat(64), worker: "volunteer-9" }),
+      event(6, { type: "check_sent_back", part: 1, receipt: "f".repeat(64), findings: ["two points had no source"] }),
+    ];
+    await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    const token = page.getByTestId("track-token");
+    await expect(token).toHaveAttribute("data-pos", "2");
+    await expect(token).toHaveAttribute("data-back", "true");
+    const text = await page.locator("main").innerText();
+    expect(text).not.toMatch(/receipt|\b[0-9a-f]{12,}\b/i);
+  });
 
   test("B4: a published process package shows 'Download the process' with its SHA-256; an unreviewed one does not", async ({ page }) => {
     const processExample = noun<{ solution: Record<string, unknown> }>("request-example-process");
@@ -403,7 +427,7 @@ test.describe("E04 and E05: the example request", () => {
     await page.goto("/requests/example?moment=planned");
     const waiting = page.getByTestId("waiting-1");
     await expect(waiting).toContainText("Waiting for a volunteer");
-    await expect(waiting).toContainText("one of Eranos\u2019s own workers will pick it up.");
+    await expect(waiting).toContainText("a dedicated worker run by ta-amps will pick it up.");
   });
 
 

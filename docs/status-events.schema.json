@@ -198,7 +198,7 @@
         },
         "dedicated": {
           "type": "boolean",
-          "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker (Llama 3.2 on the ta-amps team's computer, same claim and receipt rules). Without this field the page treats a worker label starting with 'eranos' as dedicated."
+          "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker run by the ta-amps team on Meta's latest Muse model through the Meta API (standard tier), under the same claim and report rules. Without this field the page treats a worker label starting with 'eranos' as dedicated."
         }
       }
     },

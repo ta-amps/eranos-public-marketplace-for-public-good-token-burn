@@ -370,6 +370,22 @@ function internalWords(value) {
   return value;
 }
 
+/** The site's words everywhere, for a page to show (never served as the record itself). */
+function pageWords(value) {
+  if (typeof value === "string") return visibleText(value);
+  if (Array.isArray(value)) return value.map(pageWords);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, item] of Object.entries(value)) out[key.toLowerCase() === "synthetic" ? "is_example" : key] = VERBATIM_KEYS.has(key) ? item : pageWords(item);
+    return out;
+  }
+  return value;
+}
+
+function forPage(request, data) {
+  return new URL(request.url).searchParams.get("view") === "page" ? pageWords(data) : data;
+}
+
 function jsonResp(data, status = 200) {
   return new Response(JSON.stringify(visibleWords(data)), {
     status,
@@ -1712,11 +1728,11 @@ async function handleCloudApi(request, env, pathname) {
     const reqUrl = new URL(request.url);
     const rawKits = await loadRawCatalogList(request, env);
     const kits = filterCatalogKits(rawKits, reqUrl.searchParams);
-    return jsonResp({
+    return jsonResp(forPage(request, {
       synthetic: true,
       two_step_verified: true,
       kits,
-    });
+    }));
   }
 
   const kitMatch = /^\/api\/catalog\/([^/]+)$/.exec(pathname);
@@ -1729,7 +1745,7 @@ async function handleCloudApi(request, env, pathname) {
     if (!found) {
       return problem(404, "Not Found", `kit ${kitId} is not in the catalog`, "not_found");
     }
-    return jsonResp({ synthetic: true, ...found });
+    return jsonResp(forPage(request, { synthetic: true, ...found }));
   }
 
   if (pathname === "/api/fabric") {

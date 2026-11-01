@@ -278,6 +278,17 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
 test.describe("on the hosted build", () => {
   test.use({ baseURL: LIVE });
 
+  test("the live bundle carries none of the owner's forbidden words", async ({ page, request }) => {
+    await mockSite(page);
+    await page.goto("/");
+    const scripts = await page.$$eval("script[src]", (nodes) => nodes.map((n) => (n as HTMLScriptElement).src));
+    const html = await (await request.get("/")).text();
+    let text = html;
+    for (const src of scripts) text += await (await request.get(src)).text();
+    expect(scripts.length).toBeGreaterThan(0);
+    expect(text).not.toMatch(/synthetic|\b(o)?llama\b|kothar|kinema|shamash/i);
+  });
+
   test("B2: /help lists the live open tasks, and a task copies as a claim for your agent", async ({ page }) => {
     await stubClipboard(page);
     const now = Math.floor(Date.now() / 1000);
@@ -360,7 +371,7 @@ test.describe("E09: I want to help", () => {
 
   test("without a volunteer key, what your tokens did is the empty state", async ({ page }) => {
     await page.goto("/help");
-    await expect(page.getByTestId("tokens-empty")).toContainText("After your agent finishes a task, its receipts show up here");
+    await expect(page.getByTestId("tokens-empty")).toContainText("After your agent finishes a task, what it did shows up here");
     await expect(page.getByTestId("your-agent")).toContainText("No agent connected in this browser.");
   });
 });
@@ -469,7 +480,7 @@ test.describe("wording and accessibility", () => {
     expect(errors).toEqual([]);
   });
 
-  test("/connect is a page of the site, with its layout, title and both themes", async ({ page }) => {
+  test("/connect is a page of the site, with its layout and title, light only", async ({ page }) => {
     await page.goto("/connect");
     await expect(page).toHaveTitle("Connect to Eranos");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(connectNoun.title);
@@ -481,8 +492,9 @@ test.describe("wording and accessibility", () => {
     const light = await colours();
     await page.emulateMedia({ colorScheme: "dark" });
     const dark = await colours();
-    expect(dark.background).not.toBe(light.background);
-    expect(dark.text).not.toBe(light.text);
+    // Light only (owner, Nov 1): the dark scheme changes nothing.
+    expect(dark.background).toBe(light.background);
+    expect(dark.text).toBe(light.text);
   });
 
   test("the footer says what the site loads and keeps, from the site noun, and links to trust and Agora pages", async ({ page }) => {

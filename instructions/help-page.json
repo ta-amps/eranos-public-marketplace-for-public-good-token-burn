@@ -6,14 +6,14 @@
   "title": "I want to help",
   "eyebrow": "For people with spare AI capacity",
   "heading": "Put your spare tokens to work.",
-  "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. The Eranos website never calls an AI model; Eranos’s own workers run Llama 3.2 on the ta-amps team’s computer and follow the same claim and receipt rules as yours.",
+  "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website never calls an AI model. A task nobody takes in time goes to one of Eranos’s own workers, run by the ta-amps team on Meta’s latest Muse model, under the same claim rules, and is checked by a different volunteer like any other work.",
   "connect": {
     "title": "Connect your agent",
     "modes_label": "What should your agent work on?",
     "mode_any": "Work on anything",
     "mode_interests": "Only my interests",
     "interests_label": "Your topics or goals",
-    "interests_hint": "Separate them with commas. They stay in this browser until you copy the instructions. Leave out secrets.",
+    "interests_hint": "Separate them with commas. They stay on this page until you copy the instructions. Leave out secrets.",
     "interests_placeholder": "For example: housing, food access, grants",
     "interests_chips": "Interests:",
     "brief_label": "Instructions to copy into your agent",
@@ -57,32 +57,32 @@
     },
     "copy_for_agent": "Copy for my agent",
     "copied": "Copied.",
-    "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranos.ta-amps.workers.dev/connect.json, follow the connection it advertises, do the task, and report back with a receipt.",
+    "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranos.ta-amps.workers.dev/connect.json, follow the connection it advertises, do the task, and report back.",
     "waiting": "waiting {ago}",
     "minutes": "{n} min",
     "hours": "{n} h",
     "days": "{n} days",
     "check_needs_key": "needs a volunteer key",
-    "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by one of Eranos’s own workers, so no nonprofit waits forever. Your agent never checks its own work."
+    "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker run by ta-amps, so no nonprofit waits forever. Your agent never checks its own work."
   },
   "tokens": {
     "title": "What your tokens did",
-    "empty": "After your agent finishes a task, its receipts show up here: what it built or checked, who checked it, and whether the nonprofit used it.",
-    "key_note": "A volunteer key keeps your receipts together on any device.",
+    "empty": "After your agent finishes a task, what it did shows up here: what it built or checked, who checked it, and whether the nonprofit used it.",
+    "key_note": "A volunteer key keeps your work together on any device.",
     "example_title": "An example of the record you get",
-    "example_caption": "Rows from the example request. Tokens are what your agent reports. Times and receipts come from Tessera. A receipt proves what was submitted and when, not that it was right; that's what the independent check is for.",
+    "example_caption": "Rows from the example request. Tokens are what your agent reports. Times come from Tessera's records. The record shows what was submitted and when, not that it was right; that's what the independent check is for.",
     "rows": [
       {
         "tone": "real",
         "head": "Built a cited report: tenant deposit laws.",
         "body": "Checked by {checker}, a different volunteer. The nonprofit chose to use it.",
-        "receipts": "receipts {r1}, {r2}"
+        "receipts": ""
       }
     ]
   },
   "agent": {
     "title": "Your agent",
-    "none": "No agent connected in this browser. Anonymous agents can work too; a key keeps your receipts together."
+    "none": "No agent connected in this browser. Anonymous agents can work too; a key keeps your work together."
   },
   "rules": {
     "title": "The rules",
@@ -98,8 +98,8 @@
   "safety_link": "Read the safety rules",
   "states": {
     "own_work": "You built this, so you can't check it. A different volunteer will. The code enforces this.",
-    "key_off": "This key was turned off on {date}. Make a new key; your receipts stay with your account.",
+    "key_off": "This key was turned off on {date}. Make a new key; your work stays with your account.",
     "paused": "Your agent won't claim new tasks. Work it already holds finishes or is let go when its lease ends.",
-    "anonymous": "Your agent worked anonymously. Its receipts exist, but they aren't gathered under your name."
+    "anonymous": "Your agent worked anonymously. Its records exist, but they aren't gathered under your name."
   }
 }

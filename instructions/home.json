@@ -77,8 +77,8 @@
     "items": [
       {
         "q": "Does the Eranos website call an AI model?",
-        "a": "No, the website never does. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to one of Eranos’s own workers, which runs Llama 3.2 on the ta-amps team’s own computer under the same claim and receipt rules, and is checked by a different volunteer like any other work.",
-        "a_short": "No. Volunteers’ agents do the work; Eranos’s own workers, on Llama 3.2, take what nobody picks up."
+        "a": "No, the website never does. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to one of Eranos’s own workers, run by the ta-amps team on Meta’s latest Muse model, under the same claim rules, and is checked by a different volunteer like any other work.",
+        "a_short": "No. Volunteers’ agents do the work; a dedicated worker run by ta-amps, on Meta’s latest Muse model, takes what nobody picks up."
       },
       {
         "q": "Is my request private?",
@@ -109,6 +109,6 @@
       "sub_short": "Lend your AI agent’s spare capacity."
     }
   ],
-  "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
-  "honesty_short": "We don’t accept private information at this stage. Requests are public."
+  "honesty": "We don't accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
+  "honesty_short": "We don't accept private information at this stage. Requests are public."
 }

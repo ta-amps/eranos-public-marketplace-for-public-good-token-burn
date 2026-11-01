@@ -126,7 +126,9 @@ test("kit detail says a different volunteer reviewed it, with the real reviewer 
   await page.goto("/catalog/KIT-HOTLINE-02");
   const line = page.getByTestId("kit-reviewed");
   await expect(line).toContainText(`A different volunteer reviewed this: ${kit.reviewed_by}`);
-  await expect(line).toContainText(`receipt ${kit.review_receipt.slice(0, 4)}`);
+  // People-readable facts only: a "Record" link, never the receipt's hash.
+  await expect(line).toContainText("Record");
+  await expect(line).not.toContainText(kit.review_receipt.slice(0, 12));
   await expect(line).toContainText("You decide whether to use it.");
   await expect(page.getByTestId("kit-tested-on")).toHaveText("Tested with example files (no real case data).");
   // Each practice case carries its mark (AGENTS.md rule 1); no chip or tag.
@@ -144,6 +146,22 @@ test("missing kit renders an accessible role=alert banner, without a Retry that 
 
 // Owner, October 31: "DO NOT INCLUDE SYNTHETIC." No page, in either view, says it anywhere a visitor can read,
 // the agent banner included.
+// Owner's rules for Nov 1: no "synthetic", no Llama, no receipts or hashes, Tasks and Task Objects (never nouns or
+// verbs), claim · do · report (never "prove"), no retired names, never "cloud" for a dedicated worker, no stamps.
+const FORBIDDEN = [
+  /synthetic/i,
+  /\b(o)?llama\b/i,
+  /receipt/i,
+  /sha-?256/i,
+  /\b[0-9a-f]{12,}\b/i,
+  /\bnouns?\b/i,
+  /\bverbs?\b/i,
+  /\bprove/i,
+  /kothar|kinema|shamash/i,
+  /dedicated[^.]{0,60}\bcloud\b|\bcloud\b[^.]{0,60}dedicated/i,
+  /\bnot yet\b|\bPLANNED\b|layout preview|coming soon|not ready yet/i,
+];
+
 test("no page says synthetic, in any case, anywhere a visitor can read", async ({ page }) => {
   test.setTimeout(180_000);
   const kits = fs
@@ -173,9 +191,55 @@ test("no page says synthetic, in any case, anywhere a visitor can read", async (
     await expect(page.locator("main h1").first()).toBeVisible();
     const text = await page.evaluate(() => {
       const banner = document.querySelector("ta-agent-banner")?.shadowRoot?.textContent ?? "";
-      return `${document.title}\n${banner}\n${document.body.innerText}`;
+      // API paths in code examples (/api/nouns/..., /v1/verbs) are addresses, not words.
+      const clone = document.body.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll("code, pre, kbd, [data-testid='brief-text']").forEach((node) => node.remove());
+      document.body.append(clone);
+      clone.style.position = "absolute";
+      const visible = clone.innerText;
+      clone.remove();
+      return `${document.title}\n${banner}\n${visible}`;
     });
-    if (/synthetic/i.test(text)) said.push(route);
+    const strict = !/^\/(catalog|tracks|contribute|fabric|about|connect)\b/.test(route);
+    for (const rule of strict ? FORBIDDEN : FORBIDDEN.filter((r) => /synthetic|llama|kothar|cloud/.test(r.source))) {
+      const found = rule.exec(text);
+      if (found) said.push(`${route}: ${found[0]}`);
+    }
   }
   expect(said).toEqual([]);
+});
+
+test("light only: with the dark scheme emulated, every page stays on paper", async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: "dark" });
+  const page = await context.newPage();
+  for (const route of ["/", "/nonprofits", "/help", "/requests", "/requests/example", "/library"]) {
+    await page.goto(route);
+    await expect(page.locator("main")).toBeVisible();
+    const look = await page.evaluate(() => ({
+      body: getComputedStyle(document.body).backgroundColor,
+      scheme: getComputedStyle(document.documentElement).colorScheme,
+      meta: document.querySelector('meta[name="color-scheme"]')?.getAttribute("content"),
+      banner: getComputedStyle(document.querySelector("ta-agent-banner")!).backgroundColor,
+    }));
+    expect(look.body, route).toBe("rgb(245, 242, 234)");
+    expect(look.scheme, route).toBe("light");
+    expect(look.meta, route).toBe("light");
+    expect(look.banner, route).toBe("rgb(237, 232, 220)");
+  }
+  await context.close();
+});
+
+test("the calm request page: a sticky request track with one token, the bands' anchors and a polite live region", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/requests/example?moment=your-turn");
+  const track = page.getByRole("navigation", { name: "Where your request is" });
+  await expect(track).toBeVisible();
+  await expect(track.locator("li")).toHaveCount(6);
+  await expect(track.locator('[aria-current="step"]')).toHaveCount(1);
+  await expect(track.locator('[aria-current="step"]')).toContainText("Ready for you");
+  await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", "4");
+  for (const id of ["step-split", "step-build", "step-review", "step-ready"]) await expect(page.locator(`#${id}`)).toHaveCount(1);
+  expect(await page.locator("#step-ready").evaluate((el) => getComputedStyle(el).scrollMarginTop)).not.toBe("0px");
+  expect(await track.evaluate((el) => getComputedStyle(el).position)).toBe("sticky");
+  await expect(page.getByTestId("track-live")).toHaveAttribute("aria-live", "polite");
 });

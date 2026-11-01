@@ -41,16 +41,17 @@
     "chips": {
       "agent": "a volunteer's agent",
       "by_team": "by your team · {time}",
+      "dedicated": "dedicated worker {n} (run by ta-amps)",
       "estimate": "usually {a}–{b} min",
       "in_line": "{nth} in line",
       "lease": "lease until {time}",
       "one_source": "1 source",
       "read_report": "Read the report",
-      "receipt": "receipt {r}",
+      "receipt": "Record",
       "see_process": "See the process",
       "sources": "{n} sources",
       "worker_model": "{who} · {model}",
-      "worker_receipt": "{who} · receipt {r}"
+      "worker_receipt": "{who} · Record"
     },
     "choices": {
       "cadence": {
@@ -196,7 +197,7 @@
       "ago_seconds": "{n} s ago",
       "example": "Replayed at reading speed. Nothing here was sent.",
       "live": "Live",
-      "rule": "every change comes from a receipt or a public record",
+      "rule": "every change comes from a recorded step",
       "updated": "updated {ago}"
     },
     "nodes": {
@@ -276,7 +277,7 @@
         "head": "We can't find request {id}."
       },
       "withdrawn": {
-        "body": "Parts already finished stay on the record with their receipts.",
+        "body": "Parts already finished stay on the record.",
         "head": "This request was withdrawn on {date}."
       }
     },
@@ -308,8 +309,8 @@
         },
         "made": {
           "failed": "The last try failed: {reason}",
-          "fallback": "If none is free by {time}, one of Eranos’s own workers will pick it up.",
-          "helper_eranos": "One of Eranos’s own workers",
+          "fallback": "If none is free by {time}, a dedicated worker run by ta-amps will pick it up.",
+          "helper_eranos": "A dedicated worker run by ta-amps",
           "helper_volunteer": "A volunteer’s AI",
           "picked": "Picked it up at {time}.",
           "picked_eranos": "Picked it up at {time}: no volunteer was free.",
@@ -397,7 +398,7 @@
         "withdrawn": "This request was withdrawn.",
         "work_claimed": "A volunteer’s AI started making it.",
         "work_claimed_changes": "A volunteer’s AI started making your changes.",
-        "work_claimed_eranos": "No volunteer was free, so one of Eranos’s own workers started making it.",
+        "work_claimed_eranos": "No volunteer was free, so a dedicated worker run by ta-amps started making it.",
         "work_failed": "A try at making it failed, and it went back in line.",
         "work_released": "The volunteer stopped before finishing. It’s back in line.",
         "work_submitted": "It’s made. Waiting for a second volunteer to check it.",
@@ -510,7 +511,7 @@
     "report": {
       "approved_badge": "A different volunteer reviewed this",
       "back": "← Request {short}",
-      "bridge_body": "Volunteers' agents, tasks and receipts, explained in the overview deck.",
+      "bridge_body": "Volunteers' agents, tasks and records, explained in the overview deck.",
       "bridge_link": "The overview deck, on Agora",
       "bridge_title": "How did this get made?",
       "cancel": "Cancel",
@@ -521,12 +522,12 @@
       "changes_placeholder": "For example: add the date each change takes effect.",
       "changes_text": "Decision on part {n} of request {id}: changes. {note}",
       "checked": "checked",
-      "decision_filed": "Filed as task {short}; its receipt appears on the request page when a volunteer's agent records it.",
+      "decision_filed": "Filed as task {short}; it appears on the request page when a volunteer's agent records it.",
       "decision_label": "Your decision",
       "decision_text": "Decision on part {n} of request {id}: {choice}.",
       "dont": "Don't use it",
       "download": "Download",
-      "download_json": "All receipts (JSON)",
+      "download_json": "The full record (JSON)",
       "download_md": "Report and sources as Markdown",
       "download_pdf": "Report as PDF (print)",
       "example_sources": "These sources are example stand-ins made for this example, not real laws.",
@@ -542,7 +543,7 @@
       "part_badge": "Part {n} · cited report",
       "published": "published {date}",
       "read_only": "You're viewing a public report. Only the person with the private link can decide.",
-      "receipts": "receipts {list}",
+      "receipts": "",
       "recorded_at": "Recorded at {time} as version {v} of your decision, in your own space on Tessera. You can change your mind here.",
       "recorded_changes": "You asked for changes",
       "recorded_dont": "You chose not to use it",
@@ -591,7 +592,7 @@
       "use": "Use this process",
       "what": "What it is"
     },
-    "rule": "Every node, chip and log line comes from a receipt or a public record. Nothing shows as done without its record.",
+    "rule": "Every node, chip and log line comes from a recorded step. Nothing shows as done without its record.",
     "schema_version": 1,
     "states": {
       "approved": "Approved",

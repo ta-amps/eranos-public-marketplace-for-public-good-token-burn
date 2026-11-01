@@ -4,7 +4,7 @@
   "key": "request-status",
   "audience": "nonprofits following a request, and anyone reading a public one",
   "title": "Request status and report pages",
-  "rule": "Every node, chip and log line comes from a receipt or a public record. Nothing shows as done without its record.",
+  "rule": "Every node, chip and log line comes from a recorded step. Nothing shows as done without its record.",
   "titles": {
     "yours": "Your request",
     "example": "Example request",
@@ -22,7 +22,7 @@
     "example": "Replayed at reading speed. Nothing here was sent.",
     "live": "Live",
     "updated": "updated {ago}",
-    "rule": "every change comes from a receipt or a public record",
+    "rule": "every change comes from a recorded step",
     "ago_now": "just now",
     "ago_seconds": "{n} s ago",
     "ago_minutes": "{n} min ago"
@@ -90,8 +90,8 @@
   "chips": {
     "in_line": "{nth} in line",
     "estimate": "usually {a}–{b} min",
-    "receipt": "receipt {r}",
-    "worker_receipt": "{who} · receipt {r}",
+    "receipt": "Record",
+    "worker_receipt": "{who} · Record",
     "worker_model": "{who} · {model}",
     "agent": "a volunteer's agent",
     "lease": "lease until {time}",
@@ -99,7 +99,8 @@
     "by_team": "by your team · {time}",
     "sources": "{n} sources",
     "one_source": "1 source",
-    "see_process": "See the process"
+    "see_process": "See the process",
+    "dedicated": "dedicated worker {n} (run by ta-amps)"
   },
   "overall": {
     "waiting": "Waiting for a volunteer's agent",
@@ -250,7 +251,7 @@
     },
     "withdrawn": {
       "head": "This request was withdrawn on {date}.",
-      "body": "Parts already finished stay on the record with their receipts."
+      "body": "Parts already finished stay on the record."
     },
     "unknown": {
       "head": "We can't find request {id}.",
@@ -279,7 +280,7 @@
     "meta_anon": "Researched and checked by two different volunteers' agents",
     "meta_named": "Built by {builder} (says it runs {builder_model}) · checked by {checker} (says it runs {checker_model})",
     "sources_count": "{n} sources",
-    "receipts": "receipts {list}",
+    "receipts": "",
     "in_short": "In short",
     "findings": "What it found",
     "sources": "Sources ({n})",
@@ -288,7 +289,7 @@
     "unclear": "The reviewer flagged one point as unclear in the sources. It is marked “unclear” in the text, not guessed.",
     "show_all": "Show all {n} sources",
     "bridge_title": "How did this get made?",
-    "bridge_body": "Volunteers' agents, tasks and receipts, explained in the overview deck.",
+    "bridge_body": "Volunteers' agents, tasks and records, explained in the overview deck.",
     "bridge_link": "The overview deck, on Agora",
     "decision_label": "Your decision",
     "your_turn": "Your turn to decide",
@@ -308,7 +309,7 @@
     "read_only": "You're viewing a public report. Only the person with the private link can decide.",
     "download": "Download",
     "download_md": "Report and sources as Markdown",
-    "download_json": "All receipts (JSON)",
+    "download_json": "The full record (JSON)",
     "download_pdf": "Report as PDF (print)",
     "not_ready": "This report appears here once a different volunteer has checked it.",
     "missing": "This request has no cited report for part {n}.",
@@ -327,7 +328,7 @@
     "changes_text": "Decision on part {n} of request {id}: changes. {note}",
     "example_sources": "These sources are example stand-ins made for this example, not real laws.",
     "decision_text": "Decision on part {n} of request {id}: {choice}.",
-    "decision_filed": "Filed as task {short}; its receipt appears on the request page when a volunteer's agent records it."
+    "decision_filed": "Filed as task {short}; it appears on the request page when a volunteer's agent records it."
   },
   "result": {
     "back": "← Request {short}",
@@ -548,7 +549,7 @@
       "withdrawn": "This request was withdrawn.",
       "closed": "This request is closed.",
       "check_refused": "The maker tried to approve its own work, and Tessera refused it.",
-      "work_claimed_eranos": "No volunteer was free, so one of Eranos’s own workers started making it.",
+      "work_claimed_eranos": "No volunteer was free, so a dedicated worker run by ta-amps started making it.",
       "reused": "Answered from the library with no new work.",
       "scheduled": "The next run starts {time}.",
       "work_failed": "A try at making it failed, and it went back in line."
@@ -589,11 +590,11 @@
         "title_now": "Being made",
         "title_done": "Made",
         "helper_volunteer": "A volunteer’s AI",
-        "helper_eranos": "One of Eranos’s own workers",
+        "helper_eranos": "A dedicated worker run by ta-amps",
         "picked": "Picked it up at {time}.",
         "picked_eranos": "Picked it up at {time}: no volunteer was free.",
         "waiting": "Waiting for a volunteer · {nth} in line.",
-        "fallback": "If none is free by {time}, one of Eranos’s own workers will pick it up.",
+        "fallback": "If none is free by {time}, a dedicated worker run by ta-amps will pick it up.",
         "recorded": "Recorded ✓ Every step is recorded.",
         "failed": "The last try failed: {reason}",
         "retry": "It is back in line.",

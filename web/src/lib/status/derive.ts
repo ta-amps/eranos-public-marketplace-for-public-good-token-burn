@@ -103,7 +103,8 @@ function agent(event: StatusEvent): Agent {
   return {
     who: event.worker,
     dedicated: event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? ""),
-    model: event.model,
+    // Model names come from the models.meta catalog: the fact carries the id and its display name.
+    model: event.model_name ?? event.model,
     claimedAt: event.at ?? null,
     leaseEnds: event.lease_ends,
     receipt: event.receipt,
@@ -406,7 +407,10 @@ function evidenceOf(e: { receipt?: string; ref?: string } | undefined): string |
 }
 
 function agentChipText(words: RequestStatusNoun, a: Agent): string {
-  if (a.who && a.model) return fill(words.chips.worker_model ?? "", { who: a.who, model: a.model });
+  // A dedicated worker is named as the owner asked: "dedicated worker N (run by ta-amps)".
+  const who = a.dedicated ? fill(words.chips.dedicated ?? "", { n: /(\d+)/.exec(a.who ?? "")?.[1] ?? "1" }) : a.who;
+  if (who && a.model) return fill(words.chips.worker_model ?? "", { who, model: a.model });
+  if (a.dedicated) return who ?? "";
   return a.who ?? words.chips.agent ?? "";
 }
 
