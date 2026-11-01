@@ -105,9 +105,18 @@ def keyed_reuse(
     key = (keyed(text) or {}).get("key")
     if not key:
         return None
+    expected_kit = f"PRC-{key.split('-', 1)[1][:6].upper()}-01"
     for store, record, _text, kind, receipt in candidates(backend, rules):
         value = record.value if isinstance(record.value, dict) else {}
-        if store == "eranos.catalog" and f"reuse:{key}" in (value.get("tags") or []):
+        tags = list(value.get("tags") or [])
+        reuse_tags = [t for t in tags if t.startswith("reuse:")]
+        if (
+            store == "eranos.catalog"
+            and reuse_tags == [f"reuse:{key}"]
+            and str(record.key) == expected_kit
+            and (value.get("kit") or {}).get("kit_id") == expected_kit
+            and "kind:process_package" in tags
+        ):
             title = str((value.get("kit") or {}).get("title") or "")
             return Match(store, str(record.key), int(record.version), 1.0, kind, receipt, title)
     return None

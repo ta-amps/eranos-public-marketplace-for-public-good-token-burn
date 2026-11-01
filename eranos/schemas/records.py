@@ -257,7 +257,9 @@ class SyntheticFixture(_Record):
     def _clean_and_synthetic(cls, value: str, info: Any) -> str:
         check_safe_topic(check_non_accusatory(value))
         if info.field_name == "sample_input" and not any(mark in value for mark in FIXTURE_MARKS):
-            raise ValueError("every sample_input must carry a visible MADE-UP mark (or the older SYNTHETIC mark)")
+            raise ValueError(
+                "every sample_input must carry a visible MADE-UP mark (made-up sample data, no real data)"
+            )
         return value
 
 

@@ -32,6 +32,9 @@ from eranos.pipeline.run import SelfReviewRefused
 
 HANDLER_ENV = "ERANOS_PROCESS_HANDLER"
 CATALOG_STORE = "eranos.catalog"
+BUILDER_KEYS_ENV = (
+    "ERANOS_PROCESS_BUILDER_KEYS"  # optional: the builder key ids this reviewer trusts
+)
 BUILD_KIND, REVIEW_KIND = "process", "process_review"
 NOT_IMPLEMENTED = "process packages are not built yet: no process handler (build B4) is installed"
 
@@ -79,7 +82,7 @@ def process_brief(
         "part": part["part"],
         "occurrence": occurrence,
         "title": f"{org}: a reusable process"[:140],
-        "synthetic_only": True,
+        "made_up_data_only": True,
         "request": request,
         "plan_part": {k: part[k] for k in ("part", "route", "text", "legal") if k in part},
         "output": {
@@ -87,7 +90,7 @@ def process_brief(
             "contract": "build_process(request, plan_part) -> {bundle_path, catalog_record, task_template_record, test_report}",
         },
         "acceptance": [
-            "The package's tests pass on synthetic fixtures only.",
+            "The package's tests pass on made-up sample files only (no real data).",
             "Its bundle SHA-256 is its identity; the catalog record names it.",
             "A different key re-runs the checks before anything is public.",
         ],
@@ -247,15 +250,31 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
         if (package.get("draft") or {}).get("kit_id") != ids["kit_id"]:
             findings.append("the build names a different package than the request derives")
         else:
-            records = {
-                name: backend.get_record(ids[name]["store"], ids[name]["key"]).value
+            stored = {
+                name: backend.get_record(ids[name]["store"], ids[name]["key"])
                 for name in ("catalog_record", "task_template_record")
             }
+            # The handler checks who wrote each draft (the build's own key), not only what it says.
+            records = {
+                name: {"value": rec.value, "owner_key_id": getattr(rec, "owner_key_id", None)}
+                for name, rec in stored.items()
+            }
+            trusted = {
+                k for k in os.environ.get(BUILDER_KEYS_ENV, "").split(",") if k.strip()
+            } or None
             with tempfile.TemporaryDirectory(prefix="eranos-process-review-") as tmp:
                 fetched = Path(tmp) / "bundle.tar.gz"
                 fetched.write_bytes(backend.get_blob(str(package.get("blob_sha256") or "")))
                 verdict = dict(
-                    review(package, request_, plan_part_, bundle_path=fetched, records=records)
+                    review(
+                        package,
+                        request_,
+                        plan_part_,
+                        bundle_path=fetched,
+                        records=records,
+                        builder_key_id=build.completed_by_key,
+                        trusted_builder_keys=trusted,
+                    )
                 )
             digest_of = getattr(handler, "record_digest", None)
             verified = verdict.get("verified") or {}
@@ -264,7 +283,7 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
                     "the package's checks did not pass"
                 ]
             elif not callable(digest_of) or any(
-                digest_of(records[name]) != (verified.get(name) or {}).get("value_sha256")
+                digest_of(records[name]["value"]) != (verified.get(name) or {}).get("value_sha256")
                 for name in records
             ):
                 findings.append("the records changed between the review and publication")
@@ -281,7 +300,9 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
     # The reviewed catalog value is fixed before the receipt exists, so Tessera can check that what is
     # published is exactly what was approved (publication_sha256), the same proof kits carry.
     catalog_ref = dict(ids["catalog_record"])
-    draft_value = records["catalog_record"]
+    # Publish what the reviewer rebuilt from the bundle and the request, never the draft's own text.
+    rebuilt = verdict.get("verified") or {}
+    draft_value = rebuilt.get("catalog_value", records["catalog_record"]["value"])
     value = reviewed_value(
         handler,
         draft_value,
@@ -324,7 +345,7 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
         else value
     )
     template_ref = dict(ids["task_template_record"])
-    template = records["task_template_record"]
+    template = rebuilt.get("template_value", records["task_template_record"]["value"])
     published = [
         _put(
             backend,

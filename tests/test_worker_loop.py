@@ -405,17 +405,26 @@ def test_process_request_with_a_handler_is_built_reviewed_and_published(
             *,
             bundle_path: Any = None,
             records: dict[str, Any] | None = None,
+            builder_key_id: str | None = None,
+            **_: Any,
         ) -> dict[str, Any]:
             data = Path(bundle_path).read_bytes()
             ok = hashlib.sha256(data).hexdigest() == package["blob_sha256"]
+            mine = all(
+                r["owner_key_id"] == builder_key_id
+                and r["value"].get("request") == request["request_id"]
+                for r in (records or {}).values()
+            )
             return {
-                "passed": ok
-                and all(
-                    v.get("request") == request["request_id"] for v in (records or {}).values()
-                ),
-                "checks": ["bundle fetched by digest", "4 tests passed"],
+                "passed": ok and mine,
+                "checks": [
+                    "bundle fetched by digest",
+                    "records written by the build's key",
+                    "4 tests passed",
+                ],
                 "verified": {
-                    n: {"value_sha256": self.record_digest(v)} for n, v in (records or {}).items()
+                    n: {"value_sha256": self.record_digest(r["value"])}
+                    for n, r in (records or {}).items()
                 },
             }
 
@@ -699,7 +708,7 @@ def test_film_data_cleaning_request_is_built_reviewed_published_and_reused(
     assert value["blob_sha256"] == output["bundle_sha256"]
     assert value["review_receipt"] and "status:verified" in value["tags"]
     assert value["reviewed_by_key"] != value["kit"]["drafted_by_key"]
-    assert any(t.startswith("reuse:proc1-") for t in value["tags"])
+    assert [t for t in value["tags"] if t.startswith("reuse:")] == ["reuse:proc2-7eefca618400649c"]
     assert f"request:{rid}" in value["tags"]
     assert "synthetic" not in json.dumps(value).lower()
     assert output["test_report"]["passed"] is True
