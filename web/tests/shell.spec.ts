@@ -19,6 +19,10 @@ const ROUTES = [
   "/",
   "/help",
   "/nonprofits",
+  "/library",
+  "/requests/example",
+  "/requests/example/result?part=1",
+  "/requests/example-process/result?part=1",
   "/catalog",
   "/catalog/KIT-HOTLINE-02",
   "/contribute",
@@ -26,6 +30,9 @@ const ROUTES = [
   "/fabric",
   "/about",
   "/connect",
+  "/privacy",
+  "/terms",
+  "/report",
 ] as const;
 
 for (const viewport of VIEWPORTS) {
@@ -33,21 +40,44 @@ for (const viewport of VIEWPORTS) {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
 
     for (const route of ROUTES) {
-      test(`${route}: SYNTHETIC banner visible, no banned words, no third-party requests`, async ({ page }) => {
+      test(`${route}: agent banner above the header, tile mark, no stamp strip, no banned words, no third-party requests`, async ({ page }) => {
         const offOrigin: string[] = [];
         page.on("request", (request) => {
           if (!request.url().startsWith("http://localhost:4174")) offOrigin.push(request.url());
         });
 
         await page.goto(route);
-        const banner = page.getByTestId("synthetic-banner");
-        await expect(banner).toBeVisible();
+        const banner = page.locator("ta-agent-banner");
+        await expect(banner).toHaveAttribute("data-ready", "true");
+        const order = await page.evaluate(() => {
+          const b = document.querySelector("ta-agent-banner");
+          const h = document.querySelector("header.er-header");
+          return Boolean(b && h && b.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
+        });
+        expect(order).toBe(true);
         await expect(page.locator("header svg.er-brand-logo")).toBeVisible();
         await expect(page.locator("footer.er-footer")).toBeVisible();
+        await expect(page.locator("main h1").first()).toBeVisible();
+        await expect(page.getByTestId("synthetic-banner")).toHaveCount(0);
 
         const text = await page.locator("body").innerText();
         expect(findBannedWords(text)).toEqual([]);
         expect(text).not.toContain("<domain>");
+        expect(text).not.toMatch(/SYNTHETIC DATA ONLY|Live API mode/);
+        // Only /report links to the live public issue tracker and private security advisories; every other page keeps zero GitHub links.
+        if (route === "/report") {
+          const ghLinks = await page.$$eval('a[href*="github.com/ta-amps"]', (as) => as.map((a) => a.getAttribute("href") ?? ""));
+          expect(ghLinks.length).toBeGreaterThan(0);
+          for (const href of ghLinks) {
+            expect(href).toMatch(
+              /^https:\/\/github\.com\/ta-amps\/eranos-public-marketplace-for-public-good-token-burn\/(issues|security\/advisories)$/,
+            );
+          }
+        } else {
+          expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
+        }
+        // Owner, Oct 31: "DO NOT INCLUDE SYNTHETIC." (the sweep below also covers kits and examples).
+        expect(text).not.toMatch(/synthetic/i);
         expect(offOrigin).toEqual([]);
 
         const scan = await new AxeBuilder({ page }).analyze();
@@ -66,7 +96,6 @@ test("catalog filters narrow kits, show empty state, and reset cleanly", async (
   await expect(page.locator("article.er-card")).toHaveCount(1);
   await expect(page.locator("article.er-card")).toContainText("KIT-HOTLINE-02");
 
-  // Combine with non-matching domain to trigger empty state
   await page.getByLabel("Domain", { exact: true }).selectOption("nonprofit_ops");
   await expect(page.locator("article.er-card")).toHaveCount(0);
   const emptyState = page.getByTestId("catalog-empty-state");
@@ -87,11 +116,66 @@ test("kit detail runs zero-storage practice verifier with persisted: false", asy
   await expect(result).toContainText("SPDX: CC-BY-4.0");
 });
 
+test("kit detail says a different volunteer reviewed it, with the real reviewer and receipt, and that you decide", async ({ page }) => {
+  const kit = (
+    JSON.parse(fs.readFileSync(new URL("../snapshot/catalog/KIT-HOTLINE-02.json", import.meta.url), "utf8")) as {
+      reviewed_by: string;
+      review_receipt: string;
+    }
+  );
+  await page.goto("/catalog/KIT-HOTLINE-02");
+  const line = page.getByTestId("kit-reviewed");
+  await expect(line).toContainText(`A different volunteer reviewed this: ${kit.reviewed_by}`);
+  await expect(line).toContainText(`receipt ${kit.review_receipt.slice(0, 4)}`);
+  await expect(line).toContainText("You decide whether to use it.");
+  await expect(page.getByTestId("kit-tested-on")).toHaveText("Tested with example files (no real case data).");
+  // Each practice case carries its mark (AGENTS.md rule 1); no chip or tag.
+  await expect(page.locator(".er-fixture-divider").first()).toContainText("Practice case: an example, not a real person or case.");
+  expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
+});
+
 test("missing kit renders an accessible role=alert banner, without a Retry that cannot help", async ({ page }) => {
   await page.goto("/catalog/KIT-MISSING-99");
   const alert = page.getByRole("alert");
   await expect(alert).toBeVisible();
-  // A 404 comes back the same every time, so the banner offers the way back instead of Retry.
   await expect(alert.getByRole("button", { name: "Retry" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Back to catalog" })).toBeVisible();
+});
+
+// Owner, October 31: "DO NOT INCLUDE SYNTHETIC." No page, in either view, says it anywhere a visitor can read,
+// the agent banner included.
+test("no page says synthetic, in any case, anywhere a visitor can read", async ({ page }) => {
+  test.setTimeout(180_000);
+  const kits = fs
+    .readdirSync(new URL("../snapshot/catalog/", import.meta.url))
+    .filter((name) => name.startsWith("KIT-"))
+    .map((name) => `/catalog/${name.replace(/\.json$/, "")}`);
+  const routes = [
+    ...ROUTES,
+    "/?tour=judge",
+    "/nonprofits?tour=judge",
+    "/requests/REQ-INTAKE-07?tour=judge",
+    "/requests/REQ-INTAKE-07?tour=judge#step-ready",
+    "/requests",
+    "/requests/example?moment=decided",
+    "/requests/example?moment=decided&view=technical",
+    "/requests/example-process?moment=decided",
+    "/requests/example-process?moment=decided&view=technical",
+    "/requests/REQ-INTAKE-07",
+    "/requests/example/result?part=1",
+    "/requests/example-process/result?part=1",
+    ...kits,
+  ];
+  const said: string[] = [];
+  for (const route of routes) {
+    await page.goto(route);
+    await expect(page.locator("ta-agent-banner")).toHaveAttribute("data-ready", "true");
+    await expect(page.locator("main h1").first()).toBeVisible();
+    const text = await page.evaluate(() => {
+      const banner = document.querySelector("ta-agent-banner")?.shadowRoot?.textContent ?? "";
+      return `${document.title}\n${banner}\n${document.body.innerText}`;
+    });
+    if (/synthetic/i.test(text)) said.push(route);
+  }
+  expect(said).toEqual([]);
 });

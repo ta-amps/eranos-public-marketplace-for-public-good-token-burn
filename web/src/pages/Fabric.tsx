@@ -2,6 +2,13 @@ import { ErrorAlert } from "../components/ErrorAlert";
 import type { FabricResponse, RequestsResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
+function doneLabelForQueue(name: string): string {
+  if (name === "eq01") return "Scope planned";
+  if (name === "eq02") return "Drafts submitted";
+  if (name === "eq03") return "Reviews completed";
+  return "Done";
+}
+
 export function Fabric() {
   const fabric = useResource<FabricResponse>("/api/fabric");
   const requests = useResource<RequestsResponse>("/api/requests");
@@ -13,8 +20,9 @@ export function Fabric() {
       <section className="er-section">
         <h1>Work queues on Tessera</h1>
         <p className="er-lede">
-          Tessera is the shared infrastructure underneath Eranos. Eranos uses three leased queues on it{" "}
-          (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
+          Tessera is the shared durable task queue and task objects store underneath Eranos &mdash; workers claim
+          durable tasks (things to do), publish checked task objects, and another worker verifies before anything goes
+          live. Eranos uses three leased queues on it (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
           quarantining unreviewed drafts as <code>surface_only</code> and promoting independently reviewed packages via
           content-addressed SHA-256 blobs and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
           <code>eranos.index</code>).
@@ -52,13 +60,25 @@ export function Fabric() {
                     <dd>{q.waiting}</dd>
                   </div>
                   <div>
-                    <dt>Done</dt>
+                    <dt>{doneLabelForQueue(q.name)}</dt>
                     <dd>{q.done}</dd>
                   </div>
+                  {q.dead > 0 && (
+                    <div>
+                      <dt>Stopped / refused</dt>
+                      <dd>{q.dead}</dd>
+                    </div>
+                  )}
                 </dl>
               </article>
             ))}
           </div>
+        )}
+        {fabricState.status === "ready" && (
+          <p className="er-muted er-small">
+            Scope planned on <code>eq01</code> counts requests split into buildable parts; kits and cited reports join
+            the library only after independent review completes on <code>eq03</code>.
+          </p>
         )}
       </section>
 

@@ -57,6 +57,6 @@
   "follow": "Follow each request here: received, planned, in review, then delivered or published.",
   "form_on_github": "Or use the public form on GitHub. You need a free GitHub account.",
   "links": {
-    "roll_your_own": "https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/decks/roll-your-own/#connect"
+    "roll_your_own": "https://agora.ta-amps.workers.dev/decks/roll-your-own/#connect"
   }
 }

@@ -63,6 +63,8 @@ class TrackPack(_Strict):
     sources: list[SourceRef] = Field(min_length=1)
     # Kits on a sensitive track wait for a person's sign-off after review, whoever built them.
     needs_steward_signoff: bool = False
+    # Universal process class slug used when building local-execution process packages.
+    process_class: Annotated[str, Field(pattern=SLUG_ID)] | None = None
 
     @field_validator("title", "summary")
     @classmethod

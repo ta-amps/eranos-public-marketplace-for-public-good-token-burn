@@ -31,5 +31,6 @@
       "url": "https://www.irs.gov/forms-pubs/about-publication-4221-pc",
       "checked_date": "2026-10-26"
     }
-  ]
+  ],
+  "process_class": "grant_compliance_tracking"
 }

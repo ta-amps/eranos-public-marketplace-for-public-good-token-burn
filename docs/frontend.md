@@ -22,7 +22,10 @@ a summary; `web/src/router.tsx` is the source of truth.
 | `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key (`eq01`/`eq02` vs `eq03`) |
 | `/tracks` | Tracks | The data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
 | `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
-| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Tessera |
+| `/about` | About & Safety | Practice-case scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Tessera |
+| `/privacy` | Privacy | Plain-language privacy policy: no sign-up required, `#k=` fragment keys stay in the browser, no ad trackers or cookies |
+| `/terms` | Terms of use | Public-good marketplace terms: CC BY 4.0 reports, Apache-2.0 reusable processes, people decide before using any result |
+| `/report` | Report a problem | Plain-language problem, safety, and private-data removal reporting (`/.well-known/security.txt`) |
 
 ## HTTP API & AI-agent discovery (`eranos/api/app.py` & `deploy/cloudflare/worker.js`)
 
@@ -47,6 +50,7 @@ root health and AI-agent discovery endpoints remain publicly reachable at both t
 | `GET /robots.txt` | Crawler and AI-agent allowlist |
 | `GET /llms.txt` / `GET /llms-full.txt` | Structured LLM index and full reference corpus (`text/plain; charset=utf-8`) |
 | `GET /.well-known/agent-card.json` | A2A / agent discovery card advertising MCP and catalog capabilities |
+| `GET /.well-known/security.txt` | RFC 9116 security contact, expiry, canonical URL, and reporting policy (`text/plain; charset=utf-8`) |
 | `POST /mcp` | Stateless JSON-RPC 2.0 MCP server (`initialize`, `notifications/initialized`, `ping`, `tools/list`, `tools/call` for `list_tracks`, `search_catalog`, `get_kit`, `practice_verify_kit`) |
 
 ## Offline snapshot & edge asset packaging (`make snapshot`)

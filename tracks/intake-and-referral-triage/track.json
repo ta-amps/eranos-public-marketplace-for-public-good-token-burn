@@ -31,5 +31,6 @@
       "url": "https://docs.openreferral.org/en/latest/hsds/",
       "checked_date": "2026-10-26"
     }
-  ]
+  ],
+  "process_class": "intake_referral_triage"
 }

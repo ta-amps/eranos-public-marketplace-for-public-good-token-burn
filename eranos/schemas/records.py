@@ -18,6 +18,7 @@ from eranos.schemas.tracks import (
     StepKind,
     TrackDomain,
 )
+from eranos.visible import has_example_mark
 
 KIT_ID = r"^[A-Z]{2,4}-[A-Z0-9]{2,8}-[0-9]{2}$"
 BRIEF_ID = r"^[A-Z][0-9]{1,3}$"
@@ -253,8 +254,8 @@ class SyntheticFixture(_Record):
     @classmethod
     def _clean_and_synthetic(cls, value: str, info: Any) -> str:
         check_safe_topic(check_non_accusatory(value))
-        if info.field_name == "sample_input" and "SYNTHETIC" not in value:
-            raise ValueError("every sample_input must carry a visible SYNTHETIC mark")
+        if info.field_name == "sample_input" and not has_example_mark(value):
+            raise ValueError("every sample_input must carry the practice-case mark")
         return value
 
 

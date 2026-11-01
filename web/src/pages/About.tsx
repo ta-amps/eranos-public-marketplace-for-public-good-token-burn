@@ -33,9 +33,9 @@ export function About() {
         </section>
 
         <section className="er-card">
-          <h2>Synthetic-only &amp; non-accusatory</h2>
+          <h2>Examples only &amp; non-accusatory</h2>
           <p className="er-muted">
-            Every example fixture in Eranos begins with <code>SYNTHETIC:</code> and holds zero personal data. Copy
+            Every example fixture in Eranos is marked as a practice case and holds no personal data. Copy
             validators reject accusatory labels and prohibit surveillance, scraping, or personal-data-harvesting
             requests.
           </p>

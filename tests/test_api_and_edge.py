@@ -26,6 +26,7 @@ from eranos.pipeline import (
 )
 from eranos.schemas import KitRequest, ReviewDecision
 from eranos.tracks import get_track, load_tracks
+from eranos.visible import visible
 
 SECRET = "edge-secret-for-tests-only"  # check-public: allow
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -537,12 +538,14 @@ console.log(JSON.stringify({{ fab, hs, feed, fallbackHs, fallbackFeed, calls }})
     assert out["feed"]["next_cursor"] == 5
     assert len(out["feed"]["entries"]) == 1
     assert out["fallbackHs"]["isolated_store_prefix"] == "eranos."
-    assert out["fallbackFeed"] == {
-        "synthetic": True,
-        "feed": "noun.promotions",
-        "entries": [],
-        "next_cursor": 9,
-    }
+    assert out["fallbackFeed"] == visible(
+        {
+            "synthetic": True,
+            "feed": "noun.promotions",
+            "entries": [],
+            "next_cursor": 9,
+        }
+    )
     hs_calls = [c for c in out["calls"] if c["url"].endswith("/v1/handshake")]
     assert len(hs_calls) == 2
     for call in hs_calls:

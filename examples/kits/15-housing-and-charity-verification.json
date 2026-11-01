@@ -1,0 +1,201 @@
+{
+  "request": {
+    "kit_id": "KIT-HOUSING-15",
+    "track_id": "housing-and-charity-verification",
+    "deliverable_kind": "full_kit",
+    "title": "Rental Deposit & Disaster-Relief Charity Registry Check Kit",
+    "goal": "Equip tenant legal-aid clinics and disaster-response coalitions with a public-registry lookup schema, deposit-escrow checklist, and fee-comparison check while keeping every legal or regulator action strictly with staff.",
+    "target_org": "Tenant legal-aid clinic and disaster-relief coalition",
+    "needs_steward_signoff": true,
+    "spdx_license": "Apache-2.0",
+    "tags": [
+      "domain:anti_exploitation",
+      "track:housing-and-charity-verification",
+      "kind:full_kit",
+      "spdx:Apache-2.0",
+      "cohort:ngo_legal_aid",
+      "steward:required"
+    ],
+    "target_cohorts": [
+      "all",
+      "ngo_legal_aid"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ]
+  },
+  "draft": {
+    "kit_id": "KIT-HOUSING-15",
+    "track_id": "housing-and-charity-verification",
+    "domain": "anti_exploitation",
+    "deliverable_kind": "full_kit",
+    "spdx_license": "Apache-2.0",
+    "tags": [
+      "domain:anti_exploitation",
+      "track:housing-and-charity-verification",
+      "kind:full_kit",
+      "spdx:Apache-2.0",
+      "cohort:ngo_legal_aid",
+      "steward:required"
+    ],
+    "target_cohorts": [
+      "all",
+      "ngo_legal_aid"
+    ],
+    "producer_surface": "surface:eranos",
+    "visibility_scope": "public_commons",
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma"
+    ],
+    "title": "Rental Deposit & Disaster-Relief Charity Registry Check Kit",
+    "summary": "Compares rental deposit terms and disaster-relief charity appeals against published registry fields and statutory deposit caps, surfacing missing registration records while keeping all tenant counsel and regulator filings strictly human-only.",
+    "target_org": "Tenant legal-aid clinic and disaster-relief coalition",
+    "steps": [
+      {
+        "id": "compare_registry_and_deposit_terms",
+        "title": "Compare appeal EIN or lease deposit terms against published public registry fields",
+        "kind": "registry_deposit_check",
+        "boundary": "assists",
+        "actor": "Intake verification assistant",
+        "guidance": "Check whether the organization EIN, registered state, escrow account notice, and deposit multiple match published state rules; record missing fields as unverified rather than making accusations."
+      },
+      {
+        "id": "staff_case_assessment",
+        "title": "Review unverified appeal or wire-only deposit request with clinic staff",
+        "kind": "individual_decision",
+        "boundary": "human_only",
+        "actor": "Clinic housing counselor or coalition lead",
+        "guidance": "A trained counselor reviews the unverified indicators with the renter or donor before any funds move; mutual-aid groups without 501(c)(3) status are reviewed in context by a person."
+      },
+      {
+        "id": "external_regulator_or_counsel_send",
+        "title": "Submit any consumer notice, escrow inquiry, or regulator referral",
+        "kind": "external_send",
+        "boundary": "human_only",
+        "actor": "Supervising clinic attorney or coalition coordinator",
+        "guidance": "Only authorized clinic staff send external inquiries or regulator filings with explicit client consent; the agent never contacts landlords, appeal organizers, or agencies."
+      }
+    ],
+    "skill": {
+      "name": "registry-and-deposit-term-checker",
+      "description": "Checks rental deposit requests and post-disaster charity appeals against published public-registry fields and state deposit-escrow checklists without labeling unverified parties.",
+      "boundary": "assists",
+      "instructions": "Extract the stated organization name, EIN, payment method, property escrow disclosure, and deposit multiple from the intake note. Flag wire-only upfront demands before viewing or missing registry matches for human counselor review, using strictly neutral factual wording.",
+      "refuses": [
+        "Labeling an unregistered mutual-aid group or landlord as dishonest",
+        "Advising a renter on legal rights without clinic counselor review",
+        "Sending complaints or inquiries to external parties or regulators"
+      ]
+    },
+    "tool": {
+      "name": "check_registry_and_deposit_fields",
+      "description": "Read-only structured check of public charity-registry fields and statutory security-deposit escrow checklist items.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "check_kind",
+          "jurisdiction"
+        ],
+        "properties": {
+          "check_kind": {
+            "type": "string",
+            "enum": [
+              "rental_deposit",
+              "charity_appeal"
+            ]
+          },
+          "jurisdiction": {
+            "type": "string",
+            "minLength": 2
+          },
+          "ein_or_registration_id": {
+            "type": "string"
+          },
+          "payment_method_requested": {
+            "type": "string"
+          },
+          "deposit_months_requested": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "output_fields": [
+        "verified_fields",
+        "missing_or_unverified_fields",
+        "requires_human_review"
+      ],
+      "read_only": true
+    },
+    "artifacts": [
+      {
+        "name": "deposit_and_appeal_verification_checklist",
+        "title": "Pre-Transfer Deposit & Relief Appeal Verification Checklist",
+        "artifact_format": "checklist_pack",
+        "boundary": "assists",
+        "summary": "Neutral intake checklist covering public tax-exempt lookup fields, in-person unit viewing confirmation, and statutory escrow disclosures.",
+        "spec": [
+          "Confirm whether the appeal lists a verifiable EIN or registered fiscal sponsor in IRS Tax Exempt Organization Search.",
+          "Check whether the rental listing allows an in-person or live-verified unit walkthrough before any deposit transfer.",
+          "Flag wire-transfer, gift-card, or cryptocurrency deposit demands for immediate clinic counselor review."
+        ]
+      }
+    ],
+    "checklist": [
+      "Verify the appeal's EIN and registered city against the official IRS Tax Exempt Organization Search page.",
+      "Note any request for wire transfer or prepaid cards prior to an in-person lease walkthrough.",
+      "Route unverified community mutual-aid appeals to a human coalition reviewer rather than rejecting automatically."
+    ],
+    "sources": [
+      {
+        "title": "IRS Tax Exempt Organization Search Guidance",
+        "url": "https://www.irs.gov/charities-non-profits/tax-exempt-organization-search",
+        "checked_date": "2026-10-26"
+      },
+      {
+        "title": "US Department of Housing and Urban Development: Rental Assistance & Tenant Resources",
+        "url": "https://www.hud.gov/topics/rental_assistance",
+        "checked_date": "2026-10-26"
+      }
+    ],
+    "fixtures": [
+      {
+        "id": "FX-HOUSING-ROUTINE",
+        "scenario": "Renter checking standard one-month escrow deposit with listed property manager registration",
+        "sample_input": "Practice case: an example, not a real person or case. Renter brings a draft lease after viewing unit 4B in person; deposit equals one month of rent in a named state escrow account.",
+        "expected_indicators": [
+          "escrow_account_disclosed",
+          "in_person_viewing_confirmed"
+        ],
+        "expected_human_escalation": false
+      },
+      {
+        "id": "FX-HOUSING-ESCALATE",
+        "scenario": "Upfront wire deposit requested before unit viewing alongside an unverified disaster relief appeal",
+        "sample_input": "Practice case: an example, not a real person or case. Caller was asked to wire three months of deposit overseas before seeing the apartment and also asks about a storm-relief page listing an EIN not found in IRS search.",
+        "expected_indicators": [
+          "upfront_wire_before_viewing",
+          "ein_unverified_in_public_registry"
+        ],
+        "expected_human_escalation": true
+      }
+    ],
+    "drafted_by": "placeholder",
+    "drafted_by_key": "placeholder"
+  },
+  "review": {
+    "kit_id": "KIT-HOUSING-15",
+    "verdict": "park_for_steward",
+    "reviewed_by": "placeholder",
+    "reviewed_by_key": "placeholder",
+    "notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off."
+  },
+  "steward_signoff": {
+    "steward": "housing-clinic-steward",
+    "notes": "Confirmed mutual-aid groups are never labeled dishonestly and all tenant decisions and external referrals stay strictly with clinic staff."
+  }
+}

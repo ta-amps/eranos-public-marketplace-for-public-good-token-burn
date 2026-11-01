@@ -1,0 +1,68 @@
+/* Generated from tokens.json v2 (light-only Paper & Ink palette). */
+:root {
+  color-scheme: light;
+  --bg: #F5F2EA;
+  --surface: #FFFDF8;
+  --sunken: #EDE8DC;
+  --line: #E2DCCF;
+  --line-strong: #8A8476;
+  --text: #11161F;
+  --text-2: #3B4252;
+  --text-3: #5E6472;
+  --text-inverse: #F5F2EA;
+  --link: #24519B;
+  --link-hover: #11161F;
+  --action: #11161F;
+  --action-hover: #2B3342;
+  --action-text: #F5F2EA;
+  --action-2-border: #8A8476;
+  --focus: #2A5DB0;
+  --noun: #2A5DB0;
+  --noun-text: #24519B;
+  --noun-wash: #E5ECF7;
+  --verb: #B8541F;
+  --verb-text: #9C4416;
+  --verb-wash: #F6E7DD;
+  --real: #1F6B43;
+  --real-wash: #E1F0E6;
+  --attention: #8A5A00;
+  --attention-wash: #FBEFD2;
+  --caution: #9E3A26;
+  --caution-wash: #F8E6E1;
+  --waiting: #5E6472;
+  --waiting-wash: #ECE9E1;
+  --mark-1: #2A5DB0;
+  --mark-2: #B8541F;
+  --mark-3: #11161F;
+  --mark-4: #2A5DB0;
+  --font-display: "Space Grotesk", "IBM Plex Sans", system-ui, sans-serif;
+  --font-text: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --fs-display: clamp(2.75rem, 2rem + 3.2vw, 5rem); --lh-display: 1.02;
+  --fs-h1: clamp(2.125rem, 1.75rem + 1.6vw, 3.25rem); --lh-h1: 1.08;
+  --fs-h2: clamp(1.625rem, 1.45rem + 0.8vw, 2.125rem); --lh-h2: 1.15;
+  --fs-h3: 1.25rem; --lh-h3: 1.3;
+  --fs-lead: clamp(1.125rem, 1.06rem + 0.3vw, 1.3125rem); --lh-lead: 1.5;
+  --fs-body: 1.0625rem; --lh-body: 1.55;
+  --fs-ui: 0.9375rem; --lh-ui: 1.45;
+  --fs-small: 0.875rem; --lh-small: 1.45;
+  --fs-mono: 0.8125rem;
+  --radius-xs: 4px; --radius-sm: 8px; --radius-md: 12px; --radius-lg: 16px; --radius-xl: 24px; --radius-pill: 999px;
+  --e1: 0 1px 2px rgb(17 22 31 / 0.06); --e2: 0 10px 30px rgb(17 22 31 / 0.08), 0 2px 6px rgb(17 22 31 / 0.05); --e3: 0 24px 64px rgb(17 22 31 / 0.16), 0 4px 12px rgb(17 22 31 / 0.08);
+  --dur-fast: 120ms; --dur-base: 200ms; --dur-slow: 320ms; --dur-deliberate: 480ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1); --ease-enter: cubic-bezier(0, 0, 0, 1); --ease-exit: cubic-bezier(0.3, 0, 1, 1); --ease-travel: cubic-bezier(0.45, 0, 0.55, 1);
+  --header-h: 64px; --notice-h: 32px; --container: 1200px;
+}
+@media (max-width: 767px) { :root { --header-h: 56px; } }
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-base: 120ms; --dur-slow: 120ms; --dur-deliberate: 120ms; }
+  *, *::before, *::after { animation-duration: 120ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+/* Base */
+html { background: var(--bg); color: var(--text); font-family: var(--font-text); font-size: 100%; -webkit-text-size-adjust: 100%; }
+body { margin: 0; font-size: var(--fs-body); line-height: var(--lh-body); }
+h1, h2 { font-family: var(--font-display); letter-spacing: -0.02em; }
+a { color: var(--link); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+a:hover { color: var(--link-hover); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+code, kbd, samp, .mono { font-family: var(--font-mono); font-size: var(--fs-mono); }

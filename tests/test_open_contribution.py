@@ -4,6 +4,7 @@ is refused and quotas hold. Everything here is SYNTHETIC; no model is called."""
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -354,3 +355,42 @@ def test_a_review_refuses_a_build_whose_digest_or_kit_does_not_match(
         assert store.list_records("eranos.catalog") == []
     finally:
         store.close()
+
+
+def test_the_requesters_choice_of_output_leads_the_plan() -> None:
+    """Owner, October 31: the request box asks what kind of output and how often; the plan follows it."""
+    from eranos.pipeline.requests import request_terms
+
+    rules = json.loads((ROOT / "instructions" / "classify.json").read_text(encoding="utf-8"))
+    text = (
+        "Give us a process our own agent can run each week to read, summarize and sort our "
+        "handwritten case notes. The notes stay on our computers."
+    )
+    process = classify_parts(text, rules, "process")
+    assert [p["route"] for p in process] == ["private-files"]
+    assert process[0]["text"].startswith("Give us a process") and process[0]["text"].endswith(
+        "computers."
+    )
+    # Information: a sentence with no marker is researched from public sources instead of held back.
+    unclear = "Find this year's grant programs for small food pantries in our county."
+    assert [p["route"] for p in classify_parts(unclear, rules)] == ["private-files"]
+    assert [p["route"] for p in classify_parts(unclear, rules, "information")] == ["public-only"]
+    assert request_terms({"output_type": "process", "frequency": "recurring"}) == {
+        "output_type": "process",
+        "frequency": "recurring",
+    }
+    assert request_terms({"output_type": "anything", "frequency": "daily"}) == {}
+    assert request_terms(
+        {"output_type": "both", "frequency": "recurring", "cadence": "monthly"}
+    ) == {
+        "output_type": "both",
+        "frequency": "recurring",
+        "cadence": "monthly",
+    }
+    assert request_terms({"frequency": "one-off", "cadence": "monthly"}) == {"frequency": "one-off"}
+    both = classify_parts(
+        "Summarize the new state laws on tenant deposits. Also give us a process to sort our case notes.",
+        rules,
+        "both",
+    )
+    assert [p["route"] for p in both] == ["public-only", "private-files"]

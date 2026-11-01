@@ -1,0 +1,175 @@
+/*
+ * A small reset and the base elements on the Paper & Ink tokens (tokens-v2.css), plus the older `--er-*`
+ * names mapped onto them so the catalog, kit, tracks, queue, about, setup and connect pages share the system.
+ * Colours keep one meaning each: blue marks things, orange marks work happening now, green marks approved or
+ * real results, amber marks a person's turn, red marks refusals and errors.
+ */
+:root {
+  --er-bg: var(--bg);
+  --er-surface: var(--surface);
+  --er-surface-warm: var(--sunken);
+  --er-border: var(--line);
+  --er-border-strong: var(--line-strong);
+  --er-text: var(--text);
+  --er-text-muted: var(--text-2);
+  --er-accent: var(--action);
+  --er-accent-soft: var(--sunken);
+  --er-on-accent: var(--action-text);
+
+  --er-drafts-text: var(--verb-text);
+  --er-drafts-fill: var(--verb-wash);
+  --er-assists-text: var(--verb-text);
+  --er-assists-fill: var(--verb-wash);
+  --er-human-text: var(--attention);
+  --er-human-fill: var(--attention-wash);
+  --er-steward-text: var(--real);
+  --er-steward-fill: var(--real-wash);
+
+  /* The smallest text is 14 px (13 px for JetBrains Mono). */
+  --er-font-12: 0.875rem;
+  --er-font-14: 0.875rem;
+  --er-font-16: 1rem;
+  --er-font-20: 1.25rem;
+  --er-font-24: 1.5rem;
+  --er-font-32: 2rem;
+
+  --er-space-1: 4px;
+  --er-space-2: 8px;
+  --er-space-3: 12px;
+  --er-space-4: 16px;
+  --er-space-6: 24px;
+  --er-space-8: 32px;
+  --er-space-12: 48px;
+
+  --er-radius-chip: var(--radius-pill);
+  --er-radius-card: var(--radius-lg);
+  --er-max-width: var(--container);
+  --er-margin: 32px;
+  --er-gutter: 32px;
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --er-margin: 24px;
+    --er-gutter: 24px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --er-margin: 16px;
+    --er-gutter: 16px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-text);
+  overflow-wrap: break-word;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+dl,
+dd,
+figure,
+blockquote {
+  margin: 0;
+}
+
+h1 {
+  font-size: var(--fs-h1);
+  line-height: var(--lh-h1);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  line-height: var(--lh-h2);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+h3 {
+  font-family: var(--font-text);
+  font-size: var(--fs-h3);
+  line-height: var(--lh-h3);
+  font-weight: 600;
+}
+
+h4 {
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+pre,
+code {
+  overflow-wrap: anywhere;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: var(--font-mono);
+}
+
+::selection {
+  background: var(--noun-wash);
+  color: var(--text);
+}
+
+.er-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

@@ -32,5 +32,6 @@
       "url": "https://www.feedingamerica.org/our-work/food-bank-network",
       "checked_date": "2026-10-30"
     }
-  ]
+  ],
+  "process_class": "food_essentials_logistics"
 }

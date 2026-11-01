@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "stages": [
     {
       "queue": "eq01",
@@ -39,7 +39,7 @@
         "examples/kits/01-job-recruitment-triage.json"
       ],
       "constraints": [
-        "Synthetic fixtures only, each marked SYNTHETIC",
+        "Example fixtures only, each marked practice-case",
         "Keep individual_decision and external_send marked human_only",
         "Never label an unregistered mutual-aid group with accusatory terms"
       ],
@@ -61,7 +61,7 @@
         "examples/kits/03-intake-and-referral-triage.json"
       ],
       "constraints": [
-        "Synthetic fixtures only, each marked SYNTHETIC",
+        "Example fixtures only, each marked practice-case",
         "Keep crisis_safety_plan and individual_decision marked human_only"
       ],
       "done_when": "examples/kits/06-volunteer-shift-sop.json passes `make verify-examples` and `make check`",
@@ -105,7 +105,7 @@
         "eranos/pipeline/run.py"
       ],
       "constraints": [
-        "Include SYNTHETIC notice, human_only boundary table, and SHA-256 receipt in every exported bundle"
+        "Include practice-case notice, human_only boundary table, and SHA-256 receipt in every exported bundle"
       ],
       "done_when": "`uv run eranos export-bundle KIT-RECRUIT-01` writes SKILL.md, tool.json, and checklist.md tested in pytest",
       "notes": null

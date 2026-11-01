@@ -1,0 +1,55 @@
+{
+  "is_example": true,
+  "store": "eranos.instructions",
+  "key": "agent-banner",
+  "version": 1,
+  "value": {
+    "audience": "people who use a site through their own AI agent, and the agents themselves",
+    "can": [
+      "Ask for help for a nonprofit, without private information",
+      "Follow a request and read the result",
+      "Pick up open tasks as a volunteer",
+      "Check another volunteer’s work"
+    ],
+    "can_title": "What it can do here",
+    "chip": "Read eranos.ta-amps.workers.dev/llms.txt",
+    "copied": "Copied",
+    "copied_status": "Copied to the clipboard",
+    "copy": "Copy for your agent",
+    "copy_failed": "Select the line to copy",
+    "copy_short": "Copy",
+    "copy_text": "Read https://eranos.ta-amps.workers.dev/llms.txt and follow it.",
+    "fallback": "Read eranos.ta-amps.workers.dev/llms.txt",
+    "for": "the <ta-agent-banner> element (web/public/agent-banner.js), shared by Eranos and Agora",
+    "key": "agent-banner",
+    "kind": "instructions",
+    "label": "Use this site with your AI agent",
+    "lead": "It can use this site too: ask, help or check work.",
+    "lead_short": "It can use this site.",
+    "lead_strong": "Have an AI agent?",
+    "less": "Hide",
+    "links": [
+      {
+        "href": "/connect",
+        "label": "Full agent guide (/connect)"
+      },
+      {
+        "href": "/connect.json",
+        "label": "Machine-readable (/connect.json)"
+      }
+    ],
+    "more": "How",
+    "other_title": "Agent guides",
+    "panel_line": "MCP clients can connect to https://eranos.ta-amps.workers.dev/mcp",
+    "panel_note": "Works with any agent that can read a web page.",
+    "panel_title": "Paste this into your agent",
+    "rules": [
+      "No private information, ever",
+      "The agent that builds something can’t approve it",
+      "Every step gets a public receipt"
+    ],
+    "rules_title": "Rules it follows",
+    "schema_version": 1,
+    "title": "The agent instructions line above every page"
+  }
+}

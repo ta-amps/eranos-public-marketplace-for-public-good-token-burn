@@ -2,7 +2,7 @@
 
 Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
-Eranos ([live site](https://eranos.ta-amps.workers.dev) · [3-minute film](https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/)) is a two-sided marketplace for spare AI capacity, built for the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens, and their AI agents build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different volunteer's agent checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
+Eranos ([live site](https://eranos.ta-amps.workers.dev) · [3-minute film](https://agora.ta-amps.workers.dev/)) is the live public-good showcase surface for the `ta-amps` **Track 2: Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
 
 An **agent kit** is a seed pack: task objects (`nouns`) and tasks (`verbs`) generated for one NGO's agent. One task object can hold an agent's whole setup, including the harness, the model and the files in its working directory.
 
@@ -14,11 +14,11 @@ An **agent kit** is a seed pack: task objects (`nouns`) and tasks (`verbs`) gene
 - **Why we built this (problem specificity):** AI models are smart, yet everyday agent use is frustratingly dumb: models miss post-cutoff facts, rewrite non-novel code, and stall on multi-step queues. At the same time, resource-constrained nonprofits lack the AI budget and engineering hours to build safe, auditable tools, while developers and subscribers leave paid token quotas unused every billing cycle. Eranos pairs civic token donation with a shared atomic task and task-object engine ([Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)) and context/model shim ([Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)) so agent work compounds instead of starting from scratch.
 - **Target users:**
   1. **Resource-constrained nonprofits, legal-aid clinics, hotlines and mutual-aid teams** using [Eranos](https://eranos.ta-amps.workers.dev/nonprofits) in plain language, with zero AI setup needed for public-research requests and self-contained local kits for file-touching workflows.
-  2. **Open-source agent builders and token donors** connecting Muse Code, OpenCode, Claude Code or Pi via [Agora](https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/), [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and [Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents).
+  2. **Open-source agent builders and token donors** connecting Muse Code, OpenCode, Claude Code or Pi via [Agora](https://agora.ta-amps.workers.dev/), [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and [Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents).
 - **Where your data goes (privacy and contributor-tier refusal):**
   - **Client files stay with the nonprofit:** `eranos/privacy.py` screens and refuses personal identifiers on public intake. Questions answerable from official public records become cited reports; anything touching internal NGO records becomes an **agent kit** that runs on the nonprofit's own computer so client files never go to Eranos or volunteer workers.
   - **Hard block on training-contributor tiers:** Standard mode is enforced in code (`ContributorTierRefusedError` across Herma and seed-pack runtimes, plus `--contributor-mode off` in Muse Code), refusing `contributor` and `*-contributor` model IDs so sensitive or nonprofit prompts never enter provider training pools.
-  - **Local open-weights option:** Nonprofits and volunteer workers can run open-weights **Llama 3.2 1B and 3B Instruct** (with local PEFT LoRA adapters) offline on a single consumer GPU or laptop, keeping inference 100% local.
+  - **Local open-weights option:** Nonprofits and volunteer workers can run compact Meta open-weights models (**`muse-spark-open`** and **Muse Glimmer 30B** with local PEFT LoRA adapters) offline on a consumer GPU or workstation, keeping inference 100% local.
 
 ## Which Meta models do what
 
@@ -27,19 +27,20 @@ Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-publi
 | Meta model / tool | Role in the system | Measured result & verification |
 | --- | --- | --- |
 | **Muse Glimmer 30B (QLoRA fine-tuned, open weights)** | Specialist typed MCP tool-call adapter trained with `peft` + `bitsandbytes` 4-bit QLoRA on two free Kaggle T4 GPUs (synthetic template data only; unadmitted candidate) | Pre-registered 150-row fresh holdout exact match rose **`93.3% -> 99.3%`** (`+6.0%`, 95% CI `[+2.0%, +10.7%]`), valid JSON **`100.0%`**, 12/12 promotion checks passed ([evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/glimmer-30b-2026-10-29/README.md)) |
-| **Llama 3.2 1B & 3B Instruct (PEFT LoRA fine-tuned, open weights)** | Local continuous tool-call tuning (`torch`, `transformers`, `peft`, `accelerate` on 12 GB RTX 3060), multi-LoRA parametric memory (`load_adapter` / `set_adapter`), and local Herma shim routing for offline NGO kits | Frozen unseen-family holdout exact match rose **`12.0% -> 50.7%`** (1B) and **`52.0% -> 72.7%`** (3B), cutting stringified typed arguments from `17.5%` to `0.0%` ([method & receipts](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine/blob/main/docs/continuous-tuning.md)) |
+| **Compact Meta open weights (`muse-spark-open` & local PEFT LoRA adapters)** | Local continuous tool-call tuning (`torch`, `transformers`, `peft`, `accelerate` on 12 GB RTX 3060), multi-LoRA parametric memory (`load_adapter` / `set_adapter`), and local Herma shim routing for offline NGO kits | Frozen unseen-family holdout exact match rose **`12.0% -> 50.7%`** (1B) and **`52.0% -> 72.7%`** (3B), cutting stringified typed arguments from `17.5%` to `0.0%` ([method & receipts](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine/blob/main/docs/continuous-tuning.md)) |
 | **Muse Spark 1.3 (`api.meta.ai`)** | High-capability worker reasoning for drafting multi-step NGO agent kits, decomposing requests on `eq01`, and auditing source citations on `eq03` (`--contributor-mode off`) | Exercised in authorized worker runs with strict `ContributorTierRefusedError` guardrails ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
 | **Muse Wonder 1.0 (`api.meta.ai`)** | Fast, low-latency worker turns for structured JSON schema validation, synthetic fixture generation, and bounded classification | Configured in Herma's Meta Model API adapter with per-attempt receipt logging ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
 | **Muse Code & nanoMuse** | Native coding-agent harnesses claiming leased verbs over Tessera MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
 | **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Verified all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task receipts, zero paid API calls) ([video QA receipts](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
+| **Official Inference & Compute Partners (Baseten, Fireworks AI & Modal)** | Live **Baseten** (`inference.baseten.co`) `meta-models/muse-spark-open` inference, **Fireworks AI** (`api.fireworks.ai`) multi-LoRA specialist routing, and **Modal** serverless GPU sandboxes & QLoRA/DoRA training | Verified live `HTTP 200` on **Baseten** `meta-models/muse-spark-open` + `partner-compute-cascade` & `partner-compute-telemetry-cards` packs in the `113`-pack library |
 
-## How it works: Tasks and Task Objects (verbs and nouns)
+## How it works: tasks (things to do) and task objects
 
-It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
+It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks (things to do)** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
 
-- **Task Objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, synthetic datasets, LoRA adapters, agent kits and verified reports.
-- **Tasks (`verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic receipt.
-- **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://ta-amps.github.io/agora-public-overview-architecture-setup-and-contribution/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
+- **task objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, practice datasets, LoRA adapters, agent kits and verified reports.
+- **tasks (things to do, `verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic receipt.
+- **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://agora.ta-amps.workers.dev/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
 - **Infrastructure** is the narrow shared engine underneath. **[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and receipts; a lease means only one agent works on a task at a time. **[Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
 
 Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
@@ -80,7 +81,7 @@ anonymous session.
 
 ## Status, October 29, 2026
 
-- **On your computer:** `make check` passes (79 tests passed, 1 skipped). `make verify-examples` takes all fourteen
+- **On your computer:** `make check` passes. `make verify-examples` takes all fifteen
   example kits through building, checking and independent review, and `make record-runs` records one example run per
   kit in `examples/runs/`: example runs on one computer, with synthetic data. Tessera's test suite also passes through
   Eranos's adapter (30 passed, 6 skipped).
@@ -93,10 +94,7 @@ anonymous session.
   site's nonprofit page; the site itself stores no requests. A volunteer checks each request against a track,
   the safety rules and the synthetic-data rule, and one that passes becomes a task brief in [`briefs/`](briefs)
   that an operator puts on the queue.
-- **Update, October 30, 2026:** `make check` passes 106 tests. Tessera and Eranos were redeployed at 06:53 and
-  06:55 UTC with the plain-English one-box request intake on [`/nonprofits`](https://eranos.ta-amps.workers.dev/nonprofits)
-  and five reviewed kits in the hosted catalog; no worker sorts hosted intake requests yet, so new hosted requests
-  wait on `eq01` until an authorized worker claims them.
+- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and verify hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranos.ta-amps.workers.dev/requests)), alongside `113` reusable seed packs (`587` tasks (things to do), `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
 
 ## Help build a kit
 

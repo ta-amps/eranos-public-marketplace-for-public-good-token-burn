@@ -1,7 +1,7 @@
 {
   "display_name": "Tessera",
   "plan": "snapshot",
-  "synthetic": true,
+  "is_example": true,
   "queues": [
     {
       "name": "eq01",
@@ -9,7 +9,7 @@
       "ready": 0,
       "leased": 0,
       "waiting": 0,
-      "done": 14,
+      "done": 15,
       "dead": 0,
       "cancelled": 0
     },
@@ -19,7 +19,7 @@
       "ready": 0,
       "leased": 0,
       "waiting": 0,
-      "done": 14,
+      "done": 15,
       "dead": 0,
       "cancelled": 0
     },
@@ -29,7 +29,7 @@
       "ready": 0,
       "leased": 0,
       "waiting": 0,
-      "done": 14,
+      "done": 15,
       "dead": 0,
       "cancelled": 0
     }

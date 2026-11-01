@@ -1,23 +1,30 @@
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 
-import { SyntheticBanner } from "./components/SyntheticBanner";
+import { Footer } from "./components/Footer";
+import { JudgeTour } from "./components/JudgeTour";
 import { TopBar } from "./components/TopBar";
-import { FABRIC_DISPLAY_NAME, SURFACE_DISPLAY_NAME } from "./config";
-import { AGORA_HOW_IT_WORKS_URL, AGORA_URL } from "./lib/marketplace";
-import type { SiteNoun } from "./lib/nouns";
-import { useSite } from "./lib/useSite";
-import { About } from "./pages/About";
-import { Catalog } from "./pages/Catalog";
+import { SURFACE_DISPLAY_NAME } from "./config";
+import type { ShellNoun, SiteNoun } from "./lib/nouns";
+import { useNoun } from "./lib/useNoun";
 import { CONNECT_TITLE, Connect } from "./pages/Connect";
-import { Contribute } from "./pages/Contribute";
-import { Fabric } from "./pages/Fabric";
 import { Help } from "./pages/Help";
-import { KitDetail } from "./pages/KitDetail";
 import { Nonprofits } from "./pages/Nonprofits";
 import { NotFound } from "./pages/NotFound";
 import { Overview } from "./pages/Overview";
-import { Tracks } from "./pages/Tracks";
-import { AppLink, matchPath, usePath, type RouteMatch } from "./router";
+import { RequestStatus } from "./pages/RequestStatus";
+import { matchPath, usePath, type RouteMatch } from "./router";
+
+// The pages a first visit does not need load on demand, so the home page's first paint carries only its own code.
+const About = lazy(() => import("./pages/About").then((page) => ({ default: page.About })));
+const Catalog = lazy(() => import("./pages/Catalog").then((page) => ({ default: page.Catalog })));
+const Contribute = lazy(() => import("./pages/Contribute").then((page) => ({ default: page.Contribute })));
+const Fabric = lazy(() => import("./pages/Fabric").then((page) => ({ default: page.Fabric })));
+const KitDetail = lazy(() => import("./pages/KitDetail").then((page) => ({ default: page.KitDetail })));
+const YourRequests = lazy(() => import("./pages/YourRequests").then((page) => ({ default: page.YourRequests })));
+const Library = lazy(() => import("./pages/Library").then((page) => ({ default: page.Library })));
+const RequestResult = lazy(() => import("./pages/RequestResult").then((page) => ({ default: page.RequestResult })));
+const Tracks = lazy(() => import("./pages/Tracks").then((page) => ({ default: page.Tracks })));
+const TrustPage = lazy(() => import("./pages/TrustPage").then((page) => ({ default: page.TrustPage })));
 
 function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
   switch (route.name) {
@@ -41,19 +48,34 @@ function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
       return <About />;
     case "connect":
       return <Connect />;
+    case "library":
+      return <Library />;
+    case "yours":
+      return <YourRequests />;
+    case "privacy":
+      return <TrustPage kind="privacy" />;
+    case "terms":
+      return <TrustPage kind="terms" />;
+    case "reportProblem":
+      return <TrustPage kind="report" />;
+    case "request":
+      return <RequestStatus id={route.id} />;
+    case "report":
+      return <RequestResult id={route.id} />;
     case "notFound":
       return <NotFound path={route.path} />;
   }
 }
 
-function pageTitle(route: RouteMatch, site: SiteNoun | null): string {
+/** The tab title; request pages set their own, since it changes to "Your turn · R-…" when a decision waits. */
+function pageTitle(route: RouteMatch, site: SiteNoun | null): string | null {
   switch (route.name) {
     case "overview":
       return site ? `${SURFACE_DISPLAY_NAME} · ${site.title}` : SURFACE_DISPLAY_NAME;
     case "help":
       return `I want to help · ${SURFACE_DISPLAY_NAME}`;
     case "nonprofits":
-      return `Agent kits for nonprofits · ${SURFACE_DISPLAY_NAME}`;
+      return `Tell us what you need · ${SURFACE_DISPLAY_NAME}`;
     case "catalog":
       return `Kit catalog · ${SURFACE_DISPLAY_NAME}`;
     case "kit":
@@ -68,6 +90,19 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string {
       return `About and safety · ${SURFACE_DISPLAY_NAME}`;
     case "connect":
       return CONNECT_TITLE;
+    case "library":
+      return `Shared library · ${SURFACE_DISPLAY_NAME}`;
+    case "yours":
+      return `Your requests · ${SURFACE_DISPLAY_NAME}`;
+    case "privacy":
+      return `Privacy · ${SURFACE_DISPLAY_NAME}`;
+    case "terms":
+      return `Terms · ${SURFACE_DISPLAY_NAME}`;
+    case "reportProblem":
+      return `Report a problem · ${SURFACE_DISPLAY_NAME}`;
+    case "request":
+    case "report":
+      return null;
     case "notFound":
       return `Page not found · ${SURFACE_DISPLAY_NAME}`;
   }
@@ -75,51 +110,25 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string {
 
 export function App() {
   const route = matchPath(usePath());
-  // The site noun (headline, title, intro) loads once here and is passed down.
-  const site = useSite();
+  const site = useNoun<SiteNoun>("site").value;
+  const shell = useNoun<ShellNoun>("shell").value;
   const title = pageTitle(route, site);
   useEffect(() => {
-    document.title = title;
+    if (title) document.title = title;
   }, [title]);
+  const compact = route.name === "request" || route.name === "report";
+  const mainClass = route.name === "overview" ? "er-main er-main-home" : compact ? "er-main er-main-wide" : "er-main";
 
   return (
     <>
-      <a className="er-skip-link" href="#main">
-        Skip to content
-      </a>
-      <SyntheticBanner />
-      <TopBar route={route} site={site} />
-      <main id="main" className="er-main" tabIndex={-1}>
-        <Page route={route} site={site} />
+      <TopBar route={route} shell={shell} compact={compact} />
+      <JudgeTour route={route} />
+      <main id="main" className={mainClass} tabIndex={-1}>
+        <Suspense fallback={null}>
+          <Page route={route} site={site} />
+        </Suspense>
       </main>
-      <footer className="er-footer">
-        <div className="er-footer-inner">
-          <p className="er-muted">
-            {site ? `${site.intro} It runs on` : `${SURFACE_DISPLAY_NAME} runs on`} {FABRIC_DISPLAY_NAME}, the shared
-            infrastructure for tasks, storage and receipts. <a href={AGORA_URL}>Agora</a> explains how everything fits together. Every example is{" "}
-            <code>SYNTHETIC</code>, and people keep every interview and every decision about a person.
-          </p>
-          {site && (
-            <p className="er-muted er-small" data-testid="privacy-line">
-              {site.privacy}
-            </p>
-          )}
-          <nav className="er-footer-links" aria-label="Footer and agent discovery links">
-            <AppLink to="/help">I want to help</AppLink>
-            <AppLink to="/nonprofits">For nonprofits</AppLink>
-            <AppLink to="/catalog">Kit catalog</AppLink>
-            <AppLink to="/tracks">Tracks</AppLink>
-            <AppLink to="/fabric">Work queues</AppLink>
-            <AppLink to="/contribute">Agent setup</AppLink>
-            <AppLink to="/about">About and safety</AppLink>
-            <a href={AGORA_HOW_IT_WORKS_URL}>How it works</a>
-            <a href="/connect">Connect</a>
-            <a href="/llms.txt">llms.txt</a>
-            <a href="/.well-known/agent-card.json">Agent card</a>
-            <a href="/healthz">Health</a>
-          </nav>
-        </div>
-      </footer>
+      <Footer shell={shell} site={site} />
     </>
   );
 }

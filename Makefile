@@ -31,6 +31,11 @@ types: ## mypy strict on eranos/
 test: ## Unit and integration tests
 	uv run pytest -q
 
+# The index links to the repository's public home. Pinned here so every checkout, whatever its git remote,
+# builds and checks the same files (override by setting INDEX_BASE_URL).
+INDEX_BASE_URL ?= https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main
+export INDEX_BASE_URL
+
 index: ## Rebuild INDEX.md, KEYWORDS.md, llms.txt and llms-full.txt from the files
 	python3 scripts/build_index.py
 

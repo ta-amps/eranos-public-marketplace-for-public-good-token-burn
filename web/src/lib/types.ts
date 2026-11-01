@@ -29,6 +29,10 @@ export interface TrackPack {
   domain_label?: string | null;
   summary: string;
   sister_area?: string | null;
+  process_class?: string | null;
+  catalog_kit_ids?: string[];
+  kit_ready?: boolean;
+  process_ready?: boolean;
   organizations: OrgMandate[];
   allowed_artifacts: string[];
   required_human_only: string[];
@@ -160,7 +164,7 @@ export interface PublishedKit extends GovernanceMetadata {
 }
 
 export interface PracticeVerifyResponse {
-  synthetic: boolean;
+  is_example: boolean;
   passed: boolean;
   persisted: false;
   kit_id: string;
@@ -176,13 +180,13 @@ export interface PracticeVerifyResponse {
 }
 
 export interface CatalogResponse {
-  synthetic: boolean;
+  is_example: boolean;
   two_step_verified: boolean;
   kits: PublishedKit[];
 }
 
 export interface TracksResponse {
-  synthetic: boolean;
+  is_example: boolean;
   tracks: TrackPack[];
 }
 
@@ -211,7 +215,7 @@ export interface TaskBrief {
 }
 
 export interface RequestsResponse {
-  synthetic: boolean;
+  is_example: boolean;
   stages: StageSpec[];
   requests: TaskBrief[];
 }
@@ -227,7 +231,7 @@ export interface QueueCount {
   cancelled: number;
 }
 
-/** An organization's need in its own plain words, read from the kit's seed pack (synthetic). */
+/** An organization's need in its own plain words, read from the kit's seed pack (an example). */
 export interface ExampleNeed {
   kit_id: string;
   kit_title: string;
@@ -249,7 +253,7 @@ export interface ExampleRunsSummary {
 }
 
 export interface ExamplesResponse {
-  synthetic: boolean;
+  is_example: boolean;
   needs: ExampleNeed[];
   runs: ExampleRunsSummary | null;
 }
@@ -257,6 +261,6 @@ export interface ExamplesResponse {
 export interface FabricResponse {
   display_name: string;
   plan: string;
-  synthetic: boolean;
+  is_example: boolean;
   queues: QueueCount[];
 }

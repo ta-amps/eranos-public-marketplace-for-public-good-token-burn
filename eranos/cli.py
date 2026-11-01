@@ -359,9 +359,21 @@ def cmd_export_snapshot(target: Path) -> int:
     finally:
         backend.close()
 
+    by_track: dict[str, list[str]] = {}
+    for kit in kits:
+        if "all" in [c.lower() for c in kit.target_cohorts]:
+            by_track.setdefault(kit.kit.track_id, []).append(kit.kit.kit_id)
     tracks_payload = {
         "synthetic": True,
-        "tracks": [p.model_dump(mode="json") for p in load_tracks().values()],
+        "tracks": [
+            {
+                **p.model_dump(mode="json"),
+                "catalog_kit_ids": sorted(by_track.get(p.id, [])),
+                "kit_ready": bool(by_track.get(p.id)),
+                "process_ready": bool(p.process_class),
+            }
+            for p in load_tracks().values()
+        ],
     }
     catalog_payload = {
         "synthetic": True,
@@ -450,6 +462,7 @@ def cmd_export_nouns(targets: list[Path]) -> int:
     from tessera import Store
 
     from eranos.nouns import export_nouns, seed_nouns
+    from eranos.visible import visible_tree
 
     with tempfile.TemporaryDirectory() as tmp:
         store = Store(f"{tmp}/nouns.db")
@@ -459,6 +472,8 @@ def cmd_export_nouns(targets: list[Path]) -> int:
             for target in targets:
                 count = export_nouns(store, target)
                 print(f"wrote {count} nouns to {target / 'nouns'}")
+                # Owner, Oct 31: what the site serves never says "synthetic" (eranos/visible.py).
+                visible_tree(target)
         finally:
             store.close()
     return 0

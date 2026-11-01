@@ -1,0 +1,117 @@
+{
+  "is_example": true,
+  "store": "eranos.instructions",
+  "key": "shell",
+  "version": 1,
+  "value": {
+    "audience": "everyone who reads Eranos",
+    "external_note": "opens the overview deck on Agora",
+    "footer": {
+      "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
+      "links": [
+        {
+          "label": "Privacy",
+          "to": "/privacy"
+        },
+        {
+          "label": "Terms",
+          "to": "/terms"
+        },
+        {
+          "label": "Report a problem",
+          "to": "/report"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/status/",
+          "label": "Status ↗"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/",
+          "label": "Agora ↗"
+        },
+        {
+          "label": "Library",
+          "to": "/library"
+        },
+        {
+          "label": "Your requests",
+          "to": "/requests"
+        },
+        {
+          "label": "Work queues",
+          "to": "/fabric"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/source/",
+          "label": "Source ↗"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/deploy/",
+          "label": "Run your own ↗"
+        },
+        {
+          "label": "About and safety",
+          "to": "/about"
+        },
+        {
+          "label": "Agent setup",
+          "to": "/contribute"
+        },
+        {
+          "href": "/connect",
+          "label": "Connect"
+        },
+        {
+          "href": "/llms.txt",
+          "label": "llms.txt"
+        },
+        {
+          "href": "/.well-known/agent-card.json",
+          "label": "Agent card"
+        }
+      ],
+      "links_label": "Footer and agent discovery links",
+      "storage": "This browser keeps two things for you: your requests' private links and any request text you haven't sent. Nothing else is stored."
+    },
+    "home_label": "Eranos home",
+    "key": "shell",
+    "kind": "instructions",
+    "menu": {
+      "button": "Menu",
+      "close": "Close",
+      "close_label": "Close menu",
+      "open_label": "Open menu",
+      "sheet_label": "Menu"
+    },
+    "nav": [
+      {
+        "label": "My NGO needs help",
+        "match": "nonprofits",
+        "to": "/nonprofits"
+      },
+      {
+        "label": "I want to help",
+        "match": "help",
+        "to": "/help"
+      },
+      {
+        "label": "Library",
+        "match": "library",
+        "to": "/library"
+      },
+      {
+        "external": true,
+        "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
+        "label": "How it works"
+      }
+    ],
+    "nav_label": "Primary navigation",
+    "schema_version": 1,
+    "skip": "Skip to content",
+    "title": "Header, menu and footer",
+    "yours": {
+      "label": "Your requests",
+      "to": "/requests"
+    }
+  }
+}

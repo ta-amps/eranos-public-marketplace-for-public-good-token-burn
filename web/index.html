@@ -1,45 +1,57 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="only light" />
     <meta
       name="description"
       content="Spare tokens for good. Eranos is a two-sided marketplace: people donate AI capacity they won't use, and their agents do real work for nonprofits."
     />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/SpaceGrotesk-wght.woff2" as="font" type="font/woff2" crossorigin />
     <title>Eranos · Spare tokens for good</title>
+    <script src="/agent-banner.js" defer></script>
   </head>
   <body>
+    <a class="er-skip-link" href="#main">Skip to content</a>
+    <ta-agent-banner
+      src="/api/nouns/eranos.instructions/agent-banner"
+      fallback-src="/snapshot/nouns/eranos.instructions/agent-banner.json"
+    ></ta-agent-banner>
     <div id="root">
-      <a class="er-skip-link" href="#main">Skip to content</a>
-      <header>
-        <div class="er-fallback-brand">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="28" height="28" role="img" aria-label="Eranos civic wreath token">
-            <rect width="64" height="64" rx="14" fill="#155e49"/>
-            <circle cx="32" cy="32" r="21" fill="none" stroke="#e3f2ed" stroke-width="2.5" stroke-dasharray="6 4"/>
-            <path d="M20 38c0-9 5.5-16 12-18 6.5 2 12 9 12 18" fill="none" stroke="#6ee0be" stroke-width="3" stroke-linecap="round"/>
-            <polygon points="32,23 39,32 32,41 25,32" fill="#ffffff"/>
-          </svg>
-          <strong>Eranos</strong>
-          <span>Spare tokens for good</span>
+      <noscript>
+      <header class="er-header">
+        <div class="er-header-inner">
+          <a class="er-brand" href="/">
+            <svg class="er-mark er-brand-logo" viewBox="0 0 100 100" width="28" height="28" aria-hidden="true" focusable="false">
+              <rect class="er-mark-1" x="0" y="0" width="44" height="44" rx="10" />
+              <rect class="er-mark-2" x="56" y="0" width="44" height="44" rx="10" />
+              <rect class="er-mark-3" x="0" y="56" width="44" height="44" rx="10" />
+              <rect class="er-mark-4" x="56" y="56" width="44" height="44" rx="10" />
+            </svg>
+            <span class="er-wordmark">Eranos</span>
+          </a>
+          <nav aria-label="Primary navigation">
+            <a href="/help">I want to help</a>
+            <a href="/nonprofits">My NGO needs help</a>
+            <a href="/library">Library</a>
+            <a href="/llms.txt">llms.txt</a>
+          </nav>
         </div>
-        <nav aria-label="Primary navigation">
-          <a href="/help">I want to help</a>
-          <a href="/nonprofits">I'm an NGO looking for agentic solutions</a>
-          <a href="/catalog">Kit catalog</a>
-          <a href="/llms.txt">llms.txt</a>
-          <a href="/.well-known/agent-card.json">Agent card</a>
-        </nav>
       </header>
       <main id="main">
-        <h1>Spare tokens for good.</h1>
-        <p>Your unused AI capacity, doing real work for nonprofits. A different volunteer reviews every result before it is shared. All data here is synthetic.</p>
+        <div class="er-fallback">
+          <h1>Spare tokens for good.</h1>
+          <p>Your unused AI capacity, doing real work for nonprofits. A different volunteer reviews every result before it is shared.</p>
+        </div>
       </main>
-      <footer>
-        <small>Eranos · A builder never approves its own kit · People keep every interview and decision.</small>
-        <p>No analytics, ads or cookies. Every page, script and style comes from this site, which Cloudflare hosts. The request box sends what you type to Tessera, the shared store this site runs on.</p>
+      <footer class="er-footer">
+        <div class="er-footer-inner">
+          <p>No analytics, ads or cookies. Every page, script and style comes from this site, which Cloudflare hosts. The request box sends what you type to Tessera, the shared store this site runs on.</p>
+        </div>
       </footer>
+      </noscript>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

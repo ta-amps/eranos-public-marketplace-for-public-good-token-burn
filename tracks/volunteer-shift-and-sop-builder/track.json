@@ -31,5 +31,6 @@
       "url": "https://www.ready.gov/cert",
       "checked_date": "2026-10-26"
     }
-  ]
+  ],
+  "process_class": "volunteer_shift_coordination"
 }

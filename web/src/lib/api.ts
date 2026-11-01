@@ -1,5 +1,6 @@
 import { SNAPSHOT_DATA } from "virtual:snapshot-data";
 
+import { shownWords } from "./shown";
 import { SNAPSHOT } from "../config";
 import { findBannedWords } from "./copy";
 import {
@@ -20,7 +21,9 @@ export type ApiPath =
   | "/api/tracks"
   | "/api/examples"
   | "/api/requests"
+  | `/api/requests/${string}`
   | "/api/fabric"
+  | "/api/open-tasks"
   | `/api/nouns/${string}`;
 
 export class ApiError extends Error {
@@ -114,7 +117,7 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
       }
       const qIndex = path.indexOf("?");
       const search = qIndex >= 0 ? path.slice(qIndex + 1) : "";
-      return filterCatalogSnapshot(base, search) as unknown as T;
+      return shownWords(filterCatalogSnapshot(base, search)) as unknown as T;
     }
     const key = snapshotKey(path);
     if (!(key in SNAPSHOT_DATA)) {
@@ -124,7 +127,7 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
     if (path.startsWith("/api/catalog/") && found && isQuarantinedEntry(found as PublishedKit)) {
       throw new ApiError(`${path} is quarantined and not in the public catalog.`, 404);
     }
-    return found as T;
+    return shownWords(found) as T;
   }
   const response = await fetch(path, { headers: { accept: "application/json" }, signal });
   if (!response.ok) {
@@ -134,7 +137,7 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
   if (!contentType.toLowerCase().includes("application/json")) {
     throw new ApiError(`${path} returned unexpected content-type ${contentType || "unknown"}`, 502);
   }
-  return (await response.json()) as T;
+  return shownWords(await response.json()) as T;
 }
 
 const STRICT_HUMAN_ONLY_KINDS = new Set([
@@ -217,7 +220,7 @@ async function runSnapshotPracticeVerify(
   checksRun.push(
     "mcp_tool_json_schema",
     "source_citations_https",
-    "synthetic_fixtures_escalation_coverage",
+    "example_fixtures_escalation_coverage",
   );
   for (const tl of tools) {
     if (!tl.read_only) {
@@ -238,12 +241,12 @@ async function runSnapshotPracticeVerify(
     }
   }
   for (const fx of draft.fixtures) {
-    if (!fx.sample_input.includes("SYNTHETIC") && !fx.scenario.includes("SYNTHETIC")) {
-      issues.push(`fixture '${fx.id}' must carry the SYNTHETIC mark`);
+    if (![fx.sample_input, fx.scenario].some((text) => text.includes("Practice case:") || text.includes("SYNTHETIC"))) {
+      issues.push(`fixture '${fx.id}' must carry the practice-case mark`);
     }
   }
   if (!draft.fixtures.some((fx) => fx.expected_human_escalation)) {
-    issues.push("at least one synthetic fixture must test expected_human_escalation=true");
+    issues.push("at least one example test must expect expected_human_escalation=true");
   }
 
   const passed = issues.length === 0;
@@ -258,7 +261,7 @@ async function runSnapshotPracticeVerify(
   const receiptSha256 = await sha256Hex(canonical);
 
   return {
-    synthetic: true,
+    is_example: true,
     passed,
     persisted: false,
     kit_id: draft.kit_id,

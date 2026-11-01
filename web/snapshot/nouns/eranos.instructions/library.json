@@ -1,0 +1,69 @@
+{
+  "is_example": true,
+  "store": "eranos.instructions",
+  "key": "library",
+  "version": 1,
+  "value": {
+    "audience": "nonprofits and volunteers looking for work that is already done",
+    "back": "← Back to {short}",
+    "catalog_link": "Filter every reviewed kit",
+    "check": {
+      "lead": "These may already answer your request.",
+      "read": "Read it now",
+      "read_note": "Found by search. Reading it needs no new agent work.",
+      "send": "Send as a new request",
+      "send_note": "Only if these don't answer it.",
+      "title": "Already answered in the shared library"
+    },
+    "count_many": "{n} results",
+    "count_one": "1 result",
+    "for": "For {who}",
+    "heading": "Shared library",
+    "hide_stored": "Hide how it’s stored",
+    "key": "library",
+    "kind": "instructions",
+    "kinds": {
+      "kit": "Agent kit",
+      "report": "Cited report",
+      "run": "Task"
+    },
+    "lead": "Finished work from nonprofits’ requests, checked by volunteers and free for any nonprofit to use.",
+    "next_body": "When another group asks something similar, the request box checks this library first, so work that is already done is reused instead of done again.",
+    "next_title": "Next time",
+    "none": "Nothing in the library matches yet.",
+    "objects_note": "Reusable things: cited reports and agent kits.",
+    "objects_title": "task objects",
+    "open": "Read it",
+    "reviewed_by": "Approved by {who}, a different volunteer",
+    "run_title": "Run with your own agent: {title}",
+    "schema_version": 1,
+    "search_label": "Search the library",
+    "search_placeholder": "For example: tenant deposit laws",
+    "show_stored": "Show how it’s stored (for volunteers and the curious)",
+    "stored_empty": "Nothing from {short} is in the shared library yet. Parts join it when your team chooses to use them.",
+    "stored_lead": "Tessera is the shared durable task queue and task objects store: every request is a few durable tasks (things to do) and task objects with their own ids. This is the list for {short}.",
+    "stored_objects": "task objects",
+    "stored_rows": {
+      "decisions": "Your team's decisions, in your own space",
+      "kit": "Part {n}: the agent kit (a reusable process)",
+      "own_noun": "Your request as you sent it, in your own space (only your private link reads it)",
+      "plan": "The plan: how the request was split into parts",
+      "public_request": "The public record of your request and each part's state",
+      "report": "Part {n}: the cited report",
+      "request_verb": "The request itself, in the queue for a volunteer's agent to plan",
+      "review": "Part {n}: the check, by a different volunteer",
+      "work": "Part {n}: the work, for one volunteer's agent"
+    },
+    "stored_tasks": "tasks (things to do)",
+    "stored_title": "How request {short} is stored",
+    "tabs": {
+      "all": "All",
+      "objects": "task objects",
+      "tasks": "tasks (things to do)"
+    },
+    "tabs_label": "Show",
+    "tasks_note": "Work your own agent can run again, on your own files.",
+    "tasks_title": "tasks (things to do)",
+    "title": "Shared library"
+  }
+}

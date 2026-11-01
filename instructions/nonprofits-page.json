@@ -1,0 +1,328 @@
+{
+  "schema_version": 1,
+  "kind": "instructions",
+  "key": "nonprofits-page",
+  "audience": "nonprofits, NGOs and public-good groups",
+  "title": "Tell us what you need",
+  "eyebrow": "For nonprofits, NGOs and public-good groups",
+  "heading": "Tell us what you need.",
+  "lead": "In plain words. You don't need your own AI agent to ask.",
+  "form": {
+    "label": "Describe it",
+    "hint": "Describe the job, not the people.",
+    "placeholder": "Choose what would help most above, then describe it in a sentence or two.",
+    "examples_label": "Try an example:",
+    "examples": [
+      {
+        "id": "deposit",
+        "short": "Tenant deposit rules",
+        "output_type": "information",
+        "frequency": "one-off",
+        "text": "Summarize what changed this year in our state’s tenant deposit rules, for our housing counselors, with a source for every point."
+      },
+      {
+        "id": "forms",
+        "short": "Read handwritten intake forms",
+        "output_type": "process",
+        "frequency": "one-off",
+        "text": "Read our scanned, handwritten intake forms and fill one spreadsheet row per form, on our own computer, marking any answer it isn’t sure about."
+      },
+      {
+        "id": "grants",
+        "short": "New grants every month",
+        "output_type": "information",
+        "frequency": "recurring",
+        "cadence": "monthly",
+        "text": "Every month, list the new public grant programs a small food pantry in our county can apply to, with deadlines and eligibility rules, and cite each one."
+      }
+    ],
+    "privacy": "Requests are public. Leave out names, contact details and case details.",
+    "check": {
+      "lead": "This looks like {kinds}.",
+      "ask": "Please take it out before sending.",
+      "kinds": {
+        "email": "an email address",
+        "phone": "a phone number",
+        "identity": "an identity number",
+        "card": "a payment card number",
+        "iban": "a bank account number",
+        "address": "a street address"
+      },
+      "and": " and ",
+      "empty": "We check for names, emails, phone numbers and case details as you type.",
+      "clean": "No names, emails, phone numbers or case details found."
+    },
+    "too_short": {
+      "head": "Tell us a little more.",
+      "body": "What should the result help your team do?"
+    },
+    "name_label": "Your organization's name",
+    "type_label": "Type of organization",
+    "type_placeholder": "For example: tenant legal-aid clinic",
+    "profile_note": "Your private link needs these two answers. Volunteers see the type of organization with your request.",
+    "details_summary": "Add details (optional): public links, causes",
+    "links_label": "Public links, one per line",
+    "links_hint": "One public https link per line, such as a law, a budget or a news page.",
+    "causes_label": "Causes, separated by commas",
+    "consent": "This request has no personal or private information, and I understand requests are public.",
+    "send": "Send request",
+    "sending": "Sending...",
+    "waiting_connection": "Waiting for connection",
+    "after_send": "You'll get a private link to follow your request and make decisions.",
+    "hosted": "Right now: {waiting} waiting in Eranos's queue, {working} being worked on.",
+    "missing": {
+      "need": "Add at least a sentence about the job.",
+      "name": "Add your organization's name.",
+      "type": "Add the type of organization.",
+      "consent": "Please confirm before sending.",
+      "output": "Choose at least one kind of output.",
+      "frequency": "Choose how often you need it.",
+      "cadence": "Choose how often it should run."
+    },
+    "draft_saved": "Your text is saved in this browser.",
+    "placeholders": {
+      "process": "What should the process do, and where will it run? For example: read scanned intake forms on our own computer and fill in our spreadsheet.",
+      "information": "What should it cover, and who is it for? For example: this year’s changes to our state’s tenant deposit rules, for our housing counselors.",
+      "none": "Choose what would help most above, then describe it in a sentence or two."
+    },
+    "min_chars": 20,
+    "ready_note": "You’ll go straight to your request’s own page and can watch it move.",
+    "not_ready": {
+      "lead": "Before sending:",
+      "lead_after": "To send it,",
+      "and": " and ",
+      "output": "choose what would help most",
+      "need": "describe it in a sentence or two",
+      "private": "take out the private details",
+      "consent": "tick the box",
+      "name": "add your organization’s name",
+      "type": "add the type of organization",
+      "improve": "paste the link to the earlier request"
+    }
+  },
+  "states": {
+    "refused": {
+      "head": "We couldn't send this request.",
+      "personal": "It seems to include a person's contact details. Take them out and send again. Nothing was saved.",
+      "other": "Tessera answered: {reason}. Nothing was saved.",
+      "not_filed": "Tessera answered: {reason}. Your request wasn't filed, so no volunteer will see it.",
+      "action": "Edit and send again"
+    },
+    "quota": {
+      "head": "Eranos can't take new requests right now.",
+      "body": "The shared queue is full for today and resets at {time}. Your text is saved in this browser.",
+      "action": "Copy my text",
+      "copied": "Copied."
+    },
+    "rate": {
+      "head": "Too many requests from this connection.",
+      "body": "Please try again after {time}. Your text is saved in this browser."
+    },
+    "offline": {
+      "head": "You're offline.",
+      "body": "Your text is saved in this browser. Send when you're back online."
+    },
+    "snapshot": "This offline copy of the site does not send requests."
+  },
+  "aside": {
+    "next_title": "What happens after you send",
+    "steps": [
+      {
+        "title": "We plan it.",
+        "detail": "A volunteer's agent reads it, refuses personal data, and plans the work in plain words."
+      },
+      {
+        "title": "Volunteers' agents do each part.",
+        "detail": "A part can wait until an agent has spare capacity."
+      },
+      {
+        "title": "A different volunteer checks it.",
+        "detail": "Sensitive processes also wait for a person's sign-off."
+      },
+      {
+        "title": "You decide.",
+        "detail": "A person on your team decides what to use. Reports are not legal advice."
+      }
+    ],
+    "example_link": "See what happens after you send",
+    "example_to": "/requests/example",
+    "kinds_title": "Two kinds of results",
+    "kinds": [
+      {
+        "name": "Information",
+        "line": "a cited answer or report, every point with a public source.",
+        "link": "See an example",
+        "to": "/requests/example/result?part=1"
+      },
+      {
+        "name": "A reusable process",
+        "line": "runs on your own agent and your own files, with instructions, how-to and install.",
+        "link": "See an example",
+        "to": "/requests/example-process/result?part=1"
+      }
+    ],
+    "kits_link": "Browse reviewed example kits",
+    "kits_to": "/catalog"
+  },
+  "bounds": {
+    "head": "We don't accept private information at this stage.",
+    "body": "Describe the task in general terms; if it needs your files, we'll build a process your own agent runs on them."
+  },
+  "output": {
+    "legend": "What would help most?",
+    "hint": "Choose one or both.",
+    "options": [
+      {
+        "value": "information",
+        "label": "Information",
+        "hint": "A cited report or answer, checked by a second volunteer.",
+        "example": "For example: what changed in our state’s tenant deposit rules this year."
+      },
+      {
+        "value": "process",
+        "label": "A reusable process",
+        "hint": "Instructions, setup and tests your own AI agent can run again and again.",
+        "example": "For example: read our scanned intake forms and fill our spreadsheet, on our own computer.",
+        "tip_label": "What is a reusable process?",
+        "tip_title": "A reusable process",
+        "tip": "A ready-to-run package for your own AI agent: what it does, how to run it, how to install it, and tests on example data. You choose where it runs: with your agent, in a container, or in your cloud. Your files stay with you. It is also saved to the shared library, so other groups can use it."
+      }
+    ]
+  },
+  "frequency": {
+    "legend": "How often?",
+    "options": [
+      {
+        "value": "one-off",
+        "label": "Once"
+      },
+      {
+        "value": "recurring",
+        "label": "Regularly"
+      }
+    ],
+    "cadence_label": "How often should it repeat?",
+    "default_cadence": "monthly",
+    "cadences": [
+      {
+        "value": "weekly",
+        "label": "Every week"
+      },
+      {
+        "value": "monthly",
+        "label": "Every month"
+      },
+      {
+        "value": "quarterly",
+        "label": "Every quarter"
+      }
+    ],
+    "help": {
+      "process_once": "You get the process once, ready to run whenever you like.",
+      "process_regular": "We build it to run {every} on your side, with the schedule included.",
+      "information_once": "You get one report, checked by a second volunteer.",
+      "information_regular": "We run it again {every} and add each update to your request’s page.",
+      "none": "Once is most common. Regular requests repeat on a schedule."
+    }
+  },
+  "advanced": {
+    "summary": "Advanced settings",
+    "optional": "optional",
+    "count_none": "none chosen",
+    "count_some": "{n} chosen",
+    "intro": "Tell us what your team already uses. We build for every common setup anyway; your choices decide what we build and test first.",
+    "questions": [
+      {
+        "id": "start",
+        "label": "Is this new, or an improvement?",
+        "pick": "one",
+        "other": false,
+        "default": "Something new",
+        "options": [
+          "Something new",
+          "Improve an earlier request"
+        ]
+      },
+      {
+        "id": "skill",
+        "label": "How comfortable is your team with AI?",
+        "pick": "one",
+        "options": [
+          "New to AI",
+          "We use AI chat assistants",
+          "We have someone technical"
+        ]
+      },
+      {
+        "id": "runs",
+        "label": "Where should it run first?",
+        "pick": "any",
+        "options": [
+          "On our computer",
+          "In our cloud account",
+          "Always on, on a schedule"
+        ]
+      },
+      {
+        "id": "agents",
+        "label": "AI assistants or agents you use",
+        "pick": "any",
+        "options": [
+          "ChatGPT",
+          "Claude",
+          "Meta AI"
+        ]
+      },
+      {
+        "id": "models",
+        "label": "AI models or services you can use",
+        "pick": "any",
+        "options": [
+          "Llama",
+          "An OpenAI-compatible API",
+          "A model on our own computer"
+        ]
+      },
+      {
+        "id": "tools",
+        "label": "Tools your team works in",
+        "pick": "any",
+        "options": [
+          "Google Workspace",
+          "Microsoft 365",
+          "Spreadsheets"
+        ]
+      },
+      {
+        "id": "limits",
+        "label": "Limits",
+        "pick": "any",
+        "options": [
+          "Must work offline",
+          "Free tools only",
+          "A person approves each run"
+        ]
+      }
+    ],
+    "pick_one": "Pick one",
+    "pick_any": "Pick any",
+    "other": {
+      "button": "Other…",
+      "open": "Other ▴",
+      "chosen": "✓ Other: {text}",
+      "placeholder": "Type your own",
+      "aria": "{question}: other"
+    },
+    "improve": {
+      "value": "Improve an earlier request",
+      "link_label": "Link to the earlier request or result",
+      "link_placeholder": "Paste the link, or pick one below",
+      "what_label": "What should be better?",
+      "what_placeholder": "For example: also handle typed forms",
+      "recent_label": "Your recent requests, saved in this browser:",
+      "recent_none": "No requests are saved in this browser."
+    },
+    "footer": "These choices are public with your request. Never add keys, passwords, account names or links to private systems.",
+    "clear": "Clear choices"
+  }
+}

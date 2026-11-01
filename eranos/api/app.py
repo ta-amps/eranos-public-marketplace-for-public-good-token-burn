@@ -41,6 +41,17 @@ from eranos.tracks import load_tracks
 
 KIT_ID_RE = re.compile(KIT_ID)
 NOUN_KEY_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")
+
+
+# Example request addresses show the example request noun, never a real record (REQ-INTAKE-07 is an earlier film's
+# address for the same example).
+EXAMPLE_REQUEST_ALIASES = {
+    "example": "request-example",
+    "example-process": "request-example-process",
+    "REQ-INTAKE-07": "request-example",
+}
+
+
 EDGE_SECRET_ENV = "ERANOS_EDGE_SECRET"  # noqa: S105 - variable name, not a secret
 EDGE_EXEMPT = frozenset(
     {
@@ -62,6 +73,8 @@ EDGE_EXEMPT = frozenset(
         ("HEAD", "/llms-full.txt"),
         ("GET", "/.well-known/agent-card.json"),
         ("HEAD", "/.well-known/agent-card.json"),
+        ("GET", "/.well-known/security.txt"),
+        ("HEAD", "/.well-known/security.txt"),
         ("POST", "/mcp"),
     }
 )
@@ -82,6 +95,14 @@ Allow: /api/tracks
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /.well-known/agent-card.json
+Allow: /.well-known/security.txt
+"""
+
+SECURITY_TXT = """Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
+Expires: 2027-10-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
+Policy: https://eranos.ta-amps.workers.dev/report
 """
 
 SUPPORTED_MCP_PROTOCOLS = frozenset({"2024-11-05", "2025-03-26", "2025-06-18"})
@@ -189,6 +210,11 @@ def healthz() -> dict[str, Any]:
 @app.get("/robots.txt")
 def robots_txt() -> Response:
     return Response(content=ROBOTS_TXT, media_type="text/plain; charset=utf-8")
+
+
+@app.get("/.well-known/security.txt")
+def security_txt() -> Response:
+    return Response(content=SECURITY_TXT, media_type="text/plain; charset=utf-8")
 
 
 @app.get("/llms.txt")
@@ -314,9 +340,25 @@ def handshake() -> dict[str, Any]:
 @app.get("/api/tracks")
 def tracks() -> dict[str, Any]:
     packs = load_tracks()
+    backend = get_adapter()
+    try:
+        kits = filter_published_kits(list_published_kits(backend))
+    finally:
+        backend.close()
+    by_track: dict[str, list[str]] = {}
+    for entry in kits:
+        by_track.setdefault(entry.kit.track_id, []).append(entry.kit.kit_id)
     return {
         "synthetic": True,
-        "tracks": [pack.model_dump(mode="json") for pack in packs.values()],
+        "tracks": [
+            {
+                **pack.model_dump(mode="json"),
+                "catalog_kit_ids": sorted(by_track.get(pack.id, [])),
+                "kit_ready": bool(by_track.get(pack.id)),
+                "process_ready": bool(pack.process_class),
+            }
+            for pack in packs.values()
+        ],
     }
 
 
@@ -464,6 +506,52 @@ def open_requests() -> dict[str, Any]:
             for s in STAGES
         ],
         "requests": rows,
+    }
+
+
+def _annotate_request_events(value: Any) -> Any:
+    if not isinstance(value, dict) or not isinstance(value.get("events"), list):
+        return value
+    prev_ver = 0
+    annotated: list[Any] = []
+    for idx, ev in enumerate(value["events"], start=1):
+        if not isinstance(ev, dict):
+            annotated.append(ev)
+            continue
+        ver = ev.get("version")
+        skipped = ver - prev_ver - 1 if isinstance(ver, int) and ver > prev_ver + 1 else 0
+        if isinstance(ver, int) and ver > prev_ver:
+            prev_ver = ver
+        row = {**ev, "step_index": idx}
+        if skipped > 0:
+            row["skipped_internal_versions"] = skipped
+        annotated.append(row)
+    return {**value, "events": annotated}
+
+
+@app.get("/api/requests/{request_id}")
+def request_status(request_id: str) -> dict[str, Any]:
+    """One request as its public record holds it, or the example request for the example addresses."""
+    if not NOUN_KEY_RE.fullmatch(request_id):
+        raise HTTPException(status_code=400, detail="invalid request id")
+    page = f"/requests/{request_id}"
+    if request_id in EXAMPLE_REQUEST_ALIASES:
+        found = noun("eranos.instructions", EXAMPLE_REQUEST_ALIASES[request_id])
+        return {"example": True, "request_id": request_id, "page": page, "value": found["value"]}
+    try:
+        found = noun("eranos.requests", request_id)
+    except HTTPException as exc:
+        raise HTTPException(status_code=404, detail=f"request {request_id} is not found") from exc
+    return {
+        "example": False,
+        "request_id": request_id,
+        "page": page,
+        "history_note": (
+            "Public history lists public_commons checkpoints with contiguous step_index 1..N; "
+            "skipped storage version numbers reflect pre-screening surface_only writes or internal occurrence checkpoints."
+        ),
+        "value": _annotate_request_events(found["value"]),
+        "versions": [],
     }
 
 
