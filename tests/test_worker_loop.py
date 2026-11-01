@@ -6,12 +6,14 @@ need ERANOS_WORKERD_TESSERA (a Tessera checkout with node_modules) and are skipp
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import os
 import time
 from pathlib import Path
 from typing import Any
+from unittest import mock
 
 import pytest
 from support.workerd_fabric import (
@@ -183,6 +185,39 @@ def test_contributor_tier_and_remote_models_are_refused() -> None:
         OllamaModel(url="https://api.example.com")
 
 
+def test_a_process_reviewer_refuses_to_start_without_trusted_builder_keys(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    class Handler:
+        def build_process(self, request: Any, plan_part: Any) -> dict[str, Any]:
+            raise AssertionError("not called")
+
+    config = WorkerConfig(
+        role="reviewer",
+        label="r",
+        tessera_url="http://127.0.0.1:9",
+        key="x",
+        key_id="k_reviewer",
+        trace_path=str(tmp_path / "r.jsonl"),
+    )
+    start = {"backend": object(), "heartbeat_backend": object()}
+    monkeypatch.delenv(process_part.BUILDER_KEYS_ENV, raising=False)
+    with pytest.raises(process_part.BuilderKeysMissing, match=process_part.BUILDER_KEYS_ENV):
+        Worker(config, handler=Handler(), **start)
+    monkeypatch.setenv(process_part.BUILDER_KEYS_ENV, " , ")
+    with pytest.raises(process_part.BuilderKeysMissing):
+        Worker(config, handler=Handler(), **start)
+    monkeypatch.setenv(process_part.BUILDER_KEYS_ENV, " k_builder , ")
+    assert Worker(config, handler=Handler(), **start).process_builder_keys == frozenset(
+        {"k_builder"}
+    )
+    monkeypatch.delenv(process_part.BUILDER_KEYS_ENV)
+    Worker(config, handler=process_part.StubHandler(), **start)  # no handler: nothing to trust
+    Worker(
+        dataclasses.replace(config, role="builder"), handler=Handler(), **start
+    )  # builders need no list
+
+
 # whole flows on a local Tessera (workerd) ------------------------------------------------------------
 needs_workerd = pytest.mark.skipif(
     not available(), reason="set ERANOS_WORKERD_TESSERA to a Tessera checkout with node_modules"
@@ -212,13 +247,17 @@ def _executions(fabric: Any, task_id: str) -> list[dict[str, Any]]:
 
 def _workers(fabric: Any, *, model: Any = None, handler: Any = None) -> dict[str, Worker]:
     fetcher = fixture_fetcher({RULES_URL: RULES_HTML})
-    return {
+    workers = {
         "planner": fabric.worker("planner", handler=handler),
         "builder": fabric.worker(
             "builder", model=model or FakeModel(), fetcher=fetcher, handler=handler
         ),
-        "reviewer": fabric.worker("reviewer", fetcher=fetcher, handler=handler),
     }
+    # A reviewer with a process handler starts only with the builder keys it trusts.
+    builder_keys = {process_part.BUILDER_KEYS_ENV: fabric.keys["builder"]["key_id"]}
+    with mock.patch.dict(os.environ, builder_keys):
+        workers["reviewer"] = fabric.worker("reviewer", fetcher=fetcher, handler=handler)
+    return workers
 
 
 @needs_workerd

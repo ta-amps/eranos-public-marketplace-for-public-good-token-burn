@@ -32,9 +32,24 @@ from eranos.pipeline.run import SelfReviewRefused
 
 HANDLER_ENV = "ERANOS_PROCESS_HANDLER"
 CATALOG_STORE = "eranos.catalog"
-BUILDER_KEYS_ENV = (
-    "ERANOS_PROCESS_BUILDER_KEYS"  # optional: the builder key ids this reviewer trusts
+# Required for any reviewer that runs a process handler: the builder key ids it trusts.
+BUILDER_KEYS_ENV = "ERANOS_PROCESS_BUILDER_KEYS"
+BUILDER_KEYS_REQUIRED = (
+    f"{BUILDER_KEYS_ENV} must name the builder key ids this reviewer trusts (comma-separated) "
+    "before a reviewer runs the process handler"
 )
+
+
+class BuilderKeysMissing(RuntimeError):
+    """A reviewer with a process handler was started without its trusted builder keys."""
+
+
+def trusted_builder_keys(raw: str | None = None) -> frozenset[str]:
+    """The builder key ids named in ERANOS_PROCESS_BUILDER_KEYS (or `raw`), without blanks."""
+    text = os.environ.get(BUILDER_KEYS_ENV, "") if raw is None else raw
+    return frozenset(k.strip() for k in text.split(",") if k.strip())
+
+
 BUILD_KIND, REVIEW_KIND = "process", "process_review"
 NOT_IMPLEMENTED = "process packages are not built yet: no process handler (build B4) is installed"
 
@@ -195,7 +210,14 @@ def reviewed_value(handler: Any, value: Any, review: dict[str, Any]) -> Any:
     }
 
 
-def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> dict[str, Any]:
+def review_package(
+    backend: Any,
+    lease: Any,
+    *,
+    handler: Any,
+    key_id: str,
+    trusted_keys: frozenset[str] | None = None,
+) -> dict[str, Any]:
     """A different key checks the package with the handler's own review, then publishes it."""
     build = lease.dependencies[0]
     request_id, part = str(lease.brief["request_id"]), lease.brief.get("part")
@@ -237,10 +259,13 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
     verdict: dict[str, Any] = {}
     ids: dict[str, Any] = {}
     records: dict[str, Any] = {}
+    trusted = trusted_keys if trusted_keys is not None else trusted_builder_keys()
     if not callable(review) or not callable(expected):
         findings.append(
             "no independent process check is installed (review_process, expected_records)"
         )
+    elif not trusted:
+        findings.append(BUILDER_KEYS_REQUIRED)
     else:
         # Nothing in the build output is trusted: ids, stores and keys come from the planner's brief,
         # and the bundle is fetched by its digest into this reviewer's own folder.
@@ -259,9 +284,6 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
                 name: {"value": rec.value, "owner_key_id": getattr(rec, "owner_key_id", None)}
                 for name, rec in stored.items()
             }
-            trusted = {
-                k for k in os.environ.get(BUILDER_KEYS_ENV, "").split(",") if k.strip()
-            } or None
             with tempfile.TemporaryDirectory(prefix="eranos-process-review-") as tmp:
                 fetched = Path(tmp) / "bundle.tar.gz"
                 fetched.write_bytes(backend.get_blob(str(package.get("blob_sha256") or "")))
