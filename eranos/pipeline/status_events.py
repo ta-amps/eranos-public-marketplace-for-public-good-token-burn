@@ -1,20 +1,21 @@
 """Status facts for a request's public record: every state change is a new version of the request noun.
 
-Each fact is appended to `eranos.requests/<request_id>`'s `events` list in the request-status page's
-own shape (web/src/lib/status/types.ts `StatusEvent`): `type`, `at` (Unix seconds), `part`, and a
+Each fact is written as its own version of `eranos.requests/<request_id>`, as that version's
+`event`, in the request-status page's own shape (`docs/status-events.schema.json`, `StatusEvent`): `type`, `at` (Unix seconds), `part`, and a
 `receipt` hash Tessera wrote or, where Tessera writes none, a `ref` to the record that holds the fact;
 plus `worker`, `model`, `lease_ends`, `places`, `queue`, `summary`, `reason`, `findings` and
-`result_id` where they apply. Types used here, in the order a request meets them:
+`result_id` where they apply, and `dedicated: true` when one of Eranos's own dedicated workers
+made the claim. Only the page's own types are used, in the order a request meets them:
 
-    received, plan_claimed, planned, blocked, reused, work_claimed, heartbeat, work_submitted,
-    work_failed, work_released, check_claimed, check_approved, check_sent_back, signoff_required,
-    delivered, published, added, scheduled, closed
+    received, plan_claimed, planned, queued, blocked, work_claimed, heartbeat, work_submitted,
+    work_released, check_claimed, check_approved, check_sent_back, check_refused,
+    signoff_required, delivered, published, library_added, closed
 
-`reused`, `work_failed`, `added` and `scheduled` are additions to the page's list: an existing
-reviewed answer was delivered, a verb failed (its ok=false receipt), the result's nouns entered the
-library, and a recurring request was parked until its next occurrence. A fact is written with the
-request's other fields (status, parts) in one compare-and-set write, retried on a version conflict
-and never overwritten. The newest MAX_EVENTS facts are kept; the noun's history keeps every version.
+A reused answer is `delivered` with the reuse in its `reason` and `summary`; a failed attempt is
+`work_released` (its ok=false receipt, when there is one); a self-approval Tessera or the worker
+refused is `check_refused`; a recurring request parked until its next occurrence is `queued` with
+`summary.next_at`. Each fact is one compare-and-set write, retried on a version conflict and never
+overwritten. The newest MAX_EVENTS facts are also kept in `events`; the history keeps every version.
 """
 
 from __future__ import annotations
@@ -27,7 +28,7 @@ from tessera import NotFound, VersionConflict
 
 from eranos.pipeline.request_noun import FINAL, REQUESTS_STORE, read_request, write_request
 
-MAX_EVENTS = 300
+MAX_EVENTS = 100
 MAX_HEARTBEATS = 3
 _ATTEMPTS = 8
 
@@ -67,21 +68,53 @@ def record_events(
     parts: dict[str, dict[str, Any]] | None = None,
     fields: dict[str, Any] | None = None,
 ) -> int | None:
-    """Append facts (and optionally a status, part updates or fields) as one new noun version."""
+    """Record each fact as its own new version of the request noun, carrying it as `event`.
+
+    The request-status page reads the noun's history and draws one fact per version
+    (`docs/status-events.schema.json`), so several facts become several versions, in order. The
+    status, part updates and fields go with the last of them. `events` keeps the newest facts in
+    one place too, for readers of the current version only.
+    """
+    version: int | None = None
+    for index, event in enumerate(events):
+        last = index == len(events) - 1
+        version = _record_one(
+            backend,
+            request_id,
+            event,
+            status=status if last else None,
+            parts=parts if last else None,
+            fields=fields if last else None,
+        )
+        if version is None:
+            return None
+    return version
+
+
+def _record_one(
+    backend: Any,
+    request_id: str,
+    event: dict[str, Any],
+    *,
+    status: str | None,
+    parts: dict[str, dict[str, Any]] | None,
+    fields: dict[str, Any] | None,
+) -> int | None:
     for attempt in range(_ATTEMPTS):
         current = read_request(backend, request_id)
         if current is None:
             return None
         value, version = current
         value = dict(value)
-        stamped = [{**event, "version": version + 1} for event in events]
-        history = [*(value.get("events") or []), *stamped]
-        if any(e.get("type") == "heartbeat" for e in stamped):
+        stamped = {**event, "version": version + 1}
+        history = [*(value.get("events") or []), stamped]
+        if stamped.get("type") == "heartbeat":
             # Liveness, not history: keep only the newest few heartbeats so the record stays small.
             beats = [i for i, e in enumerate(history) if e.get("type") == "heartbeat"]
             drop = set(beats[:-MAX_HEARTBEATS])
             history = [e for i, e in enumerate(history) if i not in drop]
         value["events"] = history[-MAX_EVENTS:]
+        value["event"] = stamped
         if fields:
             value.update(fields)
         if parts:
@@ -108,7 +141,7 @@ def record_events(
         except NotFound:
             return None
     raise VersionConflict(
-        f"{REQUESTS_STORE}/{request_id} kept changing; {len(events)} facts not recorded"
+        f"{REQUESTS_STORE}/{request_id} kept changing; a {event.get('type')} fact was not recorded"
     )
 
 

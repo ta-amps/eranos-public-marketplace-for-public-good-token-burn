@@ -40,7 +40,7 @@ from tessera import (
 )
 from tessera.client import Client, _retry_after
 
-from eranos import __version__
+from eranos import __version__, config
 from eranos.adapter.traced import TracedBackend
 from eranos.log import TraceWriter
 from eranos.model_client import (
@@ -53,6 +53,7 @@ from eranos.model_client import (
 from eranos.pipeline import process as process_part
 from eranos.pipeline import research
 from eranos.pipeline.planner import Planner, load_nouns
+from eranos.pipeline.run import SelfReviewRefused
 from eranos.pipeline.status_events import fact, queue_snapshot, record_events
 from eranos.sources import Fetched, fetch, policy_from_rules
 
@@ -379,7 +380,12 @@ class Worker:
         """How this worker appears on a request's record: a dedicated worker run by ta-amps, or a
         volunteer's agent; the model each declares is in the facts that name the work."""
         if self.config.dedicated:
-            return {"worker": self.config.display, "worker_kind": "dedicated", "run_by": "ta-amps"}
+            return {
+                "worker": self.config.display,
+                "dedicated": True,
+                "worker_kind": "dedicated",
+                "run_by": "ta-amps",
+            }
         return {"worker": self.config.display, "worker_kind": "volunteer"}
 
     def rules(self) -> dict[str, Any]:
@@ -689,6 +695,7 @@ class Worker:
                     worker=self.config.display,
                     nouns=load_nouns(gate),
                     handler=self.handler,
+                    who=self.who(),
                 ).run()
             elif self.config.role == "builder":
                 outcome = self.build(gate, lease, meter, notes, part, request_id)
@@ -768,7 +775,9 @@ class Worker:
                 lease_lost=beat.lost is not None or gate.ended == "lost",
             )
             if request_id and not self.stop.is_set():
-                kind = "work_released" if receipt is None else "work_failed"
+                # A self-approval that was refused is the page's check_refused; any other failure
+                # puts the verb back in line (work_released), citing its ok=false receipt if any.
+                kind = "check_refused" if isinstance(exc, SelfReviewRefused) else "work_released"
                 record_events(
                     self.backend,
                     request_id,
@@ -862,7 +871,7 @@ class Worker:
                 request_id,
                 [
                     fact(
-                        "work_failed",
+                        "work_released",
                         part=part,
                         receipt=receipt.receipt_hash,
                         **self.who(),
@@ -921,11 +930,7 @@ class Worker:
         who, status = self.config.display, out.get("status")
         receipt = out.get("receipt") or out.get("review_receipt")
         tasks = [d.task_id for d in lease.dependencies] + [lease.task_id]
-        kind = (
-            {"worker_kind": "dedicated", "run_by": "ta-amps"}
-            if self.config.dedicated
-            else {"worker_kind": "volunteer"}
-        )
+        kind = {k: v for k, v in self.who().items() if k != "worker"}
         builder = lease.dependencies[0].completed_by_key if lease.dependencies else None
         work_by = (
             "a dedicated worker (run by ta-amps)"
@@ -944,10 +949,11 @@ class Worker:
                 ),
                 fact("delivered", part=part, receipt=receipt, ref=ref, result_id=out["report_id"]),
                 fact(
-                    "added",
+                    "library_added",
                     part=part,
                     receipt=receipt,
                     ref=ref,
+                    library_ref=f"{config.surface_public_url()}/api/nouns/eranos.solutions/{out['report_id']}",
                     result_id=out["report_id"],
                     summary={
                         "nouns": [
@@ -972,10 +978,11 @@ class Worker:
                 ),
                 fact("published", part=part, receipt=receipt, ref=ref, result_id=key),
                 fact(
-                    "added",
+                    "library_added",
                     part=part,
                     receipt=receipt,
                     ref=ref,
+                    library_ref=f"{config.surface_public_url()}/api/catalog/{key}",
                     result_id=key,
                     summary={"nouns": [ref], "tasks": tasks},
                 ),

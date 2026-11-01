@@ -73,6 +73,7 @@ def update_request_status(backend: Any, request_id: str, status: str, **fields: 
         value, version = current
         if value.get("status") in FINAL and status not in FINAL:
             return version
+        value.pop("event", None)  # a version without a new fact carries no event (status page)
         try:
             return write_request(
                 backend, request_id, {**value, **fields, "status": status}, expected_version=version
@@ -93,6 +94,7 @@ def update_request_part(
         if current is None:
             return None
         value, version = current
+        value.pop("event", None)  # a version without a new fact carries no event (status page)
         parts = dict(value.get("parts") or {})
         entry = dict(parts.get(str(part)) or {})
         if entry.get("status") in {"published", "delivered"}:

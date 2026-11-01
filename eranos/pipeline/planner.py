@@ -90,9 +90,11 @@ class Planner:
         nouns: dict[str, dict[str, Any]],
         tracks_root: Path | None = None,
         handler: Any = None,
+        who: dict[str, Any] | None = None,
     ) -> None:
         self.b = backend
         self.handler = handler
+        self.who = dict(who or {"worker": worker})
         self.lease = lease
         self.worker = worker
         self.rules = nouns["worker"]
@@ -119,7 +121,7 @@ class Planner:
             "plan_claimed",
             at=self.lease.claimed_at,
             receipt=self.lease.claim_receipt,
-            worker=self.worker,
+            **self.who,
             model="deterministic planner (no model)",
             lease_ends=self.lease.expires_at,
             queue=queue_snapshot(self.b, [self.worker]),
@@ -230,7 +232,7 @@ class Planner:
                 fact(
                     "planned",
                     receipt=self.lease.claim_receipt,
-                    worker=self.worker,
+                    **self.who,
                     parts=plan,
                     places=places,
                     summary={
@@ -241,7 +243,14 @@ class Planner:
                     queue=queue_snapshot(self.b),
                     occurrence=occurrence if self.terms.get("frequency") == "recurring" else None,
                     ref=f"{PLANS_STORE}/{self.request_id}",
-                )
+                ),
+                fact(
+                    "queued",
+                    **self.who,
+                    places=places,
+                    ref=f"{PLANS_STORE}/{self.request_id}",
+                    summary={"places": "estimated", "parts": len(places)},
+                ),
             ],
             status="open_for_build",
             parts={
@@ -382,7 +391,7 @@ class Planner:
                 fact(
                     "blocked",
                     receipt=receipt.receipt_hash,
-                    worker=self.worker,
+                    **self.who,
                     findings=findings,
                     ref=f"{PLANS_STORE}/{self.request_id}",
                 )
@@ -438,22 +447,21 @@ class Planner:
         self._facts(
             [
                 fact(
-                    "reused",
-                    part=1,
-                    receipt=receipt.receipt_hash,
-                    worker=self.worker,
-                    ref=result_ref,
-                    result_id=match.key,
-                    summary={"score": match.score, "new_verbs": 0, "model_tokens": 0},
-                ),
-                fact(
                     "delivered" if match.kind == "report" else "published",
                     part=1,
                     receipt=receipt.receipt_hash,
+                    **self.who,
                     ref=result_ref,
                     result_id=match.key,
+                    reason="Found an existing reviewed answer: no new work and no new tokens.",
+                    summary={
+                        "reused": True,
+                        "score": match.score,
+                        "new_verbs": 0,
+                        "model_tokens": 0,
+                    },
                 ),
-                fact("closed", receipt=receipt.receipt_hash, worker=self.worker),
+                fact("closed", receipt=receipt.receipt_hash, **self.who),
             ],
             status="closed",
             parts={"1": part},
@@ -547,10 +555,10 @@ class Planner:
             self._facts(
                 [
                     fact(
-                        "work_failed",
+                        "check_sent_back",
                         part=d.get("part"),
                         ref=f"{d['task_id']} publication",
-                        worker=self.worker,
+                        **self.who,
                         reason=f"approved, but not published: {d['error']}",
                         summary={"role": "planner"},
                     )
@@ -576,7 +584,7 @@ class Planner:
                 fact(
                     "closed",
                     receipt=closed["receipt"],
-                    worker=self.worker,
+                    **self.who,
                     summary={"parts": len(outcomes)},
                 )
             ],
@@ -605,9 +613,10 @@ class Planner:
             occurrences,
             [
                 fact(
-                    "scheduled",
+                    "queued",
+                    reason=f"Recurring: the next occurrence starts at {time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(float(due)))}.",
                     ref=f"{self.request_id} park {view.parks}",
-                    worker=self.worker,
+                    **self.who,
                     summary={
                         "next_at": round(float(due), 3),
                         "occurrence": int(occurrences[-1]["n"]) + 1,
@@ -630,7 +639,7 @@ class Planner:
         if not recurring or int(latest["n"]) >= limit:
             closed = _close(self.b, self.lease)
             self._store_occurrences(
-                occurrences, [fact("closed", receipt=closed["receipt"], worker=self.worker)]
+                occurrences, [fact("closed", receipt=closed["receipt"], **self.who)]
             )
             return closed
         due = float(latest.get("next_at") or 0)

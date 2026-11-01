@@ -201,6 +201,32 @@ def fabric(tmp_path_factory: pytest.TempPathFactory) -> Any:
         yield running
 
 
+# The request-status page's event types (docs/status-events.schema.json at the redesign's 2a1510b).
+SCHEMA_TYPES = {
+    "received",
+    "plan_claimed",
+    "plan_released",
+    "planned",
+    "blocked",
+    "queued",
+    "work_claimed",
+    "work_released",
+    "work_submitted",
+    "check_claimed",
+    "in_review",
+    "check_approved",
+    "check_sent_back",
+    "check_refused",
+    "signoff_required",
+    "signed_off",
+    "delivered",
+    "published",
+    "library_added",
+    "decided",
+    "heartbeat",
+    "closed",
+    "withdrawn",
+}
 PUBLIC_STORES = (
     "eranos.requests",
     "eranos.plans",
@@ -285,16 +311,25 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
         "received",
         "plan_claimed",
         "planned",
+        "queued",
         "work_claimed",
         "work_submitted",
         "check_claimed",
         "check_approved",
         "delivered",
-        "added",
+        "library_added",
         "plan_claimed",
         "closed",
     ]
     assert all(e.get("receipt") or e.get("ref") for e in record["events"])
+    # The page reads the history: every version after the first carries one event, of its own types.
+    history = fabric.get(f"/v1/stores/eranos.requests/records/{rid}/history")["versions"]
+    carried = [h["value"]["event"]["type"] for h in history if "event" in h["value"]]
+    assert carried == _types(record) and set(carried) <= SCHEMA_TYPES
+    added = next(e for e in record["events"] if e["type"] == "library_added")
+    assert added["library_ref"].endswith(
+        f"/api/nouns/eranos.solutions/{plan['parts'][0]['report_id']}"
+    )
     claimed = next(e for e in record["events"] if e["type"] == "work_claimed")
     assert (
         claimed["worker"] == "test-builder"
@@ -359,7 +394,9 @@ def test_reworded_repeat_is_answered_from_stored_work_with_no_new_verbs_or_token
         assert sum(after["queues"][queue].values()) == sum(before["queues"][queue].values()), queue
     record = _record(fabric, rid)
     assert record["status"] == "closed" and record["reused_from"]["store"] == "eranos.solutions"
-    assert _types(record)[-3:] == ["reused", "delivered", "closed"]
+    assert _types(record)[-2:] == ["delivered", "closed"] and set(_types(record)) <= SCHEMA_TYPES
+    delivered = next(e for e in record["events"] if e["type"] == "delivered")
+    assert delivered["summary"]["reused"] is True and delivered["summary"]["model_tokens"] == 0
     task = fabric.get(f"/v1/tasks/{rid}")
     assert task["state"] == "done" and task["pending_children"] == 0
     report = _executions(fabric, rid)[0]["report"]
@@ -467,7 +504,13 @@ def test_process_request_with_a_handler_is_built_reviewed_and_published(
                 f"{role}: {outcome}; build {[(r['ok'], r['error']) for r in results]}; review {[(r['ok'], r['error']) for r in reviews]}"
             )
     record = _record(fabric, rid)
-    assert _types(record)[-5:] == ["check_approved", "published", "added", "plan_claimed", "closed"]
+    assert _types(record)[-5:] == [
+        "check_approved",
+        "published",
+        "library_added",
+        "plan_claimed",
+        "closed",
+    ]
     ids = handler.expected_records({"request_id": rid}, {"part": 1})
     stored = fabric.get(f"/v1/stores/eranos.processes/records/{ids['catalog_record']['key']}")
     assert stored["visibility_scope"] == "public_commons" and stored["value"]["review_receipt"]
@@ -529,7 +572,7 @@ def test_film_data_cleaning_request_is_built_reviewed_published_and_reused(
     assert _types(record)[-5:] == [
         "check_approved",
         "published",
-        "added",
+        "library_added",
         "plan_claimed",
         "closed",
     ], _types(record)
@@ -620,7 +663,7 @@ def test_volunteers_get_first_pick_and_a_dedicated_worker_claims_after_the_grace
         and claim["worker_kind"] == "dedicated"
         and claim["run_by"] == "ta-amps"
     )
-    assert claim["model"].startswith("fake-llama")
+    assert claim["model"].startswith("fake-llama") and claim["dedicated"] is True
     assert first != second
 
 
@@ -688,7 +731,7 @@ def test_a_key_that_researched_a_report_can_never_approve_it(fabric: Any) -> Non
     part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
     review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
     assert review["ok"] is False and "may not review" in review["error"]
-    assert reviewer.stats["failed"] == 1 and "work_failed" in _types(_record(fabric, rid))
+    assert reviewer.stats["failed"] == 1 and "check_refused" in _types(_record(fabric, rid))
     other = fabric.worker(
         "reviewer2", fetcher=fetcher
     )  # a different key may, once the retry is due

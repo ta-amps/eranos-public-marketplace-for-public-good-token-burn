@@ -439,6 +439,7 @@ def test_dedicated_grace_is_counted_from_when_the_verb_was_queued(tmp_path: Path
     assert worker.grace_wait(["research"]) is None  # not a kind this worker claims
     assert worker.who() == {
         "worker": "dedicated worker 2 (run by ta-amps)",
+        "dedicated": True,
         "worker_kind": "dedicated",
         "run_by": "ta-amps",
     }
