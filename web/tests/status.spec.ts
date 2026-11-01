@@ -252,6 +252,8 @@ test.describe("on the hosted build", () => {
       ];
       await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the deposit rules. List the new grant deadlines." } });
       await page.goto(`/requests/${REQUEST_ID}`);
+      // The reused answer is in "Ready for you", folded while another part is still being made: open it.
+      if ((await page.getByTestId("band-toggle-4").getAttribute("aria-expanded")) !== "true") await page.getByTestId("band-toggle-4").click();
       const reused = page.getByTestId("reused-1");
       await expect(reused).toContainText("Answered from the library with no new work.");
       await expect(reused.getByRole("link")).toHaveAttribute("href", "/api/nouns/eranos.solutions/RPT-REUSED-01");

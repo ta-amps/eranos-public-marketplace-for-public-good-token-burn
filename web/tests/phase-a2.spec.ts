@@ -1,5 +1,6 @@
 import fs from "node:fs";
 
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
 import { LIVE, mockSite } from "./support/mocks";
@@ -225,6 +226,8 @@ test.describe("part 2 pages", () => {
   test("the build band links 'Which model does what ↗' after 'One helper at a time. Every step is recorded.'", async ({ page }) => {
     await page.goto("/requests/example?moment=review");
     const band = page.locator("#step-build");
+    // The build step is done and folded at this moment: open it.
+    await page.getByTestId("band-toggle-2").click();
     await expect(band).toContainText("One helper at a time. Every step is recorded.");
     await expect(band.getByRole("link", { name: "Which model does what ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/models/");
   });
@@ -327,4 +330,67 @@ test("C2: an ⓘ tip shown by hover hides on Escape, wherever focus is", async (
   await expect(tip.locator(".er-tip-text")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(tip.locator(".er-tip-text")).toBeHidden();
+});
+
+test.describe("the request page's bands are an accordion (owner, Nov 1)", () => {
+  const toggle = (page: Page, n: number) => page.getByTestId(`band-toggle-${n}`);
+
+  test("on load only the current step is open, and every header keeps its one-line status", async ({ page }) => {
+    await page.goto("/requests/example?moment=your-turn");
+    await expect(toggle(page, 4)).toHaveAttribute("aria-expanded", "true");
+    for (const n of [1, 2, 3]) await expect(toggle(page, n)).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByTestId("band-status-1")).toHaveText(/^Done · /);
+    await expect(page.getByTestId("band-status-4")).toHaveText("Your turn to decide");
+    await expect(page.locator("#band-1-body")).toBeHidden();
+    await expect(page.locator("#band-4-body")).toBeVisible();
+  });
+
+  test("a recorded fact folds the finished step and opens the next; a section opened by hand stays open", async ({ page }) => {
+    await page.goto("/requests/example?speed=4");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true", { timeout: 15_000 });
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "false");
+    await toggle(page, 1).click();
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+    await expect(toggle(page, 3)).toHaveAttribute("aria-expanded", "true", { timeout: 15_000 });
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("an anchor or a station opens its section and scrolls it clear of the track", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 613 });
+    await page.goto("/requests/example?moment=your-turn#step-build");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true");
+    await expect(toggle(page, 4)).toHaveAttribute("aria-expanded", "true");
+    const clear = async (n: number) =>
+      page.evaluate((id) => {
+        const band = document.getElementById(id)?.getBoundingClientRect();
+        const track = document.querySelector("[data-testid='request-track']")?.getBoundingClientRect();
+        return Boolean(band && track && band.top >= track.bottom - 1 && band.top < window.innerHeight);
+      }, ["step-split", "step-build", "step-review", "step-ready"][n - 1] ?? "step-split");
+    await expect.poll(() => clear(2)).toBe(true);
+    await page.getByTestId("request-track").locator('li[data-step="0"] a').click();
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+    await expect.poll(() => clear(1)).toBe(true);
+  });
+
+  test("keyboard: Enter and Space open and close a section", async ({ page }) => {
+    await page.goto("/requests/example?moment=your-turn");
+    await toggle(page, 1).focus();
+    await page.keyboard.press("Enter");
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Space");
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "false");
+  });
+
+  test("reduced motion: a section a fact opens appears at once, with no animation; axe finds nothing serious", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto("/requests/example?speed=4");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true", { timeout: 15_000 });
+    expect(await page.locator("#band-2-body").evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    await toggle(page, 1).click();
+    const scan = await new AxeBuilder({ page }).analyze();
+    expect(scan.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
+    await context.close();
+  });
 });

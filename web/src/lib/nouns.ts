@@ -445,6 +445,12 @@ export interface PlainWords {
       | "title" | "title_public" | "process" | "information" | "open_process" | "open_information" | "decide" | "decide_link"
       | "library_title" | "library_added" | "library_link" | "library_how" | "upcoming" | "reused" | "reused_link" | "next_run",
       T
+    > &
+      Partial<Record<"title_done", T>>;
+    /** Each band's one-line status in its header (the accordion, owner Nov 1). */
+    status: Record<
+      "done" | "done_untimed" | "sorting" | "working" | "waiting_helper" | "checking" | "waiting_check" | "sent_back" | "your_turn" | "their_turn" | "upcoming",
+      T
     >;
   };
 }

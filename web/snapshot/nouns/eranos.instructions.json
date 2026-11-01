@@ -2032,6 +2032,7 @@
               "reused": "Answered from the library with no new work.",
               "reused_link": "See where it came from →",
               "title": "Ready for you",
+              "title_done": "Delivered",
               "title_public": "Ready",
               "upcoming": "Your team decides once a different helper has checked it."
             },
@@ -2041,6 +2042,19 @@
               "process": "Your files stay with you",
               "title": "Sorted and split",
               "waiting": "A volunteer’s AI splits it into parts it can make."
+            },
+            "status": {
+              "checking": "A different helper is checking it",
+              "done": "Done · {time}",
+              "done_untimed": "Done",
+              "sent_back": "Sent back for fixes",
+              "sorting": "Being sorted",
+              "their_turn": "The nonprofit decides",
+              "upcoming": "Waiting to start",
+              "waiting_check": "Waiting for a check",
+              "waiting_helper": "Waiting for a helper",
+              "working": "A worker is now working on this",
+              "your_turn": "Your turn to decide"
             }
           },
           "chip": {

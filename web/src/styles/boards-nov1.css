@@ -566,3 +566,85 @@
     padding: 20px;
   }
 }
+
+/* ---------------------------------------------------------------- the request page's bands as an accordion */
+.er-band-head {
+  margin: 0;
+}
+.er-band-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "n title status chevron";
+  align-items: center;
+  gap: 8px 14px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.er-band-toggle .er-band-n {
+  grid-area: n;
+}
+.er-band-title {
+  grid-area: title;
+}
+.er-band-status {
+  grid-area: status;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-2);
+  text-align: right;
+}
+.er-rq-band-now .er-band-status {
+  color: var(--text);
+  font-weight: 600;
+}
+.er-band-chevron {
+  grid-area: chevron;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--text-2);
+  border-bottom: 2px solid var(--text-2);
+  transform: rotate(45deg) translate(-2px, -2px);
+}
+.er-band-toggle[aria-expanded="true"] .er-band-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+.er-band-body {
+  margin-top: 16px;
+}
+/* A section that a recorded fact just opened fades in once; nothing moves otherwise, and never with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .er-band-body[data-by-event="true"] {
+    animation: er-band-in var(--dur-base) var(--ease-standard) both;
+  }
+}
+@keyframes er-band-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 599px) {
+  .er-band-toggle {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "n title chevron"
+      ". status status";
+  }
+  .er-band-status {
+    text-align: left;
+  }
+}

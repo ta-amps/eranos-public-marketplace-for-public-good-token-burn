@@ -5,7 +5,7 @@ import { fill, type PlainWords } from "../../lib/nouns";
 import { applyEvents, type Facts } from "../../lib/status/derive";
 import { ordinal } from "../../lib/status/estimate";
 import type { StatusEvent } from "../../lib/status/types";
-import { AppLink } from "../../router";
+import { AppLink, useHash } from "../../router";
 
 /**
  * The request page's plain view (RequestStatusPage v6, Claude Design 20:15): a progress strip and four bands, in
@@ -210,6 +210,7 @@ function RequestTrack({
   ahead,
   settled,
   requester,
+  onStation,
 }: {
   track: TrackState;
   events: StatusEvent[];
@@ -218,6 +219,8 @@ function RequestTrack({
   ahead: number;
   settled: boolean;
   requester: boolean;
+  /** Opens the band a station stands for (1 to 4). */
+  onStation?: (band: number) => void;
 }) {
   const delivered = track.tone === "done";
   // The track's measured height, as --er-track-h on the page: focus and anchors scroll clear of it at every width
@@ -243,7 +246,7 @@ function RequestTrack({
           const name = now ? (i === 5 && !requester ? (station.now_public ?? station.now) : station.now) : station.other;
           return (
             <li key={i} data-step={i} data-state={done ? "done" : now ? "now" : "upcoming"} data-tone={now ? track.tone : undefined}>
-              <a href={`#${BAND_IDS[STATION_BAND[i] ?? 0]}`} aria-current={now ? "step" : undefined}>
+              <a href={`#${BAND_IDS[STATION_BAND[i] ?? 0]}`} aria-current={now ? "step" : undefined} onClick={() => onStation?.((STATION_BAND[i] ?? 0) + 1)}>
                 <span className="er-track-dot" aria-hidden="true" />
                 <span className="er-track-name">{name}</span>
                 {done && words.done && <span className="er-visually-hidden"> ({words.done})</span>}
@@ -389,16 +392,95 @@ function waitingSince(events: StatusEvent[], part: number): number | null {
   return since;
 }
 
-function Band({ n, title, state, children }: { n: number; title: string; state: StageState; children: React.ReactNode }) {
+/** The band each `#step-*` anchor opens. */
+const BAND_FOR_HASH: Record<string, number> = { "#step-split": 1, "#step-build": 2, "#step-review": 3, "#step-ready": 4 };
+
+/**
+ * The four bands as an accordion (owner, Nov 1): the current step is open; when a recorded fact moves the request
+ * on, the finished step folds to its one-line status and the next one opens. A section the person opened by hand
+ * stays open, and an anchor (a station, or a `#step-*` link) opens its section and scrolls to it.
+ */
+function useBands(current: number) {
+  const hash = useHash();
+  const fromHash = BAND_FOR_HASH[typeof window === "undefined" ? "" : window.location.hash];
+  const byHand = useRef<Set<number>>(new Set(fromHash ? [fromHash] : []));
+  const [open, setOpen] = useState<Set<number>>(() => new Set([current, ...byHand.current]));
+  const [byEvent, setByEvent] = useState<number | null>(null);
+  const shown = useRef(current);
+  useEffect(() => {
+    if (current === shown.current) return;
+    shown.current = current;
+    setOpen(new Set([current, ...byHand.current]));
+    setByEvent(current);
+  }, [current]);
+  const reveal = (n: number) => {
+    byHand.current.add(n);
+    setOpen((was) => (was.has(n) ? was : new Set([...was, n])));
+    // After the section opens, bring it to the top, clear of the sticky track (its scroll-margin-top).
+    window.requestAnimationFrame(() => document.getElementById(BAND_IDS[n - 1] ?? "")?.scrollIntoView({ block: "start" }));
+  };
+  useEffect(() => {
+    const n = BAND_FOR_HASH[hash];
+    if (n) reveal(n);
+  }, [hash]);
+  const toggle = (n: number) =>
+    setOpen((was) => {
+      const next = new Set(was);
+      if (next.has(n)) {
+        next.delete(n);
+        byHand.current.delete(n);
+      } else {
+        next.add(n);
+        byHand.current.add(n);
+      }
+      return next;
+    });
+  return { open, byEvent, toggle, reveal };
+}
+
+function Band({
+  n,
+  title,
+  state,
+  status,
+  open,
+  byEvent,
+  onToggle,
+  children,
+}: {
+  n: number;
+  title: string;
+  state: StageState;
+  status: string;
+  open: boolean;
+  byEvent: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
   return (
-    <section id={BAND_IDS[n - 1]} className={`er-panel er-rq-band er-rq-band-${state}`} data-band={n} data-state={state} aria-labelledby={`band-${n}`}>
-      <h2 id={`band-${n}`} className="er-panel-title">
-        <span className="er-band-n" aria-hidden="true">
-          {n}
-        </span>
-        {title}
+    <section
+      id={BAND_IDS[n - 1]}
+      className={`er-panel er-rq-band er-rq-band-${state}`}
+      data-band={n}
+      data-state={state}
+      data-open={open}
+      aria-labelledby={`band-${n}`}
+    >
+      <h2 id={`band-${n}`} className="er-panel-title er-band-head">
+        <button type="button" className="er-band-toggle" aria-expanded={open} aria-controls={`band-${n}-body`} onClick={onToggle} data-testid={`band-toggle-${n}`}>
+          <span className="er-band-n" aria-hidden="true">
+            {n}
+          </span>
+          <span className="er-band-title">{title}</span>
+          <span className="er-band-status" data-testid={`band-status-${n}`}>
+            {status}
+          </span>
+          <span className="er-band-chevron" aria-hidden="true" />
+        </button>
       </h2>
-      {children}
+      <div id={`band-${n}-body`} className="er-band-body" hidden={!open} data-by-event={byEvent}>
+        {children}
+      </div>
     </section>
   );
 }
@@ -467,6 +549,42 @@ export function PlainStatus({
   };
   const stripState = (n: number): StageState => summary.bands[n - 1] ?? "upcoming";
   const resultPage = (n: number) => `/requests/${encodeURIComponent(routeId)}/result?part=${n}`;
+  // The current step: the first band in progress, or the last one once everything is done.
+  const nowBand = summary.bands.findIndex((state) => state === "now");
+  const current = nowBand >= 0 ? nowBand + 1 : summary.bands.every((state) => state === "done") ? 4 : 1;
+  const bands = useBands(current);
+  // Each band's one-line, present-tense status, shown in its header whether it is open or folded.
+  const st = b.status;
+  const lastAt = (types: StatusEvent["type"][]) => [...events].reverse().find((e) => types.includes(e.type) && e.at)?.at ?? null;
+  const doneLine = (at: number | null) => (at ? fill(st.done, { time: clock(at) }) : st.done_untimed);
+  const anyChecking = parts.some((p) => p.check === "working");
+  const sentBack = parts.some((p) => p.check === "sent_back");
+  const bandStatus = [
+    stripState(1) === "done" ? doneLine(lastAt(["planned"])) : stripState(1) === "now" ? st.sorting : st.upcoming,
+    stripState(2) === "done"
+      ? doneLine(lastAt(["work_submitted"]))
+      : stripState(2) === "now"
+        ? parts.some((p) => p.work === "working")
+          ? st.working
+          : st.waiting_helper
+        : st.upcoming,
+    stripState(3) === "done"
+      ? doneLine(lastAt(["check_approved"]))
+      : stripState(3) === "now"
+        ? sentBack
+          ? st.sent_back
+          : anyChecking
+            ? st.checking
+            : st.waiting_check
+        : st.upcoming,
+    stripState(4) === "done" ? doneLine(lastAt(["decided", "library_added"])) : stripState(4) === "now" ? (requester ? st.your_turn : st.their_turn) : st.upcoming,
+  ];
+  const bandProps = (n: number) => ({
+    status: bandStatus[n - 1] ?? "",
+    open: bands.open.has(n),
+    byEvent: bands.byEvent === n,
+    onToggle: () => bands.toggle(n),
+  });
 
   return (
     <div className="er-plain" data-testid="plain-status">
@@ -477,13 +595,14 @@ export function PlainStatus({
         label={words.stages_label}
         settled={settled}
         requester={requester}
+        onStation={(n) => bands.reveal(n)}
         ahead={parts.some((p) => !p.workAgent && p.work !== "done") ? Math.max(0, (parts.find((p) => !p.workAgent && p.work !== "done")?.place ?? 1) - 1) : 0}
       />
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
         {happened[0]?.text ?? ""}
       </p>
 
-      <Band n={1} title={b.sorted.title} state={stripState(1)}>
+      <Band n={1} title={b.sorted.title} state={stripState(1)} {...bandProps(1)}>
         {facts.received?.at != null && <p className="er-band-ok">{fill(b.sorted.checked, { time: clock(facts.received.at) })}</p>}
         {planned ? (
           <ul className="er-band-list">
@@ -499,7 +618,7 @@ export function PlainStatus({
         )}
       </Band>
 
-      <Band n={2} title={stripState(2) === "done" ? b.made.title_done : b.made.title_now} state={stripState(2)}>
+      <Band n={2} title={stripState(2) === "done" ? b.made.title_done : b.made.title_now} state={stripState(2)} {...bandProps(2)}>
         {!planned && <p className="er-small">{b.made.waiting.replace(/ · .*$/, "")}</p>}
         {parts.map((part) => {
           const n = part.plan.part;
@@ -557,7 +676,7 @@ export function PlainStatus({
         })}
       </Band>
 
-      <Band n={3} title={parts.some((p) => p.checkAgent?.dedicated) && b.checked.title_eranos ? b.checked.title_eranos : b.checked.title} state={stripState(3)}>
+      <Band n={3} title={parts.some((p) => p.checkAgent?.dedicated) && b.checked.title_eranos ? b.checked.title_eranos : b.checked.title} state={stripState(3)} {...bandProps(3)}>
         <p className="er-small">{b.checked.rule}</p>
         {parts.map((part) => {
           const n = part.plan.part;
@@ -588,7 +707,7 @@ export function PlainStatus({
         })}
       </Band>
 
-      <Band n={4} title={requester ? b.ready.title : b.ready.title_public} state={stripState(4)}>
+      <Band n={4} title={stripState(4) === "done" && b.ready.title_done ? b.ready.title_done : requester ? b.ready.title : b.ready.title_public} state={stripState(4)} {...bandProps(4)}>
         {(() => {
           const next = events.filter((e) => e.type === "queued" && e.summary?.next_at && (e.receipt || e.ref)).at(-1)?.summary?.next_at;
           return next ? (

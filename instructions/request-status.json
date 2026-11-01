@@ -663,7 +663,21 @@
         "upcoming": "Your team decides once a different helper has checked it.",
         "reused": "Answered from the library with no new work.",
         "reused_link": "See where it came from →",
-        "next_run": "Next run: {time}"
+        "next_run": "Next run: {time}",
+        "title_done": "Delivered"
+      },
+      "status": {
+        "done": "Done · {time}",
+        "done_untimed": "Done",
+        "sorting": "Being sorted",
+        "working": "A worker is now working on this",
+        "waiting_helper": "Waiting for a helper",
+        "checking": "A different helper is checking it",
+        "waiting_check": "Waiting for a check",
+        "sent_back": "Sent back for fixes",
+        "your_turn": "Your turn to decide",
+        "their_turn": "The nonprofit decides",
+        "upcoming": "Waiting to start"
       }
     }
   },
