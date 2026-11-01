@@ -7,7 +7,7 @@ import { ApiError, getJson } from "../lib/api";
 import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
 import { fill, type NounResponse, type RequestStatusNoun } from "../lib/nouns";
 import type { ExampleSolution, Report, RequestExampleNoun } from "../lib/status/example";
-import { requesterKeyFor } from "../lib/status/keys";
+import { requesterKeyFor, dropKeyFromAddress } from "../lib/status/keys";
 import { DECISIONS_STORE, type DecisionsValue } from "../lib/status/live";
 import { shortReceipt, shortRequestId } from "../lib/status/receipts";
 import { rememberKey } from "../lib/status/keys";
@@ -385,6 +385,9 @@ export function RequestResult({ id }: { id: string }) {
   const search = useSearch();
   const partNumber = Math.max(1, Number(new URLSearchParams(search).get("part")) || 1);
   const [key] = useState(() => (EXAMPLES[id] ? "example" : requesterKeyFor(id, window.location.hash)));
+  useEffect(() => {
+    if (!EXAMPLES[id]) dropKeyFromAddress(id);
+  }, [id]);
   const { loaded, missing } = useResult(id, partNumber, EXAMPLES[id] ? null : key);
   const [decision, setDecision] = useState<Loaded["decision"]>(null);
   const [saving, setSaving] = useState(false);

@@ -90,3 +90,22 @@ export function forgetKey(requestId: string): void {
     // Nothing else to do.
   }
 }
+
+/** True when this browser's storage (not only this tab) holds the request's key. */
+export function isPersisted(requestId: string): boolean {
+  try {
+    return isRequesterKey(window.localStorage.getItem(STORAGE_PREFIX + requestId));
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Once the key from a private link is stored in this browser, the `#k=` fragment leaves the address bar, so
+ * filming, screen-sharing, screenshots or synced history never carry it. "Copy private link" still rebuilds the
+ * link from storage. If storage is blocked the fragment stays, because a reload would otherwise lose the key.
+ */
+export function dropKeyFromAddress(requestId: string): void {
+  if (!keyFromHash(window.location.hash) || !isPersisted(requestId)) return;
+  window.history.replaceState(window.history.state, "", window.location.pathname + window.location.search);
+}

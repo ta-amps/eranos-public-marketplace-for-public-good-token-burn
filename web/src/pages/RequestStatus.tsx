@@ -9,7 +9,7 @@ import { fill, type RequestStatusNoun } from "../lib/nouns";
 import { deriveView, type StatusView } from "../lib/status/derive";
 import { exampleNow, exampleRecord, MOMENTS, type RequestExampleNoun } from "../lib/status/example";
 import { sentRequest } from "../lib/status/handoff";
-import { privateLink, requesterKeyFor } from "../lib/status/keys";
+import { dropKeyFromAddress, privateLink, requesterKeyFor } from "../lib/status/keys";
 import { firstSentence, queueFromFabric, readKeyed, readLive, type KeyedData, type LiveSnapshot } from "../lib/status/live";
 import { useStatusMotion } from "../lib/status/motion";
 import { REQUEST_ID_RE } from "../lib/status/receipts";
@@ -74,7 +74,8 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
     const url = new URL(window.location.href);
     if (next) url.searchParams.set("view", "technical");
     else url.searchParams.delete("view");
-    window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    // The private key never goes back into the address (see dropKeyFromAddress).
+    window.history.replaceState(window.history.state, "", url.pathname + url.search);
   }
   const derived: StatusView = useMemo(
     () =>
@@ -386,6 +387,7 @@ const PAUSE_MS = 30_000;
 /** A real request: public nouns every 5 s (30 s in a hidden tab), the requester key's view of its verb every 60 s. */
 function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
   const [key] = useState(() => requesterKeyFor(id, window.location.hash));
+  useEffect(() => dropKeyFromAddress(id), [id]);
   const [snapshot, setSnapshot] = useState<LiveSnapshot | null>(null);
   const [updated, setUpdated] = useState<number | null>(null);
   const [pausedAt, setPausedAt] = useState<number | null>(null);

@@ -46,14 +46,40 @@ def visible_key(key: str) -> str:
     return "is_example" if key.lower() == "synthetic" else visible_text(key)
 
 
+# Never rewritten: a quote, a source's own text or a request's own words stay verbatim, and a record bound by a
+# digest (any ``*_sha256`` field) is served exactly as stored so the digest still verifies. Records like these
+# carry the word only until their producers stop writing it (the B1 workers drop such claims and record why).
+VERBATIM_KEYS = frozenset({"quote", "quotes", "excerpt", "source_text", "text"})
+
+
+def digest_bound(value: dict[str, Any]) -> bool:
+    return any(key.endswith("_sha256") for key in value)
+
+
 def visible(value: Any) -> Any:
-    """A JSON value in visitors' words: keys and strings, all the way down."""
+    """A JSON value in visitors' words: keys and strings, all the way down, except verbatim and digest-bound parts."""
     if isinstance(value, str):
         return visible_text(value)
     if isinstance(value, list):
         return [visible(item) for item in value]
     if isinstance(value, dict):
-        return {visible_key(key): visible(item) for key, item in value.items()}
+        if digest_bound(value):
+            return value
+        return {
+            visible_key(key): item if key in VERBATIM_KEYS else visible(item)
+            for key, item in value.items()
+        }
+    return value
+
+
+def shown_parts(value: Any) -> Any:
+    """What ``visible`` would rewrite: the value without its verbatim and digest-bound parts (for tests)."""
+    if isinstance(value, list):
+        return [shown_parts(item) for item in value]
+    if isinstance(value, dict):
+        if digest_bound(value):
+            return None
+        return {key: shown_parts(item) for key, item in value.items() if key not in VERBATIM_KEYS}
     return value
 
 

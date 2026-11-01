@@ -1,5 +1,6 @@
 import { SNAPSHOT_DATA } from "virtual:snapshot-data";
 
+import { shownWords } from "./shown";
 import { SNAPSHOT } from "../config";
 import { findBannedWords } from "./copy";
 import {
@@ -115,7 +116,7 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
       }
       const qIndex = path.indexOf("?");
       const search = qIndex >= 0 ? path.slice(qIndex + 1) : "";
-      return filterCatalogSnapshot(base, search) as unknown as T;
+      return shownWords(filterCatalogSnapshot(base, search)) as unknown as T;
     }
     const key = snapshotKey(path);
     if (!(key in SNAPSHOT_DATA)) {
@@ -125,7 +126,7 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
     if (path.startsWith("/api/catalog/") && found && isQuarantinedEntry(found as PublishedKit)) {
       throw new ApiError(`${path} is quarantined and not in the public catalog.`, 404);
     }
-    return found as T;
+    return shownWords(found) as T;
   }
   const response = await fetch(path, { headers: { accept: "application/json" }, signal });
   if (!response.ok) {
@@ -135,7 +136,7 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
   if (!contentType.toLowerCase().includes("application/json")) {
     throw new ApiError(`${path} returned unexpected content-type ${contentType || "unknown"}`, 502);
   }
-  return (await response.json()) as T;
+  return shownWords(await response.json()) as T;
 }
 
 const STRICT_HUMAN_ONLY_KINDS = new Set([

@@ -11,6 +11,17 @@ const KEY = `tsk_${"ab".repeat(32)}`;
 const PRINCIPAL = `r_${"cd".repeat(16)}`;
 const REQUEST_ID = `rq-${PRINCIPAL}-mvwv3xwe`;
 
+async function stubClipboardForStatus(page: Page) {
+  await page.evaluate(() => {
+    const copied: string[] = [];
+    Object.defineProperty(window, "copied", { value: copied, configurable: true });
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: async (text: string) => void copied.push(text) },
+      configurable: true,
+    });
+  });
+}
+
 async function fillRequest(page: Page) {
   await page.getByRole("button", { name: "Tenant deposit rules" }).click();
   await page.getByLabel("Your organization's name").fill("Riverside Tenant Clinic");
@@ -40,14 +51,20 @@ test.describe("on the hosted build", () => {
     await page.waitForFunction(() => location.pathname.startsWith("/requests/rq-"));
     const url = new URL(page.url());
     expect(url.pathname).toMatch(/^\/requests\/rq-r_[0-9a-f]{32}-[0-9a-z]+$/);
-    expect(url.hash).toBe(`#k=${KEY}`);
     await expect(page.getByTestId("request-status")).toBeVisible();
+    // Once stored, the key leaves the address bar (filming, screen-sharing, synced history), and the page keeps
+    // working from storage: the keyed button is there and copies the full private link.
+    await expect.poll(() => page.evaluate(() => location.hash)).toBe("");
+    await stubClipboardForStatus(page);
+    await page.getByRole("button", { name: "Copy private link" }).click();
+    expect(await page.evaluate(() => (window as unknown as { copied: string[] }).copied.at(-1))).toBe(`${new URL(page.url()).origin}${url.pathname}#k=${KEY}`);
     // The brief carries the requester's choices, so workers know what to produce.
     const filed = tessera.calls.find((c) => c.url.endsWith("/v1/tasks"));
     expect(filed?.body).toMatchObject({ queue: "eq01", kind: "request", brief: { output_type: "information", frequency: "one-off" } });
     expect(filed?.namespace).toBe("main");
     await page.reload();
     await expect(page.getByRole("button", { name: "Copy private link" })).toBeVisible();
+    expect(await page.evaluate(() => location.hash)).toBe("");
     expect(urls.every((u) => !new URL(u).pathname.includes(KEY) && !new URL(u).search.includes(KEY))).toBe(true);
     expect(tessera.calls.filter((c) => c.method === "GET").every((c) => c.auth === `Bearer ${KEY}`)).toBe(true);
   });

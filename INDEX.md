@@ -234,7 +234,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (164)
+## web/ (165)
 
 | File | What it is |
 |---|---|
@@ -249,20 +249,20 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/fonts/OFL-JetBrainsMono.txt](web/public/fonts/OFL-JetBrainsMono.txt) |  |
 | [web/public/fonts/OFL-SpaceGrotesk.txt](web/public/fonts/OFL-SpaceGrotesk.txt) |  |
 | [web/public/snapshot/catalog.json](web/public/snapshot/catalog.json) | JSON object: is_example, two_step_verified, kits |
-| [web/public/snapshot/catalog/KIT-FLYER-14.json](web/public/snapshot/catalog/KIT-FLYER-14.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-GRANT-04.json](web/public/snapshot/catalog/KIT-GRANT-04.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-HOTLINE-02.json](web/public/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-IMPACT-06.json](web/public/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-INTAKE-03.json](web/public/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-PANTRY-12.json](web/public/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-POLICY-09.json](web/public/snapshot/catalog/KIT-POLICY-09.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-RECRUIT-01.json](web/public/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-RELIEF-11.json](web/public/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-RENEWAL-10.json](web/public/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-SHIFT-05.json](web/public/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-SUPPORT-08.json](web/public/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-THANKS-13.json](web/public/snapshot/catalog/KIT-THANKS-13.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-TRANSCR-07.json](web/public/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-FLYER-14.json](web/public/snapshot/catalog/KIT-FLYER-14.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-GRANT-04.json](web/public/snapshot/catalog/KIT-GRANT-04.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-HOTLINE-02.json](web/public/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-IMPACT-06.json](web/public/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-INTAKE-03.json](web/public/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-PANTRY-12.json](web/public/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-POLICY-09.json](web/public/snapshot/catalog/KIT-POLICY-09.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-RECRUIT-01.json](web/public/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-RELIEF-11.json](web/public/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-RENEWAL-10.json](web/public/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-SHIFT-05.json](web/public/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-SUPPORT-08.json](web/public/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-THANKS-13.json](web/public/snapshot/catalog/KIT-THANKS-13.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-TRANSCR-07.json](web/public/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/examples.json](web/public/snapshot/examples.json) | JSON object: is_example, needs, runs |
 | [web/public/snapshot/fabric.json](web/public/snapshot/fabric.json) | JSON object: display_name, plan, is_example, queues |
 | [web/public/snapshot/nouns/eranos.instructions.json](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: is_example, store, records |
@@ -292,20 +292,20 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/requests.json](web/public/snapshot/requests.json) | JSON object: is_example, stages, requests |
 | [web/public/snapshot/tracks.json](web/public/snapshot/tracks.json) | JSON object: is_example, tracks |
 | [web/snapshot/catalog.json](web/snapshot/catalog.json) | JSON object: is_example, two_step_verified, kits |
-| [web/snapshot/catalog/KIT-FLYER-14.json](web/snapshot/catalog/KIT-FLYER-14.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-GRANT-04.json](web/snapshot/catalog/KIT-GRANT-04.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-HOTLINE-02.json](web/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-IMPACT-06.json](web/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-INTAKE-03.json](web/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-PANTRY-12.json](web/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-POLICY-09.json](web/snapshot/catalog/KIT-POLICY-09.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-RECRUIT-01.json](web/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-RELIEF-11.json](web/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-RENEWAL-10.json](web/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-SHIFT-05.json](web/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-SUPPORT-08.json](web/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-THANKS-13.json](web/snapshot/catalog/KIT-THANKS-13.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-TRANSCR-07.json](web/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: is_example, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-FLYER-14.json](web/snapshot/catalog/KIT-FLYER-14.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-GRANT-04.json](web/snapshot/catalog/KIT-GRANT-04.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-HOTLINE-02.json](web/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-IMPACT-06.json](web/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-INTAKE-03.json](web/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-PANTRY-12.json](web/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-POLICY-09.json](web/snapshot/catalog/KIT-POLICY-09.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-RECRUIT-01.json](web/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-RELIEF-11.json](web/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-RENEWAL-10.json](web/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-SHIFT-05.json](web/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-SUPPORT-08.json](web/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-THANKS-13.json](web/snapshot/catalog/KIT-THANKS-13.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-TRANSCR-07.json](web/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/examples.json](web/snapshot/examples.json) | JSON object: is_example, needs, runs |
 | [web/snapshot/fabric.json](web/snapshot/fabric.json) | JSON object: display_name, plan, is_example, queues |
 | [web/snapshot/nouns/eranos.instructions.json](web/snapshot/nouns/eranos.instructions.json) | JSON object: is_example, store, records |
@@ -353,6 +353,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/lib/marketplace.ts](web/src/lib/marketplace.ts) |  |
 | [web/src/lib/nouns.ts](web/src/lib/nouns.ts) |  |
 | [web/src/lib/privacy.ts](web/src/lib/privacy.ts) |  |
+| [web/src/lib/shown.ts](web/src/lib/shown.ts) |  |
 | [web/src/lib/snapshot-data.live.ts](web/src/lib/snapshot-data.live.ts) |  |
 | [web/src/lib/snapshot-data.offline.ts](web/src/lib/snapshot-data.offline.ts) |  |
 | [web/src/lib/status/derive.ts](web/src/lib/status/derive.ts) |  |

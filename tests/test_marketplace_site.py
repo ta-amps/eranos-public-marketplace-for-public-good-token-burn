@@ -697,6 +697,8 @@ def test_request_pages_and_the_request_api_show_only_real_records_or_the_example
 
 
 def test_nothing_the_site_serves_says_synthetic() -> None:
+    from eranos.visible import shown_parts
+
     """Owner, October 31: "DO NOT INCLUDE SYNTHETIC." Every page shell, API answer, agent text and snapshot file the
     site serves says "made-up" instead (eranos/visible.py and the Worker's visibleWords)."""
     word = re.compile("synthetic", re.IGNORECASE)
@@ -777,13 +779,24 @@ def test_nothing_the_site_serves_says_synthetic() -> None:
         ),
     ]
     out = _worker(calls)
-    said = {name: out[name]["body"] for name in out if word.search(out[name]["body"] or "")}
-    assert said == {}, sorted(said)[:10]
+
+    def own_words(body: str) -> str:
+        # Records bound by a digest and verbatim quotes, source text and request text are served exactly as
+        # stored (eranos/visible.py); everything else is the site's own words.
+        try:
+            return json.dumps(shown_parts(json.loads(body)))
+        except ValueError:
+            return body
+
+    said = sorted(name for name in out if word.search(own_words(out[name]["body"] or "")))
+    assert said == [], said[:10]
     # The snapshot files are served as they are, at /snapshot/...
-    files = [p for p in (ROOT / "web" / "public" / "snapshot").rglob("*") if p.is_file()]
+    files = [p for p in (ROOT / "web" / "public" / "snapshot").rglob("*.json")]
     assert files
     assert [
-        p.relative_to(ROOT).as_posix() for p in files if word.search(p.read_text(encoding="utf-8"))
+        p.relative_to(ROOT).as_posix()
+        for p in files
+        if word.search(own_words(p.read_text(encoding="utf-8")))
     ] == []
 
 

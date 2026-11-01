@@ -1,5 +1,5 @@
 {
-  "is_example": true,
+  "synthetic": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -187,7 +187,7 @@
       {
         "id": "FX-FLYER-MATCH",
         "scenario": "All five translations carry every fact unchanged",
-        "sample_input": "Practice case: an example, not a real person or case. Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
+        "sample_input": "SYNTHETIC: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
         "expected_indicators": [
           "all_facts_present",
           "questions_listed_for_reviewer"
@@ -197,7 +197,7 @@
       {
         "id": "FX-FLYER-MISMATCH",
         "scenario": "A translated date and phone number differ from the source",
-        "sample_input": "Practice case: an example, not a real person or case. The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
+        "sample_input": "SYNTHETIC: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
         "expected_indicators": [
           "mismatched_date",
           "mismatched_phone_number",
@@ -215,7 +215,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "example_fixtures",
+      "synthetic_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

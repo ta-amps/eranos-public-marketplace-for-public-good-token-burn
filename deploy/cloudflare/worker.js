@@ -30,7 +30,7 @@ const PROHIBITED_TOPICS_RE =
 const PRACTICE_CHECKS = [
   "track_alignment",
   "human_only_boundaries",
-  "synthetic_fixtures",
+  "example_fixtures",
   "non_accusatory_copy",
   "prohibited_topics",
   "spdx_license_allowlist",
@@ -88,7 +88,7 @@ const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
 
 const FALLBACK_LLMS_FULL_TXT = `${FALLBACK_LLMS_TXT}
 ## Core Invariants
-- Synthetic fixtures only (visible SYNTHETIC mark required; zero real PII).
+- Example fixtures only (each carries the practice-case mark; zero real PII).
 - Interviews, crisis safety planning, legal judgments, individual decisions, and external sends stay strictly human_only.
 - Atomic two-step publication: drafter != reviewer across both worker ID and Tessera key ID, plus parker != resumer on steward sign-off.
 - Open SPDX allowlist: Apache-2.0, MIT, BSD-3-Clause, CC-BY-4.0, CC0-1.0.
@@ -327,12 +327,19 @@ function visibleText(text) {
   for (const [pattern, replacement] of VISIBLE_RULES) out = out.replace(pattern, replacement);
   return out;
 }
+// Never rewritten: a quote, a source's own text or a request's own words stay verbatim, and a record bound by a
+// digest (any *_sha256 field) is served exactly as stored, so quotes are never misquoted and digests still verify.
+// Such records carry the word only until their producers stop writing it (the B1 workers drop those claims).
+const VERBATIM_KEYS = new Set(["quote", "quotes", "excerpt", "source_text", "text"]);
 function visibleWords(value) {
   if (typeof value === "string") return visibleText(value);
   if (Array.isArray(value)) return value.map(visibleWords);
   if (value && typeof value === "object") {
+    if (Object.keys(value).some((key) => key.endsWith("_sha256"))) return value;
     const out = {};
-    for (const [key, item] of Object.entries(value)) out[key.toLowerCase() === "synthetic" ? "is_example" : visibleText(key)] = visibleWords(item);
+    for (const [key, item] of Object.entries(value)) {
+      out[key.toLowerCase() === "synthetic" ? "is_example" : visibleText(key)] = VERBATIM_KEYS.has(key) ? item : visibleWords(item);
+    }
     return out;
   }
   return value;
@@ -971,6 +978,72 @@ async function servePackage(request, env, id) {
   return new Response(request.method === "HEAD" ? null : bytes, { status: 200, headers: headers(bytes.byteLength) });
 }
 
+// /api/handshake: the public part of Eranos's handshake with Tessera and Herma, never a surface key's grants.
+const HANDSHAKE_PUBLIC_FIELDS = ["protocol_version", "surface_id", "surface_version", "clamped_max_chars", "isolated_store_prefix", "backend", "router", "status"];
+const HANDSHAKE_RATE = { windowMs: 60_000, max: 10 };
+const handshakeHits = new Map();
+let negotiationCache = null;
+
+function handshakeRateLimited(request) {
+  const who = request.headers.get("cf-connecting-ip") || "anonymous";
+  const now = Date.now();
+  const hit = handshakeHits.get(who);
+  if (!hit || now - hit.start > HANDSHAKE_RATE.windowMs) {
+    if (handshakeHits.size > 5000) handshakeHits.clear();
+    handshakeHits.set(who, { start: now, n: 1 });
+    return false;
+  }
+  hit.n += 1;
+  return hit.n > HANDSHAKE_RATE.max;
+}
+
+function publicHandshake(value) {
+  if (!value || typeof value !== "object") return null;
+  const out = {};
+  for (const field of HANDSHAKE_PUBLIC_FIELDS) if (value[field] !== undefined && typeof value[field] !== "object") out[field] = value[field];
+  return out;
+}
+
+async function cachedNegotiation(env) {
+  if (negotiationCache && Date.now() - negotiationCache.at < 300_000) return negotiationCache.value;
+  const fallback = {
+    is_example: true,
+    surface_id: "eranos",
+    protocol_version: "1.0",
+    backend: "tessera-cloud",
+    isolated_store_prefix: "eranos.",
+    transactional_db_exempt_from_middleware: true,
+  };
+  const body = JSON.stringify({
+    protocol_version: "1.0",
+    surface_id: "eranos",
+    surface_version: ERANOS_VERSION,
+    requested_max_chars: 4000,
+    requested_queues: ["eq01", "eq02", "eq03"],
+    requested_stores: ["eranos.catalog", "eranos.index", "eranos.meta"],
+  });
+  const ask = async (binding, url, key) => {
+    if (!binding) return null;
+    try {
+      const headers = { "Content-Type": "application/json", "X-Surface-Id": "eranos" };
+      if (key) headers.Authorization = `Bearer ${key}`;
+      const resp = await binding.fetch(url, { method: "POST", headers, body });
+      if (!resp.ok) {
+        await resp.body?.cancel();
+        return null;
+      }
+      return publicHandshake(await resp.json());
+    } catch {
+      return null;
+    }
+  };
+  const tessera = await ask(env.TESSERA, "https://tessera.ta-amps.workers.dev/v1/handshake", env.TESSERA_SURFACE_KEY);
+  const herma = env.HERMA_SURFACE_KEY ? await ask(env.HERMA, "https://herma.ta-amps.workers.dev/v1/handshake", env.HERMA_SURFACE_KEY) : null;
+  const value = { ...fallback, ...(tessera || {}), ...(tessera ? { tessera } : {}), ...(herma ? { herma } : {}) };
+  if (tessera || herma) negotiationCache = { at: Date.now(), value };
+  return value;
+}
+
 function mdList(items, numbered) {
   return (Array.isArray(items) ? items : []).map((line, i) => `${numbered ? `${i + 1}.` : "-"} ${String(line)}`).join("\n");
 }
@@ -1106,7 +1179,7 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
       const fxId = String(fx.id || `FX-${i}`);
       const sample = String(fx.sample_input || "");
       if (!sample.includes("SYNTHETIC")) {
-        addIssue(`fixture '${fxId}' sample_input must carry a visible SYNTHETIC mark`);
+        addIssue(`fixture '${fxId}' sample_input must carry the practice-case mark ("Practice case: an example, not a real person or case.")`);
       }
       if (fx.expected_human_escalation === true) hasEsc = true;
       if (fx.expected_human_escalation === false) hasRou = true;
@@ -1209,7 +1282,6 @@ function buildStaticAgentCard(request) {
       "Two-sided marketplace where people donate spare AI capacity and their agents build, deterministically check, and independently review (drafter != reviewer) agent kits for nonprofits, NGOs and public-good groups. A kit bundles instructions, skills, knowledge, read-only service connections, a step map with person-only steps, and synthetic checks and tests.",
     version: ERANOS_VERSION,
     url: origin,
-    synthetic_only: true,
     spdx_allowlist: Array.from(OPEN_SPDX_ALLOWLIST).sort(),
     headers: { surface: "X-Surface-Id" },
     endpoints: {
@@ -1222,6 +1294,16 @@ function buildStaticAgentCard(request) {
       health: "/healthz",
       llms: "/llms.txt",
       llms_full: "/llms-full.txt",
+      agent_guide: "/agent.md",
+      connect: "/connect.json",
+      ask: "/nonprofits",
+      request_page: "/requests/{request_id}",
+      request: "/api/requests/{request_id}",
+      request_history: "/api/nouns/eranos.requests/{request_id}/history",
+      open_tasks: "/api/open-tasks",
+      process_markdown: "/p/{request_id}/agent.md",
+      practice_cases: "/p/{request_id}/practice.md",
+      process_download: "/p/{request_id or catalog_key}/download",
     },
     access: accessDescriptor("eranos"),
     capabilities: {
@@ -1470,72 +1552,13 @@ async function handleCloudApi(request, env, pathname) {
   }
 
   if (pathname === "/api/handshake") {
-    const fallbackHandshake = {
-      synthetic: true,
-      surface_id: "eranos",
-      protocol_version: "1.0",
-      backend: "tessera-cloud",
-      isolated_store_prefix: "eranos.",
-      transactional_db_exempt_from_middleware: true,
-    };
-    const handshakeBody = JSON.stringify({
-      protocol_version: "1.0",
-      surface_id: "eranos",
-      surface_version: ERANOS_VERSION,
-      requested_max_chars: 4000,
-      requested_queues: ["eq01", "eq02", "eq03"],
-      requested_stores: ["eranos.catalog", "eranos.index", "eranos.meta"],
-    });
-
-    let tesseraHandshake = null;
-    if (env.TESSERA) {
-      try {
-        const tHeaders = {
-          "Content-Type": "application/json",
-          "X-Surface-Id": "eranos",
-        };
-        if (env.TESSERA_SURFACE_KEY) {
-          tHeaders["Authorization"] = `Bearer ${env.TESSERA_SURFACE_KEY}`;
-        }
-        const tResp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/handshake", {
-          method: "POST",
-          headers: tHeaders,
-          body: handshakeBody,
-        });
-        if (tResp.ok) {
-          const parsed = await tResp.json();
-          if (parsed && typeof parsed === "object") tesseraHandshake = parsed;
-        } else {
-          await tResp.body?.cancel();
-        }
-      } catch {
-        // graceful fallback if TESSERA handshake fails
-      }
+    // At most 10 a minute from one address; the negotiation with Tessera and Herma is cached for 5 minutes, and a
+    // tracked anonymous session is minted only on POST. Only the public handshake fields are returned: never a
+    // surface key's grants (queues, stores, scopes).
+    if (handshakeRateLimited(request)) {
+      return problem(429, "Too Many Requests", "Too many handshakes from this address; try again in a minute.", "rate_limited", { "retry-after": "60" });
     }
-
-    let hermaHandshake = null;
-    if (env.HERMA && env.HERMA_SURFACE_KEY) {
-      try {
-        const hResp = await env.HERMA.fetch("https://herma.ta-amps.workers.dev/v1/handshake", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${env.HERMA_SURFACE_KEY}`,
-            "X-Surface-Id": "eranos",
-          },
-          body: handshakeBody,
-        });
-        if (hResp.ok) {
-          const parsed = await hResp.json();
-          if (parsed && typeof parsed === "object") hermaHandshake = parsed;
-        } else {
-          await hResp.body?.cancel();
-        }
-      } catch {
-        // graceful fallback if HERMA handshake fails
-      }
-    }
-
+    const negotiation = await cachedNegotiation(env);
     let tesseraSession = null;
     if (request.method === "POST" && env.TESSERA) {
       let agentLabel = "external-agent";
@@ -1567,12 +1590,8 @@ async function handleCloudApi(request, env, pathname) {
         // graceful fallback if anonymous session minting is rate-limited
       }
     }
-
     return jsonResp({
-      ...fallbackHandshake,
-      ...(tesseraHandshake || {}),
-      ...(tesseraHandshake ? { tessera: tesseraHandshake } : {}),
-      ...(hermaHandshake ? { herma: hermaHandshake } : {}),
+      ...negotiation,
       ...(tesseraSession
         ? {
             session_id: tesseraSession.session_id,

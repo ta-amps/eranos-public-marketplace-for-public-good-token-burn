@@ -1,5 +1,5 @@
 {
-  "is_example": true,
+  "synthetic": true,
   "spdx_license": "BSD-3-Clause",
   "tags": [
     "status:verified",
@@ -150,14 +150,14 @@
       {
         "id": "FX-GRANT-BALANCED",
         "scenario": "Quarterly food-program grant within all line caps and fully receipted",
-        "sample_input": "Practice case: an example, not a real person or case. Grant G-2026-04 food supplies budget USD 12,000; 14 posted invoices totaling USD 11,420 with matching receipts inside Q3.",
+        "sample_input": "SYNTHETIC: Grant G-2026-04 food supplies budget USD 12,000; 14 posted invoices totaling USD 11,420 with matching receipts inside Q3.",
         "expected_indicators": [],
         "expected_human_escalation": false
       },
       {
         "id": "FX-GRANT-VARIANCE",
         "scenario": "Cold-storage equipment repair puts supplies line 16% over cap plus one missing invoice",
-        "sample_input": "Practice case: an example, not a real person or case. Grant G-2026-04 equipment line budget USD 2,000; posted charges USD 2,320 and row L-88 lacks vendor receipt PDF.",
+        "sample_input": "SYNTHETIC: Grant G-2026-04 equipment line budget USD 2,000; posted charges USD 2,320 and row L-88 lacks vendor receipt PDF.",
         "expected_indicators": [
           "line_variance_over_10pct",
           "missing_receipt_attachment"
@@ -174,7 +174,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "example_fixtures",
+      "synthetic_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
