@@ -509,6 +509,26 @@ def open_requests() -> dict[str, Any]:
     }
 
 
+def _annotate_request_events(value: Any) -> Any:
+    if not isinstance(value, dict) or not isinstance(value.get("events"), list):
+        return value
+    prev_ver = 0
+    annotated: list[Any] = []
+    for idx, ev in enumerate(value["events"], start=1):
+        if not isinstance(ev, dict):
+            annotated.append(ev)
+            continue
+        ver = ev.get("version")
+        skipped = ver - prev_ver - 1 if isinstance(ver, int) and ver > prev_ver + 1 else 0
+        if isinstance(ver, int) and ver > prev_ver:
+            prev_ver = ver
+        row = {**ev, "step_index": idx}
+        if skipped > 0:
+            row["skipped_internal_versions"] = skipped
+        annotated.append(row)
+    return {**value, "events": annotated}
+
+
 @app.get("/api/requests/{request_id}")
 def request_status(request_id: str) -> dict[str, Any]:
     """One request as its public record holds it, or the example request for the example addresses."""
@@ -526,7 +546,11 @@ def request_status(request_id: str) -> dict[str, Any]:
         "example": False,
         "request_id": request_id,
         "page": page,
-        "value": found["value"],
+        "history_note": (
+            "Public history lists public_commons checkpoints with contiguous step_index 1..N; "
+            "skipped storage version numbers reflect pre-screening surface_only writes or internal occurrence checkpoints."
+        ),
+        "value": _annotate_request_events(found["value"]),
         "versions": [],
     }
 

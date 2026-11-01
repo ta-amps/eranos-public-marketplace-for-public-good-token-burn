@@ -54,8 +54,8 @@ const ZERO_QUEUE_COUNTS = {
   cancelled: 0,
 };
 
-// The tile mark (Paper & Ink). The ink tile turns paper in a dark browser theme.
-const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.i{fill:#11161F}@media (prefers-color-scheme:dark){.i{fill:#F5F2EA}}</style><rect x="0" y="0" width="44" height="44" rx="10" fill="#2A5DB0"/><rect x="56" y="0" width="44" height="44" rx="10" fill="#B8541F"/><rect class="i" x="0" y="56" width="44" height="44" rx="10"/><rect x="56" y="56" width="44" height="44" rx="10" fill="#2A5DB0"/></svg>`;
+// The tile mark (Paper & Ink, light-only).
+const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.i{fill:#11161F}</style><rect x="0" y="0" width="44" height="44" rx="10" fill="#2A5DB0"/><rect x="56" y="0" width="44" height="44" rx="10" fill="#B8541F"/><rect class="i" x="0" y="56" width="44" height="44" rx="10"/><rect x="56" y="56" width="44" height="44" rx="10" fill="#2A5DB0"/></svg>`;
 
 const ROBOTS_TXT = `User-agent: *
 Allow: /
@@ -767,6 +767,42 @@ async function connectPage(request, env) {
 // a request as a new version of eranos.requests/<id> that cites its receipt, so this history is the status page's
 // event source. Null when the mirror faults or holds no public version.
 const HISTORY_STORES = new Set(["eranos.requests", "eranos.plans"]);
+const PUBLIC_HISTORY_NOTE =
+  "Public history lists public_commons checkpoints with contiguous step_index 1..N; skipped storage version numbers reflect pre-screening surface_only writes or internal occurrence checkpoints.";
+
+function annotateRequestValueEvents(value) {
+  if (!value || typeof value !== "object" || !Array.isArray(value.events)) return value;
+  let prevVer = 0;
+  const events = value.events.map((ev, idx) => {
+    if (!ev || typeof ev !== "object") return ev;
+    const ver = typeof ev.version === "number" ? ev.version : null;
+    const skipped = ver !== null && ver > prevVer + 1 ? ver - prevVer - 1 : 0;
+    if (ver !== null && ver > prevVer) prevVer = ver;
+    return {
+      ...ev,
+      step_index: idx + 1,
+      ...(skipped > 0 ? { skipped_internal_versions: skipped } : {}),
+    };
+  });
+  return { ...value, events };
+}
+
+function annotatePublicVersions(versions) {
+  if (!Array.isArray(versions)) return versions;
+  let prevVer = 0;
+  return versions.map((entry, idx) => {
+    const ver = Number(entry.version || 0);
+    const skipped = ver > prevVer + 1 ? ver - prevVer - 1 : 0;
+    if (ver > prevVer) prevVer = ver;
+    return {
+      step_index: idx + 1,
+      version: ver,
+      ...(skipped > 0 ? { skipped_internal_versions: skipped } : {}),
+      created_at: Number(entry.created_at || 0),
+      value: annotateRequestValueEvents(entry.value),
+    };
+  });
+}
 
 async function readRecordHistory(db, store, key) {
   if (!db) return null;
@@ -777,8 +813,8 @@ async function readRecordHistory(db, store, key) {
       )
       .bind(store, key)
       .all();
-    const versions = (res.results || []).map((r) => ({ version: Number(r.version), created_at: Number(r.created_at), value: JSON.parse(r.value) }));
-    return versions.length ? versions : null;
+    const raw = (res.results || []).map((r) => ({ version: Number(r.version), created_at: Number(r.created_at), value: JSON.parse(r.value) }));
+    return raw.length ? annotatePublicVersions(raw) : null;
   } catch {
     return null;
   }
@@ -1720,7 +1756,9 @@ async function handleCloudApi(request, env, pathname) {
     }
     return edgeCached(request, async () => {
       const versions = await readRecordHistory(env.FABRIC_DB, store, key);
-      return versions ? jsonResp({ synthetic: false, store, key, versions }) : problem(404, "Not Found", "no such public record history", "not_found");
+      return versions
+        ? jsonResp({ synthetic: false, store, key, total_steps: versions.length, history_note: PUBLIC_HISTORY_NOTE, versions })
+        : problem(404, "Not Found", "no such public record history", "not_found");
     });
   }
 
@@ -1843,13 +1881,14 @@ async function handleCloudApi(request, env, pathname) {
       const history = await readRecordHistory(env.FABRIC_DB, "eranos.requests", reqId).catch(() => null);
       const versions =
         history ||
-        (record.version ? [{ version: Number(record.version), created_at: 0, value: record.value }] : []);
+        (record.version ? annotatePublicVersions([{ version: Number(record.version), created_at: 0, value: record.value }]) : []);
       return jsonResp({
         example: false,
         pending_plan: false,
         request_id: reqId,
         page: `/requests/${encodeURIComponent(reqId)}`,
-        value: record.value,
+        history_note: PUBLIC_HISTORY_NOTE,
+        value: annotateRequestValueEvents(record.value),
         versions,
       });
     });

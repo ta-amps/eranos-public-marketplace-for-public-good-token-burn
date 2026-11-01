@@ -82,6 +82,7 @@ flowchart LR
 | E11 | Work by a tracked anonymous session is published or delivered only after review by a different keyed worker or a person; anonymous sessions never claim review verbs or write the catalog | `test_only_reviewed_work_is_published_or_delivered`, `test_abuse_cases_hold` |
 | E12 | A nonprofit's request becomes exactly one eq01 verb, which an authorized worker classifies and splits into public research and kit parts, recorded as a plan noun | `test_typing_a_request_enqueues_exactly_one_verb`, `test_classify_then_split_routes_public_private_and_mixed_requests` |
 | E13 | Personal data is refused before a request is stored, and public reports cite a public source for every claim, say they are not legal advice when legal, and leave the decision to a person | `test_personal_data_screen_names_kinds_never_text`, `test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimers` |
+| E14 | Eranos renders strictly in its warm Paper & Ink light palette across source and built bundles regardless of OS dark-mode preferences | `test_index_html_pins_light_only_theme_and_color_scheme`, `test_no_dark_mode_css_or_background_declarations_in_source_or_bundles` |
 
 ## Trust boundaries
 

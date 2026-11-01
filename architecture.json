@@ -279,6 +279,7 @@
         "web"
       ],
       "tests": [
+        "tests/test_light_ui_only.py",
         "web/tests/shell.spec.ts",
         "web/tests/marketplace.spec.ts"
       ]
@@ -625,6 +626,15 @@
       "checked_by": [
         "tests/test_open_contribution.py::test_personal_data_screen_names_kinds_never_text",
         "tests/test_open_contribution.py::test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimers"
+      ]
+    },
+    {
+      "id": "E14",
+      "statement": "Eranos renders strictly in its warm Paper & Ink light palette across source and built bundles regardless of OS dark-mode preferences",
+      "enforced_by": "web",
+      "checked_by": [
+        "tests/test_light_ui_only.py::test_index_html_pins_light_only_theme_and_color_scheme",
+        "tests/test_light_ui_only.py::test_no_dark_mode_css_or_background_declarations_in_source_or_bundles"
       ]
     }
   ],

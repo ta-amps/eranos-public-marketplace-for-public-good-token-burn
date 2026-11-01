@@ -201,27 +201,21 @@
 
 /* ---------------------------------------------------------------- banner, header and menu */
 /* The shared <ta-agent-banner> (the same file as Agora's) draws itself in its shadow root; these rules hold its
-   place before it runs and give it the same dark strip as on Agora (AgentBanner and BannerSpec boards). */
+   place before it runs and style it in Eranos's light Paper & Ink palette. */
 ta-agent-banner {
   display: block;
   min-height: 37px;
   background: var(--agent-banner-bg);
   color: var(--agent-banner-ink);
   border-bottom: 1px solid var(--agent-banner-line);
-  --agent-banner-bg: #11161f;
-  --agent-banner-ink: #f5f2ea;
-  --agent-banner-muted: #c8d0dc;
-  --agent-banner-raised: #222732;
-  --agent-banner-line: #2b313d;
-  --agent-banner-edge: #3b4252;
-  --agent-banner-link: #9dbbf0;
-  --agent-banner-focus: #f0884f;
-}
-@media (prefers-color-scheme: dark) {
-  ta-agent-banner {
-    --agent-banner-bg: #0b0f16;
-    --agent-banner-raised: #1b2230;
-  }
+  --agent-banner-bg: #ede8dc;
+  --agent-banner-ink: #11161f;
+  --agent-banner-muted: #3b4252;
+  --agent-banner-raised: #fffdf8;
+  --agent-banner-line: #d8d0c0;
+  --agent-banner-edge: #8a8476;
+  --agent-banner-link: #24519b;
+  --agent-banner-focus: #2a5db0;
 }
 .er-header {
   background: var(--bg);

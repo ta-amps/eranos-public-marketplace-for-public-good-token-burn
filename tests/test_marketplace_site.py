@@ -573,6 +573,11 @@ def test_a_request_record_history_is_public_and_only_for_requests_and_plans() ->
     history = json.loads(out["history"]["body"])
     assert out["history"]["status"] == 200
     assert [v["version"] for v in history["versions"]] == [2, 3]
+    assert [v["step_index"] for v in history["versions"]] == [1, 2]
+    assert history["versions"][0]["skipped_internal_versions"] == 1
+    assert history["versions"][1].get("skipped_internal_versions") in (None, 0)
+    assert history["total_steps"] == 2
+    assert "step_index" in history["history_note"]
     assert history["versions"][1]["value"]["event"]["worker"] == "kestrel-41"
     assert out["plans"]["status"] == 200
     assert out["other"]["status"] == 404

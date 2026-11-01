@@ -459,7 +459,7 @@ test.describe("wording and accessibility", () => {
     expect(errors).toEqual([]);
   });
 
-  test("/connect is a page of the site, with its layout, title and both themes", async ({ page }) => {
+  test("/connect is a page of the site, with its layout, title and strict light-only Paper & Ink palette under OS dark mode", async ({ page }) => {
     await page.goto("/connect");
     await expect(page).toHaveTitle("Connect to Eranos");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(connectNoun.title);
@@ -469,10 +469,11 @@ test.describe("wording and accessibility", () => {
     const colours = () =>
       page.evaluate(() => ({ text: getComputedStyle(document.querySelector("main") as Element).color, background: getComputedStyle(document.body).backgroundColor }));
     const light = await colours();
+    expect(light.background).toBe("rgb(245, 242, 234)");
     await page.emulateMedia({ colorScheme: "dark" });
     const dark = await colours();
-    expect(dark.background).not.toBe(light.background);
-    expect(dark.text).not.toBe(light.text);
+    expect(dark.background).toBe("rgb(245, 242, 234)");
+    expect(dark.text).toBe(light.text);
   });
 
   test("the footer says what the site loads and keeps, from the site noun, and links to trust and Agora pages", async ({ page }) => {

@@ -199,7 +199,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (14)
+## tests/ (15)
 
 | File | What it is |
 |---|---|
@@ -209,6 +209,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
 | [tests/test_example_runs.py](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
+| [tests/test_light_ui_only.py](tests/test_light_ui_only.py) | Mechanical light-UI-only conformance gate for Eranos. |
 | [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [tests/test_open_contribution.py](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
@@ -401,7 +402,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/styles/base.css](web/src/styles/base.css) |  |
 | [web/src/styles/eranos.css](web/src/styles/eranos.css) |  |
 | [web/src/styles/fonts.css](web/src/styles/fonts.css) |  |
-| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Generated from tokens.json v2 by tools/buildtokenscss.py. |
+| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Generated from tokens.json v2 (light-only Paper & Ink palette). |
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
 | [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |

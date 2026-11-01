@@ -38,8 +38,18 @@ interface Draft {
 const DRAFT_KEY = "eranos.request-draft.v1";
 const EMPTY: Draft = { text: "", output: "", frequency: "", cadence: "", name: "", type: "", links: "", causes: "", prefs: "" };
 
-/** Library items are read once per visit, for the check before sending. */
+/** Library items are read once per visit (and retried if an earlier fetch failed), for the check before sending. */
 let library: Promise<LibraryItem[]> | null = null;
+
+function fetchCachedLibrary(): Promise<LibraryItem[]> {
+  if (!library) {
+    library = loadLibrary().catch(() => {
+      library = null;
+      return [];
+    });
+  }
+  return library;
+}
 
 export interface LibraryWords {
   check: { title: string; lead: string; read: string; read_note: string; send: string; send_note: string };
@@ -80,15 +90,20 @@ class SendError extends Error {
 async function failure(response: Response, filed: boolean): Promise<SendError> {
   let detail = String(response.status);
   let code: string | undefined;
+  let bodyRetry: number | undefined;
   try {
-    const body = (await response.json()) as { detail?: string; code?: string };
+    const body = (await response.json()) as { detail?: string; code?: string; retry_after?: number };
     detail = body.detail ?? detail;
     code = body.code;
+    if (typeof body.retry_after === "number" && Number.isFinite(body.retry_after) && body.retry_after > 0) {
+      bodyRetry = body.retry_after;
+    }
   } catch {
     // keep the status
   }
-  const retry = Number(response.headers.get("retry-after"));
-  return new SendError(detail, response.status, code, Number.isFinite(retry) && retry > 0 ? retry : undefined, filed);
+  const headerRetry = Number(response.headers.get("retry-after"));
+  const retry = Number.isFinite(headerRetry) && headerRetry > 0 ? headerRetry : bodyRetry;
+  return new SendError(detail, response.status, code, retry, filed);
 }
 
 function frequencyHelp(page: NonprofitsPageNoun, outputs: string[], frequency: string, cadence: string): string {
@@ -160,7 +175,10 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
     return () => window.clearTimeout(timer);
   }, [waitingUntil]);
 
-  const set = (field: keyof Draft) => (value: string) => setDraft((current) => ({ ...current, [field]: value }));
+  const set = (field: keyof Draft) => (value: string) => {
+    if (field === "text") newRequest.current = false;
+    setDraft((current) => ({ ...current, [field]: value }));
+  };
   const prefs: Prefs = draft.prefs ? parsePrefs(draft.prefs) : EMPTY_PREFS;
   const setPrefs = (next: Prefs) => set("prefs")(next === EMPTY_PREFS ? "" : JSON.stringify(next));
   // The privacy check reads the main box, every "Other" box and the improvement note together, as you type.
@@ -223,14 +241,13 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
     const links = draft.links.split(/\s+/).filter((link) => link.startsWith("https://"));
     // The shared library first: work already done needs no new agent work.
     if (!newRequest.current) {
-      library ??= loadLibrary();
-      const found = searchLibrary(await library.catch(() => []), text).slice(0, 3);
+      const found = searchLibrary(await fetchCachedLibrary(), text).slice(0, 3);
       if (found.length) {
         setHits(found);
         return;
       }
+      setHits(null);
     }
-    setHits(null);
     setSending(true);
     let filed = false;
     try {
@@ -283,6 +300,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
       if (!verb.ok) throw await failure(verb, true);
       rememberKey(taskId, token);
       rememberSent(taskId, { text, organization_type: organizationType, output_type: outputType, frequency: draft.frequency || "one-off", sent_at: Date.now() / 1000 });
+      setHits(null);
       setDraft(EMPTY);
       saveDraft(EMPTY);
       navigateWithTransition(`/requests/${encodeURIComponent(taskId)}#k=${token}`, (commit) => flushSync(commit));
@@ -597,6 +615,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
             <button
               type="button"
               className="er-btn-secondary"
+              disabled={sending || Boolean(waitingUntil)}
               onClick={() => {
                 newRequest.current = true;
                 box.current?.requestSubmit();

@@ -107,7 +107,12 @@ export class FakeTessera {
     const auth = request.headers()["authorization"] ?? null;
     this.calls.push({ method: request.method(), url: request.url(), auth, namespace: request.headers()["x-namespace"] ?? null, body });
     const json = (status: number, data: unknown, headers: Record<string, string> = {}) =>
-      route.fulfill({ status, contentType: "application/json", body: JSON.stringify(data), headers: { "access-control-allow-origin": "*", ...headers } });
+      route.fulfill({
+        status,
+        contentType: "application/json",
+        body: JSON.stringify(data),
+        headers: { "access-control-allow-origin": "*", "access-control-expose-headers": "Retry-After", ...headers },
+      });
     if (request.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "*" } });
     const path = url.pathname;
     if (path === "/v1/session/requester") {
