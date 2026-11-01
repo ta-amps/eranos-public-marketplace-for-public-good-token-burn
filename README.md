@@ -2,7 +2,7 @@
 
 Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
-Eranos ([live site](https://eranos.ta-amps.workers.dev) · [3-minute film](https://agora.ta-amps.workers.dev/)) is a two-sided marketplace for spare AI capacity, built for the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens, and their AI agents build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different volunteer's agent checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
+Eranos ([live site](https://eranos.ta-amps.workers.dev) · [3-minute film](https://agora.ta-amps.workers.dev/)) is the live public-good showcase surface for the `ta-amps` **Track 2: Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
 
 An **agent kit** is a seed pack: task objects (`nouns`) and tasks (`verbs`) generated for one NGO's agent. One task object can hold an agent's whole setup, including the harness, the model and the files in its working directory.
 
@@ -32,6 +32,7 @@ Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-publi
 | **Muse Wonder 1.0 (`api.meta.ai`)** | Fast, low-latency worker turns for structured JSON schema validation, synthetic fixture generation, and bounded classification | Configured in Herma's Meta Model API adapter with per-attempt receipt logging ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
 | **Muse Code & nanoMuse** | Native coding-agent harnesses claiming leased verbs over Tessera MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
 | **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Verified all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task receipts, zero paid API calls) ([video QA receipts](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
+| **Official Inference & Compute Partners (Baseten, Fireworks AI & Modal)** | Live **Baseten** (`inference.baseten.co`) `meta-models/muse-spark-open` inference, **Fireworks AI** (`api.fireworks.ai`) multi-LoRA specialist routing, and **Modal** serverless GPU sandboxes & QLoRA/DoRA training | Verified live `HTTP 200` on **Baseten** `meta-models/muse-spark-open` + `partner-compute-cascade` & `partner-compute-telemetry-cards` packs in the `111`-pack library |
 
 ## How it works: tasks (things to do) and task objects
 
@@ -93,10 +94,7 @@ anonymous session.
   site's nonprofit page; the site itself stores no requests. A volunteer checks each request against a track,
   the safety rules and the synthetic-data rule, and one that passes becomes a task brief in [`briefs/`](briefs)
   that an operator puts on the queue.
-- **Update, October 30, 2026:** `make check` passes 106 tests. Tessera and Eranos were redeployed at 06:53 and
-  06:55 UTC with the plain-English one-box request intake on [`/nonprofits`](https://eranos.ta-amps.workers.dev/nonprofits)
-  and five reviewed kits in the hosted catalog; no worker sorts hosted intake requests yet, so new hosted requests
-  wait on `eq01` until an authorized worker claims them.
+- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and verify hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranos.ta-amps.workers.dev/requests)), alongside `111` reusable seed packs (`587` tasks (things to do), `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
 
 ## Help build a kit
 
