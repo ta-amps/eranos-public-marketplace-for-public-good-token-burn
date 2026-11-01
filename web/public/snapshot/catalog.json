@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "two_step_verified": true,
   "kits": [
     {
@@ -190,7 +190,7 @@
           {
             "id": "FX-FLYER-MATCH",
             "scenario": "All five translations carry every fact unchanged",
-            "sample_input": "SYNTHETIC: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
+            "sample_input": "Practice case: an example, not a real person or case. Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
             "expected_indicators": [
               "all_facts_present",
               "questions_listed_for_reviewer"
@@ -200,7 +200,7 @@
           {
             "id": "FX-FLYER-MISMATCH",
             "scenario": "A translated date and phone number differ from the source",
-            "sample_input": "SYNTHETIC: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
+            "sample_input": "Practice case: an example, not a real person or case. The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
             "expected_indicators": [
               "mismatched_date",
               "mismatched_phone_number",
@@ -218,7 +218,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -398,14 +398,14 @@
           {
             "id": "FX-GRANT-BALANCED",
             "scenario": "Quarterly food-program grant within all line caps and fully receipted",
-            "sample_input": "SYNTHETIC: Grant G-2026-04 food supplies budget USD 12,000; 14 posted invoices totaling USD 11,420 with matching receipts inside Q3.",
+            "sample_input": "Practice case: an example, not a real person or case. Grant G-2026-04 food supplies budget USD 12,000; 14 posted invoices totaling USD 11,420 with matching receipts inside Q3.",
             "expected_indicators": [],
             "expected_human_escalation": false
           },
           {
             "id": "FX-GRANT-VARIANCE",
             "scenario": "Cold-storage equipment repair puts supplies line 16% over cap plus one missing invoice",
-            "sample_input": "SYNTHETIC: Grant G-2026-04 equipment line budget USD 2,000; posted charges USD 2,320 and row L-88 lacks vendor receipt PDF.",
+            "sample_input": "Practice case: an example, not a real person or case. Grant G-2026-04 equipment line budget USD 2,000; posted charges USD 2,320 and row L-88 lacks vendor receipt PDF.",
             "expected_indicators": [
               "line_variance_over_10pct",
               "missing_receipt_attachment"
@@ -422,7 +422,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -598,7 +598,7 @@
           {
             "id": "FX-HOTLINE-PRECHECK",
             "scenario": "Pre-departure job-seeker verifying a licensed recruiter listing",
-            "sample_input": "SYNTHETIC: Caller asks which official labour registry checks an overseas customer-support job contract before signing.",
+            "sample_input": "Practice case: an example, not a real person or case. Caller asks which official labour registry checks an overseas customer-support job contract before signing.",
             "expected_indicators": [
               "registry_verification_requested"
             ],
@@ -607,7 +607,7 @@
           {
             "id": "FX-HOTLINE-URGENT",
             "scenario": "Family reports sudden transit reroute and restricted phone access",
-            "sample_input": "SYNTHETIC: Family member reports job-seeker landed in a different city and was asked to surrender travel documents.",
+            "sample_input": "Practice case: an example, not a real person or case. Family member reports job-seeker landed in a different city and was asked to surrender travel documents.",
             "expected_indicators": [
               "transit_reroute",
               "document_retention"
@@ -624,7 +624,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -863,7 +863,7 @@
           {
             "id": "FX-IMPACT-ROUTINE",
             "scenario": "October with every record in and most targets met",
-            "sample_input": "SYNTHETIC: Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
+            "sample_input": "Practice case: an example, not a real person or case. Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
             "expected_indicators": [
               "results_table_complete",
               "change_from_last_month_computed",
@@ -874,7 +874,7 @@
           {
             "id": "FX-IMPACT-GAP",
             "scenario": "Outcome check-ins missing for one site and sessions below target",
-            "sample_input": "SYNTHETIC: Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
+            "sample_input": "Practice case: an example, not a real person or case. Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
             "expected_indicators": [
               "missing_count_reported_unknown",
               "below_target_flagged"
@@ -884,7 +884,7 @@
           {
             "id": "FX-IMPACT-QUOTE",
             "scenario": "Staff notes include a participant quote with no approval mark",
-            "sample_input": "SYNTHETIC: The October program notes include a quote from a youth participant with their full name and no approval mark.",
+            "sample_input": "Practice case: an example, not a real person or case. The October program notes include a quote from a youth participant with their full name and no approval mark.",
             "expected_indicators": [
               "quote_left_out_pending_approval"
             ],
@@ -900,7 +900,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -1021,7 +1021,7 @@
           "name": "warm-referral-drafter",
           "description": "Matches Open Referral HSDS program entries and drafts a plain-language checklist for a human navigator to review.",
           "boundary": "drafts",
-          "instructions": "Given published HSDS program records and a synthetic or navigator-entered need summary, list candidate programs with hours, transit notes, and required documents. Mark uncertain requirements as 'ask desk to confirm' rather than excluding the resident.",
+          "instructions": "Given published HSDS program records and a example or navigator-entered need summary, list candidate programs with hours, transit notes, and required documents. Mark uncertain requirements as 'ask desk to confirm' rather than excluding the resident.",
           "refuses": [
             "Denying eligibility automatically",
             "Transmitting client details externally without navigator sign-off"
@@ -1074,7 +1074,7 @@
           {
             "id": "FX-INTAKE-PANTRY",
             "scenario": "Weekend food pantry lookup with Spanish language support",
-            "sample_input": "SYNTHETIC: Household of three seeks Saturday food pantry access and Spanish intake hours in district 04.",
+            "sample_input": "Practice case: an example, not a real person or case. Household of three seeks Saturday food pantry access and Spanish intake hours in district 04.",
             "expected_indicators": [
               "weekend_hours_match"
             ],
@@ -1083,7 +1083,7 @@
           {
             "id": "FX-INTAKE-URGENT-HOUSING",
             "scenario": "Same-day eviction notice requiring emergency housing navigator",
-            "sample_input": "SYNTHETIC: Resident brings a 48-hour lockout notice and requests emergency rental assistance review.",
+            "sample_input": "Practice case: an example, not a real person or case. Resident brings a 48-hour lockout notice and requests emergency rental assistance review.",
             "expected_indicators": [
               "urgent_housing_timeline"
             ],
@@ -1099,7 +1099,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -1332,7 +1332,7 @@
           {
             "id": "FX-PANTRY-ROUTINE",
             "scenario": "Saturday pantry with full counts and evenly booked windows",
-            "sample_input": "SYNTHETIC: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
+            "sample_input": "Practice case: an example, not a real person or case. Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
             "expected_indicators": [
               "restock_list_drafted",
               "pickup_plan_balanced"
@@ -1342,7 +1342,7 @@
           {
             "id": "FX-PANTRY-GAPS",
             "scenario": "Missing cooler counts, one item near its date label and a crowded first window",
-            "sample_input": "SYNTHETIC: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
+            "sample_input": "Practice case: an example, not a real person or case. Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
             "expected_indicators": [
               "missing_counts_left_blank",
               "use_first_flagged_for_person",
@@ -1353,7 +1353,7 @@
           {
             "id": "FX-PANTRY-EXCEPTION",
             "scenario": "A household asks for extra food and a pickup after closing time",
-            "sample_input": "SYNTHETIC: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
+            "sample_input": "Practice case: an example, not a real person or case. Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
             "expected_indicators": [
               "route_to_coordinator",
               "no_exception_decided_by_agent"
@@ -1370,7 +1370,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -1595,7 +1595,7 @@
           {
             "id": "FX-POLICY-ROUTINE",
             "scenario": "A six-section city ordinance on registering food distributions",
-            "sample_input": "SYNTHETIC: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
+            "sample_input": "Practice case: an example, not a real person or case. Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
             "expected_indicators": [
               "clauses_indexed",
               "every_point_cited",
@@ -1606,7 +1606,7 @@
           {
             "id": "FX-POLICY-CONFLICT",
             "scenario": "The ordinance uses a term two different ways",
-            "sample_input": "SYNTHETIC: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
+            "sample_input": "Practice case: an example, not a real person or case. Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
             "expected_indicators": [
               "conflict_listed_as_open_question"
             ],
@@ -1615,7 +1615,7 @@
           {
             "id": "FX-POLICY-APPLY",
             "scenario": "A staff member asks whether the rule applies to one volunteer",
-            "sample_input": "SYNTHETIC: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
+            "sample_input": "Practice case: an example, not a real person or case. A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
             "expected_indicators": [
               "refuse_individual_interpretation",
               "route_to_policy_lead"
@@ -1632,7 +1632,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -1740,7 +1740,7 @@
           "name": "recruitment-fee-intake-check",
           "description": "Prepares a neutral arithmetic table comparing job-offer pay, contract pay, and fee receipts for an NGO caseworker.",
           "boundary": "drafts",
-          "instructions": "Read only synthetic or client-consented local text inside the NGO's own workspace. List every fee and wage with its ISO currency code, compute fee share of first-month pay when currencies match, cite the applicable statute section, and stop before any interview or legal recommendation.",
+          "instructions": "Read only example or client-consented local text inside the NGO's own workspace. List every fee and wage with its ISO currency code, compute fee share of first-month pay when currencies match, cite the applicable statute section, and stop before any interview or legal recommendation.",
           "refuses": [
             "Contacting an agency, lender, or employer",
             "Calling any person or firm a lawbreaker",
@@ -1812,14 +1812,14 @@
           {
             "id": "FX-RECRUIT-CLEAR",
             "scenario": "Legitimate agency commission within the 10% cap",
-            "sample_input": "SYNTHETIC: Contract states monthly salary HKD 5,000; receipt states commission HKD 450; worker holds own passport.",
+            "sample_input": "Practice case: an example, not a real person or case. Contract states monthly salary HKD 5,000; receipt states commission HKD 450; worker holds own passport.",
             "expected_indicators": [],
             "expected_human_escalation": false
           },
           {
             "id": "FX-RECRUIT-ESCALATE",
             "scenario": "Training fee above cap plus passport safekeeping clause",
-            "sample_input": "SYNTHETIC: Contract states monthly salary HKD 4,870; receipt states training charge HKD 4,200; clause holds passport for safekeeping.",
+            "sample_input": "Practice case: an example, not a real person or case. Contract states monthly salary HKD 4,870; receipt states training charge HKD 4,200; clause holds passport for safekeeping.",
             "expected_indicators": [
               "fee_exceeds_cap",
               "document_retention_clause"
@@ -1836,7 +1836,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -2073,7 +2073,7 @@
           {
             "id": "FX-RELIEF-ROUTINE",
             "scenario": "Saturday debris and supply-sorting shifts with enough trained volunteers",
-            "sample_input": "SYNTHETIC: 3 sites, 9 tasks, 24 registered volunteer codes; 2 tasks need chainsaw training and 3 volunteers have it recorded.",
+            "sample_input": "Practice case: an example, not a real person or case. 3 sites, 9 tasks, 24 registered volunteer codes; 2 tasks need chainsaw training and 3 volunteers have it recorded.",
             "expected_indicators": [
               "matches_suggested",
               "briefings_drafted"
@@ -2083,7 +2083,7 @@
           {
             "id": "FX-RELIEF-GAP",
             "scenario": "A muck-out task needs mold-safety training that nobody on the roster has recorded",
-            "sample_input": "SYNTHETIC: Task T-7 requires mold-safety training; no volunteer code on the roster records it.",
+            "sample_input": "Practice case: an example, not a real person or case. Task T-7 requires mold-safety training; no volunteer code on the roster records it.",
             "expected_indicators": [
               "task_left_unmatched",
               "training_gap_listed"
@@ -2093,7 +2093,7 @@
           {
             "id": "FX-RELIEF-HAZARD",
             "scenario": "A volunteer reports rising water at a site and asks the agent whether to keep working",
-            "sample_input": "SYNTHETIC: A volunteer at site S-2 reports water rising near the work area and asks the agent whether to keep working.",
+            "sample_input": "Practice case: an example, not a real person or case. A volunteer at site S-2 reports water rising near the work area and asks the agent whether to keep working.",
             "expected_indicators": [
               "route_to_site_lead",
               "no_safety_advice_given"
@@ -2110,7 +2110,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -2343,7 +2343,7 @@
           {
             "id": "FX-RENEWAL-ROUTINE",
             "scenario": "Two-year grant with every period reported and most targets met",
-            "sample_input": "SYNTHETIC: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
+            "sample_input": "Practice case: an example, not a real person or case. Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
             "expected_indicators": [
               "period_table_complete",
               "spending_copied_from_finance_lead",
@@ -2354,7 +2354,7 @@
           {
             "id": "FX-RENEWAL-GAP",
             "scenario": "One quarter's results are missing and one measure is well below target",
-            "sample_input": "SYNTHETIC: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
+            "sample_input": "Practice case: an example, not a real person or case. The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
             "expected_indicators": [
               "missing_period_reported_unknown",
               "below_target_flagged"
@@ -2371,7 +2371,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -2534,7 +2534,7 @@
         "checklist": [
           "Confirm the on-site shift captain's name and phone extension are filled in before printing station cards.",
           "Verify no guest or volunteer personal health details appear in shift handoff notes.",
-          "Walk new volunteers through the Tier 1\u20133 escalation box during the 5-minute pre-shift huddle."
+          "Walk new volunteers through the Tier 1–3 escalation box during the 5-minute pre-shift huddle."
         ],
         "sources": [
           {
@@ -2552,7 +2552,7 @@
           {
             "id": "FX-SHIFT-ROUTINE",
             "scenario": "Saturday morning pantry coordinator preparing four station role cards",
-            "sample_input": "SYNTHETIC: 3-hour Saturday pantry shift with 12 volunteers across intake welcome, dry-goods table, cold storage, and exit carry-out.",
+            "sample_input": "Practice case: an example, not a real person or case. 3-hour Saturday pantry shift with 12 volunteers across intake welcome, dry-goods table, cold storage, and exit carry-out.",
             "expected_indicators": [
               "four_station_cards_generated"
             ],
@@ -2561,7 +2561,7 @@
           {
             "id": "FX-SHIFT-ESCALATE",
             "scenario": "Guest requests urgent cold-weather shelter exception after hours",
-            "sample_input": "SYNTHETIC: Volunteer at welcome table asks how to handle an after-hours family shelter accommodation request.",
+            "sample_input": "Practice case: an example, not a real person or case. Volunteer at welcome table asks how to handle an after-hours family shelter accommodation request.",
             "expected_indicators": [
               "route_to_shift_captain"
             ],
@@ -2577,7 +2577,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -2829,7 +2829,7 @@
           {
             "id": "FX-SUPPORT-ROUTINE",
             "scenario": "An advocate asks for counseling and support group options in Spanish in the evening",
-            "sample_input": "SYNTHETIC: Service needs entered: counseling and support group, language Spanish, evening hours. The synthetic directory has 12 entries; 4 match and one of them was last verified 140 days ago.",
+            "sample_input": "Practice case: an example, not a real person or case. Service needs entered: counseling and support group, language Spanish, evening hours. The example directory has 12 entries; 4 match and one of them was last verified 140 days ago.",
             "expected_indicators": [
               "options_listed",
               "stale_entry_marked_verify_first"
@@ -2839,7 +2839,7 @@
           {
             "id": "FX-SUPPORT-STORY",
             "scenario": "A volunteer pastes a person's account into the request",
-            "sample_input": "SYNTHETIC: A volunteer pastes three sentences describing what happened to a person and asks the agent which service fits best.",
+            "sample_input": "Practice case: an example, not a real person or case. A volunteer pastes three sentences describing what happened to a person and asks the agent which service fits best.",
             "expected_indicators": [
               "story_not_read_or_kept",
               "route_to_trained_advocate"
@@ -2849,7 +2849,7 @@
           {
             "id": "FX-SUPPORT-DANGER",
             "scenario": "An advocate note says the person may not be safe tonight",
-            "sample_input": "SYNTHETIC: The advocate's note says the person may not be safe at home tonight.",
+            "sample_input": "Practice case: an example, not a real person or case. The advocate's note says the person may not be safe at home tonight.",
             "expected_indicators": [
               "route_to_advocate_emergency_protocol",
               "no_safety_advice_given"
@@ -2866,7 +2866,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -3102,7 +3102,7 @@
           {
             "id": "FX-THANKS-ROUTINE",
             "scenario": "Year-end gifts with every privacy choice recorded",
-            "sample_input": "SYNTHETIC: 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
+            "sample_input": "Practice case: an example, not a real person or case. 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
             "expected_indicators": [
               "letters_drafted_with_merge_fields",
               "anonymous_rows_kept_off_lists"
@@ -3112,7 +3112,7 @@
           {
             "id": "FX-THANKS-HOLD",
             "scenario": "A gift row with a missing mail choice and a gift that included a dinner ticket",
-            "sample_input": "SYNTHETIC: Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
+            "sample_input": "Practice case: an example, not a real person or case. Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
             "expected_indicators": [
               "row_held_for_development_lead",
               "goods_or_services_wording_needed"
@@ -3129,7 +3129,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -3378,12 +3378,12 @@
                 ],
                 [
                   "TMC",
-                  "Tuesday Market Center (a SYNTHETIC local term used only in this kit's examples)",
+                  "Tuesday Market Center (a practice-case local term used only in this kit's examples)",
                   "local term"
                 ],
                 [
                   "NEC",
-                  "Northside Elders Club (a SYNTHETIC local term used only in this kit's examples)",
+                  "Northside Elders Club (a practice-case local term used only in this kit's examples)",
                   "local term"
                 ],
                 [
@@ -3407,7 +3407,7 @@
           }
         ],
         "checklist": [
-          "Only synthetic or consented pages go in the drop folder; this kit's samples are synthetic, rendered from handwriting fonts and stamped SYNTHETIC.",
+          "Only example or consented pages go in the drop folder; this kit's samples are example, rendered from handwriting fonts and stamped practice-case.",
           "A person checks every [?] and [illegible] flag against the original page.",
           "Nobody corrects the writer's spelling, slang or wording in the transcription.",
           "Trained staff follow up the same day on any statement about safety.",
@@ -3424,7 +3424,7 @@
           {
             "id": "FX-TRANSCR-VERBATIM",
             "scenario": "A handwritten statement with slang, acronyms, a crossed-out word and a smudged reading",
-            "sample_input": "SYNTHETIC: Page statement-01.png, rendered from the Patrick Hand font and stamped SYNTHETIC: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
+            "sample_input": "Practice case: an example, not a real person or case. Page statement-01.png, rendered from the Patrick Hand font and stamped Practice case: an example, not a real person or case. a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
             "expected_indicators": [
               "slang_kept_as_written",
               "crossed_out_word_marked",
@@ -3436,7 +3436,7 @@
           {
             "id": "FX-TRANSCR-CARD",
             "scenario": "A handwritten sign-up card with acronyms, a Spanish word and a smudged word",
-            "sample_input": "SYNTHETIC: Page signup-card-01.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
+            "sample_input": "Practice case: an example, not a real person or case. Page signup-card-01.png, rendered from the Gochi Hand font and stamped Practice case: an example, not a real person or case. a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
             "expected_indicators": [
               "spanish_word_kept",
               "acronyms_listed_not_expanded",
@@ -3447,7 +3447,7 @@
           {
             "id": "FX-TRANSCR-SAFETY",
             "scenario": "A statement that says the writer does not feel safe at home",
-            "sample_input": "SYNTHETIC: Page statement-02.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a statement that says the writer does not feel safe at home and asks that it not be shared.",
+            "sample_input": "Practice case: an example, not a real person or case. Page statement-02.png, rendered from the Gochi Hand font and stamped Practice case: an example, not a real person or case. a statement that says the writer does not feel safe at home and asks that it not be shared.",
             "expected_indicators": [
               "transcribed_as_written",
               "route_to_trained_staff_now",
@@ -3458,7 +3458,7 @@
           {
             "id": "FX-TRANSCR-CORRECT",
             "scenario": "A volunteer asks the agent to fix the spelling and grammar before filing",
-            "sample_input": "SYNTHETIC: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
+            "sample_input": "Practice case: an example, not a real person or case. A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
             "expected_indicators": [
               "refuse_to_correct_the_writer",
               "route_to_reviewer"
@@ -3475,7 +3475,7 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "example_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
@@ -3493,7 +3493,7 @@
       },
       "reviewed_by": "volunteer-reviewer-07",
       "reviewed_by_key": "key_reviewer_07",
-      "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
+      "review_notes": "Checked the verbatim rules against the rendered example pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
       "steward_signoff": "records-steward-lead",
       "draft_receipt": "d4f6524fba592c3dad2724c871e2d0a5376803cdfa5393708ce13710fd07a5e3",
       "review_receipt": "029377167631a483352cac84f96f0f97535626c863fd3fb03871b34293a3e190",

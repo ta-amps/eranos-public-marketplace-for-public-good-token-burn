@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -205,7 +205,7 @@
       {
         "id": "FX-THANKS-ROUTINE",
         "scenario": "Year-end gifts with every privacy choice recorded",
-        "sample_input": "SYNTHETIC: 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
+        "sample_input": "Practice case: an example, not a real person or case. 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
         "expected_indicators": [
           "letters_drafted_with_merge_fields",
           "anonymous_rows_kept_off_lists"
@@ -215,7 +215,7 @@
       {
         "id": "FX-THANKS-HOLD",
         "scenario": "A gift row with a missing mail choice and a gift that included a dinner ticket",
-        "sample_input": "SYNTHETIC: Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
+        "sample_input": "Practice case: an example, not a real person or case. Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
         "expected_indicators": [
           "row_held_for_development_lead",
           "goods_or_services_wording_needed"
@@ -232,7 +232,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "example_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "spdx_license": "Apache-2.0",
   "tags": [
     "status:verified",
@@ -78,7 +78,7 @@
       "name": "recruitment-fee-intake-check",
       "description": "Prepares a neutral arithmetic table comparing job-offer pay, contract pay, and fee receipts for an NGO caseworker.",
       "boundary": "drafts",
-      "instructions": "Read only synthetic or client-consented local text inside the NGO's own workspace. List every fee and wage with its ISO currency code, compute fee share of first-month pay when currencies match, cite the applicable statute section, and stop before any interview or legal recommendation.",
+      "instructions": "Read only example or client-consented local text inside the NGO's own workspace. List every fee and wage with its ISO currency code, compute fee share of first-month pay when currencies match, cite the applicable statute section, and stop before any interview or legal recommendation.",
       "refuses": [
         "Contacting an agency, lender, or employer",
         "Calling any person or firm a lawbreaker",
@@ -150,14 +150,14 @@
       {
         "id": "FX-RECRUIT-CLEAR",
         "scenario": "Legitimate agency commission within the 10% cap",
-        "sample_input": "SYNTHETIC: Contract states monthly salary HKD 5,000; receipt states commission HKD 450; worker holds own passport.",
+        "sample_input": "Practice case: an example, not a real person or case. Contract states monthly salary HKD 5,000; receipt states commission HKD 450; worker holds own passport.",
         "expected_indicators": [],
         "expected_human_escalation": false
       },
       {
         "id": "FX-RECRUIT-ESCALATE",
         "scenario": "Training fee above cap plus passport safekeeping clause",
-        "sample_input": "SYNTHETIC: Contract states monthly salary HKD 4,870; receipt states training charge HKD 4,200; clause holds passport for safekeeping.",
+        "sample_input": "Practice case: an example, not a real person or case. Contract states monthly salary HKD 4,870; receipt states training charge HKD 4,200; clause holds passport for safekeeping.",
         "expected_indicators": [
           "fee_exceeds_cap",
           "document_retention_clause"
@@ -174,7 +174,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "example_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

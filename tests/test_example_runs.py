@@ -11,6 +11,7 @@ import pytest
 from eranos.cli import main as cli_main
 from eranos.pipeline import example_paths, load_example_bundles
 from eranos.pipeline.examples import bundle_sha256, examples_payload, load_example_runs
+from eranos.visible import visible
 
 
 @pytest.fixture
@@ -65,4 +66,5 @@ def test_the_site_reads_needs_and_run_counts_from_these_nouns() -> None:
     assert payload["needs"] and all(need["mark"] == "SYNTHETIC" for need in payload["needs"])
     for name in ("snapshot", "public/snapshot"):
         shown = json.loads((root / "web" / name / "examples.json").read_text(encoding="utf-8"))
-        assert shown == payload, f"web/{name}/examples.json is stale; run make snapshot"
+        # The snapshot holds the payload in visitors' words (eranos/visible.py).
+        assert shown == visible(payload), f"web/{name}/examples.json is stale; run make snapshot"

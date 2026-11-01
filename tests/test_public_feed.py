@@ -14,6 +14,7 @@ from tessera import Store
 
 from eranos.api import app as api_module
 from eranos.api.public_feed import public_feed_payload
+from eranos.visible import visible
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -91,9 +92,10 @@ console.log(JSON.stringify({status:response.status,body:await response.json(),ca
     result = json.loads(run.stdout)
     assert result["status"] == 200 and result["callerKeyed"] is False
     assert result["calls"] == [{"surface": "eranos", "keyed": True}]
-    assert result["body"] == public_feed_payload(service_payload, after=0)
+    # The Worker answers in visitors' words (eranos/visible.py and visibleWords in the Worker).
+    assert result["body"] == visible(public_feed_payload(service_payload, after=0))
     assert [e["payload"]["marker"] for e in result["body"]["entries"]] == [
-        "SYNTHETIC public_commons"
+        "practice-case public_commons"
     ]
 
 

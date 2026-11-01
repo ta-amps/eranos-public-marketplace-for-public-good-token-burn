@@ -5,7 +5,7 @@
  */
 
 export interface NounResponse<T> {
-  synthetic: boolean;
+  is_example: boolean;
   store: string;
   key: string;
   version?: number;
@@ -13,7 +13,7 @@ export interface NounResponse<T> {
 }
 
 export interface NounList<T> {
-  synthetic: boolean;
+  is_example: boolean;
   store: string;
   records: { key: string; version: number; value: T }[];
 }

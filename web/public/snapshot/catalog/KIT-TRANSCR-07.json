@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -218,12 +218,12 @@
             ],
             [
               "TMC",
-              "Tuesday Market Center (a SYNTHETIC local term used only in this kit's examples)",
+              "Tuesday Market Center (a practice-case local term used only in this kit's examples)",
               "local term"
             ],
             [
               "NEC",
-              "Northside Elders Club (a SYNTHETIC local term used only in this kit's examples)",
+              "Northside Elders Club (a practice-case local term used only in this kit's examples)",
               "local term"
             ],
             [
@@ -247,7 +247,7 @@
       }
     ],
     "checklist": [
-      "Only synthetic or consented pages go in the drop folder; this kit's samples are synthetic, rendered from handwriting fonts and stamped SYNTHETIC.",
+      "Only example or consented pages go in the drop folder; this kit's samples are example, rendered from handwriting fonts and stamped practice-case.",
       "A person checks every [?] and [illegible] flag against the original page.",
       "Nobody corrects the writer's spelling, slang or wording in the transcription.",
       "Trained staff follow up the same day on any statement about safety.",
@@ -264,7 +264,7 @@
       {
         "id": "FX-TRANSCR-VERBATIM",
         "scenario": "A handwritten statement with slang, acronyms, a crossed-out word and a smudged reading",
-        "sample_input": "SYNTHETIC: Page statement-01.png, rendered from the Patrick Hand font and stamped SYNTHETIC: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
+        "sample_input": "Practice case: an example, not a real person or case. Page statement-01.png, rendered from the Patrick Hand font and stamped Practice case: an example, not a real person or case. a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
         "expected_indicators": [
           "slang_kept_as_written",
           "crossed_out_word_marked",
@@ -276,7 +276,7 @@
       {
         "id": "FX-TRANSCR-CARD",
         "scenario": "A handwritten sign-up card with acronyms, a Spanish word and a smudged word",
-        "sample_input": "SYNTHETIC: Page signup-card-01.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
+        "sample_input": "Practice case: an example, not a real person or case. Page signup-card-01.png, rendered from the Gochi Hand font and stamped Practice case: an example, not a real person or case. a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
         "expected_indicators": [
           "spanish_word_kept",
           "acronyms_listed_not_expanded",
@@ -287,7 +287,7 @@
       {
         "id": "FX-TRANSCR-SAFETY",
         "scenario": "A statement that says the writer does not feel safe at home",
-        "sample_input": "SYNTHETIC: Page statement-02.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a statement that says the writer does not feel safe at home and asks that it not be shared.",
+        "sample_input": "Practice case: an example, not a real person or case. Page statement-02.png, rendered from the Gochi Hand font and stamped Practice case: an example, not a real person or case. a statement that says the writer does not feel safe at home and asks that it not be shared.",
         "expected_indicators": [
           "transcribed_as_written",
           "route_to_trained_staff_now",
@@ -298,7 +298,7 @@
       {
         "id": "FX-TRANSCR-CORRECT",
         "scenario": "A volunteer asks the agent to fix the spelling and grammar before filing",
-        "sample_input": "SYNTHETIC: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
+        "sample_input": "Practice case: an example, not a real person or case. A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
         "expected_indicators": [
           "refuse_to_correct_the_writer",
           "route_to_reviewer"
@@ -315,7 +315,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "example_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
@@ -333,7 +333,7 @@
   },
   "reviewed_by": "volunteer-reviewer-07",
   "reviewed_by_key": "key_reviewer_07",
-  "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
+  "review_notes": "Checked the verbatim rules against the rendered example pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
   "steward_signoff": "records-steward-lead",
   "draft_receipt": "d4f6524fba592c3dad2724c871e2d0a5376803cdfa5393708ce13710fd07a5e3",
   "review_receipt": "029377167631a483352cac84f96f0f97535626c863fd3fb03871b34293a3e190",

@@ -127,7 +127,7 @@ export function KitDetail({ id }: { id: string }) {
           <h2>Run the practice check yourself</h2>
           <p className="er-muted">
             Run the kit&apos;s deterministic checks again, in memory, with nothing saved: the step boundaries, the
-            open license, the wording rules, the source links and the made-up test cases.
+            open license, the wording rules, the source links and the example tests.
           </p>
           <div className="er-actions">
             <button
@@ -291,7 +291,7 @@ export function KitDetail({ id }: { id: string }) {
         <section className="er-card">
           <h2>Test cases ({verification.fixture_count})</h2>
           <p className="er-muted" data-testid="kit-tested-on">
-            Tested on synthetic sample files (no real case data).
+            Tested with example files (no real case data).
           </p>
           {kit.fixtures.map((fx) => (
             <div key={fx.id}  className="er-fixture-divider">

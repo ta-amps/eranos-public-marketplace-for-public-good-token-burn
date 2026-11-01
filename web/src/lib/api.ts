@@ -218,7 +218,7 @@ async function runSnapshotPracticeVerify(
   checksRun.push(
     "mcp_tool_json_schema",
     "source_citations_https",
-    "synthetic_fixtures_escalation_coverage",
+    "example_fixtures_escalation_coverage",
   );
   for (const tl of tools) {
     if (!tl.read_only) {
@@ -239,12 +239,12 @@ async function runSnapshotPracticeVerify(
     }
   }
   for (const fx of draft.fixtures) {
-    if (!fx.sample_input.includes("SYNTHETIC") && !fx.scenario.includes("SYNTHETIC")) {
-      issues.push(`fixture '${fx.id}' must carry the SYNTHETIC mark`);
+    if (![fx.sample_input, fx.scenario].some((text) => text.includes("Practice case:") || text.includes("SYNTHETIC"))) {
+      issues.push(`fixture '${fx.id}' must carry the practice-case mark`);
     }
   }
   if (!draft.fixtures.some((fx) => fx.expected_human_escalation)) {
-    issues.push("at least one synthetic fixture must test expected_human_escalation=true");
+    issues.push("at least one example test must expect expected_human_escalation=true");
   }
 
   const passed = issues.length === 0;
@@ -259,7 +259,7 @@ async function runSnapshotPracticeVerify(
   const receiptSha256 = await sha256Hex(canonical);
 
   return {
-    synthetic: true,
+    is_example: true,
     passed,
     persisted: false,
     kit_id: draft.kit_id,

@@ -16,7 +16,7 @@ import { useNoun } from "../lib/useNoun";
 import { AppLink, useSearch } from "../router";
 import { EXAMPLES, formatClock } from "./RequestStatus";
 
-/** A reusable process, as a SYNTHETIC example holds it: the Task Object (the process noun) and the Task to run. */
+/** A reusable process, as an example holds it: the Task Object (the process noun) and the Task to run. */
 interface ProcessSolution {
   task_object: {
     id: string;
@@ -27,7 +27,7 @@ interface ProcessSolution {
     holds: string[];
     person_only: string[];
   };
-  /** Made-up examples to try the process on before any real files (each marked SYNTHETIC). */
+  /** Examples to try the process on before any real files (each marked as a practice case). */
   practice?: { input: string; expect: string }[];
   task: {
     id: string;
@@ -516,7 +516,7 @@ export function RequestResult({ id }: { id: string }) {
                   </li>
                 ))}
               </ol>
-              {report.sources.some((source) => source.synthetic) && <p className="er-small">{r.synthetic_sources}</p>}
+              {report.sources.some((source) => source.is_example) && <p className="er-small">{r.example_sources}</p>}
               {report.disclaimer && <p className="er-small">{report.disclaimer}</p>}
             </section>
           </>

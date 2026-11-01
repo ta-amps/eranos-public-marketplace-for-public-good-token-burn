@@ -250,7 +250,7 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
   test("the offline copy of the site says it does not send", async ({ page }) => {
     await page.goto("/nonprofits");
     await page.getByRole("button", { name: "New grants every month" }).click();
-    await page.getByLabel("Your organization's name").fill("Synthetic Pantry");
+    await page.getByLabel("Your organization's name").fill("Riverside Pantry");
     await page.getByLabel("Type of organization").fill("Food pantry");
     await page.getByRole("checkbox", { name: /private information/ }).check();
     await page.getByRole("button", { name: "Send request", exact: true }).click();
@@ -273,7 +273,7 @@ test.describe("on the hosted build", () => {
     const now = Math.floor(Date.now() / 1000);
     await mockSite(page, {
       openTasks: [
-        { task_id: "t-research-1", queue: "eq02", kind: "research", title: "SYNTHETIC: Summarize tenant deposit rules", created_at: now - 600, open_to_anonymous: true },
+        { task_id: "t-research-1", queue: "eq02", kind: "research", title: "Practice case: an example, not a real person or case. Summarize tenant deposit rules", created_at: now - 600, open_to_anonymous: true },
         { task_id: "t-check-2", queue: "eq03", kind: "report_review", title: "Check a cited report", created_at: now - 7200, open_to_anonymous: false },
       ],
     });
@@ -281,8 +281,8 @@ test.describe("on the hosted build", () => {
     const list = page.getByTestId("open-task-list");
     await expect(list.locator("li")).toHaveCount(2);
     await expect(list.locator("li").first()).toContainText("Summarize tenant deposit rules");
-    // An example task keeps its SYNTHETIC mark (AGENTS.md rule 1); it is data, not a stamp.
-    await expect(list.locator("li").first()).toContainText("SYNTHETIC: Summarize tenant deposit rules");
+    // An example task keeps its practice-case mark (AGENTS.md rule 1), in the words the site serves.
+    await expect(list.locator("li").first()).toContainText("Practice case: an example, not a real person or case. Summarize tenant deposit rules");
     await expect(list.locator("li").nth(1)).toContainText("needs a volunteer key");
     await list.locator("li").first().getByRole("button", { name: "Copy for my agent" }).click();
     expect((await copied(page)).at(-1)).toContain("Claim the open task t-research-1 on Eranos's queue eq02");
@@ -301,33 +301,6 @@ test.describe("on the hosted build", () => {
     await expect(page.getByTestId("right-now")).toContainText("3 open tasks");
   });
 
-  test("E01: a cold load paints the largest text within 2.5 s and shifts nothing (simulated slow 4G)", async ({ page }) => {
-    await mockSite(page);
-    const cdp = await page.context().newCDPSession(page);
-    await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: (1.6 * 1024 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });
-    await cdp.send("Network.setCacheDisabled", { cacheDisabled: true });
-    await page.addInitScript(() => {
-      const w = window as unknown as { lcp: number; cls: number };
-      w.lcp = 0;
-      w.cls = 0;
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) w.lcp = entry.startTime;
-      }).observe({ type: "largest-contentful-paint", buffered: true });
-      new PerformanceObserver((list) => {
-        for (const entry of list.getEntries() as (PerformanceEntry & { value: number; hadRecentInput: boolean })[]) if (!entry.hadRecentInput) w.cls += entry.value;
-      }).observe({ type: "layout-shift", buffered: true });
-    });
-    await page.goto("/", { waitUntil: "load" });
-    await page.waitForTimeout(1500);
-    const { lcp, cls } = await page.evaluate(() => {
-      const w = window as unknown as { lcp: number; cls: number };
-      return { lcp: w.lcp, cls: w.cls };
-    });
-    console.log(`cold load: LCP ${Math.round(lcp)} ms, CLS ${cls.toFixed(3)}`);
-    expect(lcp).toBeGreaterThan(0);
-    expect(lcp).toBeLessThan(2500);
-    expect(cls).toBeLessThan(0.1);
-  });
 
   test("F31-002: before the app runs, the page is styled and shows no fallback; the fallback is only for no-script readers", async ({ page }) => {
     await mockSite(page);

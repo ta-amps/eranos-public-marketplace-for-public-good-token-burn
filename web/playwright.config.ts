@@ -18,6 +18,18 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: /perf\.spec\.ts/,
+      use: {
+        ...devices["Desktop Chrome"],
+        ...(useSystemChrome ? { channel: "chrome" } : {}),
+      },
+    },
+    {
+      // Timing tests run after the rest, one at a time.
+      name: "perf",
+      testMatch: /perf\.spec\.ts/,
+      dependencies: ["chromium"],
+      fullyParallel: false,
       use: {
         ...devices["Desktop Chrome"],
         ...(useSystemChrome ? { channel: "chrome" } : {}),

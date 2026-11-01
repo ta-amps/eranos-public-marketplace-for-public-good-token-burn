@@ -305,14 +305,64 @@ function finish(response, method) {
   return out;
 }
 
+// Owner, October 31: "DO NOT INCLUDE SYNTHETIC." Everything this Worker answers says "example" instead, uses general
+// names ("tests", "evaluations") for checks, and marks a practice case "Practice case: an example, not a real person
+// or case." Stored records and the verifier may still hold the former internal mark: visibleWords() translates on
+// the way out, internalWords() on the way in, so the two agree. eranos/visible.py holds the same rules for the
+// snapshot files.
+const CASE_MARK = "Practice case: an example, not a real person or case.";
+const VISIBLE_RULES = [
+  [/SYNTHETIC:\s*/g, `${CASE_MARK} `],
+  [/\bSYNTHETIC\b/g, "practice-case"],
+  [/synthetic_example/g, "example"],
+  [/synthetic_/g, "example_"],
+  [/_synthetic\b/g, "_example"],
+  [/\bSynthetic (examples?)\b/g, (_, word) => word.charAt(0).toUpperCase() + word.slice(1)],
+  [/\bsynthetic (examples?)\b/g, "$1"],
+  [/Synthetic/g, "Example"],
+  [/synthetic/gi, "example"],
+];
+function visibleText(text) {
+  let out = String(text);
+  for (const [pattern, replacement] of VISIBLE_RULES) out = out.replace(pattern, replacement);
+  return out;
+}
+function visibleWords(value) {
+  if (typeof value === "string") return visibleText(value);
+  if (Array.isArray(value)) return value.map(visibleWords);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, item] of Object.entries(value)) out[key.toLowerCase() === "synthetic" ? "is_example" : visibleText(key)] = visibleWords(item);
+    return out;
+  }
+  return value;
+}
+// The names an agent sends back, in the verifier's words (only the marks and the identifiers the verifier reads).
+const INTERNAL_KEYS = { is_example: "synthetic", example_fixtures: "synthetic_fixtures", example_only: "synthetic_only" };
+const INTERNAL_VALUES = { example_test_pack: "synthetic_test_pack", example_fixtures: "synthetic_fixtures" };
+function internalWords(value) {
+  if (typeof value === "string") {
+    if (Object.prototype.hasOwnProperty.call(INTERNAL_VALUES, value)) return INTERNAL_VALUES[value];
+    return value.split(`${CASE_MARK} `).join("SYNTHETIC: ").split(CASE_MARK).join("SYNTHETIC:").replace(/\bpractice-case\b/g, "SYNTHETIC");
+  }
+  if (Array.isArray(value)) return value.map(internalWords);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, item] of Object.entries(value)) out[INTERNAL_KEYS[key] || key] = internalWords(item);
+    return out;
+  }
+  return value;
+}
+
 function jsonResp(data, status = 200) {
-  return new Response(JSON.stringify(data), {
+  return new Response(JSON.stringify(visibleWords(data)), {
     status,
     headers: { "content-type": "application/json", "cache-control": "private, no-store" },
   });
 }
 
-function textResp(text, mediaType = "text/plain; charset=utf-8", status = 200) {
+function textResp(rawText, mediaType = "text/plain; charset=utf-8", status = 200) {
+  const text = visibleText(rawText);
   return new Response(text, {
     status,
     headers: { "content-type": mediaType, "cache-control": "public, max-age=300" },
@@ -320,7 +370,7 @@ function textResp(text, mediaType = "text/plain; charset=utf-8", status = 200) {
 }
 
 function problem(status, title, detail, code = "invalid_request", extraHeaders = {}) {
-  return new Response(JSON.stringify({ type: "about:blank", title, status, detail, code }), {
+  return new Response(JSON.stringify(visibleWords({ type: "about:blank", title, status, detail, code })), {
     status,
     headers: { "content-type": "application/problem+json", "cache-control": "no-store", ...extraHeaders },
   });
@@ -669,7 +719,7 @@ async function connectPage(request, env) {
   } else {
     html = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)}</title><body>${main}</body></html>`;
   }
-  return new Response(request.method === "HEAD" ? null : html, {
+  return new Response(request.method === "HEAD" ? null : visibleText(html), {
     status: 200,
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
   });
@@ -815,7 +865,7 @@ function processPracticeMarkdown(origin, id, found) {
   const o = found.process.task_object || {};
   const lines = [
     `# Practice: ${o.title || "a reusable process"}`,
-    `These examples are made up; each is marked SYNTHETIC and holds no real person's information. Try the process on them before any real files: ${origin}/p/${id}/agent.md`,
+    `Each example is a practice case: an example, not a real person or case. Try the process on them before any real files: ${origin}/p/${id}/agent.md`,
     "Then tell the person what it got right and what it got wrong.",
   ];
   cases.forEach((c, i) => {
@@ -1101,7 +1151,7 @@ async function handleMcp(request, env) {
   }
   let body;
   try {
-    body = await request.json();
+    body = internalWords(await request.json());
   } catch {
     return jsonRpcError(null, -32700, "Parse error", 400);
   }
@@ -1125,7 +1175,7 @@ async function handleMcp(request, env) {
         capabilities: { tools: { listChanged: false } },
         serverInfo: { name: "eranos", version: ERANOS_VERSION },
         instructions:
-          "Eranos public-good NGO catalog and zero-storage practice verifier (persisted: false). Every fixture is SYNTHETIC; human_only boundaries stay strictly with trained staff.",
+          "Eranos public-good NGO catalog and zero-storage practice verifier (persisted: false). Every fixture is a practice case (an example, not a real person or case); human_only boundaries stay strictly with trained staff.",
       },
     });
   }
@@ -1250,7 +1300,7 @@ async function handleCloudApi(request, env, pathname) {
     }
     let body;
     try {
-      body = await request.json();
+      body = internalWords(await request.json());
     } catch {
       return problem(400, "Bad Request", "invalid JSON payload", "invalid_request");
     }

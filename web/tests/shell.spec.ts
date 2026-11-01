@@ -62,13 +62,8 @@ for (const viewport of VIEWPORTS) {
         expect(text).not.toMatch(/SYNTHETIC DATA ONLY|Live API mode/);
         // F31-014: the ta-amps GitHub organization is gone; no rendered link (banner included) may point there.
         expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
-        // A synthetic example is said in a sentence, never stamped on as a chip or tag. Builder rules on the older
-        // pages may still name the literal mark the verifier checks; the pages in the film never show it.
-        const stamps = await page.$$eval("body *", (els) =>
-          els.filter((e) => e.children.length === 0 && /^SYNTHETIC:?$/i.test((e.textContent ?? "").trim())).length,
-        );
-        expect(stamps).toBe(0);
-        if (["/", "/help", "/nonprofits", "/library"].includes(route)) expect(text).not.toMatch(/\bSYNTHETIC\b/);
+        // Owner, Oct 31: "DO NOT INCLUDE SYNTHETIC." (the sweep below also covers kits and examples).
+        expect(text).not.toMatch(/synthetic/i);
         expect(offOrigin).toEqual([]);
 
         const scan = await new AxeBuilder({ page }).analyze();
@@ -119,9 +114,9 @@ test("kit detail says a different volunteer reviewed it, with the real reviewer 
   await expect(line).toContainText(`A different volunteer reviewed this: ${kit.reviewed_by}`);
   await expect(line).toContainText(`receipt ${kit.review_receipt.slice(0, 4)}`);
   await expect(line).toContainText("You decide whether to use it.");
-  await expect(page.getByTestId("kit-tested-on")).toHaveText("Tested on synthetic sample files (no real case data).");
-  // No SYNTHETIC chip or tag; each made-up case keeps its own SYNTHETIC mark in its text (AGENTS.md rule 1).
-  expect(await page.locator(".er-chip", { hasText: /SYNTHETIC/ }).count()).toBe(0);
+  await expect(page.getByTestId("kit-tested-on")).toHaveText("Tested with example files (no real case data).");
+  // Each practice case carries its mark (AGENTS.md rule 1); no chip or tag.
+  await expect(page.locator(".er-fixture-divider").first()).toContainText("Practice case: an example, not a real person or case.");
   expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
 });
 
@@ -131,4 +126,38 @@ test("missing kit renders an accessible role=alert banner, without a Retry that 
   await expect(alert).toBeVisible();
   await expect(alert.getByRole("button", { name: "Retry" })).toHaveCount(0);
   await expect(page.getByRole("link", { name: "Back to catalog" })).toBeVisible();
+});
+
+// Owner, October 31: "DO NOT INCLUDE SYNTHETIC." No page, in either view, says it anywhere a visitor can read,
+// the agent banner included.
+test("no page says synthetic, in any case, anywhere a visitor can read", async ({ page }) => {
+  test.setTimeout(180_000);
+  const kits = fs
+    .readdirSync(new URL("../snapshot/catalog/", import.meta.url))
+    .filter((name) => name.startsWith("KIT-"))
+    .map((name) => `/catalog/${name.replace(/\.json$/, "")}`);
+  const routes = [
+    ...ROUTES,
+    "/requests",
+    "/requests/example?moment=decided",
+    "/requests/example?moment=decided&view=technical",
+    "/requests/example-process?moment=decided",
+    "/requests/example-process?moment=decided&view=technical",
+    "/requests/REQ-INTAKE-07",
+    "/requests/example/result?part=1",
+    "/requests/example-process/result?part=1",
+    ...kits,
+  ];
+  const said: string[] = [];
+  for (const route of routes) {
+    await page.goto(route);
+    await expect(page.locator("ta-agent-banner")).toHaveAttribute("data-ready", "true");
+    await expect(page.locator("main")).toBeVisible();
+    const text = await page.evaluate(() => {
+      const banner = document.querySelector("ta-agent-banner")?.shadowRoot?.textContent ?? "";
+      return `${document.title}\n${banner}\n${document.body.innerText}`;
+    });
+    if (/synthetic/i.test(text)) said.push(route);
+  }
+  expect(said).toEqual([]);
 });

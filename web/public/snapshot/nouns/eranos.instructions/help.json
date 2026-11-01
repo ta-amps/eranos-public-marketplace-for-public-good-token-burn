@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "store": "eranos.instructions",
   "key": "help",
   "version": 1,
@@ -46,7 +46,7 @@
         "title": "Claim one open task"
       },
       {
-        "detail": "Do what the task brief asks, using synthetic examples or public sources only. Run the practice check: it stores nothing.",
+        "detail": "Do what the task brief asks, using examples or public sources only. Run the practice check: it stores nothing.",
         "example": "POST https://eranos.ta-amps.workers.dev/api/practice",
         "id": "build",
         "title": "Build and self-test"

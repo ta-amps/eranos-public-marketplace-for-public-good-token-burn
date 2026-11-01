@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "store": "eranos.instructions",
   "key": "request-example-process",
   "version": 1,
@@ -148,9 +148,10 @@
         "type": "decided"
       }
     ],
+    "is_example": true,
     "key": "request-example-process",
     "kind": "example",
-    "mark": "SYNTHETIC",
+    "mark": "practice-case",
     "moments": {
       "decided": 9,
       "planned": 3,
@@ -210,20 +211,21 @@
     "schema_version": 1,
     "solution": {
       "build_receipt": "c7211baf14a8b7e9d9b750fc10aef034805ca051bc69c7923cef55e01b4e8f0e",
+      "is_example": true,
       "next_step": "A person at the nonprofit decides whether to use this process.",
       "process": {
         "practice": [
           {
             "expect": "A two-sentence summary in plain words, and one suggested referral from the organization's own list, such as emergency rental help. A person decides the referral.",
-            "input": "SYNTHETIC: Scanned note, Tuesday. A family of four is two months behind on rent after a job loss and asks about help with rent and groceries."
+            "input": "Practice case: an example, not a real person or case. Scanned note, Tuesday. A family of four is two months behind on rent after a job loss and asks about help with rent and groceries."
           },
           {
             "expect": "A short summary that marks the unreadable line instead of guessing, and a suggested transport partner from the organization's own list.",
-            "input": "SYNTHETIC: Scanned note, Thursday. An older man needs rides to weekly medical appointments; the handwriting is hard to read in one line."
+            "input": "Practice case: an example, not a real person or case. Scanned note, Thursday. An older man needs rides to weekly medical appointments; the handwriting is hard to read in one line."
           },
           {
             "expect": "A summary with both needs, and two suggested partners from the organization's own list, one for training and one for childcare.",
-            "input": "SYNTHETIC: Scanned note, Friday. A young woman asks for help applying to a job-training program and for childcare during classes."
+            "input": "Practice case: an example, not a real person or case. Scanned note, Friday. A young woman asks for help applying to a job-training program and for childcare during classes."
           }
         ],
         "task": {
@@ -258,7 +260,7 @@
           "holds": [
             "Instructions: what the agent does, step by step, and what it must refuse",
             "Skills: read handwriting, summarize a note, suggest a referral partner",
-            "Checks and made-up test cases that prove it works",
+            "Tests and example cases that show it works",
             "Person-only steps"
           ],
           "how_to": [
@@ -269,8 +271,8 @@
           "id": "KIT-RBD99AE2-01",
           "install": [
             "Use an agent you already trust, such as a coding agent on your computer or a container your IT team runs.",
-            "Copy the process folder: its instructions, skills, checks and made-up test cases.",
-            "Run the checks once on the made-up test cases before you use real notes."
+            "Copy the process folder: its instructions, skills, tests and example cases.",
+            "Run the tests once on the example cases before you use real notes."
           ],
           "person_only": [
             "Talking with the family.",
@@ -282,10 +284,8 @@
       },
       "request_id": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
       "review_receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
-      "schema_version": 1,
-      "synthetic": true
+      "schema_version": 1
     },
-    "synthetic": true,
-    "title": "The SYNTHETIC example request the status page replays: a reusable process"
+    "title": "The practice-case example request the status page replays: a reusable process"
   }
 }

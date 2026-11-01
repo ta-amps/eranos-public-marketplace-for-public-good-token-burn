@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "spdx_license": "CC-BY-4.0",
   "tags": [
     "status:verified",
@@ -146,7 +146,7 @@
       {
         "id": "FX-HOTLINE-PRECHECK",
         "scenario": "Pre-departure job-seeker verifying a licensed recruiter listing",
-        "sample_input": "SYNTHETIC: Caller asks which official labour registry checks an overseas customer-support job contract before signing.",
+        "sample_input": "Practice case: an example, not a real person or case. Caller asks which official labour registry checks an overseas customer-support job contract before signing.",
         "expected_indicators": [
           "registry_verification_requested"
         ],
@@ -155,7 +155,7 @@
       {
         "id": "FX-HOTLINE-URGENT",
         "scenario": "Family reports sudden transit reroute and restricted phone access",
-        "sample_input": "SYNTHETIC: Family member reports job-seeker landed in a different city and was asked to surrender travel documents.",
+        "sample_input": "Practice case: an example, not a real person or case. Family member reports job-seeker landed in a different city and was asked to surrender travel documents.",
         "expected_indicators": [
           "transit_reroute",
           "document_retention"
@@ -172,7 +172,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "example_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

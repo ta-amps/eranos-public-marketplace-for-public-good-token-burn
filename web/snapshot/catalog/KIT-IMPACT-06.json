@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -208,7 +208,7 @@
       {
         "id": "FX-IMPACT-ROUTINE",
         "scenario": "October with every record in and most targets met",
-        "sample_input": "SYNTHETIC: Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
+        "sample_input": "Practice case: an example, not a real person or case. Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
         "expected_indicators": [
           "results_table_complete",
           "change_from_last_month_computed",
@@ -219,7 +219,7 @@
       {
         "id": "FX-IMPACT-GAP",
         "scenario": "Outcome check-ins missing for one site and sessions below target",
-        "sample_input": "SYNTHETIC: Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
+        "sample_input": "Practice case: an example, not a real person or case. Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
         "expected_indicators": [
           "missing_count_reported_unknown",
           "below_target_flagged"
@@ -229,7 +229,7 @@
       {
         "id": "FX-IMPACT-QUOTE",
         "scenario": "Staff notes include a participant quote with no approval mark",
-        "sample_input": "SYNTHETIC: The October program notes include a quote from a youth participant with their full name and no approval mark.",
+        "sample_input": "Practice case: an example, not a real person or case. The October program notes include a quote from a youth participant with their full name and no approval mark.",
         "expected_indicators": [
           "quote_left_out_pending_approval"
         ],
@@ -245,7 +245,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "example_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

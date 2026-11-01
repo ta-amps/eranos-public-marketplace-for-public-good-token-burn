@@ -327,7 +327,7 @@ function AddedPanel({ view, words, routeId, example }: { view: StatusView; words
   );
 }
 
-/** `/requests/example`: the SYNTHETIC example, replayed at reading speed. `?moment=` holds one of six moments. */
+/** `/requests/example`: the example request, replayed at reading speed. `?moment=` holds one of six moments. */
 function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: string }) {
   const noun = useNoun<RequestExampleNoun>(EXAMPLES[routeId] ?? "request-example").value;
   const search = useSearch();

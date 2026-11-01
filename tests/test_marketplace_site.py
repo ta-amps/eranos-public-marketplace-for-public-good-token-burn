@@ -648,7 +648,7 @@ def test_process_results_are_plain_markdown_for_any_agent() -> None:
     practice = out["practice"]
     assert practice["status"] == 200
     for case in process["practice"]:
-        assert case["input"].startswith("SYNTHETIC")
+        assert case["input"].startswith("Practice case: an example, not a real person or case.")
         assert case["input"] in practice["body"]
     assert out["unknown"]["status"] == 404
     assert out["requests_page"]["status"] == 200
@@ -688,3 +688,126 @@ def test_request_pages_and_the_request_api_show_only_real_records_or_the_example
     )
     assert guide in out["agent_md"]["body"] and guide in out["llms"]["body"]
     assert "POST /api/handshake" in out["agent_md"]["body"]
+
+
+def test_nothing_the_site_serves_says_synthetic() -> None:
+    """Owner, October 31: "DO NOT INCLUDE SYNTHETIC." Every page shell, API answer, agent text and snapshot file the
+    site serves says "made-up" instead (eranos/visible.py and the Worker's visibleWords)."""
+    word = re.compile("synthetic", re.IGNORECASE)
+    kits = sorted(p.stem for p in (ROOT / "web" / "snapshot" / "catalog").glob("KIT-*.json"))
+    nouns = sorted(p.stem for p in (ROOT / "instructions").glob("*.json"))
+    stores = [
+        "eranos.instructions",
+        "eranos.plans",
+        "eranos.requests",
+        "eranos.solutions",
+        "eranos.sources",
+        "eranos.verb_templates",
+    ]
+    pages = [
+        "/",
+        "/help",
+        "/nonprofits",
+        "/library",
+        "/requests",
+        "/requests/example",
+        "/requests/REQ-INTAKE-07",
+        "/catalog",
+        "/contribute",
+        "/tracks",
+        "/fabric",
+        "/about",
+        "/connect",
+    ]
+    pages += [f"/catalog/{kit}" for kit in kits]
+    api = [
+        "/api/health",
+        "/api/catalog",
+        "/api/tracks",
+        "/api/examples",
+        "/api/requests",
+        "/api/requests/REQ-INTAKE-07",
+        "/api/fabric",
+        "/api/open-tasks",
+    ]
+    api += [f"/api/catalog/{kit}" for kit in kits] + [f"/api/nouns/{store}" for store in stores]
+    api += [f"/api/nouns/eranos.instructions/{key}" for key in nouns]
+    agent = [
+        "/connect.json",
+        "/.well-known/agent-card.json",
+        "/.well-known/agent.json",
+        "/llms.txt",
+        "/llms-full.txt",
+        "/agent.md",
+        "/agent-start.json",
+        "/robots.txt",
+        "/p/example-process/agent.md",
+        "/p/example-process/practice.md",
+    ]
+    calls = [(f"get{i}", "GET", path, None) for i, path in enumerate(pages + api + agent)]
+    calls += [
+        ("mcp_list", "POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/list"}),
+        (
+            "mcp_search",
+            "POST",
+            "/mcp",
+            {
+                "jsonrpc": "2.0",
+                "id": 2,
+                "method": "tools/call",
+                "params": {"name": "search_catalog", "arguments": {}},
+            },
+        ),
+        (
+            "mcp_tracks",
+            "POST",
+            "/mcp",
+            {
+                "jsonrpc": "2.0",
+                "id": 3,
+                "method": "tools/call",
+                "params": {"name": "list_tracks", "arguments": {}},
+            },
+        ),
+    ]
+    out = _worker(calls)
+    said = {name: out[name]["body"] for name in out if word.search(out[name]["body"] or "")}
+    assert said == {}, sorted(said)[:10]
+    # The snapshot files are served as they are, at /snapshot/...
+    files = [p for p in (ROOT / "web" / "public" / "snapshot").rglob("*") if p.is_file()]
+    assert files
+    assert [
+        p.relative_to(ROOT).as_posix() for p in files if word.search(p.read_text(encoding="utf-8"))
+    ] == []
+
+
+def test_a_kit_draft_marked_as_practice_cases_passes_the_practice_check() -> None:
+    """Agents only ever see the practice-case mark, so a draft that uses it passes where the former mark passed, and
+    a draft with no mark at all is still refused."""
+    from eranos.visible import visible
+
+    bundle = json.loads(
+        (ROOT / "examples" / "kits" / "05-volunteer-shift-sop-pack.json").read_text()
+    )
+    draft = {**bundle["draft"], "drafted_by": "volunteer-a", "drafted_by_key": "key-a"}
+    shown = visible(draft)
+    unmarked = json.loads(
+        json.dumps(shown)
+        .replace("Practice case: an example, not a real person or case. ", "")
+        .replace("practice-case", "")
+    )
+    out = _worker(
+        [
+            ("old", "POST", "/api/practice", {"draft": draft}),
+            ("shown", "POST", "/api/practice", {"draft": shown}),
+            ("unmarked", "POST", "/api/practice", {"draft": unmarked}),
+        ]
+    )
+    assert "Practice case: an example, not a real person or case." in json.dumps(shown)
+    assert "synthetic" not in json.dumps(shown).lower()
+    old, made_up, refused = (json.loads(out[name]["body"]) for name in ("old", "shown", "unmarked"))
+    assert out["shown"]["status"] == out["old"]["status"] == 200
+    assert made_up["passed"] is True and old["passed"] is True, (made_up["issues"], old["issues"])
+    assert refused["passed"] is False
+    assert any("practice-case mark" in issue for issue in refused["issues"]), refused["issues"]
+    assert "synthetic" not in (out["shown"]["body"] + out["unmarked"]["body"]).lower()

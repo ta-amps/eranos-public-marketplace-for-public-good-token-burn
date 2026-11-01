@@ -1,12 +1,12 @@
 import type { EstimateInput, RequestInfo, StatusEvent, StatusRecord } from "./types";
 
 /**
- * The SYNTHETIC example request (`eranos.instructions/request-example`): a list of facts with the times they
+ * The example request (`eranos.instructions/request-example`): a list of facts with the times they
  * would have, replayed at reading speed. Nothing in it was sent. Its ids and claim receipts use the real
  * formulas on example inputs; its submit and review receipts are stand-in hashes of example payloads.
  */
 export interface RequestExampleNoun {
-  synthetic: true;
+  is_example: true;
   mark: string;
   about: string;
   request: RequestInfo & { title: string; text: string; sent_at: number };
@@ -22,7 +22,7 @@ export interface ReportSource {
   url: string;
   access?: string;
   public?: boolean;
-  synthetic?: boolean;
+  is_example?: boolean;
   published?: string;
   publisher?: string;
 }
@@ -55,7 +55,7 @@ export interface ExampleSolution {
   review_receipt?: string;
   research_receipt?: string | null;
   next_step?: string;
-  synthetic?: boolean;
+  is_example?: boolean;
 }
 
 export const EXAMPLE_ID = "example";

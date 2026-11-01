@@ -450,6 +450,7 @@ def cmd_export_nouns(targets: list[Path]) -> int:
     from tessera import Store
 
     from eranos.nouns import export_nouns, seed_nouns
+    from eranos.visible import visible_tree
 
     with tempfile.TemporaryDirectory() as tmp:
         store = Store(f"{tmp}/nouns.db")
@@ -459,6 +460,8 @@ def cmd_export_nouns(targets: list[Path]) -> int:
             for target in targets:
                 count = export_nouns(store, target)
                 print(f"wrote {count} nouns to {target / 'nouns'}")
+                # Owner, Oct 31: what the site serves never says "synthetic" (eranos/visible.py).
+                visible_tree(target)
         finally:
             store.close()
     return 0

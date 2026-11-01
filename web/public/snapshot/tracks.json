@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "tracks": [
     {
       "id": "accessible-and-multilingual-communications",
@@ -20,7 +20,7 @@
         "mcp_tool_spec",
         "checklist_pack",
         "csv_template",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "external_send"
@@ -57,7 +57,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "helpline_directory_schema",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "interview",
@@ -101,7 +101,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "csv_template",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "individual_decision",
@@ -139,7 +139,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "csv_template",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "individual_decision",
@@ -177,7 +177,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "compliance_checklist",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "individual_decision",
@@ -214,7 +214,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "verification_checklist",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "individual_decision",
@@ -256,7 +256,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "referral_handoff_template",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "interview",
@@ -293,7 +293,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "intake_checklist",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "interview",
@@ -337,7 +337,7 @@
         "mcp_tool_spec",
         "csv_template",
         "markdown_sop",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "legal_judgment",
@@ -376,7 +376,7 @@
         "mcp_tool_spec",
         "csv_template",
         "markdown_sop",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "individual_decision",
@@ -415,7 +415,7 @@
         "mcp_tool_spec",
         "csv_template",
         "markdown_sop",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "individual_decision",
@@ -454,7 +454,7 @@
         "mcp_tool_spec",
         "csv_template",
         "checklist_pack",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "interview",
@@ -493,7 +493,7 @@
         "agent_skill",
         "mcp_tool_spec",
         "shift_sop_checklist",
-        "synthetic_test_pack"
+        "example_test_pack"
       ],
       "required_human_only": [
         "crisis_safety_plan",

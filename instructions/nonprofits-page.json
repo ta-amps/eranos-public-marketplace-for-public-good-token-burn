@@ -185,7 +185,7 @@
         "example": "For example: read our scanned intake forms and fill our spreadsheet, on our own computer.",
         "tip_label": "What is a reusable process?",
         "tip_title": "A reusable process",
-        "tip": "A ready-to-run package for your own AI agent: what it does, how to run it, how to install it, and tests on made-up data. You choose where it runs: with your agent, in a container, or in your cloud. Your files stay with you. It is also saved to the shared library, so other groups can use it."
+        "tip": "A ready-to-run package for your own AI agent: what it does, how to run it, how to install it, and tests on example data. You choose where it runs: with your agent, in a container, or in your cloud. Your files stay with you. It is also saved to the shared library, so other groups can use it."
       }
     ]
   },

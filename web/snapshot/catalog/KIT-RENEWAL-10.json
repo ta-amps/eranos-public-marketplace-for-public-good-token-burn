@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -202,7 +202,7 @@
       {
         "id": "FX-RENEWAL-ROUTINE",
         "scenario": "Two-year grant with every period reported and most targets met",
-        "sample_input": "SYNTHETIC: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
+        "sample_input": "Practice case: an example, not a real person or case. Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
         "expected_indicators": [
           "period_table_complete",
           "spending_copied_from_finance_lead",
@@ -213,7 +213,7 @@
       {
         "id": "FX-RENEWAL-GAP",
         "scenario": "One quarter's results are missing and one measure is well below target",
-        "sample_input": "SYNTHETIC: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
+        "sample_input": "Practice case: an example, not a real person or case. The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
         "expected_indicators": [
           "missing_period_reported_unknown",
           "below_target_flagged"
@@ -230,7 +230,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "example_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

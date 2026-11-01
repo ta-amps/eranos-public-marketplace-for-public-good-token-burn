@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -90,7 +90,7 @@
       "name": "warm-referral-drafter",
       "description": "Matches Open Referral HSDS program entries and drafts a plain-language checklist for a human navigator to review.",
       "boundary": "drafts",
-      "instructions": "Given published HSDS program records and a synthetic or navigator-entered need summary, list candidate programs with hours, transit notes, and required documents. Mark uncertain requirements as 'ask desk to confirm' rather than excluding the resident.",
+      "instructions": "Given published HSDS program records and a example or navigator-entered need summary, list candidate programs with hours, transit notes, and required documents. Mark uncertain requirements as 'ask desk to confirm' rather than excluding the resident.",
       "refuses": [
         "Denying eligibility automatically",
         "Transmitting client details externally without navigator sign-off"
@@ -143,7 +143,7 @@
       {
         "id": "FX-INTAKE-PANTRY",
         "scenario": "Weekend food pantry lookup with Spanish language support",
-        "sample_input": "SYNTHETIC: Household of three seeks Saturday food pantry access and Spanish intake hours in district 04.",
+        "sample_input": "Practice case: an example, not a real person or case. Household of three seeks Saturday food pantry access and Spanish intake hours in district 04.",
         "expected_indicators": [
           "weekend_hours_match"
         ],
@@ -152,7 +152,7 @@
       {
         "id": "FX-INTAKE-URGENT-HOUSING",
         "scenario": "Same-day eviction notice requiring emergency housing navigator",
-        "sample_input": "SYNTHETIC: Resident brings a 48-hour lockout notice and requests emergency rental assistance review.",
+        "sample_input": "Practice case: an example, not a real person or case. Resident brings a 48-hour lockout notice and requests emergency rental assistance review.",
         "expected_indicators": [
           "urgent_housing_timeline"
         ],
@@ -168,7 +168,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "example_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

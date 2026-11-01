@@ -1,12 +1,12 @@
 {
-  "synthetic": true,
+  "is_example": true,
   "needs": [
     {
       "kit_id": "KIT-IMPACT-06",
       "kit_title": "Monthly Program Impact Report Kit",
       "title": "A community nonprofit's need, in its own words",
       "says": "We need our monthly program numbers pulled together into a report for our board, compared with our targets and last month, with anything missing left blank instead of guessed. Our program manager checks the numbers and our director shares the report.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-monthly-impact-report",
         "key": "kit-monthly-impact-report.v0.1.0.example.request",
@@ -19,7 +19,7 @@
       "kit_title": "Handwritten Statements to Text Kit",
       "title": "A community center's need, in its own words",
       "says": "We need our handwritten intake statements typed up, keeping how people talk: their slang, spelling and acronyms exactly as written. Anything hard to read should be marked so our staff can check it, and nothing gets shared without the writer's OK.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-handwritten-statements",
         "key": "kit-handwritten-statements.v0.1.0.example.request",
@@ -32,7 +32,7 @@
       "kit_title": "Victim Support Referral Options Kit",
       "title": "A victim services program's need, in its own words",
       "says": "We need a list of counseling, support group and shelter options from the county's public directory that match a caller's language and hours, with when each listing was last checked. Our advocates talk with every caller and make every referral themselves.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-victim-support-referrals",
         "key": "kit-victim-support-referrals.v0.1.0.example.request",
@@ -45,7 +45,7 @@
       "kit_title": "Policy Research Brief Kit",
       "title": "A small nonprofit's need, in its own words",
       "says": "We need plain-language summaries of new city and state rules that touch our food and housing programs, with the exact section behind every point. Our policy lead and our lawyer decide what a rule means for us.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-policy-research-brief",
         "key": "kit-policy-research-brief.v0.1.0.example.request",
@@ -58,7 +58,7 @@
       "kit_title": "Funding Impact Summary for Grant Renewal Kit",
       "title": "A small nonprofit's need, in its own words",
       "says": "We need a first draft of what our two-year grant achieved for the renewal application, comparing our results with the original targets and using our treasurer's spending figures. Our finance lead checks every number and our director submits it.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-funding-impact-summary",
         "key": "kit-funding-impact-summary.v0.1.0.example.request",
@@ -71,7 +71,7 @@
       "kit_title": "Disaster Relief Volunteer Shift Schedule Kit",
       "title": "A flood relief hub's need, in its own words",
       "says": "We need help turning about 60 volunteer sign-ups into a shift schedule by skills and training, plus a one-page briefing for each site. Our coordinator confirms who goes where, and the site leads decide if a site is safe.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-volunteer-shift-schedule",
         "key": "kit-volunteer-shift-schedule.v0.1.0.example.request",
@@ -84,7 +84,7 @@
       "kit_title": "Food Bank Inventory and Pickup Scheduling Kit",
       "title": "A food bank's need, in its own words",
       "says": "We need help turning our Friday stock counts into a restock list, spotting food to hand out first, and spreading Saturday pickup slots so no window gets crowded. Our coordinator decides any extras, and our volunteers make the reminder calls.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-food-bank-pickups",
         "key": "kit-food-bank-pickups.v0.1.0.example.request",
@@ -97,7 +97,7 @@
       "kit_title": "Donor Thank-You Letters with Privacy Checks Kit",
       "title": "A small nonprofit's need, in its own words",
       "says": "We need thank-you letters drafted for about 300 year-end gifts that say what each gift supports and include our treasurer's receipt wording, without ever mixing up donors or naming anyone who asked to stay anonymous. Staff sign and mail every letter.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-donor-thank-you-letters",
         "key": "kit-donor-thank-you-letters.v0.1.0.example.request",
@@ -110,7 +110,7 @@
       "kit_title": "Multilingual Service Flyer Translation Check Kit",
       "title": "A community center's need, in its own words",
       "says": "We need each translated flyer checked against the English version before we print it, so a wrong date or phone number never goes out again. A fluent person from the community approves every language.",
-      "mark": "SYNTHETIC",
+      "mark": "practice-case",
       "noun": {
         "store": "seedpack.kit-flyer-translation-check",
         "key": "kit-flyer-translation-check.v0.1.0.example.request",
@@ -121,7 +121,7 @@
   ],
   "runs": {
     "count": 14,
-    "label": "example runs on a desktop computer, synthetic data",
+    "label": "example runs on a desktop computer, example data",
     "kits": [
       "KIT-FLYER-14",
       "KIT-GRANT-04",
