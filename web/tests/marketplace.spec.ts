@@ -507,7 +507,17 @@ test.describe("wording and accessibility", () => {
     await expect(footer.getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
     await expect(footer.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "/report");
     await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/status/");
-    await expect(footer.getByRole("link", { name: "Agora ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/");
+    // SiteFooter (Nov 1, v2): the trust links, then Agora's Models used, Status, Accessibility and Source pages.
+    await expect(footer.getByRole("navigation", { name: "Site information" }).getByRole("link")).toHaveText([
+      "Privacy",
+      "Terms",
+      "Report a problem",
+      "Models used ↗",
+      "Status ↗",
+      "Accessibility ↗",
+      "Source ↗",
+    ]);
+    await expect(footer.getByRole("link", { name: "Models used ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/models/");
   });
 
   test("trust pages (/privacy, /terms, /report) and 404 render plain-language guidance without status stamps", async ({ page }) => {

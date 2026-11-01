@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import re
 import subprocess
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "deploy" / "cloudflare" / "worker.js"
@@ -292,20 +295,45 @@ def test_static_page_and_readme_match_the_site_noun() -> None:
     assert f"<p>{site['privacy']}</p>" in html
 
 
-def test_starting_brief_noun_is_the_canonical_brief() -> None:
-    """The help noun's brief is the onboarding module's text for the home origin, which is also
-    Agora's site/agent-brief.txt without its final newline."""
-    script = (
-        "import { buildAgentPrompt } from "
-        + json.dumps((ROOT / "deploy" / "cloudflare" / "agent_start.js").as_uri())
-        + "; console.log(JSON.stringify(buildAgentPrompt('https://home.ta-amps.workers.dev', 'any')));"
-    )
-    run = subprocess.run(
-        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
-    )
+BRIEF = ROOT / "instructions" / "agent-brief.v2.txt"
+# Words a visitor or an agent never reads in the brief or the access sentence (owner, Nov 1).
+BRIEF_BANNED = re.compile(
+    r"\b(nouns?|verbs?|receipts?|prove[sdn]?)\b|synthetic|l{2}ama|cloud", re.IGNORECASE
+)
+
+
+def test_starting_brief_noun_is_the_shared_brief() -> None:
+    """The help noun's brief is the one shared agent brief, instructions/agent-brief.v2.txt (Agora copies the same
+    file byte for byte), without its final newline: Tasks and Task Objects, claim · do · report, a record."""
+    text = BRIEF.read_text(encoding="utf-8")
+    assert text.endswith(".\n") and "\r" not in text
     noun = json.loads((ROOT / "instructions" / "help.json").read_text(encoding="utf-8"))
-    assert noun["brief"] == json.loads(run.stdout)
+    assert noun["brief"] == text[:-1]
+    assert noun["brief_source"]["sha256"] == hashlib.sha256(BRIEF.read_bytes()).hexdigest()
+    assert "claim · do · report" in text and "Task Objects" in text
+    # API paths stay exactly as they are, shown as code.
+    assert "`https://home.ta-amps.workers.dev/connect.json`" in text
+    connect = json.loads((ROOT / "instructions" / "connect.json").read_text(encoding="utf-8"))
+    for words in (
+        text,
+        noun["brief_interests_goal"],
+        connect["authentication"],
+        connect["restrictions"],
+    ):
+        assert not BRIEF_BANNED.search(words), words
     assert not re.search(r"\btools?\b", " ".join(s["title"] + s["detail"] for s in noun["steps"]))
+
+
+def test_shared_brief_matches_the_notes_copy_when_it_is_beside_this_checkout() -> None:
+    """The canonical file lives in the workspace's shared folder; this repo's copy must stay byte for byte equal."""
+    for parent in ROOT.parents:
+        shared = parent / "shared" / "agent-brief.v2.txt"
+        if shared.is_file():
+            assert shared.read_bytes() == BRIEF.read_bytes(), (
+                f"{shared} and {BRIEF} have drifted apart"
+            )
+            return
+    pytest.skip("the shared agent brief is not beside this checkout")
 
 
 # Acceptance and accessibility fixes, October 30 ------------------------------------------------------------
@@ -992,9 +1020,9 @@ def test_trust_routes_security_txt_and_owner_wording() -> None:
             "Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt" in api_sec.text
         )
 
-    # Urgent owner wording rule: lowercase `task objects` and `tasks (things to do)`, never capitalized `Task Objects`
-    # or `tasks (verbs)`.
-    bad_terms = re.compile(r"Task Objects?|\b[Tt]asks \([Vv]erbs\)")
+    # Owner, Nov 1: the visible words are "Tasks" and "Task Objects" (this supersedes the earlier lowercase rule),
+    # never "tasks (verbs)".
+    bad_terms = re.compile(r"\b[Tt]asks \([Vv]erbs\)")
     for path in [ROOT / "README.md", *sorted((ROOT / "instructions").glob("*.json"))]:
         text = path.read_text(encoding="utf-8")
         assert not bad_terms.search(text), path.name

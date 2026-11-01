@@ -103,8 +103,8 @@ function agent(event: StatusEvent): Agent {
   return {
     who: event.worker,
     dedicated: event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? ""),
-    // Model names come from the models.meta catalog: the fact carries the id and its display name.
-    model: event.model_name ?? event.model,
+    // The model id the fact declares; its display name comes from the models.meta Task Object (lib/models.ts).
+    model: event.model,
     claimedAt: event.at ?? null,
     leaseEnds: event.lease_ends,
     receipt: event.receipt,
@@ -384,6 +384,8 @@ export interface DeriveOptions {
   formatClock: (at: number) => string;
   /** The page that shows a part's result: its cited report or its reusable process. */
   resultHref: (part: number) => string;
+  /** The display name of a declared model, from the models.meta Task Object; without it no model is named. */
+  modelName?: (id: string | undefined, dedicated: boolean) => string | null;
 }
 
 const COL = {
@@ -406,21 +408,29 @@ function evidenceOf(e: { receipt?: string; ref?: string } | undefined): string |
   return e?.receipt ?? e?.ref;
 }
 
-function agentChipText(words: RequestStatusNoun, a: Agent): string {
-  // A dedicated worker is named as the owner asked: "dedicated worker N (run by ta-amps)".
-  const who = a.dedicated ? fill(words.chips.dedicated ?? "", { n: /(\d+)/.exec(a.who ?? "")?.[1] ?? "1" }) : a.who;
-  if (who && a.model) return fill(words.chips.worker_model ?? "", { who, model: a.model });
+/** How the details name a worker: "dedicated worker N (run by ta-amps)" for Eranos's own, else the label it reports. */
+export function workerLabel(words: RequestStatusNoun, who: string | undefined, dedicated?: boolean): string | undefined {
+  if (!who) return who;
+  const own = dedicated ?? /^eranos[-_.\s]/i.test(who);
+  // N is the worker's own number, without a host's leading zeros ("eranos-review-pc02" is worker 2).
+  const digits = /(\d+)/.exec(who)?.[1];
+  return own ? fill(words.chips.dedicated ?? "", { n: digits ? String(Number(digits)) : "1" }) : who;
+}
+
+function agentChipText(words: RequestStatusNoun, a: Agent, options: DeriveOptions): string {
+  // A dedicated worker is named as the owner asked: "dedicated worker N (run by ta-amps)", with its model through
+  // the Meta API; a volunteer's chip names the model it declared. Names come from the models.meta Task Object.
+  const who = workerLabel(words, a.who, a.dedicated) ?? (a.dedicated ? fill(words.chips.dedicated ?? "", { n: "1" }) : undefined);
+  const model = options.modelName ? options.modelName(a.model, Boolean(a.dedicated)) : null;
+  if (who && model && a.dedicated && words.chips.dedicated_model) return fill(words.chips.dedicated_model, { who, model });
+  if (who && model) return fill(words.chips.worker_model ?? "", { who, model });
   if (a.dedicated) return who ?? "";
   return a.who ?? words.chips.agent ?? "";
 }
 
-function doneChipText(words: RequestStatusNoun, name: string | undefined, receipt: string | undefined): string | null {
-  if (receipt && /^[0-9a-f]{8,}$/i.test(receipt)) {
-    return name
-      ? fill(words.chips.worker_receipt ?? "", { who: name, r: shortReceipt(receipt) })
-      : fill(words.chips.receipt ?? "", { r: shortReceipt(receipt) });
-  }
-  return name ?? null;
+/** A finished step's chip names who did it; the record itself is a "Record" link in the list, never a hash. */
+function doneChipText(words: RequestStatusNoun, raw: string | undefined, _receipt: string | undefined): string | null {
+  return workerLabel(words, raw) ?? null;
 }
 
 function decisionLabel(words: RequestStatusNoun, choice: DecisionChoice): string {
@@ -440,7 +450,7 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
   for (const [index, event] of record.events.entries()) {
     if (event.type === "heartbeat" || !(event.receipt || event.ref)) continue;
     const n = event.part ?? 0;
-    const w = event.worker;
+    const w = workerLabel(words, event.worker, event.dedicated);
     const lease = event.lease_ends && event.at ? Math.round((event.lease_ends - event.at) / 60) : null;
     let text = "";
     switch (event.type) {
@@ -604,7 +614,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
       node: "plan",
       x: COL.plan.x,
       y: planChipY,
-      text: agentChipText(words, facts.planAgent),
+      text: agentChipText(words, facts.planAgent, options),
       kind: "agent",
       lease:
         facts.planAgent.claimedAt && facts.planAgent.leaseEnds
@@ -690,7 +700,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         node: `worker-${n}`,
         x: COL.worker.x,
         y: rc + 40,
-        text: agentChipText(words, p.workAgent),
+        text: agentChipText(words, p.workAgent, options),
         kind: "agent",
         lease: p.workAgent.claimedAt && p.workAgent.leaseEnds ? { start: p.workAgent.claimedAt, end: p.workAgent.leaseEnds } : undefined,
       });
@@ -729,7 +739,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         node: `review-${n}`,
         x: COL.review.x,
         y: chipY,
-        text: agentChipText(words, p.checkAgent),
+        text: agentChipText(words, p.checkAgent, options),
         kind: "agent",
         lease: p.checkAgent.claimedAt && p.checkAgent.leaseEnds ? { start: p.checkAgent.claimedAt, end: p.checkAgent.leaseEnds } : undefined,
       });
@@ -809,7 +819,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         word: (p.work === "working" ? words.nodes.working : p.work === "done" ? words.nodes.draft_ready : stateWord(words, "idle")) ?? "",
         detail:
           p.work === "working" && p.workAgent
-            ? [agentChipText(words, p.workAgent), p.workAgent.leaseEnds ? fill(words.chips.lease ?? "", { time: options.formatClock(p.workAgent.leaseEnds) }) : null]
+            ? [agentChipText(words, p.workAgent, options), p.workAgent.leaseEnds ? fill(words.chips.lease ?? "", { time: options.formatClock(p.workAgent.leaseEnds) }) : null]
                 .filter(Boolean)
                 .join(" · ")
             : p.work === "done"
@@ -824,7 +834,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         word: rv?.label && rv.state !== "idle" ? rv.label : stateWord(words, "idle"),
         detail:
           p.check === "working" && p.checkAgent
-            ? agentChipText(words, p.checkAgent)
+            ? agentChipText(words, p.checkAgent, options)
             : p.check === "approved"
               ? p.checkEvidence?.who
               : p.check === "sent_back"
@@ -860,7 +870,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
     word: (planLabel ?? "") + (planned ? ` · ${count === 1 ? words.nodes.one_part : fill(words.nodes.parts ?? "", { n: count })}` : ""),
     detail:
       facts.plan === "working" && facts.planAgent
-        ? agentChipText(words, facts.planAgent)
+        ? agentChipText(words, facts.planAgent, options)
         : facts.plan === "waiting"
           ? (inLine(facts.planPlace) ?? undefined)
           : facts.plan === "done"

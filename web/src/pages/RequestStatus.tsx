@@ -5,6 +5,7 @@ import { SNAPSHOT } from "../config";
 import { PlainStatus, plainSummary } from "../components/status/PlainStatus";
 import { QueuePanel, StateNotice, StatusDiagram, StatusList, StatusLog } from "../components/status/StatusParts";
 import { getJson } from "../lib/api";
+import { modelName, useModels } from "../lib/models";
 import { fill, type RequestStatusNoun } from "../lib/nouns";
 import { deriveView, type StatusView } from "../lib/status/derive";
 import { exampleNow, exampleRecord, MOMENTS, type RequestExampleNoun } from "../lib/status/example";
@@ -77,6 +78,13 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
     // The private key never goes back into the address (see dropKeyFromAddress).
     window.history.replaceState(window.history.state, "", url.pathname + url.search);
   }
+  // Every recorded step links to the public record that holds it (never to a hash): the example's own noun, or the
+  // request's version history in Tessera's public mirror.
+  const recordHref = example
+    ? `/api/nouns/eranos.instructions/${EXAMPLES[routeId] ?? "request-example"}`
+    : `/api/nouns/eranos.requests/${encodeURIComponent(routeId)}/history`;
+  // Model names in the details come from the models.meta Task Object, read through the Worker from Tessera.
+  const catalog = useModels();
   const derived: StatusView = useMemo(
     () =>
       deriveView(record, words, {
@@ -84,8 +92,9 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
         formatTime,
         formatClock,
         resultHref: (part) => resultPath(routeId, part),
+        modelName: (id, dedicated) => (words.model_names ? modelName(catalog, id, words.model_names, dedicated) : null),
       }),
-    [record, words, now, routeId],
+    [record, words, now, routeId, catalog],
   );
   const every = record.request.frequency === "recurring" ? (words.plain.every[record.request.cadence ?? ""] ?? "") : "";
   const requester = Boolean(live?.key) || Boolean(example);
@@ -191,6 +200,7 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           shareUrl={`${window.location.origin}/requests/${encodeURIComponent(routeId)}`}
           routeId={routeId}
           requester={requester}
+          settled={record.mode !== "live" || Boolean(live?.updated)}
         />
       )}
 
@@ -234,7 +244,7 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           <StatusDiagram view={derived} words={words} now={now} host={host} />
         ) : (
           <div ref={listHost}>
-            <StatusList view={derived} words={words} />
+            <StatusList view={derived} words={words} recordHref={recordHref} />
           </div>
         )}
         <p className="er-visually-hidden" aria-live="polite" data-testid="live-summary">
@@ -260,7 +270,7 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
       {technical && <AddedPanel view={derived} words={words} routeId={routeId} example={Boolean(example)} />}
 
       <div className={technical ? "er-status-lower" : "er-status-lower er-status-lower-plain"}>
-        {technical && <StatusLog rows={derived.log} words={words} formatTime={formatTime} />}
+        {technical && <StatusLog rows={derived.log} words={words} formatTime={formatTime} recordHref={recordHref} />}
         <aside className="er-status-side">
           {technical && queue && <QueuePanel queue={queue} words={words} showAgents={Boolean(example)} />}
           <section className="er-panel">
@@ -359,6 +369,8 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
   const moment = params.get("moment") ?? (hash === "#step-ready" ? "your-turn" : null);
   const speed = Math.min(4, Math.max(0.1, Number(params.get("speed")) || 1));
   const replayable = params.get("replay") !== "0";
+  // A moment page opens on that moment's facts from its first render, so the track shows only the last hop.
+  const momentCount = noun && moment && (MOMENTS as readonly string[]).includes(moment) ? (noun.moments[moment] ?? noun.events.length) : null;
   const [count, setCount] = useState(1);
   const [run, setRun] = useState(0);
   const timers = useRef<number[]>([]);
@@ -379,13 +391,13 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
     return () => timers.current.forEach((t) => window.clearTimeout(t));
   }, [noun, moment, speed, run]);
 
-  const record = useMemo(() => (noun ? exampleRecord(noun, count) : null), [noun, count]);
+  const record = useMemo(() => (noun ? exampleRecord(noun, momentCount ?? count) : null), [noun, count, momentCount]);
   if (!noun || !record) return null;
   return (
     <StatusFrame
       words={words}
       record={record}
-      now={exampleNow(noun, count)}
+      now={exampleNow(noun, momentCount ?? count)}
       routeId={routeId}
       example={{ mark: noun.mark, onReplay: replayable && !moment ? () => setRun((n) => n + 1) : undefined }}
       notices={

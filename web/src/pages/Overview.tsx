@@ -59,19 +59,25 @@ export function Overview({ site }: { site: SiteNoun | null }) {
             <span key={layer.id} className={`er-layer er-layer-${layer.id} er-depth-${layer.depth}`} />
           ))}
         </div>
-        <div className="er-landing-inner">
-          {home && <p className="er-eyebrow">{home.eyebrow}</p>}
+        <div className="er-landing-inner er-landing-center">
+          {home && <p className="er-landing-pill">{home.eyebrow}</p>}
           <h1 id="hero-title" className="er-display">
             {site?.headline ?? ""}
           </h1>
-          {site && <p className="er-landing-lead">{site.subline}</p>}
+          {(home?.lead ?? site?.subline) && <p className="er-landing-lead">{home?.lead ?? site?.subline}</p>}
           {home && (
             <div className="er-landing-buttons" role="group" aria-label={home.buttons_label}>
-              {home.buttons.map((button) => (
-                <AppLink key={button.id} to={button.to} className="er-btn-primary er-btn-hero er-door" data-door={button.id}>
+              {/* The two doors (EranosHome): "My NGO needs help" first and left, in ink; "I want to help" outlined. */}
+              {home.buttons.map((button, index) => (
+                <AppLink
+                  key={button.id}
+                  to={button.to}
+                  className={index === 0 ? "er-btn-primary er-door er-door-ink" : "er-btn-secondary er-door er-door-paper"}
+                  data-door={button.id}
+                >
                   <span className="er-door-label">
                     {button.label}
-                    <Icon name="arrow-right" size={20} />
+                    <Icon name="arrow-right" size={24} />
                   </span>
                   {button.sub && (
                     <span className="er-door-sub">
@@ -90,32 +96,45 @@ export function Overview({ site }: { site: SiteNoun | null }) {
             </p>
           )}
         </div>
+        {home?.track && (
+          // The request track in miniature, at the foot of the hero. The real one is each request's own page.
+          <ol className="er-landing-track" aria-hidden="true">
+            {home.track.map((station, index) => (
+              <li key={station} className={`er-landing-station er-landing-station-${index}`}>
+                {station}
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
 
       {home && (
         <>
-          <section className="er-band" aria-labelledby="gets-title">
+          <section className="er-asks" aria-labelledby="gets-title">
             <div className="er-container">
               <h2 id="gets-title">{home.gets.title}</h2>
-              <div className="er-gets">
+              <div className="er-asks-grid">
                 {home.gets.items.map((item) => (
-                  <div key={item.id} className="er-get">
-                    <span className="er-feature-tile" aria-hidden="true">
-                      <Icon name={item.id === "process" ? "package" : "file-text"} size={24} />
-                    </span>
-                    <div>
-                      <h3>{item.title}</h3>
-                      <p>
-                        {item.line}
-                        {item.link && item.to && (
-                          <>
-                            {" "}
-                            <AppLink to={item.to}>{item.link}</AppLink>
-                          </>
-                        )}
-                      </p>
-                    </div>
-                  </div>
+                  <article key={item.id} className="er-ask-card" data-kind={item.id}>
+                    {item.tag && <span className={item.id === "process" ? "er-kind-tag er-kind-tag-task" : "er-kind-tag er-kind-tag-object"}>{item.tag}</span>}
+                    <h3>{item.title}</h3>
+                    <p>{item.line}</p>
+                    {item.examples && (
+                      <ul className="er-ask-examples">
+                        {item.examples.map((example) => (
+                          <li key={example}>
+                            <Icon name="arrow-right" size={16} />
+                            {example}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {item.link && item.to && (
+                      <AppLink to={item.to} className="er-text-link">
+                        {item.link} →
+                      </AppLink>
+                    )}
+                  </article>
                 ))}
               </div>
             </div>

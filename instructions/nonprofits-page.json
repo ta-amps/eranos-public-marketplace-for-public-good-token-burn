@@ -49,8 +49,14 @@
         "address": "a street address"
       },
       "and": " and ",
-      "empty": "We check for names, emails, phone numbers and case details as you type.",
-      "clean": "No names, emails, phone numbers or case details found."
+      "empty": "As you type, an automatic check looks for emails, phone numbers, ID and card numbers, bank account numbers and street addresses. It can't recognise names or case details, so please leave them out.",
+      "clean": "Automatic check: no emails, phone, ID, card or bank numbers or street addresses found. It can't recognise names or case details, so please leave them out.",
+      "case_hint": "This may describe a real person ({kinds}). The check can't tell for sure, so please leave out anything that could identify someone.",
+      "case_kinds": {
+        "named": "a client or patient with a name",
+        "birth": "a date of birth",
+        "health": "a diagnosis or health detail"
+      }
     },
     "too_short": {
       "head": "Tell us a little more.",

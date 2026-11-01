@@ -22,7 +22,7 @@ export function Tracks() {
         {state.status === "ready" && (
           <div className="er-grid">
             {state.data.tracks.map((track) => (
-              <article key={track.id} className="er-card">
+              <article key={track.id} className="er-card" data-source-text>
                 <div className="er-chip-row">
                   <DomainBadge domain={track.domain} label={track.domain_label} />
                   <code>{track.id}</code>

@@ -166,17 +166,18 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (17)
+## instructions/ (18)
 
 | File | What it is |
 |---|---|
 | [instructions/agent-banner.json](instructions/agent-banner.json) | The agent instructions line above every page |
+| [instructions/agent-brief.v2.txt](instructions/agent-brief.v2.txt) |  |
 | [instructions/classify.json](instructions/classify.json) | Classify a request and break it into parts |
 | [instructions/connect.json](instructions/connect.json) | Connect to Eranos |
 | [instructions/help-page.json](instructions/help-page.json) | I want to help |
 | [instructions/help.json](instructions/help.json) | Help in six steps |
 | [instructions/home.json](instructions/home.json) | Home page |
-| [instructions/library.json](instructions/library.json) | Shared library |
+| [instructions/library.json](instructions/library.json) | Find a solution |
 | [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos |
 | [instructions/nonprofits-page.json](instructions/nonprofits-page.json) | Tell us what you need |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
@@ -235,7 +236,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (169)
+## web/ (173)
 
 | File | What it is |
 |---|---|
@@ -355,6 +356,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/lib/copy.ts](web/src/lib/copy.ts) |  |
 | [web/src/lib/library.ts](web/src/lib/library.ts) |  |
 | [web/src/lib/marketplace.ts](web/src/lib/marketplace.ts) |  |
+| [web/src/lib/models.ts](web/src/lib/models.ts) |  |
 | [web/src/lib/nouns.ts](web/src/lib/nouns.ts) |  |
 | [web/src/lib/privacy.ts](web/src/lib/privacy.ts) |  |
 | [web/src/lib/shown.ts](web/src/lib/shown.ts) |  |
@@ -395,13 +397,16 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/router.tsx](web/src/router.tsx) |  |
 | [web/src/styles/app.css](web/src/styles/app.css) |  |
 | [web/src/styles/base.css](web/src/styles/base.css) |  |
+| [web/src/styles/boards-nov1.css](web/src/styles/boards-nov1.css) |  |
 | [web/src/styles/eranos.css](web/src/styles/eranos.css) |  |
 | [web/src/styles/fonts.css](web/src/styles/fonts.css) |  |
 | [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Paper & Ink tokens v3 (Claude Design, Nov 1). |
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
+| [web/tests/fixtures/models.meta.json](web/tests/fixtures/models.meta.json) | JSON object: kind, id, version, runtime, fixture_note |
 | [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |
 | [web/tests/perf.spec.ts](web/tests/perf.spec.ts) |  |
+| [web/tests/phase-a2.spec.ts](web/tests/phase-a2.spec.ts) |  |
 | [web/tests/shell.spec.ts](web/tests/shell.spec.ts) |  |
 | [web/tests/status-logic.spec.ts](web/tests/status-logic.spec.ts) |  |
 | [web/tests/status.spec.ts](web/tests/status.spec.ts) |  |

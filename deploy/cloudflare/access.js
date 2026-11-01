@@ -10,7 +10,7 @@ export const CORS_HEADERS = {
 export function accessDescriptor(surface) {
   return {
     surface, fabric_connect_url: FABRIC_CONNECT, mcp_url: `https://${surface}.ta-amps.workers.dev/mcp`,
-    authentication: "Public reads and practice require no key. Tracked noun/verb work uses a Tessera anonymous session or API key.",
+    authentication: "Public reads and practice need no key. Tracked work on Tasks uses a Tessera anonymous session or an API key.",
     surface_persistence: false, cookies: false,
     anonymous: {session_endpoint: "https://tessera.ta-amps.workers.dev/v1/session/anonymous", token_prefix: "tan_", scope: "isolated demo namespace; quotas and expiry returned at mint"},
     keyed: {token_prefix: "tsk_", connect_url: FABRIC_CONNECT, scope: "account and key grants; operator approval for production writes"},

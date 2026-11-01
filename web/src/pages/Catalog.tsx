@@ -284,7 +284,7 @@ export function Catalog() {
                   <h2>
                     <AppLink to={`/catalog/${entry.kit.kit_id}`}>{entry.kit.title}</AppLink>
                   </h2>
-                  <p className="er-muted">{entry.kit.summary}</p>
+                  <p className="er-muted" data-source-text>{entry.kit.summary}</p>
                   <p className="er-muted">
                     <strong>Organization:</strong> {entry.kit.target_org} · <strong>Kind:</strong>{" "}
                     <code>{entry.kit.deliverable_kind}</code>

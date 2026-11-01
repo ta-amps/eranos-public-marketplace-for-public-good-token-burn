@@ -68,9 +68,9 @@
   flex-wrap: wrap;
 }
 .er-panel-dark {
-  background: var(--action);
-  color: var(--action-text);
-  border-color: var(--action);
+  background: var(--sunken);
+  color: var(--text);
+  border-color: var(--line);
 }
 .er-panel-dark ul {
   margin: 0;
@@ -734,8 +734,9 @@ ta-agent-banner {
 .er-safety {
   margin-top: 32px;
   padding: 56px 0;
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--sunken);
+  color: var(--text);
+  border-top: 1px solid var(--line);
 }
 .er-safety-grid {
   display: grid;
@@ -748,7 +749,7 @@ ta-agent-banner {
 }
 .er-safety-grid dd {
   margin: 8px 0 0;
-  opacity: 0.86;
+  color: var(--text-2);
 }
 .er-main-home + .er-footer {
   margin-top: 0;
@@ -917,8 +918,9 @@ ta-agent-banner {
   width: min(320px, 80vw);
   padding: 12px 14px;
   border-radius: var(--radius-md);
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
   font-size: var(--fs-small);
   font-weight: 400;
   line-height: 1.45;
@@ -931,6 +933,9 @@ ta-agent-banner {
 .er-tip:focus-within .er-tip-text {
   visibility: visible;
   opacity: 1;
+}
+.er-tip[data-dismissed="true"] .er-tip-text {
+  display: none;
 }
 /* On a phone the tip spans its option card, so it never reaches past the screen's edge. */
 @media (max-width: 599px) {
@@ -1342,8 +1347,8 @@ ta-agent-banner {
   border: 1.5px dashed var(--attention);
 }
 .er-node-decided {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--real-wash);
+  color: var(--real);
   border: 1.5px solid var(--text);
 }
 .er-node-noun {
@@ -1743,8 +1748,9 @@ ta-agent-banner {
   flex-wrap: wrap;
   padding: 22px 24px;
   border-radius: 20px;
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--sunken);
+  color: var(--text);
+  border: 1px solid var(--line);
 }
 .er-bridge > span:nth-child(2) {
   flex: 1;
@@ -1756,9 +1762,9 @@ ta-agent-banner {
   height: 40px;
   border-radius: 10px;
   background:
-    linear-gradient(var(--action), var(--action)) 50% 0 / 4.8px 100% no-repeat,
-    linear-gradient(var(--action), var(--action)) 0 50% / 100% 4.8px no-repeat,
-    conic-gradient(var(--mark-2) 0 25%, var(--mark-4) 0 50%, var(--bg) 0 75%, var(--mark-1) 0);
+    linear-gradient(var(--sunken), var(--sunken)) 50% 0 / 4.8px 100% no-repeat,
+    linear-gradient(var(--sunken), var(--sunken)) 0 50% / 100% 4.8px no-repeat,
+    conic-gradient(var(--mark-2) 0 25%, var(--mark-4) 0 50%, var(--mark-3) 0 75%, var(--mark-1) 0);
 }
 .er-result-aside {
   flex: 1 1 300px;
@@ -2565,7 +2571,7 @@ button.er-choice-pill {
   background: var(--surface);
 }
 
-/* ------------------------------------------------ the request track (RequestStatusPage, calm) */
+/* ------------------------------------------------ the request track (RequestStatusPage, calm; owner v2, Nov 1) */
 .er-track {
   position: sticky;
   top: 0;
@@ -2582,13 +2588,15 @@ button.er-choice-pill {
   padding: 0;
   list-style: none;
 }
+/* The rail, through the station centres. */
 .er-track ol::before {
   content: "";
   position: absolute;
-  top: 7px;
+  top: 9px;
   left: calc(100% / 12);
   right: calc(100% / 12);
-  height: 2px;
+  height: 4px;
+  border-radius: 2px;
   background: var(--line);
 }
 .er-track a {
@@ -2598,9 +2606,10 @@ button.er-choice-pill {
   align-items: center;
   gap: 8px;
   padding: 0 4px;
-  color: var(--text-2);
+  color: var(--text-3);
   font-size: var(--fs-small);
   font-weight: 600;
+  line-height: 1.3;
   text-align: center;
   text-decoration: none;
 }
@@ -2608,36 +2617,100 @@ button.er-choice-pill {
 .er-track a[aria-current="step"] {
   color: var(--text);
 }
+.er-track a[aria-current="step"] {
+  font-weight: 700;
+}
 .er-track-dot {
-  width: 16px;
-  height: 16px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
   border-radius: 50%;
-  border: 2px solid var(--line-strong);
+  border: 1.5px dashed var(--line-strong);
   background: var(--bg);
+  color: var(--text-inverse);
+  font-size: 14px;
+  line-height: 1;
 }
 .er-track li[data-state="done"] .er-track-dot {
   background: var(--text);
-  border-color: var(--text);
+  border: 0;
 }
-.er-track a[aria-current="step"] .er-track-dot {
-  border-color: var(--action);
+.er-track li[data-state="done"] .er-track-dot::before {
+  content: "✓";
+}
+.er-track li[data-step="5"][data-state="done"] .er-track-dot {
+  background: var(--real);
+}
+.er-track li[data-state="now"] .er-track-dot {
+  border: 3px solid var(--text);
+  background: var(--surface);
+}
+.er-track li[data-state="now"][data-tone="work"] .er-track-dot {
+  border: 0;
+  background: var(--task);
+}
+.er-track li[data-state="now"][data-tone="turn"] .er-track-dot {
+  border: 0;
+  background: var(--attention);
+}
+/* The token rides a lane one station wide; data-pos moves it a whole station at a time, by transform only. */
+.er-track-lane {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  width: calc(100% / 6);
+  height: 14px;
+  pointer-events: none;
 }
 .er-track-token {
   position: absolute;
-  top: 13px;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  transform: translateX(0);
+}
+.er-track-token::before {
+  content: "";
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--verb);
+  background: var(--object);
   box-shadow: 0 0 0 4px var(--bg);
-  pointer-events: none;
 }
-.er-track[data-animate="true"] .er-track-token {
-  transition: left var(--dur-track) var(--ease-track), background-color var(--dur-base) var(--ease-standard);
+.er-track-token[data-tone="work"]::before {
+  background: var(--task);
 }
-.er-track-token[data-back="true"] {
-  background: var(--verb-text);
-  outline: 2px solid var(--verb-wash);
+.er-track-token[data-tone="turn"]::before {
+  background: var(--attention);
+}
+.er-track-token[data-tone="done"]::before {
+  background: var(--real);
+}
+.er-track-token[data-back="true"]::before {
+  background: var(--task-text);
+  outline: 2px solid var(--task-wash);
+}
+.er-track-token[data-pos="1"] {
+  transform: translateX(100%);
+}
+.er-track-token[data-pos="2"] {
+  transform: translateX(200%);
+}
+.er-track-token[data-pos="3"] {
+  transform: translateX(300%);
+}
+.er-track-token[data-pos="4"] {
+  transform: translateX(400%);
+}
+.er-track-token[data-pos="5"] {
+  transform: translateX(500%);
+}
+.er-track-lane[data-animate="true"] .er-track-token {
+  transition: transform var(--dur-track) var(--ease-track);
 }
 .er-ghosts {
   display: inline-flex;
@@ -2650,15 +2723,11 @@ button.er-choice-pill {
   border: 1px dashed var(--line-strong);
 }
 .er-rq-band {
-  scroll-margin-top: 96px;
+  scroll-margin-top: 160px;
 }
+/* Reduced motion: the token jumps to its station; nothing travels. */
 @media (prefers-reduced-motion: reduce) {
-  .er-track[data-animate="true"] .er-track-token {
-    transition: opacity var(--dur-fast) linear;
-  }
-}
-@media (max-width: 599px) {
-  .er-track a {
-    font-size: 0.8125rem;
+  .er-track-lane[data-animate="true"] .er-track-token {
+    transition: none;
   }
 }

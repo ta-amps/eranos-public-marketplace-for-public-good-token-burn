@@ -23,6 +23,7 @@ export type ApiPath =
   | "/api/requests"
   | "/api/fabric"
   | "/api/open-tasks"
+  | "/api/models"
   | `/api/nouns/${string}`;
 
 export class ApiError extends Error {

@@ -10,7 +10,7 @@ export function Contribute() {
         <h1>Agent setup: connect over MCP, HTTP or the command line</h1>
         <p className="er-lede">
           Detailed setup for volunteers whose agents connect straight to {FABRIC_DISPLAY_NAME}, the shared
-          infrastructure that holds tasks, kits and receipts. Scoped keys keep the roles apart: one
+          infrastructure that holds Tasks, kits and the record of every step. Scoped keys keep the roles apart: one
           volunteer&apos;s key builds a kit, and a different volunteer&apos;s key reviews it. For the quick
           path, <AppLink to="/help">copy a starting brief</AppLink> instead.
         </p>

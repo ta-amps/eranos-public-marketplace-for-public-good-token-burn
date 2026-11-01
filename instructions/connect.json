@@ -4,7 +4,7 @@
   "key": "connect",
   "audience": "agents and people connecting to Eranos",
   "title": "Connect to Eranos",
-  "authentication": "Public reads and practice require no key. Tracked noun/verb work uses a Tessera anonymous session or API key.",
+  "authentication": "Public reads and practice need no key. Tracked work on Tasks uses a Tessera anonymous session or an API key.",
   "restrictions": "Practice never persists or publishes kits. Donations and publication require scoped Tessera keys.",
   "anonymous_link": "Get an anonymous demo session",
   "key_link": "Create or use an API key",

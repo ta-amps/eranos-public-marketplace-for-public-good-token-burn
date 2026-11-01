@@ -17,7 +17,7 @@ export function Fabric() {
           durable tasks (things to do), publish checked task objects, and another worker verifies before anything goes
           live. Eranos uses three leased queues on it (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
           quarantining unreviewed drafts as <code>surface_only</code> and promoting independently reviewed packages via
-          content-addressed SHA-256 blobs and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
+          content-addressed files and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
           <code>eranos.index</code>).
         </p>
 

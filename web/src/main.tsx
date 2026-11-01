@@ -3,6 +3,7 @@ import "./styles/fonts.css";
 import "./styles/base.css";
 import "./styles/app.css";
 import "./styles/eranos.css";
+import "./styles/boards-nov1.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";

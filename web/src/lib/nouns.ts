@@ -137,7 +137,8 @@ export interface ShellNoun {
   right?: NounLink;
   external_note: string;
   menu: { button: string; open_label: string; close: string; close_label: string; sheet_label: string };
-  footer: { line: string; links_label: string; links: NounLink[]; storage: string };
+  /** SiteFooter (Nov 1): the brand and its line, the trust links, and what this browser keeps. */
+  footer: { brand?: string; line: string; links_label: string; links: NounLink[]; storage: string };
 }
 
 /** The home page: `eranos.instructions/home`. */
@@ -148,7 +149,14 @@ export interface HomeNoun {
   buttons: { id: string; label: string; to: string; sub?: string; sub_short?: string }[];
   honesty: string;
   honesty_short?: string;
-  gets: { title: string; items: { id: string; title: string; line: string; link?: string; to?: string }[] };
+  /** The hero's line under the headline (EranosHome); the site noun's subline when absent. */
+  lead?: string;
+  /** The mini request track at the foot of the hero: its stations, in order (EranosHome). */
+  track?: string[];
+  gets: {
+    title: string;
+    items: { id: string; tag?: string; title: string; line: string; examples?: string[]; link?: string; to?: string }[];
+  };
   how: { title: string; title_short: string; link: string; to: string; steps: { title: string; detail: string; short: string }[] };
   now: { title: string; requests: CountWords; open: CountWords; working: CountWords; kits: CountWords; note: string };
   safety: { title: string; items: { q: string; a: string; a_short: string }[] };
@@ -219,7 +227,16 @@ export interface NonprofitsPageNoun {
     examples_label: string;
     examples: { id: string; short: string; text: string; output_type: string; frequency: string; cadence?: string }[];
     privacy: string;
-    check: { lead: string; ask: string; kinds: Record<string, string>; and: string; empty: string; clean: string };
+    check: {
+      lead: string;
+      ask: string;
+      kinds: Record<string, string>;
+      and: string;
+      empty: string;
+      clean: string;
+      case_hint?: string;
+      case_kinds?: Record<string, string>;
+    };
     placeholders: { process: string; information: string; none: string };
     min_chars: number;
     switch: { text: string; action: string };
@@ -290,6 +307,8 @@ export interface RequestStatusNoun {
   added: Words;
   yours: Words;
   plain: PlainWords;
+  /** How a page names a model when the models.meta Task Object has no display name for it. */
+  model_names?: { fallback: string; own: string };
   steps: Record<"tag_process" | "tag_information" | "tag_checked" | "tag_updating" | "tag_updated" | "back" | "what" | "only_person" | "practice" | "practice_lead" | "practice_message" | "run" | "run_lead" | "agent_message" | "copy" | "copied" | "show_how" | "hide_how" | "in_short" | "in_short_note" | "checked_how" | "download" | "download_note" | "curious", string>;
   decide: Record<"title" | "lead_process" | "lead_information" | "yes" | "changes" | "changes_label" | "changes_note" | "send" | "cancel" | "done_head" | "done_body" | "pending_head" | "pending_body" | "band_title" | "band_adding" | "band_added" | "band_none" | "band_some" | "band_link", string>;
   library_link: string;
@@ -399,7 +418,8 @@ export interface PlainWords {
   tags: { not_yet: T; made: T; checked: T; changing: T };
   happened_title: T;
   happened_more: T;
-  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T>;
+  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T> &
+    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos", T>>;
   share_lead: T;
   share: T;
   shared: T;
@@ -410,15 +430,17 @@ export interface PlainWords {
   private_line: T;
   copy_link: T;
   copied_link: T;
-  strip: T[];
-  strip_ready_public: T;
+  /** The request track's six stations (owner v2, Nov 1): the name while the request is there, and otherwise. */
+  track: { stations: { now: T; now_public?: T; other: T }[]; token: T; token_public: T; token_done: T; done?: T };
   bands: {
     sorted: Record<"title" | "process" | "information" | "checked" | "waiting", T>;
     made: Record<
-      "title_now" | "title_done" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded" | "failed" | "retry" | "retry_count",
+      | "title_now" | "title_done" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded"
+      | "models_link" | "models_href" | "failed" | "retry" | "retry_count",
       T
     >;
-    checked: Record<"title" | "rule" | "blocked" | "sent_back_one" | "sent_back_many" | "waiting" | "checking" | "done" | "upcoming", T>;
+    checked: Record<"title" | "rule" | "blocked" | "sent_back_one" | "sent_back_many" | "waiting" | "checking" | "done" | "upcoming", T> &
+      Partial<Record<"title_eranos" | "checking_eranos", T>>;
     ready: Record<
       | "title" | "title_public" | "process" | "information" | "open_process" | "open_information" | "decide" | "decide_link"
       | "library_title" | "library_added" | "library_link" | "library_how" | "upcoming" | "reused" | "reused_link" | "next_run",

@@ -6,7 +6,7 @@ import { flushSync } from "react-dom";
 import { FABRIC_PUBLIC_URL, SNAPSHOT } from "../config";
 import { loadLibrary, searchLibrary, type LibraryItem } from "../lib/library";
 import { fill, type NonprofitsPageNoun } from "../lib/nouns";
-import { personalDataKinds } from "../lib/privacy";
+import { caseDetailHints, personalDataKinds } from "../lib/privacy";
 import { queueFromFabric } from "../lib/status/live";
 import type { FabricResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
@@ -45,9 +45,16 @@ export interface LibraryWords {
   check: { title: string; lead: string; read: string; read_note: string; send: string; send_note: string };
 }
 
-// Zero browser storage on Eranos (owner, Nov 1): an unsent request lives only in this tab's memory.
-function loadDraft(): Draft {
-  return EMPTY;
+// Zero browser storage on Eranos (owner, Nov 1): an unsent request lives only in this tab's memory. A link from the
+// library can start it: `?q=` fills the description ("Ask for this"), and `?improve=` starts "Improve an earlier
+// request" with that solution's link ("Adapt it for my group"). Nothing is sent until Send.
+function loadDraft(page: NonprofitsPageNoun): Draft {
+  const params = new URLSearchParams(window.location.search);
+  const text = (params.get("q") ?? "").trim().slice(0, 2000);
+  const improve = (params.get("improve") ?? "").trim().slice(0, 500);
+  if (!text && !improve) return EMPTY;
+  const prefs = improve ? JSON.stringify({ ...EMPTY_PREFS, start: page.advanced.improve.value, improve_link: improve }) : "";
+  return { ...EMPTY, text, prefs };
 }
 
 function saveDraft(_draft: Draft): void {
@@ -107,7 +114,7 @@ function clock(at: number): string {
 export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; libraryWords: LibraryWords | null }) {
   const form = page.form;
   const ids = useId();
-  const [draft, setDraft] = useState<Draft>(loadDraft);
+  const [draft, setDraft] = useState<Draft>(() => loadDraft(page));
   const [consent, setConsent] = useState(false);
   const [tried, setTried] = useState(false);
   const [sending, setSending] = useState(false);
@@ -115,6 +122,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
   const [online, setOnline] = useState(() => navigator.onLine);
   const [copied, setCopied] = useState(false);
   const [hits, setHits] = useState<LibraryItem[] | null>(null);
+  const [tipOff, setTipOff] = useState("");
   const newRequest = useRef(false);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const alert = useRef<HTMLDivElement>(null);
@@ -154,6 +162,8 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
   const setPrefs = (next: Prefs) => set("prefs")(next === EMPTY_PREFS ? "" : JSON.stringify(next));
   // The privacy check reads the main box, every "Other" box and the improvement note together, as you type.
   const flags = personalDataKinds([draft.text, prefsText(prefs, page.advanced)].filter(Boolean).join("\n"));
+  // Likely case details only warn: the check can't recognise names or case details for sure (persona review, PE-03).
+  const hints = caseDetailHints([draft.text, prefsText(prefs, page.advanced)].filter(Boolean).join("\n"));
   const chooseFrequency = (value: string) =>
     setDraft((current) => ({ ...current, frequency: value, cadence: value === "recurring" ? current.cadence || page.frequency.default_cadence : "" }));
   const outputs = draft.output.split(",").filter(Boolean);
@@ -321,7 +331,18 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
                 <span className="er-choice-label">
                   {option.label}
                   {option.tip && (
-                    <span className="er-tip">
+                    // The explanation sits inside the option's label: a click on it must never tick a box (persona
+                    // review: on phones it covered the next card), and Escape hides it (WCAG 1.4.13).
+                    <span
+                      className="er-tip"
+                      data-dismissed={tipOff === option.value}
+                      onClick={(event) => event.preventDefault()}
+                      onMouseLeave={() => setTipOff("")}
+                      onBlur={() => setTipOff("")}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") setTipOff(option.value);
+                      }}
+                    >
                       <button type="button" className="er-tip-button" aria-describedby={`${ids}-${option.value}-tip`}>
                         <Icon name="info" size={18} />
                         <span className="er-visually-hidden">{option.tip_label}</span>
@@ -431,6 +452,12 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
           ) : (
             <p className="er-small er-check-line" data-testid="check-line">
               {draft.text.trim() ? form.check.clean : form.check.empty}
+            </p>
+          )}
+          {flags.length === 0 && hints.length > 0 && form.check.case_hint && (
+            <p className="er-flag er-flag-soft" data-testid="case-detail-hint">
+              <Icon name="circle-alert" size={20} strokeWidth={2} />
+              <span>{fill(form.check.case_hint, { kinds: hints.map((h) => form.check.case_kinds?.[h] ?? h).join(form.check.and) })}</span>
             </p>
           )}
           {flags.length > 0 && !outputs.includes("process") && (

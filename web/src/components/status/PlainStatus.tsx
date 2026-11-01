@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { AGORA_HOW_IT_WORKS_URL } from "../../lib/marketplace";
 import { fill, type PlainWords } from "../../lib/nouns";
-import type { Facts } from "../../lib/status/derive";
+import { applyEvents, type Facts } from "../../lib/status/derive";
 import { ordinal } from "../../lib/status/estimate";
 import type { StatusEvent } from "../../lib/status/types";
 import { AppLink } from "../../router";
@@ -41,6 +41,11 @@ function shortReason(reason: string): string {
   return first.length > 140 ? `${first.slice(0, 138)}\u2026` : first;
 }
 
+/** True when one of Eranos's own (dedicated) workers recorded the fact: its flag, or else its label. */
+function byEranos(event: StatusEvent): boolean {
+  return event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? "");
+}
+
 /** Where a reused answer came from: its catalog page, or the public record that holds it. */
 function sourceHref(event: StatusEvent): string | null {
   if (/^(KIT|PRC)-/.test(event.result_id ?? "")) return `/catalog/${encodeURIComponent(event.result_id ?? "")}`;
@@ -54,10 +59,43 @@ function changing(part: Part): boolean {
 }
 
 export interface PlainSummary {
-  strip: { label: string; state: StageState }[];
+  /** The four bands' states (sorted, made, checked, ready), in order. */
+  bands: StageState[];
+  /** The request track (owner v2, Nov 1): one station and its tone, the one source for the token and aria-current. */
+  track: TrackState;
   chip: string;
   waiting: boolean;
   yourTurn: boolean;
+}
+
+/** wait: in line, or a person's turn to wait for; work: someone is on it; turn: a person decides; done: delivered. */
+export type TrackTone = "wait" | "work" | "turn" | "done";
+export interface TrackState {
+  at: number;
+  tone: TrackTone;
+  /** True when the request is back at "Being made": a check sent it back, or the team asked for changes. */
+  back: boolean;
+}
+
+/** Where one part stands on the six stations (CLAUDE-CODE-PROMPT §4.2 and the RequestStatusPage board's rule). */
+function partStation(part: Part): TrackState {
+  if (part.library || (part.decide === "decided" && part.decision?.choice !== "changes")) return { at: 5, tone: "done", back: false };
+  if (changing(part) || part.check === "sent_back") return { at: 2, tone: "work", back: true };
+  if (part.decide === "yourturn" || part.check === "approved") return { at: 5, tone: "turn", back: false };
+  if (part.check === "working") return { at: 4, tone: "work", back: false };
+  if (part.work === "done") return { at: 3, tone: "wait", back: false };
+  if (part.work === "working") return { at: 1, tone: "work", back: false };
+  return { at: 0, tone: "wait", back: false };
+}
+
+/**
+ * The request's station: its least advanced part, so a second part's progress, a later decision or a recurring
+ * run's next queue never moves it the wrong way. Before the plan exists, it is in line.
+ */
+export function trackState(facts: Facts): TrackState {
+  const parts = facts.parts;
+  if (facts.plan !== "done" || parts.length === 0) return { at: 0, tone: "wait", back: false };
+  return parts.map(partStation).reduce((low, next) => (next.at < low.at ? next : low));
 }
 
 export function plainSummary(facts: Facts, words: PlainWords, every: string, requester = true): PlainSummary {
@@ -75,14 +113,11 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
   const inLibrary = parts.some((p) => p.library);
   const remaking = parts.some(changing);
   const state = (done: boolean, now: boolean): StageState => (done ? "done" : now ? "now" : "upcoming");
-  const labels = words.strip;
-  const strip = [
-    { label: labels[0] ?? "", state: "done" as StageState },
-    { label: labels[1] ?? "", state: state(planned, !planned) },
-    { label: labels[2] ?? "", state: state(allMade && !remaking, planned) },
-    { label: labels[3] ?? "", state: state(allChecked && !remaking, anyChecking || waitingCheck || sentBack) },
-    { label: requester ? (labels[4] ?? "") : words.strip_ready_public, state: state(allDecided, yourTurn) },
-    { label: labels[5] ?? "", state: state(inLibrary, false) },
+  const bands: StageState[] = [
+    state(planned, !planned),
+    state(allMade && !remaking, planned),
+    state(allChecked && !remaking, anyChecking || waitingCheck || sentBack),
+    state(allDecided, yourTurn),
   ];
 
   const c = words.chip;
@@ -116,89 +151,101 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
                       ? c.waiting_volunteer
                       : c.planning;
   const waiting = !facts.withdrawn && !facts.blocked && !yourTurn && !allDecided && !anyWorking && !anyChecking;
-  return { strip, chip, waiting, yourTurn };
+  return { bands, track: trackState(facts), chip, waiting, yourTurn };
 }
 
 /** The board's caption names for the film frame (RequestStatusPage onEvent), from the recorded event types. */
 /** The four bands' anchors (DESIGN-SPEC 0.2); the judge tour links to #step-ready. */
 const BAND_IDS = ["step-split", "step-build", "step-review", "step-ready"];
-/** Which band each of the six stations opens. */
-const STATION_BAND = [0, 0, 1, 2, 3, 3];
-/** The station each recorded fact moves the request to (request-status-events v1 tracks, live workers' names). */
-const STATION: Partial<Record<StatusEvent["type"], number>> = {
-  received: 0,
-  plan_claimed: 1,
-  planned: 1,
-  blocked: 1,
-  queued: 2,
-  work_claimed: 2,
-  work_released: 2,
-  work_submitted: 3,
-  check_claimed: 3,
-  check_refused: 3,
-  check_approved: 3,
-  check_sent_back: 2,
-  signoff_required: 4,
-  delivered: 4,
-  published: 4,
-  decided: 4,
-  library_added: 5,
-};
+/** Which band each of the six stations opens: In line, Picked up, Being made, In line for a check, Being checked, Ready. */
+const STATION_BAND = [0, 1, 1, 2, 2, 3];
 
-/** Where the token stands now and where it stood one hop before, from the recorded facts only. */
-function trackPositions(events: StatusEvent[]): { pos: number; prev: number; back: boolean } {
-  const stations = events.filter((e) => (e.receipt || e.ref) && STATION[e.type] !== undefined).map((e) => ({ at: STATION[e.type] as number, type: e.type }));
-  const last = stations.at(-1);
-  if (!last) return { pos: 0, prev: 0, back: false };
-  const before = [...stations].reverse().find((x) => x.at !== last.at);
-  return { pos: last.at, prev: before?.at ?? last.at, back: last.type === "check_sent_back" || (before ? last.at < before.at : false) };
+/** The station before the request's last move, so a page that opens on a settled request shows only that one hop. */
+function stationBefore(events: StatusEvent[], now: TrackState): number {
+  for (let n = events.length - 1; n > 0; n -= 1) {
+    const earlier = trackState(applyEvents(events.slice(0, n))).at;
+    if (earlier !== now.at) return earlier;
+  }
+  return now.at;
 }
 
 /**
- * The request track: six stations, one token. The token moves only when a recorded fact arrives (900 ms, or a
- * 120 ms fade with reduced motion); on load it shows only the last hop. "Sent back" moves it backwards. Ghost
- * pills stand for the requests ahead in line.
+ * The token. It mounts only on settled facts, at the station before the request's last move, and two frames later
+ * moves to where the request is: one hop on load, then one move per change. With reduced motion it jumps.
  */
-function RequestTrack({ summary, events, label, ahead }: { summary: PlainSummary; events: StatusEvent[]; label: string; ahead: number }) {
-  const { pos, prev, back } = trackPositions(events);
-  const [shown, setShown] = useState(prev);
+function TrackToken({ track, events }: { track: TrackState; events: StatusEvent[] }) {
+  const [shown, setShown] = useState(() => stationBefore(events, track));
   const [animate, setAnimate] = useState(false);
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      setAnimate(true);
-      setShown(pos);
+    let inner = 0;
+    const outer = window.requestAnimationFrame(() => {
+      inner = window.requestAnimationFrame(() => {
+        setAnimate(true);
+        setShown(track.at);
+      });
     });
-    return () => window.cancelAnimationFrame(frame);
-  }, [pos]);
-  const current = summary.strip.findIndex((step) => step.state === "now");
-  const at = current >= 0 ? current : pos;
+    return () => {
+      window.cancelAnimationFrame(outer);
+      window.cancelAnimationFrame(inner);
+    };
+  }, [track.at]);
   return (
-    <nav className="er-track" aria-label={label} data-animate={animate} data-testid="request-track">
+    <span className="er-track-lane" aria-hidden="true" data-animate={animate}>
+      <span className="er-track-token" data-testid="track-token" data-pos={shown} data-tone={track.tone} data-back={track.back} />
+    </span>
+  );
+}
+
+/**
+ * The request track (owner v2, Nov 1): six stations and one token, both from the request's state (trackState), so
+ * the token and aria-current never disagree. The token moves 900 ms by transform only when the state changes; a
+ * page that opens on a settled request shows only the last hop, and with reduced motion it jumps. A check that
+ * sends the work back moves it backwards. Ghost pills stand for the requests ahead in line.
+ */
+function RequestTrack({
+  track,
+  events,
+  words,
+  label,
+  ahead,
+  settled,
+  requester,
+}: {
+  track: TrackState;
+  events: StatusEvent[];
+  words: PlainWords["track"];
+  label: string;
+  ahead: number;
+  settled: boolean;
+  requester: boolean;
+}) {
+  const delivered = track.tone === "done";
+  return (
+    <nav className="er-track" aria-label={label} data-testid="request-track">
       <ol>
-        {summary.strip.map((step, i) => (
-          <li key={step.label} data-step={i} data-state={step.state}>
-            <a href={`#${BAND_IDS[STATION_BAND[i] ?? 0]}`} aria-current={i === at ? "step" : undefined}>
-              <span className="er-track-dot" aria-hidden="true" />
-              <span>{step.label}</span>
-              {i === 2 && ahead > 0 && (
-                <span className="er-ghosts" aria-hidden="true" data-testid="ghost-pills">
-                  {Array.from({ length: Math.min(ahead, 4) }, (_, k) => (
-                    <span key={k} className="er-ghost" />
-                  ))}
-                </span>
-              )}
-            </a>
-          </li>
-        ))}
+        {words.stations.map((station, i) => {
+          const done = i < track.at || (i === 5 && delivered);
+          const now = i === track.at && !done;
+          const name = now ? (i === 5 && !requester ? (station.now_public ?? station.now) : station.now) : station.other;
+          return (
+            <li key={i} data-step={i} data-state={done ? "done" : now ? "now" : "upcoming"} data-tone={now ? track.tone : undefined}>
+              <a href={`#${BAND_IDS[STATION_BAND[i] ?? 0]}`} aria-current={now ? "step" : undefined}>
+                <span className="er-track-dot" aria-hidden="true" />
+                <span className="er-track-name">{name}</span>
+                {done && words.done && <span className="er-visually-hidden"> ({words.done})</span>}
+                {i === 0 && now && ahead > 0 && (
+                  <span className="er-ghosts" aria-hidden="true" data-testid="ghost-pills">
+                    {Array.from({ length: Math.min(ahead, 4) }, (_, k) => (
+                      <span key={k} className="er-ghost" />
+                    ))}
+                  </span>
+                )}
+              </a>
+            </li>
+          );
+        })}
       </ol>
-      <span
-        className="er-track-token"
-        aria-hidden="true"
-        data-testid="track-token"
-        data-pos={shown}
-        data-back={back && shown === pos}
-        style={{ left: `calc(${((shown + 0.5) / 6) * 100}% - 7px)` }}
-      />
+      {settled && <TrackToken track={track} events={events} />}
     </nav>
   );
 }
@@ -250,7 +297,7 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         break;
       }
       case "plan_claimed":
-        push(h.plan_claimed);
+        push(byEranos(event) && h.plan_claimed_eranos ? h.plan_claimed_eranos : h.plan_claimed);
         break;
       case "planned":
         push(h.planned);
@@ -259,7 +306,7 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         push(fill(h.blocked, { reason: event.reason ?? "" }));
         break;
       case "work_claimed": {
-        const eranos = event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? "");
+        const eranos = byEranos(event);
         push(again ? h.work_claimed_changes : eranos ? h.work_claimed_eranos : h.work_claimed);
         break;
       }
@@ -272,9 +319,11 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
       case "check_refused":
         push(h.check_refused);
         break;
-      case "check_claimed":
-        push(again ? h.check_claimed_changes : h.check_claimed);
+      case "check_claimed": {
+        const eranos = byEranos(event);
+        push(again ? (eranos ? (h.check_claimed_changes_eranos ?? h.check_claimed_changes) : h.check_claimed_changes) : eranos ? (h.check_claimed_eranos ?? h.check_claimed) : h.check_claimed);
         break;
+      }
       case "check_sent_back":
         push(h.check_sent_back);
         break;
@@ -348,7 +397,10 @@ export function PlainStatus({
   shareUrl,
   routeId,
   requester,
+  settled = true,
 }: {
+  /** False until a live page has read the request's first real snapshot: the track shows no token before then. */
+  settled?: boolean;
   summary: PlainSummary;
   facts: Facts;
   events: StatusEvent[];
@@ -398,15 +450,18 @@ export function PlainStatus({
     if (part.work === "done") return t.made;
     return t.not_yet;
   };
-  const stripState = (i: number) => summary.strip[i]?.state ?? "upcoming";
+  const stripState = (n: number): StageState => summary.bands[n - 1] ?? "upcoming";
   const resultPage = (n: number) => `/requests/${encodeURIComponent(routeId)}/result?part=${n}`;
 
   return (
     <div className="er-plain" data-testid="plain-status">
       <RequestTrack
-        summary={summary}
+        track={summary.track}
         events={events}
+        words={words.track}
         label={words.stages_label}
+        settled={settled}
+        requester={requester}
         ahead={parts.some((p) => !p.workAgent && p.work !== "done") ? Math.max(0, (parts.find((p) => !p.workAgent && p.work !== "done")?.place ?? 1) - 1) : 0}
       />
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
@@ -471,13 +526,23 @@ export function PlainStatus({
                   </li>
                 ))}
               </ul>
-              {done && <p className="er-small er-band-ok">{b.made.recorded}</p>}
+              {done && (
+                <p className="er-small er-band-ok">
+                  {b.made.recorded}
+                  {b.made.models_link && b.made.models_href && (
+                    <>
+                      {" "}
+                      <a href={b.made.models_href}>{b.made.models_link}</a>
+                    </>
+                  )}
+                </p>
+              )}
             </div>
           );
         })}
       </Band>
 
-      <Band n={3} title={b.checked.title} state={stripState(3)}>
+      <Band n={3} title={parts.some((p) => p.checkAgent?.dedicated) && b.checked.title_eranos ? b.checked.title_eranos : b.checked.title} state={stripState(3)}>
         <p className="er-small">{b.checked.rule}</p>
         {parts.map((part) => {
           const n = part.plan.part;
@@ -492,7 +557,9 @@ export function PlainStatus({
                   ? fill(b.checked.sent_back_many, { n: findings })
                   : b.checked.sent_back_one
                 : part.check === "working"
-                  ? b.checked.checking
+                  ? part.checkAgent?.dedicated && b.checked.checking_eranos
+                    ? b.checked.checking_eranos
+                    : b.checked.checking
                   : part.work === "done"
                     ? b.checked.waiting
                     : b.checked.upcoming;

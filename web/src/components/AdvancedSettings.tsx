@@ -114,6 +114,8 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
   // "Or pick a recent public request": requests are public, so the recent ones come from their public records.
   const [recent, setRecent] = useState<{ id: string; title: string; sentAt: number | null }[] | null>(null);
   const improvingNow = improving(prefs, words);
+  // Open when the page starts as an improvement (a library link), so the earlier solution's link is in view.
+  const [open, setOpen] = useState(improvingNow);
   useEffect(() => {
     if (!improvingNow || recent !== null) return;
     getJson<{ records?: { key: string; value?: { text?: string } }[] }>("/api/nouns/eranos.requests")
@@ -146,7 +148,7 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
         : prefs[question.id as ListField].includes(option);
 
   return (
-    <details className="er-details er-advanced" data-testid="advanced-settings">
+    <details className="er-details er-advanced" data-testid="advanced-settings" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
       <summary>
         <span className="er-advanced-title">{words.summary}</span> <span className="er-small">{words.optional}</span>{" "}
         <span className="er-chip er-chip-noun" data-testid="advanced-count">

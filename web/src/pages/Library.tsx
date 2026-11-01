@@ -1,35 +1,50 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { Icon } from "../components/Icon";
 import { getJson } from "../lib/api";
 import { loadLibrary, searchLibrary, type LibraryItem } from "../lib/library";
 import { fill, type NounResponse } from "../lib/nouns";
 import type { RequestExampleNoun } from "../lib/status/example";
+import { firstSentence } from "../lib/status/live";
 import { shortRequestId } from "../lib/status/receipts";
 import type { PartPlan } from "../lib/status/types";
 import { useNoun } from "../lib/useNoun";
 import { AppLink, useSearch } from "../router";
 import { EXAMPLES } from "./RequestStatus";
 
+type Choice = { id: string; label: string };
+
 interface LibraryNoun {
   heading: string;
   lead: string;
   search_label: string;
   search_placeholder: string;
-  tabs_label: string;
-  tabs: Record<"all" | "objects" | "tasks", string>;
-  objects_title: string;
-  objects_note: string;
-  tasks_title: string;
-  tasks_note: string;
-  kinds: Record<string, string>;
-  reviewed_by: string;
-  for: string;
-  run_title: string;
+  search_button: string;
+  tries_label: string;
+  tries: string[];
+  filters_label: string;
+  filters: { id: "type" | "runs"; label: string; options: Choice[] }[];
+  results_label: string;
+  tag_process: string;
+  tag_answer: string;
+  example: string;
+  meta_for: string;
+  meta_checked: string;
   open: string;
-  none: string;
+  adapt: string;
+  count_all_one: string;
+  count_all_many: string;
   count_one: string;
   count_many: string;
+  count_none: string;
+  count_filtered_none: string;
+  loading: string;
+  unavailable: string;
+  empty_title: string;
+  empty_title_filters: string;
+  empty_body: string;
+  empty_ask: string;
+  footnote: string;
+  catalog_link: string;
   stored_title: string;
   show_stored: string;
   hide_stored: string;
@@ -38,10 +53,7 @@ interface LibraryNoun {
   stored_tasks: string;
   stored_rows: Record<string, string>;
   stored_empty: string;
-  next_title: string;
-  next_body: string;
   back: string;
-  catalog_link: string;
 }
 
 interface StoredRow {
@@ -86,145 +98,228 @@ function useStored(requestId: string | null, words: LibraryNoun | null): StoredR
   return rows;
 }
 
-function ItemCard({ item, words, asTask }: { item: LibraryItem; words: LibraryNoun; asTask: boolean }) {
+/** A process package (a reviewed kit) runs on your own computer; a delivered report is a public answer. */
+function kindOf(item: LibraryItem): "process" | "answer" {
+  return item.kind === "kit" ? "process" : "answer";
+}
+
+/** One result card (SearchSolutions): the kind, the title, one plain sentence, who it was for, and two ways on. */
+function SolutionCard({ item, words }: { item: LibraryItem; words: LibraryNoun }) {
+  const kind = kindOf(item);
+  const meta = [item.forWho ? fill(words.meta_for, { who: item.forWho }) : "", item.checked ? words.meta_checked : ""].filter(Boolean).join(" · ");
+  const adapt = `/nonprofits?improve=${encodeURIComponent(`${window.location.origin}${item.href}`)}`;
   return (
-    <li className="er-library-item" data-kind={asTask ? "task" : item.kind}>
-      <span className={asTask ? "er-feature-tile er-feature-tile-verb" : "er-feature-tile"} aria-hidden="true">
-        <Icon name={asTask ? "arrow-right" : item.kind === "kit" ? "package" : "file-text"} size={22} />
-      </span>
-      <div>
-        <p className="er-library-kind">{asTask ? words.kinds.run : words.kinds[item.kind]}</p>
-        <h3>
-          <AppLink to={item.href}>{asTask ? fill(words.run_title, { title: item.title }) : item.title}</AppLink>
-        </h3>
-        {item.forWho && <p className="er-small">{fill(words.for, { who: item.forWho })}</p>}
-        {!asTask && item.reviewer && <p className="er-small">{fill(words.reviewed_by, { who: item.reviewer })}</p>}
-      </div>
+    <li className="er-solution" data-kind={kind}>
+      <p className="er-solution-tags">
+        <span className={kind === "process" ? "er-kind-tag er-kind-tag-task" : "er-kind-tag er-kind-tag-object"}>
+          {kind === "process" ? words.tag_process : words.tag_answer}
+        </span>
+        {item.example && <span className="er-example-badge">{words.example}</span>}
+      </p>
+      <h3>
+        <AppLink to={item.href}>{item.title}</AppLink>
+      </h3>
+      {item.summary && (
+        <p className="er-solution-what" data-source-text>
+          {firstSentence(item.summary)}
+        </p>
+      )}
+      {meta && <p className="er-small">{meta}</p>}
+      <p className="er-solution-actions">
+        <AppLink to={item.href} className="er-btn-primary" aria-label={`${words.open.replace(/\s*→$/, "")}: ${item.title}`}>
+          {words.open}
+        </AppLink>
+        <AppLink to={adapt} className="er-btn-secondary" aria-label={`${words.adapt}: ${item.title}`}>
+          {words.adapt}
+        </AppLink>
+      </p>
     </li>
   );
 }
 
-/** `/library`: the shared library of nonprofit tasks and task objects; `?request=<id>` shows how one is stored. */
+/**
+ * `/library`, "Find a solution" (SearchSolutions): search finished processes and answers by plain-language need,
+ * from the catalog API and the delivered reports; when nothing fits, ask for it. `?q=` starts a search, and
+ * `?request=<id>` also shows how one request is stored. Results carry people-readable facts only.
+ */
 export function Library() {
   const words = useNoun<LibraryNoun>("library").value;
   const params = new URLSearchParams(useSearch());
   const requestId = params.get("request");
+  const [typed, setTyped] = useState(params.get("q") ?? "");
   const [query, setQuery] = useState(params.get("q") ?? "");
-  const [tab, setTab] = useState<"all" | "objects" | "tasks">("all");
-  // The plain library first; how it is stored (task objects, tasks, records) opens on request.
+  const [filters, setFilters] = useState<Record<"type" | "runs", string>>({ type: "any", runs: "any" });
   const [showStored, setShowStored] = useState(false);
   const [items, setItems] = useState<LibraryItem[] | null>(null);
+  const [failed, setFailed] = useState(false);
   const stored = useStored(requestId, words);
 
   useEffect(() => {
-    void loadLibrary().then(setItems);
+    loadLibrary()
+      .then(setItems)
+      .catch(() => setFailed(true));
   }, []);
 
   const shown = useMemo(() => {
     if (!items) return [];
-    return query.trim() ? searchLibrary(items, query, 1) : items;
-  }, [items, query]);
+    const found = query.trim() ? searchLibrary(items, query, 1) : items;
+    return found.filter((item) => {
+      const kind = kindOf(item);
+      if (filters.type !== "any" && filters.type !== kind) return false;
+      if (filters.runs === "local" && kind !== "process") return false;
+      if (filters.runs === "public" && kind !== "answer") return false;
+      return true;
+    });
+  }, [items, query, filters]);
 
   if (!words) return null;
-  const objects = tab !== "tasks" ? shown : [];
-  const tasks = tab !== "objects" ? shown.filter((item) => item.kind === "kit") : [];
   const short = requestId ? shortRequestId(requestId) : "";
+  const q = query.trim();
+  const filtered = filters.type !== "any" || filters.runs !== "any";
+
+  function search(text: string) {
+    setTyped(text);
+    setQuery(text);
+    const url = text.trim() ? `/library?q=${encodeURIComponent(text.trim())}` : "/library";
+    window.history.replaceState(null, "", requestId ? `${url}${url.includes("?") ? "&" : "?"}request=${encodeURIComponent(requestId)}` : url);
+  }
+
+  const count = !items
+    ? failed
+      ? words.unavailable
+      : words.loading
+    : shown.length === 0
+      ? q
+        ? fill(words.count_none, { q })
+        : words.count_filtered_none
+      : q
+        ? shown.length === 1
+          ? fill(words.count_one, { q })
+          : fill(words.count_many, { n: shown.length, q })
+        : shown.length === 1
+          ? words.count_all_one
+          : fill(words.count_all_many, { n: shown.length });
 
   return (
-    <div className="er-library">
+    <div className="er-library er-find">
       {requestId && (
         <AppLink to={`/requests/${encodeURIComponent(requestId)}`} className="er-text-link">
           {fill(words.back, { short })}
         </AppLink>
       )}
-      <h1>{words.heading}</h1>
-      <p className="er-lede">{words.lead}</p>
-      {stored && (
-        <button type="button" className="er-btn-secondary er-btn-small" aria-expanded={showStored} onClick={() => setShowStored(!showStored)} data-testid="stored-switch">
-          {showStored ? words.hide_stored : words.show_stored}
-        </button>
-      )}
-      <div className="er-library-tools">
-        <label className="er-field er-library-search">
-          <span>{words.search_label}</span>
+      <header className="er-find-head">
+        <h1>{words.heading}</h1>
+        <p className="er-lede">{words.lead}</p>
+      </header>
+
+      <form
+        role="search"
+        className="er-find-form"
+        onSubmit={(event) => {
+          event.preventDefault();
+          search(typed);
+        }}
+      >
+        <label htmlFor="find-q">{words.search_label}</label>
+        <div className="er-find-row">
           <input
+            id="find-q"
             type="search"
-            className="er-input"
-            value={query}
+            className="er-input er-find-input"
+            value={typed}
             placeholder={words.search_placeholder}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => setTyped(event.target.value)}
           />
-        </label>
-        <div className="er-segmented" role="group" aria-label={words.tabs_label}>
-          {(["all", "objects", "tasks"] as const).map((name) => (
-            <button key={name} type="button" aria-pressed={tab === name} onClick={() => setTab(name)}>
-              {words.tabs[name]}
+          <button type="submit" className="er-btn-primary er-find-button">
+            {words.search_button}
+          </button>
+        </div>
+        <p className="er-find-tries">
+          <span>{words.tries_label}</span>
+          {words.tries.map((label) => (
+            <button key={label} type="button" className="er-find-chip" onClick={() => search(label.toLowerCase())}>
+              {label}
             </button>
           ))}
-        </div>
-      </div>
-      {items && (
-        <p className="er-small" role="status">
-          {shown.length === 1 ? words.count_one : fill(words.count_many, { n: shown.length })}
         </p>
-      )}
+      </form>
 
-      {stored && (
-        <section className="er-panel er-stored" aria-labelledby="stored-title" data-testid="stored" hidden={!showStored}>
-          <h2 id="stored-title">{fill(words.stored_title, { short })}</h2>
-          <p className="er-small">{fill(words.stored_lead, { short })}</p>
-          <div className="er-stored-columns">
-            {(["object", "task"] as const).map((kind) => (
-              <div key={kind}>
-                <h3>{kind === "object" ? words.stored_objects : words.stored_tasks}</h3>
-                <ul>
-                  {stored
-                    .filter((row) => row.kind === kind)
-                    .map((row) => (
-                      <li key={row.id}>
-                        <span>{row.label}</span>
-                        <code>{row.id}</code>
-                      </li>
-                    ))}
-                </ul>
-              </div>
+      <div className="er-find-filters" role="group" aria-label={words.filters_label}>
+        {words.filters.map((group) => (
+          <div key={group.id} className="er-find-filter" role="group" aria-label={group.label}>
+            <span aria-hidden="true">{group.label}</span>
+            {group.options.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className="er-find-chip er-find-option"
+                aria-pressed={filters[group.id] === option.id}
+                onClick={() => setFilters((current) => ({ ...current, [group.id]: option.id }))}
+              >
+                {option.label}
+              </button>
             ))}
           </div>
-          <p className="er-small">{fill(words.stored_empty, { short })}</p>
+        ))}
+      </div>
+
+      <p className="er-find-count" role="status" data-testid="find-count">
+        {count}
+      </p>
+
+      {shown.length > 0 && (
+        <ol className="er-solutions" aria-label={words.results_label} data-testid="solutions">
+          {shown.map((item) => (
+            <SolutionCard key={`${item.kind}-${item.id}`} item={item} words={words} />
+          ))}
+        </ol>
+      )}
+
+      {items && shown.length === 0 && (
+        <section className="er-find-empty" aria-labelledby="find-empty-title" data-testid="find-empty">
+          <div>
+            <h2 id="find-empty-title">{q ? fill(words.empty_title, { q }) : words.empty_title_filters}</h2>
+            <p>{words.empty_body}</p>
+          </div>
+          <AppLink to={q ? `/nonprofits?q=${encodeURIComponent(q)}` : "/nonprofits"} className="er-btn-primary er-btn-large">
+            {words.empty_ask}
+          </AppLink>
         </section>
       )}
 
-      {objects.length > 0 && (
-        <section aria-labelledby="objects-title" className="er-library-section">
-          <h2 id="objects-title">{words.objects_title}</h2>
-          <p className="er-small">{words.objects_note}</p>
-          <ul className="er-library-list">
-            {objects.map((item) => (
-              <ItemCard key={item.id} item={item} words={words} asTask={false} />
-            ))}
-          </ul>
-        </section>
-      )}
-      {tasks.length > 0 && (
-        <section aria-labelledby="tasks-title" className="er-library-section">
-          <h2 id="tasks-title">{words.tasks_title}</h2>
-          <p className="er-small">{words.tasks_note}</p>
-          <ul className="er-library-list">
-            {tasks.map((item) => (
-              <ItemCard key={`run-${item.id}`} item={item} words={words} asTask />
-            ))}
-          </ul>
-        </section>
-      )}
-      {items && shown.length === 0 && <p>{words.none}</p>}
+      <p className="er-find-note">
+        {words.footnote} <AppLink to="/catalog">{words.catalog_link}</AppLink>
+      </p>
 
-      <section className="er-panel" aria-labelledby="next-title">
-        <h2 id="next-title" className="er-panel-title">
-          {words.next_title}
-        </h2>
-        <p>{words.next_body}</p>
-        <AppLink to="/catalog">{words.catalog_link}</AppLink>
-      </section>
+      {stored && (
+        <>
+          <button type="button" className="er-btn-secondary er-btn-small" aria-expanded={showStored} onClick={() => setShowStored(!showStored)} data-testid="stored-switch">
+            {showStored ? words.hide_stored : fill(words.show_stored, { short })}
+          </button>
+          <section className="er-panel er-stored" aria-labelledby="stored-title" data-testid="stored" hidden={!showStored}>
+            <h2 id="stored-title">{fill(words.stored_title, { short })}</h2>
+            <p className="er-small">{fill(words.stored_lead, { short })}</p>
+            <div className="er-stored-columns">
+              {(["object", "task"] as const).map((kind) => (
+                <div key={kind}>
+                  <h3>{kind === "object" ? words.stored_objects : words.stored_tasks}</h3>
+                  <ul>
+                    {stored
+                      .filter((row) => row.kind === kind)
+                      .map((row) => (
+                        <li key={row.id}>
+                          <span>{row.label}</span>
+                          <code>{row.id}</code>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="er-small">{fill(words.stored_empty, { short })}</p>
+          </section>
+        </>
+      )}
     </div>
   );
 }

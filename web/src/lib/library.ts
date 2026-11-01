@@ -17,6 +17,10 @@ export interface LibraryItem {
   summary: string;
   reviewer?: string;
   href: string;
+  /** True when the record says a different volunteer checked it (the catalog's two-step review, or a report's check). */
+  checked: boolean;
+  /** True when the catalog or the record marks it as an example the team made to show the format. */
+  example: boolean;
   /** The words a search matches. */
   words: Set<string>;
 }
@@ -37,11 +41,15 @@ export function meaningWords(text: string): Set<string> {
   return out;
 }
 
+/** Both public sources, the catalog API and the delivered reports; it fails only when neither can be read. */
 export async function loadLibrary(): Promise<LibraryItem[]> {
-  const [catalog, solutions] = await Promise.all([
-    getJson<CatalogResponse>("/api/catalog?view=page").catch(() => ({ kits: [] }) as unknown as CatalogResponse),
-    getJson<NounList<ExampleSolution>>("/api/nouns/eranos.solutions").catch(() => ({ records: [] }) as unknown as NounList<ExampleSolution>),
+  const [catalogRead, solutionsRead] = await Promise.allSettled([
+    getJson<CatalogResponse>("/api/catalog?view=page"),
+    getJson<NounList<ExampleSolution>>("/api/nouns/eranos.solutions"),
   ]);
+  if (catalogRead.status === "rejected" && solutionsRead.status === "rejected") throw new Error("the library can't be read");
+  const catalog = catalogRead.status === "fulfilled" ? catalogRead.value : ({ kits: [] } as unknown as CatalogResponse);
+  const solutions = solutionsRead.status === "fulfilled" ? solutionsRead.value : ({ records: [] } as unknown as NounList<ExampleSolution>);
   const kits: LibraryItem[] = catalog.kits.map((entry) => ({
     id: entry.kit.kit_id,
     kind: "kit",
@@ -50,6 +58,8 @@ export async function loadLibrary(): Promise<LibraryItem[]> {
     summary: entry.kit.summary,
     reviewer: entry.reviewed_by,
     href: `/catalog/${entry.kit.kit_id}`,
+    checked: Boolean(catalog.two_step_verified && entry.reviewed_by),
+    example: Boolean(catalog.is_example),
     words: meaningWords(`${entry.kit.title} ${entry.kit.summary} ${entry.kit.target_org}`),
   }));
   const reports: LibraryItem[] = (solutions.records ?? []).map((record) => {
@@ -61,6 +71,8 @@ export async function loadLibrary(): Promise<LibraryItem[]> {
       forWho: "",
       summary: Array.isArray(report.summary) ? report.summary.join(" ") : (report.summary ?? ""),
       href: `/requests/${encodeURIComponent(record.value.request_id)}/result`,
+      checked: Boolean(record.value.review_task_id || record.value.review_receipt),
+      example: Boolean(record.value.is_example),
       words: meaningWords(`${report.title} ${report.question ?? ""} ${Array.isArray(report.summary) ? report.summary.join(" ") : (report.summary ?? "")}`),
     };
   });

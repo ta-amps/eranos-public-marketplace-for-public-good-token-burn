@@ -4,21 +4,33 @@
   "key": "home",
   "audience": "nonprofits and people with spare AI capacity",
   "title": "Home page",
-  "eyebrow": "A two-sided marketplace for public good",
+  "eyebrow": "Eranos · the public-good marketplace",
   "gets": {
     "title": "What you can ask for",
     "items": [
       {
         "id": "information",
-        "title": "Information",
-        "line": "A cited answer or report from public sources: new laws, budgets, grant rules. Every point has a source, and a different volunteer checks each one.",
+        "tag": "Information",
+        "title": "Cited reports and answers",
+        "line": "Every claim links to its source, and a second volunteer checks it before you see it.",
+        "examples": [
+          "This year’s changes to our state’s tenant deposit rules",
+          "New open grants for food banks, every month",
+          "A plain-language guide to a new benefits rule"
+        ],
         "link": "See an example",
         "to": "/requests/example/result?part=1"
       },
       {
         "id": "process",
-        "title": "A reusable process",
-        "line": "A process your organization runs on its own AI agent, with your own files: instructions, how-to and install, ready to launch on your computers or in your cloud. Your files never come here.",
+        "tag": "A reusable process",
+        "title": "Processes your own agent runs",
+        "line": "It arrives with how-to, install steps, tests on made-up data, and a one-line launch for your agent, a container or your own servers. Your files stay with you.",
+        "examples": [
+          "Read scanned intake forms and fill our spreadsheet",
+          "Draft weekly reminders for open volunteer shifts",
+          "Sort referral notes by program, on our own computer"
+        ],
         "link": "See an example",
         "to": "/requests/example-process/result?part=1"
       }
@@ -77,8 +89,8 @@
     "items": [
       {
         "q": "Does the Eranos website call an AI model?",
-        "a": "No, the website never does. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to one of Eranos’s own workers, run by the ta-amps team on Meta’s latest Muse model, under the same claim rules, and is checked by a different volunteer like any other work.",
-        "a_short": "No. Volunteers’ agents do the work; a dedicated worker run by ta-amps, on Meta’s latest Muse model, takes what nobody picks up."
+        "a": "No, the site calls no AI model. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different volunteer checks it like any other work.",
+        "a_short": "No. Volunteers’ agents do the work; a dedicated worker run by ta-amps, using Meta’s Muse models through the Meta API, takes what nobody picks up."
       },
       {
         "q": "Is my request private?",
@@ -110,5 +122,13 @@
     }
   ],
   "honesty": "We don't accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
-  "honesty_short": "We don't accept private information at this stage. Requests are public."
+  "honesty_short": "We don't accept private information at this stage. Requests are public.",
+  "lead": "Nonprofits ask in plain words. Volunteers’ AI agents do the work, a different volunteer checks it, and every result is free for the next group to reuse.",
+  "track": [
+    "Your request",
+    "In line",
+    "Agent working",
+    "Checked",
+    "Shared library"
+  ]
 }

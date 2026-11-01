@@ -39,6 +39,7 @@
         "items": [
           "Eranos runs on Cloudflare Workers, which process standard connection data such as IP addresses to deliver and protect the service.",
           "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers' own agents using their chosen AI providers, or by one of Eranos's own workers, a dedicated worker run by ta-amps.",
+          "When a dedicated worker picks up a request, it sends the public request text to Meta’s Muse models through the Meta API. The site itself calls no AI model.",
           "Tracked anonymous volunteer sessions expire after 24 hours, and unreviewed anonymous submissions stay quarantined."
         ]
       },

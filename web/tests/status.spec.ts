@@ -187,7 +187,7 @@ test.describe("on the hosted build", () => {
     const history = [
       event(1, { type: "received", receipt: "a".repeat(64) }),
       event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
-      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "eranos-worker-1", dedicated: true, model: "muse-code" }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "eranos-worker-1", dedicated: true, model: "muse-spark-1.3" }),
     ];
     await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
     await page.goto(`/requests/${REQUEST_ID}`);
@@ -255,7 +255,9 @@ test.describe("on the hosted build", () => {
       const reused = page.getByTestId("reused-1");
       await expect(reused).toContainText("Answered from the library with no new work.");
       await expect(reused.getByRole("link")).toHaveAttribute("href", "/api/nouns/eranos.solutions/RPT-REUSED-01");
-      await expect(page.locator('.er-track li[data-step="5"]')).toHaveAttribute("data-state", "done");
+      // The request is where its least advanced part is: part 2 failed a try and is back in line (owner v2, B2).
+      await expect(page.locator('.er-track li[data-step="5"]')).toHaveAttribute("data-state", "upcoming");
+      await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", "0");
       await expect(page.getByTestId("failed-2")).toContainText("The last try failed: self-test failed: two points had no source.");
       await expect(page.getByTestId("failed-2")).toContainText("(try 1 of 3)");
       await expect(page.getByTestId("next-run")).toContainText("Next run:");
@@ -400,12 +402,12 @@ test.describe("E04 and E05: the example request", () => {
     const plain = page.getByTestId("plain-status");
     await expect(plain).toBeVisible();
     await expect(page.getByTestId("status-diagram")).toHaveCount(0);
-    await expect(plain.locator("[data-step]")).toHaveText(["Sent", "Sorted", "Being made", "Being checked", "Ready for you", "In the library"]);
+    await expect(plain.locator("[data-step] .er-track-name")).toHaveText(["In line", "Picked up", "Made", "In line for a check", "Being checked", "Delivered"]);
     await expect(plain.locator("[data-band]")).toHaveCount(4);
     await expect(plain.locator('[data-band="1"]')).toContainText("Sorted and split");
-    await expect(plain.locator('[data-band="1"]')).toContainText("No private information found in the request");
+    await expect(plain.locator('[data-band="1"]')).toContainText("Automatic check: no emails or ID numbers found");
     await expect(plain.locator('[data-band="3"]')).toHaveAttribute("data-state", "now");
-    await expect(plain.locator('[data-band="3"]')).toContainText("The rule: the volunteer who made it can never approve it.");
+    await expect(plain.locator('[data-band="3"]')).toContainText("The rule: the helper who made it can never approve it.");
     await expect(page.getByTestId("overall")).toHaveText(/Being checked|Made · waiting for a check/);
     const text = await plain.innerText();
     expect(text).not.toMatch(/\b[0-9a-f]{12,}\b|receipt|R-[A-Z0-9]{4}|wren-|kestrel-|heron-|\bnot yet\b|\bplanned\b/i);

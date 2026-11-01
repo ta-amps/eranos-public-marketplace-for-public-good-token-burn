@@ -74,7 +74,7 @@
   },
   "states": {
     "noun": "Recorded",
-    "idle": "Not started",
+    "idle": "Waiting to start",
     "waiting": "Waiting in line",
     "open": "Open to volunteers' agents",
     "working": "Being worked on",
@@ -100,7 +100,9 @@
     "sources": "{n} sources",
     "one_source": "1 source",
     "see_process": "See the process",
-    "dedicated": "dedicated worker {n} (run by ta-amps)"
+    "dedicated": "dedicated worker {n} (run by ta-amps)",
+    "dedicated_model": "{who} · model: {model}, through the Meta API",
+    "record": "Record ↗"
   },
   "overall": {
     "waiting": "Waiting for a volunteer's agent",
@@ -149,10 +151,10 @@
     "work_submitted": "Part {n} draft submitted.",
     "work_submitted_summary": "Part {n} draft submitted with {summary}.",
     "released": "{who} let part {n} go when its lease ended. It's back in line.",
-    "check_claimed": "Part {n} claimed for checking by {who}, a different volunteer.",
+    "check_claimed": "Part {n} claimed for checking by {who}, a different helper from its maker.",
     "approved": "Part {n} approved by {who}.",
-    "approved_anon": "Part {n} approved by a different volunteer.",
-    "in_review": "Part {n} is being checked by a different volunteer.",
+    "approved_anon": "Part {n} approved by a different helper from its maker.",
+    "in_review": "Part {n} is being checked by a different helper from its maker.",
     "sent_back": "Part {n} sent back: {reason}",
     "signoff_required": "Part {n} waits for a person's sign-off.",
     "signed_off": "A person signed off part {n}.",
@@ -163,7 +165,7 @@
     "decided_dont": "Your team chose not to use part {n}.",
     "closed": "All parts finished. The request is closed.",
     "withdrawn": "This request was withdrawn.",
-    "models_note": "Models are what each volunteer's agent says it runs.",
+    "models_note": "Each helper’s model is the one its record declares; names come from the list of models ta-amps uses.",
     "record_note": "Lines without a time come from public records, which don’t carry their write time.",
     "lease": " Lease {m} min.",
     "plan_released": "{who} let the request go when its lease ended. It's back in line.",
@@ -181,7 +183,8 @@
     "agents": "Agents holding work now: {names}",
     "no_agents": "No agent is holding work right now.",
     "estimates": "Estimates use the middle half of the last 50 pick-up times and hide when there is too little data.",
-    "updated": "updated {ago}"
+    "updated": "updated {ago}",
+    "title_example": "The queue in this example (part of the example, not live)"
   },
   "stay": {
     "title": "Stay updated",
@@ -328,7 +331,8 @@
     "changes_text": "Decision on part {n} of request {id}: changes. {note}",
     "example_sources": "These sources are example stand-ins made for this example, not real laws.",
     "decision_text": "Decision on part {n} of request {id}: {choice}.",
-    "decision_filed": "Filed as task {short}; it appears on the request page when a volunteer's agent records it."
+    "decision_filed": "Filed as task {short}; it appears on the request page when a volunteer's agent records it.",
+    "reviewed_line_eranos": "Checked by a dedicated worker run by ta-amps, a different helper from its maker"
   },
   "result": {
     "back": "← Request {short}",
@@ -379,23 +383,23 @@
     "items": [
       {
         "state": "waiting",
-        "text": "Dashed: waiting in line."
+        "text": "Dashed outline: waiting in line."
       },
       {
         "state": "working",
-        "text": "Orange: an agent is working, and the ring is the time left on its lease."
+        "text": "Filled, with a ring: a helper is working on it, and the ring is the time left on its lease."
       },
       {
         "state": "noun",
-        "text": "Blue: something new exists."
+        "text": "Solid outline: something new exists."
       },
       {
         "state": "approved",
-        "text": "Green: a different volunteer approved it."
+        "text": "With a check mark (✓): a different helper approved it."
       },
       {
         "state": "yourturn",
-        "text": "Amber: your turn."
+        "text": "Marked “Your turn”: a person on your team decides."
       }
     ],
     "motion": "Dots move only when a step really finishes. Nothing moves while nothing happens."
@@ -429,8 +433,8 @@
     "saved_note": "Anyone with a private link can decide on that request’s results, so keep the links to yourself."
   },
   "plain": {
-    "sent_line": "Sent {time} · checked: no private info",
-    "sent_line_key": "Sent {time} · checked: no private info",
+    "sent_line": "Sent {time} · Automatic check: no emails or ID numbers found",
+    "sent_line_key": "Sent {time} · Automatic check: no emails or ID numbers found",
     "technical_line": "Request {short} · sent {time}",
     "show_technical": "Show technical details",
     "show_simple": "Back to the simple view",
@@ -438,7 +442,7 @@
       "in_line": "Being sorted",
       "planning": "Being sorted",
       "waiting_volunteer": "Waiting for a volunteer",
-      "making": "Being made",
+      "making": "A worker is now working on this",
       "waiting_check": "Made · waiting for a check",
       "checking": "Being checked",
       "changes": "Changes asked",
@@ -478,8 +482,8 @@
       },
       "checked": {
         "title": "Being checked",
-        "upcoming": "By a second volunteer’s AI",
-        "waiting": "Waiting for a second volunteer",
+        "upcoming": "By a different helper",
+        "waiting": "Waiting for a different helper",
         "checking": "A second volunteer’s AI is checking it",
         "done": "Checked ✓"
       },
@@ -517,7 +521,7 @@
       "information": "The report"
     },
     "tags": {
-      "not_yet": "Not made",
+      "not_yet": "Waiting to be made",
       "made": "Made",
       "checked": "Checked ✓",
       "changing": "Being changed"
@@ -525,7 +529,7 @@
     "happened_title": "What has happened",
     "happened_more": "Show everything ({n})",
     "happened": {
-      "received": "You sent your request. We found no private information in it.",
+      "received": "You sent your request. The automatic check found no emails or ID numbers in it.",
       "queued": "You’re now {nth} in line.",
       "queued_next": "You’re next in line.",
       "plan_claimed": "A volunteer’s AI started planning your request.",
@@ -534,11 +538,11 @@
       "work_claimed": "A volunteer’s AI started making it.",
       "work_claimed_changes": "A volunteer’s AI started making your changes.",
       "work_released": "The volunteer stopped before finishing. It’s back in line.",
-      "work_submitted": "It’s made. Waiting for a second volunteer to check it.",
+      "work_submitted": "It’s made. Waiting for a different helper to check it.",
       "work_submitted_changes": "Your changes are made.",
       "check_claimed": "A second volunteer’s AI started checking it.",
       "check_claimed_changes": "A second volunteer’s AI started checking them.",
-      "check_sent_back": "The second volunteer asked for fixes. It went back in line.",
+      "check_sent_back": "The check asked for fixes. It went back in line.",
       "ready": "Checked. It’s ready for your team to review.",
       "ready_changes": "Checked again. It’s ready for your team to review.",
       "signoff_required": "Some steps are for a person only. Someone on your team signs off before it’s used.",
@@ -552,7 +556,10 @@
       "work_claimed_eranos": "No volunteer was free, so a dedicated worker run by ta-amps started making it.",
       "reused": "Answered from the library with no new work.",
       "scheduled": "The next run starts {time}.",
-      "work_failed": "A try at making it failed, and it went back in line."
+      "work_failed": "A try at making it failed, and it went back in line.",
+      "plan_claimed_eranos": "A dedicated worker run by ta-amps started planning your request.",
+      "check_claimed_eranos": "A dedicated worker run by ta-amps started checking it.",
+      "check_claimed_changes_eranos": "A dedicated worker run by ta-amps started checking them."
     },
     "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
     "share": "Share this request",
@@ -569,21 +576,45 @@
     "private_line": "Your private link lets your team decide on the result: use Copy private link and keep it. To share the request, use Copy link.",
     "copy_link": "Copy link",
     "copied_link": "Copied",
-    "strip": [
-      "Sent",
-      "Sorted",
-      "Being made",
-      "Being checked",
-      "Ready for you",
-      "In the library"
-    ],
-    "strip_ready_public": "Ready",
+    "track": {
+      "stations": [
+        {
+          "now": "In line",
+          "other": "In line"
+        },
+        {
+          "now": "Picked up",
+          "other": "Picked up"
+        },
+        {
+          "now": "Being made",
+          "other": "Made"
+        },
+        {
+          "now": "In line for a check",
+          "other": "In line for a check"
+        },
+        {
+          "now": "Being checked",
+          "other": "Checked"
+        },
+        {
+          "now": "Ready for you",
+          "now_public": "Delivered",
+          "other": "Delivered"
+        }
+      ],
+      "token": "Your request",
+      "token_public": "This request",
+      "token_done": "Delivered",
+      "done": "done"
+    },
     "bands": {
       "sorted": {
         "title": "Sorted and split",
         "process": "Your files stay with you",
         "information": "Public information",
-        "checked": "✓ No private information found in the request · checked {time}",
+        "checked": "✓ Automatic check: no emails or ID numbers found · {time}",
         "waiting": "A volunteer’s AI splits it into parts it can make."
       },
       "made": {
@@ -595,21 +626,25 @@
         "picked_eranos": "Picked it up at {time}: no volunteer was free.",
         "waiting": "Waiting for a volunteer · {nth} in line.",
         "fallback": "If none is free by {time}, a dedicated worker run by ta-amps will pick it up.",
-        "recorded": "Recorded ✓ Every step is recorded.",
+        "recorded": "One helper at a time. Every step is recorded.",
         "failed": "The last try failed: {reason}",
         "retry": "It is back in line.",
-        "retry_count": "It is back in line (try {n} of {m})."
+        "retry_count": "It is back in line (try {n} of {m}).",
+        "models_link": "Which model does what ↗",
+        "models_href": "https://agora.ta-amps.workers.dev/models/"
       },
       "checked": {
         "title": "Checked by a second volunteer",
-        "rule": "The rule: the volunteer who made it can never approve it. A different volunteer always checks.",
+        "rule": "The rule: the helper who made it can never approve it. A different helper always checks.",
         "blocked": "✗ Blocked: the maker can’t approve its own work",
         "sent_back_one": "↩ Sent back with 1 note",
         "sent_back_many": "↩ Sent back with {n} notes",
-        "waiting": "Waiting for a second volunteer",
+        "waiting": "Waiting for a different helper",
         "checking": "A second volunteer’s AI is checking it",
         "done": "Checked ✓",
-        "upcoming": "By a second volunteer’s AI"
+        "upcoming": "By a different helper",
+        "title_eranos": "Checked by a dedicated worker run by ta-amps",
+        "checking_eranos": "A dedicated worker run by ta-amps is checking it"
       },
       "ready": {
         "title": "Ready for you",
@@ -624,7 +659,7 @@
         "library_added": "✓ Added to the shared library",
         "library_link": "See it in the library →",
         "library_how": "How it’s stored, on Agora ↗",
-        "upcoming": "Your team decides once a second volunteer has checked it.",
+        "upcoming": "Your team decides once a different helper has checked it.",
         "reused": "Answered from the library with no new work.",
         "reused_link": "See where it came from →",
         "next_run": "Next run: {time}"
@@ -677,5 +712,9 @@
     "band_none": "Nothing added so far",
     "band_some": "{n} items added · free for other nonprofits",
     "band_link": "See it in the shared library →"
+  },
+  "model_names": {
+    "fallback": "Meta’s latest Muse model",
+    "own": "its own model"
   }
 }

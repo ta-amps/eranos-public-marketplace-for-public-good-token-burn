@@ -90,6 +90,7 @@ const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
 - /api/tracks: Public-good NGO and nonprofit build tracks
 - /api/examples: Example needs in organizations' own words, and the count of recorded example runs
 - /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
+- /api/models: The models ta-amps uses (the models.meta Task Object, read from Tessera; catalog is null until it is written there)
 - /mcp: Stateless JSON-RPC 2.0 MCP endpoint (list_tracks, search_catalog, get_kit, practice_verify_kit)
 - /privacy, /terms, /report, /.well-known/security.txt: Privacy, terms of use, problem reporting and RFC 9116 security contact
 - /.well-known/agent-card.json: Machine-readable agent capability card
@@ -817,6 +818,9 @@ function openTaskView(verb, queue) {
 
 // Public Eranos nouns (page text, plans, requests, delivered reports, sources, verb templates):
 // Tessera's mirror first, then the snapshot exported from Tessera with this deploy.
+// Where the worker go-live writes the models.meta Task Object (ta-amps.models-catalog/1).
+const MODELS_STORE = "eranos.instructions";
+const MODELS_KEY = "models.meta";
 const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
 const NOUN_KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/;
 
@@ -1326,6 +1330,7 @@ function buildStaticAgentCard(request) {
       request: "/api/requests/{request_id}",
       request_history: "/api/nouns/eranos.requests/{request_id}/history",
       open_tasks: "/api/open-tasks",
+      models: "/api/models",
       process_markdown: "/p/{request_id}/agent.md",
       practice_cases: "/p/{request_id}/practice.md",
       process_download: "/p/{request_id or catalog_key}/download",
@@ -1746,6 +1751,16 @@ async function handleCloudApi(request, env, pathname) {
       return problem(404, "Not Found", `kit ${kitId} is not in the catalog`, "not_found");
     }
     return jsonResp(forPage(request, { synthetic: true, ...found }));
+  }
+
+  // The one list of the models ta-amps uses (the models.meta Task Object). Pages take every model's display name
+  // from it, so a name never drifts from what runs. It is read from Tessera only, never from a copy in this deploy;
+  // until it is written there, the answer says so (catalog: null) and pages name no model.
+  if (pathname === "/api/models") {
+    return edgeCached(request, async () => {
+      const catalog = await getHeadRecord(env.FABRIC_DB, MODELS_STORE, MODELS_KEY);
+      return jsonResp({ synthetic: false, store: MODELS_STORE, key: MODELS_KEY, catalog: catalog && typeof catalog === "object" ? catalog : null });
+    });
   }
 
   if (pathname === "/api/fabric") {
