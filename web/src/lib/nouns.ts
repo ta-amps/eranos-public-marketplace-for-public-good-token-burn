@@ -377,14 +377,15 @@ export interface PlainWords {
     | "decided"
     | "not_used"
     | "withdrawn"
-    | "blocked",
+    | "blocked"
+    | "unfinished",
     T
   >;
   stages_label: T;
   stages: {
     sent: { title: T; done: T };
     line: { title: T; ahead_many: T; ahead_one: T; next: T; waiting: T; done: T };
-    made: { title: T; upcoming: T; planning: T; between: T; making: T; changes: T; done: T };
+    made: { title: T; upcoming: T; planning: T; between: T; making: T; changes: T; done: T; stopped?: T };
     checked: { title: T; upcoming: T; waiting: T; checking: T; done: T };
     ready: { title: T; upcoming: T; now: T; done: T; decided: T };
     shared: { title: T; upcoming: T; done: T };
@@ -395,7 +396,7 @@ export interface PlainWords {
   tags: { not_yet: T; made: T; checked: T; changing: T };
   happened_title: T;
   happened_more: T;
-  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed", T>;
+  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_released_reason" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "closed_unfinished", T>;
   share_lead: T;
   share: T;
   shared: T;

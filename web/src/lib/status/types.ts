@@ -4,7 +4,7 @@
  * every node, chip and log line from these facts and nothing else, so no step can show as done without one.
  */
 
-export type PartRoute = "public-only" | "private-files" | "held";
+export type PartRoute = "public-only" | "private-files" | "process" | "report" | "held";
 
 /** One part of a plan, as the classify step records it in `eranos.plans/<request_id>`. */
 export interface PartPlan {

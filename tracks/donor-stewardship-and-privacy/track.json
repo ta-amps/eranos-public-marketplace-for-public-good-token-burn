@@ -32,5 +32,6 @@
       "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-written-acknowledgments",
       "checked_date": "2026-10-30"
     }
-  ]
+  ],
+  "process_class": "tabular_cleaning"
 }

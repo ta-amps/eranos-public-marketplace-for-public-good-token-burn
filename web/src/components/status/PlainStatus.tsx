@@ -25,7 +25,18 @@ type Part = Facts["parts"][number];
 function kindOf(part: Part): Kind {
   const declared = part.plan.output_type;
   if (declared === "process" || declared === "information") return declared;
-  return part.plan.route === "private-files" ? "process" : "information";
+  return part.plan.route === "private-files" || part.plan.route === "process" ? "process" : "information";
+}
+
+function cleanPlainReason(raw: string | undefined): string {
+  if (!raw) return "";
+  return raw
+    .replace(/^ReviewRefused:\s*/i, "")
+    .replace(/\b[0-9a-f]{12,}\b/gi, "")
+    .replace(/\bR-[A-Z0-9]{4}\b/g, "")
+    .replace(/\b(?:wren|kestrel|heron)-[a-z0-9-]+\b/gi, "a volunteer")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /** A part is being remade after the requester asked for changes, until a new check approves it. */
@@ -48,6 +59,8 @@ export function plainSummary(facts: Facts, words: PlainWords, clock: (at: number
   const allMade = planned && parts.every((p) => p.work === "done");
   const anyChecking = parts.some((p) => p.check === "working");
   const allChecked = planned && parts.every((p) => p.check === "approved");
+  const anyApproved = parts.some((p) => p.check === "approved" || p.decide === "yourturn" || p.decide === "decided");
+  const closedUnfinished = Boolean(facts.closed) && planned && !anyApproved;
   const waitingCheck = parts.some((p) => p.work === "done" && p.check !== "approved" && p.check !== "working");
   const yourTurn = parts.some((p) => p.decide === "yourturn");
   const allDecided = planned && parts.every((p) => p.decide === "decided");
@@ -70,9 +83,11 @@ export function plainSummary(facts: Facts, words: PlainWords, clock: (at: number
 
   const made: PlainStage = !planned
     ? { id: "made", title: s.made.title, state: facts.plan === "working" ? "now" : "upcoming", line: facts.plan === "working" ? s.made.planning : s.made.upcoming }
-    : allMade && !remaking
-      ? { id: "made", title: s.made.title, state: "done", line: s.made.done }
-      : { id: "made", title: s.made.title, state: "now", line: anyWorking ? (remaking ? s.made.changes : s.made.making) : s.made.between };
+    : closedUnfinished
+      ? { id: "made", title: s.made.title, state: "now", line: s.made.stopped ?? s.made.between }
+      : allMade && !remaking
+        ? { id: "made", title: s.made.title, state: "done", line: s.made.done }
+        : { id: "made", title: s.made.title, state: "now", line: anyWorking ? (remaking ? s.made.changes : s.made.making) : s.made.between };
 
   const checked: PlainStage =
     allChecked && !remaking
@@ -98,32 +113,34 @@ export function plainSummary(facts: Facts, words: PlainWords, clock: (at: number
     ? c.withdrawn
     : facts.blocked
       ? c.blocked
-      : yourTurn
-        ? c.ready
-        : allDecided
-          ? used
-            ? inLibrary
-              ? every
-                ? fill(c.in_use_regular, { every })
-                : c.in_use
-              : c.in_use_plain
-            : c.not_used
-          : remaking && anyWorking
-            ? c.changes
-            : anyChecking
-              ? c.checking
-              : waitingCheck
-                ? c.waiting_check
-                : anyWorking
-                  ? c.making
-                  : planned
-                    ? c.waiting_volunteer
-                    : facts.plan === "working"
-                      ? c.planning
-                      : c.in_line;
+      : closedUnfinished
+        ? (c.unfinished ?? c.waiting_volunteer)
+        : yourTurn
+          ? c.ready
+          : allDecided
+            ? used
+              ? inLibrary
+                ? every
+                  ? fill(c.in_use_regular, { every })
+                  : c.in_use
+                : c.in_use_plain
+              : c.not_used
+            : remaking && anyWorking
+              ? c.changes
+              : anyChecking
+                ? c.checking
+                : waitingCheck
+                  ? c.waiting_check
+                  : anyWorking
+                    ? c.making
+                    : planned
+                      ? c.waiting_volunteer
+                      : facts.plan === "working"
+                        ? c.planning
+                        : c.in_line;
 
   const sent: PlainStage = { id: "sent", title: s.sent.title, state: "done", line: sentAt ? fill(s.sent.done, { time: clock(sentAt) }) : s.sent.title };
-  const waiting = !facts.withdrawn && !facts.blocked && !yourTurn && !allDecided && !anyWorking && !anyChecking;
+  const waiting = !facts.withdrawn && !facts.blocked && !closedUnfinished && !yourTurn && !allDecided && !anyWorking && !anyChecking;
   return { stages: [sent, line, made, checked, ready, shared], chip, waiting, yourTurn };
 }
 
@@ -164,9 +181,11 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
       case "work_claimed":
         push(again ? h.work_claimed_changes : h.work_claimed);
         break;
-      case "work_released":
-        push(h.work_released);
+      case "work_released": {
+        const reason = cleanPlainReason(event.reason);
+        push(reason && h.work_released_reason ? fill(h.work_released_reason, { reason }) : h.work_released);
         break;
+      }
       case "work_submitted":
         push(again ? h.work_submitted_changes : h.work_submitted);
         break;
@@ -198,9 +217,12 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
       case "withdrawn":
         rows.push({ at: event.at ?? null, text: h.withdrawn });
         break;
-      case "closed":
-        rows.push({ at: event.at ?? null, text: h.closed });
+      case "closed": {
+        const plannedParts = facts.parts.length > 0;
+        const anyReady = readied.size > 0 || facts.parts.some((p) => p.check === "approved");
+        rows.push({ at: event.at ?? null, text: plannedParts && !anyReady ? (h.closed_unfinished ?? h.closed) : h.closed });
         break;
+      }
       default:
         break;
     }

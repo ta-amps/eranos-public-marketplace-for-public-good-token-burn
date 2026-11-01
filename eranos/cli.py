@@ -359,9 +359,21 @@ def cmd_export_snapshot(target: Path) -> int:
     finally:
         backend.close()
 
+    by_track: dict[str, list[str]] = {}
+    for kit in kits:
+        if "all" in [c.lower() for c in kit.target_cohorts]:
+            by_track.setdefault(kit.kit.track_id, []).append(kit.kit.kit_id)
     tracks_payload = {
         "synthetic": True,
-        "tracks": [p.model_dump(mode="json") for p in load_tracks().values()],
+        "tracks": [
+            {
+                **p.model_dump(mode="json"),
+                "catalog_kit_ids": sorted(by_track.get(p.id, [])),
+                "kit_ready": bool(by_track.get(p.id)),
+                "process_ready": bool(p.process_class),
+            }
+            for p in load_tracks().values()
+        ],
     }
     catalog_payload = {
         "synthetic": True,

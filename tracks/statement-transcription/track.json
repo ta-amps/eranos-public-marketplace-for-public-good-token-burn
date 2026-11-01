@@ -34,5 +34,6 @@
       "checked_date": "2026-10-30"
     }
   ],
-  "needs_steward_signoff": true
+  "needs_steward_signoff": true,
+  "process_class": "statement_log_indexing"
 }

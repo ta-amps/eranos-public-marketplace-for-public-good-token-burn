@@ -43,7 +43,19 @@ interface RequestNounValue {
   text?: string | null;
   findings?: string[];
   parts?: Record<string, RequestPart>;
+  events?: (StatusEvent & { version?: number })[];
   close_receipt?: string;
+}
+
+interface PendingRequestFallback {
+  pending_plan?: boolean;
+  request?: {
+    output_type?: OutputType;
+    frequency?: Frequency;
+    cadence?: string;
+    sent_at?: number | null;
+  };
+  events?: StatusEvent[];
 }
 
 export interface OwnRequestValue {
@@ -162,10 +174,25 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
   const own = keyed?.own ?? null;
   const decisions = keyed?.decisions ?? null;
 
+  let pendingReq: PendingRequestFallback | null = null;
+  if (!task && !plan && !request) {
+    try {
+      const probe = await getJson<PendingRequestFallback>(`/api/requests/${encodeURIComponent(id)}`);
+      if (probe?.pending_plan) pendingReq = probe;
+    } catch {
+      pendingReq = null;
+    }
+  }
+
   const events: StatusEvent[] = [];
   const enqueued = claimEvents.find((e) => e.type === "enqueued");
-  const sentAt = enqueued?.ts ?? task?.created_at ?? null;
-  if (task || plan || request) events.push({ type: "received", at: sentAt, ref: id });
+  const sentAt = enqueued?.ts ?? task?.created_at ?? pendingReq?.request?.sent_at ?? null;
+  if (task || plan || request) {
+    events.push({ type: "received", at: sentAt, ref: id });
+  } else if (pendingReq) {
+    const seeded = (pendingReq.events ?? []).filter((e) => e && (e.receipt || e.ref));
+    events.push(...(seeded.length ? seeded : [{ type: "received" as const, at: sentAt, ref: id }]));
+  }
 
   // The request verb's own claims, until it is planned: each claim's receipt is Tessera's formula on the event.
   const split = claimEvents.find((e) => e.type === "split");
@@ -254,15 +281,25 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
     }
   }
   // When the worker writes each state change as a version that cites its receipt, those versions are the facts.
+  // Versions written before promotion to public_commons live in `request.events` and are merged for earlier versions.
   const written = (history ?? []).filter((v) => v.value?.event && (v.value.event.receipt || v.value.event.ref));
-  if (written.length) {
+  const recordedEvents = Array.isArray(request?.events)
+    ? request.events.filter((e) => e && (e.receipt || e.ref))
+    : [];
+  if (written.length || recordedEvents.length) {
     const base = `/api/nouns/eranos.requests/${encodeURIComponent(id)}/history`;
+    const reqRecord = `/api/nouns/eranos.requests/${encodeURIComponent(id)}`;
     const own = events.filter((e) => e.type === "received" || e.type === "plan_claimed" || e.type === "decided");
     events.length = 0;
+    const historyVersions = new Set(written.map((v) => v.version));
     const fromHistory = written.map((v) => ({ ...(v.value.event as StatusEvent), record: `${base}#v${v.version}` }));
-    if (!fromHistory.some((e) => e.type === "received")) events.push(...own.filter((e) => e.type === "received"));
-    events.push(...fromHistory);
-    for (const e of own) if (e.type === "decided" && !fromHistory.some((h) => h.type === "decided" && h.part === e.part)) events.push(e);
+    const preHistory = recordedEvents
+      .filter((e) => e.version === undefined || !historyVersions.has(e.version))
+      .map((e) => ({ ...e, record: e.record ?? reqRecord }));
+    const combined = [...preHistory, ...fromHistory];
+    if (!combined.some((e) => e.type === "received")) events.push(...own.filter((e) => e.type === "received"));
+    events.push(...combined);
+    for (const e of own) if (e.type === "decided" && !combined.some((h) => h.type === "decided" && h.part === e.part)) events.push(e);
   } else {
     for (const e of events) {
       if (e.record) continue;
@@ -273,7 +310,9 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
     }
   }
   const closeReceipt = request?.close_receipt ?? plan?.closed?.receipt;
-  if (request?.status === "closed" && closeReceipt) events.push({ type: "closed", at: null, receipt: closeReceipt });
+  if (request?.status === "closed" && closeReceipt && !events.some((e) => e.type === "closed")) {
+    events.push({ type: "closed", at: null, receipt: closeReceipt });
+  }
   if (task?.state === "cancelled") events.push({ type: "withdrawn", at: task.updated_at, ref: `${id} cancelled` });
 
   const text = request ? (request.text ?? null) : (own?.text ?? null);
@@ -284,15 +323,18 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
       title: text ? firstSentence(text) : own?.text ? firstSentence(own.text) : undefined,
       text: request && request.text === null && own?.text ? own.text : text,
       organization_type: own?.organization_type,
-      output_type: own?.output_type ?? request?.output_type,
-      frequency: own?.frequency ?? request?.frequency,
-      cadence: (own as { cadence?: string } | undefined)?.cadence ?? (request as { cadence?: string } | null | undefined)?.cadence,
+      output_type: own?.output_type ?? request?.output_type ?? pendingReq?.request?.output_type,
+      frequency: own?.frequency ?? request?.frequency ?? pendingReq?.request?.frequency,
+      cadence:
+        (own as { cadence?: string } | undefined)?.cadence ??
+        (request as { cadence?: string } | null | undefined)?.cadence ??
+        pendingReq?.request?.cadence,
       sent_at: sentAt,
     },
     events,
     estimate: null,
   };
-  return { record, missing: !task && !plan && !request, decisions };
+  return { record, missing: !task && !plan && !request && !pendingReq, decisions };
 }
 
 /** Eranos's queues from `/api/fabric`: waiting is every ready task, checking is a leased review. */

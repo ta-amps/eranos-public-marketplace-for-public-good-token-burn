@@ -75,7 +75,7 @@ interface PartFacts {
   decision?: Evidence & { choice: DecisionChoice };
   result: "idle" | "noun";
   resultEvidence?: Evidence & { id?: string };
-  released?: Evidence & { who?: string };
+  released?: Evidence & { who?: string; reason?: string };
   library?: Evidence & { id?: string };
 }
 
@@ -136,13 +136,17 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         break;
       }
       case "plan_claimed":
-        facts.plan = "working";
-        facts.planAgent = agent(event);
+        if (facts.plan !== "done") {
+          facts.plan = "working";
+          facts.planAgent = agent(event);
+        }
         break;
       case "plan_released":
-        facts.plan = "waiting";
-        facts.planAgent = undefined;
-        if (event.place) facts.planPlace = event.place;
+        if (facts.plan !== "done") {
+          facts.plan = "waiting";
+          facts.planAgent = undefined;
+          if (event.place) facts.planPlace = event.place;
+        }
         break;
       case "planned":
         facts.plan = "done";
@@ -178,7 +182,7 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
       case "work_released": {
         const p = part(event.part);
         if (!p) break;
-        p.released = { ...evidence(event), who: event.worker ?? p.workAgent?.who };
+        p.released = { ...evidence(event), who: event.worker ?? p.workAgent?.who, reason: event.reason };
         p.work = live ? "open" : "waiting";
         p.workAgent = undefined;
         break;
@@ -264,6 +268,10 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
       }
       case "closed":
         facts.closed = evidence(event);
+        if (facts.parts.length > 0) {
+          facts.plan = "done";
+          facts.planAgent = undefined;
+        }
         break;
       case "withdrawn":
         facts.withdrawn = evidence(event);
@@ -423,6 +431,7 @@ function sourcesText(words: RequestStatusNoun, n: number | undefined): string | 
 function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
   const rows: LogRow[] = [];
   const parts = new Map<number, PartPlan>();
+  const approvedParts = new Set<number>();
   const plannedBy = new Map<string, string>();
   for (const [index, event] of record.events.entries()) {
     if (event.type === "heartbeat" || !(event.receipt || event.ref)) continue;
@@ -450,7 +459,10 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         text = fill(words.log.blocked ?? "", { reason: (event.findings ?? [event.reason ?? ""]).join("; ") });
         break;
       case "plan_released":
-        text = fill(words.log.plan_released ?? "", { who: w ?? words.chips.agent ?? "" });
+        text =
+          event.reason && words.log.plan_released_reason
+            ? fill(words.log.plan_released_reason, { who: w ?? words.chips.agent ?? "", reason: event.reason })
+            : fill(words.log.plan_released ?? "", { who: w ?? words.chips.agent ?? "" });
         break;
       case "work_claimed":
         text =
@@ -458,7 +470,10 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
           (lease ? fill(words.log.lease ?? "", { m: lease }) : "");
         break;
       case "work_released":
-        text = fill(words.log.released ?? "", { who: w ?? words.chips.agent ?? "", n });
+        text =
+          event.reason && words.log.released_reason
+            ? fill(words.log.released_reason, { who: w ?? words.chips.agent ?? "", n, reason: event.reason })
+            : fill(words.log.released ?? "", { who: w ?? words.chips.agent ?? "", n });
         break;
       case "work_submitted":
         text = event.summary?.sources
@@ -478,6 +493,7 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         text = fill(words.log.in_review ?? "", { n });
         break;
       case "check_approved":
+        if (n) approvedParts.add(n);
         text = w ? fill(words.log.approved ?? "", { n, who: w }) : fill(words.log.approved_anon ?? "", { n });
         break;
       case "check_sent_back":
@@ -490,9 +506,11 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         text = fill(words.log.signed_off ?? "", { n });
         break;
       case "delivered":
+        if (n) approvedParts.add(n);
         text = fill(words.log.delivered ?? "", { n });
         break;
       case "published":
+        if (n) approvedParts.add(n);
         text = fill(words.log.published ?? "", { n });
         break;
       case "queued":
@@ -510,7 +528,7 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         );
         break;
       case "closed":
-        text = words.log.closed ?? "";
+        text = parts.size > 0 && approvedParts.size === 0 ? (words.log.closed_unfinished ?? words.log.closed ?? "") : (words.log.closed ?? "");
         break;
       case "withdrawn":
         text = words.log.withdrawn ?? "";
@@ -611,7 +629,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
 
   for (const [index, p] of facts.parts.entries()) {
     const n = p.plan.part;
-    const processPart = p.plan.route === "private-files";
+    const processPart = p.plan.route === "private-files" || p.plan.route === "process" || p.plan.output_type === "process";
     const held = p.plan.route === "held";
     const rc = rowCenter(index);
     const rowLabel = held ? words.diagram.row_held : processPart ? words.diagram.row_process : words.diagram.row_report;
@@ -801,7 +819,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
                 .join(" · ")
             : p.work === "done"
               ? [p.submitted?.who, processPart ? null : sourcesText(words, p.submitted?.sources)].filter(Boolean).join(" · ") || undefined
-              : undefined,
+              : p.released?.reason,
         evidence: wk?.evidence,
       },
       {
@@ -858,10 +876,13 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
 
   // The overall chip, the line a screen reader hears and the tab title.
   const anyDecided = facts.parts.find((p) => p.decide === "decided");
+  const anyApproved = facts.parts.some((p) => p.check === "approved" || p.decide === "yourturn" || p.decide === "decided");
   const allWaiting = facts.parts.every((p) => ["waiting", "open", "held"].includes(p.work) && p.check !== "working");
   let overall: StatusView["overall"];
   if (facts.withdrawn) overall = { label: words.overall.withdrawn ?? "", tone: "waiting" };
   else if (facts.plan === "stopped") overall = { label: words.overall.blocked ?? "", tone: "caution" };
+  else if (facts.closed && facts.parts.length > 0 && !anyApproved)
+    overall = { label: words.overall.unfinished ?? words.overall.finished ?? "", tone: "caution" };
   else if (facts.closed) overall = { label: words.overall.finished ?? "", tone: "real" };
   else if (yourTurnPart !== undefined) overall = { label: fill(words.overall.your_turn ?? "", { n: yourTurnPart }), tone: "attention" };
   else if (anyDecided && anyDecided.decision?.choice === "use")
@@ -926,7 +947,9 @@ export function summaryLine(events: StatusEvent[], words: RequestStatusNoun): st
     case "work_claimed":
       return fill(words.summary.part_working ?? "", { n });
     case "work_released":
-      return fill(words.summary.part_released ?? "", { n });
+      return last.reason
+        ? `${fill(words.summary.part_released ?? "", { n })} (${last.reason})`
+        : fill(words.summary.part_released ?? "", { n });
     case "work_submitted":
       return fill(words.summary.part_ready ?? "", { n });
     case "check_claimed":
@@ -944,8 +967,11 @@ export function summaryLine(events: StatusEvent[], words: RequestStatusNoun): st
       return `${fill(words.summary.part_approved ?? "", { n })} ${words.summary.your_turn ?? ""}`.trim();
     case "decided":
       return fill(words.summary.decided ?? "", { n });
-    case "closed":
-      return words.summary.closed ?? "";
+    case "closed": {
+      const hadParts = events.some((e) => e.type === "planned" && (e.parts ?? []).length > 0);
+      const hadApproved = events.some((e) => e.type === "check_approved" || e.type === "delivered" || e.type === "published");
+      return hadParts && !hadApproved ? (words.summary.closed_unfinished ?? words.summary.closed ?? "") : (words.summary.closed ?? "");
+    }
     case "withdrawn":
       return words.log.withdrawn ?? "";
     default:

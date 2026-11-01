@@ -2,6 +2,13 @@ import { ErrorAlert } from "../components/ErrorAlert";
 import type { FabricResponse, RequestsResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
+function doneLabelForQueue(name: string): string {
+  if (name === "eq01") return "Scope planned";
+  if (name === "eq02") return "Drafts submitted";
+  if (name === "eq03") return "Reviews completed";
+  return "Done";
+}
+
 export function Fabric() {
   const fabric = useResource<FabricResponse>("/api/fabric");
   const requests = useResource<RequestsResponse>("/api/requests");
@@ -53,13 +60,25 @@ export function Fabric() {
                     <dd>{q.waiting}</dd>
                   </div>
                   <div>
-                    <dt>Done</dt>
+                    <dt>{doneLabelForQueue(q.name)}</dt>
                     <dd>{q.done}</dd>
                   </div>
+                  {q.dead > 0 && (
+                    <div>
+                      <dt>Stopped / refused</dt>
+                      <dd>{q.dead}</dd>
+                    </div>
+                  )}
                 </dl>
               </article>
             ))}
           </div>
+        )}
+        {fabricState.status === "ready" && (
+          <p className="er-muted er-small">
+            Scope planned on <code>eq01</code> counts requests split into buildable parts; kits and cited reports join
+            the library only after independent review completes on <code>eq03</code>.
+          </p>
         )}
       </section>
 

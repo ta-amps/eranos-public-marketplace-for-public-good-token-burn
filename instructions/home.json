@@ -67,10 +67,10 @@
       "many": "{n} being worked on"
     },
     "kits": {
-      "one": "1 reviewed example kit",
-      "many": "{n} reviewed example kits"
+      "one": "1 verified kit in the catalog",
+      "many": "{n} verified kits in the catalog"
     },
-    "note": "Live from the queue at {time}."
+    "note": "Live from the queue at {time}. Requests in progress are being planned, built or independently reviewed; verified kits are already published in the catalog."
   },
   "safety": {
     "title": "Questions people ask",

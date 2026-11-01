@@ -340,9 +340,25 @@ def handshake() -> dict[str, Any]:
 @app.get("/api/tracks")
 def tracks() -> dict[str, Any]:
     packs = load_tracks()
+    backend = get_adapter()
+    try:
+        kits = filter_published_kits(list_published_kits(backend))
+    finally:
+        backend.close()
+    by_track: dict[str, list[str]] = {}
+    for entry in kits:
+        by_track.setdefault(entry.kit.track_id, []).append(entry.kit.kit_id)
     return {
         "synthetic": True,
-        "tracks": [pack.model_dump(mode="json") for pack in packs.values()],
+        "tracks": [
+            {
+                **pack.model_dump(mode="json"),
+                "catalog_kit_ids": sorted(by_track.get(pack.id, [])),
+                "kit_ready": bool(by_track.get(pack.id)),
+                "process_ready": bool(pack.process_class),
+            }
+            for pack in packs.values()
+        ],
     }
 
 

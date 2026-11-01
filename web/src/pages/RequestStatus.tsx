@@ -281,7 +281,7 @@ function AddedPanel({ view, words, routeId, example }: { view: StatusView; words
     const result = part.resultEvidence?.id ?? part.library?.id ?? part.plan.report_id ?? part.plan.kit_id ?? "";
     if (!result) continue;
     const resultPage = `/requests/${encodeURIComponent(routeId)}/result?part=${n}`;
-    if (part.plan.route === "private-files") {
+    if (part.plan.route === "private-files" || part.plan.route === "process" || part.plan.output_type === "process") {
       objects.push({ label: fill(a.kit ?? "", { id: result }), href: example ? resultPage : `/catalog/${encodeURIComponent(result)}` });
       tasks.push({ label: fill(a.run ?? "", { id: result }), href: resultPage });
     } else {
@@ -548,7 +548,26 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
     }
     if (part.released && part.work !== "working") {
       notices.push(
-        <StateNotice key={`rl-${part.plan.part}`} tone="wait" head={fill(words.notices.released?.head ?? "", { who: part.released.who ?? words.chips.agent ?? "" })} body={words.notices.released?.body} testId="notice-released" />,
+        part.released.reason && words.notices.released_reason ? (
+          <StateNotice
+            key={`rl-${part.plan.part}`}
+            tone="error"
+            head={fill(words.notices.released_reason.head ?? "", {
+              who: part.released.who ?? words.chips.agent ?? "",
+              reason: part.released.reason,
+            })}
+            body={words.notices.released_reason.body}
+            testId="notice-released"
+          />
+        ) : (
+          <StateNotice
+            key={`rl-${part.plan.part}`}
+            tone="wait"
+            head={fill(words.notices.released?.head ?? "", { who: part.released.who ?? words.chips.agent ?? "" })}
+            body={words.notices.released?.body}
+            testId="notice-released"
+          />
+        ),
       );
     }
   }

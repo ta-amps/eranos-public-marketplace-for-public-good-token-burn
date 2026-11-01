@@ -111,6 +111,7 @@
     "decided": "Decided · the rest in progress",
     "blocked": "Not taken",
     "finished": "Finished",
+    "unfinished": "Closed without a result",
     "withdrawn": "Withdrawn",
     "read_only": "Public request"
   },
@@ -148,6 +149,7 @@
     "work_submitted": "Part {n} draft submitted.",
     "work_submitted_summary": "Part {n} draft submitted with {summary}.",
     "released": "{who} let part {n} go when its lease ended. It's back in line.",
+    "released_reason": "{who} released part {n}: {reason}. It's back in line.",
     "check_claimed": "Part {n} claimed for checking by {who}, a different volunteer.",
     "approved": "Part {n} approved by {who}.",
     "approved_anon": "Part {n} approved by a different volunteer.",
@@ -161,11 +163,13 @@
     "decided_changes": "Your team asked for changes to part {n}.",
     "decided_dont": "Your team chose not to use part {n}.",
     "closed": "All parts finished. The request is closed.",
+    "closed_unfinished": "Closed before any part was approved.",
     "withdrawn": "This request was withdrawn.",
     "models_note": "Models are what each volunteer's agent says it runs.",
     "record_note": "Lines without a time come from public records, which don't carry their write time yet.",
     "lease": " Lease {m} min.",
     "plan_released": "{who} let the request go when its lease ended. It's back in line.",
+    "plan_released_reason": "{who} released the request: {reason}. It's back in line.",
     "queued": "In line: {nth} for part {n}.",
     "queued_plan": "In line: {nth}.",
     "library_added": "Part {n} added to the shared library.",
@@ -214,6 +218,7 @@
     "your_turn": "Your turn.",
     "decided": "Part {n} decided.",
     "closed": "Your request is closed.",
+    "closed_unfinished": "Your request closed without a finished result.",
     "blocked": "We couldn't take this request.",
     "part_released": "Part {n} is back in line.",
     "signoff": "Part {n} waits for a person's sign-off."
@@ -228,6 +233,10 @@
     "released": {
       "head": "{who} let this part go when its lease ended.",
       "body": "It's back in line. Another agent can claim it."
+    },
+    "released_reason": {
+      "head": "{who} couldn't finish this part: {reason}",
+      "body": "It's back in line so another agent can claim it."
     },
     "sent_back": {
       "head": "Sent back: {reason}",
@@ -444,6 +453,7 @@
       "not_used": "Not used",
       "withdrawn": "Withdrawn",
       "blocked": "Not accepted",
+      "unfinished": "Closed without a finished result",
       "in_use_plain": "In use"
     },
     "stages_label": "Where your request is",
@@ -467,6 +477,7 @@
         "between": "Waiting for the next volunteer",
         "making": "A volunteer’s AI is making it",
         "changes": "A volunteer’s AI is making your changes",
+        "stopped": "Stopped before a checked result was made",
         "done": "Made ✓"
       },
       "checked": {
@@ -527,6 +538,7 @@
       "work_claimed": "A volunteer’s AI started making it.",
       "work_claimed_changes": "A volunteer’s AI started making your changes.",
       "work_released": "The volunteer stopped before finishing. It’s back in line.",
+      "work_released_reason": "The volunteer couldn’t finish it ({reason}). It’s back in line.",
       "work_submitted": "It’s made. Waiting for a second volunteer to check it.",
       "work_submitted_changes": "Your changes are made.",
       "check_claimed": "A second volunteer’s AI started checking it.",
@@ -540,7 +552,8 @@
       "decided_dont": "Your team decided not to use it.",
       "library_added": "It’s now in the shared library.",
       "withdrawn": "This request was withdrawn.",
-      "closed": "This request is closed."
+      "closed": "This request is closed.",
+      "closed_unfinished": "This request closed before a checked result was ready."
     },
     "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
     "share": "Share this request",

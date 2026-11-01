@@ -469,10 +469,32 @@ async function loadTracksPayload(request, env) {
   // Tracks are repository data, so the snapshot built with this deploy is the source of truth.
   // The stored record is only a fallback, so an older stored copy can never outlive a new build.
   const snap = await fetchAssetJson(request, env, "/snapshot/tracks.json");
-  if (snap && Array.isArray(snap.tracks)) return snap;
-  const stored = await getHeadRecord(env.FABRIC_DB, "eranos.meta", "tracks");
-  if (stored && Array.isArray(stored.tracks)) return stored;
-  return { synthetic: true, tracks: FALLBACK_TRACKS };
+  let baseTracks = snap && Array.isArray(snap.tracks) ? snap.tracks : null;
+  if (!baseTracks) {
+    const stored = await getHeadRecord(env.FABRIC_DB, "eranos.meta", "tracks");
+    baseTracks = stored && Array.isArray(stored.tracks) ? stored.tracks : FALLBACK_TRACKS;
+  }
+  const liveKits = filterCatalogKits(await loadRawCatalogList(request, env), new URLSearchParams());
+  const byTrack = new Map();
+  for (const entry of liveKits) {
+    const kit = entry && entry.kit && typeof entry.kit === "object" ? entry.kit : {};
+    const tid = String(kit.track_id || "").trim();
+    const kid = String(kit.kit_id || "").trim();
+    if (!tid || !kid) continue;
+    if (!byTrack.has(tid)) byTrack.set(tid, []);
+    const arr = byTrack.get(tid);
+    if (!arr.includes(kid)) arr.push(kid);
+  }
+  const tracks = baseTracks.map((track) => {
+    const ids = (byTrack.get(track.id) || []).slice().sort();
+    return {
+      ...track,
+      catalog_kit_ids: ids,
+      kit_ready: ids.length > 0,
+      process_ready: Boolean(track.process_class ?? track.process_ready),
+    };
+  });
+  return { synthetic: true, tracks };
 }
 
 async function loadRequestsPayload(request, env) {
@@ -773,7 +795,10 @@ async function edgeCached(request, compute) {
   const hit = await cache.match(key);
   if (hit) return hit;
   const response = await compute();
-  if (response.status !== 200) return response;
+  if (response.status !== 200 || response.headers.get("x-skip-edge-cache") === "1") {
+    response.headers.delete("x-skip-edge-cache");
+    return response;
+  }
   const fresh = new Response(response.body, response);
   fresh.headers.set("cache-control", `public, max-age=${NOUN_CACHE_SECONDS}`);
   await cache.put(key, fresh.clone());
@@ -800,13 +825,71 @@ function openTaskView(verb, queue) {
 }
 
 // Public Eranos nouns (page text, plans, requests, delivered reports, sources, verb templates):
-// Tessera's mirror first, then the snapshot exported from Tessera with this deploy.
+// Tessera's mirror first, live Coordinator fallback for dynamic request/plan/solution stores when the D1 mirror lags,
+// then the snapshot exported from Tessera with this deploy.
 const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
+const LIVE_COORDINATOR_STORES = new Set(["eranos.requests", "eranos.plans", "eranos.solutions"]);
 const NOUN_KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/;
+const LIVE_REQUEST_ID_RE = /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/;
+const SHORT_BADGE_RE = /^R-[A-Z0-9]{4}$/i;
+
+async function fetchCoordinatorPublicRecord(env, store, key) {
+  if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_COORDINATOR_STORES.has(store)) return null;
+  try {
+    const resp = await env.TESSERA.fetch(
+      `https://tessera.ta-amps.workers.dev/ns/main/v1/stores/${encodeURIComponent(store)}/records/${encodeURIComponent(key)}`,
+      { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
+    );
+    if (!resp.ok) {
+      await resp.body?.cancel();
+      return null;
+    }
+    const rec = await resp.json();
+    if (!rec || typeof rec !== "object") return null;
+    if (rec.producer_surface !== "surface:eranos" || rec.visibility_scope !== "public_commons") return null;
+    const tags = Array.isArray(rec.tags) ? rec.tags : [];
+    if (tags.some((t) => String(t).trim().toLowerCase() === "status:quarantined")) return null;
+    if (rec.value === null || rec.value === undefined) return null;
+    return { synthetic: true, store, key, version: Number(rec.version) || 1, value: rec.value };
+  } catch {
+    return null;
+  }
+}
+
+async function fetchPendingRequestVerb(env, reqId) {
+  if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_REQUEST_ID_RE.test(reqId)) return null;
+  try {
+    const resp = await env.TESSERA.fetch(
+      `https://tessera.ta-amps.workers.dev/ns/main/v1/tasks/${encodeURIComponent(reqId)}`,
+      { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
+    );
+    if (!resp.ok) {
+      await resp.body?.cancel();
+      return null;
+    }
+    const body = await resp.json();
+    const task = body && typeof body.task === "object" && body.task ? body.task : body;
+    if (!task || typeof task !== "object" || task.queue !== "eq01" || task.kind !== "request") return null;
+    const brief = task.brief && typeof task.brief === "object" && task.brief ? task.brief : {};
+    const outputType = ["process", "information", "both"].includes(brief.output_type) ? brief.output_type : undefined;
+    const frequency = ["one-off", "recurring"].includes(brief.frequency) ? brief.frequency : undefined;
+    return {
+      task_id: String(task.task_id || reqId),
+      state: String(task.state || "ready"),
+      created_at: Number(task.created_at) || null,
+      ...(outputType ? { output_type: outputType } : {}),
+      ...(frequency ? { frequency } : {}),
+    };
+  } catch {
+    return null;
+  }
+}
 
 async function loadNoun(request, env, store, key) {
   const stored = await getHeadRecord(env.FABRIC_DB, store, key);
   if (stored !== null && stored !== undefined) return { synthetic: true, store, key, value: stored };
+  const live = await fetchCoordinatorPublicRecord(env, store, key);
+  if (live) return live;
   const snap = await fetchAssetJson(request, env, `/snapshot/nouns/${store}/${key}.json`);
   return snap && snap.store === store && snap.key === key ? snap : null;
 }
@@ -843,7 +926,7 @@ async function loadProcessResult(request, env, id, partNumber) {
   if (!NOUN_KEY_RE.test(id)) return null;
   const plan = await loadNoun(request, env, "eranos.plans", id);
   const parts = plan && plan.value && Array.isArray(plan.value.parts) ? plan.value.parts : [];
-  const part = parts.find((p) => p && p.part === partNumber) || parts.find((p) => p && p.route === "private-files");
+  const part = parts.find((p) => p && p.part === partNumber) || parts.find((p) => p && (p.route === "private-files" || p.route === "process"));
   const resultId = part && (part.kit_id || part.report_id);
   if (!resultId || !NOUN_KEY_RE.test(String(resultId))) return null;
   const solution = await loadNoun(request, env, "eranos.solutions", String(resultId));
@@ -893,7 +976,7 @@ async function packageCatalogKey(request, env, id) {
   const part = Number(new URL(request.url).searchParams.get("part")) || null;
   const plan = await getHeadRecord(env.FABRIC_DB, "eranos.plans", id);
   const parts = plan && Array.isArray(plan.parts) ? plan.parts : [];
-  const found = parts.find((p) => p && (part ? p.part === part : p.route === "private-files" && p.kit_id));
+  const found = parts.find((p) => p && (part ? p.part === part : (p.route === "private-files" || p.route === "process") && p.kit_id));
   return found && found.kit_id && /^(KIT|PRC)-[A-Z0-9-]{2,60}$/.test(String(found.kit_id)) ? String(found.kit_id) : null;
 }
 
@@ -1187,7 +1270,7 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
       }
       const fxId = String(fx.id || `FX-${i}`);
       const sample = String(fx.sample_input || "");
-      if (!sample.includes("SYNTHETIC")) {
+      if (!sample.includes("SYNTHETIC") && !sample.includes(CASE_MARK)) {
         addIssue(`fixture '${fxId}' sample_input must carry the practice-case mark ("Practice case: an example, not a real person or case.")`);
       }
       if (fx.expected_human_escalation === true) hasEsc = true;
@@ -1677,9 +1760,29 @@ async function handleCloudApi(request, env, pathname) {
       return problem(404, "Not Found", "no such public noun", "not_found");
     }
     if (key === null) return edgeCached(request, async () => jsonResp(await loadNounList(request, env, store)));
+    if (store === "eranos.requests" && SHORT_BADGE_RE.test(key)) {
+      return problem(
+        404,
+        "Not Found",
+        `${key} is the 4-character display badge; pass the full rq-... request_id from the /requests/rq-... URL.`,
+        "not_found"
+      );
+    }
     return edgeCached(request, async () => {
       const found = await loadNoun(request, env, store, key);
-      return found ? jsonResp(found) : problem(404, "Not Found", "no such public noun", "not_found");
+      if (found) return jsonResp(found);
+      if (store === "eranos.requests") {
+        const pending = await fetchPendingRequestVerb(env, key);
+        if (pending) {
+          return problem(
+            404,
+            "Not Found",
+            `request ${key} is queued on eq01 (${pending.state}) awaiting volunteer scope planning; no public eranos.requests noun exists until screened; poll /api/requests/${key} for immediate read-after-write status.`,
+            "pending_scope_plan"
+          );
+        }
+      }
+      return problem(404, "Not Found", "no such public noun", "not_found");
     });
   }
 
@@ -1688,7 +1791,8 @@ async function handleCloudApi(request, env, pathname) {
   }
 
   // /api/requests/<id>: one request as its public records hold it (the eranos.requests noun and the versions the
-  // volunteer worker wrote), or the example request for the example addresses. Nothing here is made up per id.
+  // volunteer worker wrote), the real queued eq01 verb while awaiting scope planning, or the example request for the
+  // example addresses. Nothing here is made up per id.
   const reqStatusMatch = /^\/api\/requests\/([^/]+)$/.exec(pathname);
   if (reqStatusMatch) {
     const reqId = decodeSegment(reqStatusMatch[1]);
@@ -1700,11 +1804,54 @@ async function handleCloudApi(request, env, pathname) {
       if (!example) return problem(404, "Not Found", "the example request is not in this build", "not_found");
       return jsonResp({ example: true, request_id: reqId, page: `/requests/${encodeURIComponent(reqId)}`, value: example.value });
     }
+    if (SHORT_BADGE_RE.test(reqId)) {
+      return problem(
+        404,
+        "Not Found",
+        `${reqId} is the 4-character display badge; pass the full rq-... request_id from the /requests/rq-... URL.`,
+        "not_found"
+      );
+    }
     return edgeCached(request, async () => {
       const record = await loadNoun(request, env, "eranos.requests", reqId).catch(() => null);
-      if (!record) return problem(404, "Not Found", `request ${reqId} is not found`, "not_found");
+      if (!record) {
+        const pending = await fetchPendingRequestVerb(env, reqId);
+        if (pending) {
+          const resp = jsonResp({
+            example: false,
+            pending_plan: true,
+            request_id: reqId,
+            page: `/requests/${encodeURIComponent(reqId)}`,
+            noun_url: `/api/nouns/eranos.requests/${encodeURIComponent(reqId)}`,
+            value: {
+              schema_version: 1,
+              request_id: reqId,
+              status: "received",
+              queue_state: pending.state,
+              text: null,
+              ...(pending.output_type ? { output_type: pending.output_type } : {}),
+              ...(pending.frequency ? { frequency: pending.frequency } : {}),
+              events: [{ type: "received", at: pending.created_at, ref: reqId }],
+            },
+            versions: [],
+          });
+          resp.headers.set("x-skip-edge-cache", "1");
+          return resp;
+        }
+        return problem(404, "Not Found", `request ${reqId} is not found`, "not_found");
+      }
       const history = await readRecordHistory(env.FABRIC_DB, "eranos.requests", reqId).catch(() => null);
-      return jsonResp({ example: false, request_id: reqId, page: `/requests/${encodeURIComponent(reqId)}`, value: record.value, versions: history || [] });
+      const versions =
+        history ||
+        (record.version ? [{ version: Number(record.version), created_at: 0, value: record.value }] : []);
+      return jsonResp({
+        example: false,
+        pending_plan: false,
+        request_id: reqId,
+        page: `/requests/${encodeURIComponent(reqId)}`,
+        value: record.value,
+        versions,
+      });
     });
   }
 

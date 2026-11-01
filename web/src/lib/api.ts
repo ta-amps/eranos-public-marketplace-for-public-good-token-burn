@@ -21,6 +21,7 @@ export type ApiPath =
   | "/api/tracks"
   | "/api/examples"
   | "/api/requests"
+  | `/api/requests/${string}`
   | "/api/fabric"
   | "/api/open-tasks"
   | `/api/nouns/${string}`;

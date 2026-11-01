@@ -29,6 +29,10 @@ export interface TrackPack {
   domain_label?: string | null;
   summary: string;
   sister_area?: string | null;
+  process_class?: string | null;
+  catalog_kit_ids?: string[];
+  kit_ready?: boolean;
+  process_ready?: boolean;
   organizations: OrgMandate[];
   allowed_artifacts: string[];
   required_human_only: string[];

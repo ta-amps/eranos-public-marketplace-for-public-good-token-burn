@@ -434,7 +434,7 @@ export function RequestResult({ id }: { id: string }) {
   }
   if (!loaded) return null;
   const view: Loaded = { ...loaded, decision: decision ?? loaded.decision };
-  const processPart = view.part?.route === "private-files" || Boolean(view.solution?.process);
+  const processPart = view.part?.route === "private-files" || view.part?.route === "process" || view.part?.output_type === "process" || Boolean(view.solution?.process);
   const solution = view.solution;
   const report = solution?.report;
   const process = solution?.process;

@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
 import type { RequestStatusNoun } from "../src/lib/nouns";
+import { plainHappened, plainSummary } from "../src/components/status/PlainStatus";
 import { applyEvents, deriveView } from "../src/lib/status/derive";
 import { ordinal, pickupEstimate, placeLine } from "../src/lib/status/estimate";
 import type { RequestExampleNoun } from "../src/lib/status/example";
@@ -106,5 +107,52 @@ test.describe("E04 no step shows a state without its record", () => {
     );
     expect(reviewed.nodes.find((n) => n.id === "review-1")?.state).toBe("working");
     expect(reviewed.nodes.find((n) => n.id === "review-1")?.evidence).toBe("eranos.requests/x part 1");
+  });
+
+  test("G3: ReviewRefused releases and unfinished closes render refusal reasons plainly instead of Finished or lease expiry", () => {
+    const events: StatusEvent[] = [
+      { type: "received", at: NOW - 120, receipt: "1".repeat(64) },
+      { type: "plan_claimed", at: NOW - 110, receipt: "2".repeat(64), worker: "dedicated worker 1" },
+      {
+        type: "planned",
+        at: NOW - 100,
+        receipt: "3".repeat(64),
+        worker: "dedicated worker 1",
+        parts: [{ part: 1, route: "process", output_type: "process", text: "Build an impact reporting process.", kit_id: "PRC-23I9-01" }],
+      },
+      { type: "work_claimed", part: 1, at: NOW - 80, receipt: "4".repeat(64), worker: "dedicated worker 2", lease_ends: NOW + 600 },
+      {
+        type: "work_released",
+        part: 1,
+        at: NOW - 70,
+        receipt: "5".repeat(64),
+        worker: "dedicated worker 2",
+        reason: "ReviewRefused: no process class fits this request (no known process class)",
+      },
+      {
+        type: "check_sent_back",
+        part: 1,
+        at: NOW - 60,
+        ref: "eranos.requests/rq-x part 1",
+        reason: "ReviewRefused: no process class fits this request (no known process class)",
+      },
+      { type: "plan_claimed", at: NOW - 20, receipt: "6".repeat(64), worker: "dedicated worker 1" },
+      { type: "closed", at: NOW - 10, receipt: "7".repeat(64), worker: "dedicated worker 1" },
+    ];
+    const view = deriveView({ mode: "live", request: { id: "rq-r_" + "ab".repeat(16) + "-mvy123i9", output_type: "process" }, events }, words, options);
+    expect(view.planned).toBe(true);
+    expect(view.overall.tone).toBe("caution");
+    expect(view.overall.label).toBe("Closed without a result");
+    expect(view.nodes.find((n) => n.id === "result-1")?.label).toBe(words.nodes.process);
+    expect(view.log.some((row) => row.text.includes("ReviewRefused: no process class fits this request"))).toBe(true);
+    expect(view.log.some((row) => row.text.includes("let part 1 go when its lease ended"))).toBe(false);
+    expect(view.log[0]?.text).toBe("Closed before any part was approved.");
+
+    const summary = plainSummary(view.facts, words.plain, options.formatClock, "");
+    expect(summary.chip).toBe("Closed without a finished result");
+    expect(summary.waiting).toBe(false);
+    const plainRows = plainHappened(events, view.facts, words.plain);
+    expect(plainRows.some((r) => r.text.includes("no process class fits this request"))).toBe(true);
+    expect(plainRows[0]?.text).toBe("This request closed before a checked result was ready.");
   });
 });
