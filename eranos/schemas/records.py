@@ -282,6 +282,14 @@ class KitRequest(_GovernedRecord):
         return check_safe_topic(check_non_accusatory(value))
 
 
+class ModelHook(_Record):
+    """A kit ships no model: no model file, model download, tuned adapter or local model service.
+    The agent that uses the kit runs it with its own model, as process packages do."""
+
+    default: Literal["none"] = "none"
+    uses: Literal["your own agent's model"] = "your own agent's model"
+
+
 class KitDraft(_GovernedRecord):
     kit_id: Annotated[str, Field(pattern=KIT_ID)]
     track_id: Annotated[str, Field(pattern=TRACK_ID)]
@@ -301,6 +309,7 @@ class KitDraft(_GovernedRecord):
     fixtures: list[SyntheticFixture] = Field(min_length=2)
     drafted_by: str = Field(min_length=2, max_length=80)
     drafted_by_key: str = Field(min_length=2, max_length=80)
+    model_hook: ModelHook = Field(default_factory=ModelHook)
 
     def all_skills(self) -> list[AgentSkillSpec]:
         out: list[AgentSkillSpec] = []

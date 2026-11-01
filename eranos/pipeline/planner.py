@@ -21,6 +21,7 @@ from typing import Any
 
 from tessera import ChildSpec, NotFound, VersionConflict
 
+from eranos import __version__
 from eranos.pipeline import process as process_part
 from eranos.pipeline import research
 from eranos.pipeline.request_noun import read_request, update_request_status, write_request
@@ -122,7 +123,9 @@ class Planner:
             at=self.lease.claimed_at,
             receipt=self.lease.claim_receipt,
             **self.who,
-            model="deterministic planner (no model)",
+            method="deterministic planner (no model)",
+            harness="eranos-worker",
+            harness_version=__version__,
             lease_ends=self.lease.expires_at,
             queue=queue_snapshot(self.b, [self.worker]),
         )

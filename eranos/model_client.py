@@ -1,29 +1,41 @@
-"""A local model for workers: Llama 3.2 3B Instruct served by Ollama on this machine ($0, no cloud).
+"""The workers' model: Meta's Muse models through the Meta API, at the standard tier only.
 
-The client only talks to a loopback address. It records what each call used (prompt and output
-tokens from Ollama's own counters) and identifies the exact weights (the manifest digest and the
-GGUF blob digest), so every execution report can name the model it ran. A contributor-tier model id
-is refused, as everywhere in Eranos. No call is retried silently: a failure is raised to the verb.
+The model id, the API address, the token prices and the spending caps come from the worker noun
+(`eranos.instructions/worker`, `model`), never from code; the model's display name comes from the
+model catalog noun (`eranos.instructions/models.meta`). The key is read from the file named by
+ERANOS_META_KEY_FILE at call time and is never printed or logged. Every call records its tokens
+and its cost; a shared ledger keeps the day's spend and the running total against the owner's
+caps, and a call that would pass a cap is refused before it is made. A contributor-tier model id
+is refused, as everywhere in Eranos. There is no fallback to any other model: a failure is raised
+to the verb, recorded there, and the verb is retried later.
 """
 
 from __future__ import annotations
 
+import fcntl
 import json
-import re
+import os
 import threading
+import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Protocol
 from urllib.parse import urlsplit
 
 import httpx
 
-DEFAULT_URL = "http://127.0.0.1:11434"
-DEFAULT_MODEL = "llama3.2:3b"
-_BLOB = re.compile(r"sha256[-:]([0-9a-f]{64})")
+KEY_FILE_ENV = "ERANOS_META_KEY_FILE"
+LEDGER_ENV = "ERANOS_META_LEDGER"
+META_HOSTS = frozenset({"api.meta.ai"})
 
 
 class ModelUnavailable(RuntimeError):
-    """The local model did not answer; the verb records a failure instead of guessing."""
+    """The model did not answer; the verb records a failure instead of guessing."""
+
+
+class BudgetExhausted(ModelUnavailable):
+    """A spending cap would be passed; nothing was sent."""
 
 
 class ContributorTierRefused(PermissionError):
@@ -37,11 +49,13 @@ class ModelCall:
     seconds: float
     temperature: float = 0.0
     seed: int | None = None
+    cost_usd: float = 0.0
+    reasoning_effort: str | None = None
 
 
 @dataclass
 class UsageMeter:
-    """What one verb's work used. Zero tokens is recorded only when no model was called."""
+    """What one verb's work used. Zero tokens and zero cost are recorded only when no model was called."""
 
     model: dict[str, Any] | None = None
     calls: list[ModelCall] = field(default_factory=list)
@@ -64,6 +78,10 @@ class UsageMeter:
     def total_tokens(self) -> int:
         return self.input_tokens + self.output_tokens
 
+    @property
+    def cost_usd(self) -> float:
+        return round(sum(c.cost_usd for c in self.calls), 6)
+
     def usage(self) -> dict[str, Any]:
         if not self.calls:
             return {
@@ -76,14 +94,23 @@ class UsageMeter:
             "input_tokens": self.input_tokens,
             "output_tokens": self.output_tokens,
             "total_tokens": self.total_tokens,
-            "source": "ollama response counters (prompt_eval_count, eval_count)",
+            "source": "Meta API response usage (prompt_tokens, completion_tokens)",
         }
 
     def model_report(self) -> dict[str, Any] | None:
         if self.model is None:
             return None
-        sampling = [{"temperature": c.temperature, "seed": c.seed} for c in self.calls]
-        return {**self.model, "calls": len(self.calls), "cost_usd": 0.0, "sampling": sampling}
+        sampling = [
+            {"temperature": c.temperature, "seed": c.seed}
+            | ({"reasoning_effort": c.reasoning_effort} if c.reasoning_effort else {})
+            for c in self.calls
+        ]
+        return {
+            **self.model,
+            "calls": len(self.calls),
+            "cost_usd": self.cost_usd,
+            "sampling": sampling,
+        }
 
 
 class ChatModel(Protocol):
@@ -98,82 +125,174 @@ class ChatModel(Protocol):
         max_tokens: int = 900,
         temperature: float = 0.0,
         seed: int | None = None,
+        reasoning_effort: str | None = None,
     ) -> dict[str, Any]: ...
 
 
 def refuse_contributor(model_id: str) -> None:
-    if model_id.endswith("-contributor") or model_id == "contributor":
+    if model_id.endswith("-contributor") or "contributor" in model_id.split("-"):
         raise ContributorTierRefused(f"{model_id!r} is a contributor-tier model; refused")
 
 
-class OllamaModel:
-    """Ollama's /api/chat in JSON mode, temperature 0 and a fixed seed, on a loopback address only."""
+class Ledger:
+    """The owner's Meta spend: one total per UTC day and a running total, shared by every worker on
+    this machine. A call reserves its largest possible cost first, under a file lock, and is refused
+    when that could pass a cap; the answer's real cost then replaces the reservation. A call that
+    was sent but never answered keeps its reservation, since Meta may have billed it."""
+
+    def __init__(self, path: str | Path, *, daily_usd: float, total_usd: float) -> None:
+        self.path = Path(path)
+        self.daily_usd, self.total_usd = float(daily_usd), float(total_usd)
+
+    def _update(self, change: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(self.path, os.O_RDWR | os.O_CREAT, 0o600)
+        with os.fdopen(fd, "r+", encoding="utf-8") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            text = fh.read()
+            data = json.loads(text) if text.strip() else {"days": {}, "total_usd": 0.0, "calls": 0}
+            change(data)  # raising here leaves the file as it was
+            fh.seek(0)
+            fh.truncate()
+            fh.write(json.dumps(data, sort_keys=True))
+            return dict(data)
+
+    def _refuse(self, data: dict[str, Any], day: str, estimate: float) -> None:
+        spent_today = float((data.get("days") or {}).get(day, 0.0))
+        spent = float(data.get("total_usd", 0.0))
+        if spent_today + estimate > self.daily_usd:
+            raise BudgetExhausted(
+                f"the daily Meta cap (${self.daily_usd:.2f}) is reached: ${spent_today:.4f} spent today"
+            )
+        if spent + estimate > self.total_usd:
+            raise BudgetExhausted(
+                f"the total Meta cap (${self.total_usd:.2f}) is reached: ${spent:.4f} spent"
+            )
+
+    def check(self, estimate: float) -> None:
+        """Raise BudgetExhausted when a call of this size could pass a cap (nothing is reserved)."""
+        day = _today()
+        self._update(lambda data: self._refuse(data, day, estimate))
+
+    def reserve(self, estimate: float) -> str:
+        """Count a call's largest possible cost before it is sent; returns the UTC day it counts on."""
+        day = _today()
+
+        def take(data: dict[str, Any]) -> None:
+            self._refuse(data, day, estimate)
+            _add(data, day, estimate)
+
+        self._update(take)
+        return day
+
+    def settle(
+        self, cost: float, *, reserved: float = 0.0, day: str | None = None
+    ) -> dict[str, Any]:
+        """Replace a reservation with the call's real cost (0 when nothing was billed)."""
+        when = day or _today()
+
+        def change(data: dict[str, Any]) -> None:
+            _add(data, when, cost - reserved)
+            if cost > 0:
+                data["calls"] = int(data.get("calls", 0)) + 1
+
+        return self._update(change)
+
+
+def _today() -> str:
+    return time.strftime("%Y-%m-%d", time.gmtime())
+
+
+def _add(data: dict[str, Any], day: str, amount: float) -> None:
+    days = data.setdefault("days", {})
+    days[day] = round(max(0.0, float(days.get(day, 0.0)) + amount), 6)
+    data["total_usd"] = round(max(0.0, float(data.get("total_usd", 0.0)) + amount), 6)
+
+
+class MetaModel:
+    """A Muse model through the Meta API's chat completions, asking for a JSON object."""
 
     def __init__(
         self,
-        url: str = DEFAULT_URL,
-        model: str = DEFAULT_MODEL,
+        settings: dict[str, Any],
         *,
-        seed: int = 20261031,
-        num_ctx: int = 8192,
-        timeout: float = 600.0,
-        adapter: dict[str, Any] | None = None,
+        key_file: str | None = None,
+        ledger: Ledger | None = None,
+        timeout: float = 180.0,
+        transport: httpx.BaseTransport | None = None,
     ) -> None:
-        host = (urlsplit(url).hostname or "").lower()
-        if host not in {"127.0.0.1", "localhost", "::1"}:
-            raise ValueError(
-                "the worker's model must be served on this machine (a loopback address)"
-            )
-        refuse_contributor(model)
-        self.url = url.rstrip("/")
-        self.model = model
-        self.seed = seed
-        self.num_ctx = num_ctx
-        self.adapter = adapter
-        self._http = httpx.Client(base_url=self.url, timeout=timeout, trust_env=False)
-        self._described: dict[str, Any] | None = None
+        self.model = str(settings.get("id") or "")
+        refuse_contributor(self.model)
+        self.display = str(settings.get("model_display") or self.model)
+        self.base_url = str(settings.get("base_url") or "https://api.meta.ai/v1").rstrip("/")
+        host = (urlsplit(self.base_url).hostname or "").lower()
+        if urlsplit(self.base_url).scheme != "https" or host not in META_HOSTS:
+            raise ValueError("the workers' model is reached only through the Meta API over https")
+        self.prices = dict(settings.get("prices_usd_per_million") or {})
+        if not {"input", "output"} <= set(self.prices):
+            raise ValueError("the worker noun must give the model's input and output prices")
+        self.max_tokens = int(settings.get("max_tokens") or 1500)
+        self.reasoning_effort = settings.get("reasoning_effort")
+        self.key_file = key_file or os.environ.get(KEY_FILE_ENV, "")
+        self.ledger = ledger
+        self._http = httpx.Client(
+            base_url=self.base_url,
+            timeout=timeout,
+            transport=transport or httpx.HTTPTransport(retries=0),
+            trust_env=False,  # no proxy, netrc or other setting from the environment
+        )
+        self._described = {
+            "provider": "meta",
+            "id": self.model,
+            "model_display": self.display,
+            "tier": "standard",
+            "api": self.base_url,
+            "invocation_origin": "worker_api",
+            "prices_usd_per_million": self.prices,
+            "reasoning_effort": self.reasoning_effort,
+        }
 
     def close(self) -> None:
         self._http.close()
 
-    def healthy(self) -> None:
-        """Raise ModelUnavailable unless the local server answers now (a cheap check before a claim)."""
+    def _key(self) -> str:
         try:
-            self._http.get("/api/version", timeout=5.0).raise_for_status()
-        except httpx.HTTPError as exc:
-            raise ModelUnavailable(f"the local model server at {self.url} did not answer") from exc
+            key = Path(self.key_file).read_text(encoding="utf-8").strip()
+        except OSError as exc:
+            raise ModelUnavailable("the Meta key file is not readable on this machine") from exc
+        if not key:
+            raise ModelUnavailable("the Meta key file is empty")
+        return key
+
+    def healthy(self) -> None:
+        """Raise ModelUnavailable unless a call could be made now (a key, and room under the caps)."""
+        self._key()
+        if self.ledger is not None:
+            self.ledger.check(self.estimate(4000))
 
     def describe(self) -> dict[str, Any]:
-        """The exact weights in use: Ollama's manifest digest and the GGUF blob it loads."""
-        if self._described is not None:
-            return self._described
-        try:
-            tags = self._http.get("/api/tags", timeout=10.0).json().get("models") or []
-            shown = self._http.post("/api/show", json={"model": self.model}, timeout=10.0).json()
-        except (httpx.HTTPError, ValueError) as exc:
-            raise ModelUnavailable(f"the local model server at {self.url} did not answer") from exc
-        entry = next((m for m in tags if m.get("name") == self.model), None)
-        if entry is None:
-            raise ModelUnavailable(f"{self.model} is not pulled on this machine")
-        blob = _BLOB.search(str(shown.get("modelfile") or ""))
-        details = shown.get("details") or {}
-        self._described = {
-            "provider": "ollama",
-            "id": self.model,
-            "family": str(details.get("family") or ""),
-            "parameter_size": str(details.get("parameter_size") or ""),
-            "quantization": str(details.get("quantization_level") or ""),
-            "digest": str(entry.get("digest") or ""),
-            "weights_sha256": blob.group(1) if blob else None,
-            "adapter": self.adapter,
-            "adapter_note": None if self.adapter else "base weights; no LoRA adapter loaded",
-            "location": "this machine (loopback), local GPU",
-            "invocation_origin": "worker_local",
-            "payer": "the volunteer running this worker; $0 in API charges",
-            "temperature": 0,
-            "seed": self.seed,
-        }
-        return self._described
+        return dict(self._described)
+
+    def _settle(self, cost: float, reserved: float, day: str | None) -> None:
+        if self.ledger is not None:
+            self.ledger.settle(cost, reserved=reserved, day=day)
+
+    def cost(self, input_tokens: int, output_tokens: int, cached_tokens: int = 0) -> float:
+        p = self.prices
+        cached = min(cached_tokens, input_tokens)
+        fresh = input_tokens - cached
+        return round(
+            (
+                fresh * float(p["input"])
+                + cached * float(p.get("cached_input") or p["input"])
+                + output_tokens * float(p["output"])
+            )
+            / 1e6,
+            6,
+        )
+
+    def estimate(self, prompt_chars: int, max_tokens: int | None = None) -> float:
+        return self.cost(prompt_chars // 3 + 64, max_tokens or self.max_tokens)
 
     def chat_json(
         self,
@@ -184,39 +303,74 @@ class OllamaModel:
         max_tokens: int = 900,
         temperature: float = 0.0,
         seed: int | None = None,
+        reasoning_effort: str | None = None,
     ) -> dict[str, Any]:
-        described = self.describe()
-        seed = self.seed if seed is None else seed
-        body = {
+        budget = max(int(max_tokens), self.max_tokens)  # reasoning models need room to answer
+        effort = reasoning_effort or self.reasoning_effort
+        key = self._key()
+        estimate = self.estimate(len(system) + len(user), budget)
+        day = self.ledger.reserve(estimate) if self.ledger is not None else None
+        body: dict[str, Any] = {
             "model": self.model,
+            "temperature": temperature,
+            "max_tokens": budget,
+            "response_format": {"type": "json_object"},
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-            "stream": False,
-            "format": "json",
-            "keep_alive": "15m",
-            "options": {
-                "temperature": temperature,
-                "seed": seed,
-                "num_ctx": self.num_ctx,
-                "num_predict": max_tokens,
-            },
         }
+        if effort:
+            body["reasoning_effort"] = effort
+        if seed is not None:
+            body["seed"] = seed
+        started = time.time()
         try:
-            response = self._http.post("/api/chat", json=body)
-            response.raise_for_status()
+            response = self._http.post(
+                "/chat/completions", json=body, headers={"Authorization": f"Bearer {key}"}
+            )
+        except (httpx.ConnectError, httpx.ConnectTimeout) as exc:  # never sent: nothing billed
+            self._settle(0.0, estimate, day)
+            raise ModelUnavailable(
+                f"{self.model} could not be reached: {type(exc).__name__}"
+            ) from exc
+        except (
+            httpx.HTTPError
+        ) as exc:  # sent, no answer: Meta may have billed it, so it stays counted
+            raise ModelUnavailable(
+                f"{self.model} gave no answer: {type(exc).__name__}; its largest possible cost stays counted"
+            ) from exc
+        if response.status_code != 200:
+            self._settle(0.0, estimate, day)
+            raise ModelUnavailable(f"{self.model} answered {response.status_code}")
+        try:
             data = response.json()
-        except (httpx.HTTPError, ValueError) as exc:
-            raise ModelUnavailable(f"{self.model} did not answer: {type(exc).__name__}") from exc
+        except ValueError as exc:
+            raise ModelUnavailable(f"{self.model} sent no JSON") from exc
+        usage = data.get("usage") or {}
+        cached = int(((usage.get("prompt_tokens_details") or {}).get("cached_tokens")) or 0)
+        input_tokens, output_tokens = (
+            int(usage.get("prompt_tokens") or 0),
+            int(usage.get("completion_tokens") or 0),
+        )
+        # An answer without token counts keeps its largest possible cost, so the caps stay safe.
+        cost = self.cost(input_tokens, output_tokens, cached) if usage else estimate
+        self._settle(cost, estimate, day)
         meter.add(
-            described,
+            self.describe(),
             ModelCall(
-                input_tokens=int(data.get("prompt_eval_count") or 0),
-                output_tokens=int(data.get("eval_count") or 0),
-                seconds=round(float(data.get("total_duration") or 0) / 1e9, 3),
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+                seconds=round(time.time() - started, 3),
                 temperature=temperature,
                 seed=seed,
+                cost_usd=cost,
+                reasoning_effort=effort,
             ),
         )
-        content = str((data.get("message") or {}).get("content") or "")
+        choice = (data.get("choices") or [{}])[0]
+        content = str((choice.get("message") or {}).get("content") or "")
+        if not content.strip() and choice.get("finish_reason") == "length":
+            raise ModelUnavailable(
+                f"{self.model} used all {budget} tokens before answering (finish_reason length)"
+            )
         try:
             parsed = json.loads(content)
         except ValueError:

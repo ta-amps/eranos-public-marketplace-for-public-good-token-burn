@@ -30,12 +30,20 @@ REVIEW_KINDS = ["report_review", "process_review", "review"]
 ROLE_KEYS: dict[str, dict[str, Any]] = {
     "planner": {
         "queues": ["eq01", "eq02", "eq03"],
-        "kinds": ["request", "spec"],
+        "kinds": ["request", "spec", "tune"],
         "role": "planner",
     },
     "builder": {"queues": ["eq02"], "kinds": ["research", "process", "draft"], "role": "builder"},
     "reviewer": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
     "reviewer2": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
+}
+# The volunteer mode, started only for a take: research on eq02 and research checks on eq03, with
+# its own principal (account) so it is never mistaken for a dedicated worker.
+VOLUNTEER_KEY: dict[str, Any] = {
+    "queues": ["eq02", "eq03"],
+    "kinds": ["research", "report_review"],
+    "role": "volunteer",
+    "account_id": "eranos-volunteer",
 }
 INTAKE_KEY: dict[str, Any] = {
     "queues": ["eq01", "eq02", "eq03"],
@@ -54,12 +62,18 @@ def issue_key(
     account_prefix: str = "eranos-worker",
 ) -> dict[str, Any]:
     """Issue one role's key; the returned dict holds the secret, so callers must not print it."""
-    spec = INTAKE_KEY if name == "kit-intake" else ROLE_KEYS[name]
+    spec = (
+        INTAKE_KEY
+        if name == "kit-intake"
+        else VOLUNTEER_KEY
+        if name == "volunteer"
+        else ROLE_KEYS[name]
+    )
     response = http.post(
         "/v1/admin/keys",
         json={
             "label": f"eranos-{name}",
-            "account_id": f"{account_prefix}-{name}",
+            "account_id": spec.get("account_id") or f"{account_prefix}-{name}",
             "queues": spec["queues"],
             "kinds": spec["kinds"],
             "effect_classes": ["read", "write-internal"],

@@ -224,7 +224,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-13",
-    "drafted_by_key": "key_drafter_13"
+    "drafted_by_key": "key_drafter_13",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-THANKS-13",
@@ -232,12 +236,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -251,14 +256,14 @@
   "reviewed_by_key": "key_reviewer_13",
   "review_notes": "Checked placeholders instead of names, held rows with missing privacy choices, word-for-word acknowledgment wording, and that special handling, wording and sending stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "e6fd36968a458f8c1ccce2900ead2316395f0b29bdc9eda4a260987f79918623",
-  "review_receipt": "9b6db6884e62000ea5d906db40856168596a7f028110f4442b4a48d5d31023f4",
-  "blob_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+  "draft_receipt": "1dae43b1d9632aad43a7a6af6e10c7907e34667bff6901704ef2f757783891a8",
+  "review_receipt": "8bb93342277c3959b50ca25402ec8f5dad8148691ec4e7ddd19ae2b3bcb54112",
+  "blob_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
   "catalog_version": 1,
-  "review_task_id": "er_f429588d9945:KIT-THANKS-13:review",
-  "draft_task_id": "er_f429588d9945:KIT-THANKS-13:draft",
-  "draft_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+  "review_task_id": "er_e61ba1b45ce1:KIT-THANKS-13:review",
+  "draft_task_id": "er_e61ba1b45ce1:KIT-THANKS-13:draft",
+  "draft_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
   "drafter_key_id": "key_drafter_13",
   "reviewer_key_id": "key_reviewer_13",
-  "publication_sha256": "4f30da146b4606684a1bd23e156f62b951265a41d11c9412e5e0ec3165e7b688"
+  "publication_sha256": "40ad59ac6f8b4469a58f74134f3e93fccc6282995c5dda9683b406ce4ef06e6f"
 }

@@ -307,7 +307,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-07",
-    "drafted_by_key": "key_drafter_07"
+    "drafted_by_key": "key_drafter_07",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-TRANSCR-07",
@@ -315,12 +319,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 4,
@@ -335,14 +340,14 @@
   "reviewed_by_key": "key_reviewer_07",
   "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
   "steward_signoff": "records-steward-lead",
-  "draft_receipt": "d4f6524fba592c3dad2724c871e2d0a5376803cdfa5393708ce13710fd07a5e3",
-  "review_receipt": "029377167631a483352cac84f96f0f97535626c863fd3fb03871b34293a3e190",
-  "blob_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+  "draft_receipt": "16e823b2e9836e463612ca440b2b004873c698645a6a5148964c471e85036980",
+  "review_receipt": "fc7b8cb07c5499a56770f82c4cee893c2a60ab10611abeb2d9334e8d48281e92",
+  "blob_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
   "catalog_version": 1,
-  "review_task_id": "er_24933570b11d:KIT-TRANSCR-07:review",
-  "draft_task_id": "er_24933570b11d:KIT-TRANSCR-07:draft",
-  "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+  "review_task_id": "er_9b19683ae7e1:KIT-TRANSCR-07:review",
+  "draft_task_id": "er_9b19683ae7e1:KIT-TRANSCR-07:draft",
+  "draft_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
   "drafter_key_id": "key_drafter_07",
   "reviewer_key_id": "key_reviewer_07",
-  "publication_sha256": "6836cafb867d974cfbfc59ea5930edf0ecc2ce10b62b869baced711efad236bb"
+  "publication_sha256": "7c69c8db4e79b6ffc19c3e45fc2a9d4a5bc07db27ce45d0628aff4aec0ffc513"
 }

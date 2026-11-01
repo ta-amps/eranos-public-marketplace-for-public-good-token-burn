@@ -207,7 +207,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-14",
-    "drafted_by_key": "key_drafter_14"
+    "drafted_by_key": "key_drafter_14",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-FLYER-14",
@@ -215,12 +219,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -233,14 +238,14 @@
   "reviewed_by_key": "key_reviewer_14",
   "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
   "steward_signoff": null,
-  "draft_receipt": "565869f583503a8d68dafe04c12bc82553969ddc397d2235460af244438d77a9",
-  "review_receipt": "99b6a53c2b0411e525c7007cf1fafe976b3fb8e4b0f98ba4fac4ddcabc3e96a6",
-  "blob_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+  "draft_receipt": "26a607869958c550c583428a7e720da2a50be4874dfcd399b7afe1d515aa002c",
+  "review_receipt": "b4483f35ae23182d135bb71c8aa0d826494ae600af9a0c637d9c81a76b985028",
+  "blob_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
   "catalog_version": 1,
-  "review_task_id": "er_d303b2eb401a:KIT-FLYER-14:review",
-  "draft_task_id": "er_d303b2eb401a:KIT-FLYER-14:draft",
-  "draft_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+  "review_task_id": "er_235dbea116b2:KIT-FLYER-14:review",
+  "draft_task_id": "er_235dbea116b2:KIT-FLYER-14:draft",
+  "draft_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
   "drafter_key_id": "key_drafter_14",
   "reviewer_key_id": "key_reviewer_14",
-  "publication_sha256": "0fd0c37cea6052a761df1c8804f019eaf644cd6c19fb3488548526626c64e79a"
+  "publication_sha256": "b06c6106ba7717217fe4429ecd76ffddf1783464909e9a3fc8b795f2fa131ef5"
 }

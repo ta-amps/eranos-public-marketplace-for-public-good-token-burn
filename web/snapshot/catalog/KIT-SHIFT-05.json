@@ -167,7 +167,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-05",
-    "drafted_by_key": "key_drafter_05"
+    "drafted_by_key": "key_drafter_05",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-SHIFT-05",
@@ -175,12 +179,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -194,14 +199,14 @@
   "reviewed_by_key": "key_reviewer_05",
   "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
   "steward_signoff": null,
-  "draft_receipt": "483566441a3cf83b13fec7adf919a368dbd42f4a8c33e44ce246de7842553648",
-  "review_receipt": "e587558ed77ded3e93437950815465f1b91979a2d28763f25bb80e346e6647a2",
-  "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
+  "draft_receipt": "64cdded8a9c04e9257b913561ed09ad5808eaea143e6445e2f5712fa299074dc",
+  "review_receipt": "89773ffa964deeebb1d3b88bce9dbdad2849a63794364d6f1dd9ccb885cc9899",
+  "blob_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
   "catalog_version": 1,
-  "review_task_id": "er_ca11f5eed741:KIT-SHIFT-05:review",
-  "draft_task_id": "er_ca11f5eed741:KIT-SHIFT-05:draft",
-  "draft_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
+  "review_task_id": "er_0190265cad54:KIT-SHIFT-05:review",
+  "draft_task_id": "er_0190265cad54:KIT-SHIFT-05:draft",
+  "draft_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
   "drafter_key_id": "key_drafter_05",
   "reviewer_key_id": "key_reviewer_05",
-  "publication_sha256": "7064464b60824709d86ba0c4140baa6bcbb2dffc0d9495ce48cf252db23b5806"
+  "publication_sha256": "ff6de7b3f382d8027724332f9fad43752230e7c61796da9b4b3a80f7f4e2b8b7"
 }

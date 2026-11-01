@@ -166,7 +166,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-04",
-    "drafted_by_key": "key_drafter_04"
+    "drafted_by_key": "key_drafter_04",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-GRANT-04",
@@ -174,12 +178,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -192,14 +197,14 @@
   "reviewed_by_key": "key_reviewer_04",
   "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
   "steward_signoff": null,
-  "draft_receipt": "729d255bf8cd7cdff6dfd2c1af6b10bb8f79656e5f9e3a44cc104fceed798bf7",
-  "review_receipt": "a868c96695ea6629995e5de29447663e6fa9fd3247c04922b31771f8da44d971",
-  "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
+  "draft_receipt": "a6a4e348d44e14229e531e2033acbb65823496ff7b4b065092c8633342a1979b",
+  "review_receipt": "6eef7da6ead2e47d73ecee6ba26f197e46fc94f6044b26f11338d20d2d741245",
+  "blob_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
   "catalog_version": 1,
-  "review_task_id": "er_9982a76ba8f3:KIT-GRANT-04:review",
-  "draft_task_id": "er_9982a76ba8f3:KIT-GRANT-04:draft",
-  "draft_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
+  "review_task_id": "er_2af3ee7f0ff2:KIT-GRANT-04:review",
+  "draft_task_id": "er_2af3ee7f0ff2:KIT-GRANT-04:draft",
+  "draft_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
   "drafter_key_id": "key_drafter_04",
   "reviewer_key_id": "key_reviewer_04",
-  "publication_sha256": "a48e6187225a0bf552eef86a67d2f7c8a1cc91f6a2cee885b03ae3db30838d9b"
+  "publication_sha256": "912f5e849b4205e11477d0b7986948e6fa262b1b7e5c55c9a3551bbac3b467ca"
 }

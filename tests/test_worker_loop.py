@@ -24,7 +24,6 @@ from support.workerd_fabric import (
 )
 
 from eranos.jsonfile import load_json
-from eranos.model_client import ContributorTierRefused, OllamaModel
 from eranos.pipeline import process as process_part
 from eranos.pipeline.planner import request_terms
 from eranos.pipeline.research import check_claims
@@ -34,6 +33,7 @@ from eranos.worker_loop import Pacer, Worker, WorkerConfig
 
 ROOT = Path(__file__).resolve().parents[1]
 RULES = load_json(ROOT / "instructions" / "worker.json")
+TUNING = load_json(ROOT / "instructions" / "worker.tuning.json")
 INFO_TEXT = "Summarize the tax law rules on political campaign activity for 501(c)(3) charities, with a citation for every point."
 REWORDED = "Our charity needs a cited overview of what the rules say about 501(c)(3) groups and political campaigns."
 
@@ -329,13 +329,6 @@ def test_request_terms_bound_the_recurring_period() -> None:
     assert request_terms({"output_type": "anything"}, RULES) == {}
 
 
-def test_contributor_tier_and_remote_models_are_refused() -> None:
-    with pytest.raises(ContributorTierRefused):
-        OllamaModel(model="muse-spark-1.3-contributor")
-    with pytest.raises(ValueError, match="loopback"):
-        OllamaModel(url="https://api.example.com")
-
-
 # whole flows on a local Tessera (workerd) ------------------------------------------------------------
 needs_workerd = pytest.mark.skipif(
     not available(), reason="set ERANOS_WORKERD_TESSERA to a Tessera checkout with node_modules"
@@ -390,7 +383,8 @@ PUBLIC_STORES = (
 
 
 def assert_nothing_public_says_synthetic(fabric: Any, task_ids: list[str]) -> None:
-    """The owner's rule: no public record, status fact or execution report says "synthetic"."""
+    """The owner's rules: no public record, status fact or execution report says "synthetic", and
+    none names the old open-weights family the workers no longer run."""
     seen = []
     for store in PUBLIC_STORES:
         for record in fabric.get(f"/v1/stores/{store}/records?limit=200")["records"]:
@@ -400,7 +394,8 @@ def assert_nothing_public_says_synthetic(fabric: Any, task_ids: list[str]) -> No
         seen += [json.dumps(r) for r in _executions(fabric, task_id)]
     assert seen
     for text in seen:
-        assert not re.search("synthetic", text, re.IGNORECASE), text[:300]
+        found = re.search("synthetic|(?<!o)llama", text, re.IGNORECASE)
+        assert not found, text[max(0, found.start() - 200) : found.end() + 100] if found else ""
 
 
 def _record(fabric: Any, request_id: str) -> dict[str, Any]:
@@ -484,11 +479,22 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
         f"/api/nouns/eranos.solutions/{plan['parts'][0]['report_id']}"
     )
     claimed = next(e for e in record["events"] if e["type"] == "work_claimed")
-    assert (
-        claimed["worker"] == "test-builder"
-        and claimed["model"].startswith("fake-llama")
-        and claimed["lease_ends"] > claimed["at"]
-    )
+    names = {"muse-spark-1.3": "Muse Spark 1.3", "muse-wonder-1.0": "Muse Wonder 1.0"}
+    variants = {v["id"]: v for v in TUNING["variants"]}
+    assert claimed["worker"] == "test-builder" and claimed["lease_ends"] > claimed["at"]
+    check_claim = next(e for e in record["events"] if e["type"] == "check_claimed")
+    for step, pick in (("make", claimed), ("check", check_claim)):
+        # Every pick is recorded: the model id, its catalog name, the variant, its persona, the
+        # tuner version, the share it was drawn at and why; the harness is named apart.
+        chosen = variants[pick["variant"]]
+        assert chosen["step"] == step and pick["model"] == chosen["model"]
+        assert pick["model_display"] == names[pick["model"]]  # from the models.meta noun
+        assert pick["persona"] == chosen["persona"]["title"] and pick["harness"] == "eranos-worker"
+        assert pick["tuner_version"] == 0 and pick["probability"] == round(1 / 3, 4)
+        assert "starting mix" in pick["why"]
+    approved = next(e for e in record["events"] if e["type"] == "check_approved")
+    assert approved["tuning"]["maker_variant"] == claimed["variant"]
+    assert approved["tuning"]["unsupported"] == []
 
     part = plan["parts"][0]
     solution = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")["value"]
@@ -507,10 +513,15 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
         review["completed_by_key"] == fabric.keys["reviewer"]["key_id"] != work["completed_by_key"]
     )
     report = _executions(fabric, part["work_task_id"])[0]["report"]
-    assert report["model"]["id"] == "fake-llama-for-tests" and report["usage"]["total_tokens"] > 0
-    assert report["harness"]["cost_usd"] == 0.0 and report["harness"]["role"] == "builder"
+    assert report["model"]["id"] == "muse-spark-1.3" and report["usage"]["total_tokens"] > 0
+    assert report["model"]["tier"] == "standard" and report["model"]["cost_usd"] == 0.0123
+    assert report["harness"]["declared_model"] == claimed["model"]
+    assert report["harness"]["variant"] == claimed["variant"] and report["harness"]["why"]
+    assert report["harness"]["cost_usd"] == 0.0123 and report["harness"]["role"] == "builder"
+    assert report["harness"]["payer"] == "the owner's Meta API credit (standard tier)"
     review_report = _executions(fabric, part["review_task_id"])[0]["report"]
-    assert review_report["model"] is None and review_report["usage"]["total_tokens"] == 0
+    assert review_report["harness"]["variant"].startswith("check-")
+    assert review_report["usage"]["total_tokens"] > 0  # the model check
     # The approval carries the shape Tessera's eq03 rule checks, and the server accepted it (M2).
     assert review["ok"] is True and review["output"]["approved"] is True
     assert review["output"]["drafter_key_id"] == work["completed_by_key"]
@@ -816,8 +827,111 @@ def test_volunteers_get_first_pick_and_a_dedicated_worker_claims_after_the_grace
         and claim["worker_kind"] == "dedicated"
         and claim["run_by"] == "ta-amps"
     )
-    assert claim["model"].startswith("fake-llama") and claim["dedicated"] is True
+    assert claim["model"] == "muse-spark-1.3" and claim["dedicated"] is True
+    assert claim["model_display"] == "Muse Spark 1.3" and claim["harness"] == "eranos-worker"
     assert first != second
+
+
+@needs_workerd
+def test_a_volunteer_researches_at_once_under_its_own_label_key_and_model(fabric: Any) -> None:
+    from eranos.worker_keys import issue_key
+
+    with fabric.http() as http:
+        fabric.keys["volunteer"] = issue_key(http, fabric.admin, "volunteer", days=1)
+    requester = fabric.requester()
+    rid = fabric.file_request(
+        requester,
+        {
+            "text": INFO_TEXT,
+            "links": [RULES_URL],
+            "organization_type": "Legal-aid clinic",
+            "output_type": "information",
+            "frequency": "one-off",
+        },
+        "vol1",
+    )
+    fetcher = fixture_fetcher({RULES_URL: RULES_HTML})
+    assert fabric.worker("planner").run_once() == "worked"
+    dedicated = fabric.worker(
+        "builder", model=FakeModel(), fetcher=fetcher, dedicated=True, number=2
+    )
+    assert dedicated.run_once() == "grace"  # the dedicated worker gives volunteers first pick
+    volunteer = fabric.worker(
+        "volunteer",
+        role="builder",
+        volunteer=True,
+        model=FakeModel(model_id="muse-spark-1.3"),
+        fetcher=fetcher,
+    )
+    assert volunteer.claim_kinds() == ["research"]
+    assert volunteer.run_once() == "worked"  # no grace period: it claims at once
+    assert _reviewer(fabric, fetcher=fetcher).run_once() == "worked"
+
+    record = _record(fabric, rid)
+    claim = next(e for e in record["events"] if e["type"] == "work_claimed")
+    assert (claim["worker"], claim["worker_kind"], claim["dedicated"]) == (
+        "a volunteer's AI",
+        "volunteer",
+        False,
+    )
+    assert (claim["model"], claim["model_display"], claim["harness"]) == (
+        "muse-spark-1.3",
+        "Muse Spark 1.3",
+        "eranos-worker",
+    )
+    assert "delivered" in _types(record)
+    approved = next(e for e in record["events"] if e["type"] == "check_approved")
+    assert approved["worker"] == "test-reviewer"
+    part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+    work = fabric.get(f"/v1/tasks/{part['work_task_id']}/results")["results"][-1]
+    assert work["completed_by_key"] == fabric.keys["volunteer"]["key_id"]
+    report = _executions(fabric, part["work_task_id"])[0]["report"]
+    assert report["harness"]["worker_kind"] == "volunteer"
+    assert report["harness"]["declared_model"] == "muse-spark-1.3"
+    assert report["harness"]["payer"].startswith("spare Meta API credit given by the volunteer")
+    assert_nothing_public_says_synthetic(
+        fabric, [part["work_task_id"], part["review_task_id"], rid]
+    )
+
+
+@needs_workerd
+def test_the_hourly_tuner_reads_recorded_outcomes_and_writes_the_next_mix(fabric: Any) -> None:
+    requester = fabric.requester()
+    fabric.file_request(
+        requester,
+        {
+            "text": INFO_TEXT,
+            "links": [RULES_URL],
+            "organization_type": "Legal-aid clinic",
+            "output_type": "information",
+            "frequency": "one-off",
+        },
+        "tune1",
+    )
+    w = _workers(fabric)
+    assert [w[r].run_once() for r in ("planner", "builder", "reviewer")] == ["worked"] * 3
+    planner = fabric.worker("planner", dedicated=True, number=1)
+    planner.ensure_tune()  # the dedicated planner queues this hour's tuner task, once
+    deadline = time.time() + 20
+    while True:
+        planner.pacer.next_at.clear()
+        ran = planner.run_once() == "worked"
+        if ran and planner._tuning is not None and planner._tuning[1] > 0:
+            break
+        assert time.time() < deadline, "the tuner task never ran"
+        time.sleep(0.5)
+    saved = fabric.get("/v1/stores/eranos.instructions/records/worker.tuning")
+    value = saved["value"]
+    assert saved["version"] >= 1 and value["tuner_version"] == 1
+    assert value["inputs"]["outcomes"] >= 1  # the make outcome of the request above, at least
+    assert abs(sum(value["mix"]["make"].values()) - 1) < 1e-3 and value["summary"]["mix"]["make"]
+    ran = [e for e in _trace(planner) if e["event"] == "tuned"]
+    assert ran and ran[-1]["tuner_version"] == 1
+
+
+def _trace(worker: Worker) -> list[dict[str, Any]]:
+    path = Path(worker.config.trace_path)
+    return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
 
 
 @needs_workerd

@@ -78,6 +78,8 @@ class LocalTessera:
     def worker(self, name: str, role: str | None = None, **kwargs: Any) -> Worker:
         issued = self.keys[name]
         dedicated, number = bool(kwargs.pop("dedicated", False)), kwargs.pop("number", None)
+        kwargs.setdefault("model", FakeModel())  # no test calls the Meta API (checks included)
+        volunteer = bool(kwargs.pop("volunteer", False))
         config = WorkerConfig(
             role=role or issued["role"],
             label=f"test-{name}",
@@ -87,8 +89,10 @@ class LocalTessera:
             trace_path=str(self.trace_dir / f"worker-{name}.jsonl"),
             min_empty_seconds=float(kwargs.pop("min_empty_seconds", 0.0)),
             dedicated=dedicated,
+            volunteer=volunteer,
             display_name=f"dedicated worker {number} (run by ta-amps)" if dedicated else "",
-            our_key_ids=tuple(k["key_id"] for k in self.keys.values()),
+            # The dedicated workers' keys: a volunteer's key is never one of them.
+            our_key_ids=tuple(v["key_id"] for k, v in self.keys.items() if k != "volunteer"),
         )
         return Worker(config, **kwargs)
 
@@ -256,19 +260,21 @@ def fixture_fetcher(pages: dict[str, str]) -> Any:
 
 
 class FakeModel:
-    """Stands in for the local model: claims from the first numbered sentences, plus one bad quote."""
+    """Stands in for the Meta model (no call is made): claims from the first numbered sentences,
+    plus one bad quote. It reports the default model's id; its display name comes from the catalog."""
 
-    def __init__(self, bad: bool = True) -> None:
+    def __init__(self, bad: bool = True, model_id: str = "muse-spark-1.3") -> None:
         self.bad = bad
         self.calls = 0
+        self.model_id = model_id
 
     def describe(self) -> dict[str, Any]:
         return {
-            "provider": "test",
-            "id": "fake-llama-for-tests",
-            "digest": "0" * 64,
-            "adapter": None,
-            "invocation_origin": "worker_local",
+            "provider": "meta",
+            "id": self.model_id,
+            "tier": "standard",
+            "invocation_origin": "worker_api",
+            "test_stand_in": True,
         }
 
     def healthy(self) -> None:
@@ -283,6 +289,7 @@ class FakeModel:
         max_tokens: int = 900,
         temperature: float = 0.0,
         seed: int | None = None,
+        reasoning_effort: str | None = None,
     ) -> dict[str, Any]:
         self.calls += 1
         self.sampling = (temperature, seed)
@@ -294,8 +301,12 @@ class FakeModel:
                 seconds=0.01,
                 temperature=temperature,
                 seed=seed,
+                cost_usd=0.0123,
             ),
         )
+        if system.startswith("You check claims"):  # the model check: every quote supports its claim
+            asked = json.loads(user).get("claims") or []
+            return {"claims": [{"id": c["id"], "supported": True} for c in asked]}
         claims = []
         for line in user.splitlines():
             if line.startswith("[S"):

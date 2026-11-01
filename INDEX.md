@@ -83,7 +83,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/status.md](docs/status.md) | Status |
 | [docs/summary.md](docs/summary.md) | Summary |
 
-## eranos/ (45)
+## eranos/ (46)
 
 | File | What it is |
 |---|---|
@@ -104,7 +104,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/intake.py](eranos/intake.py) | Read a request from the public GitHub issue form (.github/ISSUETEMPLATE/request-a-kit.yml). |
 | [eranos/jsonfile.py](eranos/jsonfile.py) | Strict JSON loader: rejects repeated object keys and NaN/Infinity so track and kit files stay unambiguous. |
 | [eranos/log.py](eranos/log.py) | Structured JSON Lines run logger (ts, level, event, taskid, kitid, queue, leaseid, costusd). |
-| [eranos/model_client.py](eranos/model_client.py) | A local model for workers: Llama 3.2 3B Instruct served by Ollama on this machine ($0, no cloud). |
+| [eranos/model_client.py](eranos/model_client.py) | The workers' model: Meta's Muse models through the Meta API, at the standard tier only. |
 | [eranos/nouns.py](eranos/nouns.py) | Eranos's page text, onboarding steps, starting brief, research rules and stand-in sources are nouns. |
 | [eranos/pipeline/__init__.py](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
 | [eranos/pipeline/examples.py](eranos/pipeline/examples.py) | Example needs and recorded example runs: the nouns the marketplace shows about its example kits. |
@@ -120,6 +120,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/pipeline/seed_packs.py](eranos/pipeline/seed_packs.py) | Example kits whose nouns and verbs live in the seed-pack library. |
 | [eranos/pipeline/solutions.py](eranos/pipeline/solutions.py) | The solution path for public-only requests: an independent review that re-checks every citation of a research… |
 | [eranos/pipeline/status_events.py](eranos/pipeline/status_events.py) | Status facts for a request's public record: every state change is a new version of the request noun. |
+| [eranos/pipeline/tuning.py](eranos/pipeline/tuning.py) | Self-tuning: which variant each step runs, learned from recorded outcomes. |
 | [eranos/privacy.py](eranos/privacy.py) | Personal-data screen for public nonprofit requests (AGENTS.md hard rule 1). |
 | [eranos/queues/__init__.py](eranos/queues/__init__.py) | Queue specifications for Eranos. |
 | [eranos/queues/stages.py](eranos/queues/stages.py) | Queue definitions for Eranos's volunteer pipeline on Tessera (eq01, eq02, eq03). |
@@ -174,17 +175,19 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (7)
+## instructions/ (9)
 
 | File | What it is |
 |---|---|
 | [instructions/classify.json](instructions/classify.json) | Classify a request and break it into parts |
 | [instructions/connect.json](instructions/connect.json) | Connect to Eranos |
 | [instructions/help.json](instructions/help.json) | Help in six steps |
+| [instructions/models.meta.json](instructions/models.meta.json) | JSON object: kind, id, version, owner, created_at, status |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
 | [instructions/site.json](instructions/site.json) | Spare tokens for good |
 | [instructions/worker.json](instructions/worker.json) | Rules for Eranos's volunteer workers |
+| [instructions/worker.tuning.json](instructions/worker.tuning.json) | How Eranos's workers tune themselves |
 
 ## scripts/ (5)
 
@@ -196,7 +199,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (17)
+## tests/ (20)
 
 | File | What it is |
 |---|---|
@@ -208,6 +211,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_example_runs.py](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
 | [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
+| [tests/test_model_client.py](tests/test_model_client.py) | The workers' Meta client: standard tier only, the key from its file, caps before any call, no fallback. |
 | [tests/test_open_contribution.py](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
 | [tests/test_public_feed.py](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
@@ -215,7 +219,9 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_schemas_and_copy.py](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
 | [tests/test_seed_packs.py](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
 | [tests/test_tracks_and_verifier.py](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
+| [tests/test_tuning.py](tests/test_tuning.py) | The self-tuning loop: outcomes from recorded facts, the retune, picks, proposals, the hourly task, and Tesser… |
 | [tests/test_worker_loop.py](tests/test_worker_loop.py) | The volunteer worker loop: unit checks, then whole flows against a local Tessera on workerd. |
+| [tests/test_worker_model.py](tests/test_worker_model.py) | Which model a worker runs, and how its records say so. |
 | [tests/test_worker_safety.py](tests/test_worker_safety.py) | Regression tests for the independent review of the worker loop (findings B1-B3, M1-M4, m1-m12). |
 
 ## tracks/ (14)
@@ -237,7 +243,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (115)
+## web/ (119)
 
 | File | What it is |
 |---|---|
@@ -268,10 +274,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/nouns/eranos.instructions/classify.json](web/public/snapshot/nouns/eranos.instructions/classify.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/connect.json](web/public/snapshot/nouns/eranos.instructions/connect.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/help.json](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/models.meta.json](web/public/snapshot/nouns/eranos.instructions/models.meta.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/nonprofits.json](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/public-research.json](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/site.json](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/worker.json](web/public/snapshot/nouns/eranos.instructions/worker.json) | JSON object: synthetic, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/worker.tuning.json](web/public/snapshot/nouns/eranos.instructions/worker.tuning.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources.json](web/public/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: synthetic, store, key, version, value |
@@ -302,10 +310,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/nouns/eranos.instructions/classify.json](web/snapshot/nouns/eranos.instructions/classify.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/connect.json](web/snapshot/nouns/eranos.instructions/connect.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/help.json](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/models.meta.json](web/snapshot/nouns/eranos.instructions/models.meta.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/nonprofits.json](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/public-research.json](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/site.json](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/worker.json](web/snapshot/nouns/eranos.instructions/worker.json) | JSON object: synthetic, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/worker.tuning.json](web/snapshot/nouns/eranos.instructions/worker.tuning.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources.json](web/snapshot/nouns/eranos.sources.json) | JSON object: synthetic, store, records |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: synthetic, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: synthetic, store, key, version, value |

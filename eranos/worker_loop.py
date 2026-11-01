@@ -2,8 +2,8 @@
 
 One loop per role, each with its own scoped key:
 - planner claims request verbs on eq01: checks, reuses, splits, closes, and parks recurring requests;
-- builder claims work verbs on eq02: research (local model, permitted sources), kit builds, process
-  packages (through the B4 handler interface);
+- builder claims work verbs on eq02: research (a Muse model through the Meta API, standard tier,
+  permitted sources), kit builds, process packages (through the B4 handler interface);
 - reviewer claims review verbs on eq03 with a different key: re-checks and delivers or publishes.
 
 Every lease follows the same cycle: claim (an empty claim waits at least a minute, or longer when the
@@ -12,12 +12,18 @@ idempotency key and an execution report (harness, model, adapter, tokens, cost),
 change into the request's public record. Every failure is submitted with ok=false when the lease is
 still held, and every failure (including a lost lease) is written to the run log and the request's
 record. The key lives only in the environment; it is never printed or logged.
+
+`--volunteer` runs the same code as a volunteer: its own scoped key (research and report reviews
+only), no grace delay, labelled "a volunteer's AI", using the same Meta client and caps. It runs only
+when someone starts it for a take.
 """
 
 from __future__ import annotations
 
 import contextlib
+import json
 import os
+import random
 import signal
 import socket
 import threading
@@ -35,24 +41,30 @@ from tessera import (
     RateLimited,
     StaleLease,
     StorageQuotaExhausted,
+    TaskSpec,
     TesseraError,
     Unavailable,
 )
 from tessera.client import Client, _retry_after
+from tessera.errors import BY_CODE, InvalidRequest
 
 from eranos import __version__, config
 from eranos.adapter.traced import TracedBackend
 from eranos.donor_worker import synthesize_review_decision
 from eranos.log import TraceWriter
 from eranos.model_client import (
-    DEFAULT_MODEL,
-    DEFAULT_URL,
+    LEDGER_ENV,
+    BudgetExhausted,
+    ContributorTierRefused,
+    Ledger,
+    MetaModel,
     ModelUnavailable,
-    OllamaModel,
     UsageMeter,
+    refuse_contributor,
 )
 from eranos.pipeline import load_example_bundles, research
 from eranos.pipeline import process as process_part
+from eranos.pipeline import tuning as tuning_mod
 from eranos.pipeline.plain_words import forbidden, plain
 from eranos.pipeline.planner import Planner, load_nouns
 from eranos.pipeline.run import SelfReviewRefused, run_draft_step, run_review_step, run_spec_step
@@ -63,13 +75,20 @@ from eranos.sources import Fetched, fetch, policy_from_rules
 # Kit builds and kit reviews are not claimed here: kits carry a fixture mark these workers must
 # not publish. Work on a nonprofit's own files goes through process packages instead.
 ROLES: dict[str, tuple[str, tuple[str, ...]]] = {
-    "planner": ("eq01", ("request", "spec")),
+    "planner": ("eq01", ("request", "spec", "tune")),
     "builder": ("eq02", ("research", process_part.BUILD_KIND, "draft")),
     "reviewer": ("eq03", ("report_review", process_part.REVIEW_KIND, "review")),
 }
 KIT_KINDS = frozenset({"spec", "draft", "review"})
+# The volunteer mode does research and checks research, nothing else (its key says the same).
+VOLUNTEER_KINDS = frozenset({"research", "report_review"})
+# The steps that call a model, by verb kind (the tuning noun's steps).
+MODEL_STEPS = {"research": "make", "report_review": "check"}
+MODEL_CATALOG = ("eranos.instructions", "models.meta")
+LOCAL_CATALOG = Path(__file__).resolve().parents[1] / "instructions" / "models.meta.json"
 DECLARED = {
     "request": "deterministic planner (no model)",
+    "tune": "the hourly tuner: deterministic shares from recorded outcomes",
     "report_review": "deterministic re-fetch and quote check (no model)",
     "spec": "deterministic scope check (no model)",
     "draft": "example kit in plain words (no model)",
@@ -79,6 +98,18 @@ DECLARED = {
 EXIT_STORAGE_ALLOWANCE = (
     75  # EX_TEMPFAIL: the hosted storage allowance is spent; the units do not restart
 )
+
+
+class ExampleOnlyRefused(InvalidRequest):
+    """Tessera refused personal or payment data in a write. Its code is `example_only`; older
+    Tessera Workers send the former code for the same refusal, and both are understood here."""
+
+    code = "example_only"
+
+
+EXAMPLE_ONLY_CODES = ("example_only", "synthetic_only")  # the current code, then the former one
+for _code in EXAMPLE_ONLY_CODES:
+    BY_CODE[_code] = ExampleOnlyRefused
 
 
 class WorkerClient(Client):
@@ -234,8 +265,8 @@ class WorkerConfig:
     key: str = field(repr=False)
     key_id: str
     trace_path: str
-    model_url: str = DEFAULT_URL
-    model_id: str = DEFAULT_MODEL
+    # A volunteer donates spare Meta credits through the same client: no grace delay, its own key.
+    volunteer: bool = False
     min_empty_seconds: float = 60.0
     status_heartbeat_seconds: float = 600.0
     # A dedicated worker is run by ta-amps on its own machine; it gives volunteers first pick.
@@ -263,6 +294,9 @@ class WorkerConfig:
         ]
         if missing:
             raise RuntimeError(f"eranos work needs {', '.join(missing)} in its environment file")
+        volunteer = os.environ.get("ERANOS_VOLUNTEER", "") == "1"
+        if volunteer and role not in ("builder", "reviewer"):
+            raise ValueError("a volunteer does research (builder) or checks it (reviewer) only")
         return cls(
             role=role,
             label=label
@@ -272,10 +306,9 @@ class WorkerConfig:
             key=key,
             key_id=key_id,
             trace_path=os.environ.get("ERANOS_TRACE") or f"traces/worker-{role}.jsonl",
-            model_url=os.environ.get("ERANOS_MODEL_URL") or DEFAULT_URL,
-            model_id=os.environ.get("ERANOS_MODEL") or DEFAULT_MODEL,
+            volunteer=volunteer,
             min_empty_seconds=max(60.0, float(os.environ.get("ERANOS_MIN_EMPTY_SECONDS") or 60)),
-            dedicated=os.environ.get("ERANOS_DEDICATED", "") == "1",
+            dedicated=os.environ.get("ERANOS_DEDICATED", "") == "1" and not volunteer,
             display_name=os.environ.get("ERANOS_WORKER_DISPLAY", ""),
             our_key_ids=tuple(
                 k for k in os.environ.get("ERANOS_DEDICATED_KEY_IDS", "").split(",") if k
@@ -381,6 +414,7 @@ class Worker:
         self.process_builder_keys = process_part.trusted_builder_keys()
         if (
             config.role == "reviewer"
+            and not config.volunteer  # a volunteer checks research only, never a process package
             and not process_part.is_stub(self.handler)
             and not self.process_builder_keys
         ):
@@ -390,6 +424,14 @@ class Worker:
         self.stop = threading.Event()
         self.exit_code = 0
         self._noun: dict[str, Any] | None = None
+        self._catalog: dict[str, dict[str, Any]] | None = None
+        self._catalog_at = 0.0
+        self._model_settings: dict[str, Any] | None = None
+        self._metas: dict[str, tuple[Any, Any]] = {}
+        self._tuning: tuple[dict[str, Any], int] | None = None
+        self._tuning_at = 0.0
+        self._pick: dict[str, Any] | None = None  # the running lease's pick, for its failure fact
+        self._tune_check_at = 0.0
         self._kit_bundles: dict[str, dict[str, Any]] | None = None
         self._noun_at = 0.0
         self.stats = {"claims": 0, "empty": 0, "refused": 0, "worked": 0, "failed": 0, "lost": 0}
@@ -397,6 +439,8 @@ class Worker:
     def who(self) -> dict[str, Any]:
         """How this worker appears on a request's record: a dedicated worker run by ta-amps, or a
         volunteer's agent; the model each declares is in the facts that name the work."""
+        if self.config.volunteer:
+            return {"worker": "a volunteer's AI", "dedicated": False, "worker_kind": "volunteer"}
         if self.config.dedicated:
             return {
                 "worker": self.config.display,
@@ -405,6 +449,12 @@ class Worker:
                 "run_by": "ta-amps",
             }
         return {"worker": self.config.display, "worker_kind": "volunteer"}
+
+    def payer(self) -> str:
+        """Who pays for this worker's model calls, as its execution reports say."""
+        if self.config.volunteer:
+            return "spare Meta API credit given by the volunteer who started this worker (standard tier)"
+        return "the owner's Meta API credit (standard tier)"
 
     def rules(self) -> dict[str, Any]:
         """The worker noun, read again at most every five minutes (claim timing comes from it)."""
@@ -442,10 +492,162 @@ class Worker:
         return max(0.0, queued + grace - now)
 
     # model and sources -----------------------------------------------------------------------
+    def catalog(self) -> dict[str, dict[str, Any]]:
+        """The model catalog noun (`models.meta`), as id -> {display, rates}: its `runtime` section
+        names each id and gives its token rates. It is read again at most every five minutes; the
+        repository's copy stands in until the Tessera record exists."""
+        now = self.clock()
+        if self._catalog is None or now - self._catalog_at > 300:
+            value: Any = None
+            try:
+                value = self.backend.get_record(*MODEL_CATALOG).value
+            except Exception:
+                value = None
+            if not isinstance(value, dict) or not isinstance(value.get("runtime"), dict):
+                try:
+                    value = json.loads(LOCAL_CATALOG.read_text(encoding="utf-8"))
+                except (OSError, ValueError):
+                    value = {}
+            runtime = value.get("runtime") if isinstance(value, dict) else None
+            runtime = runtime if isinstance(runtime, dict) else {}
+            names = runtime.get("display_by_id") or {}
+            rates = runtime.get("rates_usd_per_million_tokens") or {}
+            self._catalog = {
+                str(model_id): {"display": str(name), "rates": dict(rates.get(model_id) or {})}
+                for model_id, name in names.items()
+                if isinstance(name, str) and name
+            }
+            self._catalog_at = now
+        return self._catalog
+
+    def model_display(self, model_id: str) -> str:
+        """The display name the catalog gives this id, or the id itself when it holds none."""
+        entry = self.catalog().get(model_id)
+        if entry is None:
+            self.trace.write("model_not_in_catalog", level="warning", model=model_id)
+            return model_id
+        return str(entry["display"])
+
+    def model_id(self) -> str:
+        """The id the worker noun names for this worker; the volunteer mode has its own."""
+        settings = self.rules().get("model") or {}
+        chosen = settings.get("volunteer_id") if self.config.volunteer else None
+        return str(chosen or settings.get("id") or "")
+
     def _model(self) -> Any:
-        if self.model is None:
-            self.model = OllamaModel(self.config.model_url, self.config.model_id)
-        return self.model
+        """The worker noun's own model (its fallback id, or the volunteer's): used for health."""
+        return self.meta(self.model_id())
+
+    def meta(self, model_id: str) -> Any:
+        """A Muse model through the Meta API, at the catalog's rates, under the owner's caps; one
+        client per model id, rebuilt when the noun or the catalog changes. An injected model
+        (tests) answers for every id."""
+        if self.model is not None and self._model_settings is None:
+            return self.model
+        settings = dict(self.rules().get("model") or {})
+        entry = self.catalog().get(model_id) or {}
+        rates = dict(entry.get("rates") or {})
+        wanted = {"settings": settings, "rates": rates}
+        cached = self._metas.get(model_id)
+        if cached is not None and cached[1] == wanted:
+            return cached[0]
+        if not model_id:
+            raise ModelUnavailable("the worker noun names no model")
+        try:
+            refuse_contributor(model_id)
+        except ContributorTierRefused as exc:
+            raise ModelUnavailable(f"the worker noun's model is refused: {exc}") from exc
+        if not {"input", "output"} <= set(rates):
+            raise ModelUnavailable(
+                f"models.meta gives no token rates for {model_id}; it is not called"
+            )
+        caps = settings.get("budget") or {}
+        ledger = Ledger(
+            os.environ.get(LEDGER_ENV)
+            or str(Path.home() / ".local/state/eranos-worker/meta-spend.json"),
+            daily_usd=float(caps.get("daily_usd", 5)),
+            total_usd=float(caps.get("total_usd", 150)),
+        )
+        try:
+            model = MetaModel(
+                {
+                    **settings,
+                    "id": model_id,
+                    "model_display": self.model_display(model_id),
+                    "prices_usd_per_million": {k: rates[k] for k in ("input", "output")},
+                },
+                ledger=ledger,
+            )
+        except (ContributorTierRefused, ValueError) as exc:
+            raise ModelUnavailable(f"the worker noun's model is refused: {exc}") from exc
+        if cached is not None and hasattr(cached[0], "close"):
+            cached[0].close()
+        self._metas[model_id] = (model, wanted)
+        return model
+
+    def usable(self, variant: dict[str, Any]) -> bool:
+        """A variant may run only with a priced Muse model at the standard tier."""
+        model_id = str(variant.get("model") or "")
+        if not model_id or "contributor" in model_id.split("-"):
+            return False
+        return {"input", "output"} <= set((self.catalog().get(model_id) or {}).get("rates") or {})
+
+    def tuning(self, *, fresh: bool = False) -> tuple[dict[str, Any], int]:
+        """The tuning noun and its Tessera version (0 when only the repository's copy exists),
+        read again at most every five minutes."""
+        now = self.clock()
+        if fresh or self._tuning is None or now - self._tuning_at > 300:
+            found: tuple[dict[str, Any], int] | None = None
+            try:
+                record = self.backend.get_record(tuning_mod.TUNING_STORE, tuning_mod.TUNING_KEY)
+                if isinstance(record.value, dict):
+                    found = (dict(record.value), int(record.version))
+            except Exception:
+                found = None
+            if found is None:
+                try:
+                    found = (json.loads(tuning_mod.LOCAL_TUNING.read_text(encoding="utf-8")), 0)
+                except (OSError, ValueError):
+                    found = ({}, 0)
+            self._tuning, self._tuning_at = found, now
+        return self._tuning
+
+    def pick_for(
+        self, step: str, lease: Lease, *, exclude: tuple[str, ...] = ()
+    ) -> dict[str, Any] | None:
+        """This lease's variant for a step, drawn from the tuning noun's mix (reproducible from the
+        task id and fencing token). The volunteer mode runs its own fixed model; with no usable
+        variant the step runs the worker noun's model (and says so). None only for a second check
+        when no other variant can run."""
+        settings = self.rules().get("model") or {}
+        tuning, _ = self.tuning()
+        version = tuning.get("tuner_version")
+        if self.config.volunteer:
+            fixed = {"id": "volunteer", "step": step, "model": self.model_id(), "temperature": 0.0}
+            why = "the volunteer mode runs its own fixed model"
+            return {"variant": fixed, "probability": 1.0, "tuner_version": None, "why": why}
+        rng = random.Random(f"{lease.task_id}:{lease.fencing_token}:{step}:{len(exclude)}")  # noqa: S311
+        picked = tuning_mod.pick(tuning, step, rng, usable=self.usable, exclude=exclude)
+        if picked is not None or exclude:
+            return picked
+        fallback = {"id": "fallback", "step": step, "model": str(settings.get("id") or "")}
+        why = "no usable variant in the tuning noun; the worker noun's model"
+        return {"variant": fallback, "probability": 1.0, "tuner_version": version, "why": why}
+
+    def pick_fields(self, pick: dict[str, Any]) -> dict[str, Any]:
+        """A pick as status facts and execution reports record it."""
+        variant = pick["variant"]
+        model_id = str(variant.get("model") or "")
+        persona = variant.get("persona") if isinstance(variant.get("persona"), dict) else {}
+        return {
+            "model": model_id,
+            "model_display": self.model_display(model_id),
+            "variant": variant.get("id"),
+            "persona": persona.get("title"),
+            "tuner_version": pick.get("tuner_version"),
+            "probability": pick.get("probability"),
+            "why": pick.get("why"),
+        }
 
     def _fetcher(self, rules: dict[str, Any]) -> Callable[[str], Fetched]:
         """The injected fetcher (tests) or one with the worker noun's own limits."""
@@ -458,30 +660,41 @@ class Worker:
         """The kinds this worker can do now: research only while its model answers, and process
         verbs only with a real process handler (the stub never claims them)."""
         kinds = list(self.kinds)
+        if self.config.volunteer:
+            kinds = [k for k in kinds if k in VOLUNTEER_KINDS]
         if process_part.is_stub(self.handler):
             kinds = [
                 k for k in kinds if k not in (process_part.BUILD_KIND, process_part.REVIEW_KIND)
             ]
-        if "research" in kinds:
+        if any(k in MODEL_STEPS for k in kinds):
             try:
                 model = self._model()
                 if hasattr(model, "healthy"):
                     model.healthy()
                 model.describe()
-            except ModelUnavailable as exc:
-                self.trace.write("model_unavailable", level="warning", error=str(exc)[:200])
-                kinds.remove("research")
+            except (
+                ModelUnavailable
+            ) as exc:  # includes a spent cap: nothing is claimed that needs it
+                event = (
+                    "model_budget_reached"
+                    if isinstance(exc, BudgetExhausted)
+                    else "model_unavailable"
+                )
+                self.trace.write(event, level="warning", error=str(exc)[:200])
+                kinds = [k for k in kinds if k not in MODEL_STEPS]
         return kinds
 
-    def declared_model(self, kind: str) -> str:
-        if kind == "research":
-            try:
-                return f"{self._model().describe()['id']} (local, $0)"
-            except ModelUnavailable:
-                return "local model unavailable"
+    def model_fields(self, kind: str, pick: dict[str, Any] | None = None) -> dict[str, Any]:
+        """What a status fact says a verb runs: the pick (`model` id, `model_display`, variant,
+        persona, tuner version, share, why), or the `method` of a step that runs no model, and
+        always the `harness` (this worker program, which is never called a model)."""
+        out: dict[str, Any] = {"harness": "eranos-worker", "harness_version": __version__}
+        if pick is not None:
+            return {**out, **self.pick_fields(pick)}
         if kind == process_part.BUILD_KIND:
-            return f"process handler: {getattr(self.handler, 'name', 'installed')}"
-        return DECLARED.get(kind, "deterministic (no model)")
+            name = getattr(self.handler, "name", "installed")
+            return {**out, "method": f"process handler: {name}"}
+        return {**out, "method": DECLARED.get(kind, "deterministic (no model)")}
 
     @staticmethod
     def request_of(lease: Lease) -> str | None:
@@ -529,11 +742,16 @@ class Worker:
             return "stopped"
         if not self.pacer.ready(self.queue, now):
             return "paced"
+        self.ensure_tune()
         kinds = self.claim_kinds()
         if not kinds:
             self.pacer.empty(self.queue, now, 0.0)
             return "empty"
-        if self.config.dedicated and hasattr(self.client, "ready_verbs"):
+        if (
+            self.config.dedicated
+            and not self.config.volunteer
+            and hasattr(self.client, "ready_verbs")
+        ):
             try:
                 wait = self.grace_wait(kinds)
             except StorageQuotaExhausted as exc:
@@ -654,6 +872,8 @@ class Worker:
     ) -> Callable[[Any, bool, str | None], dict[str, Any]]:
         def report(output: Any, ok: bool, error: str | None) -> dict[str, Any]:
             status = output.get("status") if isinstance(output, dict) else None
+            pick = notes.get("pick")
+            declared = self.model_fields(lease.kind, pick)
             solution = (
                 f"{lease.kind} {'done' if ok else 'failed'}"
                 + (f": {status}" if status else "")
@@ -667,9 +887,28 @@ class Worker:
                     "role": self.config.role,
                     "worker": self.config.label,
                     "kind": lease.kind,
-                    "declared_model": self.declared_model(lease.kind),
-                    "cost_usd": 0.0,
-                    "payer": "the volunteer running this worker; $0 in API charges",
+                    "worker_kind": self.who()["worker_kind"],
+                    "declared_model": declared.get("model"),
+                    **{
+                        k: declared[k]
+                        for k in (
+                            "method",
+                            "variant",
+                            "persona",
+                            "tuner_version",
+                            "probability",
+                            "why",
+                        )
+                        if k in declared
+                    },
+                    **(
+                        {"second_check": self.pick_fields(notes["second_pick"])}
+                        if notes.get("second_pick")
+                        else {}
+                    ),
+                    "tier": "standard" if meter.calls else None,
+                    "cost_usd": meter.cost_usd,
+                    "payer": self.payer() if meter.calls else "no model call; no charge",
                 },
                 "model": meter.model_report(),
                 "summaries": {
@@ -710,8 +949,11 @@ class Worker:
         beat = Heartbeat(self, gate, part)
         beat.start()
         try:
+            self._pick = None
             if lease.kind in KIT_KINDS:
                 outcome = self.kit(gate, lease)
+            elif lease.kind == "tune":
+                outcome = self.tune(gate, lease, meter)
             elif self.config.role == "planner":
                 outcome = Planner(
                     gate,
@@ -724,7 +966,7 @@ class Worker:
             elif self.config.role == "builder":
                 outcome = self.build(gate, lease, meter, notes, part, request_id)
             else:
-                outcome = self.review(gate, lease, part, request_id)
+                outcome = self.review(gate, lease, meter, notes, part, request_id)
             self.stats["worked"] += 1
             self.trace.write(
                 "lease_done",
@@ -764,6 +1006,11 @@ class Worker:
         """Record a failure: submit ok=false while the lease is held, log it, write a fact. Never raises."""
         self.stats["failed"] += 1
         message = f"{type(exc).__name__}: {str(exc)[:900]}"
+        if isinstance(exc, ExampleOnlyRefused):
+            message = (
+                "Tessera refused personal or payment data in a write (example_only); the part"
+                f" needs example data only: {str(exc)[:600]}"
+            )
         receipt = (
             gate.receipt.receipt_hash
             if gate.receipt is not None and gate.ended == "failed"
@@ -814,6 +1061,7 @@ class Worker:
                             **self.who(),
                             reason=message[:500],
                             summary={"role": self.config.role, "kind": lease.kind},
+                            **self._failed_tuning(lease),
                         )
                     ],
                 )
@@ -828,7 +1076,14 @@ class Worker:
                     error=type(again).__name__,
                 )
 
-    def _claimed(self, kind: str, lease: Lease, part: Any, request_id: str | None) -> None:
+    def _claimed(
+        self,
+        kind: str,
+        lease: Lease,
+        part: Any,
+        request_id: str | None,
+        pick: dict[str, Any] | None = None,
+    ) -> None:
         self._facts(
             self.backend,
             request_id,
@@ -839,7 +1094,7 @@ class Worker:
                     at=lease.claimed_at,
                     receipt=lease.claim_receipt,
                     **self.who(),
-                    model=self.declared_model(lease.kind),
+                    **self.model_fields(lease.kind, pick),
                     lease_ends=lease.expires_at,
                     queue=queue_snapshot(self.backend, [self.config.label]),
                 )
@@ -855,16 +1110,21 @@ class Worker:
         part: Any,
         request_id: str | None,
     ) -> dict[str, Any]:
-        self._claimed("work_claimed", lease, part, request_id)
+        pick = self.pick_for("make", lease) if lease.kind == "research" else None
+        notes["pick"] = self._pick = pick
+        self._claimed("work_claimed", lease, part, request_id, pick)
+        started = time.time()
         nouns = load_nouns(gate)
-        if lease.kind == "research":
+        if pick is not None:
+            variant = pick["variant"]
             done = research.do_research(
                 gate,
                 lease,
                 fetcher=self._fetcher(nouns["worker"]),
-                model=self._model(),
+                model=self.meta(str(variant.get("model") or "")),
                 meter=meter,
                 worker_rules=nouns["worker"],
+                variant=variant,
             )
         else:
             done = process_part.do_process(gate, lease, handler=self.handler)
@@ -901,6 +1161,7 @@ class Worker:
                         **self.who(),
                         reason=error[:500],
                         summary={**(done.get("summary") or {}), "tokens": meter.total_tokens},
+                        **self._failed_tuning(lease),
                     )
                 ],
             )
@@ -919,17 +1180,37 @@ class Worker:
                     **self.who(),
                     summary={**(done.get("summary") or {}), "tokens": meter.total_tokens},
                     queue=queue_snapshot(gate),
+                    **(
+                        {
+                            "tuning": {
+                                "step": "make",
+                                "variant": pick["variant"].get("id"),
+                                "cost_usd": meter.cost_usd,
+                                "seconds": round(time.time() - started, 1),
+                            }
+                        }
+                        if pick is not None
+                        else {}
+                    ),
                 )
             ],
         )
         return {"status": "submitted", "receipt": receipt.receipt_hash}
 
     def review(
-        self, gate: LeaseGate, lease: Lease, part: Any, request_id: str | None
+        self,
+        gate: LeaseGate,
+        lease: Lease,
+        meter: UsageMeter,
+        notes: dict[str, Any],
+        part: Any,
+        request_id: str | None,
     ) -> dict[str, Any]:
-        self._claimed("check_claimed", lease, part, request_id)
+        pick = self.pick_for("check", lease) if lease.kind == "report_review" else None
+        notes["pick"] = self._pick = pick
+        self._claimed("check_claimed", lease, part, request_id, pick)
         nouns = load_nouns(gate)
-        if lease.kind == "report_review":
+        if pick is not None:
             out = research.review_research(
                 gate,
                 lease,
@@ -938,6 +1219,7 @@ class Worker:
                 fetcher=self._fetcher(nouns["worker"]),
                 worker_rules=nouns["worker"],
                 guardrails=nouns.get("public-research") or {},
+                checker=self.checker(lease, pick, meter, notes, nouns["worker"]),
             )
         else:
             out = process_part.review_package(
@@ -1003,7 +1285,8 @@ class Worker:
         )
 
     def review_facts(self, lease: Lease, out: dict[str, Any], part: Any) -> list[dict[str, Any]]:
-        who, status = self.config.display, out.get("status")
+        who, status = self.who()["worker"], out.get("status")
+        tuned = self._check_tuning(lease, out)
         receipt = out.get("receipt") or out.get("review_receipt")
         tasks = [d.task_id for d in lease.dependencies] + [lease.task_id]
         kind = {k: v for k, v in self.who().items() if k != "worker"}
@@ -1011,7 +1294,7 @@ class Worker:
         work_by = (
             "a dedicated worker (run by ta-amps)"
             if builder and builder in self.config.our_key_ids
-            else "a volunteer's agent"
+            else "a volunteer's AI"
         )
         if status == "delivered":
             ref = f"eranos.solutions/{out['report_id']}"
@@ -1022,6 +1305,7 @@ class Worker:
                     receipt=receipt,
                     worker=who,
                     summary={"rechecked": len(out.get("rechecked") or [])},
+                    **tuned,
                 ),
                 fact("delivered", part=part, receipt=receipt, ref=ref, result_id=out["report_id"]),
                 fact(
@@ -1071,8 +1355,244 @@ class Worker:
                 worker=who,
                 reason=str(out.get("reason") or status),
                 findings=[str(f) for f in out.get("findings") or []][:20],
+                **tuned,
             )
         ]
+
+    # self-tuning ------------------------------------------------------------------------------
+    def _failed_tuning(self, lease: Lease) -> dict[str, Any]:
+        """A failed make attempt's variant, for the tuner (which leaves out failures of the model
+        or the store, by the recorded reason)."""
+        pick = self._pick
+        if pick is None or lease.kind != "research":
+            return {}
+        return {"tuning": {"step": "make", "variant": pick["variant"].get("id")}}
+
+    def _check_tuning(self, lease: Lease, out: dict[str, Any]) -> dict[str, Any]:
+        """A check's record for the tuner: its variant, the make variant it judged, what it and
+        any second check found unsupported, and their cost and time."""
+        checked = out.get("model_check")
+        if not isinstance(checked, dict):
+            return {}
+        research_out = lease.dependencies[0].output if lease.dependencies else None
+        made = (research_out or {}).get("made_with") if isinstance(research_out, dict) else None
+        record = {
+            "step": "check",
+            "variant": checked.get("variant"),
+            "maker_variant": (made or {}).get("variant"),
+            "unsupported": checked.get("unsupported") or [],
+            "cost_usd": checked.get("cost_usd"),
+            "seconds": checked.get("seconds"),
+        }
+        second = checked.get("second")
+        if isinstance(second, dict):
+            record["second"] = {
+                k: second.get(k) for k in ("variant", "unsupported", "cost_usd", "seconds")
+            }
+        return {"tuning": record}
+
+    def checker(
+        self,
+        lease: Lease,
+        pick: dict[str, Any],
+        meter: UsageMeter,
+        notes: dict[str, Any],
+        rules: dict[str, Any],
+    ) -> Callable[[str, list[dict[str, Any]]], dict[str, Any]]:
+        """The tuned model check of a report's kept claims; a share of checks (the tuning noun's
+        check_sampling) get a second check by another variant, whose failure never fails the first."""
+
+        def check(question: str, claims: list[dict[str, Any]]) -> dict[str, Any]:
+            result = self.model_check(pick, question, claims, meter, rules)
+            tuning, _ = self.tuning()
+            share = float((tuning.get("check_sampling") or {}).get("second_check_share") or 0.0)
+            draw = random.Random(f"{lease.task_id}:{lease.fencing_token}:second").random()  # noqa: S311
+            if self.config.volunteer or draw >= share:
+                return result
+            second = self.pick_for("check", lease, exclude=(str(pick["variant"].get("id")),))
+            if second is None:
+                return result
+            notes["second_pick"] = second
+            try:
+                result["second"] = self.model_check(second, question, claims, meter, rules)
+            except ModelUnavailable as exc:
+                self.trace.write("second_check_failed", level="warning", error=str(exc)[:200])
+            return result
+
+        return check
+
+    def model_check(
+        self,
+        pick: dict[str, Any],
+        question: str,
+        claims: list[dict[str, Any]],
+        meter: UsageMeter,
+        rules: dict[str, Any],
+    ) -> dict[str, Any]:
+        """One variant's verdicts: the claims whose quote does not support them. A claim the model
+        gives no verdict for counts as unsupported; no verdicts at all fail the check."""
+        variant = pick["variant"]
+        persona = variant.get("persona") if isinstance(variant.get("persona"), dict) else {}
+        system = str((rules.get("check") or {}).get("prompt") or "")
+        if persona.get("text"):
+            system += "\n\nHow to work: " + str(persona["text"])
+        user = json.dumps(
+            {
+                "question": question,
+                "claims": [
+                    {"id": c["id"], "claim": c["text"], "quote": c["citations"][0]["quote"]}
+                    for c in claims
+                ],
+            },
+            ensure_ascii=False,
+        )
+        spent, started = meter.cost_usd, time.time()
+        answer = self.meta(str(variant.get("model") or "")).chat_json(
+            system,
+            user,
+            meter=meter,
+            temperature=float(variant.get("temperature") or 0.0),
+            reasoning_effort=variant.get("reasoning_effort"),
+        )
+        verdicts = answer.get("claims") if isinstance(answer, dict) else None
+        if not isinstance(verdicts, list) or not verdicts:
+            raise ModelUnavailable(f"{variant.get('model')} gave no claim verdicts")
+        supported = {
+            str(v.get("id")) for v in verdicts if isinstance(v, dict) and v.get("supported") is True
+        }
+        return {
+            "variant": variant.get("id"),
+            "model": variant.get("model"),
+            "unsupported": sorted(c["id"] for c in claims if c["id"] not in supported),
+            "cost_usd": round(meter.cost_usd - spent, 6),
+            "seconds": round(time.time() - started, 1),
+        }
+
+    def ensure_tune(self) -> None:
+        """The dedicated planner queues this hour's tuner task once (a fixed task id, so never twice)."""
+        now = time.time()
+        if self.config.role != "planner" or not self.config.dedicated or now < self._tune_check_at:
+            return
+        if not hasattr(self.backend, "enqueue"):  # a backend that cannot queue tasks (tests)
+            return
+        self._tune_check_at = (now // 3600 + 1) * 3600
+        task_id = tuning_mod.hour_task_id(now)
+        try:
+            self.backend.enqueue(
+                TaskSpec(
+                    queue="eq01",
+                    task_id=task_id,
+                    kind="tune",
+                    effect_class="write-internal",
+                    producer_surface="surface:eranos",
+                    brief={
+                        "title": "Retune the workers' variant mix",
+                        "noun": "eranos.instructions/worker.tuning",
+                    },
+                )
+            )
+            self.trace.write("tune_queued", task_id=task_id)
+        except StorageQuotaExhausted as exc:
+            self._allowance_spent(exc)
+        except Exception as exc:  # already queued, or not allowed: recorded, never fatal
+            self.trace.write("tune_not_queued", task_id=task_id, error=type(exc).__name__)
+
+    def tune(self, gate: LeaseGate, lease: Lease, meter: UsageMeter) -> dict[str, Any]:
+        """The hourly tuner: shares from every recorded outcome, trials kept or dropped, and a
+        drafted persona for a step that keeps failing. It writes the next tuning version (compare
+        and set) and submits what it read and changed."""
+        tuning, version = self.tuning(fresh=True)
+        rewards = tuning.get("rewards") or {}
+        records = gate.list_records("eranos.requests", limit=200)
+        outcomes = [
+            o
+            for r in records
+            if isinstance(r.value, dict)
+            for o in tuning_mod.outcomes_from_events(
+                r.key, list(r.value.get("events") or []), rewards
+            )
+        ]
+        now = time.time()
+        for v in tuning.get("variants") or []:
+            if isinstance(v, dict) and v.get("model"):
+                v["model_display"] = self.model_display(str(v["model"]))
+        nxt = tuning_mod.retune(tuning, outcomes, now=now)
+        proposals = []
+        for step in tuning_mod.STEPS:
+            failed = tuning_mod.failures_to_propose(tuning, outcomes, step)
+            if not failed:
+                continue
+            proposals.append(self._propose(nxt, step, failed, meter, now))
+        if proposals:
+            nxt["inputs"]["proposals"] = proposals
+            nxt["summary"] = tuning_mod.summary(nxt["variants"], nxt["mix"], nxt["stats"])
+        saved = gate.put_record(
+            tuning_mod.TUNING_STORE,
+            tuning_mod.TUNING_KEY,
+            nxt,
+            expected_version=version,
+            producer_surface="surface:eranos",
+            visibility_scope="public_commons",
+            tags=["kind:instructions", "kind:worker_tuning"],
+        )
+        self._tuning = (nxt, int(saved.version))
+        output = {
+            "node": "tune",
+            "status": "tuned",
+            "tuner_version": nxt["tuner_version"],
+            "record_version": int(saved.version),
+            "outcomes": len(outcomes),
+            "mix": nxt["mix"],
+            "proposals": proposals,
+        }
+        gate.submit(
+            lease.task_id,
+            lease.fencing_token,
+            output,
+            idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
+            ok=True,
+        )
+        self.trace.write("tuned", tuner_version=nxt["tuner_version"], outcomes=len(outcomes))
+        return output
+
+    def _propose(
+        self,
+        nxt: dict[str, Any],
+        step: str,
+        failed: list[tuning_mod.Outcome],
+        meter: UsageMeter,
+        now: float,
+    ) -> dict[str, Any]:
+        """Ask a Muse model for a new persona from the step's recorded failures; a draft that
+        passes every rule enters as a trial at a small share. Any refusal is recorded."""
+        rules = nxt.get("propose") or {}
+        model_id = str(rules.get("model") or self.model_id())
+        shares = (nxt.get("mix") or {}).get(step) or {}
+        live = tuning_mod.live_variants(nxt, step)
+        base = max(live, key=lambda v: shares.get(v["id"], 0.0)) if live else {}
+        nxt.setdefault("proposed_at", {})[step] = now
+        try:
+            system, user = tuning_mod.proposal_prompt(step, base, failed)
+            answer = self.meta(model_id).chat_json(system, user, meter=meter, temperature=0.4)
+        except ModelUnavailable as exc:
+            return {"step": step, "added": None, "why": f"no draft: {str(exc)[:200]}"}
+        persona, why = tuning_mod.checked_persona(answer)
+        if persona is None:
+            return {"step": step, "added": None, "why": why, "drafted_with": model_id}
+        trial = tuning_mod.trial_variant(
+            step,
+            base,
+            persona,
+            version=int(nxt["tuner_version"]),
+            drafted_with=model_id,
+            failed=failed,
+            now=now,
+        )
+        nxt["variants"].append(trial)
+        share = float((nxt.get("trial") or {}).get("share") or 0.05)
+        scaled = {k: round(v * (1.0 - share), 4) for k, v in shares.items()}
+        nxt["mix"][step] = {**scaled, trial["id"]: share}
+        return {"step": step, "added": trial["id"], "why": why, "drafted_with": model_id}
 
 
 def _client(config: WorkerConfig) -> WorkerClient:

@@ -3,9 +3,10 @@
 Each fact is written as its own version of `eranos.requests/<request_id>`, as that version's
 `event`, in the request-status page's own shape (`docs/status-events.schema.json`, `StatusEvent`): `type`, `at` (Unix seconds), `part`, and a
 `receipt` hash Tessera wrote or, where Tessera writes none, a `ref` to the record that holds the fact;
-plus `worker`, `model`, `lease_ends`, `places`, `queue`, `summary`, `reason`, `findings` and
-`result_id` where they apply, and `dedicated: true` when one of Eranos's own dedicated workers
-made the claim. Only the page's own types are used, in the order a request meets them:
+plus `worker`, `model` (a model id) with `model_display` (its name in the `models.meta`
+catalog) or the `method` of a step that runs no model, `harness` (the worker program, never
+called a model), `lease_ends`, `places`, `queue`, `summary`, `reason`, `findings` and `result_id`
+where they apply, and `dedicated: true` when one of Eranos's own dedicated workers made the claim. Only the page's own types are used, in the order a request meets them:
 
     received, plan_claimed, planned, queued, blocked, work_claimed, heartbeat, work_submitted,
     work_released, check_claimed, check_approved, check_sent_back, check_refused,

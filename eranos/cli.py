@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -608,6 +609,9 @@ def main(argv: list[str] | None = None) -> int:
     work.add_argument("--label", default=None, help="Worker label shown on the request's record")
     work.add_argument("--once", action="store_true", help="Claim at most one verb, then stop")
     work.add_argument("--max-leases", type=int, default=None, help="Stop after this many verbs")
+    work.add_argument(
+        "--volunteer", action="store_true", help="Run as a volunteer: its own key, no grace delay"
+    )
 
     args = parser.parse_args(argv)
     if args.cmd == "tracks":
@@ -641,6 +645,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "export-snapshot":
         return cmd_export_snapshot(args.out)
     if args.cmd == "work":
+        if args.volunteer:  # the volunteer mode: its own key from its env file, no grace delay
+            os.environ["ERANOS_VOLUNTEER"] = "1"
         return cmd_work(
             str(args.role), label=args.label, once=bool(args.once), max_leases=args.max_leases
         )

@@ -233,7 +233,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-12",
-    "drafted_by_key": "key_drafter_12"
+    "drafted_by_key": "key_drafter_12",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-PANTRY-12",
@@ -241,12 +245,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 3,
@@ -259,14 +264,14 @@
   "reviewed_by_key": "key_reviewer_12",
   "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
   "steward_signoff": null,
-  "draft_receipt": "e9c86075dfc8425c0ce784b438411e4ba92209ac5eb146dbbab524347be369b8",
-  "review_receipt": "4c8ba25c5cbc2974548f90f60aaa29a3f636ee220e85bbdb390a736e67bb7468",
-  "blob_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+  "draft_receipt": "e42d20f5774de4ef08312e74a88b2073def54c51c0fffbb810b02d0426b106c4",
+  "review_receipt": "63d4e81739fb02df43a60d4b43137c5886035a9f402f7edd6fb6b49b7f7fae27",
+  "blob_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
   "catalog_version": 1,
-  "review_task_id": "er_4b9e1943738d:KIT-PANTRY-12:review",
-  "draft_task_id": "er_4b9e1943738d:KIT-PANTRY-12:draft",
-  "draft_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+  "review_task_id": "er_6bcc8f408f08:KIT-PANTRY-12:review",
+  "draft_task_id": "er_6bcc8f408f08:KIT-PANTRY-12:draft",
+  "draft_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
   "drafter_key_id": "key_drafter_12",
   "reviewer_key_id": "key_reviewer_12",
-  "publication_sha256": "48cdc90e25ae9c56f840ddbf2ca431ca7b656640f3a883f15b4668eef4912541"
+  "publication_sha256": "3ed292dbdca9500872d092fd40dee8dd2bdc5be2841392a5ccbbd8ddbd72e19a"
 }
