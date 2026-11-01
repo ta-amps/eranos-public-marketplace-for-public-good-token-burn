@@ -17,8 +17,9 @@
   ],
   "claims": {
     "min_empty_interval_seconds": 60,
-    "heartbeat_fraction": 0.5,
-    "status_heartbeat_seconds": 600
+    "heartbeat_fraction": 0.92,
+    "status_heartbeat_seconds": 600,
+    "max_idle_seconds": 300
   },
   "reuse": {
     "threshold": 0.6,

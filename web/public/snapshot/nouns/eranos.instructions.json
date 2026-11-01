@@ -330,7 +330,8 @@
       "version": 1,
       "value": {
         "claims": {
-          "heartbeat_fraction": 0.5,
+          "heartbeat_fraction": 0.92,
+          "max_idle_seconds": 300,
           "min_empty_interval_seconds": 60,
           "status_heartbeat_seconds": 600
         },
