@@ -394,3 +394,23 @@ test.describe("the request page's bands are an accordion (owner, Nov 1)", () => 
     await context.close();
   });
 });
+
+test.describe("a checked part waiting for a person's sign-off", () => {
+  test.use({ baseURL: LIVE });
+  test("opens the ready step with a present-tense sign-off status, never the finished first step", async ({ page }) => {
+    const events = [
+      { type: "received", receipt: "a".repeat(64) },
+      PLAN,
+      { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark-1.3" },
+      { type: "work_submitted", part: 1, receipt: "d".repeat(64) },
+      { type: "check_claimed", part: 1, receipt: "e".repeat(64), worker: "volunteer-9" },
+      { type: "check_approved", part: 1, receipt: "f".repeat(64) },
+      { type: "signoff_required", part: 1, receipt: "1".repeat(64) },
+    ];
+    await mockSite(page, { history: events.map((value, i) => fact(i + 1, value)), request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(page.getByTestId("band-toggle-4")).toHaveAttribute("aria-expanded", "true");
+    for (const n of [1, 2, 3]) await expect(page.getByTestId(`band-toggle-${n}`)).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByTestId("band-status-4")).toHaveText("Waiting for a person to sign off");
+  });
+});

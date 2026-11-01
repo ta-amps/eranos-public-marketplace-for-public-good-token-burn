@@ -449,7 +449,7 @@ export interface PlainWords {
       Partial<Record<"title_done", T>>;
     /** Each band's one-line status in its header (the accordion, owner Nov 1). */
     status: Record<
-      "done" | "done_untimed" | "sorting" | "working" | "waiting_helper" | "checking" | "waiting_check" | "sent_back" | "your_turn" | "their_turn" | "upcoming",
+      "done" | "done_untimed" | "sorting" | "working" | "waiting_helper" | "checking" | "waiting_check" | "sent_back" | "your_turn" | "their_turn" | "signoff" | "upcoming",
       T
     >;
   };

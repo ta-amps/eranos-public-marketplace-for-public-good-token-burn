@@ -362,6 +362,7 @@
           "done": "Done · {time}",
           "done_untimed": "Done",
           "sent_back": "Sent back for fixes",
+          "signoff": "Waiting for a person to sign off",
           "sorting": "Being sorted",
           "their_turn": "The nonprofit decides",
           "upcoming": "Waiting to start",

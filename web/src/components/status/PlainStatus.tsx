@@ -117,7 +117,7 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
     state(planned, !planned),
     state(allMade && !remaking, planned),
     state(allChecked && !remaking, anyChecking || waitingCheck || sentBack),
-    state(allDecided, yourTurn),
+    state(allDecided, yourTurn || parts.some((p) => p.decide === "person")),
   ];
 
   const c = words.chip;
@@ -549,9 +549,11 @@ export function PlainStatus({
   };
   const stripState = (n: number): StageState => summary.bands[n - 1] ?? "upcoming";
   const resultPage = (n: number) => `/requests/${encodeURIComponent(routeId)}/result?part=${n}`;
-  // The current step: the first band in progress, or the last one once everything is done.
+  // The current step: the first band in progress, else the first one not done, or the last once everything is.
   const nowBand = summary.bands.findIndex((state) => state === "now");
-  const current = nowBand >= 0 ? nowBand + 1 : summary.bands.every((state) => state === "done") ? 4 : 1;
+  const openBand = summary.bands.findIndex((state) => state !== "done");
+  const current = nowBand >= 0 ? nowBand + 1 : openBand >= 0 ? openBand + 1 : 4;
+  const signoff = parts.some((p) => p.decide === "person") && !parts.some((p) => p.decide === "yourturn");
   const bands = useBands(current);
   // Each band's one-line, present-tense status, shown in its header whether it is open or folded.
   const st = b.status;
@@ -577,7 +579,15 @@ export function PlainStatus({
             ? st.checking
             : st.waiting_check
         : st.upcoming,
-    stripState(4) === "done" ? doneLine(lastAt(["decided", "library_added"])) : stripState(4) === "now" ? (requester ? st.your_turn : st.their_turn) : st.upcoming,
+    stripState(4) === "done"
+      ? doneLine(lastAt(["decided", "library_added"]))
+      : signoff
+        ? st.signoff
+        : stripState(4) === "now"
+          ? requester
+            ? st.your_turn
+            : st.their_turn
+          : st.upcoming,
   ];
   const bandProps = (n: number) => ({
     status: bandStatus[n - 1] ?? "",

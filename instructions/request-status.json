@@ -677,7 +677,8 @@
         "sent_back": "Sent back for fixes",
         "your_turn": "Your turn to decide",
         "their_turn": "The nonprofit decides",
-        "upcoming": "Waiting to start"
+        "upcoming": "Waiting to start",
+        "signoff": "Waiting for a person to sign off"
       }
     }
   },

@@ -2739,7 +2739,7 @@ button.er-choice-pill {
   scroll-margin-top: calc(var(--er-track-h, 80px) + 16px);
 }
 /* The station links live in the sticky track itself, so tabbing through them never moves the page. */
-.er-track a {
+.er-status-page .er-track a {
   scroll-margin-top: 0;
 }
 /* Reduced motion: the token jumps to its station; nothing travels. */
