@@ -27,7 +27,7 @@ readiness, explicit refusal reasons and read-after-write changes.
    `web/dist/surface-release.json`. Immediately before deployment, the release
    operator must query Cloudflare again and stop if its live version changed.
    The local asset guard does not perform this authenticated remote check.
-5. Deploy using the owning Wrangler configuration. Its mandatory build hook
+5. From the repository root, deploy using the owning Wrangler configuration. Its mandatory build hook
    checks source ancestry, a clean checkout, the production manifest, light-only
    compiled assets and the request accordion. Missing, changed, stale and
    snapshot-mode builds fail closed.

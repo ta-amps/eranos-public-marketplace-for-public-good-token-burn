@@ -5,7 +5,7 @@
   "name": "eranos",
   "main": "worker.js",
   "build": {
-    "cwd": "../..",
+    "cwd": ".",
     "command": "python3 scripts/check_surface_release.py --check"
   },
   "compatibility_date": "2026-10-01",
