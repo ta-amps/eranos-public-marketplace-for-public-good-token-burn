@@ -2,6 +2,7 @@
 
 import hashlib
 import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -22,6 +23,16 @@ def test_banner_is_the_shared_file() -> None:
     )
 
 
+def _committed(path: Path) -> bytes:
+    """The file as Agora last committed it, so Agora's unfinished edits don't break this repo's checks."""
+    run = subprocess.run(
+        ["git", "-C", str(path.parent), "show", f"HEAD:./{path.name}"],
+        capture_output=True,
+        check=False,
+    )
+    return run.stdout if run.returncode == 0 else path.read_bytes()
+
+
 def test_banner_matches_the_agora_worktree_when_it_is_beside_this_checkout() -> None:
     candidates = [
         os.environ.get("AGORA_BANNER_PATH", ""),
@@ -30,8 +41,9 @@ def test_banner_matches_the_agora_worktree_when_it_is_beside_this_checkout() -> 
     for candidate in filter(None, candidates):
         path = Path(candidate)
         if path.is_file():
-            assert _sha(path) == _sha(BANNER), (
-                f"{path} and web/public/agent-banner.js have drifted apart"
+            agora = hashlib.sha256(_committed(path)).hexdigest()
+            assert agora == _sha(BANNER), (
+                f"{path} (as committed) and web/public/agent-banner.js have drifted apart"
             )
             return
     pytest.skip("no Agora worktree beside this checkout; the pinned hash above still applies")
