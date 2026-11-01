@@ -3,7 +3,7 @@ import type { FabricResponse, RequestsResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
 function doneLabelForQueue(name: string): string {
-  if (name === "eq01") return "Scope planned";
+  if (name === "eq01") return "Requests scoped";
   if (name === "eq02") return "Drafts submitted";
   if (name === "eq03") return "Reviews completed";
   return "Done";
@@ -24,7 +24,7 @@ export function Fabric() {
           durable tasks (things to do), publish checked task objects, and another worker verifies before anything goes
           live. Eranos uses three leased queues on it (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
           quarantining unreviewed drafts as <code>surface_only</code> and promoting independently reviewed packages via
-          content-addressed SHA-256 blobs and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
+          content-addressed files and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
           <code>eranos.index</code>).
         </p>
 
@@ -76,7 +76,7 @@ export function Fabric() {
         )}
         {fabricState.status === "ready" && (
           <p className="er-muted er-small">
-            Scope planned on <code>eq01</code> counts requests split into buildable parts; kits and cited reports join
+            The count on <code>eq01</code> measures requests split into buildable parts; kits and cited reports join
             the library only after independent review completes on <code>eq03</code>.
           </p>
         )}

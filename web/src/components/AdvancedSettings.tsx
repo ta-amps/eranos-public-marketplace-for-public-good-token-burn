@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { fill, type AdvancedQuestion, type AdvancedWords } from "../lib/nouns";
-import { savedRequests } from "../lib/status/keys";
-import { shortRequestId } from "../lib/status/receipts";
+import { getJson } from "../lib/api";
+import { firstSentence } from "../lib/status/live";
+import { shortRequestId } from "../lib/status/ids";
 
 /** The request's optional settings, as they ride in its public brief. */
 export interface Prefs {
@@ -109,8 +110,29 @@ function OtherBox({ question, words, value, onChange }: { question: AdvancedQues
 
 export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWords; prefs: Prefs; onChange: (prefs: Prefs) => void }) {
   const count = prefsCount(prefs, words);
-  const recent = savedRequests().slice(0, 4);
   const origin = window.location.origin;
+  // "Or pick a recent public request": requests are public, so the recent ones come from their public records.
+  const [recent, setRecent] = useState<{ id: string; title: string; sentAt: number | null }[] | null>(null);
+  const improvingNow = improving(prefs, words);
+  // Open when the page starts as an improvement (a library link), so the earlier solution's link is in view.
+  const [open, setOpen] = useState(improvingNow);
+  useEffect(() => {
+    if (!improvingNow || recent !== null) return;
+    getJson<{ records?: { key: string; value?: { text?: string } }[] }>("/api/nouns/eranos.requests")
+      .then((list) =>
+        setRecent(
+          (list.records ?? [])
+            .filter((record) => /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/.test(record.key))
+            .map((record) => {
+              const sent = parseInt(record.key.slice(record.key.lastIndexOf("-") + 1), 36);
+              return { id: record.key, title: firstSentence(record.value?.text ?? "") || shortRequestId(record.key), sentAt: Number.isFinite(sent) ? sent : null };
+            })
+            .sort((x, y) => (y.sentAt ?? 0) - (x.sentAt ?? 0))
+            .slice(0, 4),
+        ),
+      )
+      .catch(() => setRecent([]));
+  }, [improvingNow, recent]);
   const choose = (question: AdvancedQuestion, option: string) => {
     if (question.id === "start") return onChange({ ...prefs, start: option });
     if (question.id === "skill") return onChange({ ...prefs, skill: prefs.skill === option ? "" : option });
@@ -126,7 +148,7 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
         : prefs[question.id as ListField].includes(option);
 
   return (
-    <details className="er-details er-advanced" data-testid="advanced-settings">
+    <details className="er-details er-advanced" data-testid="advanced-settings" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
       <summary>
         <span className="er-advanced-title">{words.summary}</span> <span className="er-small">{words.optional}</span>{" "}
         <span className="er-chip er-chip-noun" data-testid="advanced-count">
@@ -187,7 +209,7 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
                 />
               </div>
               <p className="er-small">{words.improve.recent_label}</p>
-              {recent.length ? (
+              {recent && recent.length ? (
                 <div className="er-examples">
                   {recent.map((saved) => (
                     <button
@@ -196,7 +218,7 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
                       className="er-example-chip"
                       onClick={() => onChange({ ...prefs, improve_link: `${origin}/requests/${saved.id}` })}
                     >
-                      {shortRequestId(saved.id)}
+                      {saved.title.length > 40 ? `${saved.title.slice(0, 38)}\u2026` : saved.title}
                       {saved.sentAt ? ` · ${new Date(saved.sentAt).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : ""}
                     </button>
                   ))}

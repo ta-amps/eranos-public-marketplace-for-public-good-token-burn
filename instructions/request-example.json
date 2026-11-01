@@ -82,7 +82,7 @@
       "replay_ms": 1600,
       "receipt": "e9135241b30ca3379025110c429bf56fd9e5921c8fdf558c41ff0879095e166f",
       "worker": "wren-33",
-      "model": "Muse Spark",
+      "model": "muse-spark-1.3",
       "lease_ends": 1793471110,
       "queue": {
         "waiting": 1,
@@ -129,7 +129,7 @@
       "replay_ms": 5200,
       "receipt": "eaf6508c748d2c704809d0ca4e155fb5b8d41807b4eab938b1c0ed3576a58f7d",
       "worker": "kestrel-41",
-      "model": "Muse Spark",
+      "model": "muse-spark-1.3",
       "lease_ends": 1793472552,
       "queue": {
         "waiting": 1,
@@ -164,7 +164,7 @@
       "replay_ms": 8900,
       "receipt": "2c1000dd265ee5e4bc49791756a6fbd58db9fb9c788919f76426bb93fae220ae",
       "worker": "heron-07",
-      "model": "nanoMuse",
+      "model": "muse-spark-1.3",
       "lease_ends": 1793473382,
       "queue": {
         "waiting": 1,

@@ -2,7 +2,7 @@ import type { ReactNode, RefObject } from "react";
 
 import { fill, type RequestStatusNoun } from "../../lib/nouns";
 import type { ChipView, EdgeView, NodeState, NodeView, StatusView, StepView, LogRow } from "../../lib/status/derive";
-import { shortReceipt, shortRequestId } from "../../lib/status/receipts";
+import { shortReceipt, shortRequestId } from "../../lib/status/ids";
 import type { QueueSnapshot } from "../../lib/status/types";
 import { AppLink } from "../../router";
 import { Icon } from "../Icon";
@@ -26,16 +26,25 @@ export function StateIcon({ state, size = 16 }: { state: NodeState; size?: numbe
   return name ? <Icon name={name} size={size} strokeWidth={2.25} /> : null;
 }
 
-/** A receipt as people read it: the first four hex digits in mono, the full hash in its title. */
-export function Evidence({ value, words }: { value?: string; words: RequestStatusNoun }) {
+/**
+ * A recorded step as people read it (owner, Nov 1: no receipts or hashes on any page): a "Record" link to the public
+ * record that holds it, or a short request id. A hash itself is never shown, not even in a title.
+ */
+export function Evidence({ value, words, href }: { value?: string; words: RequestStatusNoun; href?: string }) {
   if (!value) return null;
   const hash = /^[0-9a-f]{8,}$/i.test(value);
   const request = /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/.test(value);
-  return (
-    <span className="er-receipt" title={value}>
-      {hash ? fill(words.chips.receipt ?? "", { r: shortReceipt(value) }) : request ? shortRequestId(value) : value}
-    </span>
-  );
+  const ref = /^(eranos\.[a-z_.]+)\/([A-Za-z0-9][A-Za-z0-9_.:-]*)/.exec(value);
+  const link = href ?? (ref ? `/api/nouns/${ref[1]}/${encodeURIComponent(ref[2] ?? "")}` : undefined);
+  if (request) return <span className="er-receipt">{shortRequestId(value)}</span>;
+  if ((hash || ref) && link) {
+    return (
+      <a className="er-record-link" href={link}>
+        {words.chips.record ?? "Record ↗"}
+      </a>
+    );
+  }
+  return hash || ref ? null : <span className="er-receipt">{value}</span>;
 }
 
 /** The lease ring: the share of the lease left, redrawn once a second while live, never animated. */
@@ -188,7 +197,7 @@ export function StatusDiagram({
   );
 }
 
-function Step({ step, words }: { step: StepView; words: RequestStatusNoun }) {
+function Step({ step, words, recordHref }: { step: StepView; words: RequestStatusNoun; recordHref?: string }) {
   return (
     <li className={`er-step er-step-${step.state}`} data-node={step.key} data-state={step.state} data-receipt={step.evidence ?? ""}>
       <span className="er-step-label">{step.label}</span>
@@ -200,7 +209,7 @@ function Step({ step, words }: { step: StepView; words: RequestStatusNoun }) {
         <span className="er-step-detail">
           {step.detail}
           {step.detail && step.evidence ? " · " : ""}
-          <Evidence value={step.evidence} words={words} />
+          <Evidence value={step.evidence} words={words} href={recordHref} />
         </span>
       )}
       {step.href && step.action && (
@@ -213,13 +222,13 @@ function Step({ step, words }: { step: StepView; words: RequestStatusNoun }) {
 }
 
 /** The same states as stacked cards: the phone layout, and the accessible alternative to the diagram. */
-export function StatusList({ view, words }: { view: StatusView; words: RequestStatusNoun }) {
+export function StatusList({ view, words, recordHref }: { view: StatusView; words: RequestStatusNoun; recordHref?: string }) {
   return (
     <div className="er-status-list" data-testid="status-list">
       <article className="er-part-card">
         <ol className="er-steps-list">
-          <Step step={{ key: "request", label: words.nodes.request ?? "", word: view.shortId, state: "noun", evidence: view.nodes[0]?.evidence }} words={words} />
-          <Step step={view.planCard} words={words} />
+          <Step step={{ key: "request", label: words.nodes.request ?? "", word: view.shortId, state: "noun", evidence: view.nodes[0]?.evidence }} words={words} recordHref={recordHref} />
+          <Step step={view.planCard} words={words} recordHref={recordHref} />
         </ol>
       </article>
       {view.parts.map((part) => (
@@ -235,7 +244,7 @@ export function StatusList({ view, words }: { view: StatusView; words: RequestSt
           </div>
           <ol className="er-steps-list">
             {part.steps.map((step) => (
-              <Step key={step.key} step={step} words={words} />
+              <Step key={step.key} step={step} words={words} recordHref={recordHref} />
             ))}
           </ol>
           {part.note && <p className="er-small">{part.note}</p>}
@@ -249,7 +258,9 @@ export function StatusLog({
   rows,
   words,
   formatTime,
+  recordHref,
 }: {
+  recordHref?: string;
   rows: LogRow[];
   words: RequestStatusNoun;
   formatTime: (at: number) => string;
@@ -266,7 +277,7 @@ export function StatusLog({
             <li key={row.key}>
               <span className="er-log-time">{row.at === null ? "·" : formatTime(row.at)}</span>
               <span>{row.text}</span>
-              <Evidence value={row.evidence} words={words} />
+              <Evidence value={row.evidence} words={words} href={recordHref} />
             </li>
           ))}
         </ol>
@@ -277,10 +288,12 @@ export function StatusLog({
 }
 
 export function QueuePanel({ queue, words, showAgents, note }: { queue: QueueSnapshot; words: RequestStatusNoun; showAgents: boolean; note?: string }) {
+  // On an example page the queue and its agents are part of the example, never shown as the live queue (PE-02).
+  const title = showAgents ? (words.queue.title_example ?? words.queue.title) : words.queue.title;
   return (
-    <section className="er-panel er-queue" aria-labelledby="queue-title">
+    <section className="er-panel er-queue" aria-labelledby="queue-title" data-example={showAgents}>
       <h2 id="queue-title" className="er-panel-title">
-        {words.queue.title}
+        {title}
       </h2>
       <div className="er-queue-counts">
         <span className="er-count er-count-waiting">

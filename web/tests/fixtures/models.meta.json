@@ -1,0 +1,18 @@
+{
+  "kind": "task_object",
+  "id": "models.meta",
+  "version": 4,
+  "runtime": {
+    "display_by_id": {
+      "muse-spark-1.3": "Muse Spark 1.3",
+      "muse-wonder-1.0": "Muse Wonder 1.0",
+      "muse-glimmer-30b": "Muse Glimmer 30B",
+      "muse-code": "Muse Code 1.4.14",
+      "facebook/sam-vit-base": "SAM",
+      "facebook/wav2vec2-base-960h": "wav2vec 2.0",
+      "facebook/musicgen-small": "MusicGen"
+    },
+    "tier": "standard"
+  },
+  "fixture_note": "Copied from notes/claude-work-2026-10-31/models/models.meta.json (v3) for tests only; the site reads the live Task Object from Tessera."
+}

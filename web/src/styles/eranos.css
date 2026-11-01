@@ -68,9 +68,9 @@
   flex-wrap: wrap;
 }
 .er-panel-dark {
-  background: var(--action);
-  color: var(--action-text);
-  border-color: var(--action);
+  background: var(--sunken);
+  color: var(--text);
+  border-color: var(--line);
 }
 .er-panel-dark ul {
   margin: 0;
@@ -208,21 +208,16 @@ ta-agent-banner {
   background: var(--agent-banner-bg);
   color: var(--agent-banner-ink);
   border-bottom: 1px solid var(--agent-banner-line);
-  --agent-banner-bg: #11161f;
-  --agent-banner-ink: #f5f2ea;
-  --agent-banner-muted: #c8d0dc;
-  --agent-banner-raised: #222732;
-  --agent-banner-line: #2b313d;
-  --agent-banner-edge: #3b4252;
-  --agent-banner-link: #9dbbf0;
-  --agent-banner-focus: #f0884f;
+  --agent-banner-bg: #ede8dc;
+  --agent-banner-ink: #11161f;
+  --agent-banner-muted: #3b4252;
+  --agent-banner-raised: #f5f2ea;
+  --agent-banner-line: #d8d1c2;
+  --agent-banner-edge: #c9c1b0;
+  --agent-banner-link: #1d4fae;
+  --agent-banner-focus: #c2410c;
 }
-@media (prefers-color-scheme: dark) {
-  ta-agent-banner {
-    --agent-banner-bg: #0b0f16;
-    --agent-banner-raised: #1b2230;
-  }
-}
+
 .er-header {
   background: var(--bg);
   border-bottom: 1px solid var(--line);
@@ -399,7 +394,9 @@ ta-agent-banner {
     gap: 18px;
   }
 }
-@media (max-width: 599px) {
+/* The full nav needs about 900 px; below that (phones, and a 1280 px window at 200% zoom) the Menu button opens it,
+   so the header never scrolls sideways (WCAG 1.4.10). */
+@media (max-width: 1023px) {
   .er-header .er-nav,
   .er-header .er-yours-link {
     display: none;
@@ -407,6 +404,11 @@ ta-agent-banner {
   .er-menu-button {
     display: inline-flex;
   }
+  .er-header nav:not(.er-nav):not(.er-menu-nav) {
+    display: none;
+  }
+}
+@media (max-width: 599px) {
   .er-header-inner,
   .er-header-compact .er-header-inner {
     height: 56px;
@@ -739,8 +741,9 @@ ta-agent-banner {
 .er-safety {
   margin-top: 32px;
   padding: 56px 0;
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--sunken);
+  color: var(--text);
+  border-top: 1px solid var(--line);
 }
 .er-safety-grid {
   display: grid;
@@ -753,7 +756,7 @@ ta-agent-banner {
 }
 .er-safety-grid dd {
   margin: 8px 0 0;
-  opacity: 0.86;
+  color: var(--text-2);
 }
 .er-main-home + .er-footer {
   margin-top: 0;
@@ -922,8 +925,9 @@ ta-agent-banner {
   width: min(320px, 80vw);
   padding: 12px 14px;
   border-radius: var(--radius-md);
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
   font-size: var(--fs-small);
   font-weight: 400;
   line-height: 1.45;
@@ -937,8 +941,12 @@ ta-agent-banner {
   visibility: visible;
   opacity: 1;
 }
-/* On a phone the tip spans its option card, so it never reaches past the screen's edge. */
-@media (max-width: 599px) {
+.er-tip[data-dismissed="true"] .er-tip-text {
+  display: none;
+}
+/* On a phone, or a window zoomed to 200%, the tip spans its option card, so it never reaches past the screen's
+   edge (and never makes the page scroll sideways). */
+@media (max-width: 1023px) {
   .er-choice-card {
     position: relative;
   }
@@ -1347,8 +1355,8 @@ ta-agent-banner {
   border: 1.5px dashed var(--attention);
 }
 .er-node-decided {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--real-wash);
+  color: var(--real);
   border: 1.5px solid var(--text);
 }
 .er-node-noun {
@@ -1748,8 +1756,9 @@ ta-agent-banner {
   flex-wrap: wrap;
   padding: 22px 24px;
   border-radius: 20px;
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--sunken);
+  color: var(--text);
+  border: 1px solid var(--line);
 }
 .er-bridge > span:nth-child(2) {
   flex: 1;
@@ -1761,9 +1770,9 @@ ta-agent-banner {
   height: 40px;
   border-radius: 10px;
   background:
-    linear-gradient(var(--action), var(--action)) 50% 0 / 4.8px 100% no-repeat,
-    linear-gradient(var(--action), var(--action)) 0 50% / 100% 4.8px no-repeat,
-    conic-gradient(var(--mark-2) 0 25%, var(--mark-4) 0 50%, var(--bg) 0 75%, var(--mark-1) 0);
+    linear-gradient(var(--sunken), var(--sunken)) 50% 0 / 4.8px 100% no-repeat,
+    linear-gradient(var(--sunken), var(--sunken)) 0 50% / 100% 4.8px no-repeat,
+    conic-gradient(var(--mark-2) 0 25%, var(--mark-4) 0 50%, var(--mark-3) 0 75%, var(--mark-1) 0);
 }
 .er-result-aside {
   flex: 1 1 300px;
@@ -2194,9 +2203,12 @@ button.er-choice-pill {
 
 .er-yours-link {
   display: inline-flex;
+  margin-left: 24px;
+}
+.er-yours-link > a {
+  display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-left: 24px;
   padding: 0 14px;
   border: 1.5px solid var(--line-strong);
   border-radius: var(--radius-pill);
@@ -2204,7 +2216,7 @@ button.er-choice-pill {
   text-decoration: none;
   white-space: nowrap;
 }
-.er-yours-link[aria-current="page"] {
+.er-yours-link > a[aria-current="page"] {
   border-color: var(--text);
 }
 .er-yours-list {
@@ -2356,7 +2368,7 @@ button.er-choice-pill {
   }
 }
 /* The request box morphs into the plain view's first stage, as it does into the diagram's request node. */
-.er-plain .er-stage[data-stage="sent"] {
+.er-plain .er-track li[data-step="0"] {
   view-transition-name: request;
 }
 
@@ -2453,4 +2465,286 @@ button.er-choice-pill {
   align-items: center;
   gap: 10px;
   margin: 4px 0 12px;
+}
+
+/* ------------------------------------------------- request page v6: strip and bands */
+.er-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.er-strip-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 3px solid var(--line);
+  font-weight: 600;
+  font-size: var(--fs-small);
+}
+.er-strip-step.er-stage-done {
+  border-top-color: var(--text);
+}
+.er-strip-step.er-stage-now {
+  border-top-color: var(--action);
+}
+.er-strip-step.er-stage-upcoming {
+  color: var(--text-2);
+  opacity: 1;
+}
+.er-rq-band {
+  position: relative;
+}
+.er-band-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  font-size: var(--fs-small);
+}
+.er-rq-band-done .er-band-n {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.er-rq-band-now {
+  border-color: var(--text);
+}
+.er-rq-band-upcoming {
+  border-style: dashed;
+}
+.er-band-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.er-band-list li {
+  display: grid;
+  gap: 2px;
+}
+.er-band-ok {
+  margin: 4px 0 0;
+}
+.er-band-part + .er-band-part {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.er-helper {
+  margin: 6px 0;
+}
+.er-ready-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.er-ready-card {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.er-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+}
+@media (max-width: 899px) {
+  .er-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 479px) {
+  .er-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.er-band-failed {
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--danger, #b3261e);
+  background: var(--surface);
+}
+
+/* ------------------------------------------------ the request track (RequestStatusPage, calm; owner v2, Nov 1) */
+.er-track {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 12px 0 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.er-track ol {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The rail, through the station centres. */
+.er-track ol::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: calc(100% / 12);
+  right: calc(100% / 12);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.er-track a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--text-3);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+}
+.er-track li[data-state="done"] a,
+.er-track a[aria-current="step"] {
+  color: var(--text);
+}
+.er-track a[aria-current="step"] {
+  font-weight: 700;
+}
+.er-track-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.5px dashed var(--line-strong);
+  background: var(--bg);
+  color: var(--text-inverse);
+  font-size: 14px;
+  line-height: 1;
+}
+.er-track li[data-state="done"] .er-track-dot {
+  background: var(--text);
+  border: 0;
+}
+.er-track li[data-state="done"] .er-track-dot::before {
+  content: "✓";
+}
+.er-track li[data-step="5"][data-state="done"] .er-track-dot {
+  background: var(--real);
+}
+.er-track li[data-state="now"] .er-track-dot {
+  border: 3px solid var(--text);
+  background: var(--surface);
+}
+.er-track li[data-state="now"][data-tone="work"] .er-track-dot {
+  border: 0;
+  background: var(--task);
+}
+.er-track li[data-state="now"][data-tone="turn"] .er-track-dot {
+  border: 0;
+  background: var(--attention);
+}
+/* The token rides a lane one station wide; data-pos moves it a whole station at a time, by transform only. */
+.er-track-lane {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  width: calc(100% / 6);
+  height: 14px;
+  pointer-events: none;
+}
+.er-track-token {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  transform: translateX(0);
+}
+.er-track-token::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--object);
+  box-shadow: 0 0 0 4px var(--bg);
+}
+.er-track-token[data-tone="work"]::before {
+  background: var(--task);
+}
+.er-track-token[data-tone="turn"]::before {
+  background: var(--attention);
+}
+.er-track-token[data-tone="done"]::before {
+  background: var(--real);
+}
+.er-track-token[data-back="true"]::before {
+  background: var(--task-text);
+  outline: 2px solid var(--task-wash);
+}
+.er-track-token[data-pos="1"] {
+  transform: translateX(100%);
+}
+.er-track-token[data-pos="2"] {
+  transform: translateX(200%);
+}
+.er-track-token[data-pos="3"] {
+  transform: translateX(300%);
+}
+.er-track-token[data-pos="4"] {
+  transform: translateX(400%);
+}
+.er-track-token[data-pos="5"] {
+  transform: translateX(500%);
+}
+.er-track-lane[data-animate="true"] .er-track-token {
+  transition: transform var(--dur-track) var(--ease-track);
+}
+.er-ghosts {
+  display: inline-flex;
+  gap: 3px;
+}
+.er-ghost {
+  width: 14px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--line-strong);
+}
+.er-rq-band {
+  scroll-margin-top: max(160px, calc(var(--er-track-h, 80px) + 16px));
+}
+/* Focus is never hidden under the sticky track (WCAG 2.2 SC 2.4.11): anything focusable scrolls clear of it, by the
+   track's measured height at this width (--er-track-h, set by the track itself). */
+.er-status-page :is(a, button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-top: calc(var(--er-track-h, 80px) + 16px);
+}
+/* The station links live in the sticky track itself, so tabbing through them never moves the page. */
+.er-status-page .er-track a {
+  scroll-margin-top: 0;
+}
+/* Reduced motion: the token jumps to its station; nothing travels. */
+@media (prefers-reduced-motion: reduce) {
+  .er-track-lane[data-animate="true"] .er-track-token {
+    transition: none;
+  }
 }

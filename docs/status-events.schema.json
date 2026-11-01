@@ -95,6 +95,7 @@
             "in_review",
             "check_approved",
             "check_sent_back",
+            "check_refused",
             "signoff_required",
             "signed_off",
             "delivered",
@@ -105,7 +106,7 @@
             "closed",
             "withdrawn"
           ],
-          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; withdrawn."
+          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; withdrawn. check_refused: Tessera refused a check because the maker tried to approve its own work (the board's 'refused'; cite the refusal's record)."
         },
         "at": {
           "type": [
@@ -194,6 +195,10 @@
         "library_ref": {
           "type": "string",
           "description": "library_added: the public URL of the library entry."
+        },
+        "dedicated": {
+          "type": "boolean",
+          "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker run by the ta-amps team on Meta's latest Muse model through the Meta API (standard tier), under the same claim and report rules. Without this field the page treats a worker label starting with 'eranos' as dedicated."
         }
       }
     },
@@ -404,6 +409,25 @@
           "$ref": "#/$defs/decision_task_brief/properties/decision"
         }
       }
+    },
+    "caption_names": {
+      "description": "The film's caption names (RequestStatusPage onEvent, Claude Design 20:15) for these event types. The page dispatches window CustomEvent 'eranos:status-event' with detail {n, type, band, text} for each new fact.",
+      "const": {
+        "received": "received",
+        "planned": "split",
+        "queued": "queued",
+        "work_claimed": "claimed",
+        "work_submitted": "submitted",
+        "check_refused": "refused",
+        "check_claimed": "rclaimed",
+        "check_approved": "approved",
+        "check_sent_back": "sentback",
+        "signoff_required": "signoff",
+        "delivered": "ready",
+        "published": "ready",
+        "decided": "decision",
+        "library_added": "library"
+      }
     }
   },
   "examples": [
@@ -526,7 +550,7 @@
           "at": 1793471582,
           "receipt": "2c1000dd265ee5e4bc49791756a6fbd58db9fb9c788919f76426bb93fae220ae",
           "worker": "heron-07",
-          "model": "nanoMuse",
+          "model": "muse-spark-1.3",
           "lease_ends": 1793473382
         }
       }

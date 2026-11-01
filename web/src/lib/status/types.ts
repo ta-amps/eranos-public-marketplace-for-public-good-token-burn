@@ -4,7 +4,8 @@
  * every node, chip and log line from these facts and nothing else, so no step can show as done without one.
  */
 
-export type PartRoute = "public-only" | "private-files" | "process" | "report" | "held";
+/** Routes recorded by current workers, including reused library answers. */
+export type PartRoute = "public-only" | "private-files" | "process" | "report" | "held" | "reused";
 
 /** One part of a plan, as the classify step records it in `eranos.plans/<request_id>`. */
 export interface PartPlan {
@@ -49,6 +50,7 @@ export type StatusEventType =
   | "delivered"
   | "published"
   | "library_added"
+  | "check_refused"
   | "decided"
   | "heartbeat"
   | "closed"
@@ -68,13 +70,22 @@ export interface StatusEvent {
   worker?: string;
   model?: string;
   lease_ends?: number;
+  /** The model's display name from the models.meta Task Object, as the worker's fact carries it with the id. */
+  model_name?: string;
+  /** True when one of Eranos's own (dedicated) workers claimed it because no volunteer was free in time. */
+  dedicated?: boolean;
   parts?: PartPlan[];
   /** Places in line, by part number, after this fact. */
   places?: Record<string, number>;
   /** The plan's place in line, before it is claimed. */
   place?: number;
   queue?: QueueSnapshot;
-  summary?: { sources?: number };
+  /**
+   * What the live workers add (eranos-worker, eranos/pipeline/status_events.py): `reused` on a delivered or
+   * published part answered from the library, `next_at` (Unix seconds) and `occurrence` on a recurring request's
+   * next run, and `attempt` / `max_attempts` / `retry_at` on a failed try when the worker knows them.
+   */
+  summary?: { sources?: number; reused?: boolean; next_at?: number; occurrence?: number; attempt?: number; max_attempts?: number; retry_at?: number };
   reason?: string;
   findings?: string[];
   choice?: DecisionChoice;

@@ -547,8 +547,8 @@ def cmd_e2e(*, live: bool) -> int:
     return 0
 
 
-def cmd_donor_demo(*, live_ollama: bool, model: str, base_url: str) -> int:
-    result = run_donor_demo(dry_model=not live_ollama, model=model, base_url=base_url)
+def cmd_donor_demo(*, live: bool, model: str, base_url: str) -> int:
+    result = run_donor_demo(dry_model=not live, model=model, base_url=base_url)
     print(json.dumps(result, indent=2))
     return 0
 
@@ -601,12 +601,16 @@ def main(argv: list[str] | None = None) -> int:
         help="Run a two-donor (drafter != reviewer) kit build and review over Tessera HTTP",
     )
     donor.add_argument(
-        "--live-ollama",
+        "--live",
         action="store_true",
-        help="Call live open-weights chat endpoint (OLLAMA_API_KEY) instead of offline dry synthesis",
+        help="Call the configured chat endpoint (--base-url, MODEL_API_KEY) instead of offline dry synthesis",
     )
-    donor.add_argument("--model", default=DEFAULT_DONOR_MODEL)
-    donor.add_argument("--base-url", default=DEFAULT_CHAT_BASE)
+    donor.add_argument("--model", default=DEFAULT_DONOR_MODEL, help="Model id the endpoint serves")
+    donor.add_argument(
+        "--base-url",
+        default=DEFAULT_CHAT_BASE,
+        help="OpenAI-compatible base URL for --live runs (or MODEL_BASE_URL); there is no default",
+    )
     rec = sub.add_parser(
         "record-example-runs",
         help="Check, build and review every example kit and write one example-run evidence noun per kit",
@@ -640,7 +644,7 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_e2e(live=bool(args.live))
     if args.cmd == "donor-demo":
         return cmd_donor_demo(
-            live_ollama=bool(args.live_ollama),
+            live=bool(args.live),
             model=str(args.model),
             base_url=str(args.base_url),
         )

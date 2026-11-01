@@ -24,6 +24,7 @@ export type ApiPath =
   | `/api/requests/${string}`
   | "/api/fabric"
   | "/api/open-tasks"
+  | "/api/models"
   | `/api/nouns/${string}`;
 
 export class ApiError extends Error {
@@ -117,9 +118,9 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
       }
       const qIndex = path.indexOf("?");
       const search = qIndex >= 0 ? path.slice(qIndex + 1) : "";
-      return shownWords(filterCatalogSnapshot(base, search)) as unknown as T;
+      return shownWords(filterCatalogSnapshot(base, search.replace(/(^|&)view=page/, ""))) as unknown as T;
     }
-    const key = snapshotKey(path);
+    const key = snapshotKey(path.replace(/[?&]view=page$/, ""));
     if (!(key in SNAPSHOT_DATA)) {
       throw new ApiError(`The snapshot has no data for ${path}. Run make snapshot.`, 404);
     }
@@ -137,7 +138,7 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
   if (!contentType.toLowerCase().includes("application/json")) {
     throw new ApiError(`${path} returned unexpected content-type ${contentType || "unknown"}`, 502);
   }
-  return shownWords(await response.json()) as T;
+  return (await response.json()) as T;
 }
 
 const STRICT_HUMAN_ONLY_KINDS = new Set([

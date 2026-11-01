@@ -13,10 +13,10 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview --port 4174",
-    "snapshot:build": "VITE_SNAPSHOT=1 vite build",
+    "snapshot:build": "VITE_SNAPSHOT=1 vite build --outDir dist-snapshot",
     "test:e2e": "playwright test",
     "astryx": "astryx",
-    "build:live-test": "vite build --outDir dist-live",
+    "build:live-test": "VITE_SNAPSHOT=0 vite build --outDir dist-live",
     "preview:live-test": "vite preview --outDir dist-live --port 4175 --strictPort"
   },
   "dependencies": {

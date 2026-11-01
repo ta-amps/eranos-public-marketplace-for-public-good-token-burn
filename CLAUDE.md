@@ -11,3 +11,7 @@ Read and follow @AGENTS.md first. Every hard rule in `AGENTS.md` applies here, e
 - Run `make check` before every commit, and `make index` + `python3 scripts/check_architecture.py . --sync-docs`
   whenever files or invariants change.
 - Commit with the repo-local `ta-amps` identity and never add `Co-Authored-By` or `Generated with` trailers.
+
+Surface release: follow [docs/SURFACE-RELEASE.md](docs/SURFACE-RELEASE.md) and the
+light-only/accordion policy in AGENTS.md. A backend update must preserve the
+approved UI ancestry and pass the compiled-asset deployment guard.

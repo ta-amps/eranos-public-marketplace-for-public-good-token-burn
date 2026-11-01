@@ -44,7 +44,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [briefs/E3.json](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [briefs/E4.json](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (12)
+## deploy/ (13)
 
 | File | What it is |
 |---|---|
@@ -55,16 +55,18 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [deploy/cloudflare/agent_start.js](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
 | [deploy/cloudflare/kit-draft.schema.json](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
 | [deploy/cloudflare/schema.js](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
+| [deploy/cloudflare/surface-release-policy.json](deploy/cloudflare/surface-release-policy.json) | JSON object: schema, required_ancestors, rules |
 | [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) |  |
 | [deploy/cloudflare/wrangler.jsonc](deploy/cloudflare/wrangler.jsonc) | Eranos Cloud Worker: serves the React web app plus native 24/7 /api/ endpoints backed by |
 | [deploy/fly/Dockerfile](deploy/fly/Dockerfile) | Build from the workspace root so both tessera and eranos are in the build context. |
 | [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
 | [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
 
-## docs/ (18)
+## docs/ (19)
 
 | File | What it is |
 |---|---|
+| [docs/SURFACE-RELEASE.md](docs/SURFACE-RELEASE.md) | Preserve the current surface on every release |
 | [docs/WORKER-FIRST-EXECUTION.md](docs/WORKER-FIRST-EXECUTION.md) | Worker-first execution and private work |
 | [docs/access-modes.md](docs/access-modes.md) | External agent access |
 | [docs/agent-workflow.md](docs/agent-workflow.md) | Agent workflow and verified boundaries |
@@ -77,7 +79,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/handoff.md](docs/handoff.md) | Handoff |
 | [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Naming, Mythology & Extending Eranos |
 | [docs/nouns-and-verbs.md](docs/nouns-and-verbs.md) | Nouns, verbs, surfaces and infrastructure |
-| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models |
+| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode or Meta's Muse Models |
 | [docs/review.md](docs/review.md) | Review Guide & Cold-Start Handoff |
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
 | [docs/status-events.schema.json](docs/status-events.schema.json) | One state change of a nonprofit's request: one version of eranos.requests/<requestid> |
@@ -168,17 +170,18 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (17)
+## instructions/ (18)
 
 | File | What it is |
 |---|---|
 | [instructions/agent-banner.json](instructions/agent-banner.json) | The agent instructions line above every page |
+| [instructions/agent-brief.v2.txt](instructions/agent-brief.v2.txt) |  |
 | [instructions/classify.json](instructions/classify.json) | Classify a request and break it into parts |
 | [instructions/connect.json](instructions/connect.json) | Connect to Eranos |
 | [instructions/help-page.json](instructions/help-page.json) | I want to help |
 | [instructions/help.json](instructions/help.json) | Help in six steps |
 | [instructions/home.json](instructions/home.json) | Home page |
-| [instructions/library.json](instructions/library.json) | Shared library |
+| [instructions/library.json](instructions/library.json) | Find a solution |
 | [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos |
 | [instructions/nonprofits-page.json](instructions/nonprofits-page.json) | Tell us what you need |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
@@ -190,16 +193,17 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [instructions/site.json](instructions/site.json) | Spare tokens for good |
 | [instructions/trust.json](instructions/trust.json) | Privacy, terms, report and judge tour |
 
-## scripts/ (4)
+## scripts/ (5)
 
 | File | What it is |
 |---|---|
 | [scripts/build_index.py](scripts/build_index.py) | Build this repo's indexes from its own files. |
 | [scripts/check_architecture.py](scripts/check_architecture.py) | Check that architecture.json still describes this repo truthfully. |
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
+| [scripts/check_surface_release.py](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (14)
+## tests/ (15)
 
 | File | What it is |
 |---|---|
@@ -216,6 +220,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_review_contract.py](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
 | [tests/test_schemas_and_copy.py](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
 | [tests/test_seed_packs.py](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
+| [tests/test_surface_release.py](tests/test_surface_release.py) | Release regression controls: reject stale modes/assets, retain safe dark ink. |
 | [tests/test_tracks_and_verifier.py](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
 
 ## tracks/ (14)
@@ -237,7 +242,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (171)
+## web/ (176)
 
 | File | What it is |
 |---|---|
@@ -359,6 +364,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/lib/copy.ts](web/src/lib/copy.ts) |  |
 | [web/src/lib/library.ts](web/src/lib/library.ts) |  |
 | [web/src/lib/marketplace.ts](web/src/lib/marketplace.ts) |  |
+| [web/src/lib/models.ts](web/src/lib/models.ts) |  |
 | [web/src/lib/nouns.ts](web/src/lib/nouns.ts) |  |
 | [web/src/lib/privacy.ts](web/src/lib/privacy.ts) |  |
 | [web/src/lib/shown.ts](web/src/lib/shown.ts) |  |
@@ -368,10 +374,10 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/lib/status/estimate.ts](web/src/lib/status/estimate.ts) |  |
 | [web/src/lib/status/example.ts](web/src/lib/status/example.ts) |  |
 | [web/src/lib/status/handoff.ts](web/src/lib/status/handoff.ts) |  |
+| [web/src/lib/status/ids.ts](web/src/lib/status/ids.ts) |  |
 | [web/src/lib/status/keys.ts](web/src/lib/status/keys.ts) |  |
 | [web/src/lib/status/live.ts](web/src/lib/status/live.ts) |  |
 | [web/src/lib/status/motion.ts](web/src/lib/status/motion.ts) |  |
-| [web/src/lib/status/receipts.ts](web/src/lib/status/receipts.ts) |  |
 | [web/src/lib/status/tessera.ts](web/src/lib/status/tessera.ts) |  |
 | [web/src/lib/status/types.ts](web/src/lib/status/types.ts) |  |
 | [web/src/lib/types.ts](web/src/lib/types.ts) |  |
@@ -399,13 +405,17 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/router.tsx](web/src/router.tsx) |  |
 | [web/src/styles/app.css](web/src/styles/app.css) |  |
 | [web/src/styles/base.css](web/src/styles/base.css) |  |
+| [web/src/styles/boards-nov1.css](web/src/styles/boards-nov1.css) |  |
 | [web/src/styles/eranos.css](web/src/styles/eranos.css) |  |
 | [web/src/styles/fonts.css](web/src/styles/fonts.css) |  |
-| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Generated from tokens.json v2 by tools/buildtokenscss.py. |
+| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Paper & Ink tokens v3 (Claude Design, Nov 1). |
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
+| [web/tests/fixtures/models.meta.json](web/tests/fixtures/models.meta.json) | JSON object: kind, id, version, runtime, fixture_note |
 | [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |
 | [web/tests/perf.spec.ts](web/tests/perf.spec.ts) |  |
+| [web/tests/phase-a2.spec.ts](web/tests/phase-a2.spec.ts) |  |
+| [web/tests/release-regression.spec.ts](web/tests/release-regression.spec.ts) |  |
 | [web/tests/shell.spec.ts](web/tests/shell.spec.ts) |  |
 | [web/tests/status-logic.spec.ts](web/tests/status-logic.spec.ts) |  |
 | [web/tests/status.spec.ts](web/tests/status.spec.ts) |  |

@@ -49,7 +49,7 @@ for (const width of [1440, 390]) {
         );
       });
     });
-    await page.route("http://localhost:4174/**", async (route) => {
+    await page.route(`http://localhost:${Number(process.env.ERANOS_TEST_PORT ?? 4174)}/**`, async (route) => {
       const response = await route.fetch();
       await route.fulfill({
         response,

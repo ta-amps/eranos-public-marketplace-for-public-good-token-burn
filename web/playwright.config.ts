@@ -5,13 +5,16 @@ import { chromium, defineConfig, devices } from "@playwright/test";
 const useSystemChrome =
   !fs.existsSync(chromium.executablePath()) && fs.existsSync("/usr/bin/google-chrome");
 
+const snapshotPort = Number(process.env.ERANOS_TEST_PORT ?? 4174);
+const livePort = snapshotPort + 1;
+
 export default defineConfig({
   testDir: "tests",
   outputDir: "test-results",
   fullyParallel: true,
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:4174",
+    baseURL: `http://localhost:${snapshotPort}`,
     screenshot: "on",
     trace: "retain-on-failure",
   },
@@ -39,16 +42,16 @@ export default defineConfig({
   webServer: [
     {
       // The offline snapshot build: every page reads the nouns bundled with it and sends nothing.
-      command: "pnpm snapshot:build && pnpm preview --strictPort",
-      url: "http://localhost:4174",
-      reuseExistingServer: true,
+      command: `pnpm snapshot:build && pnpm exec vite preview --outDir dist-snapshot --port ${snapshotPort} --strictPort`,
+      url: `http://localhost:${snapshotPort}`,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
     {
       // The hosted build, for the request flow: tests answer its /api and Tessera calls themselves.
-      command: "pnpm build:live-test && pnpm preview:live-test",
-      url: "http://localhost:4175",
-      reuseExistingServer: true,
+      command: `pnpm build:live-test && pnpm exec vite preview --outDir dist-live --port ${livePort} --strictPort`,
+      url: `http://localhost:${livePort}`,
+      reuseExistingServer: false,
       timeout: 120_000,
     },
   ],

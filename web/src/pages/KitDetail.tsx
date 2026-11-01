@@ -11,12 +11,13 @@ import {
 } from "../lib/types";
 import { useResource } from "../lib/useResource";
 import { fill, type RequestStatusNoun } from "../lib/nouns";
-import { shortReceipt } from "../lib/status/receipts";
+import { shortReceipt } from "../lib/status/ids";
 import { useNoun } from "../lib/useNoun";
+import { Evidence } from "../components/status/StatusParts";
 import { AppLink } from "../router";
 
 export function KitDetail({ id }: { id: string }) {
-  const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}`);
+  const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}?view=page`);
   const words = useNoun<RequestStatusNoun>("request-status").value;
   const [practiceState, setPracticeState] = useState<
     | { status: "idle" }
@@ -87,16 +88,16 @@ export function KitDetail({ id }: { id: string }) {
           )}
         </div>
         <h1>{kit.title}</h1>
-        <p className="er-lede">{kit.summary}</p>
+        <p className="er-lede" data-source-text>{kit.summary}</p>
         {words && (
           <p className="er-reviewed-line" data-testid="kit-reviewed">
             <span>
               {fill(words.report.reviewed_line ?? "", { who: entry.reviewed_by })}
               {entry.review_receipt && (
-                <span className="er-receipt" title={entry.review_receipt}>
+                <>
                   {" "}
-                  · {fill(words.chips.receipt ?? "", { r: shortReceipt(entry.review_receipt) })}
-                </span>
+                  · <Evidence value={entry.review_receipt} words={words} href={`/api/catalog/${encodeURIComponent(kit.kit_id)}`} />
+                </>
               )}
             </span>
             <span className="er-small">{words.report.you_decide}</span>
@@ -168,10 +169,6 @@ export function KitDetail({ id }: { id: string }) {
               </div>
               <dl className="er-dl">
                 <div>
-                  <dt>Validation outcome SHA-256 (does not bind draft content)</dt>
-                  <dd>{practiceState.result.receipt_sha256}</dd>
-                </div>
-                <div>
                   <dt>Persisted to storage</dt>
                   <dd>{String(practiceState.result.persisted)}</dd>
                 </div>
@@ -193,7 +190,7 @@ export function KitDetail({ id }: { id: string }) {
         </div>
       </section>
 
-      <section className="er-section">
+      <section data-source-text className="er-section">
         <h2>Step map: what the agent prepares and what stays with a person</h2>
         <ul className="er-step-list">
           {kit.steps.map((step) => (
@@ -213,7 +210,7 @@ export function KitDetail({ id }: { id: string }) {
       {(skills.length > 0 || tools.length > 0 || kit.artifacts.length > 0) && (
         <div className="er-grid">
           {skills.map((sk) => (
-            <section key={sk.name} className="er-card">
+            <section data-source-text key={sk.name} className="er-card">
               <div className="er-chip-row">
                 <BoundaryBadge boundary={sk.boundary} />
                 <code>SKILL</code>
@@ -237,7 +234,7 @@ export function KitDetail({ id }: { id: string }) {
           ))}
 
           {tools.map((tl) => (
-            <section key={tl.name} className="er-card">
+            <section data-source-text key={tl.name} className="er-card">
               <div className="er-chip-row">
                 <span className="er-chip er-chip-assists">Read-only connection (MCP)</span>
                 <code>{tl.name}</code>
@@ -252,7 +249,7 @@ export function KitDetail({ id }: { id: string }) {
           ))}
 
           {kit.artifacts.map((art) => (
-            <section key={art.name} className="er-card">
+            <section data-source-text key={art.name} className="er-card">
               <div className="er-chip-row">
                 <BoundaryBadge boundary={art.boundary} />
                 <span className="er-chip er-chip-neutral">{art.artifact_format}</span>
@@ -266,7 +263,7 @@ export function KitDetail({ id }: { id: string }) {
       )}
 
       <div className="er-grid">
-        <section className="er-card">
+        <section data-source-text className="er-card">
           <h2>Checklist for staff</h2>
           <ul>
             {kit.checklist.map((item) => (
@@ -288,7 +285,7 @@ export function KitDetail({ id }: { id: string }) {
           </ul>
         </section>
 
-        <section className="er-card">
+        <section data-source-text className="er-card">
           <h2>Test cases ({verification.fixture_count})</h2>
           <p className="er-muted" data-testid="kit-tested-on">
             Tested with example files (no real case data).
@@ -310,35 +307,25 @@ export function KitDetail({ id }: { id: string }) {
       </div>
 
       <section className="er-section">
-        <h2>Review receipts: the builder is not the reviewer (drafter != reviewer)</h2>
+        <h2>Who made it and who checked it: the builder never checks its own work</h2>
         <dl className="er-dl">
           <div>
-            <dt>Drafted on eq02 by</dt>
+            <dt>Built by</dt>
+            <dd>{kit.drafted_by}</dd>
+          </div>
+          <div>
+            <dt>Checked by a different volunteer</dt>
+            <dd>{entry.reviewed_by}</dd>
+          </div>
+          <div>
+            <dt>Every step is recorded</dt>
             <dd>
-              {kit.drafted_by} ({kit.drafted_by_key})
+              <a href={`/api/catalog/${encodeURIComponent(kit.kit_id)}`}>Record ↗</a>
             </dd>
-          </div>
-          <div>
-            <dt>Independently reviewed on eq03 by</dt>
-            <dd>
-              {entry.reviewed_by} ({entry.reviewed_by_key})
-            </dd>
-          </div>
-          <div>
-            <dt>Content-addressed blob SHA-256</dt>
-            <dd>{entry.blob_sha256 ?? "--"}</dd>
-          </div>
-          <div>
-            <dt>eq02 draft receipt</dt>
-            <dd>{entry.draft_receipt ?? "--"}</dd>
-          </div>
-          <div>
-            <dt>eq03 review receipt</dt>
-            <dd>{entry.review_receipt ?? "--"}</dd>
           </div>
           <div>
             <dt>Reviewer notes</dt>
-            <dd>{entry.review_notes}</dd>
+            <dd data-source-text>{entry.review_notes}</dd>
           </div>
         </dl>
       </section>

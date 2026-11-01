@@ -105,7 +105,7 @@ test.describe("on the hosted build", () => {
     await page.waitForFunction(() => location.pathname.startsWith("/requests/rq-"));
     expect(await page.evaluate(() => (window as unknown as { transitions: number }).transitions)).toBe(1);
     // The box lands on the plain view's first stage, "Sent" (the diagram's request node in the technical view).
-    expect(await page.locator('[data-stage="sent"]').evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe("request");
+    expect(await page.locator('[data-step="0"]').evaluate((el) => getComputedStyle(el).viewTransitionName)).toBe("request");
     const duration = await page.evaluate(() => {
       const rule = [...document.styleSheets].flatMap((s) => [...s.cssRules]).find((r) => r.cssText.startsWith("::view-transition-group(request)"));
       return rule?.cssText ?? "";
@@ -159,7 +159,7 @@ test.describe("on the hosted build", () => {
     const history = [
       event(1, { type: "received", receipt: "a".repeat(64) }),
       event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
-      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "llama-3.3-70b", lease_ends: now + 600 }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark", lease_ends: now + 600 }),
     ];
     const seen = await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
     await page.goto(`/requests/${REQUEST_ID}?view=technical`);
@@ -177,7 +177,127 @@ test.describe("on the hosted build", () => {
     await expect(page.getByTestId("added-panel")).toHaveCount(0);
   });
 
-  test("B4: a published process package shows 'Download the process' with its SHA-256; an unreviewed one does not", async ({ page }) => {
+  test("v6: when one of Eranos's own workers picks a part up, the plain view says so", async ({ page }) => {
+    const now = Math.floor(Date.now() / 1000);
+    const event = (version: number, value: Record<string, unknown>) => ({
+      version,
+      created_at: now - 300 + version,
+      value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 300 + version, ...value } },
+    });
+    const history = [
+      event(1, { type: "received", receipt: "a".repeat(64) }),
+      event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "eranos-worker-1", dedicated: true, model: "muse-spark-1.3" }),
+    ];
+    await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(page.getByTestId("helper-1")).toContainText("A dedicated worker run by ta-amps");
+    await expect(page.getByTestId("helper-1")).toContainText("no volunteer was free");
+    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so a dedicated worker run by ta-amps started making it.");
+  });
+
+  for (const names of ["the live workers' names", "the page's own names"] as const) {
+    test(`live workers' facts, with ${names}: a reused answer, a library entry, a failed try and the next run`, async ({ page }) => {
+      const now = Math.floor(Date.now() / 1000);
+      const workers = names === "the live workers' names";
+      const event = (version: number, value: Record<string, unknown>) => ({
+        version,
+        created_at: now - 600 + version,
+        value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 600 + version, ...value } },
+      });
+      // Shapes as eranos-worker writes them (eranos/pipeline/planner.py reuse() and park, worker_loop.py facts).
+      const reusedFrom = { store: "eranos.solutions", key: "RPT-REUSED-01", version: 2, score: 0.93, kind: "report", review_receipt: "f".repeat(64), title: "Tenant deposit rules 2026" };
+      const history = [
+        event(1, { type: "received", receipt: "a".repeat(64) }),
+        event(2, {
+          type: "planned",
+          receipt: "b".repeat(64),
+          parts: [
+            { part: 1, route: "reused", text: "Summarize the deposit rules.", reused_from: reusedFrom },
+            { part: 2, route: "public-only", text: "List the new grant deadlines.", report_id: "RPT-NEW-02" },
+          ],
+        }),
+        event(3, {
+          type: workers ? "reused" : "delivered",
+          part: 1,
+          receipt: "c".repeat(64),
+          ref: "eranos.solutions/RPT-REUSED-01",
+          result_id: "RPT-REUSED-01",
+          reason: "Found an existing reviewed answer: no new work and no new tokens.",
+          summary: { reused: true, score: 0.93, new_verbs: 0, model_tokens: 0 },
+        }),
+        event(4, {
+          type: workers ? "added" : "library_added",
+          part: 1,
+          receipt: "c".repeat(64),
+          ref: "eranos.solutions/RPT-REUSED-01",
+          library_ref: "https://eranos.ta-amps.workers.dev/api/nouns/eranos.solutions/RPT-REUSED-01",
+          result_id: "RPT-REUSED-01",
+          summary: { nouns: ["eranos.solutions/RPT-REUSED-01@2"], tasks: [] },
+        }),
+        event(5, { type: "work_claimed", part: 2, receipt: "d".repeat(64), worker: "volunteer-7", model: "muse-code" }),
+        event(6, {
+          type: workers ? "work_failed" : "work_released",
+          part: 2,
+          receipt: "e".repeat(64),
+          reason: "self-test failed: two points had no source. Retrying from the brief.",
+          summary: { role: "builder", kind: "research", attempt: 1, max_attempts: 3 },
+        }),
+        event(7, {
+          type: workers ? "scheduled" : "queued",
+          ref: `${REQUEST_ID} park 1`,
+          reason: "Recurring: the next occurrence starts at 2026-11-08 14:00 UTC.",
+          summary: { next_at: now + 7 * 86400, occurrence: 2 },
+        }),
+      ];
+      await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the deposit rules. List the new grant deadlines." } });
+      await page.goto(`/requests/${REQUEST_ID}`);
+      // The reused answer is in "Ready for you", folded while another part is still being made: open it.
+      if ((await page.getByTestId("band-toggle-4").getAttribute("aria-expanded")) !== "true") await page.getByTestId("band-toggle-4").click();
+      const reused = page.getByTestId("reused-1");
+      await expect(reused).toContainText("Answered from the library with no new work.");
+      await expect(reused.getByRole("link")).toHaveAttribute("href", "/api/nouns/eranos.solutions/RPT-REUSED-01");
+      // The request is where its least advanced part is: part 2 failed a try and is back in line (owner v2, B2).
+      await expect(page.locator('.er-track li[data-step="5"]')).toHaveAttribute("data-state", "upcoming");
+      await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", "0");
+      await expect(page.getByTestId("failed-2")).toContainText("The last try failed: self-test failed: two points had no source.");
+      await expect(page.getByTestId("failed-2")).toContainText("(try 1 of 3)");
+      await expect(page.getByTestId("next-run")).toContainText("Next run:");
+      const happened = page.getByTestId("plain-happened");
+      await expect(happened).toContainText("The next run starts");
+      await expect(happened).toContainText("self-test failed: two points had no source");
+      await expect(happened).toContainText("It’s back in line.");
+      await expect(happened).not.toContainText("lease ended");
+      await page.getByRole("button", { name: /Show everything/ }).click();
+      await expect(happened).toContainText("Answered from the library with no new work.");
+    });
+  }
+
+  test("the track moves backwards on 'sent back', and only on recorded facts", async ({ page }) => {
+    const now = Math.floor(Date.now() / 1000);
+    const event = (version: number, value: Record<string, unknown>) => ({
+      version,
+      created_at: now - 300 + version,
+      value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 300 + version, ...value } },
+    });
+    const history = [
+      event(1, { type: "received", receipt: "a".repeat(64) }),
+      event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark" }),
+      event(4, { type: "work_submitted", part: 1, receipt: "d".repeat(64) }),
+      event(5, { type: "check_claimed", part: 1, receipt: "e".repeat(64), worker: "volunteer-9" }),
+      event(6, { type: "check_sent_back", part: 1, receipt: "f".repeat(64), findings: ["two points had no source"] }),
+    ];
+    await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    const token = page.getByTestId("track-token");
+    await expect(token).toHaveAttribute("data-pos", "2");
+    await expect(token).toHaveAttribute("data-back", "true");
+    const text = await page.locator("main").innerText();
+    expect(text).not.toMatch(/receipt|\b[0-9a-f]{12,}\b/i);
+  });
+
+  test("B4: a published process package shows 'Download the process', with no digest on the page; an unreviewed one does not", async ({ page }) => {
     const processExample = noun<{ solution: Record<string, unknown> }>("request-example-process");
     const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "private-files", text: "A process.", kit_id: "PRC-35DE86-01" }] };
     const sha = "a".repeat(64);
@@ -187,7 +307,8 @@ test.describe("on the hosted build", () => {
     await page.goto(`/requests/${REQUEST_ID}/result?part=1`);
     const line = page.getByTestId("download-process");
     await expect(line.getByRole("link", { name: "Download the process" })).toHaveAttribute("href", `/p/${REQUEST_ID}/download`);
-    await expect(line).toContainText(sha.slice(0, 12));
+    await expect(line).not.toContainText(sha.slice(0, 12));
+    await expect(line).toContainText("Every step is recorded.");
     await page.unroute(`${LIVE}/api/**`);
     await mockSite(page, { plan, solutions, catalog: { "PRC-35DE86-01": { ...published, reviewer_key_id: "kb_a" } } });
     await page.goto(`/requests/${REQUEST_ID}/result?part=1`);
@@ -280,18 +401,21 @@ test.describe("on the hosted build", () => {
 });
 
 test.describe("E04 and E05: the example request", () => {
-  test("Flow-Prototype step 3: the plain view is the default; technical details switch on and off", async ({ page }) => {
+  test("RequestStatusPage v6: a progress strip and four bands in plain words; technical details switch on and off", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/requests/example?moment=review");
     const plain = page.getByTestId("plain-status");
     await expect(plain).toBeVisible();
     await expect(page.getByTestId("status-diagram")).toHaveCount(0);
-    await expect(plain.locator("[data-stage]")).toHaveCount(6);
-    await expect(plain.locator('[data-stage="checked"]')).toHaveAttribute("data-state", "now");
-    await expect(plain.locator('[data-stage="sent"]')).toHaveAttribute("data-state", "done");
-    await expect(page.getByTestId("overall")).toHaveText(/Being checked|Waiting for a second volunteer/);
+    await expect(plain.locator("[data-step] .er-track-name")).toHaveText(["In line", "Picked up", "Made", "In line for a check", "Being checked", "Delivered"]);
+    await expect(plain.locator("[data-band]")).toHaveCount(4);
+    await expect(plain.locator('[data-band="1"]')).toContainText("Sorted and split");
+    await expect(plain.locator('[data-band="1"]')).toContainText("Automatic check: no emails or ID numbers found");
+    await expect(plain.locator('[data-band="3"]')).toHaveAttribute("data-state", "now");
+    await expect(plain.locator('[data-band="3"]')).toContainText("The rule: the helper who made it can never approve it.");
+    await expect(page.getByTestId("overall")).toHaveText(/Being checked|Made · waiting for a check/);
     const text = await plain.innerText();
-    expect(text).not.toMatch(/\b[0-9a-f]{12,}\b|receipt|R-[A-Z0-9]{4}|wren-|kestrel-|heron-/);
+    expect(text).not.toMatch(/\b[0-9a-f]{12,}\b|receipt|R-[A-Z0-9]{4}|wren-|kestrel-|heron-|\bnot yet\b|\bplanned\b/i);
     await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("second volunteer");
     await page.getByTestId("view-switch").click();
     await expect(page.getByTestId("status-diagram")).toBeVisible();
@@ -300,9 +424,19 @@ test.describe("E04 and E05: the example request", () => {
     await expect(page.getByTestId("plain-status")).toBeVisible();
     await expect(page).not.toHaveURL(/view=technical/);
     await page.goto("/requests/example?moment=your-turn");
-    await expect(page.getByTestId("overall")).toHaveText("Ready for your team to review");
+    await expect(page.getByTestId("overall")).toHaveText("Ready for your team");
+    await expect(plain.locator('[data-band="4"]')).toContainText("Does this work for your team?");
     await expect(page).toHaveTitle(/^Ready for you · Your request · Eranos$/);
   });
+
+  test("RequestStatusPage v6: a part nobody has picked up says when one of Eranos's own workers will, and says so when one did", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/requests/example?moment=planned");
+    const waiting = page.getByTestId("waiting-1");
+    await expect(waiting).toContainText("Waiting for a volunteer");
+    await expect(waiting).toContainText("a dedicated worker run by ta-amps will pick it up.");
+  });
+
 
 
   const MOMENTS: Record<string, Record<string, string>> = {

@@ -4,7 +4,7 @@ import { Icon } from "../components/Icon";
 import { SNAPSHOT } from "../config";
 import { briefWithInterests, fill, type HelpNoun, type HelpPageNoun } from "../lib/nouns";
 import type { RequestExampleNoun } from "../lib/status/example";
-import { shortReceipt } from "../lib/status/receipts";
+import { shortReceipt } from "../lib/status/ids";
 import type { FabricResponse } from "../lib/types";
 import { useNoun } from "../lib/useNoun";
 import { useResource } from "../lib/useResource";
@@ -180,6 +180,9 @@ export function Help() {
               </h2>
               {fabricLive && <span className="er-small">{tasks.live}</span>}
             </div>
+            <p className="er-small" data-testid="first-pick">
+              {tasks.first_pick}
+            </p>
             {!SNAPSHOT && open.state.status === "ready" && open.state.data.tasks.length > 0 ? (
               <ul className="er-open-tasks" data-testid="open-task-list">
                 {open.state.data.tasks.map((task) => (

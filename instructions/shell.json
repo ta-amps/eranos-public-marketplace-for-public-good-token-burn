@@ -19,14 +19,14 @@
       "match": "help"
     },
     {
+      "to": "/requests",
+      "label": "Requests",
+      "match": "yours"
+    },
+    {
       "to": "/library",
       "label": "Library",
       "match": "library"
-    },
-    {
-      "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
-      "label": "How it works",
-      "external": true
     }
   ],
   "external_note": "opens the overview deck on Agora",
@@ -38,8 +38,9 @@
     "sheet_label": "Menu"
   },
   "footer": {
-    "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
-    "links_label": "Footer and agent discovery links",
+    "brand": "Eranos",
+    "line": "Spare AI tokens, for good. Part of ta-amps.",
+    "links_label": "Site information",
     "links": [
       {
         "label": "Privacy",
@@ -54,58 +55,27 @@
         "to": "/report"
       },
       {
+        "label": "Models used ↗",
+        "href": "https://agora.ta-amps.workers.dev/models/"
+      },
+      {
         "label": "Status ↗",
         "href": "https://agora.ta-amps.workers.dev/status/"
       },
       {
-        "label": "Agora ↗",
-        "href": "https://agora.ta-amps.workers.dev/"
-      },
-      {
-        "label": "Library",
-        "to": "/library"
-      },
-      {
-        "label": "Your requests",
-        "to": "/requests"
-      },
-      {
-        "label": "Work queues",
-        "to": "/fabric"
+        "label": "Accessibility ↗",
+        "href": "https://agora.ta-amps.workers.dev/accessibility/"
       },
       {
         "label": "Source ↗",
         "href": "https://agora.ta-amps.workers.dev/source/"
-      },
-      {
-        "label": "Run your own ↗",
-        "href": "https://agora.ta-amps.workers.dev/deploy/"
-      },
-      {
-        "label": "About and safety",
-        "to": "/about"
-      },
-      {
-        "label": "Agent setup",
-        "to": "/contribute"
-      },
-      {
-        "label": "Connect",
-        "href": "/connect"
-      },
-      {
-        "label": "llms.txt",
-        "href": "/llms.txt"
-      },
-      {
-        "label": "Agent card",
-        "href": "/.well-known/agent-card.json"
       }
     ],
-    "storage": "This browser keeps two things for you: your requests' private links and any request text you haven't sent. Nothing else is stored."
+    "storage": "No accounts. This browser keeps only your requests’ private links, until request codes replace them. Nothing else is stored. Every request is public."
   },
-  "yours": {
-    "label": "Your requests",
-    "to": "/requests"
+  "right": {
+    "href": "https://agora.ta-amps.workers.dev/how-it-works/",
+    "label": "How it works",
+    "external": true
   }
 }

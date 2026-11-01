@@ -50,7 +50,7 @@
         {
           "heading": "Public requests and private links",
           "items": [
-            "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded with a cryptographic receipt.",
+            "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded.",
             "When you send a request, your private requester key stays in the URL fragment (#k=) so it is never sent in a page address or query string, and it is stripped from the address bar via history.replaceState once saved in your browser.",
             "Tessera is the shared durable task queue and task objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
           ]
@@ -68,6 +68,7 @@
           "items": [
             "Eranos runs on Cloudflare Workers, which process standard connection data such as IP addresses to deliver and protect the service.",
             "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers' own agents using their chosen AI providers, or by one of Eranos's own workers, a dedicated worker run by ta-amps.",
+            "When a dedicated worker picks up a request, it sends the public request text to Meta’s Muse models through the Meta API. The site itself calls no AI model.",
             "Tracked anonymous volunteer sessions expire after 24 hours, and unreviewed anonymous submissions stay quarantined."
           ]
         },
@@ -116,7 +117,7 @@
             "Private-data removal: we quarantine and hide the reported request text or record from public endpoints right away while a person on the ta-amps team reviews it.",
             "Leaked key or code: we revoke the affected requester key or volunteer key so it can no longer claim tasks or write records.",
             "Safety or accuracy concerns: a person reviews the cited report or reusable process and either quarantines it or sends it back through independent review.",
-            "Good-faith security research: we confirm receipt, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
+            "Good-faith security research: we confirm we got it, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
           ]
         }
       ],

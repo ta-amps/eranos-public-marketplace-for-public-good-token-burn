@@ -1,8 +1,9 @@
 """Live and offline donor-agent worker for Eranos (`eq01` -> `eq02` -> `eq03` -> `eranos.catalog`).
 
-Lets contributors donate unused AI tokens from OpenCode (`/mcp`), Ollama Cloud (`muse-spark-open`),
-or Meta's Model API (`muse-spark-1.3` / `muse-wonder-1.0`) to draft and independently review
-off-the-shelf NGO skills, read-only MCP tools, SOPs, and operational files.
+Lets contributors donate unused AI tokens from OpenCode (`/mcp`) or any OpenAI-compatible chat endpoint
+they configure, such as Meta's Model API with a Muse model, to draft and independently review
+off-the-shelf NGO skills, read-only MCP tools, SOPs, and operational files. A live run names its own
+endpoint and model; nothing calls a provider by default.
 
 Domain-neutral: reads track constraints (`required_human_only`, `domain`, `sources`) dynamically
 from `TrackPack` data without hardcoding any track or example kit id.
@@ -51,8 +52,9 @@ from eranos.schemas import (
 from eranos.tracks import get_track, load_tracks
 from eranos.verifier import verify_kit
 
-DEFAULT_DONOR_MODEL = "muse-spark-open"
-DEFAULT_CHAT_BASE = "https://ollama.com/v1"
+DEFAULT_DONOR_MODEL = "muse-spark-1.3"
+# No default endpoint: a live run names the OpenAI-compatible base URL it calls (--base-url or MODEL_BASE_URL).
+DEFAULT_CHAT_BASE = ""
 DRAFTER_QUEUES: tuple[str, ...] = ("eq01", "eq02")
 REVIEWER_QUEUES: tuple[str, ...] = ("eq03",)
 
@@ -128,14 +130,18 @@ def _call_chat_model(
     transport: httpx.BaseTransport | None = None,
 ) -> tuple[dict[str, Any], str, int | None, int | None]:
     check_donor_model(model)
+    base_url = base_url or os.environ.get("MODEL_BASE_URL", "")
+    if not base_url:
+        raise ValueError(
+            "a live model call needs its endpoint: pass --base-url or set MODEL_BASE_URL"
+        )
     host = urlparse(base_url).hostname
-    key_env = "OLLAMA_API_KEY" if host == "ollama.com" else "MODEL_API_KEY"
-    key = api_key or os.environ.get(key_env) or ""
+    key = api_key or os.environ.get("MODEL_API_KEY") or ""
     if urlparse(base_url).scheme != "https" and host not in {"127.0.0.1", "localhost"}:
         raise ValueError("model endpoint must use HTTPS")
     if not key:
         raise RuntimeError(
-            f"{key_env} is required for this provider; pass --dry-model for offline runs"
+            "MODEL_API_KEY is required for a live model call; omit --live for offline runs"
         )
     req_body = {
         "model": model,
@@ -502,7 +508,7 @@ def run_donor_demo(
         ensure_queues(store)
         k_admin, _ = store.issue_key("eranos-service", queues=["eq*"], scopes=["admin", "store"])
         k_drafter, rec_drafter = issue_drafter_key(store, "opencode-donor-01")
-        k_reviewer, rec_reviewer = issue_reviewer_key(store, "ollama-reviewer-02")
+        k_reviewer, rec_reviewer = issue_reviewer_key(store, "volunteer-reviewer-02")
 
         settings = ServiceSettings(
             db_path=db_path,
@@ -562,7 +568,7 @@ def run_donor_demo(
                 decision = synthesize_review_decision(
                     KitDraft.model_validate(draft_out["draft"]),
                     VerificationReport.model_validate(draft_out["verification"]),
-                    worker="ollama-reviewer-02",
+                    worker="volunteer-reviewer-02",
                     key_id=rec_reviewer.key_id,
                     dry_model=dry_model,
                     model=model,
@@ -571,7 +577,7 @@ def run_donor_demo(
                 rev_out = run_review_step(
                     c_reviewer,
                     decision,
-                    worker="ollama-reviewer-02",
+                    worker="volunteer-reviewer-02",
                     key_id=rec_reviewer.key_id,
                 )
                 assert rev_out is not None
@@ -580,7 +586,7 @@ def run_donor_demo(
                 assert published is not None
                 return {
                     "ok": True,
-                    "mode": "dry-model" if dry_model else "live-ollama",
+                    "mode": "dry-model" if dry_model else "live-model",
                     "model": model,
                     "kit_id": published.kit.kit_id,
                     "track_id": published.kit.track_id,

@@ -226,9 +226,7 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     await expect(page.locator("details.er-more-details")).not.toHaveAttribute("open", "");
   });
 
-  test("Advanced settings: 'Improve an earlier request' asks for the link and what should be better, and lists this browser's requests", async ({ page }) => {
-    const id = `rq-r_${"ab".repeat(16)}-${(Date.UTC(2026, 9, 12, 15) ).toString(36)}`;
-    await page.addInitScript((saved) => window.localStorage.setItem(`eranos.requester.${saved}`, `tsk_${"cd".repeat(32)}`), id);
+  test("Advanced settings: 'Improve an earlier request' asks for the link and what should be better, and offers recent public requests", async ({ page }) => {
     await page.goto("/nonprofits");
     const advanced = page.getByTestId("advanced-settings");
     await expect(page.getByTestId("advanced-count")).toHaveText("none chosen");
@@ -241,10 +239,22 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     const improve = page.getByTestId("improve-panel");
     await expect(improve.getByLabel("Link to the earlier request or result")).toBeVisible();
     await expect(improve.getByLabel("What should be better?")).toBeVisible();
-    await improve.getByRole("button", { name: /^R-/ }).click();
-    await expect(improve.getByLabel("Link to the earlier request or result")).toHaveValue(new RegExp(`/requests/${id}$`));
+    // Requests are public, so the recent ones come from their public records, never from this browser.
+    await expect(improve).toContainText("Or pick a recent public request:");
+    await expect(improve).toContainText("No public requests to pick from right now.");
     await advanced.getByRole("checkbox", { name: "Spreadsheets" }).check();
     await expect(page.getByTestId("advanced-count")).toHaveText("2 chosen");
+  });
+
+  test("a flagged request that isn't a reusable process offers to switch to one", async ({ page }) => {
+    await page.goto("/nonprofits");
+    await page.getByRole("checkbox", { name: /Information/ }).check();
+    await page.locator("#need").fill("Write to dana@clinic-mail.org about the forms.");
+    const banner = page.getByTestId("switch-to-process");
+    await expect(banner).toContainText("Need to work with private files? Ask for a reusable process instead.");
+    await banner.getByRole("button", { name: "Switch to a reusable process" }).click();
+    await expect(page.getByRole("checkbox", { name: /A reusable process/ })).toBeChecked();
+    await expect(page.getByTestId("switch-to-process")).toHaveCount(0);
   });
 
   test("the offline copy of the site says it does not send", async ({ page }) => {
@@ -267,6 +277,17 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
 
 test.describe("on the hosted build", () => {
   test.use({ baseURL: LIVE });
+
+  test("the live bundle carries none of the owner's forbidden words", async ({ page, request }) => {
+    await mockSite(page);
+    await page.goto("/");
+    const scripts = await page.$$eval("script[src]", (nodes) => nodes.map((n) => (n as HTMLScriptElement).src));
+    const html = await (await request.get("/")).text();
+    let text = html;
+    for (const src of scripts) text += await (await request.get(src)).text();
+    expect(scripts.length).toBeGreaterThan(0);
+    expect(text).not.toMatch(/synthetic|\bo?l{2}ama\b|kothar|kinema|shamash/i);
+  });
 
   test("B2: /help lists the live open tasks, and a task copies as a claim for your agent", async ({ page }) => {
     await stubClipboard(page);
@@ -350,7 +371,7 @@ test.describe("E09: I want to help", () => {
 
   test("without a volunteer key, what your tokens did is the empty state", async ({ page }) => {
     await page.goto("/help");
-    await expect(page.getByTestId("tokens-empty")).toContainText("After your agent finishes a task, its receipts show up here");
+    await expect(page.getByTestId("tokens-empty")).toContainText("After your agent finishes a task, what it did shows up here");
     await expect(page.getByTestId("your-agent")).toContainText("No agent connected in this browser.");
   });
 });
@@ -390,7 +411,7 @@ test.describe("wording and accessibility", () => {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const links = await page.$$eval('a[href*="/decks/"]', (as) => as.map((a) => a.textContent ?? ""));
-      expect(links.length, route).toBeGreaterThan(0);
+      // The header's "How it works ↗" now opens Agora's How it works page; any link that does open a deck says so.
       for (const label of links) expect(label, route).toMatch(/deck/i);
     }
   });
@@ -459,7 +480,7 @@ test.describe("wording and accessibility", () => {
     expect(errors).toEqual([]);
   });
 
-  test("/connect is a page of the site, with its layout, title and both themes", async ({ page }) => {
+  test("/connect is a page of the site, with its layout and title, light only", async ({ page }) => {
     await page.goto("/connect");
     await expect(page).toHaveTitle("Connect to Eranos");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(connectNoun.title);
@@ -471,8 +492,9 @@ test.describe("wording and accessibility", () => {
     const light = await colours();
     await page.emulateMedia({ colorScheme: "dark" });
     const dark = await colours();
-    expect(dark.background).not.toBe(light.background);
-    expect(dark.text).not.toBe(light.text);
+    // Light only (owner, Nov 1): the dark scheme changes nothing.
+    expect(dark.background).toBe(light.background);
+    expect(dark.text).toBe(light.text);
   });
 
   test("the footer says what the site loads and keeps, from the site noun, and links to trust and Agora pages", async ({ page }) => {
@@ -485,7 +507,17 @@ test.describe("wording and accessibility", () => {
     await expect(footer.getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
     await expect(footer.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "/report");
     await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/status/");
-    await expect(footer.getByRole("link", { name: "Agora ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/");
+    // SiteFooter (Nov 1, v2): the trust links, then Agora's Models used, Status, Accessibility and Source pages.
+    await expect(footer.getByRole("navigation", { name: "Site information" }).getByRole("link")).toHaveText([
+      "Privacy",
+      "Terms",
+      "Report a problem",
+      "Models used ↗",
+      "Status ↗",
+      "Accessibility ↗",
+      "Source ↗",
+    ]);
+    await expect(footer.getByRole("link", { name: "Models used ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/models/");
   });
 
   test("trust pages (/privacy, /terms, /report) and 404 render plain-language guidance without status stamps", async ({ page }) => {

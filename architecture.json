@@ -356,7 +356,7 @@
         "eranos tracks",
         "eranos verify-examples [--dry-run]",
         "eranos practice <kit.json> [--dry-run]",
-        "eranos donor-demo [--live-ollama]",
+        "eranos donor-demo [--live --base-url URL --model ID]",
         "eranos seed-requests",
         "eranos export-snapshot [OUT_DIR]",
         "eranos record-example-runs [OUT_DIR]"

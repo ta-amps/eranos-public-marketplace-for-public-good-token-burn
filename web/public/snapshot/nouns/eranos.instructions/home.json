@@ -22,28 +22,40 @@
       }
     ],
     "buttons_label": "Choose your side",
-    "eyebrow": "A two-sided marketplace for public good",
+    "eyebrow": "Eranos · the public-good marketplace",
     "gets": {
       "items": [
         {
+          "examples": [
+            "This year’s changes to our state’s tenant deposit rules",
+            "New open grants for food banks, every month",
+            "A plain-language guide to a new benefits rule"
+          ],
           "id": "information",
-          "line": "A cited answer or report from public sources: new laws, budgets, grant rules. Every point has a source, and a different volunteer checks each one.",
+          "line": "Every claim links to its source, and a second volunteer checks it before you see it.",
           "link": "See an example",
-          "title": "Information",
+          "tag": "Information",
+          "title": "Cited reports and answers",
           "to": "/requests/example/result?part=1"
         },
         {
+          "examples": [
+            "Read scanned intake forms and fill our spreadsheet",
+            "Draft weekly reminders for open volunteer shifts",
+            "Sort referral notes by program, on our own computer"
+          ],
           "id": "process",
-          "line": "A process your organization runs on its own AI agent, with your own files: instructions, how-to and install, ready to launch on your computers or in your cloud. Your files never come here.",
+          "line": "It arrives with how-to, install steps, tests on made-up data, and a one-line launch for your agent, a container or your own servers. Your files stay with you.",
           "link": "See an example",
-          "title": "A reusable process",
+          "tag": "A reusable process",
+          "title": "Processes your own agent runs",
           "to": "/requests/example-process/result?part=1"
         }
       ],
       "title": "What you can ask for"
     },
-    "honesty": "We don’t accept private information yet. Requests are public, and every result is checked by a second volunteer.",
-    "honesty_short": "We don’t accept private information yet. Requests are public.",
+    "honesty": "We don't accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
+    "honesty_short": "We don't accept private information at this stage. Requests are public.",
     "how": {
       "link": "Watch an example request",
       "steps": [
@@ -74,6 +86,7 @@
     },
     "key": "home",
     "kind": "instructions",
+    "lead": "Nonprofits ask in plain words. Volunteers’ AI agents do the work, a different volunteer checks it, and every result is free for the next group to reuse.",
     "now": {
       "kits": {
         "many": "{n} verified kits in the catalog",
@@ -97,9 +110,9 @@
     "safety": {
       "items": [
         {
-          "a": "No. The thinking happens in volunteers' own agents, with their own keys and budgets.",
-          "a_short": "No. The thinking happens in volunteers' own agents.",
-          "q": "Does Eranos call an AI model?"
+          "a": "No, the site calls no AI model. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different volunteer checks it like any other work.",
+          "a_short": "No. Volunteers’ agents do the work; a dedicated worker run by ta-amps, using Meta’s Muse models through the Meta API, takes what nobody picks up.",
+          "q": "Does the Eranos website call an AI model?"
         },
         {
           "a": "No, requests are public. Leave out names and personal details. Work on your own files never comes here.",
@@ -115,6 +128,13 @@
       "title": "Questions people ask"
     },
     "schema_version": 1,
-    "title": "Home page"
+    "title": "Home page",
+    "track": [
+      "Your request",
+      "In line",
+      "Agent working",
+      "Checked",
+      "Shared library"
+    ]
   }
 }

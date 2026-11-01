@@ -7,7 +7,7 @@ import type { Page, Route } from "@playwright/test";
  * browser, so nothing leaves the machine: /api serves the nouns exported with the build, and a fake Tessera
  * keeps requester keys, requests and records in memory, the way the real one answers them.
  */
-export const LIVE = "http://localhost:4175";
+export const LIVE = `http://localhost:${Number(process.env.ERANOS_TEST_PORT ?? 4174) + 1}`;
 export const TESSERA = "https://tessera.ta-amps.workers.dev";
 
 const SNAPSHOT = new URL("../../snapshot/", import.meta.url);
@@ -34,6 +34,8 @@ export interface SiteMocks {
   openTasks?: unknown[];
   /** Catalog records by key, as /api/catalog/<key> answers them. */
   catalog?: Record<string, unknown>;
+  /** The models.meta Task Object as /api/models answers it; null (the default) until Tessera holds it. */
+  models?: unknown;
 }
 
 export async function mockSite(page: Page, mocks: SiteMocks = {}): Promise<string[]> {
@@ -61,6 +63,7 @@ export async function mockSite(page: Page, mocks: SiteMocks = {}): Promise<strin
       const found = mocks.solutions?.[path.split("/").pop() ?? ""];
       return found ? json(200, { value: found }) : json(404, { detail: "no such noun" });
     }
+    if (path === "/api/models") return json(200, { store: "eranos.instructions", key: "models.meta", catalog: mocks.models ?? null });
     if (path === "/api/fabric") {
       if (mocks.fabricFails) return route.abort("failed");
       return json(200, mocks.fabric ?? { queues: ["eq01", "eq02", "eq03"].map((name) => ({ name, ready: 0, leased: 0, waiting: 0, done: 0, dead: 0, cancelled: 0 })) });

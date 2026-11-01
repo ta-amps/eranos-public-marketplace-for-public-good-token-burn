@@ -90,6 +90,7 @@ const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
 - /api/tracks: Public-good NGO and nonprofit build tracks
 - /api/examples: Example needs in organizations' own words, and the count of recorded example runs
 - /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
+- /api/models: The models ta-amps uses (the models.meta Task Object, read from Tessera; catalog is null until it is written there)
 - /mcp: Stateless JSON-RPC 2.0 MCP endpoint (list_tracks, search_catalog, get_kit, practice_verify_kit)
 - /privacy, /terms, /report, /.well-known/security.txt: Privacy, terms of use, problem reporting and RFC 9116 security contact
 - /.well-known/agent-card.json: Machine-readable agent capability card
@@ -368,6 +369,22 @@ function internalWords(value) {
     return out;
   }
   return value;
+}
+
+/** The site's words everywhere, for a page to show (never served as the record itself). */
+function pageWords(value) {
+  if (typeof value === "string") return visibleText(value);
+  if (Array.isArray(value)) return value.map(pageWords);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, item] of Object.entries(value)) out[key.toLowerCase() === "synthetic" ? "is_example" : key] = VERBATIM_KEYS.has(key) ? item : pageWords(item);
+    return out;
+  }
+  return value;
+}
+
+function forPage(request, data) {
+  return new URL(request.url).searchParams.get("view") === "page" ? pageWords(data) : data;
 }
 
 function jsonResp(data, status = 200) {
@@ -827,6 +844,9 @@ function openTaskView(verb, queue) {
 // Public Eranos nouns (page text, plans, requests, delivered reports, sources, verb templates):
 // Tessera's mirror first, live Coordinator fallback for dynamic request/plan/solution stores when the D1 mirror lags,
 // then the snapshot exported from Tessera with this deploy.
+// Worker-declared model catalog for the current surface.
+const MODELS_STORE = "eranos.instructions";
+const MODELS_KEY = "models.meta";
 const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
 const LIVE_COORDINATOR_STORES = new Set(["eranos.requests", "eranos.plans", "eranos.solutions"]);
 const NOUN_KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/;
@@ -899,7 +919,7 @@ async function loadNounList(request, env, store) {
     let res = { results: [] };
     try {
       res = await env.FABRIC_DB.prepare(
-      "SELECT h.key AS key, h.version AS version, r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') ORDER BY h.key LIMIT 100"
+      "SELECT h.key AS key, h.version AS version, r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') " + (store === "eranos.requests" ? "ORDER BY r.created_at DESC, h.key" : "ORDER BY h.key") + " LIMIT 100"
     ).bind(store).all();
     } catch {
       res = { results: [] };
@@ -1393,6 +1413,7 @@ function buildStaticAgentCard(request) {
       request: "/api/requests/{request_id}",
       request_history: "/api/nouns/eranos.requests/{request_id}/history",
       open_tasks: "/api/open-tasks",
+      models: "/api/models",
       process_markdown: "/p/{request_id}/agent.md",
       practice_cases: "/p/{request_id}/practice.md",
       process_download: "/p/{request_id or catalog_key}/download",
@@ -1859,11 +1880,11 @@ async function handleCloudApi(request, env, pathname) {
     const reqUrl = new URL(request.url);
     const rawKits = await loadRawCatalogList(request, env);
     const kits = filterCatalogKits(rawKits, reqUrl.searchParams);
-    return jsonResp({
+    return jsonResp(forPage(request, {
       synthetic: true,
       two_step_verified: true,
       kits,
-    });
+    }));
   }
 
   const kitMatch = /^\/api\/catalog\/([^/]+)$/.exec(pathname);
@@ -1876,7 +1897,17 @@ async function handleCloudApi(request, env, pathname) {
     if (!found) {
       return problem(404, "Not Found", `kit ${kitId} is not in the catalog`, "not_found");
     }
-    return jsonResp({ synthetic: true, ...found });
+    return jsonResp(forPage(request, { synthetic: true, ...found }));
+  }
+
+  // The one list of the models ta-amps uses (the models.meta Task Object). Pages take every model's display name
+  // from it, so a name never drifts from what runs. It is read from Tessera only, never from a copy in this deploy;
+  // until it is written there, the answer says so (catalog: null) and pages name no model.
+  if (pathname === "/api/models") {
+    return edgeCached(request, async () => {
+      const catalog = await getHeadRecord(env.FABRIC_DB, MODELS_STORE, MODELS_KEY);
+      return jsonResp({ synthetic: false, store: MODELS_STORE, key: MODELS_KEY, catalog: catalog && typeof catalog === "object" ? catalog : null });
+    });
   }
 
   if (pathname === "/api/fabric") {

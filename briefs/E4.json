@@ -13,7 +13,7 @@
     "eranos/pipeline/run.py"
   ],
   "constraints": [
-    "Include SYNTHETIC notice, human_only boundary table, and SHA-256 receipt in every exported bundle"
+    "Include SYNTHETIC notice, human_only boundary table, and a checksum record in every exported bundle"
   ],
   "done_when": "`uv run eranos export-bundle KIT-RECRUIT-01` writes SKILL.md, tool.json, and checklist.md tested in pytest"
 }

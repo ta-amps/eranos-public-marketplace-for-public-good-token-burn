@@ -4,9 +4,10 @@
   "key": "library",
   "version": 1,
   "value": {
+    "adapt": "Adapt it for my group",
     "audience": "nonprofits and volunteers looking for work that is already done",
     "back": "← Back to {short}",
-    "catalog_link": "Filter every reviewed kit",
+    "catalog_link": "Every reviewed kit, with filters",
     "check": {
       "lead": "These may already answer your request.",
       "read": "Read it now",
@@ -15,34 +16,75 @@
       "send_note": "Only if these don't answer it.",
       "title": "Already answered in the shared library"
     },
-    "count_many": "{n} results",
-    "count_one": "1 result",
-    "for": "For {who}",
-    "heading": "Shared library",
+    "count_all_many": "{n} solutions",
+    "count_all_one": "1 solution",
+    "count_filtered_none": "No solutions match these filters",
+    "count_many": "{n} solutions for “{q}”",
+    "count_none": "No solutions for “{q}”",
+    "count_one": "1 solution for “{q}”",
+    "empty_ask": "Ask for this →",
+    "empty_body": "Ask for it. A volunteer’s AI makes it, a different one checks it, and then it’s here for the next group too.",
+    "empty_title": "No solution for “{q}” yet",
+    "empty_title_filters": "No solution with these filters yet",
+    "example": "Example",
+    "filters": [
+      {
+        "id": "type",
+        "label": "Type",
+        "options": [
+          {
+            "id": "any",
+            "label": "Any"
+          },
+          {
+            "id": "process",
+            "label": "Processes"
+          },
+          {
+            "id": "answer",
+            "label": "Answers"
+          }
+        ]
+      },
+      {
+        "id": "runs",
+        "label": "Runs",
+        "options": [
+          {
+            "id": "any",
+            "label": "Anywhere"
+          },
+          {
+            "id": "local",
+            "label": "On your computer"
+          },
+          {
+            "id": "public",
+            "label": "Public answers"
+          }
+        ]
+      }
+    ],
+    "filters_label": "Filters",
+    "footnote": "Every solution was made by one volunteer’s AI and checked by a different one. Processes run on your own computer, so your files never leave you. Agents can search the same catalog through the Eranos API.",
+    "heading": "Find a solution",
     "hide_stored": "Hide how it’s stored",
     "key": "library",
     "kind": "instructions",
-    "kinds": {
-      "kit": "Agent kit",
-      "report": "Cited report",
-      "run": "Task"
-    },
-    "lead": "Finished work from nonprofits’ requests, checked by volunteers and free for any nonprofit to use.",
-    "next_body": "When another group asks something similar, the request box checks this library first, so work that is already done is reused instead of done again.",
-    "next_title": "Next time",
-    "none": "Nothing in the library matches yet.",
-    "objects_note": "Reusable things: cited reports and agent kits.",
-    "objects_title": "task objects",
-    "open": "Read it",
-    "reviewed_by": "Approved by {who}, a different volunteer",
-    "run_title": "Run with your own agent: {title}",
+    "lead": "Every finished request becomes a solution any nonprofit can use: a process your own AI runs on your computer, or an answer with its sources.",
+    "loading": "Loading solutions…",
+    "meta_checked": "checked by a second volunteer",
+    "meta_for": "For {who}",
+    "open": "Open it →",
+    "results_label": "Solutions",
     "schema_version": 1,
-    "search_label": "Search the library",
-    "search_placeholder": "For example: tenant deposit laws",
-    "show_stored": "Show how it’s stored (for volunteers and the curious)",
-    "stored_empty": "Nothing from {short} is in the shared library yet. Parts join it when your team chooses to use them.",
-    "stored_lead": "Tessera is the shared durable task queue and task objects store: every request is a few durable tasks (things to do) and task objects with their own ids. This is the list for {short}.",
-    "stored_objects": "task objects",
+    "search_button": "Search",
+    "search_label": "What do you need help with?",
+    "search_placeholder": "For example: clean up a volunteer sign-up sheet",
+    "show_stored": "Show how request {short} is stored (for volunteers and the curious)",
+    "stored_empty": "Parts of {short} join the shared library when your team chooses to use them.",
+    "stored_lead": "Tessera is the shared, durable queue of Tasks and store of Task Objects: every request is a few Tasks and Task Objects with their own ids. This is the list for {short}.",
+    "stored_objects": "Task Objects",
     "stored_rows": {
       "decisions": "Your team's decisions, in your own space",
       "kit": "Part {n}: the agent kit (a reusable process)",
@@ -54,16 +96,18 @@
       "review": "Part {n}: the check, by a different volunteer",
       "work": "Part {n}: the work, for one volunteer's agent"
     },
-    "stored_tasks": "tasks (things to do)",
+    "stored_tasks": "Tasks",
     "stored_title": "How request {short} is stored",
-    "tabs": {
-      "all": "All",
-      "objects": "task objects",
-      "tasks": "tasks (things to do)"
-    },
-    "tabs_label": "Show",
-    "tasks_note": "Work your own agent can run again, on your own files.",
-    "tasks_title": "tasks (things to do)",
-    "title": "Shared library"
+    "tag_answer": "An answer with sources",
+    "tag_process": "A process you run",
+    "title": "Find a solution",
+    "tries": [
+      "Volunteer sign-up sheet",
+      "Handwritten intake forms",
+      "Tenant deposit rules",
+      "New grants every month"
+    ],
+    "tries_label": "Try:",
+    "unavailable": "The library can’t be read right now. Try again in a minute."
   }
 }

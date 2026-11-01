@@ -43,7 +43,7 @@ for (const viewport of VIEWPORTS) {
       test(`${route}: agent banner above the header, tile mark, no stamp strip, no banned words, no third-party requests`, async ({ page }) => {
         const offOrigin: string[] = [];
         page.on("request", (request) => {
-          if (!request.url().startsWith("http://localhost:4174")) offOrigin.push(request.url());
+          if (!request.url().startsWith(`http://localhost:${Number(process.env.ERANOS_TEST_PORT ?? 4174)}`)) offOrigin.push(request.url());
         });
 
         await page.goto(route);
@@ -126,7 +126,9 @@ test("kit detail says a different volunteer reviewed it, with the real reviewer 
   await page.goto("/catalog/KIT-HOTLINE-02");
   const line = page.getByTestId("kit-reviewed");
   await expect(line).toContainText(`A different volunteer reviewed this: ${kit.reviewed_by}`);
-  await expect(line).toContainText(`receipt ${kit.review_receipt.slice(0, 4)}`);
+  // People-readable facts only: a "Record" link, never the receipt's hash.
+  await expect(line).toContainText("Record");
+  await expect(line).not.toContainText(kit.review_receipt.slice(0, 12));
   await expect(line).toContainText("You decide whether to use it.");
   await expect(page.getByTestId("kit-tested-on")).toHaveText("Tested with example files (no real case data).");
   // Each practice case carries its mark (AGENTS.md rule 1); no chip or tag.
@@ -144,7 +146,23 @@ test("missing kit renders an accessible role=alert banner, without a Retry that 
 
 // Owner, October 31: "DO NOT INCLUDE SYNTHETIC." No page, in either view, says it anywhere a visitor can read,
 // the agent banner included.
-test("no page says synthetic, in any case, anywhere a visitor can read", async ({ page }) => {
+// Owner's rules for Nov 1: no "synthetic", no older Meta model family names (Muse leads), no receipts or hashes,
+// Tasks and Task Objects (never nouns or verbs), claim · do · report (never "prove"), no retired names, never
+// "cloud" for a dedicated worker, no stamps.
+const FORBIDDEN = [
+  /synthetic/i,
+  /\bo?l{2}ama\b/i,
+  /\b[0-9a-f]{12,}\b/i,
+  /kothar|kinema|shamash/i,
+  /dedicated[^.]{0,60}\bcloud\b|\bcloud\b[^.]{0,60}dedicated/i,
+  // An agent app, not a model and not Meta's: it appears only on Agora's Models used page (owner v2, Nov 1).
+  /nano ?muse/i,
+];
+// The site's own vocabulary. A kit's own text, quoted from its record ([data-source-text], such as a grant kit's
+// expense receipts), is data and keeps its words; the rules above still apply to it.
+const VOCABULARY = [/receipt/i, /sha-?256/i, /\bnouns?\b/i, /\bverbs?\b/i, /\bprove/i, /\bnot yet\b|\bPLANNED\b|layout preview|coming soon|not ready yet|\bIdea\b/i];
+
+test("no page shows a forbidden word, a receipt or a hash, anywhere a visitor or a screen reader can read", async ({ page }) => {
   test.setTimeout(180_000);
   const kits = fs
     .readdirSync(new URL("../snapshot/catalog/", import.meta.url))
@@ -173,9 +191,70 @@ test("no page says synthetic, in any case, anywhere a visitor can read", async (
     await expect(page.locator("main h1").first()).toBeVisible();
     const text = await page.evaluate(() => {
       const banner = document.querySelector("ta-agent-banner")?.shadowRoot?.textContent ?? "";
-      return `${document.title}\n${banner}\n${document.body.innerText}`;
+      // API paths in code examples (/api/nouns/..., /v1/verbs) are addresses, not words. The agent brief is prose and
+      // is read like any other text (its API paths are code, in backticks).
+      const clone = document.body.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll("code, kbd, pre:not([data-testid='brief-text'])").forEach((node) => node.remove());
+      const brief = clone.querySelector("[data-testid='brief-text']");
+      if (brief) brief.textContent = (brief.textContent ?? "").replace(/`[^`]*`/g, "");
+      document.body.append(clone);
+      clone.style.position = "absolute";
+      const visible = clone.innerText;
+      clone.querySelectorAll("[data-source-text]").forEach((node) => node.remove());
+      const ours = clone.innerText;
+      clone.remove();
+      // Tooltips and labels are read too (hover, screen readers): no hash or receipt in a title or aria attribute.
+      const attributes = [...document.querySelectorAll("*")]
+        .flatMap((el) => [...el.attributes].filter((a) => a.name === "title" || a.name.startsWith("aria-")).map((a) => a.value))
+        .join("\n");
+      return { all: `${document.title}\n${banner}\n${visible}\n${attributes}`, ours: `${document.title}\n${banner}\n${ours}\n${attributes}` };
     });
-    if (/synthetic/i.test(text)) said.push(route);
+    // Every page, with no exemptions (owner, Nov 1).
+    for (const [rules, words] of [
+      [FORBIDDEN, text.all],
+      [VOCABULARY, text.ours],
+    ] as const) {
+      for (const rule of rules) {
+        const found = rule.exec(words);
+        if (found) said.push(`${route}: ${found[0]}`);
+      }
+    }
   }
   expect(said).toEqual([]);
+});
+
+test("light only: with the dark scheme emulated, every page stays on paper", async ({ browser }) => {
+  const context = await browser.newContext({ colorScheme: "dark" });
+  const page = await context.newPage();
+  for (const route of ["/", "/nonprofits", "/help", "/requests", "/requests/example", "/library"]) {
+    await page.goto(route);
+    await expect(page.locator("main")).toBeVisible();
+    const look = await page.evaluate(() => ({
+      body: getComputedStyle(document.body).backgroundColor,
+      scheme: getComputedStyle(document.documentElement).colorScheme,
+      meta: document.querySelector('meta[name="color-scheme"]')?.getAttribute("content"),
+      banner: getComputedStyle(document.querySelector("ta-agent-banner")!).backgroundColor,
+    }));
+    expect(look.body, route).toBe("rgb(245, 242, 234)");
+    expect(look.scheme, route).toBe("light");
+    expect(look.meta, route).toBe("light");
+    expect(look.banner, route).toBe("rgb(237, 232, 220)");
+  }
+  await context.close();
+});
+
+test("the calm request page: a sticky request track with one token, the bands' anchors and a polite live region", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/requests/example?moment=your-turn");
+  const track = page.getByRole("navigation", { name: "Where your request is" });
+  await expect(track).toBeVisible();
+  await expect(track.locator("li")).toHaveCount(6);
+  await expect(track.locator('[aria-current="step"]')).toHaveCount(1);
+  await expect(track.locator('[aria-current="step"]')).toContainText("Ready for you");
+  await expect(track.locator(".er-track-name")).toHaveText(["In line", "Picked up", "Made", "In line for a check", "Checked", "Ready for you"]);
+  await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", "5");
+  for (const id of ["step-split", "step-build", "step-review", "step-ready"]) await expect(page.locator(`#${id}`)).toHaveCount(1);
+  expect(await page.locator("#step-ready").evaluate((el) => getComputedStyle(el).scrollMarginTop)).toBe("160px");
+  expect(await track.evaluate((el) => getComputedStyle(el).position)).toBe("sticky");
+  await expect(page.getByTestId("track-live")).toHaveAttribute("aria-live", "polite");
 });

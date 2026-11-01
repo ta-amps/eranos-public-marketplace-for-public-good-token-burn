@@ -11,7 +11,7 @@
  */
 import { ApiError, getJson } from "../api";
 import type { NounResponse } from "../nouns";
-import { claimReceipt } from "./receipts";
+import { claimReceipt } from "./ids";
 import { getClaimEvents, getOwnRecord, getResults, getTask, type ClaimEvent, type ResultView, type TaskView } from "./tessera";
 import type { DecisionChoice, Frequency, OutputType, PartPlan, QueueSnapshot, StatusEvent, StatusRecord } from "./types";
 
@@ -142,6 +142,30 @@ export async function readKeyed(id: string, key: string, previous: KeyedData | n
     own: own?.value ?? null,
     decisions: decided ? { version: decided.version, value: decided.value } : null,
   };
+}
+
+/**
+ * The live workers' other names for facts the page already knows (both are accepted): `added` is `library_added`;
+ * `reused` is a part delivered or published from the library with no new work; `scheduled` is a recurring
+ * request's next run (`queued` with `summary.next_at`); `work_failed` is a failed try that went back in line
+ * (`work_released` with its reason).
+ */
+export function canonicalEvent(event: StatusEvent): StatusEvent {
+  const raw = event as Omit<StatusEvent, "type"> & { type: string; next_at?: number };
+  switch (raw.type as string) {
+    case "added":
+      return { ...event, type: "library_added" };
+    case "reused": {
+      const kit = /^(KIT|PRC)-/.test(event.result_id ?? "");
+      return { ...event, type: kit ? "published" : "delivered", summary: { ...event.summary, reused: true } };
+    }
+    case "scheduled":
+      return { ...event, type: "queued", summary: { ...event.summary, next_at: event.summary?.next_at ?? raw.next_at } };
+    case "work_failed":
+      return { ...event, type: "work_released", reason: event.reason || "the try failed" };
+    default:
+      return event;
+  }
 }
 
 interface HistoryVersion {
@@ -292,10 +316,10 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
     const own = events.filter((e) => e.type === "received" || e.type === "plan_claimed" || e.type === "decided");
     events.length = 0;
     const historyVersions = new Set(written.map((v) => v.version));
-    const fromHistory = written.map((v) => ({ ...(v.value.event as StatusEvent), record: `${base}#v${v.version}` }));
+    const fromHistory = written.map((v) => ({ ...canonicalEvent(v.value.event as StatusEvent), record: `${base}#v${v.version}` }));
     const preHistory = recordedEvents
       .filter((e) => e.version === undefined || !historyVersions.has(e.version))
-      .map((e) => ({ ...e, record: e.record ?? reqRecord }));
+      .map((e) => ({ ...canonicalEvent(e), record: e.record ?? reqRecord }));
     const combined = [...preHistory, ...fromHistory];
     if (!combined.some((e) => e.type === "received")) events.push(...own.filter((e) => e.type === "received"));
     events.push(...combined);

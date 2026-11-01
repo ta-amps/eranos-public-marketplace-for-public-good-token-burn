@@ -5,11 +5,12 @@ import { Evidence, StateNotice } from "../components/status/StatusParts";
 import { SNAPSHOT } from "../config";
 import { ApiError, getJson } from "../lib/api";
 import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
+import { modelName, useModels } from "../lib/models";
 import { fill, type NounResponse, type RequestStatusNoun } from "../lib/nouns";
 import type { ExampleSolution, Report, RequestExampleNoun } from "../lib/status/example";
 import { requesterKeyFor, dropKeyFromAddress } from "../lib/status/keys";
 import { DECISIONS_STORE, type DecisionsValue } from "../lib/status/live";
-import { shortReceipt, shortRequestId } from "../lib/status/receipts";
+import { shortReceipt, shortRequestId } from "../lib/status/ids";
 import { rememberKey } from "../lib/status/keys";
 import { enqueueRequest, getOwnRecord, putOwnRecord } from "../lib/status/tessera";
 import type { DecisionChoice, PartPlan } from "../lib/status/types";
@@ -382,6 +383,8 @@ function DecisionPanel({
 /** `/requests/<id>/result?part=N`: a part's cited report or reusable process, and your decision on it. */
 export function RequestResult({ id }: { id: string }) {
   const words = useNoun<RequestStatusNoun>("request-status").value;
+  // Model names come from the models.meta Task Object (lib/models.ts), never from typed text.
+  const catalog = useModels();
   const search = useSearch();
   const partNumber = Math.max(1, Number(new URLSearchParams(search).get("part")) || 1);
   const [key] = useState(() => (EXAMPLES[id] ? "example" : requesterKeyFor(id, window.location.hash)));
@@ -481,11 +484,26 @@ export function RequestResult({ id }: { id: string }) {
     }
   }
 
+  const namedModel = (helper: { who?: string; model?: string } | undefined) =>
+    words.model_names
+      ? (modelName(catalog, helper?.model, words.model_names, /^eranos[-_.\s]/i.test(helper?.who ?? "")) ?? words.model_names.own)
+      : "";
+  // The record that holds this result: the example's own noun, or the delivered report in the public store.
+  const recordHref = loaded?.example
+    ? `/api/nouns/eranos.instructions/${processPart ? "request-example-process" : "request-example"}`
+    : report
+      ? `/api/nouns/eranos.solutions/${encodeURIComponent(report.report_id)}`
+      : undefined;
   const receipts = [solution?.research_receipt ?? solution?.build_receipt, solution?.review_receipt].filter((x): x is string => Boolean(x));
   const named = view.builder?.who && view.checker?.who;
   const meta = [
     named
-      ? fill(r.meta_named ?? "", { builder: view.builder?.who ?? "", builder_model: view.builder?.model ?? "", checker: view.checker?.who ?? "", checker_model: view.checker?.model ?? "" })
+      ? fill(r.meta_named ?? "", {
+          builder: view.builder?.who ?? "",
+          builder_model: namedModel(view.builder),
+          checker: view.checker?.who ?? "",
+          checker_model: namedModel(view.checker),
+        })
       : processPart
         ? words.result.meta_anon
         : r.meta_anon,
@@ -576,7 +594,7 @@ export function RequestResult({ id }: { id: string }) {
                   <a href={`/p/${encodeURIComponent(id)}/download${partNumber > 1 ? `?part=${partNumber}` : ""}`} className="er-btn-secondary er-btn-small" download>
                     {words.steps.download}
                   </a>
-                  <span className="er-small">{fill(words.steps.download_note, { sha: packageSha.slice(0, 12) })}</span>
+                  <span className="er-small">{words.steps.download_note}</span>
                 </p>
               )}
               <ul className="er-plain-list">
@@ -636,8 +654,17 @@ export function RequestResult({ id }: { id: string }) {
           <details className="er-details er-checked-how">
             <summary>{words.steps.checked_how}</summary>
             <p className="er-reviewed-line" data-testid="reviewed-badge">
-              {view.checker?.who ? fill(r.reviewed_line ?? "", { who: view.checker.who }) : r.approved_badge}
-              {solution?.review_receipt && <span className="er-receipt"> · {fill(words.chips.receipt ?? "", { r: shortReceipt(solution.review_receipt) })}</span>}
+              {view.checker?.who
+                ? /^eranos[-_.\s]/i.test(view.checker.who) && r.reviewed_line_eranos
+                  ? r.reviewed_line_eranos
+                  : fill(r.reviewed_line ?? "", { who: view.checker.who })
+                : r.approved_badge}
+              {solution?.review_receipt && (
+                <>
+                  {" "}
+                  · <Evidence value={solution.review_receipt} words={words} href={recordHref} />
+                </>
+              )}
             </p>
             <p className="er-result-meta">{meta.join(" · ")}</p>
           </details>
@@ -692,9 +719,7 @@ export function RequestResult({ id }: { id: string }) {
             >
               {r.download_json}
             </button>
-            {receipts.map((receipt) => (
-              <Evidence key={receipt} value={receipt} words={words} />
-            ))}
+            {receipts.length > 0 && <Evidence value={receipts[0]} words={words} href={recordHref} />}
           </section>
         )}
       </aside>

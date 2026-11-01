@@ -42,3 +42,5 @@ web/playwright-report/
 # Local Cloudflare secrets and Wrangler state
 .dev.vars
 .wrangler/
+
+web/dist-snapshot/

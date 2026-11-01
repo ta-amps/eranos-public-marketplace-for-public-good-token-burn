@@ -103,3 +103,18 @@ Never break these. If a task seems to need it, stop and ask Taylor.
     (which also holds the former Shamash pack).
 11. Never launch an agent with its sandbox or approvals bypassed (`--yolo`, `--disable-sandbox`,
     `--dangerously-skip-permissions`).
+
+## Surface release invariant (owner, November 1, 2026)
+
+Keep the approved light-only interface and four-step request accordion. Never
+release from a branch missing the ancestry required by
+`deploy/cloudflare/surface-release-policy.json`; preserve newer backend fixes.
+Run browser checks on isolated ports with existing-server reuse disabled, under
+both light and dark OS preferences. After tests, commit reviewed source and run
+`scripts/check_surface_release.py --prepare --expected-live-version <observed>`.
+Wrangler's build hook verifies the resulting exact production asset manifest.
+Immediately before deployment, compare the current Cloudflare version with that
+observed baseline; stop on a mismatch. After deployment, read back the manifest
+and compiled asset hashes. Do not deploy a snapshot test build or an older
+checkout. This local guard does not restrict other credential holders; keep the
+shared deployment handoff current.

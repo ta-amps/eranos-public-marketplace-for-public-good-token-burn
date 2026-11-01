@@ -43,7 +43,7 @@
   "rules": [
     "No private information, ever",
     "The agent that builds something can’t approve it",
-    "Every step gets a public receipt"
+    "Every step is recorded"
   ],
   "fallback": "Read eranos.ta-amps.workers.dev/llms.txt"
 }

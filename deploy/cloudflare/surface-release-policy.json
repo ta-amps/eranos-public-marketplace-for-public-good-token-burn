@@ -1,0 +1,15 @@
+{
+  "schema": "eranos.surface-release-policy.v1",
+  "required_ancestors": [
+    "9ed6de94a8f6147c7f86633f861f05b64d6b70e7",
+    "c059a7f09882d4be412237632e3bac360ec7a973"
+  ],
+  "rules": [
+    "Keep the reviewed light-only surface and four-step request accordion.",
+    "Preserve the later track readiness, refusal details and read-after-write fixes.",
+    "Run isolated browser checks under both OS color preferences before a fresh production build.",
+    "The release operator must re-read Cloudflare and require expected_live_version unchanged immediately before deploy.",
+    "Read back the deployed surface-release.json and every compiled asset hash after deployment.",
+    "This local gate cannot prevent another checkout or credential holder from bypassing the release process."
+  ]
+}
