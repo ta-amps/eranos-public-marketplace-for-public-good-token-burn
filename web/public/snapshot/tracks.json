@@ -37,7 +37,13 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "accessible_multilingual_check",
+      "catalog_kit_ids": [
+        "KIT-FLYER-14"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "coerced-work-hotline-routing",
@@ -81,7 +87,13 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": true,
+      "process_class": "hotline_directory_routing",
+      "catalog_kit_ids": [
+        "KIT-HOTLINE-02"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "donor-stewardship-and-privacy",
@@ -119,7 +131,13 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "tabular_cleaning",
+      "catalog_kit_ids": [
+        "KIT-THANKS-13"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "food-and-essentials-distribution",
@@ -157,7 +175,13 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "food_essentials_logistics",
+      "catalog_kit_ids": [
+        "KIT-PANTRY-12"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "grant-and-compliance-ops",
@@ -194,7 +218,13 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "grant_compliance_tracking",
+      "catalog_kit_ids": [
+        "KIT-GRANT-04"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "housing-and-charity-verification",
@@ -236,7 +266,13 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": true,
+      "process_class": "housing_charity_verification",
+      "catalog_kit_ids": [
+        "KIT-HOUSING-15"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "intake-and-referral-triage",
@@ -273,7 +309,13 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "intake_referral_triage",
+      "catalog_kit_ids": [
+        "KIT-INTAKE-03"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "job-recruitment-triage",
@@ -316,7 +358,13 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": true,
+      "process_class": "job_offer_triage",
+      "catalog_kit_ids": [
+        "KIT-RECRUIT-01"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "policy-and-public-rules",
@@ -355,7 +403,13 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "policy_public_rules_digest",
+      "catalog_kit_ids": [
+        "KIT-POLICY-09"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "program-impact-reporting",
@@ -394,7 +448,14 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "impact_reporting",
+      "catalog_kit_ids": [
+        "KIT-IMPACT-06",
+        "KIT-RENEWAL-10"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "statement-transcription",
@@ -433,7 +494,13 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": true,
+      "process_class": "statement_log_indexing",
+      "catalog_kit_ids": [
+        "KIT-TRANSCR-07"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "victim-support-referrals",
@@ -473,7 +540,13 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": true,
+      "process_class": "victim_support_referral_check",
+      "catalog_kit_ids": [
+        "KIT-SUPPORT-08"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     },
     {
       "id": "volunteer-shift-and-sop-builder",
@@ -510,7 +583,14 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": false
+      "needs_steward_signoff": false,
+      "process_class": "volunteer_shift_coordination",
+      "catalog_kit_ids": [
+        "KIT-RELIEF-11",
+        "KIT-SHIFT-05"
+      ],
+      "kit_ready": true,
+      "process_ready": true
     }
   ]
 }

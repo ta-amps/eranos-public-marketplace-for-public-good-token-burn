@@ -277,14 +277,14 @@
   "reviewed_by_key": "key_reviewer_08",
   "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
   "steward_signoff": "victim-services-steward",
-  "draft_receipt": "5de72e60a03d13b0042129d2e54e59d5b078a48c5615f8e1570824154581b39d",
-  "review_receipt": "006309f73dc7ce34c56dfb17a634542317d57df59b630188332f355a1635d75c",
+  "draft_receipt": "5560856f5f198318c949b006931ec88836e83a404b34a6b7f16948037e289577",
+  "review_receipt": "00c6c26a0a2d5aa806c1619db807ef201c0034a027eea74ed5c6967fae2c3442",
   "blob_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
   "catalog_version": 1,
-  "review_task_id": "er_d3b362ed5390:KIT-SUPPORT-08:review",
-  "draft_task_id": "er_d3b362ed5390:KIT-SUPPORT-08:draft",
+  "review_task_id": "er_ef79cfd0fc05:KIT-SUPPORT-08:review",
+  "draft_task_id": "er_ef79cfd0fc05:KIT-SUPPORT-08:draft",
   "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
   "drafter_key_id": "key_drafter_08",
   "reviewer_key_id": "key_reviewer_08",
-  "publication_sha256": "d0ea750aff92c6f337b5ad5898e3d676aeee650e6928d962d8af9955a833d563"
+  "publication_sha256": "1eeb86060833ecd4180bc11ac965084459d42657f27026cd618936f527b5dd41"
 }

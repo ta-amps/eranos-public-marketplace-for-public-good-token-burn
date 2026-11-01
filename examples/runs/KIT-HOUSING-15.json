@@ -1,0 +1,82 @@
+{
+  "schema": "eranos.example-run.v1",
+  "synthetic": true,
+  "kit_id": "KIT-HOUSING-15",
+  "title": "Rental Deposit & Disaster-Relief Charity Registry Check Kit",
+  "example": {
+    "path": "examples/kits/15-housing-and-charity-verification.json",
+    "sha256": "9754c7cf21376df4c7f7b48deead573bda1a2982f1d3402682e245820fc59ed5"
+  },
+  "inputs_sha256": "fe84b44786e59cb484edee6ede59cf21108a5d2480d5ec591b9e6536a29c8fff",
+  "seed_pack": null,
+  "verbs": [
+    {
+      "verb": "check",
+      "queue": "eq01",
+      "task_id": "er_7b3048560298:KIT-HOUSING-15:spec",
+      "worker": "spec-gate-15",
+      "key_id": "key_spec_15",
+      "ok": true,
+      "receipt_sha256": "0742dd4985f857dae91e2af5a9944cb05e610002512e1a7fe3f7eabab7a88206",
+      "state_after": "done",
+      "submitted_at": "1793556669.3661878"
+    },
+    {
+      "verb": "build",
+      "queue": "eq02",
+      "task_id": "er_7b3048560298:KIT-HOUSING-15:draft",
+      "worker": "volunteer-drafter-15",
+      "key_id": "key_drafter_15",
+      "ok": true,
+      "receipt_sha256": "08ab252fb0f7fb2cf4618c92b8ba4498883c4b806b1ef58a71c623490eaf884b",
+      "state_after": "done",
+      "submitted_at": "1793556669.3713846",
+      "draft_sha256": "aca3bc6a4ff0c9aadc6010213ffe96c4d4b50f714a0f6bbae9cd3ffef55db775",
+      "verification": {
+        "passed": true,
+        "checks_run": 8,
+        "fixtures": 2,
+        "human_only_steps": [
+          "staff_case_assessment",
+          "external_regulator_or_counsel_send"
+        ]
+      }
+    },
+    {
+      "verb": "review",
+      "queue": "eq03",
+      "task_id": "er_7b3048560298:KIT-HOUSING-15:review",
+      "worker": "volunteer-reviewer-15",
+      "key_id": "key_reviewer_15",
+      "ok": true,
+      "receipt_sha256": "f4dfbda39d9513e2b45265f18dc9e549ae78825b65ba08c8b22b13c46462f332",
+      "state_after": "done",
+      "submitted_at": "1793556669.3963115",
+      "parked_for_steward": true,
+      "steward_signoff": "housing-clinic-steward",
+      "publication_sha256": "bd59e74e86644ff0ec4db85d3e1cdb47dbc6f0b5b8eca9b519706524ec3e3e93"
+    }
+  ],
+  "outcome": "published",
+  "catalog_version": 1,
+  "where": "a desktop computer",
+  "data": "synthetic",
+  "summary_label": "example runs on a desktop computer, synthetic data",
+  "machine": {
+    "class": "desktop",
+    "os": "Linux",
+    "python": "3.12.13"
+  },
+  "source": {
+    "repository": "eranos-public-marketplace-for-public-good-token-burn",
+    "commit": "7c22355872eedfabface0850d5670565dee91962",
+    "tree_clean": true,
+    "seed_pack_library": {
+      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "tree_clean": true
+    }
+  },
+  "store": "local Tessera store in a temporary folder, discarded after the run",
+  "model_calls": 0,
+  "recorded_at": "2026-11-01T18:11:09Z"
+}

@@ -151,6 +151,7 @@
       "blocked": "Not taken: {reason}",
       "check_claimed": "Part {n} claimed for checking by {who}, a different volunteer.",
       "closed": "All parts finished. The request is closed.",
+      "closed_unfinished": "Closed before any part was approved.",
       "count_many": "What happened ({n} records)",
       "count_one": "What happened (1 record)",
       "decided_changes": "Your team asked for changes to part {n}.",
@@ -166,6 +167,7 @@
       "plan_claimed": "Claimed by {who} to plan it.",
       "plan_claimed_anon": "A volunteer's agent claimed it to plan it.",
       "plan_released": "{who} let the request go when its lease ended. It's back in line.",
+      "plan_released_reason": "{who} released the request: {reason}. It's back in line.",
       "planned": "Split into {n} parts by {who}.",
       "planned_anon": "Split into {n} parts.",
       "planned_one": "Kept as 1 part by {who}.",
@@ -176,6 +178,7 @@
       "received": "Request received.",
       "record_note": "Lines without a time come from public records, which don't carry their write time yet.",
       "released": "{who} let part {n} go when its lease ended. It's back in line.",
+      "released_reason": "{who} released part {n}: {reason}. It's back in line.",
       "sent_back": "Part {n} sent back: {reason}",
       "signed_off": "A person signed off part {n}.",
       "signoff_required": "Part {n} waits for a person's sign-off.",
@@ -260,6 +263,10 @@
         "body": "It's back in line. Another agent can claim it.",
         "head": "{who} let this part go when its lease ended."
       },
+      "released_reason": {
+        "body": "It's back in line so another agent can claim it.",
+        "head": "{who} couldn't finish this part: {reason}"
+      },
       "sent_back": {
         "action": "See the notes",
         "body": "An agent will fix it, and a different volunteer checks it again.",
@@ -288,6 +295,7 @@
       "planning": "A volunteer's agent is reading it",
       "progress": "In progress",
       "read_only": "Public request",
+      "unfinished": "Closed without a result",
       "used_progress": "Part {n} used · the rest in progress",
       "waiting": "Waiting for a volunteer's agent",
       "withdrawn": "Withdrawn",
@@ -307,6 +315,7 @@
         "not_used": "Not used",
         "planning": "Being planned",
         "ready": "Ready for your team to review",
+        "unfinished": "Closed without a finished result",
         "waiting_check": "Waiting for a second volunteer",
         "waiting_volunteer": "Waiting for a volunteer",
         "withdrawn": "Withdrawn"
@@ -323,6 +332,7 @@
         "check_claimed_changes": "A second volunteer’s AI started checking them.",
         "check_sent_back": "The second volunteer asked for fixes. It went back in line.",
         "closed": "This request is closed.",
+        "closed_unfinished": "This request closed before a checked result was ready.",
         "decided_changes": "You asked for changes. It went back in line.",
         "decided_dont": "Your team decided not to use it.",
         "decided_use": "Your team decided to use it.",
@@ -339,6 +349,7 @@
         "work_claimed": "A volunteer’s AI started making it.",
         "work_claimed_changes": "A volunteer’s AI started making your changes.",
         "work_released": "The volunteer stopped before finishing. It’s back in line.",
+        "work_released_reason": "The volunteer couldn’t finish it ({reason}). It’s back in line.",
         "work_submitted": "It’s made. Waiting for a second volunteer to check it.",
         "work_submitted_changes": "Your changes are made."
       },
@@ -395,6 +406,7 @@
           "done": "Made ✓",
           "making": "A volunteer’s AI is making it",
           "planning": "A volunteer’s AI is planning it",
+          "stopped": "Stopped before a checked result was made",
           "title": "Being made",
           "upcoming": "Waits for a volunteer"
         },
@@ -573,6 +585,7 @@
     "summary": {
       "blocked": "We couldn't take this request.",
       "closed": "Your request is closed.",
+      "closed_unfinished": "Your request closed without a finished result.",
       "decided": "Part {n} decided.",
       "part_approved": "Part {n} approved.",
       "part_checking": "Part {n} is being checked.",

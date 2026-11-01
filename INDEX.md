@@ -125,7 +125,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/verifier.py](eranos/verifier.py) | Deterministic verifier for volunteer-submitted kits: checks track fit, human-only lines, synthetic fixtures,… |
 | [eranos/visible.py](eranos/visible.py) | The words visitors and agents see: never "synthetic". |
 
-## examples/ (36)
+## examples/ (38)
 
 | File | What it is |
 |---|---|
@@ -143,6 +143,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/kits/12-food-bank-pickup-scheduling.json](examples/kits/12-food-bank-pickup-scheduling.json) | JSON object: seed_pack, request, review |
 | [examples/kits/13-donor-thank-you-letters.json](examples/kits/13-donor-thank-you-letters.json) | JSON object: seed_pack, request, review |
 | [examples/kits/14-multilingual-flyer-translation-check.json](examples/kits/14-multilingual-flyer-translation-check.json) | JSON object: seed_pack, request, review |
+| [examples/kits/15-housing-and-charity-verification.json](examples/kits/15-housing-and-charity-verification.json) | JSON object: request, draft, review, steward_signoff |
 | [examples/kits/README.md](examples/kits/README.md) | Synthetic Example Kit Bundles |
 | [examples/requests/README.md](examples/requests/README.md) | Synthetic nonprofit requests |
 | [examples/requests/hotline-routing.md](examples/requests/hotline-routing.md) | Organization type |
@@ -152,6 +153,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/KIT-FLYER-14.json](examples/runs/KIT-FLYER-14.json) | Multilingual Service Flyer Translation Check Kit |
 | [examples/runs/KIT-GRANT-04.json](examples/runs/KIT-GRANT-04.json) | Small-Nonprofit Restricted Grant & Audit Readiness Kit |
 | [examples/runs/KIT-HOTLINE-02.json](examples/runs/KIT-HOTLINE-02.json) | Coerced Overseas Offer Helpline Directory & Safe Triage Kit |
+| [examples/runs/KIT-HOUSING-15.json](examples/runs/KIT-HOUSING-15.json) | Rental Deposit & Disaster-Relief Charity Registry Check Kit |
 | [examples/runs/KIT-IMPACT-06.json](examples/runs/KIT-IMPACT-06.json) | Monthly Program Impact Report Kit |
 | [examples/runs/KIT-INTAKE-03.json](examples/runs/KIT-INTAKE-03.json) | Community Services Warm-Referral & HSDS Triage Kit |
 | [examples/runs/KIT-PANTRY-12.json](examples/runs/KIT-PANTRY-12.json) | Food Bank Inventory and Pickup Scheduling Kit |
@@ -235,7 +237,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (169)
+## web/ (171)
 
 | File | What it is |
 |---|---|
@@ -253,6 +255,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/catalog/KIT-FLYER-14.json](web/public/snapshot/catalog/KIT-FLYER-14.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-GRANT-04.json](web/public/snapshot/catalog/KIT-GRANT-04.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-HOTLINE-02.json](web/public/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/public/snapshot/catalog/KIT-HOUSING-15.json](web/public/snapshot/catalog/KIT-HOUSING-15.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-IMPACT-06.json](web/public/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-INTAKE-03.json](web/public/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/public/snapshot/catalog/KIT-PANTRY-12.json](web/public/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
@@ -297,6 +300,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/catalog/KIT-FLYER-14.json](web/snapshot/catalog/KIT-FLYER-14.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-GRANT-04.json](web/snapshot/catalog/KIT-GRANT-04.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-HOTLINE-02.json](web/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
+| [web/snapshot/catalog/KIT-HOUSING-15.json](web/snapshot/catalog/KIT-HOUSING-15.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-IMPACT-06.json](web/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-INTAKE-03.json](web/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
 | [web/snapshot/catalog/KIT-PANTRY-12.json](web/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
