@@ -293,7 +293,7 @@ test.describe("on the hosted build", () => {
     expect(text).not.toMatch(/receipt|\b[0-9a-f]{12,}\b/i);
   });
 
-  test("B4: a published process package shows 'Download the process' with its SHA-256; an unreviewed one does not", async ({ page }) => {
+  test("B4: a published process package shows 'Download the process', with no digest on the page; an unreviewed one does not", async ({ page }) => {
     const processExample = noun<{ solution: Record<string, unknown> }>("request-example-process");
     const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "private-files", text: "A process.", kit_id: "PRC-35DE86-01" }] };
     const sha = "a".repeat(64);
@@ -303,7 +303,8 @@ test.describe("on the hosted build", () => {
     await page.goto(`/requests/${REQUEST_ID}/result?part=1`);
     const line = page.getByTestId("download-process");
     await expect(line.getByRole("link", { name: "Download the process" })).toHaveAttribute("href", `/p/${REQUEST_ID}/download`);
-    await expect(line).toContainText(sha.slice(0, 12));
+    await expect(line).not.toContainText(sha.slice(0, 12));
+    await expect(line).toContainText("Every step is recorded.");
     await page.unroute(`${LIVE}/api/**`);
     await mockSite(page, { plan, solutions, catalog: { "PRC-35DE86-01": { ...published, reviewer_key_id: "kb_a" } } });
     await page.goto(`/requests/${REQUEST_ID}/result?part=1`);

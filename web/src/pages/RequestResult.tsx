@@ -594,7 +594,7 @@ export function RequestResult({ id }: { id: string }) {
                   <a href={`/p/${encodeURIComponent(id)}/download${partNumber > 1 ? `?part=${partNumber}` : ""}`} className="er-btn-secondary er-btn-small" download>
                     {words.steps.download}
                   </a>
-                  <span className="er-small">{fill(words.steps.download_note, { sha: packageSha.slice(0, 12) })}</span>
+                  <span className="er-small">{words.steps.download_note}</span>
                 </p>
               )}
               <ul className="er-plain-list">
@@ -659,7 +659,12 @@ export function RequestResult({ id }: { id: string }) {
                   ? r.reviewed_line_eranos
                   : fill(r.reviewed_line ?? "", { who: view.checker.who })
                 : r.approved_badge}
-              {solution?.review_receipt && <span className="er-receipt"> · {fill(words.chips.receipt ?? "", { r: shortReceipt(solution.review_receipt) })}</span>}
+              {solution?.review_receipt && (
+                <>
+                  {" "}
+                  · <Evidence value={solution.review_receipt} words={words} href={recordHref} />
+                </>
+              )}
             </p>
             <p className="er-result-meta">{meta.join(" · ")}</p>
           </details>

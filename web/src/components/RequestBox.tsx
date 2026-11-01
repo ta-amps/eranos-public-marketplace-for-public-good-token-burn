@@ -123,6 +123,16 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
   const [copied, setCopied] = useState(false);
   const [hits, setHits] = useState<LibraryItem[] | null>(null);
   const [tipOff, setTipOff] = useState("");
+  // A tip shown by hover hides on Escape too, wherever focus is (WCAG 2.2 SC 1.4.13).
+  const [tipHover, setTipHover] = useState("");
+  useEffect(() => {
+    if (!tipHover) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setTipOff(tipHover);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [tipHover]);
   const newRequest = useRef(false);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const alert = useRef<HTMLDivElement>(null);
@@ -337,7 +347,11 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
                       className="er-tip"
                       data-dismissed={tipOff === option.value}
                       onClick={(event) => event.preventDefault()}
-                      onMouseLeave={() => setTipOff("")}
+                      onMouseEnter={() => setTipHover(option.value)}
+                      onMouseLeave={() => {
+                        setTipHover("");
+                        setTipOff("");
+                      }}
                       onBlur={() => setTipOff("")}
                       onKeyDown={(event) => {
                         if (event.key === "Escape") setTipOff(option.value);

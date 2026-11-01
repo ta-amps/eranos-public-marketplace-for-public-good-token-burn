@@ -238,7 +238,7 @@ test("B4: no hash in any title or aria attribute, and Record is a real link", as
       [...document.querySelectorAll("*")].flatMap((el) => [...el.attributes].filter((a) => a.name === "title" || a.name.startsWith("aria-")).map((a) => a.value)),
     );
     expect(attributes.filter((v) => /\b[0-9a-f]{12,}\b|receipt/i.test(v)), route).toEqual([]);
-    const records = page.locator("main").getByText(/^Record ↗$/);
+    const records = page.locator("main").getByText(/^Record( ↗)?$/);
     for (const record of await records.all()) expect(await record.evaluate((el) => el.tagName), route).toBe("A");
   }
 });
@@ -289,4 +289,34 @@ test("the header's How it works ↗ opens Agora's How it works page", async ({ p
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
   await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/how-it-works/");
+});
+
+test("C1: at the film's 1280 × 613, Shift+Tab never leaves focus under the sticky track", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 613 });
+  await page.goto("/requests/example?moment=your-turn");
+  await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", "5");
+  await page.locator("footer").getByRole("link").last().focus();
+  const hidden: string[] = [];
+  for (let i = 0; i < 40; i += 1) {
+    await page.keyboard.press("Shift+Tab");
+    const covered = await page.evaluate(() => {
+      const el = document.activeElement as HTMLElement | null;
+      const track = document.querySelector("[data-testid='request-track']");
+      if (!el || !track || track.contains(el) || el.closest("header, ta-agent-banner")) return null;
+      const r = el.getBoundingClientRect();
+      const t = track.getBoundingClientRect();
+      return r.bottom <= t.bottom && r.top >= t.top - 1 ? (el.textContent ?? el.tagName).trim().slice(0, 40) : null;
+    });
+    if (covered) hidden.push(covered);
+  }
+  expect(hidden).toEqual([]);
+});
+
+test("C2: an ⓘ tip shown by hover hides on Escape, wherever focus is", async ({ page }) => {
+  await page.goto("/nonprofits");
+  const tip = page.locator(".er-tip").first();
+  await tip.hover();
+  await expect(tip.locator(".er-tip-text")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(tip.locator(".er-tip-text")).toBeHidden();
 });

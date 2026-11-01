@@ -2188,6 +2188,7 @@
           "technical_line": "Request {short} · sent {time}",
           "track": {
             "done": "done",
+            "next": "still to come",
             "stations": [
               {
                 "now": "In line",
@@ -2350,7 +2351,7 @@
           "copy": "Copy",
           "curious": "Curious how this works? How it works, on Agora ↗",
           "download": "Download the process",
-          "download_note": "SHA-256 {sha}… A second volunteer’s key reviewed this exact package.",
+          "download_note": "The exact package a second volunteer’s key reviewed. Every step is recorded.",
           "hide_how": "Hide ▴",
           "in_short": "In short",
           "in_short_note": "Every point links to its source.",

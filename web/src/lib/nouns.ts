@@ -431,7 +431,7 @@ export interface PlainWords {
   copy_link: T;
   copied_link: T;
   /** The request track's six stations (owner v2, Nov 1): the name while the request is there, and otherwise. */
-  track: { stations: { now: T; now_public?: T; other: T }[]; token: T; token_public: T; token_done: T; done?: T };
+  track: { stations: { now: T; now_public?: T; other: T }[]; token: T; token_public: T; token_done: T; done?: T; next?: T };
   bands: {
     sorted: Record<"title" | "process" | "information" | "checked" | "waiting", T>;
     made: Record<

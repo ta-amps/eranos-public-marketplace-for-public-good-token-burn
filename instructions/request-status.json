@@ -607,7 +607,8 @@
       "token": "Your request",
       "token_public": "This request",
       "token_done": "Delivered",
-      "done": "done"
+      "done": "done",
+      "next": "still to come"
     },
     "bands": {
       "sorted": {
@@ -689,7 +690,7 @@
     "in_short_note": "Every point links to its source.",
     "checked_how": "How it was checked",
     "download": "Download the process",
-    "download_note": "SHA-256 {sha}… A second volunteer’s key reviewed this exact package.",
+    "download_note": "The exact package a second volunteer’s key reviewed. Every step is recorded.",
     "curious": "Curious how this works? How it works, on Agora ↗"
   },
   "decide": {

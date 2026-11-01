@@ -233,6 +233,7 @@ function RequestTrack({
                 <span className="er-track-dot" aria-hidden="true" />
                 <span className="er-track-name">{name}</span>
                 {done && words.done && <span className="er-visually-hidden"> ({words.done})</span>}
+                {!done && !now && words.next && <span className="er-visually-hidden"> ({words.next})</span>}
                 {i === 0 && now && ahead > 0 && (
                   <span className="er-ghosts" aria-hidden="true" data-testid="ghost-pills">
                     {Array.from({ length: Math.min(ahead, 4) }, (_, k) => (

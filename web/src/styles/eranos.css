@@ -2733,6 +2733,10 @@ button.er-choice-pill {
 .er-rq-band {
   scroll-margin-top: 160px;
 }
+/* Focus is never hidden under the sticky track (WCAG 2.2 SC 2.4.11): anything focusable scrolls clear of it. */
+.er-status-page :is(a, button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-top: 96px;
+}
 /* Reduced motion: the token jumps to its station; nothing travels. */
 @media (prefers-reduced-motion: reduce) {
   .er-track-lane[data-animate="true"] .er-track-token {
