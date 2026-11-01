@@ -92,8 +92,10 @@ class Planner:
         worker: str,
         nouns: dict[str, dict[str, Any]],
         tracks_root: Path | None = None,
+        reuse_signature: Any = None,
     ) -> None:
         self.b = backend
+        self.reuse_signature = reuse_signature
         self.lease = lease
         self.worker = worker
         self.rules = nouns["worker"]
@@ -191,6 +193,7 @@ class Planner:
                 self.text,
                 self.rules.get("reuse") or {},
                 output_type=self.terms.get("output_type"),
+                keyed=self.reuse_signature,
             )
             if match is not None:
                 return self.reuse(match)

@@ -519,7 +519,11 @@ class Worker:
         try:
             if self.config.role == "planner":
                 outcome = Planner(
-                    gate, lease, worker=self.config.label, nouns=load_nouns(gate)
+                    gate,
+                    lease,
+                    worker=self.config.label,
+                    nouns=load_nouns(gate),
+                    reuse_signature=getattr(self.handler, "reuse_signature", None),
                 ).run()
             elif self.config.role == "builder":
                 outcome = self.build(gate, lease, meter, notes, part, request_id)

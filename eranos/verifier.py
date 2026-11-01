@@ -19,6 +19,7 @@ from eranos.schemas import (
     TrackPack,
     VerificationReport,
 )
+from eranos.schemas.records import FIXTURE_MARKS
 from eranos.tracks import get_track
 
 PRACTICE_CHECKS: list[str] = [
@@ -78,8 +79,8 @@ def verify_kit(draft: KitDraft, track: TrackPack) -> VerificationReport:
         )
 
     for fx in draft.fixtures:
-        if "SYNTHETIC" not in fx.sample_input:
-            issues.append(f"fixture {fx.id!r} lacks SYNTHETIC mark")
+        if not any(mark in fx.sample_input for mark in FIXTURE_MARKS):
+            issues.append(f"fixture {fx.id!r} lacks a MADE-UP mark")
         bad = find_accusatory_words(fx.sample_input)
         if bad:
             issues.append(f"fixture {fx.id!r} contains accusatory words: {', '.join(bad)}")
@@ -246,8 +247,8 @@ def practice_verify_kit(
                 continue
             fx_id = str(fx.get("id") or f"FX-{idx}")
             sample = str(fx.get("sample_input") or "")
-            if "SYNTHETIC" not in sample:
-                add_issue(f"fixture {fx_id!r} sample_input must carry a visible SYNTHETIC mark")
+            if not any(mark in sample for mark in FIXTURE_MARKS):
+                add_issue(f"fixture {fx_id!r} sample_input must carry a visible MADE-UP mark")
             esc = fx.get("expected_human_escalation")
             if esc is True:
                 has_esc = True

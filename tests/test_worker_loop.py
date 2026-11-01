@@ -6,7 +6,9 @@ need ERANOS_WORKERD_TESSERA (a Tessera checkout with node_modules) and are skipp
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import time
 from pathlib import Path
 from typing import Any
@@ -23,6 +25,7 @@ from support.workerd_fabric import (
 
 from eranos.jsonfile import load_json
 from eranos.model_client import ContributorTierRefused, OllamaModel
+from eranos.pipeline import process as process_part
 from eranos.pipeline.planner import request_terms
 from eranos.pipeline.research import check_claims
 from eranos.pipeline.reuse import find_reuse, score, terms
@@ -354,36 +357,66 @@ def test_process_request_with_a_handler_is_built_reviewed_and_published(
     fabric: Any, tmp_path: Path
 ) -> None:
     bundle = tmp_path / "bundle.tgz"
-    bundle.write_bytes(b"SYNTHETIC process bundle")
+    bundle.write_bytes(b"made-up process bundle")
 
     class Handler:
         name = "test handler"
 
-        def build_process(
+        def expected_records(
             self, request: dict[str, Any], plan_part: dict[str, Any]
         ) -> dict[str, Any]:
             key = f"PROC-{request['request_id'][-6:]}"
             return {
-                "bundle_path": str(bundle),
-                "catalog_record": {
-                    "store": "eranos.processes",
-                    "key": key,
-                    "value": {"title": "SYNTHETIC data-cleaning process", "synthetic": True},
-                },
-                "task_template_record": {
-                    "store": "eranos.process_templates",
-                    "key": key,
-                    "value": {"kind": "run_process", "synthetic": True},
-                },
-                "test_report": {"passed": True, "tests": 4, "issues": []},
+                "request_id": request["request_id"],
+                "kit_id": key,
+                "catalog_record": {"store": "eranos.processes", "key": key},
+                "task_template_record": {"store": "eranos.process_templates", "key": key},
             }
 
-        def review_process(
-            self, package: dict[str, Any], request: dict[str, Any], plan_part: dict[str, Any]
+        def build_process(
+            self, request: dict[str, Any], plan_part: dict[str, Any]
         ) -> dict[str, Any]:
+            ids = self.expected_records(request, plan_part)
             return {
-                "passed": package["bundle_bytes"] > 0,
-                "checks": ["bundle present", "4 tests passed"],
+                "bundle_path": str(bundle),
+                "catalog_record": {
+                    **ids["catalog_record"],
+                    "value": {
+                        "title": "Made-up data-cleaning process",
+                        "request": request["request_id"],
+                    },
+                },
+                "task_template_record": {
+                    **ids["task_template_record"],
+                    "value": {"kind": "run_process", "request": request["request_id"]},
+                },
+                "test_report": {"passed": True, "tests": 4, "issues": []},
+                "ids": ids,
+            }
+
+        def record_digest(self, value: Any) -> str:
+            return hashlib.sha256(json.dumps(value, sort_keys=True).encode()).hexdigest()
+
+        def review_process(
+            self,
+            package: dict[str, Any],
+            request: dict[str, Any],
+            plan_part: dict[str, Any],
+            *,
+            bundle_path: Any = None,
+            records: dict[str, Any] | None = None,
+        ) -> dict[str, Any]:
+            data = Path(bundle_path).read_bytes()
+            ok = hashlib.sha256(data).hexdigest() == package["blob_sha256"]
+            return {
+                "passed": ok
+                and all(
+                    v.get("request") == request["request_id"] for v in (records or {}).values()
+                ),
+                "checks": ["bundle fetched by digest", "4 tests passed"],
+                "verified": {
+                    n: {"value_sha256": self.record_digest(v)} for n, v in (records or {}).items()
+                },
             }
 
     handler = Handler()
@@ -592,3 +625,130 @@ def test_a_source_digest_is_not_mistaken_for_a_card_number() -> None:
     assert report_findings(report, brief) == []
     report["sources"][0]["note_sha256"] = "card 4111 1111 1111 1111"
     assert any("payment card" in f for f in report_findings(report, brief))
+
+
+B4_HANDLER = os.environ.get("ERANOS_PROCESS_HANDLER", "")
+FILM_REQUEST = (
+    "A reusable process to clean our volunteer sign-up spreadsheets: remove duplicates, fix date and phone "
+    "formats, flag missing contact fields, with a short report."
+)
+FILM_REWORDED = (
+    "We need something reusable that tidies our volunteer registration sheets: get rid of double entries, "
+    "standardize the dates and phone numbers, and point out anyone missing an email or phone, plus a brief summary."
+)
+
+
+@needs_workerd
+@pytest.mark.skipif(
+    not Path(B4_HANDLER).is_file(),
+    reason="set ERANOS_PROCESS_HANDLER to build B4's eranos_handler.py",
+)
+def test_film_data_cleaning_request_is_built_reviewed_published_and_reused(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The film's request end to end with the real B4 handler: claim, build (local Llama 3.2 3B and a
+    container test), a different key's review, published, added; then a reworded request is answered
+    from the stored package with no new verbs and no model tokens."""
+    monkeypatch.setenv("B4_OUT_DIR", str(tmp_path / "b4"))
+    handler = process_part.load_handler(B4_HANDLER)
+    requester = fabric.requester()
+    terms = {
+        "links": [],
+        "organization_type": "Volunteer center",
+        "output_type": "process",
+        "frequency": "one-off",
+    }
+    rid = fabric.file_request(requester, {"text": FILM_REQUEST, **terms}, "film1")
+    w = _workers(fabric, handler=handler)
+    for role in ("planner", "builder", "reviewer", "planner"):
+        outcome = w[role].run_once()
+        if outcome != "worked":
+            part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+            results = fabric.get(f"/v1/tasks/{part['work_task_id']}/results")["results"]
+            pytest.fail(f"{role}: {outcome}; build {[(r['ok'], r['error']) for r in results]}")
+    record = _record(fabric, rid)
+    part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+    if os.environ.get("B4_EVENTS_FILE"):
+        Path(os.environ["B4_EVENTS_FILE"]).write_text(
+            json.dumps(record.get("events"), indent=1), encoding="utf-8"
+        )
+    assert _types(record)[-5:] == [
+        "check_approved",
+        "published",
+        "added",
+        "plan_claimed",
+        "closed",
+    ], (" ".join(_types(record)),)
+    built = [
+        r for r in fabric.get(f"/v1/tasks/{part['work_task_id']}/results")["results"] if r["ok"]
+    ]
+    reviewed = [
+        r for r in fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"] if r["ok"]
+    ]
+    output, approval = built[-1]["output"], reviewed[-1]["output"]
+    assert approval["status"] == "approved"
+    assert approval["drafter_key_id"] != approval["reviewer_key_id"]
+    draft = fabric.get(
+        f"/v1/stores/{output['catalog_record']['store']}/records/{output['catalog_record']['key']}"
+    )
+    assert draft["visibility_scope"] == "public_commons"
+    assert output["catalog_record"]["key"].startswith(f"{rid}.1.")
+    catalog = fabric.get(f"/v1/stores/eranos.catalog/records/{output['draft']['kit_id']}")
+    assert catalog["visibility_scope"] == "public_commons"
+    value = catalog["value"]
+    assert value["blob_sha256"] == output["bundle_sha256"]
+    assert value["review_receipt"] and "status:verified" in value["tags"]
+    assert value["reviewed_by_key"] != value["kit"]["drafted_by_key"]
+    assert any(t.startswith("reuse:proc1-") for t in value["tags"])
+    assert f"request:{rid}" in value["tags"]
+    assert "synthetic" not in json.dumps(value).lower()
+    assert output["test_report"]["passed"] is True
+    reused = fabric.file_request(requester, {"text": FILM_REWORDED, **terms}, "film2")
+    assert w["planner"].run_once() == "worked"
+    again = _record(fabric, reused)
+    plan = fabric.get(f"/v1/stores/eranos.plans/records/{reused}")["value"]
+    assert again["status"] == "closed"
+    assert plan["parts"][0]["route"] == "reused"
+    assert plan["parts"][0]["reused_from"]["key"] == output["draft"]["kit_id"]
+    assert plan["parts"][0]["reused_from"]["score"] == 1.0
+    if os.environ.get("B4_E2E_EVIDENCE"):
+        report = output["test_report"]
+        evidence = {
+            "request_events": [
+                e["type"] for e in record.get("events") or [] if e["type"] != "heartbeat"
+            ],
+            "bundle_sha256": output["bundle_sha256"],
+            "bundle_bytes": output["bundle_bytes"],
+            "build_checks": {k: v.get("passed") for k, v in report["checks"].items()},
+            "build_tests": report["tests"],
+            "model_usage": report["model_usage"],
+            "pieces": [(p["piece_id"], p["depends_on"], p["claimed_by"]) for p in report["pieces"]],
+            "approval": {
+                k: approval.get(k)
+                for k in (
+                    "status",
+                    "drafter_key_id",
+                    "reviewer_key_id",
+                    "kit_id",
+                    "draft_sha256",
+                    "publication_sha256",
+                    "checks",
+                )
+            },
+            "catalog": {
+                "key": output["draft"]["kit_id"],
+                "version": catalog["version"],
+                "tags": catalog["tags"],
+                "value_tags": value["tags"],
+                "review_receipt": value["review_receipt"],
+            },
+            "reuse": {
+                "request_events": [
+                    e["type"] for e in again.get("events") or [] if e["type"] != "heartbeat"
+                ],
+                "reused_from": plan["parts"][0]["reused_from"],
+            },
+        }
+        Path(os.environ["B4_E2E_EVIDENCE"]).write_text(
+            json.dumps(evidence, indent=1) + "\n", encoding="utf-8"
+        )

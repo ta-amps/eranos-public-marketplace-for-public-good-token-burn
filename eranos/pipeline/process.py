@@ -5,6 +5,8 @@ by ERANOS_PROCESS_HANDLER:
 
     build_process(request, plan_part) -> {bundle_path, catalog_record, task_template_record, test_report}
     review_process(package, request, plan_part) -> {passed, checks, notes}      # optional
+    finalize_catalog_value(value, review) -> value                               # optional
+    reuse_signature(text) -> {key, ...}                                           # optional, 0 tokens
 
 `catalog_record` and `task_template_record` are `{store, key, value}`. The builder stores the bundle as
 a blob (its SHA-256 is the package's identity), writes both records quarantined, and submits; a
@@ -15,17 +17,21 @@ failure stays on the request's record. Nothing is faked.
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import os
+import tempfile
 from pathlib import Path
 from typing import Any, Protocol
 
 from tessera import NotFound
+from tessera.receipts import canonical_json
 
 from eranos.pipeline.request_noun import PRODUCER, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
 
 HANDLER_ENV = "ERANOS_PROCESS_HANDLER"
+CATALOG_STORE = "eranos.catalog"
 BUILD_KIND, REVIEW_KIND = "process", "process_review"
 NOT_IMPLEMENTED = "process packages are not built yet: no process handler (build B4) is installed"
 
@@ -117,6 +123,15 @@ def do_process(backend: Any, lease: Any, *, handler: Any) -> dict[str, Any]:
     ]
     if missing:
         raise ValueError(f"the process handler returned no {', '.join(missing)}")
+    expected = getattr(handler, "expected_records", None)
+    if callable(expected):
+        ids = expected(dict(brief["request"]), dict(brief["plan_part"]))
+        for name in ("catalog_record", "task_template_record"):
+            got = (built[name]["store"], built[name]["key"])
+            if got != (ids[name]["store"], ids[name]["key"]):
+                raise ValueError(
+                    f"the process handler named {got} for {name}, not the request's own record"
+                )
     bundle = Path(str(built["bundle_path"])).read_bytes()
     digest = str(backend.put_blob(bundle))
     catalog = _put(backend, built["catalog_record"], public=False)
@@ -127,7 +142,10 @@ def do_process(backend: Any, lease: Any, *, handler: Any) -> dict[str, Any]:
     # The kit-draft fields let Tessera's own eq03 rule prove the approval is independent.
     output = {
         "node": "process_package",
-        "draft": {"kit_id": catalog["key"], "kind": "process_package"},
+        "draft": {
+            "kit_id": (built.get("ids") or {}).get("kit_id") or catalog["key"],
+            "kind": "process_package",
+        },
         "verification": {"passed": passed, "issues": issues, "tests": report.get("tests")},
         "bundle_sha256": digest,
         "bundle_bytes": len(bundle),
@@ -141,6 +159,36 @@ def do_process(backend: Any, lease: Any, *, handler: Any) -> dict[str, Any]:
         "self_test": {"passed": passed, "issues": issues},
         "artifact_refs": [catalog, template],
         "summary": {"bundle_sha256": digest},
+    }
+
+
+def publication_digest_value(value: Any) -> str:
+    """The digest Tessera's publication guard recomputes: the value without its receipt or digest."""
+    doc = (
+        {**value, "review_receipt": None, "catalog_version": 1}
+        if isinstance(value, dict)
+        else value
+    )
+    if isinstance(doc, dict):
+        doc.pop("publication_sha256", None)
+    return hashlib.sha256(canonical_json(doc).encode("utf-8")).hexdigest()
+
+
+def reviewed_value(handler: Any, value: Any, review: dict[str, Any]) -> Any:
+    """The catalog value as published: the handler's own finalizer when it has one, so the entry
+    carries its review receipt and the reviewer and builder keys (the reuse check needs both)."""
+    finalize = getattr(handler, "finalize_catalog_value", None)
+    if callable(finalize) and isinstance(value, dict):
+        return finalize(dict(value), review)
+    if not isinstance(value, dict):
+        return value
+    tags = [t for t in value.get("tags") or [] if t != "status:quarantined"]
+    keep = ("review_task_id", "draft_task_id", "drafter_key_id", "draft_sha256", "review_receipt")
+    return {
+        **value,
+        **{k: review[k] for k in keep},
+        "reviewer_key_id": review["reviewed_by_key"],
+        "tags": [*tags, "status:verified"],
     }
 
 
@@ -182,16 +230,44 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
     package = dict(build.output)
     findings: list[str] = []
     review = getattr(handler, "review_process", None)
+    expected = getattr(handler, "expected_records", None)
     verdict: dict[str, Any] = {}
-    if not callable(review):
-        findings.append("no independent process check is installed (review_process)")
+    ids: dict[str, Any] = {}
+    records: dict[str, Any] = {}
+    if not callable(review) or not callable(expected):
+        findings.append(
+            "no independent process check is installed (review_process, expected_records)"
+        )
     else:
+        # Nothing in the build output is trusted: ids, stores and keys come from the planner's brief,
+        # and the bundle is fetched by its digest into this reviewer's own folder.
         brief = dict(backend.task(build.task_id).brief)
-        verdict = dict(review(package, dict(brief["request"]), dict(brief["plan_part"])))
-        if verdict.get("passed") is not True:
-            findings += [str(c) for c in verdict.get("checks") or []] or [
-                "the package's checks did not pass"
-            ]
+        request_, plan_part_ = dict(brief["request"]), dict(brief["plan_part"])
+        ids = dict(expected(request_, plan_part_))
+        if (package.get("draft") or {}).get("kit_id") != ids["kit_id"]:
+            findings.append("the build names a different package than the request derives")
+        else:
+            records = {
+                name: backend.get_record(ids[name]["store"], ids[name]["key"]).value
+                for name in ("catalog_record", "task_template_record")
+            }
+            with tempfile.TemporaryDirectory(prefix="eranos-process-review-") as tmp:
+                fetched = Path(tmp) / "bundle.tar.gz"
+                fetched.write_bytes(backend.get_blob(str(package.get("blob_sha256") or "")))
+                verdict = dict(
+                    review(package, request_, plan_part_, bundle_path=fetched, records=records)
+                )
+            digest_of = getattr(handler, "record_digest", None)
+            verified = verdict.get("verified") or {}
+            if verdict.get("passed") is not True:
+                findings += [str(c) for c in verdict.get("checks") or []] or [
+                    "the package's checks did not pass"
+                ]
+            elif not callable(digest_of) or any(
+                digest_of(records[name]) != (verified.get(name) or {}).get("value_sha256")
+                for name in records
+            ):
+                findings.append("the records changed between the review and publication")
     if findings:
         receipt = backend.submit(
             lease.task_id,
@@ -202,6 +278,26 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
         )
         update_request_part(backend, request_id, part, "needs_revision", findings=findings)
         return {"status": "needs_revision", "findings": findings, "receipt": receipt.receipt_hash}
+    # The reviewed catalog value is fixed before the receipt exists, so Tessera can check that what is
+    # published is exactly what was approved (publication_sha256), the same proof kits carry.
+    catalog_ref = dict(ids["catalog_record"])
+    draft_value = records["catalog_record"]
+    value = reviewed_value(
+        handler,
+        draft_value,
+        {
+            "reviewed_by": key_id,
+            "reviewed_by_key": key_id,
+            "review_receipt": None,
+            "review_task_id": lease.task_id,
+            "draft_task_id": build.task_id,
+            "drafter_key_id": build.completed_by_key,
+            "drafted_by": build.completed_by_key,
+            "draft_sha256": package["blob_sha256"],
+            "review_notes": verdict.get("notes"),
+        },
+    )
+    digest = publication_digest_value(value)
     receipt = backend.submit(
         lease.task_id,
         lease.fencing_token,
@@ -214,24 +310,39 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
             "drafter_key_id": build.completed_by_key,
             "reviewer_key_id": key_id,
             "draft_sha256": package["blob_sha256"],
-            "kit_id": package["draft"]["kit_id"],
+            "kit_id": ids["kit_id"],
             "bundle_sha256": package["bundle_sha256"],
+            "publication_sha256": digest,
             "checks": verdict.get("checks"),
         },
         idempotency_key=ref,
         ok=True,
     )
-    published = []
-    for name in ("catalog_record", "task_template_record"):
-        ref_ = package[name]
-        current = backend.get_record(ref_["store"], ref_["key"])
-        published.append(
-            _put(
-                backend,
-                {"store": ref_["store"], "key": ref_["key"], "value": current.value},
-                public=True,
-            )
-        )
+    final = (
+        {**value, "review_receipt": receipt.receipt_hash, "publication_sha256": digest}
+        if isinstance(value, dict)
+        else value
+    )
+    template_ref = dict(ids["task_template_record"])
+    template = records["task_template_record"]
+    published = [
+        _put(
+            backend,
+            {"store": catalog_ref["store"], "key": catalog_ref["key"], "value": final},
+            public=True,
+        ),
+        _put(
+            backend,
+            {"store": template_ref["store"], "key": template_ref["key"], "value": template},
+            public=True,
+        ),
+    ]
+    kit_shaped = isinstance(final, dict) and (final.get("kit") or {}).get("kit_id") == ids["kit_id"]
+    if catalog_ref["store"] != CATALOG_STORE and kit_shaped:
+        # The reviewer holds the eq03 grant the catalog needs, so the reviewed entry is listed in the
+        # marketplace's catalog too, where search and the reuse check find it.
+        listed = {"store": CATALOG_STORE, "key": ids["kit_id"], "value": final}
+        published.append(_put(backend, listed, public=True))
     update_request_part(
         backend,
         request_id,

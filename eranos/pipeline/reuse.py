@@ -95,10 +95,36 @@ def candidates(backend: Any, rules: dict[str, Any]) -> list[tuple[str, Any, str,
     return out
 
 
+def keyed_reuse(
+    backend: Any, text: str, rules: dict[str, Any], keyed: Any, output_type: str | None
+) -> Match | None:
+    """An exact match on a process package's reuse key (`reuse:<key>` among a reviewed catalog
+    entry's tags), from the process handler's deterministic signature; 0 tokens."""
+    if keyed is None or output_type == "information":
+        return None
+    key = (keyed(text) or {}).get("key")
+    if not key:
+        return None
+    for store, record, _text, kind, receipt in candidates(backend, rules):
+        value = record.value if isinstance(record.value, dict) else {}
+        if store == "eranos.catalog" and f"reuse:{key}" in (value.get("tags") or []):
+            title = str((value.get("kit") or {}).get("title") or "")
+            return Match(store, str(record.key), int(record.version), 1.0, kind, receipt, title)
+    return None
+
+
 def find_reuse(
-    backend: Any, text: str, rules: dict[str, Any], *, output_type: str | None
+    backend: Any,
+    text: str,
+    rules: dict[str, Any],
+    *,
+    output_type: str | None,
+    keyed: Any = None,
 ) -> Match | None:
     """The best reviewed result for this request at or above the threshold, or None."""
+    exact = keyed_reuse(backend, text, rules, keyed, output_type)
+    if exact is not None:
+        return exact
     wanted = terms(text, rules)
     if len(wanted) < 3:
         return None
