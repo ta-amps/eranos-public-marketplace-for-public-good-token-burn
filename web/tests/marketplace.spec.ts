@@ -286,7 +286,7 @@ test.describe("on the hosted build", () => {
     let text = html;
     for (const src of scripts) text += await (await request.get(src)).text();
     expect(scripts.length).toBeGreaterThan(0);
-    expect(text).not.toMatch(/synthetic|\b(o)?llama\b|kothar|kinema|shamash/i);
+    expect(text).not.toMatch(/synthetic|\bo?l{2}ama\b|kothar|kinema|shamash/i);
   });
 
   test("B2: /help lists the live open tasks, and a task copies as a claim for your agent", async ({ page }) => {

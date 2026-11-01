@@ -146,11 +146,12 @@ test("missing kit renders an accessible role=alert banner, without a Retry that 
 
 // Owner, October 31: "DO NOT INCLUDE SYNTHETIC." No page, in either view, says it anywhere a visitor can read,
 // the agent banner included.
-// Owner's rules for Nov 1: no "synthetic", no Llama, no receipts or hashes, Tasks and Task Objects (never nouns or
-// verbs), claim · do · report (never "prove"), no retired names, never "cloud" for a dedicated worker, no stamps.
+// Owner's rules for Nov 1: no "synthetic", no older Meta model family names (Muse leads), no receipts or hashes,
+// Tasks and Task Objects (never nouns or verbs), claim · do · report (never "prove"), no retired names, never
+// "cloud" for a dedicated worker, no stamps.
 const FORBIDDEN = [
   /synthetic/i,
-  /\b(o)?llama\b/i,
+  /\bo?l{2}ama\b/i,
   /receipt/i,
   /sha-?256/i,
   /\b[0-9a-f]{12,}\b/i,
@@ -201,7 +202,7 @@ test("no page says synthetic, in any case, anywhere a visitor can read", async (
       return `${document.title}\n${banner}\n${visible}`;
     });
     const strict = !/^\/(catalog|tracks|contribute|fabric|about|connect)\b/.test(route);
-    for (const rule of strict ? FORBIDDEN : FORBIDDEN.filter((r) => /synthetic|llama|kothar|cloud/.test(r.source))) {
+    for (const rule of strict ? FORBIDDEN : FORBIDDEN.filter((r) => /synthetic|l\{2\}ama|kothar|cloud/.test(r.source))) {
       const found = rule.exec(text);
       if (found) said.push(`${route}: ${found[0]}`);
     }

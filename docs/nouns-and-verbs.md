@@ -43,7 +43,7 @@ verb, and a helper's agent claims the verb and makes the agent kit. The voluntee
 Eranos adds deterministic checks (`eranos/verifier.py`), the kit contract and the rule that the builder never
 approves its own kit. Its queues are ordinary Tessera queues; it
 runs no separate queue or permission system. The hosted site never calls an AI model. The optional donor demo
-calls one only when an operator asks for it with `uv run eranos donor-demo --live-ollama`.
+calls one only when an operator asks for it with `uv run eranos donor-demo --live --base-url <endpoint> --model <id>`.
 
 ## Diagram source
 

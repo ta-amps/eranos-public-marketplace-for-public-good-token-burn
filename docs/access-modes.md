@@ -37,8 +37,8 @@ allowlisted artifact. Restricted public cohorts require the same explicit filter
 The practice schema is generated from Python with `uv run python scripts/export_practice_schema.py` and tested
 for freshness. Tests use `web/public` assets and do not require a previous web build.
 
-Live donor calls use `OLLAMA_API_KEY` only for the default Ollama endpoint. A generic `MODEL_API_KEY` is used
-only with an explicitly configured different endpoint. No key is copied across providers. Review prompts
+Live donor calls go only to the endpoint the operator names (`--base-url` or `MODEL_BASE_URL`), with
+`MODEL_API_KEY`. There is no default provider, and no key is copied across providers. Review prompts
 include the full candidate and verification evidence and can reject it. Dry-model runs are labeled and use
 zero model tokens; unreported live usage stays null.
 

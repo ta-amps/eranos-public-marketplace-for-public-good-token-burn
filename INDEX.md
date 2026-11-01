@@ -77,7 +77,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/handoff.md](docs/handoff.md) | Handoff |
 | [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Naming, Mythology & Extending Eranos |
 | [docs/nouns-and-verbs.md](docs/nouns-and-verbs.md) | Nouns, verbs, surfaces and infrastructure |
-| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models |
+| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode or Meta's Muse Models |
 | [docs/review.md](docs/review.md) | Review Guide & Cold-Start Handoff |
 | [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
 | [docs/status-events.schema.json](docs/status-events.schema.json) | One state change of a nonprofit's request: one version of eranos.requests/<requestid> |
