@@ -90,10 +90,24 @@ def candidates(backend: Any, rules: dict[str, Any]) -> list[tuple[str, Any, str,
                 made_up = value.get("made_up_sample") or value.get("synthetic")
                 if receipt and not made_up and not value.get("reused_from"):
                     out.append((store, record, _report_text(value), "report", receipt))
-            elif store == "eranos.processes":
+            elif store in ("eranos.processes", "eranos.catalog"):
+                # Process packages only (they carry a reuse key); kits are not offered as answers.
                 receipt = str(value.get("review_receipt") or "")
-                if receipt and value.get("review_task_id"):
-                    out.append((store, record, _process_text(value), "process", receipt))
+                tags = [str(t) for t in value.get("tags") or []]
+                if (
+                    receipt
+                    and value.get("review_task_id")
+                    and any(t.startswith("reuse:") for t in tags)
+                ):
+                    out.append(
+                        (
+                            store,
+                            record,
+                            _process_text(value) + " " + _process_text(value.get("kit") or {}),
+                            "process",
+                            receipt,
+                        )
+                    )
     return out
 
 
@@ -113,10 +127,35 @@ def verified(backend: Any, value: dict[str, Any], receipt: str) -> bool:
     return False
 
 
+def keyed_reuse(
+    backend: Any, text: str, rules: dict[str, Any], keyed: Any, output_type: str | None
+) -> Match | None:
+    """An exact match on a process package's reuse key (`reuse:<key>` among a reviewed catalog
+    entry's tags), from the process handler's deterministic signature; 0 tokens."""
+    if keyed is None or output_type == "information":
+        return None
+    key = (keyed(text) or {}).get("key")
+    if not key:
+        return None
+    for store, record, _text, kind, receipt in candidates(backend, rules):
+        value = record.value if isinstance(record.value, dict) else {}
+        if (
+            store == "eranos.catalog"
+            and f"reuse:{key}" in (value.get("tags") or [])
+            and verified(backend, value, receipt)
+        ):
+            title = str((value.get("kit") or {}).get("title") or value.get("title") or "")
+            return Match(store, str(record.key), int(record.version), 1.0, kind, receipt, title)
+    return None
+
+
 def find_reuse(
-    backend: Any, text: str, rules: dict[str, Any], *, output_type: str | None
+    backend: Any, text: str, rules: dict[str, Any], *, output_type: str | None, keyed: Any = None
 ) -> Match | None:
     """The best reviewed result for this request at or above the threshold, or None."""
+    exact = keyed_reuse(backend, text, rules, keyed, output_type)
+    if exact is not None:
+        return exact
     wanted = terms(text, rules)
     if len(wanted) < 3:
         return None
@@ -134,6 +173,6 @@ def find_reuse(
         body = record.value if isinstance(record.value, dict) else {}
         if not verified(backend, body, receipt):
             continue
-        title = str((body.get("report") or body).get("title") or "")
+        title = str((body.get("report") or body.get("kit") or body).get("title") or "")
         return Match(store, str(record.key), int(record.version), value, kind, receipt, title)
     return None

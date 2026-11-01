@@ -90,6 +90,8 @@ def write_env_file(
         "ERANOS_WORKER_LABEL": f"eranos-{issued['name']}",
         **(extra or {}),
     }
+    if any("\n" in str(v) or "\r" in str(v) for v in lines.values()):
+        raise ValueError("an environment value may not contain a line break")
     temp = path.with_name(f".{path.name}.{os.getpid()}.new")
     old_mask = os.umask(0o077)
     try:

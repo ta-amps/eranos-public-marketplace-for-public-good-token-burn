@@ -86,6 +86,13 @@ class WorkerClient(Client):
             return None, _retry_after(response), beat
         return Lease.model_validate(response.json()), 0.0, beat
 
+    def ready_verbs(self, queue: str) -> list[dict[str, Any]]:
+        """Ready verbs this key may see on a queue, oldest first (a read; it claims nothing)."""
+        response = self._call(
+            "GET", "/v1/verbs", params={"queue": queue, "status": "ready", "limit": 100}
+        )
+        return [dict(v) for v in response.json().get("verbs") or []]
+
 
 @dataclass
 class Pacer:
@@ -215,6 +222,14 @@ class WorkerConfig:
     model_id: str = DEFAULT_MODEL
     min_empty_seconds: float = 60.0
     status_heartbeat_seconds: float = 600.0
+    # A dedicated worker is run by ta-amps on its own machine; it gives volunteers first pick.
+    dedicated: bool = False
+    display_name: str = ""
+    our_key_ids: tuple[str, ...] = ()
+
+    @property
+    def display(self) -> str:
+        return self.display_name or self.label
 
     @classmethod
     def from_env(cls, role: str, label: str | None = None) -> WorkerConfig:
@@ -244,6 +259,11 @@ class WorkerConfig:
             model_url=os.environ.get("ERANOS_MODEL_URL") or DEFAULT_URL,
             model_id=os.environ.get("ERANOS_MODEL") or DEFAULT_MODEL,
             min_empty_seconds=max(60.0, float(os.environ.get("ERANOS_MIN_EMPTY_SECONDS") or 60)),
+            dedicated=os.environ.get("ERANOS_DEDICATED", "") == "1",
+            display_name=os.environ.get("ERANOS_WORKER_DISPLAY", ""),
+            our_key_ids=tuple(
+                k for k in os.environ.get("ERANOS_DEDICATED_KEY_IDS", "").split(",") if k
+            ),
         )
 
 
@@ -303,7 +323,7 @@ class Heartbeat(threading.Thread):
                                 "heartbeat",
                                 part=self.part,
                                 ref=f"{lease.task_id} heartbeat {self.beats}",
-                                worker=self.worker.config.label,
+                                **self.worker.who(),
                             )
                         ],
                     )
@@ -342,7 +362,47 @@ class Worker:
         self.clock, self.sleep = clock, sleep
         self.stop = threading.Event()
         self.exit_code = 0
+        self._noun: dict[str, Any] | None = None
+        self._noun_at = 0.0
         self.stats = {"claims": 0, "empty": 0, "refused": 0, "worked": 0, "failed": 0, "lost": 0}
+
+    def who(self) -> dict[str, Any]:
+        """How this worker appears on a request's record: a dedicated worker run by ta-amps, or a
+        volunteer's agent; the model each declares is in the facts that name the work."""
+        if self.config.dedicated:
+            return {"worker": self.config.display, "worker_kind": "dedicated", "run_by": "ta-amps"}
+        return {"worker": self.config.display, "worker_kind": "volunteer"}
+
+    def rules(self) -> dict[str, Any]:
+        """The worker noun, read again at most every five minutes (claim timing comes from it)."""
+        now = self.clock()
+        if self._noun is None or now - self._noun_at > 300:
+            try:
+                self._noun = dict(self.backend.get_record("eranos.instructions", "worker").value)
+                self._noun_at = now
+            except Exception:
+                self._noun = self._noun or {}
+        return self._noun
+
+    def grace_wait(self, kinds: list[str]) -> float | None:
+        """Volunteers first: seconds until the oldest ready verb of these kinds has waited the grace
+        period since it was queued (0 means claim now), or None when none is ready."""
+        dedicated = self.rules().get("dedicated") or {}
+        grace = float(dedicated.get("grace_seconds", 90))
+        if grace <= 0 or self.queue not in (dedicated.get("queues") or ("eq01", "eq02", "eq03")):
+            return 0.0
+        verbs = [v for v in self.client.ready_verbs(self.queue) if v.get("kind") in kinds]
+        if not verbs:
+            return None
+        now = time.time()
+        queued = min(
+            max(
+                float(v.get("updated_at") or v.get("created_at") or now),
+                float(v.get("not_before") or 0),
+            )
+            for v in verbs
+        )
+        return max(0.0, queued + grace - now)
 
     # model and sources -----------------------------------------------------------------------
     def _model(self) -> Any:
@@ -436,6 +496,35 @@ class Worker:
         if not kinds:
             self.pacer.empty(self.queue, now, 0.0)
             return "empty"
+        if self.config.dedicated and hasattr(self.client, "ready_verbs"):
+            try:
+                wait = self.grace_wait(kinds)
+            except StorageQuotaExhausted as exc:
+                self._allowance_spent(exc)
+                return "stopped"
+            except (TesseraError, httpx.HTTPError) as exc:
+                until = self.pacer.refused(self.queue, now, 60.0)
+                self.trace.write(
+                    "queue_unreadable",
+                    level="error",
+                    queue=self.queue,
+                    error=type(exc).__name__,
+                    retry_at=round(until, 1),
+                )
+                return "error"
+            if wait is None:
+                until = self.pacer.empty(self.queue, now, 0.0)
+                self.trace.write("nothing_ready", queue=self.queue, next_check_at=round(until, 1))
+                return "empty"
+            if wait > 0:
+                until = self.pacer.refused(self.queue, now, wait)
+                self.trace.write(
+                    "volunteers_first",
+                    queue=self.queue,
+                    wait_seconds=round(wait, 1),
+                    next_claim_at=round(until, 1),
+                )
+                return "grace"
         self.stats["claims"] += 1
         try:
             lease, retry_after = self.claim(kinds)
@@ -586,7 +675,11 @@ class Worker:
         try:
             if self.config.role == "planner":
                 outcome = Planner(
-                    gate, lease, worker=self.config.label, nouns=load_nouns(gate)
+                    gate,
+                    lease,
+                    worker=self.config.display,
+                    nouns=load_nouns(gate),
+                    handler=self.handler,
                 ).run()
             elif self.config.role == "builder":
                 outcome = self.build(gate, lease, meter, notes, part, request_id)
@@ -676,7 +769,7 @@ class Worker:
                             part=part,
                             receipt=receipt,
                             ref=None if receipt else f"{lease.task_id} attempt {lease.attempt}",
-                            worker=self.config.label,
+                            **self.who(),
                             reason=message[:500],
                             summary={"role": self.config.role, "kind": lease.kind},
                         )
@@ -703,7 +796,7 @@ class Worker:
                     part=part,
                     at=lease.claimed_at,
                     receipt=lease.claim_receipt,
-                    worker=self.config.label,
+                    **self.who(),
                     model=self.declared_model(lease.kind),
                     lease_ends=lease.expires_at,
                     queue=queue_snapshot(self.backend, [self.config.label]),
@@ -763,7 +856,7 @@ class Worker:
                         "work_failed",
                         part=part,
                         receipt=receipt.receipt_hash,
-                        worker=self.config.label,
+                        **self.who(),
                         reason=error[:500],
                         summary={**(done.get("summary") or {}), "tokens": meter.total_tokens},
                     )
@@ -781,7 +874,7 @@ class Worker:
                     "work_submitted",
                     part=part,
                     receipt=receipt.receipt_hash,
-                    worker=self.config.label,
+                    **self.who(),
                     summary={**(done.get("summary") or {}), "tokens": meter.total_tokens},
                     queue=queue_snapshot(gate),
                 )
@@ -812,9 +905,20 @@ class Worker:
         return out
 
     def review_facts(self, lease: Lease, out: dict[str, Any], part: Any) -> list[dict[str, Any]]:
-        who, status = self.config.label, out.get("status")
+        who, status = self.config.display, out.get("status")
         receipt = out.get("receipt") or out.get("review_receipt")
         tasks = [d.task_id for d in lease.dependencies] + [lease.task_id]
+        kind = (
+            {"worker_kind": "dedicated", "run_by": "ta-amps"}
+            if self.config.dedicated
+            else {"worker_kind": "volunteer"}
+        )
+        builder = lease.dependencies[0].completed_by_key if lease.dependencies else None
+        work_by = (
+            "a dedicated worker (run by ta-amps)"
+            if builder and builder in self.config.our_key_ids
+            else "a volunteer's agent"
+        )
         if status == "delivered":
             ref = f"eranos.solutions/{out['report_id']}"
             return [
@@ -845,7 +949,14 @@ class Worker:
             key = out.get("kit_id") or (out.get("published") or [{}])[0].get("key")
             ref = f"eranos.processes/{key}"
             return [
-                fact("check_approved", part=part, receipt=receipt, worker=who),
+                fact(
+                    "check_approved",
+                    part=part,
+                    receipt=receipt,
+                    worker=who,
+                    **kind,
+                    summary={"work_by": work_by},
+                ),
                 fact("published", part=part, receipt=receipt, ref=ref, result_id=key),
                 fact(
                     "added",

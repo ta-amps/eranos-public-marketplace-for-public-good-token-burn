@@ -77,6 +77,7 @@ class LocalTessera:
 
     def worker(self, name: str, role: str | None = None, **kwargs: Any) -> Worker:
         issued = self.keys[name]
+        dedicated, number = bool(kwargs.pop("dedicated", False)), kwargs.pop("number", None)
         config = WorkerConfig(
             role=role or issued["role"],
             label=f"test-{name}",
@@ -85,6 +86,9 @@ class LocalTessera:
             key_id=issued["key_id"],
             trace_path=str(self.trace_dir / f"worker-{name}.jsonl"),
             min_empty_seconds=float(kwargs.pop("min_empty_seconds", 0.0)),
+            dedicated=dedicated,
+            display_name=f"dedicated worker {number} (run by ta-amps)" if dedicated else "",
+            our_key_ids=tuple(k["key_id"] for k in self.keys.values()),
         )
         return Worker(config, **kwargs)
 

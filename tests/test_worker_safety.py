@@ -340,13 +340,108 @@ def test_m3_process_review_refuses_records_it_does_not_own() -> None:
         receipt_hash="r-build",
         completed_by_key="k_anonymous_session",
     )
-    lease = _lease("process_review", "eq03", {"request_id": "rq-other", "part": 1}, [dep])
+    brief = {
+        "request_id": "rq-other",
+        "part": 1,
+        "request": {"request_id": "rq-other"},
+        "plan_part": {"part": 1},
+    }
+    lease = _lease("process_review", "eq03", brief, [dep])
     handler = SimpleNamespace(
         review_process=lambda *a: {"passed": True, "checks": []}, __file__="/nonexistent/handler.py"
     )
     out = process_part.review_package(mem, lease, handler=handler, key_id="k_reviewer")
     assert out["status"] == "needs_revision" and any("does not own" in f for f in out["findings"])
     assert not [p for p in mem.puts if p["key"] == "rq-victim"]
+
+
+def test_m3_the_builder_refuses_records_outside_the_requests_own_ids(tmp_path: Path) -> None:
+    bundle = tmp_path / "b.tgz"
+    bundle.write_bytes(b"made-up sample")
+    foreign = SimpleNamespace(
+        build_process=lambda request, part: {
+            "bundle_path": str(bundle),
+            "test_report": {"passed": True},
+            "catalog_record": {"store": "eranos.requests", "key": "rq-victim", "value": {}},
+            "task_template_record": {
+                "store": "eranos.process_templates",
+                "key": "rq-x.1.process",
+                "value": {},
+            },
+        }
+    )
+    brief = {
+        "request_id": "rq-x",
+        "part": 1,
+        "request": {"request_id": "rq-x"},
+        "plan_part": {"part": 1},
+    }
+    with pytest.raises(ValueError, match="not the request's own record"):
+        process_part.do_process(Mem(), SimpleNamespace(brief=brief), handler=foreign)
+    sneaky = SimpleNamespace(
+        expected_records=lambda r, p: {
+            "kit_id": "PRC-AAAA-01",
+            "pack_id": "p",
+            "catalog_record": {"store": "eranos.requests", "key": "rq-x.1.k"},
+            "task_template_record": {"store": "eranos.process_templates", "key": "rq-x.1.p"},
+        }
+    )
+    with pytest.raises(ValueError, match="own draft record"):
+        process_part.expected_ids(sneaky, {"request_id": "rq-x"}, {"part": 1})
+
+
+def test_dedicated_grace_is_counted_from_when_the_verb_was_queued(tmp_path: Path) -> None:
+    now = time.time()
+
+    class Listing(Mem):
+        def __init__(self) -> None:
+            super().__init__()
+            self.verbs: list[dict[str, Any]] = []
+
+        def ready_verbs(self, queue: str) -> list[dict[str, Any]]:
+            return self.verbs
+
+    backend = Listing().seed_nouns()
+    config = WorkerConfig(
+        role="builder",
+        label="t",
+        tessera_url="http://unused",
+        key="x",
+        key_id="k",
+        trace_path=str(tmp_path / "t.jsonl"),
+        dedicated=True,
+        display_name="dedicated worker 2 (run by ta-amps)",
+    )
+    worker = Worker(
+        config,
+        backend=backend,
+        heartbeat_backend=backend,
+        model=FakeModel(),
+        handler=process_part.StubHandler(),
+    )
+    assert worker.grace_wait(["research"]) is None  # nothing ready
+    backend.verbs = [
+        {"kind": "research", "created_at": now - 30, "updated_at": now - 30, "not_before": now - 30}
+    ]
+    assert 55 <= worker.grace_wait(["research"]) <= 61  # queued 30 s ago; 90 s grace by default
+    backend.verbs = [
+        {
+            "kind": "research",
+            "created_at": now - 500,
+            "updated_at": now - 100,
+            "not_before": now - 500,
+        }
+    ]
+    assert worker.grace_wait(["research"]) == 0.0  # waited long enough since it became ready
+    backend.verbs = [
+        {"kind": "process", "created_at": now - 500, "updated_at": now - 500, "not_before": 0}
+    ]
+    assert worker.grace_wait(["research"]) is None  # not a kind this worker claims
+    assert worker.who() == {
+        "worker": "dedicated worker 2 (run by ta-amps)",
+        "worker_kind": "dedicated",
+        "run_by": "ta-amps",
+    }
 
 
 def test_m3_the_stub_never_claims_process_verbs(tmp_path: Path) -> None:

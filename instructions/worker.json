@@ -12,7 +12,8 @@
     "Before splitting a request, look for a reviewed result that already answers it; deliver a match as a pointer, with no new verbs and no model call.",
     "Fetch only the request's own https links and the official open APIs listed here; never crawl, log in, or reach a platform against its terms.",
     "Keep a claim only when its quote is found verbatim in the fetched source and the claim's own words come from that quote.",
-    "A recurring request is parked for its period after each delivery and planned again when it wakes; a schedule never widens what the request asked for."
+    "A recurring request is parked for its period after each delivery and planned again when it wakes; a schedule never widens what the request asked for.",
+    "A dedicated worker run by ta-amps claims a verb only after it has waited the grace period since it was queued, so volunteers get first pick; while a volunteer holds it, the dedicated worker leaves it alone."
   ],
   "claims": {
     "min_empty_interval_seconds": 60,
@@ -24,6 +25,7 @@
     "max_candidates": 200,
     "stores": [
       "eranos.solutions",
+      "eranos.catalog",
       "eranos.processes"
     ],
     "stopwords": [
@@ -279,5 +281,19 @@
       "Use only sentences that answer the question. Never invent a sentence, a number or a source.",
       "Reply with JSON only: {\"claims\": [{\"sentence\": \"S1-1\", \"quote\": \"...\", \"claim\": \"...\"}]}"
     ]
+  },
+  "dedicated": {
+    "about": "Up to three dedicated workers, run by ta-amps on its own machine, pick up tasks that no volunteer has taken, so every request moves even when no volunteer is online.",
+    "grace_seconds": 90,
+    "queues": [
+      "eq01",
+      "eq02",
+      "eq03"
+    ],
+    "max_workers": 3,
+    "labels": {
+      "dedicated": "dedicated worker {n} (run by ta-amps)",
+      "volunteer": "a volunteer's agent"
+    }
   }
 }

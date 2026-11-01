@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from tessera import ChildSpec, NotFound, TesseraError, VersionConflict
+from tessera import ChildSpec, NotFound, VersionConflict
 
 from eranos.pipeline import process as process_part
 from eranos.pipeline import research
@@ -89,8 +89,10 @@ class Planner:
         worker: str,
         nouns: dict[str, dict[str, Any]],
         tracks_root: Path | None = None,
+        handler: Any = None,
     ) -> None:
         self.b = backend
+        self.handler = handler
         self.lease = lease
         self.worker = worker
         self.rules = nouns["worker"]
@@ -189,6 +191,7 @@ class Planner:
                 self.text,
                 self.rules.get("reuse") or {},
                 output_type=self.terms.get("output_type"),
+                keyed=getattr(self.handler, "reuse_signature", None),
             )
             if match is not None:
                 return self.reuse(match)
@@ -516,13 +519,14 @@ class Planner:
                     process_part.ensure_published(
                         self.b,
                         out,
+                        handler=self.handler,
                         review_task_id=child.task_id,
                         review_receipt=str(child.receipt_hash),
                         request_id=self.request_id,
                         part=out.get("part"),
                     )
                     done.append({"task_id": child.task_id, "published": True})
-            except TesseraError as exc:
+            except Exception as exc:
                 done.append({"task_id": child.task_id, "error": type(exc).__name__})
         return done
 
