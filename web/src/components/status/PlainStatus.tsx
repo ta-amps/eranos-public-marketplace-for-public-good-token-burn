@@ -220,8 +220,22 @@ function RequestTrack({
   requester: boolean;
 }) {
   const delivered = track.tone === "done";
+  // The track's measured height, as --er-track-h on the page: focus and anchors scroll clear of it at every width
+  // (it is taller on phones, where the station names wrap). WCAG 2.2 SC 2.4.11.
+  const nav = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const element = nav.current;
+    if (!element || typeof ResizeObserver === "undefined") return;
+    const root = document.documentElement;
+    const observer = new ResizeObserver(() => root.style.setProperty("--er-track-h", `${Math.ceil(element.getBoundingClientRect().height)}px`));
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--er-track-h");
+    };
+  }, []);
   return (
-    <nav className="er-track" aria-label={label} data-testid="request-track">
+    <nav ref={nav} className="er-track" aria-label={label} data-testid="request-track">
       <ol>
         {words.stations.map((station, i) => {
           const done = i < track.at || (i === 5 && delivered);

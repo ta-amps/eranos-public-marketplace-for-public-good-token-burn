@@ -291,26 +291,34 @@ test("the header's How it works ↗ opens Agora's How it works page", async ({ p
   await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/how-it-works/");
 });
 
-test("C1: at the film's 1280 × 613, Shift+Tab never leaves focus under the sticky track", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 613 });
-  await page.goto("/requests/example?moment=your-turn");
-  await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", "5");
-  await page.locator("footer").getByRole("link").last().focus();
-  const hidden: string[] = [];
-  for (let i = 0; i < 40; i += 1) {
-    await page.keyboard.press("Shift+Tab");
-    const covered = await page.evaluate(() => {
-      const el = document.activeElement as HTMLElement | null;
-      const track = document.querySelector("[data-testid='request-track']");
-      if (!el || !track || track.contains(el) || el.closest("header, ta-agent-banner")) return null;
-      const r = el.getBoundingClientRect();
-      const t = track.getBoundingClientRect();
-      return r.bottom <= t.bottom && r.top >= t.top - 1 ? (el.textContent ?? el.tagName).trim().slice(0, 40) : null;
+for (const [width, height] of [
+  [1280, 613],
+  [390, 844],
+] as const) {
+  for (const moment of ["your-turn", "decided"]) {
+    test(`C1: at ${width} × ${height} on ${moment}, Shift+Tab never leaves focus under the sticky track`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto(`/requests/example?moment=${moment}`);
+      await expect(page.getByTestId("track-token")).toBeVisible();
+      await page.locator("footer").getByRole("link").last().focus();
+      const hidden: string[] = [];
+      for (let i = 0; i < 45; i += 1) {
+        await page.keyboard.press("Shift+Tab");
+        const covered = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement | null;
+          const track = document.querySelector("[data-testid='request-track']");
+          if (!el || !track || track.contains(el) || el.closest("header, ta-agent-banner")) return null;
+          const r = el.getBoundingClientRect();
+          const t = track.getBoundingClientRect();
+          // Hidden: any part of the focused control is under the stuck track.
+          return t.top <= 0.5 && r.top < t.bottom && r.bottom > t.top ? (el.textContent ?? el.tagName).trim().slice(0, 40) : null;
+        });
+        if (covered) hidden.push(covered);
+      }
+      expect(hidden).toEqual([]);
     });
-    if (covered) hidden.push(covered);
   }
-  expect(hidden).toEqual([]);
-});
+}
 
 test("C2: an ⓘ tip shown by hover hides on Escape, wherever focus is", async ({ page }) => {
   await page.goto("/nonprofits");

@@ -2731,11 +2731,12 @@ button.er-choice-pill {
   border: 1px dashed var(--line-strong);
 }
 .er-rq-band {
-  scroll-margin-top: 160px;
+  scroll-margin-top: max(160px, calc(var(--er-track-h, 80px) + 16px));
 }
-/* Focus is never hidden under the sticky track (WCAG 2.2 SC 2.4.11): anything focusable scrolls clear of it. */
+/* Focus is never hidden under the sticky track (WCAG 2.2 SC 2.4.11): anything focusable scrolls clear of it, by the
+   track's measured height at this width (--er-track-h, set by the track itself). */
 .er-status-page :is(a, button, input, select, textarea, summary, [tabindex]) {
-  scroll-margin-top: 96px;
+  scroll-margin-top: calc(var(--er-track-h, 80px) + 16px);
 }
 /* Reduced motion: the token jumps to its station; nothing travels. */
 @media (prefers-reduced-motion: reduce) {
