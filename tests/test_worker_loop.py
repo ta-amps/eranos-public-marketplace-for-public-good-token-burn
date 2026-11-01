@@ -870,8 +870,11 @@ def test_volunteers_get_first_pick_and_a_dedicated_worker_claims_after_the_grace
         and claim["worker_kind"] == "dedicated"
         and claim["run_by"] == "ta-amps"
     )
-    assert claim["model"] == "muse-spark-1.3" and claim["dedicated"] is True
-    assert claim["model_display"] == "Muse Spark 1.3" and claim["harness"] == "eranos-worker"
+    # The pick is drawn from the tuning mix: whichever variant it is, it is recorded in full.
+    variant = {v["id"]: v for v in TUNING["variants"]}[claim["variant"]]
+    assert claim["model"] == variant["model"] and claim["dedicated"] is True
+    names = {"muse-spark-1.3": "Muse Spark 1.3", "muse-wonder-1.0": "Muse Wonder 1.0"}
+    assert claim["model_display"] == names[claim["model"]] and claim["harness"] == "eranos-worker"
     assert first != second
 
 

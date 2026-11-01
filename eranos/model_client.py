@@ -129,6 +129,17 @@ class ChatModel(Protocol):
     ) -> dict[str, Any]: ...
 
 
+def key_from_text(text: str) -> str:
+    """The key in a key file: the file's only content, or the value of a `..._KEY=` line (an
+    0600 env file such as `META_API_KEY=...`). Never logged or returned to a caller that prints."""
+    for line in text.splitlines():
+        name, sep, value = line.partition("=")
+        if sep and name.strip().upper().endswith("KEY") and not name.strip().startswith("#"):
+            return value.strip().strip("'\"")
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    return lines[0] if len(lines) == 1 and "=" not in lines[0] else ""
+
+
 def refuse_contributor(model_id: str) -> None:
     if model_id.endswith("-contributor") or "contributor" in model_id.split("-"):
         raise ContributorTierRefused(f"{model_id!r} is a contributor-tier model; refused")
@@ -257,11 +268,12 @@ class MetaModel:
 
     def _key(self) -> str:
         try:
-            key = Path(self.key_file).read_text(encoding="utf-8").strip()
+            text = Path(self.key_file).read_text(encoding="utf-8")
         except OSError as exc:
             raise ModelUnavailable("the Meta key file is not readable on this machine") from exc
+        key = key_from_text(text)
         if not key:
-            raise ModelUnavailable("the Meta key file is empty")
+            raise ModelUnavailable("the Meta key file holds no key")
         return key
 
     def healthy(self) -> None:

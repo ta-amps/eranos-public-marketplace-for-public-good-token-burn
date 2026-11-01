@@ -221,3 +221,28 @@ def test_an_answer_without_token_counts_keeps_its_largest_cost(tmp_path: Path) -
     model.chat_json("system", "user", meter=meter)
     assert meter.cost_usd == model.estimate(len("system") + len("user"), 1500)
     assert spend(tmp_path / "spend.json")["total_usd"] == meter.cost_usd
+
+
+@pytest.mark.parametrize(
+    "content",
+    [
+        PLACEHOLDER_CREDENTIAL + "\n",
+        f"META_API_KEY={PLACEHOLDER_CREDENTIAL}\n",
+        f"# the owner's Meta key\nMETA_API_KEY='{PLACEHOLDER_CREDENTIAL}'\n",
+    ],
+)
+def test_the_key_is_read_from_a_bare_key_file_or_an_env_file(tmp_path: Path, content: str) -> None:
+    path = tmp_path / "meta.env"
+    path.write_text(content)
+    path.chmod(0o600)
+    seen: list[httpx.Request] = []
+    model = MetaModel(SETTINGS, key_file=str(path), transport=transport(seen))
+    model.chat_json("system", "user", meter=UsageMeter())
+    assert seen[0].headers["authorization"] == f"Bearer {PLACEHOLDER_CREDENTIAL}"
+
+
+def test_a_file_without_a_key_is_refused(tmp_path: Path) -> None:
+    path = tmp_path / "meta.env"
+    path.write_text("TESSERA_URL=https://example.org\nOTHER=1\n")
+    with pytest.raises(ModelUnavailable, match="holds no key"):
+        MetaModel(SETTINGS, key_file=str(path), transport=transport([])).healthy()
