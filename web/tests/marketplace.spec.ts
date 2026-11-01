@@ -411,7 +411,7 @@ test.describe("wording and accessibility", () => {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const links = await page.$$eval('a[href*="/decks/"]', (as) => as.map((a) => a.textContent ?? ""));
-      expect(links.length, route).toBeGreaterThan(0);
+      // The header's "How it works ↗" now opens Agora's How it works page; any link that does open a deck says so.
       for (const label of links) expect(label, route).toMatch(/deck/i);
     }
   });

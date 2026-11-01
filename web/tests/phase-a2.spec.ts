@@ -284,3 +284,9 @@ test("no horizontal scroll at 390 px, or at 640 px (a 1280 px window at 200% zoo
   }
   expect(wide).toEqual([]);
 });
+
+test("the header's How it works ↗ opens Agora's How it works page", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/how-it-works/");
+});

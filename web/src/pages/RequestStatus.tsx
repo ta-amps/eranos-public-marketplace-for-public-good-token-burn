@@ -172,23 +172,26 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
             {publicCopied ? words.plain.copied_link : words.plain.copy_link}
           </button>
           {live?.key && (
-            <button type="button" className="er-btn-secondary" onClick={() => void copyLink()}>
+            <button type="button" className="er-btn-secondary" data-testid="copy-private-link" onClick={() => void copyLink()}>
               <Icon name="link" size={18} />
               {words.actions.copy_link}
             </button>
           )}
         </div>
       </div>
-      {copied && (
-        <p className="er-small" role="status">
-          {copied}
-        </p>
-      )}
-      {!technical && live?.key && (
-        <p className="er-small" data-testid="private-line">
-          {words.plain.private_line}
-        </p>
-      )}
+      {/* The private link's card: stable for the film's recorder, which masks it (the link itself is never shown). */}
+      <div data-testid="private-link-card">
+        {copied && (
+          <p className="er-small" role="status">
+            {copied}
+          </p>
+        )}
+        {!technical && live?.key && (
+          <p className="er-small" data-testid="private-line">
+            {words.plain.private_line}
+          </p>
+        )}
+      </div>
 
       {!technical && (
         <PlainStatus

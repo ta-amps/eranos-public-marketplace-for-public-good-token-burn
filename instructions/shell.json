@@ -74,7 +74,7 @@
     "storage": "No accounts. This browser keeps only your requests’ private links, until request codes replace them. Nothing else is stored. Every request is public."
   },
   "right": {
-    "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
+    "href": "https://agora.ta-amps.workers.dev/how-it-works/",
     "label": "How it works",
     "external": true
   }

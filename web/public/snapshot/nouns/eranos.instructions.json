@@ -2487,7 +2487,7 @@
         "nav_label": "Primary navigation",
         "right": {
           "external": true,
-          "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
+          "href": "https://agora.ta-amps.workers.dev/how-it-works/",
           "label": "How it works"
         },
         "schema_version": 1,
