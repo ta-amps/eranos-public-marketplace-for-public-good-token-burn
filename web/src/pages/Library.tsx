@@ -5,7 +5,7 @@ import { loadLibrary, searchLibrary, type LibraryItem } from "../lib/library";
 import { fill, type NounResponse } from "../lib/nouns";
 import type { RequestExampleNoun } from "../lib/status/example";
 import { firstSentence } from "../lib/status/live";
-import { shortRequestId } from "../lib/status/receipts";
+import { shortRequestId } from "../lib/status/ids";
 import type { PartPlan } from "../lib/status/types";
 import { useNoun } from "../lib/useNoun";
 import { AppLink, useSearch } from "../router";

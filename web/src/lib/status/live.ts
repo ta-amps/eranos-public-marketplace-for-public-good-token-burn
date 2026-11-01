@@ -11,7 +11,7 @@
  */
 import { ApiError, getJson } from "../api";
 import type { NounResponse } from "../nouns";
-import { claimReceipt } from "./receipts";
+import { claimReceipt } from "./ids";
 import { getClaimEvents, getOwnRecord, getResults, getTask, type ClaimEvent, type ResultView, type TaskView } from "./tessera";
 import type { DecisionChoice, Frequency, OutputType, PartPlan, QueueSnapshot, StatusEvent, StatusRecord } from "./types";
 

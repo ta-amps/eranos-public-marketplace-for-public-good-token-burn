@@ -13,7 +13,7 @@ import { sentRequest } from "../lib/status/handoff";
 import { dropKeyFromAddress, privateLink, requesterKeyFor } from "../lib/status/keys";
 import { firstSentence, queueFromFabric, readKeyed, readLive, type KeyedData, type LiveSnapshot } from "../lib/status/live";
 import { useStatusMotion } from "../lib/status/motion";
-import { REQUEST_ID_RE } from "../lib/status/receipts";
+import { REQUEST_ID_RE } from "../lib/status/ids";
 import { TesseraError } from "../lib/status/tessera";
 import type { QueueSnapshot, StatusRecord } from "../lib/status/types";
 import type { FabricResponse } from "../lib/types";

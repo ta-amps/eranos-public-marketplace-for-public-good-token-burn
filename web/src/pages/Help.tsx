@@ -4,7 +4,7 @@ import { Icon } from "../components/Icon";
 import { SNAPSHOT } from "../config";
 import { briefWithInterests, fill, type HelpNoun, type HelpPageNoun } from "../lib/nouns";
 import type { RequestExampleNoun } from "../lib/status/example";
-import { shortReceipt } from "../lib/status/receipts";
+import { shortReceipt } from "../lib/status/ids";
 import type { FabricResponse } from "../lib/types";
 import { useNoun } from "../lib/useNoun";
 import { useResource } from "../lib/useResource";

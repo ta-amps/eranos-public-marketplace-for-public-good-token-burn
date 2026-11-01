@@ -6,7 +6,7 @@ import type { RequestStatusNoun } from "../src/lib/nouns";
 import { applyEvents, deriveView } from "../src/lib/status/derive";
 import { ordinal, pickupEstimate, placeLine } from "../src/lib/status/estimate";
 import type { RequestExampleNoun } from "../src/lib/status/example";
-import { canonicalJson } from "../src/lib/status/receipts";
+import { canonicalJson } from "../src/lib/status/ids";
 import type { StatusEvent, StatusRecord } from "../src/lib/status/types";
 import { noun } from "./support/mocks";
 

@@ -268,3 +268,19 @@ test("B6: no ink panels: no large element on the touched pages has an ink backgr
     await context.close();
   }
 });
+
+test("no horizontal scroll at 390 px, or at 640 px (a 1280 px window at 200% zoom), on any page", async ({ page }) => {
+  test.setTimeout(120_000);
+  const routes = ["/", "/nonprofits", "/help", "/library", "/requests", "/requests/example?moment=your-turn", "/requests/example/result?part=1", "/catalog", "/catalog/KIT-HOTLINE-02", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/privacy", "/terms", "/report"];
+  const wide: string[] = [];
+  for (const width of [390, 640]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const route of routes) {
+      await page.goto(route);
+      await expect(page.locator("main h1").first()).toBeVisible();
+      const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      if (over > 0) wide.push(`${width} ${route}: ${over}px`);
+    }
+  }
+  expect(wide).toEqual([]);
+});

@@ -394,7 +394,9 @@ ta-agent-banner {
     gap: 18px;
   }
 }
-@media (max-width: 599px) {
+/* The full nav needs about 900 px; below that (phones, and a 1280 px window at 200% zoom) the Menu button opens it,
+   so the header never scrolls sideways (WCAG 1.4.10). */
+@media (max-width: 1023px) {
   .er-header .er-nav,
   .er-header .er-yours-link {
     display: none;
@@ -402,6 +404,11 @@ ta-agent-banner {
   .er-menu-button {
     display: inline-flex;
   }
+  .er-header nav:not(.er-nav):not(.er-menu-nav) {
+    display: none;
+  }
+}
+@media (max-width: 599px) {
   .er-header-inner,
   .er-header-compact .er-header-inner {
     height: 56px;
@@ -937,8 +944,9 @@ ta-agent-banner {
 .er-tip[data-dismissed="true"] .er-tip-text {
   display: none;
 }
-/* On a phone the tip spans its option card, so it never reaches past the screen's edge. */
-@media (max-width: 599px) {
+/* On a phone, or a window zoomed to 200%, the tip spans its option card, so it never reaches past the screen's
+   edge (and never makes the page scroll sideways). */
+@media (max-width: 1023px) {
   .er-choice-card {
     position: relative;
   }

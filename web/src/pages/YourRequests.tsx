@@ -5,7 +5,7 @@ import { getJson } from "../lib/api";
 import { fill, type RequestStatusNoun } from "../lib/nouns";
 import { forgetKey, savedRequests, type SavedRequest } from "../lib/status/keys";
 import { firstSentence } from "../lib/status/live";
-import { shortRequestId } from "../lib/status/receipts";
+import { shortRequestId } from "../lib/status/ids";
 import { useNoun } from "../lib/useNoun";
 import { AppLink } from "../router";
 

@@ -11,7 +11,7 @@ import {
 } from "../lib/types";
 import { useResource } from "../lib/useResource";
 import { fill, type RequestStatusNoun } from "../lib/nouns";
-import { shortReceipt } from "../lib/status/receipts";
+import { shortReceipt } from "../lib/status/ids";
 import { useNoun } from "../lib/useNoun";
 import { Evidence } from "../components/status/StatusParts";
 import { AppLink } from "../router";

@@ -10,7 +10,7 @@ import { fill, type NounResponse, type RequestStatusNoun } from "../lib/nouns";
 import type { ExampleSolution, Report, RequestExampleNoun } from "../lib/status/example";
 import { requesterKeyFor, dropKeyFromAddress } from "../lib/status/keys";
 import { DECISIONS_STORE, type DecisionsValue } from "../lib/status/live";
-import { shortReceipt, shortRequestId } from "../lib/status/receipts";
+import { shortReceipt, shortRequestId } from "../lib/status/ids";
 import { rememberKey } from "../lib/status/keys";
 import { enqueueRequest, getOwnRecord, putOwnRecord } from "../lib/status/tessera";
 import type { DecisionChoice, PartPlan } from "../lib/status/types";

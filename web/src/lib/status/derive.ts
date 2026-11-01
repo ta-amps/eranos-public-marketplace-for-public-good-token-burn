@@ -29,7 +29,7 @@
  */
 import { fill, type RequestStatusNoun } from "../nouns";
 import { ordinal, placeLine, pickupEstimate, type PickupEstimate } from "./estimate";
-import { shortReceipt, shortRequestId } from "./receipts";
+import { shortReceipt, shortRequestId } from "./ids";
 import type { DecisionChoice, PartPlan, QueueSnapshot, StatusEvent, StatusRecord } from "./types";
 
 export type NodeState =

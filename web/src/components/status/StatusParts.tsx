@@ -2,7 +2,7 @@ import type { ReactNode, RefObject } from "react";
 
 import { fill, type RequestStatusNoun } from "../../lib/nouns";
 import type { ChipView, EdgeView, NodeState, NodeView, StatusView, StepView, LogRow } from "../../lib/status/derive";
-import { shortReceipt, shortRequestId } from "../../lib/status/receipts";
+import { shortReceipt, shortRequestId } from "../../lib/status/ids";
 import type { QueueSnapshot } from "../../lib/status/types";
 import { AppLink } from "../../router";
 import { Icon } from "../Icon";

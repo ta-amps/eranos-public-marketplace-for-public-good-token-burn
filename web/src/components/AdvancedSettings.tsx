@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { fill, type AdvancedQuestion, type AdvancedWords } from "../lib/nouns";
 import { getJson } from "../lib/api";
 import { firstSentence } from "../lib/status/live";
-import { shortRequestId } from "../lib/status/receipts";
+import { shortRequestId } from "../lib/status/ids";
 
 /** The request's optional settings, as they ride in its public brief. */
 export interface Prefs {

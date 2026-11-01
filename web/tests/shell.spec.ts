@@ -156,7 +156,7 @@ const FORBIDDEN = [
   /kothar|kinema|shamash/i,
   /dedicated[^.]{0,60}\bcloud\b|\bcloud\b[^.]{0,60}dedicated/i,
   // An agent app, not a model and not Meta's: it appears only on Agora's Models used page (owner v2, Nov 1).
-  /nanomuse/i,
+  /nano ?muse/i,
 ];
 // The site's own vocabulary. A kit's own text, quoted from its record ([data-source-text], such as a grant kit's
 // expense receipts), is data and keeps its words; the rules above still apply to it.

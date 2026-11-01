@@ -366,10 +366,10 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/lib/status/estimate.ts](web/src/lib/status/estimate.ts) |  |
 | [web/src/lib/status/example.ts](web/src/lib/status/example.ts) |  |
 | [web/src/lib/status/handoff.ts](web/src/lib/status/handoff.ts) |  |
+| [web/src/lib/status/ids.ts](web/src/lib/status/ids.ts) |  |
 | [web/src/lib/status/keys.ts](web/src/lib/status/keys.ts) |  |
 | [web/src/lib/status/live.ts](web/src/lib/status/live.ts) |  |
 | [web/src/lib/status/motion.ts](web/src/lib/status/motion.ts) |  |
-| [web/src/lib/status/receipts.ts](web/src/lib/status/receipts.ts) |  |
 | [web/src/lib/status/tessera.ts](web/src/lib/status/tessera.ts) |  |
 | [web/src/lib/status/types.ts](web/src/lib/status/types.ts) |  |
 | [web/src/lib/types.ts](web/src/lib/types.ts) |  |
