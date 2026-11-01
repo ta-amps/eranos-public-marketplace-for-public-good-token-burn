@@ -616,10 +616,22 @@ def test_the_agent_banner_copies_the_llms_line_and_pages_link_no_dead_github_add
         for link in banner["links"]
     )
     dead = re.compile(r"github\.com/ta-amps")
+    allowed_report_links = {
+        "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues",
+        "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories",
+    }
     shown = [ROOT / "web" / "index.html", ROOT / "web" / "public" / "agent-banner.js"]
     shown += sorted((ROOT / "instructions").glob("*.json"))
     shown += sorted((ROOT / "web" / "src").rglob("*.ts*"))
-    assert [p.name for p in shown if dead.search(p.read_text(encoding="utf-8"))] == []
+    matched = [p for p in shown if dead.search(p.read_text(encoding="utf-8"))]
+    assert [p.name for p in matched] == ["trust.json"]
+    trust_urls = set(
+        re.findall(
+            r"https://github\.com/ta-amps/[^\s\"']+",
+            (ROOT / "instructions" / "trust.json").read_text(encoding="utf-8"),
+        )
+    )
+    assert trust_urls == allowed_report_links
 
 
 def test_the_favicon_is_the_tile_mark_without_provenance_metadata() -> None:
@@ -726,6 +738,9 @@ def test_nothing_the_site_serves_says_synthetic() -> None:
         "/fabric",
         "/about",
         "/connect",
+        "/privacy",
+        "/terms",
+        "/report",
     ]
     pages += [f"/catalog/{kit}" for kit in kits]
     api = [
@@ -744,6 +759,7 @@ def test_nothing_the_site_serves_says_synthetic() -> None:
         "/connect.json",
         "/.well-known/agent-card.json",
         "/.well-known/agent.json",
+        "/.well-known/security.txt",
         "/llms.txt",
         "/llms-full.txt",
         "/agent.md",
@@ -929,3 +945,62 @@ def test_a_published_process_package_downloads_from_the_local_tessera_and_nothin
     assert out["unknown"]["status"] == 404 and out["example"]["status"] == 404
     assert "/p/PRC-35DE86-01/download" in out["agent"]["body"] and sha in out["agent"]["body"]
     assert reader not in json.dumps(out)
+
+
+def test_trust_routes_security_txt_and_owner_wording() -> None:
+    from fastapi.testclient import TestClient
+
+    from eranos.api.app import app
+
+    out = _worker(
+        [
+            ("privacy", "GET", "/privacy", None),
+            ("terms", "GET", "/terms", None),
+            ("report", "GET", "/report", None),
+            ("privacy_head", "HEAD", "/privacy", None),
+            ("privacy_post", "POST", "/privacy", {}),
+            ("sec", "GET", "/.well-known/security.txt", None),
+            ("sec_head", "HEAD", "/.well-known/security.txt", None),
+            ("sec_post", "POST", "/.well-known/security.txt", {}),
+            ("robots", "GET", "/robots.txt", None),
+            ("tour", "GET", "/?tour=judge", None),
+        ]
+    )
+    for name in ("privacy", "terms", "report", "privacy_head", "tour"):
+        assert out[name]["status"] == 200, name
+        assert out[name]["type"].startswith("text/html"), name
+        assert "style-src 'self'" in out[name]["csp"], name
+    assert out["privacy_post"]["status"] == 405
+    sec = out["sec"]
+    assert sec["status"] == 200 and sec["type"] == "text/plain; charset=utf-8"
+    for line in (
+        "Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories",
+        "Expires: 2027-10-31T23:59:59.000Z",
+        "Preferred-Languages: en",
+        "Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt",
+    ):
+        assert line in sec["body"], line
+    assert out["sec_head"]["status"] == 200 and out["sec_head"]["body"] == ""
+    assert out["sec_post"]["status"] == 405 and out["sec_post"]["allow"] == "GET, HEAD"
+    assert "Allow: /.well-known/security.txt" in out["robots"]["body"]
+
+    with TestClient(app) as client:
+        api_sec = client.get("/.well-known/security.txt")
+        assert api_sec.status_code == 200
+        assert api_sec.headers["content-type"] == "text/plain; charset=utf-8"
+        assert (
+            "Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt" in api_sec.text
+        )
+
+    # Urgent owner wording rule: lowercase `task objects` and `tasks (things to do)`, never capitalized `Task Objects`
+    # or `tasks (verbs)`.
+    bad_terms = re.compile(r"Task Objects?|\b[Tt]asks \([Vv]erbs\)")
+    for path in [ROOT / "README.md", *sorted((ROOT / "instructions").glob("*.json"))]:
+        text = path.read_text(encoding="utf-8")
+        assert not bad_terms.search(text), path.name
+        assert "cloud workers" not in text.lower(), path.name
+    trust_text = (ROOT / "instructions" / "trust.json").read_text(encoding="utf-8")
+    assert "task objects" in trust_text and "tasks (things to do)" in trust_text
+    assert "A person decides. Nothing is used before that." in trust_text
+    assert "CC BY 4.0" in trust_text and "Apache-2.0" in trust_text
+    assert "history.replaceState" in trust_text and "#k=" in trust_text

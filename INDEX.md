@@ -166,7 +166,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
 | [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
 
-## instructions/ (16)
+## instructions/ (17)
 
 | File | What it is |
 |---|---|
@@ -186,6 +186,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [instructions/request-status.json](instructions/request-status.json) | Request status and report pages |
 | [instructions/shell.json](instructions/shell.json) | Header, menu and footer |
 | [instructions/site.json](instructions/site.json) | Spare tokens for good |
+| [instructions/trust.json](instructions/trust.json) | Privacy, terms, report and judge tour |
 
 ## scripts/ (4)
 
@@ -234,7 +235,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (165)
+## web/ (169)
 
 | File | What it is |
 |---|---|
@@ -282,6 +283,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/public/snapshot/nouns/eranos.instructions/request-status.json](web/public/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: is_example, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/shell.json](web/public/snapshot/nouns/eranos.instructions/shell.json) | JSON object: is_example, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.instructions/site.json](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: is_example, store, key, version, value |
+| [web/public/snapshot/nouns/eranos.instructions/trust.json](web/public/snapshot/nouns/eranos.instructions/trust.json) | JSON object: is_example, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources.json](web/public/snapshot/nouns/eranos.sources.json) | JSON object: is_example, store, records |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: is_example, store, key, version, value |
 | [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: is_example, store, key, version, value |
@@ -325,6 +327,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/snapshot/nouns/eranos.instructions/request-status.json](web/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: is_example, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/shell.json](web/snapshot/nouns/eranos.instructions/shell.json) | JSON object: is_example, store, key, version, value |
 | [web/snapshot/nouns/eranos.instructions/site.json](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: is_example, store, key, version, value |
+| [web/snapshot/nouns/eranos.instructions/trust.json](web/snapshot/nouns/eranos.instructions/trust.json) | JSON object: is_example, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources.json](web/snapshot/nouns/eranos.sources.json) | JSON object: is_example, store, records |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: is_example, store, key, version, value |
 | [web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: is_example, store, key, version, value |
@@ -340,6 +343,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/components/ErrorAlert.tsx](web/src/components/ErrorAlert.tsx) |  |
 | [web/src/components/Footer.tsx](web/src/components/Footer.tsx) |  |
 | [web/src/components/Icon.tsx](web/src/components/Icon.tsx) |  |
+| [web/src/components/JudgeTour.tsx](web/src/components/JudgeTour.tsx) |  |
 | [web/src/components/Mark.tsx](web/src/components/Mark.tsx) |  |
 | [web/src/components/OpenTasks.tsx](web/src/components/OpenTasks.tsx) |  |
 | [web/src/components/RequestBox.tsx](web/src/components/RequestBox.tsx) |  |
@@ -386,6 +390,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/pages/RequestResult.tsx](web/src/pages/RequestResult.tsx) |  |
 | [web/src/pages/RequestStatus.tsx](web/src/pages/RequestStatus.tsx) |  |
 | [web/src/pages/Tracks.tsx](web/src/pages/Tracks.tsx) |  |
+| [web/src/pages/TrustPage.tsx](web/src/pages/TrustPage.tsx) |  |
 | [web/src/pages/YourRequests.tsx](web/src/pages/YourRequests.tsx) |  |
 | [web/src/router.tsx](web/src/router.tsx) |  |
 | [web/src/styles/app.css](web/src/styles/app.css) |  |

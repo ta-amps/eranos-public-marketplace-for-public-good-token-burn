@@ -475,10 +475,84 @@ test.describe("wording and accessibility", () => {
     expect(dark.text).not.toBe(light.text);
   });
 
-  test("the footer says what the site loads and keeps, from the site noun", async ({ page }) => {
+  test("the footer says what the site loads and keeps, from the site noun, and links to trust and Agora pages", async ({ page }) => {
     for (const path of ["/", "/help", "/nonprofits", "/connect"]) {
       await page.goto(path);
       await expect(page.getByTestId("privacy-line")).toHaveText(siteNoun.privacy);
     }
+    const footer = page.locator("footer.er-footer");
+    await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
+    await expect(footer.getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
+    await expect(footer.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "/report");
+    await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/status/");
+    await expect(footer.getByRole("link", { name: "Agora ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/");
+  });
+
+  test("trust pages (/privacy, /terms, /report) and 404 render plain-language guidance without status stamps", async ({ page }) => {
+    await page.goto("/privacy");
+    await expect(page.getByRole("heading", { level: 1, name: "Privacy, in plain words" })).toBeVisible();
+    await expect(page.locator("main")).toContainText("#k=");
+    await expect(page.locator("main")).toContainText("history.replaceState");
+    await expect(page.locator("main")).toContainText("one of Eranos's own workers");
+    await expect(page.locator("main")).toContainText("tasks (things to do)");
+    await expect(page.locator("main")).toContainText("task objects");
+
+    await page.goto("/terms");
+    await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
+    await expect(page.locator("main")).toContainText("CC BY 4.0");
+    await expect(page.locator("main")).toContainText("Apache-2.0");
+    await expect(page.locator("main")).toContainText("A person decides. Nothing is used before that.");
+
+    await page.goto("/report");
+    await expect(page.getByRole("heading", { level: 1, name: "Report a problem" })).toBeVisible();
+    await expect(page.locator('main a[href="https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues"]')).toBeVisible();
+    await expect(page.locator('main a[href="/.well-known/security.txt"]')).toBeVisible();
+
+    await page.goto("/missing-route-way-forward");
+    await expect(page.getByRole("heading", { level: 1, name: "Page not found" })).toBeVisible();
+    await expect(page.getByTestId("not-found")).toContainText("/missing-route-way-forward");
+    await expect(page.getByTestId("not-found").getByRole("link", { name: /My NGO needs help/ })).toHaveAttribute("href", "/nonprofits");
+    await expect(page.getByTestId("not-found").getByRole("link", { name: /I want to help/ })).toHaveAttribute("href", "/help");
+  });
+
+  test("opt-in ?tour=judge renders the 5-step tour strip below the header, tracks steps, fits 320px, and closes cleanly", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    await expect(page.getByTestId("judge-tour")).toHaveCount(0);
+
+    await page.goto("/nonprofits?tour=judge");
+    const tour = page.getByTestId("judge-tour");
+    await expect(tour).toBeVisible();
+    const headerBox = await page.locator("header.er-header").boundingBox();
+    const tourBox = await tour.boundingBox();
+    const mainBox = await page.locator("main#main").boundingBox();
+    expect(headerBox && tourBox && mainBox && tourBox.y >= headerBox.y + headerBox.height - 1 && mainBox.y >= tourBox.y + tourBox.height - 1).toBe(true);
+
+    await expect(tour.getByRole("link", { name: /Agora/ }).first()).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/?tour=judge");
+    const askStep = tour.locator("ol a", { hasText: "Ask" });
+    await expect(askStep).toHaveAttribute("aria-current", "step");
+    await expect(askStep).toHaveAttribute("href", "/nonprofits?tour=judge");
+    await expect(tour.locator("ol a", { hasText: "Watch a request" })).toHaveAttribute("href", "/requests/REQ-INTAKE-07?tour=judge");
+    await expect(tour.locator("ol a", { hasText: "The result" })).toHaveAttribute("href", "/requests/REQ-INTAKE-07?tour=judge#step-ready");
+    await expect(tour.locator("ol a", { hasText: "Live queue" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/studio/?tour=judge");
+
+    await tour.locator("ol a", { hasText: "Watch a request" }).click();
+    await expect(page).toHaveURL(/\/requests\/REQ-INTAKE-07\?tour=judge$/);
+    await expect(tour.locator("ol a", { hasText: "Watch a request" })).toHaveAttribute("aria-current", "step");
+
+    await tour.locator("ol a", { hasText: "The result" }).click();
+    await expect(page).toHaveURL(/\/requests\/REQ-INTAKE-07\?tour=judge#step-ready$/);
+    await expect(tour.locator("ol a", { hasText: "The result" })).toHaveAttribute("aria-current", "step");
+    await expect(page.locator("#step-ready")).toHaveAttribute("data-state", "now");
+
+    for (const width of [320, 390]) {
+      await page.setViewportSize({ width, height: 700 });
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow, `tour at ${width}px`).toBeLessThanOrEqual(0);
+    }
+
+    await tour.getByRole("button", { name: "Close the tour" }).click();
+    await expect(page.getByTestId("judge-tour")).toHaveCount(0);
+    await expect(page).not.toHaveURL(/tour=judge/);
   });
 });

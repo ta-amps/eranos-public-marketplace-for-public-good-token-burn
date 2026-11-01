@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from "react";
 
 import { Footer } from "./components/Footer";
+import { JudgeTour } from "./components/JudgeTour";
 import { TopBar } from "./components/TopBar";
 import { SURFACE_DISPLAY_NAME } from "./config";
 import type { ShellNoun, SiteNoun } from "./lib/nouns";
@@ -23,6 +24,7 @@ const YourRequests = lazy(() => import("./pages/YourRequests").then((page) => ({
 const Library = lazy(() => import("./pages/Library").then((page) => ({ default: page.Library })));
 const RequestResult = lazy(() => import("./pages/RequestResult").then((page) => ({ default: page.RequestResult })));
 const Tracks = lazy(() => import("./pages/Tracks").then((page) => ({ default: page.Tracks })));
+const TrustPage = lazy(() => import("./pages/TrustPage").then((page) => ({ default: page.TrustPage })));
 
 function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
   switch (route.name) {
@@ -50,6 +52,12 @@ function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
       return <Library />;
     case "yours":
       return <YourRequests />;
+    case "privacy":
+      return <TrustPage kind="privacy" />;
+    case "terms":
+      return <TrustPage kind="terms" />;
+    case "reportProblem":
+      return <TrustPage kind="report" />;
     case "request":
       return <RequestStatus id={route.id} />;
     case "report":
@@ -86,6 +94,12 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string | null {
       return `Shared library · ${SURFACE_DISPLAY_NAME}`;
     case "yours":
       return `Your requests · ${SURFACE_DISPLAY_NAME}`;
+    case "privacy":
+      return `Privacy · ${SURFACE_DISPLAY_NAME}`;
+    case "terms":
+      return `Terms · ${SURFACE_DISPLAY_NAME}`;
+    case "reportProblem":
+      return `Report a problem · ${SURFACE_DISPLAY_NAME}`;
     case "request":
     case "report":
       return null;
@@ -108,6 +122,7 @@ export function App() {
   return (
     <>
       <TopBar route={route} shell={shell} compact={compact} />
+      <JudgeTour route={route} />
       <main id="main" className={mainClass} tabIndex={-1}>
         <Suspense fallback={null}>
           <Page route={route} site={site} />

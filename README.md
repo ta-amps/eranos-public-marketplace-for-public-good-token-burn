@@ -33,12 +33,12 @@ Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-publi
 | **Muse Code & nanoMuse** | Native coding-agent harnesses claiming leased verbs over Tessera MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
 | **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Verified all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task receipts, zero paid API calls) ([video QA receipts](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
 
-## How it works: Tasks and Task Objects (verbs and nouns)
+## How it works: tasks (things to do) and task objects
 
-It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
+It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks (things to do)** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
 
-- **Task Objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, synthetic datasets, LoRA adapters, agent kits and verified reports.
-- **Tasks (`verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic receipt.
+- **task objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, practice datasets, LoRA adapters, agent kits and verified reports.
+- **tasks (things to do, `verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic receipt.
 - **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://agora.ta-amps.workers.dev/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
 - **Infrastructure** is the narrow shared engine underneath. **[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and receipts; a lease means only one agent works on a task at a time. **[Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
 

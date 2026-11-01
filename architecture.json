@@ -343,6 +343,7 @@
         "GET /llms.txt",
         "GET /llms-full.txt",
         "GET /.well-known/agent-card.json",
+        "GET /.well-known/security.txt",
         "POST /mcp"
       ]
     },
@@ -376,7 +377,10 @@
         "/contribute",
         "/tracks",
         "/fabric",
-        "/about"
+        "/about",
+        "/privacy",
+        "/terms",
+        "/report"
       ]
     }
   ],

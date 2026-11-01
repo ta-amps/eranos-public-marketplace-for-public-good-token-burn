@@ -404,3 +404,57 @@ export interface PlainWords {
   every: Record<string, T>;
   tab_title: T;
 }
+
+export interface TrustAction {
+  label: string;
+  href: string;
+  primary?: boolean;
+}
+
+export interface TrustSection {
+  heading: string;
+  items: string[];
+}
+
+export interface TrustPageContent {
+  kicker: string;
+  title: string;
+  tab_title: string;
+  intro: string;
+  actions?: TrustAction[];
+  sections: TrustSection[];
+  footer: string;
+}
+
+export interface NotFoundNoun {
+  kicker: string;
+  title: string;
+  intro: string;
+  cards: { to: string; title: string; body: string }[];
+}
+
+export interface TourStepNoun {
+  step: number;
+  label: string;
+  to?: string;
+  href?: string;
+  next_label: string;
+  next_to?: string;
+  next_href?: string;
+}
+
+export interface JudgeTourNoun {
+  label: string;
+  close: string;
+  close_label: string;
+  steps: TourStepNoun[];
+}
+
+/** Privacy, terms, report, 404 guidance and the opt-in judge tour: `eranos.instructions/trust`. */
+export interface TrustNoun {
+  privacy: TrustPageContent;
+  terms: TrustPageContent;
+  report: TrustPageContent;
+  not_found: NotFoundNoun;
+  tour: JudgeTourNoun;
+}

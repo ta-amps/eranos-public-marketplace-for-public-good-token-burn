@@ -13,6 +13,9 @@ export type RouteMatch =
   | { name: "connect" }
   | { name: "library" }
   | { name: "yours" }
+  | { name: "privacy" }
+  | { name: "terms" }
+  | { name: "reportProblem" }
   | { name: "request"; id: string }
   | { name: "report"; id: string }
   | { name: "notFound"; path: string };
@@ -29,6 +32,9 @@ const STATIC_ROUTES: Record<string, RouteMatch> = {
   "/connect": { name: "connect" },
   "/library": { name: "library" },
   "/requests": { name: "yours" },
+  "/privacy": { name: "privacy" },
+  "/terms": { name: "terms" },
+  "/report": { name: "reportProblem" },
 };
 
 export function matchPath(rawPath: string): RouteMatch {
@@ -62,7 +68,11 @@ export function matchPath(rawPath: string): RouteMatch {
 
 function subscribe(onChange: () => void): () => void {
   window.addEventListener("popstate", onChange);
-  return () => window.removeEventListener("popstate", onChange);
+  window.addEventListener("hashchange", onChange);
+  return () => {
+    window.removeEventListener("popstate", onChange);
+    window.removeEventListener("hashchange", onChange);
+  };
 }
 
 export function usePath(): string {
@@ -74,9 +84,24 @@ export function useSearch(): string {
   return useSyncExternalStore(subscribe, () => window.location.search);
 }
 
+/** The location fragment, such as `#step-ready` on the judge tour. */
+export function useHash(): string {
+  return useSyncExternalStore(subscribe, () => window.location.hash);
+}
+
 export function navigate(to: string): void {
   window.history.pushState(null, "", to);
   window.dispatchEvent(new PopStateEvent("popstate"));
+  const hashIndex = to.indexOf("#");
+  if (hashIndex !== -1) {
+    const targetId = to.slice(hashIndex + 1);
+    if (targetId) {
+      window.requestAnimationFrame(() => {
+        document.getElementById(targetId)?.scrollIntoView({ block: "nearest" });
+      });
+      return;
+    }
+  }
   window.scrollTo({ top: 0 });
 }
 

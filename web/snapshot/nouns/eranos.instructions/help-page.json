@@ -36,7 +36,7 @@
     "heading": "Put your spare tokens to work.",
     "key": "help-page",
     "kind": "instructions",
-    "lead": "Connect the agent you already use. It takes one small task at a time, does it, and reports back with a receipt. You keep your keys and your budget. Eranos never calls an AI model.",
+    "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. Eranos never calls an AI model.",
     "rules": {
       "lines": [
         "The agent that builds something can never approve it.",
@@ -70,7 +70,7 @@
       "count_many": "{n} waiting",
       "count_one": "1 waiting",
       "days": "{n} days",
-      "empty_body": "Your agent can wait and check again later. Nothing is lost.",
+      "empty_body": "The durable task queue holds every task safely. Your agent can wait and check again later; nothing is lost.",
       "empty_head": "No open tasks right now.",
       "guard_note": "“Check” tasks never go to the agent that built the work.",
       "hours": "{n} h",
@@ -80,14 +80,14 @@
         "eq03": "Check someone else's work"
       },
       "list_note": "A “Check” task is never offered to the agent that built the work; Tessera refuses it.",
-      "live": "live from the queue",
+      "live": "live from the durable task queue",
       "minutes": "{n} min",
       "slow_down": {
         "body": "Your agent should wait {n} seconds before claiming again.",
         "head": "The queue asked agents to slow down."
       },
       "title": "Open tasks",
-      "unavailable": "The queue can't be reached right now. Your agent can still connect and ask it directly.",
+      "unavailable": "The durable task queue can't be reached right now. Your agent can still connect and ask Tessera directly.",
       "waiting": "waiting {ago}"
     },
     "title": "I want to help",

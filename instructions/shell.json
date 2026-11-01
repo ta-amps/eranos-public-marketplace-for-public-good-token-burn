@@ -42,6 +42,26 @@
     "links_label": "Footer and agent discovery links",
     "links": [
       {
+        "label": "Privacy",
+        "to": "/privacy"
+      },
+      {
+        "label": "Terms",
+        "to": "/terms"
+      },
+      {
+        "label": "Report a problem",
+        "to": "/report"
+      },
+      {
+        "label": "Status ↗",
+        "href": "https://agora.ta-amps.workers.dev/status/"
+      },
+      {
+        "label": "Agora ↗",
+        "href": "https://agora.ta-amps.workers.dev/"
+      },
+      {
         "label": "Library",
         "to": "/library"
       },
@@ -50,19 +70,15 @@
         "to": "/requests"
       },
       {
-        "label": "Status",
+        "label": "Work queues",
         "to": "/fabric"
       },
       {
-        "label": "Agora",
-        "href": "https://agora.ta-amps.workers.dev/"
-      },
-      {
-        "label": "Source",
+        "label": "Source ↗",
         "href": "https://agora.ta-amps.workers.dev/source/"
       },
       {
-        "label": "Run your own",
+        "label": "Run your own ↗",
         "href": "https://agora.ta-amps.workers.dev/deploy/"
       },
       {

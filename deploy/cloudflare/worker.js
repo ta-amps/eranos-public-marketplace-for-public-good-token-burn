@@ -66,6 +66,14 @@ Allow: /llms-full.txt
 Allow: /agent.md
 Allow: /.well-known/agent-card.json
 Allow: /.well-known/agent.json
+Allow: /.well-known/security.txt
+`;
+
+const SECURITY_TXT = `Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
+Expires: 2027-10-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
+Policy: https://eranos.ta-amps.workers.dev/report
 `;
 
 const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
@@ -80,9 +88,10 @@ const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
 - /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
 - /api/catalog: Verified two-step reviewed NGO kits (?domain=&track=&tag=&cohort=&spdx=&q=)
 - /api/tracks: Public-good NGO and nonprofit build tracks
-- /api/examples: Synthetic example needs in organizations' own words, and the count of recorded example runs
+- /api/examples: Example needs in organizations' own words, and the count of recorded example runs
 - /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
 - /mcp: Stateless JSON-RPC 2.0 MCP endpoint (list_tracks, search_catalog, get_kit, practice_verify_kit)
+- /privacy, /terms, /report, /.well-known/security.txt: Privacy, terms of use, problem reporting and RFC 9116 security contact
 - /.well-known/agent-card.json: Machine-readable agent capability card
 `;
 
@@ -648,7 +657,7 @@ async function withDraftDigest(result, body) {
 // The web app's pages, as web/src/router.tsx lists them (tests/test_marketplace_site.py keeps the two equal).
 // Any other page address gets the app shell, whose router shows "Page not found", with status 404, so agents
 // and link checkers can tell a missing page from a real one.
-const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library", "/requests"];
+const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library", "/requests", "/privacy", "/terms", "/report"];
 const APP_KIT_PAGE_RE = /^\/catalog\/[^/]+$/;
 // A request's status page and its result page (the private link's key stays in the #k= fragment, which never
 // reaches this Worker).
@@ -1837,6 +1846,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
     pathname === "/agent.md" ||
     pathname === "/.well-known/agent-card.json" ||
     pathname === "/.well-known/agent.json" ||
+    pathname === "/.well-known/security.txt" ||
     PROCESS_DOC_RE.test(pathname) ||
     PACKAGE_DOWNLOAD_RE.test(pathname)
   ) {
@@ -1858,6 +1868,9 @@ async function handleDiscoveryRoute(request, env, pathname) {
     }
     if (pathname === "/robots.txt") {
       return textResp(ROBOTS_TXT, "text/plain; charset=utf-8");
+    }
+    if (pathname === "/.well-known/security.txt") {
+      return textResp(SECURITY_TXT, "text/plain; charset=utf-8");
     }
     const download = PACKAGE_DOWNLOAD_RE.exec(pathname);
     if (download) return servePackage(request, env, download[1]);

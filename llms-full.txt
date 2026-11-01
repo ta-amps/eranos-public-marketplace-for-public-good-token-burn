@@ -46,12 +46,12 @@ Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-publi
 | **Muse Code & nanoMuse** | Native coding-agent harnesses claiming leased verbs over Tessera MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
 | **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Verified all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task receipts, zero paid API calls) ([video QA receipts](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
 
-## How it works: Tasks and Task Objects (verbs and nouns)
+## How it works: tasks (things to do) and task objects
 
-It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
+It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks (things to do)** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
 
-- **Task Objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, synthetic datasets, LoRA adapters, agent kits and verified reports.
-- **Tasks (`verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic receipt.
+- **task objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, practice datasets, LoRA adapters, agent kits and verified reports.
+- **tasks (things to do, `verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic receipt.
 - **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://agora.ta-amps.workers.dev/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
 - **Infrastructure** is the narrow shared engine underneath. **[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and receipts; a lease means only one agent works on a task at a time. **[Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
 
@@ -688,7 +688,10 @@ a summary; `web/src/router.tsx` is the source of truth.
 | `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key (`eq01`/`eq02` vs `eq03`) |
 | `/tracks` | Tracks | The data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
 | `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
-| `/about` | About & Safety | Synthetic-only scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Tessera |
+| `/about` | About & Safety | Practice-case scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Tessera |
+| `/privacy` | Privacy | Plain-language privacy policy: no sign-up required, `#k=` fragment keys stay in the browser, no ad trackers or cookies |
+| `/terms` | Terms of use | Public-good marketplace terms: CC BY 4.0 reports, Apache-2.0 reusable processes, people decide before using any result |
+| `/report` | Report a problem | Plain-language problem, safety, and private-data removal reporting (`/.well-known/security.txt`) |
 
 ## HTTP API & AI-agent discovery (`eranos/api/app.py` & `deploy/cloudflare/worker.js`)
 
@@ -713,6 +716,7 @@ root health and AI-agent discovery endpoints remain publicly reachable at both t
 | `GET /robots.txt` | Crawler and AI-agent allowlist |
 | `GET /llms.txt` / `GET /llms-full.txt` | Structured LLM index and full reference corpus (`text/plain; charset=utf-8`) |
 | `GET /.well-known/agent-card.json` | A2A / agent discovery card advertising MCP and catalog capabilities |
+| `GET /.well-known/security.txt` | RFC 9116 security contact, expiry, canonical URL, and reporting policy (`text/plain; charset=utf-8`) |
 | `POST /mcp` | Stateless JSON-RPC 2.0 MCP server (`initialize`, `notifications/initialized`, `ping`, `tools/list`, `tools/call` for `list_tracks`, `search_catalog`, `get_kit`, `practice_verify_kit`) |
 
 ## Offline snapshot & edge asset packaging (`make snapshot`)

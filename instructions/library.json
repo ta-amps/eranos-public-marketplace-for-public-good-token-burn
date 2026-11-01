@@ -11,12 +11,12 @@
   "tabs_label": "Show",
   "tabs": {
     "all": "All",
-    "objects": "Task objects",
-    "tasks": "Tasks"
+    "objects": "task objects",
+    "tasks": "tasks (things to do)"
   },
-  "objects_title": "Task objects (nouns)",
+  "objects_title": "task objects",
   "objects_note": "Reusable things: cited reports and agent kits.",
-  "tasks_title": "Tasks (verbs)",
+  "tasks_title": "tasks (things to do)",
   "tasks_note": "Work your own agent can run again, on your own files.",
   "kinds": {
     "kit": "Agent kit",
@@ -31,9 +31,9 @@
   "count_one": "1 result",
   "count_many": "{n} results",
   "stored_title": "How request {short} is stored",
-  "stored_lead": "Every request is a few tasks and task objects with their own ids. This is the list for {short}.",
-  "stored_objects": "Task objects (nouns)",
-  "stored_tasks": "Tasks (verbs)",
+  "stored_lead": "Tessera is the shared durable task queue and task objects store: every request is a few durable tasks (things to do) and task objects with their own ids. This is the list for {short}.",
+  "stored_objects": "task objects",
+  "stored_tasks": "tasks (things to do)",
   "stored_rows": {
     "request_verb": "The request itself, in the queue for a volunteer's agent to plan",
     "own_noun": "Your request as you sent it, in your own space (only your private link reads it)",

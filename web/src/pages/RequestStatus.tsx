@@ -18,7 +18,7 @@ import type { QueueSnapshot, StatusRecord } from "../lib/status/types";
 import type { FabricResponse } from "../lib/types";
 import { REDUCED_MOTION, useMediaQuery } from "../lib/useMediaQuery";
 import { useNoun } from "../lib/useNoun";
-import { AppLink, useSearch } from "../router";
+import { AppLink, useHash, useSearch } from "../router";
 
 export const EXAMPLES: Record<string, string> = { example: "request-example", "example-process": "request-example-process", "REQ-INTAKE-07": "request-example" };
 /** Older addresses that now open the example request; the page says plainly that it is an example. */
@@ -332,8 +332,9 @@ function AddedPanel({ view, words, routeId, example }: { view: StatusView; words
 function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: string }) {
   const noun = useNoun<RequestExampleNoun>(EXAMPLES[routeId] ?? "request-example").value;
   const search = useSearch();
+  const hash = useHash();
   const params = new URLSearchParams(search);
-  const moment = params.get("moment");
+  const moment = params.get("moment") ?? (hash === "#step-ready" ? "your-turn" : null);
   const speed = Math.min(4, Math.max(0.1, Number(params.get("speed")) || 1));
   const replayable = params.get("replay") !== "0";
   const [count, setCount] = useState(1);

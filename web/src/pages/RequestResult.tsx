@@ -17,7 +17,7 @@ import { useNoun } from "../lib/useNoun";
 import { AppLink, useSearch } from "../router";
 import { EXAMPLES, formatClock } from "./RequestStatus";
 
-/** A reusable process, as an example holds it: the Task Object (the process noun) and the Task to run. */
+/** A reusable process, as an example holds it: the task object (the process noun) and the task to run. */
 interface ProcessSolution {
   task_object: {
     id: string;

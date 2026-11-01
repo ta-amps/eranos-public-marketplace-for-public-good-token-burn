@@ -73,6 +73,8 @@ EDGE_EXEMPT = frozenset(
         ("HEAD", "/llms-full.txt"),
         ("GET", "/.well-known/agent-card.json"),
         ("HEAD", "/.well-known/agent-card.json"),
+        ("GET", "/.well-known/security.txt"),
+        ("HEAD", "/.well-known/security.txt"),
         ("POST", "/mcp"),
     }
 )
@@ -93,6 +95,14 @@ Allow: /api/tracks
 Allow: /llms.txt
 Allow: /llms-full.txt
 Allow: /.well-known/agent-card.json
+Allow: /.well-known/security.txt
+"""
+
+SECURITY_TXT = """Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
+Expires: 2027-10-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
+Policy: https://eranos.ta-amps.workers.dev/report
 """
 
 SUPPORTED_MCP_PROTOCOLS = frozenset({"2024-11-05", "2025-03-26", "2025-06-18"})
@@ -200,6 +210,11 @@ def healthz() -> dict[str, Any]:
 @app.get("/robots.txt")
 def robots_txt() -> Response:
     return Response(content=ROBOTS_TXT, media_type="text/plain; charset=utf-8")
+
+
+@app.get("/.well-known/security.txt")
+def security_txt() -> Response:
+    return Response(content=SECURITY_TXT, media_type="text/plain; charset=utf-8")
 
 
 @app.get("/llms.txt")

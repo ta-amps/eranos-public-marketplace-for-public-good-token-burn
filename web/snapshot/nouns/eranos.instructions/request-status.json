@@ -28,13 +28,13 @@
     "added": {
       "kit": "Reusable process {id}",
       "lead": "What this request made, as task objects and tasks anyone can reuse.",
-      "objects": "Task objects",
+      "objects": "task objects",
       "plan": "Plan {short}",
       "record_note": "Each link opens the public record itself.",
       "report": "Cited report {id}",
       "request": "Request record {short}",
       "run": "Run it: {id}",
-      "tasks": "Tasks",
+      "tasks": "tasks (things to do)",
       "title": "Added to the shared library"
     },
     "audience": "nonprofits following a request, and anyone reading a public one",
@@ -515,8 +515,8 @@
       "run_lead": "The task your organization launches whenever it wants a result.",
       "run_title": "Run it",
       "schedule": "How often",
-      "task": "Task",
-      "task_object": "Task Object",
+      "task": "task",
+      "task_object": "task object",
       "use": "Use this process",
       "what": "What it is"
     },

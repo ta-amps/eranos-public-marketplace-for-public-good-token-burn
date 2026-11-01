@@ -30,6 +30,9 @@ const ROUTES = [
   "/fabric",
   "/about",
   "/connect",
+  "/privacy",
+  "/terms",
+  "/report",
 ] as const;
 
 for (const viewport of VIEWPORTS) {
@@ -54,14 +57,25 @@ for (const viewport of VIEWPORTS) {
         expect(order).toBe(true);
         await expect(page.locator("header svg.er-brand-logo")).toBeVisible();
         await expect(page.locator("footer.er-footer")).toBeVisible();
+        await expect(page.locator("main h1").first()).toBeVisible();
         await expect(page.getByTestId("synthetic-banner")).toHaveCount(0);
 
         const text = await page.locator("body").innerText();
         expect(findBannedWords(text)).toEqual([]);
         expect(text).not.toContain("<domain>");
         expect(text).not.toMatch(/SYNTHETIC DATA ONLY|Live API mode/);
-        // F31-014: the ta-amps GitHub organization is gone; no rendered link (banner included) may point there.
-        expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
+        // Only /report links to the live public issue tracker and private security advisories; every other page keeps zero GitHub links.
+        if (route === "/report") {
+          const ghLinks = await page.$$eval('a[href*="github.com/ta-amps"]', (as) => as.map((a) => a.getAttribute("href") ?? ""));
+          expect(ghLinks.length).toBeGreaterThan(0);
+          for (const href of ghLinks) {
+            expect(href).toMatch(
+              /^https:\/\/github\.com\/ta-amps\/eranos-public-marketplace-for-public-good-token-burn\/(issues|security\/advisories)$/,
+            );
+          }
+        } else {
+          expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
+        }
         // Owner, Oct 31: "DO NOT INCLUDE SYNTHETIC." (the sweep below also covers kits and examples).
         expect(text).not.toMatch(/synthetic/i);
         expect(offOrigin).toEqual([]);
@@ -138,6 +152,10 @@ test("no page says synthetic, in any case, anywhere a visitor can read", async (
     .map((name) => `/catalog/${name.replace(/\.json$/, "")}`);
   const routes = [
     ...ROUTES,
+    "/?tour=judge",
+    "/nonprofits?tour=judge",
+    "/requests/REQ-INTAKE-07?tour=judge",
+    "/requests/REQ-INTAKE-07?tour=judge#step-ready",
     "/requests",
     "/requests/example?moment=decided",
     "/requests/example?moment=decided&view=technical",
@@ -152,7 +170,7 @@ test("no page says synthetic, in any case, anywhere a visitor can read", async (
   for (const route of routes) {
     await page.goto(route);
     await expect(page.locator("ta-agent-banner")).toHaveAttribute("data-ready", "true");
-    await expect(page.locator("main")).toBeVisible();
+    await expect(page.locator("main h1").first()).toBeVisible();
     const text = await page.evaluate(() => {
       const banner = document.querySelector("ta-agent-banner")?.shadowRoot?.textContent ?? "";
       return `${document.title}\n${banner}\n${document.body.innerText}`;

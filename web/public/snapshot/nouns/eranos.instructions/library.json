@@ -32,7 +32,7 @@
     "next_title": "Next time",
     "none": "Nothing in the library matches yet.",
     "objects_note": "Reusable things: cited reports and agent kits.",
-    "objects_title": "Task objects (nouns)",
+    "objects_title": "task objects",
     "open": "Read it",
     "reviewed_by": "Approved by {who}, a different volunteer",
     "run_title": "Run with your own agent: {title}",
@@ -41,8 +41,8 @@
     "search_placeholder": "For example: tenant deposit laws",
     "show_stored": "Show how it’s stored (for volunteers and the curious)",
     "stored_empty": "Nothing from {short} is in the shared library yet. Parts join it when your team chooses to use them.",
-    "stored_lead": "Every request is a few tasks and task objects with their own ids. This is the list for {short}.",
-    "stored_objects": "Task objects (nouns)",
+    "stored_lead": "Tessera is the shared durable task queue and task objects store: every request is a few durable tasks (things to do) and task objects with their own ids. This is the list for {short}.",
+    "stored_objects": "task objects",
     "stored_rows": {
       "decisions": "Your team's decisions, in your own space",
       "kit": "Part {n}: the agent kit (a reusable process)",
@@ -54,16 +54,16 @@
       "review": "Part {n}: the check, by a different volunteer",
       "work": "Part {n}: the work, for one volunteer's agent"
     },
-    "stored_tasks": "Tasks (verbs)",
+    "stored_tasks": "tasks (things to do)",
     "stored_title": "How request {short} is stored",
     "tabs": {
       "all": "All",
-      "objects": "Task objects",
-      "tasks": "Tasks"
+      "objects": "task objects",
+      "tasks": "tasks (things to do)"
     },
     "tabs_label": "Show",
     "tasks_note": "Work your own agent can run again, on your own files.",
-    "tasks_title": "Tasks (verbs)",
+    "tasks_title": "tasks (things to do)",
     "title": "Shared library"
   }
 }

@@ -28,6 +28,11 @@ const routes = [
   "/catalog",
   "/tracks",
   "/catalog/KIT-RECRUIT-01",
+  "/privacy",
+  "/terms",
+  "/report",
+  "/?tour=judge",
+  "/requests/REQ-INTAKE-07?tour=judge#step-ready",
 ];
 
 for (const width of [1440, 390]) {

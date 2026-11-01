@@ -253,7 +253,7 @@ export function PlainStatus({
     <div className="er-plain" data-testid="plain-status">
       <ol className="er-stages" aria-label={words.stages_label}>
         {summary.stages.map((stage) => (
-          <li key={stage.id} className={`er-stage er-stage-${stage.state}`} data-stage={stage.id} data-state={stage.state}>
+          <li key={stage.id} id={`step-${stage.id}`} className={`er-stage er-stage-${stage.state}`} data-stage={stage.id} data-state={stage.state}>
             <span className="er-stage-dot" aria-hidden="true" />
             <span className="er-stage-title">{stage.title}</span>
             <span className="er-stage-line">{stage.line}</span>

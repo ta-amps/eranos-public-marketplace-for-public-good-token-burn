@@ -10,6 +10,26 @@
       "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
       "links": [
         {
+          "label": "Privacy",
+          "to": "/privacy"
+        },
+        {
+          "label": "Terms",
+          "to": "/terms"
+        },
+        {
+          "label": "Report a problem",
+          "to": "/report"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/status/",
+          "label": "Status ↗"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/",
+          "label": "Agora ↗"
+        },
+        {
           "label": "Library",
           "to": "/library"
         },
@@ -18,20 +38,16 @@
           "to": "/requests"
         },
         {
-          "label": "Status",
+          "label": "Work queues",
           "to": "/fabric"
         },
         {
-          "href": "https://agora.ta-amps.workers.dev/",
-          "label": "Agora"
-        },
-        {
           "href": "https://agora.ta-amps.workers.dev/source/",
-          "label": "Source"
+          "label": "Source ↗"
         },
         {
           "href": "https://agora.ta-amps.workers.dev/deploy/",
-          "label": "Run your own"
+          "label": "Run your own ↗"
         },
         {
           "label": "About and safety",
