@@ -769,7 +769,7 @@ def test_film_data_cleaning_request_is_built_reviewed_published_and_reused(
             "bundle_bytes": output["bundle_bytes"],
             "build_checks": {k: v.get("passed") for k, v in report["checks"].items()},
             "build_tests": report["tests"],
-            "model_usage": report["model_usage"],
+            "model_calls": report.get("model_calls"),
             "pieces": [(p["piece_id"], p["depends_on"], p["claimed_by"]) for p in report["pieces"]],
             "approval": {
                 k: approval.get(k)
