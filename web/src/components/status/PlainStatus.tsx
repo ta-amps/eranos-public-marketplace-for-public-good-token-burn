@@ -217,7 +217,7 @@ function waitingSince(events: StatusEvent[], part: number): number | null {
 
 function Band({ n, title, state, children }: { n: number; title: string; state: StageState; children: React.ReactNode }) {
   return (
-    <section className={`er-panel er-band er-band-${state}`} data-band={n} data-state={state} aria-labelledby={`band-${n}`}>
+    <section className={`er-panel er-rq-band er-rq-band-${state}`} data-band={n} data-state={state} aria-labelledby={`band-${n}`}>
       <h2 id={`band-${n}`} className="er-panel-title">
         <span className="er-band-n" aria-hidden="true">
           {n}

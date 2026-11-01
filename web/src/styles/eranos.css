@@ -2486,7 +2486,7 @@ button.er-choice-pill {
   color: var(--text-2);
   opacity: 1;
 }
-.er-band {
+.er-rq-band {
   position: relative;
 }
 .er-band-n {
@@ -2500,15 +2500,15 @@ button.er-choice-pill {
   border: 1.5px solid var(--line-strong);
   font-size: var(--fs-small);
 }
-.er-band-done .er-band-n {
+.er-rq-band-done .er-band-n {
   background: var(--text);
   border-color: var(--text);
   color: var(--bg);
 }
-.er-band-now {
+.er-rq-band-now {
   border-color: var(--text);
 }
-.er-band-upcoming {
+.er-rq-band-upcoming {
   border-style: dashed;
 }
 .er-band-list {
