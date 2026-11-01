@@ -79,7 +79,7 @@
         "many": "{n} verified kits in the catalog",
         "one": "1 verified kit in the catalog"
       },
-      "note": "Live from the queue at {time}. Requests in progress are being planned, built or independently reviewed; verified kits are already published in the catalog.",
+      "note": "Live from the queue at {time} (refreshes every 15s). Requests in progress are being planned, built or independently reviewed across eq01–eq03; verified kits are already two-step reviewed in eranos.catalog, distinct from unreviewed task objects on the shared worker queue.",
       "open": {
         "many": "{n} open tasks",
         "one": "1 open task"
@@ -88,6 +88,7 @@
         "many": "{n} requests in progress",
         "one": "1 request in progress"
       },
+      "swarm": "{open} NGO and public-good tasks open across the shared worker queue ({ngo_ready} NGO priority, {leased} active now, {workers} registered volunteer and dedicated workers, {done} tasks completed)",
       "title": "Right now",
       "working": {
         "many": "{n} being worked on",
@@ -97,8 +98,8 @@
     "safety": {
       "items": [
         {
-          "a": "No. The thinking happens in volunteers' own agents, with their own keys and budgets.",
-          "a_short": "No. The thinking happens in volunteers' own agents.",
+          "a": "No - the Eranos website and queue never call a model inline during a request. Every request becomes durable tasks on the queue: volunteer workers claim them in their own agents (with their own keys and budgets), and ta-amps also runs always-on dedicated baseline workers so nonprofit requests stay responsive 24/7 even when volunteers are offline. Every build is still checked by a separate reviewer agent before a person decides what to use.",
+          "a_short": "Not inline. Volunteer agents and always-on dedicated workers claim tasks from the queue.",
           "q": "Does Eranos call an AI model?"
         },
         {

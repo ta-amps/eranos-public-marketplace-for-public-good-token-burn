@@ -258,9 +258,21 @@ export interface ExamplesResponse {
   runs: ExampleRunsSummary | null;
 }
 
+export interface FabricSwarmCounts {
+  ngo_ready: number;
+  ngo_leased: number;
+  ngo_done: number;
+  general_ready: number;
+  general_leased: number;
+  general_done: number;
+  registered_workers: number;
+  stored_task_objects: number;
+}
+
 export interface FabricResponse {
   display_name: string;
   plan: string;
   is_example: boolean;
   queues: QueueCount[];
+  swarm?: FabricSwarmCounts;
 }
