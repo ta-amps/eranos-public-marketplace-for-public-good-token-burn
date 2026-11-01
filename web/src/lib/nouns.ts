@@ -150,7 +150,15 @@ export interface HomeNoun {
   honesty_short?: string;
   gets: { title: string; items: { id: string; title: string; line: string; link?: string; to?: string }[] };
   how: { title: string; title_short: string; link: string; to: string; steps: { title: string; detail: string; short: string }[] };
-  now: { title: string; requests: CountWords; open: CountWords; working: CountWords; kits: CountWords; note: string };
+  now: {
+    title: string;
+    requests: CountWords;
+    open: CountWords;
+    working: CountWords;
+    kits: CountWords;
+    swarm?: string;
+    note: string;
+  };
   safety: { title: string; items: { q: string; a: string; a_short: string }[] };
 }
 
@@ -339,6 +347,8 @@ export interface HelpTasksWords {
   hours: string;
   days: string;
   check_needs_key: string;
+  swarm_head?: string;
+  swarm_body?: string;
 }
 
 /** Fills `{name}` holes in noun text. A hole without a value stays visible, so a gap is never hidden. */

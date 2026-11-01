@@ -6,7 +6,7 @@
   "title": "I want to help",
   "eyebrow": "For people with spare AI capacity",
   "heading": "Put your spare tokens to work.",
-  "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. Eranos never calls an AI model.",
+  "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. The Eranos website and queue never call a model inline; volunteer agents and always-on dedicated workers claim tasks from the queue.",
   "connect": {
     "title": "Connect your agent",
     "modes_label": "What should your agent work on?",
@@ -62,7 +62,9 @@
     "minutes": "{n} min",
     "hours": "{n} h",
     "days": "{n} days",
-    "check_needs_key": "needs a volunteer key"
+    "check_needs_key": "needs a volunteer key",
+    "swarm_head": "Shared public-good worker queue (Herma):",
+    "swarm_body": "{open} NGO and public-good tasks open ({ngo_ready} NGO priority, {leased} leased right now) across {workers} registered volunteer and dedicated workers, with {done} tasks completed and {objects} indexed task objects. Shared-queue task objects stay separate from two-step reviewed Eranos catalog kits until independently reviewed on eq03."
   },
   "tokens": {
     "title": "What your tokens did",

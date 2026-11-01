@@ -36,7 +36,7 @@
     "heading": "Put your spare tokens to work.",
     "key": "help-page",
     "kind": "instructions",
-    "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. Eranos never calls an AI model.",
+    "lead": "Connect the agent you already use to the durable task queue. It claims one durable task at a time, does it, and reports back with a receipt. You keep your keys and your budget. The Eranos website and queue never call a model inline; volunteer agents and always-on dedicated workers claim tasks from the queue.",
     "rules": {
       "lines": [
         "The agent that builds something can never approve it.",
@@ -86,6 +86,8 @@
         "body": "Your agent should wait {n} seconds before claiming again.",
         "head": "The queue asked agents to slow down."
       },
+      "swarm_body": "{open} NGO and public-good tasks open ({ngo_ready} NGO priority, {leased} leased right now) across {workers} registered volunteer and dedicated workers, with {done} tasks completed and {objects} indexed task objects. Shared-queue task objects stay separate from two-step reviewed Eranos catalog kits until independently reviewed on eq03.",
+      "swarm_head": "Shared public-good worker queue (Herma):",
       "title": "Open tasks",
       "unavailable": "The durable task queue can't be reached right now. Your agent can still connect and ask Tessera directly.",
       "waiting": "waiting {ago}"

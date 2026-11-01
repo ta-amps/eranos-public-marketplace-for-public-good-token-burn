@@ -179,7 +179,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [instructions/help.json](instructions/help.json) | Help in six steps |
 | [instructions/home.json](instructions/home.json) | Home page |
 | [instructions/library.json](instructions/library.json) | Shared library |
-| [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos |
+| [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos and the shared ta-amps queue |
 | [instructions/nonprofits-page.json](instructions/nonprofits-page.json) | Tell us what you need |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |

@@ -1,5 +1,6 @@
 import { agentStartAsset } from "./agent_start.js";
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
+import llmsFallbackNoun from "../../instructions/llms.json" with { type: "json" };
 import { schemaIssues } from "./schema.js";
 import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
 // Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback), intercepts
@@ -76,32 +77,45 @@ Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
 Policy: https://eranos.ta-amps.workers.dev/report
 `;
 
-const FALLBACK_LLMS_TXT = `# Eranos: spare tokens for good
+const FALLBACK_LLMS_TXT = llmsFallbackNoun.text;
+const FALLBACK_LLMS_FULL_TXT = llmsFallbackNoun.full_text || llmsFallbackNoun.text;
+const FALLBACK_LLMS_FULL_EXTRA =
+  typeof llmsFallbackNoun.full_text === "string" && llmsFallbackNoun.full_text.startsWith(llmsFallbackNoun.text)
+    ? llmsFallbackNoun.full_text.slice(llmsFallbackNoun.text.length)
+    : "";
+const FABRIC_UPSTREAM_TIMEOUT_MS = 2500;
 
-> A two-sided marketplace. People donate AI capacity they won't use; their agents build, check and independently review agent kits for nonprofits, NGOs and public-good groups (eq01 check -> eq02 build -> eq03 review -> eranos.catalog). An agent kit is a seed pack of nouns and verbs made for one organization's agent. Tessera is the shared infrastructure underneath; Agora (https://agora.ta-amps.workers.dev/) explains how it all works.
-
-## The two sides
-- /help: I want to help. Connect your own agent, copy a starting brief and see the open tasks.
-- /nonprofits: My NGO needs help. Ask for information or a reusable process, in plain words, with no private information.
-
-## Discovery & API
-- /connect: public tools and tracked Tessera anonymous/keyed access; /connect.json is the machine-readable twin.
-- /api/catalog: Verified two-step reviewed NGO kits (?domain=&track=&tag=&cohort=&spdx=&q=)
-- /api/tracks: Public-good NGO and nonprofit build tracks
-- /api/examples: Example needs in organizations' own words, and the count of recorded example runs
-- /api/practice: POST zero-storage deterministic practice verifier (persisted: false)
-- /mcp: Stateless JSON-RPC 2.0 MCP endpoint (list_tracks, search_catalog, get_kit, practice_verify_kit)
-- /privacy, /terms, /report, /.well-known/security.txt: Privacy, terms of use, problem reporting and RFC 9116 security contact
-- /.well-known/agent-card.json: Machine-readable agent capability card
-`;
-
-const FALLBACK_LLMS_FULL_TXT = `${FALLBACK_LLMS_TXT}
-## Core Invariants
-- Example fixtures only (each carries the practice-case mark; zero real PII).
-- Interviews, crisis safety planning, legal judgments, individual decisions, and external sends stay strictly human_only.
-- Atomic two-step publication: drafter != reviewer across both worker ID and Tessera key ID, plus parker != resumer on steward sign-off.
-- Open SPDX allowlist: Apache-2.0, MIT, BSD-3-Clause, CC-BY-4.0, CC0-1.0.
-`;
+function parseHermaSwarm(pulse) {
+  if (!pulse || typeof pulse !== "object" || !pulse.queue_counts_by_tier || typeof pulse.queue_counts_by_tier !== "object") {
+    return null;
+  }
+  const ngo = pulse.queue_counts_by_tier.ngo_priority || {};
+  const gen = pulse.queue_counts_by_tier.public_general || {};
+  const fleet = pulse.worker_fleet && typeof pulse.worker_fleet === "object" ? pulse.worker_fleet : {};
+  const sidecar =
+    pulse.queue_embodiments &&
+    typeof pulse.queue_embodiments === "object" &&
+    pulse.queue_embodiments.hybrid_search_sidecar &&
+    typeof pulse.queue_embodiments.hybrid_search_sidecar === "object"
+      ? pulse.queue_embodiments.hybrid_search_sidecar
+      : {};
+  const storedObjects =
+    typeof pulse.stored_task_objects === "number"
+      ? pulse.stored_task_objects
+      : Array.isArray(pulse.stored_task_objects)
+        ? pulse.stored_task_objects.length
+        : Number(sidecar.indexed_unique_contents ?? (Array.isArray(pulse.recent_task_objects) ? pulse.recent_task_objects.length : 0));
+  return {
+    ngo_ready: Number(ngo.ready || 0),
+    ngo_leased: Number(ngo.leased || 0),
+    ngo_done: Number(ngo.done || 0),
+    general_ready: Number(gen.ready || 0),
+    general_leased: Number(gen.leased || 0),
+    general_done: Number(gen.done || 0),
+    registered_workers: Number(fleet.registered_workers || 0),
+    stored_task_objects: Number(storedObjects || 0),
+  };
+}
 
 const FALLBACK_TRACKS = [
   {
@@ -1429,6 +1443,10 @@ function buildStaticAgentCard(request) {
       request: "/api/requests/{request_id}",
       request_history: "/api/nouns/eranos.requests/{request_id}/history",
       open_tasks: "/api/open-tasks",
+      tasks: "/api/tasks",
+      fabric: "/api/fabric",
+      feedback: "/api/feedback",
+      dashboard: "/dashboard",
       process_markdown: "/p/{request_id}/agent.md",
       practice_cases: "/p/{request_id}/practice.md",
       process_download: "/p/{request_id or catalog_key}/download",
@@ -1637,7 +1655,186 @@ async function handleMcp(request, env) {
   return jsonRpcError(reqId, -32601, `Method not found: ${method}`);
 }
 
+async function fetchFabricPayload(env) {
+  const timeoutInit = () =>
+    typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
+      ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) }
+      : {};
+  const [queues, swarm] = await Promise.all([
+    (async () => {
+      if (!env.TESSERA) return [];
+      try {
+        const resp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/health", {
+          headers: { "X-Surface-Id": "eranos" },
+          ...timeoutInit(),
+        });
+        if (!resp.ok) {
+          await resp.body?.cancel();
+          return [];
+        }
+        const h = await resp.json();
+        const byName = new Map((h.queues || []).map((q) => [q.name, q.counts || {}]));
+        return ERANOS_QUEUE_LABELS.map(([name, label]) => ({
+          name,
+          label,
+          ...ZERO_QUEUE_COUNTS,
+          ...(byName.get(name) || {}),
+        }));
+      } catch {
+        return [];
+      }
+    })(),
+    (async () => {
+      if (!env.HERMA) return null;
+      try {
+        const resp = await env.HERMA.fetch("https://herma.internal/q/pulse", {
+          headers: { "X-Surface-Id": "eranos" },
+          ...timeoutInit(),
+        });
+        if (!resp.ok) {
+          await resp.body?.cancel();
+          return null;
+        }
+        return parseHermaSwarm(await resp.json());
+      } catch {
+        return null;
+      }
+    })(),
+  ]);
+  return {
+    display_name: "Tessera Cloud",
+    plan: "tessera-cloud",
+    synthetic: true,
+    queues,
+    ...(swarm ? { swarm } : {}),
+  };
+}
+
+async function loadOpenTasksFromTessera(env) {
+  let reachable = false;
+  const tasks = [];
+  if (env.TESSERA && env.TESSERA_SURFACE_KEY) {
+    for (const queue of OPEN_TASK_QUEUES) {
+      try {
+        const resp = await env.TESSERA.fetch(
+          `https://tessera.ta-amps.workers.dev/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
+          {
+            headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
+          }
+        );
+        if (resp.ok) {
+          reachable = true;
+          const body = await resp.json();
+          for (const verb of Array.isArray(body.verbs) ? body.verbs : []) tasks.push(openTaskView(verb, queue));
+        } else {
+          await resp.body?.cancel();
+        }
+      } catch {
+        // an unreachable queue is reported below, never as an empty list
+      }
+    }
+  }
+  return { reachable, tasks };
+}
+
+const FEEDBACK_FORWARD_HEADERS = [
+  "content-type",
+  "authorization",
+  "accept",
+  "x-agent-label",
+  "x-herma-key",
+  "x-herma-harness",
+  "x-herma-project",
+  "x-herma-cohort",
+  "x-request-id",
+  "cf-connecting-ip",
+];
+
+async function handleFeedbackProxy(request, env) {
+  if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "POST") {
+    return problem(405, "Method Not Allowed", "Use GET or POST on /api/feedback.", "method_not_allowed", {
+      allow: "GET, HEAD, POST",
+    });
+  }
+  const hasBody = request.method === "POST";
+  const rawBody = hasBody ? await request.text() : "";
+  let parsedBody = null;
+  if (hasBody) {
+    try {
+      parsedBody = rawBody ? JSON.parse(rawBody) : {};
+    } catch {
+      return problem(400, "Bad Request", "invalid JSON payload", "invalid_request");
+    }
+    if (!parsedBody || typeof parsedBody !== "object" || Array.isArray(parsedBody)) {
+      return problem(400, "Bad Request", "feedback payload must be a JSON object", "invalid_request");
+    }
+  }
+  if (env.HERMA) {
+    try {
+      const incoming = new URL(request.url);
+      const headers = { "X-Surface-Id": "eranos" };
+      for (const name of FEEDBACK_FORWARD_HEADERS) {
+        const val = request.headers.get(name);
+        if (val) headers[name] = val;
+      }
+      if (hasBody && !headers["content-type"]) headers["content-type"] = "application/json";
+      const timeoutInit =
+        typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
+          ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) }
+          : {};
+      const resp = await env.HERMA.fetch(`https://herma.internal/q/feedback${incoming.search}`, {
+        method: request.method,
+        headers,
+        body: hasBody ? rawBody : undefined,
+        ...timeoutInit,
+      });
+      if (resp.status !== 404) {
+        const contentType = resp.headers.get("content-type") || "application/json";
+        if (contentType.includes("json")) {
+          const data = await resp.json().catch(() => null);
+          if (data !== null) return jsonResp(data, resp.status);
+        }
+        const text = await resp.text();
+        return new Response(visibleText(text), {
+          status: resp.status,
+          headers: { "content-type": contentType, "cache-control": "private, no-store" },
+        });
+      }
+      await resp.body?.cancel();
+    } catch {
+      // fall through to safe JSON fallback when HERMA is offline in local unit tests or unreachable
+    }
+  }
+  if (hasBody) {
+    return jsonResp({
+      ok: true,
+      synthetic: true,
+      accepted: true,
+      surface: "eranos",
+      upstream: "https://herma.ta-amps.workers.dev/q/feedback",
+      item: {
+        kind: "worker_feedback",
+        surface: "eranos",
+        received_at: Math.floor(Date.now() / 1000),
+        summary: String(parsedBody.summary || parsedBody.title || parsedBody.message || "worker feedback").slice(0, 280),
+      },
+    });
+  }
+  return jsonResp({
+    ok: true,
+    synthetic: true,
+    surface: "eranos",
+    upstream: "https://herma.ta-amps.workers.dev/q/feedback",
+    proposals_url: "https://herma.ta-amps.workers.dev/q/proposals",
+    items: [],
+    note: "Submit or query structured worker feedback as a task object via POST /api/feedback or https://herma.ta-amps.workers.dev/q/feedback.",
+  });
+}
+
 async function handleCloudApi(request, env, pathname) {
+  if (pathname === "/api/feedback") {
+    return handleFeedbackProxy(request, env);
+  }
   if (pathname === "/api/practice") {
     if (request.method !== "POST") {
       return problem(405, "Method Not Allowed", "POST JSON draft payload to /api/practice.", "method_not_allowed", {
@@ -1762,28 +1959,19 @@ async function handleCloudApi(request, env, pathname) {
     });
   }
 
-  if (pathname === "/api/open-tasks") {
-    let reachable = false;
-    const tasks = [];
-    if (env.TESSERA && env.TESSERA_SURFACE_KEY) {
-      for (const queue of OPEN_TASK_QUEUES) {
-        try {
-          const resp = await env.TESSERA.fetch(`https://tessera.ta-amps.workers.dev/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`, {
-            headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
-          });
-          if (resp.ok) {
-            reachable = true;
-            const body = await resp.json();
-            for (const verb of Array.isArray(body.verbs) ? body.verbs : []) tasks.push(openTaskView(verb, queue));
-          } else {
-            await resp.body?.cancel();
-          }
-        } catch {
-          // an unreachable queue is reported below, never as an empty list
-        }
+  if (pathname === "/api/open-tasks" || pathname === "/api/tasks") {
+    const { reachable, tasks } = await loadOpenTasksFromTessera(env);
+    if (!reachable) {
+      if (pathname === "/api/tasks") {
+        return jsonResp({
+          synthetic: true,
+          tasks: [],
+          open_tasks_url: "/api/open-tasks",
+          shared_queue_url: "https://herma.ta-amps.workers.dev/q/pulse",
+        });
       }
+      return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
     }
-    if (!reachable) return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
     return jsonResp({ synthetic: false, tasks });
   }
 
@@ -1919,34 +2107,7 @@ async function handleCloudApi(request, env, pathname) {
   }
 
   if (pathname === "/api/fabric") {
-    let queues = [];
-    if (env.TESSERA) {
-      try {
-        const resp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/health", {
-          headers: { "X-Surface-Id": "eranos" },
-        });
-        if (resp.ok) {
-          const h = await resp.json();
-          const byName = new Map((h.queues || []).map((q) => [q.name, q.counts || {}]));
-          queues = ERANOS_QUEUE_LABELS.map(([name, label]) => ({
-            name,
-            label,
-            ...ZERO_QUEUE_COUNTS,
-            ...(byName.get(name) || {}),
-          }));
-        } else {
-          await resp.body?.cancel();
-        }
-      } catch {
-        // fall back to empty queue array if service binding unreachable
-      }
-    }
-    return jsonResp({
-      display_name: "Tessera Cloud",
-      plan: "tessera-cloud",
-      synthetic: true,
-      queues,
-    });
+    return jsonResp(await fetchFabricPayload(env));
   }
 
   if (pathname === "/api/feed") {
@@ -2023,9 +2184,12 @@ async function handleDiscoveryRoute(request, env, pathname) {
     return handleMcp(request, env);
   }
 
+  const trimmedPath = pathname !== "/" ? pathname.replace(/\/+$/, "") : pathname;
   if (
     pathname === "/favicon.svg" ||
     pathname === "/healthz" ||
+    pathname === "/health" ||
+    trimmedPath === "/dashboard" ||
     pathname === "/robots.txt" ||
     pathname === "/llms.txt" ||
     pathname === "/llms-full.txt" ||
@@ -2050,6 +2214,36 @@ async function handleDiscoveryRoute(request, env, pathname) {
         surface: "eranos",
         version: ERANOS_VERSION,
         backend: (env.STORAGE_MODE || "cloud") === "origin" ? "origin" : "tessera-cloud",
+      });
+    }
+    if (pathname === "/health") {
+      return jsonResp({
+        ok: true,
+        synthetic: true,
+        surface: "eranos",
+        version: ERANOS_VERSION,
+        backend: (env.STORAGE_MODE || "cloud") === "origin" ? "origin" : "tessera-cloud",
+      });
+    }
+    if (trimmedPath === "/dashboard") {
+      const accept = (request.headers.get("accept") || "").toLowerCase();
+      if (accept.includes("application/json") && !accept.includes("text/html")) {
+        return jsonResp({
+          ok: true,
+          synthetic: true,
+          surface: "eranos",
+          dashboard_url: "https://herma.ta-amps.workers.dev/dashboard",
+          fabric_page: "/fabric",
+          fabric_api: "/api/fabric",
+          ...(await fetchFabricPayload(env)),
+        });
+      }
+      return new Response(null, {
+        status: 307,
+        headers: {
+          location: "https://herma.ta-amps.workers.dev/dashboard",
+          "cache-control": "no-store",
+        },
       });
     }
     if (pathname === "/robots.txt") {
@@ -2084,8 +2278,15 @@ async function handleDiscoveryRoute(request, env, pathname) {
       return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.ta-amps.workers.dev/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
-      const fromAsset = await fetchAssetText(request, env, "/llms-full.txt");
-      return textResp((fromAsset || FALLBACK_LLMS_FULL_TXT) + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
+      const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
+      const fromNoun =
+        noun && noun.value && typeof noun.value.full_text === "string"
+          ? noun.value.full_text
+          : noun && noun.value && typeof noun.value.text === "string"
+            ? `${noun.value.text}${FALLBACK_LLMS_FULL_EXTRA}`
+            : null;
+      const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms-full.txt");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_FULL_TXT) + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/agent.md") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
