@@ -44,7 +44,10 @@ def test_empty_claim_waits_a_minute_or_the_servers_retry_after() -> None:
     assert pacer.ready("eq02", 0.0)
     assert pacer.empty("eq02", 100.0, 5.0) == 160.0
     assert not pacer.ready("eq02", 159.0) and pacer.ready("eq02", 160.0)
-    assert pacer.empty("eq02", 200.0, 90.0) == 290.0
+    assert pacer.empty("eq02", 200.0, 90.0) == 320.0  # still empty: twice as long (120 s)
+    assert (
+        pacer.empty("eq02", 400.0, 5.0) == 640.0 and pacer.empty("eq02", 700.0, 5.0) == 1000.0
+    )  # capped at 300 s
     assert pacer.refused("eq02", 300.0, 30.0) == 330.0
     pacer.worked("eq02", 400.0)
     assert pacer.ready("eq02", 400.0)
@@ -76,10 +79,10 @@ def test_worker_claims_at_most_once_per_minute_on_an_empty_queue(tmp_path: Path)
     for step in range(0, 125, 5):
         now[0] = 1000.0 + step
         outcomes.append(worker.run_once())
-    assert Empty.calls == 3  # at t=0, t=60 and t=120
-    assert outcomes.count("empty") == 3 and outcomes.count("paced") == len(outcomes) - 3
+    assert Empty.calls == 2  # at t=0 and t=60; the next waits 120 s (idle backoff)
+    assert outcomes.count("empty") == 2 and outcomes.count("paced") == len(outcomes) - 2
     log = [json.loads(line) for line in (tmp_path / "t.jsonl").read_text().splitlines()]
-    assert [e["event"] for e in log] == ["claim_empty"] * 3
+    assert [e["event"] for e in log] == ["claim_empty"] * 2
 
 
 def test_html_text_drops_scripts_and_keeps_sentences_whole() -> None:
@@ -157,10 +160,160 @@ def test_claims_keep_only_verbatim_quotes_that_support_them() -> None:
         "A charity may hold nonpartisan voter registration drives."
     ]
     assert {d["reason"].split(":")[0] for d in dropped} == {
-        "quote not verbatim",
         "the claim says more than its quote",
         "names no numbered sentence",
     }
+    assert kept[0]["citations"][0]["quote"] == source["text"]  # copied by code, never typed
+
+
+ABSTRACTS = {
+    "results": [
+        {
+            "title": "Notice of Funding Opportunity: Emergency Food Assistance Program",
+            "abstract": (
+                "The Department announces the availability of funds for the Emergency Food Assistance Program for fiscal year 2027, "
+                "which supports food banks and food pantries that distribute commodities to households with low incomes. "
+                "Eligible applicants include State agencies that administer the program and that partner with local emergency feeding "
+                "organizations, including food banks and food pantries operated by nonprofit organizations. "
+                "Applications must be submitted electronically by the closing date listed in this notice, and late applications "
+                "will not be considered for funding under this announcement."
+            ),
+        }
+    ]
+}
+
+
+def test_long_abstract_claims_get_their_quote_copied_from_the_cited_sentence() -> None:
+    import json as _json
+
+    from eranos.pipeline.research import candidate_sentences
+    from eranos.sources import Fetched, source_record
+
+    raw = _json.dumps(ABSTRACTS).encode()
+    fetched = Fetched(
+        "https://www.federalregister.gov/api/v1/documents.json?x",
+        "https://www.federalregister.gov/api/v1/documents.json?x",
+        200,
+        "application/json",
+        raw,
+        time.time(),
+    )
+    record = source_record(
+        fetched,
+        source_id="SRC-1",
+        access="official_api",
+        publisher="Federal Register",
+        max_text_chars=60000,
+        request_id="r",
+        part=1,
+    )
+    question = "List new federal grant funding notices relevant to food banks and food pantries."
+    sentences = candidate_sentences([record], question, 30)
+    assert len(sentences) >= 3
+    proposed = {
+        "claims": [  # paraphrased claims; the model's own quote is wrong or missing
+            {
+                "sentence": s["id"],
+                "quote": "not what the source says",
+                "claim": s["text"].split(",")[0],
+            }
+            for s in sentences
+        ]
+    }
+    kept, _ = check_claims(proposed, sentences, [record], RULES)
+    assert len(kept) >= 3
+    assert all(c["citations"][0]["quote"] in record["text"] for c in kept)
+
+
+def test_a_retried_research_verb_samples_differently_and_says_so() -> None:
+    from types import SimpleNamespace
+
+    from eranos.model_client import UsageMeter as Meter
+    from eranos.pipeline import research
+
+    part = {"part": 1, "route": "public-only", "text": INFO_TEXT, "legal": True}
+    guardrails = load_json(ROOT / "instructions" / "public-research.json")
+    brief = research.research_brief("rq-retry", part, "Food bank", guardrails, RULES, [RULES_URL])
+
+    class Store:
+        def get_record(self, *a: Any) -> Any:
+            from tessera import NotFound
+
+            raise NotFound("none")
+
+        def put_record(
+            self, store: str, key: str, value: Any, *, expected_version: int, **kw: Any
+        ) -> Any:
+            return SimpleNamespace(version=expected_version + 1)
+
+    for attempt, hot in ((1, False), (2, True)):
+        model, meter = FakeModel(bad=False), Meter()
+        research.do_research(
+            Store(),
+            SimpleNamespace(brief=brief, attempt=attempt),
+            fetcher=fixture_fetcher({RULES_URL: RULES_HTML}),
+            model=model,
+            meter=meter,
+            worker_rules=RULES,
+        )
+        temperature, seed = model.sampling
+        assert (temperature > 0) is hot and seed == 20261031 + attempt - 1
+        assert meter.model_report()["sampling"] == [{"temperature": temperature, "seed": seed}]
+
+
+def test_an_operator_rerun_plans_a_parked_occurrence_now() -> None:
+    from types import SimpleNamespace
+
+    from eranos.pipeline.planner import Planner
+
+    lease = SimpleNamespace(
+        task_id="rq-rec",
+        brief={"text": INFO_TEXT, "frequency": "recurring", "cadence": "monthly"},
+        inputs=[{"rerun": True, "by": "operator"}],
+        children=[],
+        claimed_at=0,
+        claim_receipt="r",
+        expires_at=0,
+    )
+    nouns = {"worker": RULES, "classify": load_json(ROOT / "instructions" / "classify.json")}
+
+    class NoRecords:
+        def get_record(self, *a: Any) -> Any:
+            from tessera import NotFound
+
+            raise NotFound("none")
+
+    planner = Planner(NoRecords(), lease, worker="dedicated worker 1 (run by ta-amps)", nouns=nouns)
+    facts: list[Any] = []
+    planner._facts = lambda events, **kw: facts.extend(events)  # type: ignore[method-assign]
+    planner.plan = lambda occurrence, reuse: {"planned": occurrence}  # type: ignore[method-assign]
+    planner.park = lambda *a, **k: {"parked": True}  # type: ignore[method-assign]
+    latest = {"n": 1, "status": "scheduled", "next_at": time.time() + 86400, "park": 1}
+    assert planner.wake(latest) == {"planned": 2}
+    assert facts and facts[0]["type"] == "queued" and facts[0]["summary"]["rerun"] is True
+    lease.inputs = [{"timed_out": True}]
+    assert planner.wake(latest) == {"parked": True}  # without a re-run, an early wake waits again
+
+
+def test_example_kits_are_rewritten_in_plain_words_and_still_verify() -> None:
+    from eranos.pipeline import load_example_bundles
+    from eranos.pipeline.plain_words import PRACTICE_MARK, forbidden, plain
+    from eranos.schemas import KitDraft
+    from eranos.tracks import get_track
+    from eranos.verifier import verify_kit
+
+    bundles = load_example_bundles()
+    assert len(bundles) == 14
+    for bundle in bundles:
+        draft = KitDraft.model_validate(
+            {**plain(bundle["draft"]), "drafted_by": "check-drafter", "drafted_by_key": "k_check"}
+        )
+        report = verify_kit(draft, get_track(draft.track_id))
+        assert report.passed, (draft.kit_id, report.issues)
+        assert not forbidden(draft.model_dump(mode="json")) and not forbidden(
+            report.model_dump(mode="json")
+        )
+        assert all(PRACTICE_MARK in fx.sample_input for fx in draft.fixtures)
 
 
 def test_request_terms_bound_the_recurring_period() -> None:
@@ -857,3 +1010,52 @@ def test_a_source_digest_is_not_mistaken_for_a_card_number() -> None:
     assert report_findings(report, brief) == []
     report["sources"][0]["note_sha256"] = "card 4111 1111 1111 1111"
     assert any("payment card" in f for f in report_findings(report, brief))
+
+
+@needs_workerd
+def test_an_example_kit_is_rebuilt_in_plain_words_through_the_queues(fabric: Any) -> None:
+    from tessera.client import Client
+
+    from eranos.pipeline import load_example_bundles
+    from eranos.pipeline.plain_words import PRACTICE_MARK
+    from eranos.pipeline.run import submit_kit_request
+    from eranos.schemas import KitRequest
+    from eranos.worker_keys import issue_key
+    from eranos.worker_loop import WorkerClient
+
+    with fabric.http() as http:
+        intake = issue_key(http, fabric.admin, "kit-intake", days=1)
+    client = Client(
+        fabric.url, key=intake["key"], surface_id="eranos", namespace="main", max_retries=0
+    )
+
+    class QueuesExist:  # the queues exist already; this key may only queue kit verbs
+        def __getattr__(self, name: str) -> Any:
+            return getattr(client, name)
+
+        def define_queue(self, *_: Any, **__: Any) -> None:
+            return None
+
+    bundle = next(b for b in load_example_bundles() if b["request"]["kit_id"] == "KIT-SHIFT-05")
+    submit_kit_request(QueuesExist(), KitRequest.model_validate(bundle["request"]))
+    workers = {
+        "planner": fabric.worker("planner"),
+        "builder": fabric.worker("builder"),
+        "reviewer": fabric.worker("reviewer"),
+    }
+    for role in ("planner", "builder", "reviewer"):
+        assert workers[role].run_once() == "worked", role
+    value = fabric.get("/v1/stores/eranos.catalog/records/KIT-SHIFT-05")["value"]
+    assert value["review_receipt"] and value["reviewer_key_id"] == fabric.keys["reviewer"]["key_id"]
+    assert value["drafter_key_id"] == fabric.keys["builder"]["key_id"] != value["reviewer_key_id"]
+    assert not re.search("synthetic", json.dumps(value), re.IGNORECASE)
+    assert all(PRACTICE_MARK in fx["sample_input"] for fx in value["kit"]["fixtures"])
+    nobody = WorkerClient(
+        fabric.url, key=intake["key"], surface_id="eranos", namespace="main", max_retries=0
+    )
+    with pytest.raises(Exception, match=r"(?i)scope|forbidden|may not"):
+        nobody.claim_with_hint(
+            "eq01", "intake", kinds=["spec"]
+        )  # the intake key queues; it never claims
+    client.close()
+    nobody.close()

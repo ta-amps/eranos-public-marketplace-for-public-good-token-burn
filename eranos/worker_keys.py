@@ -22,14 +22,26 @@ SCOPES = [
     "namespace:main",
     "surface:eranos",
 ]
-REVIEW_KINDS = ["report_review", "process_review"]
+REVIEW_KINDS = ["report_review", "process_review", "review"]
 # Least privilege per role: the planner needs eq02 and eq03 only to split a request into them; the
 # builder works eq02 only; a reviewer reads everything it needs from its own eq03 brief and lease.
+# The kit kinds (spec, draft, review) let the dedicated workers rebuild the example kits; the
+# kit-intake key may only queue those kit verbs: it claims nothing and writes no record.
 ROLE_KEYS: dict[str, dict[str, Any]] = {
-    "planner": {"queues": ["eq01", "eq02", "eq03"], "kinds": ["request"], "role": "planner"},
-    "builder": {"queues": ["eq02"], "kinds": ["research", "process"], "role": "builder"},
+    "planner": {
+        "queues": ["eq01", "eq02", "eq03"],
+        "kinds": ["request", "spec"],
+        "role": "planner",
+    },
+    "builder": {"queues": ["eq02"], "kinds": ["research", "process", "draft"], "role": "builder"},
     "reviewer": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
     "reviewer2": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
+}
+INTAKE_KEY: dict[str, Any] = {
+    "queues": ["eq01", "eq02", "eq03"],
+    "kinds": ["spec", "draft", "review"],
+    "role": "intake",
+    "scopes": ["nouns:read", "verbs:submit", "namespace:main", "surface:eranos"],
 }
 
 
@@ -42,7 +54,7 @@ def issue_key(
     account_prefix: str = "eranos-worker",
 ) -> dict[str, Any]:
     """Issue one role's key; the returned dict holds the secret, so callers must not print it."""
-    spec = ROLE_KEYS[name]
+    spec = INTAKE_KEY if name == "kit-intake" else ROLE_KEYS[name]
     response = http.post(
         "/v1/admin/keys",
         json={
@@ -51,7 +63,7 @@ def issue_key(
             "queues": spec["queues"],
             "kinds": spec["kinds"],
             "effect_classes": ["read", "write-internal"],
-            "scopes": SCOPES,
+            "scopes": spec.get("scopes", SCOPES),
             "days": days,
         },
         headers={"authorization": f"Bearer {admin_key}"},

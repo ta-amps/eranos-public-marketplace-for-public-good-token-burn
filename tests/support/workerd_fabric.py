@@ -275,11 +275,26 @@ class FakeModel:
         return None
 
     def chat_json(
-        self, system: str, user: str, *, meter: UsageMeter, max_tokens: int = 900
+        self,
+        system: str,
+        user: str,
+        *,
+        meter: UsageMeter,
+        max_tokens: int = 900,
+        temperature: float = 0.0,
+        seed: int | None = None,
     ) -> dict[str, Any]:
         self.calls += 1
+        self.sampling = (temperature, seed)
         meter.add(
-            self.describe(), ModelCall(input_tokens=len(user) // 4, output_tokens=150, seconds=0.01)
+            self.describe(),
+            ModelCall(
+                input_tokens=len(user) // 4,
+                output_tokens=150,
+                seconds=0.01,
+                temperature=temperature,
+                seed=seed,
+            ),
         )
         claims = []
         for line in user.splitlines():

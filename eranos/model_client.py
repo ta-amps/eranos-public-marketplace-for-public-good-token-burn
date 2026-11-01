@@ -35,6 +35,8 @@ class ModelCall:
     input_tokens: int
     output_tokens: int
     seconds: float
+    temperature: float = 0.0
+    seed: int | None = None
 
 
 @dataclass
@@ -80,14 +82,22 @@ class UsageMeter:
     def model_report(self) -> dict[str, Any] | None:
         if self.model is None:
             return None
-        return {**self.model, "calls": len(self.calls), "cost_usd": 0.0}
+        sampling = [{"temperature": c.temperature, "seed": c.seed} for c in self.calls]
+        return {**self.model, "calls": len(self.calls), "cost_usd": 0.0, "sampling": sampling}
 
 
 class ChatModel(Protocol):
     def describe(self) -> dict[str, Any]: ...
 
     def chat_json(
-        self, system: str, user: str, *, meter: UsageMeter, max_tokens: int = 900
+        self,
+        system: str,
+        user: str,
+        *,
+        meter: UsageMeter,
+        max_tokens: int = 900,
+        temperature: float = 0.0,
+        seed: int | None = None,
     ) -> dict[str, Any]: ...
 
 
@@ -166,9 +176,17 @@ class OllamaModel:
         return self._described
 
     def chat_json(
-        self, system: str, user: str, *, meter: UsageMeter, max_tokens: int = 900
+        self,
+        system: str,
+        user: str,
+        *,
+        meter: UsageMeter,
+        max_tokens: int = 900,
+        temperature: float = 0.0,
+        seed: int | None = None,
     ) -> dict[str, Any]:
         described = self.describe()
+        seed = self.seed if seed is None else seed
         body = {
             "model": self.model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
@@ -176,8 +194,8 @@ class OllamaModel:
             "format": "json",
             "keep_alive": "15m",
             "options": {
-                "temperature": 0,
-                "seed": self.seed,
+                "temperature": temperature,
+                "seed": seed,
                 "num_ctx": self.num_ctx,
                 "num_predict": max_tokens,
             },
@@ -194,6 +212,8 @@ class OllamaModel:
                 input_tokens=int(data.get("prompt_eval_count") or 0),
                 output_tokens=int(data.get("eval_count") or 0),
                 seconds=round(float(data.get("total_duration") or 0) / 1e9, 3),
+                temperature=temperature,
+                seed=seed,
             ),
         )
         content = str((data.get("message") or {}).get("content") or "")

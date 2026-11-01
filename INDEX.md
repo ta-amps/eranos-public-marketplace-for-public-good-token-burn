@@ -83,7 +83,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/status.md](docs/status.md) | Status |
 | [docs/summary.md](docs/summary.md) | Summary |
 
-## eranos/ (44)
+## eranos/ (45)
 
 | File | What it is |
 |---|---|
@@ -108,6 +108,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/nouns.py](eranos/nouns.py) | Eranos's page text, onboarding steps, starting brief, research rules and stand-in sources are nouns. |
 | [eranos/pipeline/__init__.py](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
 | [eranos/pipeline/examples.py](eranos/pipeline/examples.py) | Example needs and recorded example runs: the nouns the marketplace shows about its example kits. |
+| [eranos/pipeline/plain_words.py](eranos/pipeline/plain_words.py) | Plain words for everything the workers publish: never the word the owner forbids (Oct 31). |
 | [eranos/pipeline/planner.py](eranos/pipeline/planner.py) | The planner's work on one claimed request verb (eq01, kind request). |
 | [eranos/pipeline/process.py](eranos/pipeline/process.py) | Process parts: a request for a reusable process becomes a generated, tested process package. |
 | [eranos/pipeline/publication.py](eranos/pipeline/publication.py) | Durable review intent, independent proof and retryable catalog publication. |

@@ -42,6 +42,7 @@ from tessera.client import Client, _retry_after
 
 from eranos import __version__, config
 from eranos.adapter.traced import TracedBackend
+from eranos.donor_worker import synthesize_review_decision
 from eranos.log import TraceWriter
 from eranos.model_client import (
     DEFAULT_MODEL,
@@ -50,23 +51,29 @@ from eranos.model_client import (
     OllamaModel,
     UsageMeter,
 )
+from eranos.pipeline import load_example_bundles, research
 from eranos.pipeline import process as process_part
-from eranos.pipeline import research
+from eranos.pipeline.plain_words import forbidden, plain
 from eranos.pipeline.planner import Planner, load_nouns
-from eranos.pipeline.run import SelfReviewRefused
+from eranos.pipeline.run import SelfReviewRefused, run_draft_step, run_review_step, run_spec_step
 from eranos.pipeline.status_events import fact, queue_snapshot, record_events
+from eranos.schemas import KitDraft, VerificationReport
 from eranos.sources import Fetched, fetch, policy_from_rules
 
 # Kit builds and kit reviews are not claimed here: kits carry a fixture mark these workers must
 # not publish. Work on a nonprofit's own files goes through process packages instead.
 ROLES: dict[str, tuple[str, tuple[str, ...]]] = {
-    "planner": ("eq01", ("request",)),
-    "builder": ("eq02", ("research", process_part.BUILD_KIND)),
-    "reviewer": ("eq03", ("report_review", process_part.REVIEW_KIND)),
+    "planner": ("eq01", ("request", "spec")),
+    "builder": ("eq02", ("research", process_part.BUILD_KIND, "draft")),
+    "reviewer": ("eq03", ("report_review", process_part.REVIEW_KIND, "review")),
 }
+KIT_KINDS = frozenset({"spec", "draft", "review"})
 DECLARED = {
     "request": "deterministic planner (no model)",
     "report_review": "deterministic re-fetch and quote check (no model)",
+    "spec": "deterministic scope check (no model)",
+    "draft": "example kit in plain words (no model)",
+    "review": "deterministic kit checks (no model)",
     process_part.REVIEW_KIND: "process handler review, in a clean process",
 }
 EXIT_STORAGE_ALLOWANCE = (
@@ -97,16 +104,23 @@ class WorkerClient(Client):
 
 @dataclass
 class Pacer:
-    """When each queue may be claimed again: at most one empty claim per queue per interval."""
+    """When each queue may be claimed again. An empty claim waits at least a minute, then twice as
+    long each time the queue is still empty, up to `max_idle_seconds`, or the server's Retry-After
+    when that is longer; any work resets the wait."""
 
     min_empty_seconds: float = 60.0
+    max_idle_seconds: float = 300.0
     next_at: dict[str, float] = field(default_factory=dict)
+    idle: dict[str, int] = field(default_factory=dict)
 
     def ready(self, queue: str, now: float) -> bool:
         return now >= self.next_at.get(queue, 0.0)
 
     def empty(self, queue: str, now: float, retry_after: float) -> float:
-        self.next_at[queue] = now + max(self.min_empty_seconds, retry_after)
+        n = self.idle.get(queue, 0) + 1
+        self.idle[queue] = n
+        backoff = min(self.max_idle_seconds, self.min_empty_seconds * 2 ** min(n - 1, 16))
+        self.next_at[queue] = now + max(backoff, self.min_empty_seconds, retry_after)
         return self.next_at[queue]
 
     def refused(self, queue: str, now: float, retry_after: float) -> float:
@@ -115,6 +129,7 @@ class Pacer:
 
     def worked(self, queue: str, now: float) -> None:
         self.next_at[queue] = now
+        self.idle[queue] = 0
 
     def wait(self, now: float) -> float:
         if not self.next_at:
@@ -279,7 +294,9 @@ class Heartbeat(threading.Thread):
 
     def run(self) -> None:
         lease = self.gate.lease
-        interval = max(2.0, float(lease.heartbeat_seconds) * 0.5)
+        # About once a minute: Tessera's lease outlives two missed beats (heartbeat x miss_limit), and
+        # every beat costs storage rows on the free plan, so beat no more often than that.
+        interval = max(2.0, float(lease.heartbeat_seconds) * 0.92)
         last_fact = 0.0
         while not self.gate.ended_event.wait(interval):
             try:
@@ -373,6 +390,7 @@ class Worker:
         self.stop = threading.Event()
         self.exit_code = 0
         self._noun: dict[str, Any] | None = None
+        self._kit_bundles: dict[str, dict[str, Any]] | None = None
         self._noun_at = 0.0
         self.stats = {"claims": 0, "empty": 0, "refused": 0, "worked": 0, "failed": 0, "lost": 0}
 
@@ -402,6 +420,10 @@ class Worker:
     def grace_wait(self, kinds: list[str]) -> float | None:
         """Volunteers first: seconds until the oldest ready verb of these kinds has waited the grace
         period since it was queued (0 means claim now), or None when none is ready."""
+        claims = self.rules().get("claims") or {}
+        self.pacer.max_idle_seconds = float(
+            claims.get("max_idle_seconds", self.pacer.max_idle_seconds)
+        )
         dedicated = self.rules().get("dedicated") or {}
         grace = float(dedicated.get("grace_seconds", 90))
         if grace <= 0 or self.queue not in (dedicated.get("queues") or ("eq01", "eq02", "eq03")):
@@ -688,7 +710,9 @@ class Worker:
         beat = Heartbeat(self, gate, part)
         beat.start()
         try:
-            if self.config.role == "planner":
+            if lease.kind in KIT_KINDS:
+                outcome = self.kit(gate, lease)
+            elif self.config.role == "planner":
                 outcome = Planner(
                     gate,
                     lease,
@@ -925,6 +949,58 @@ class Worker:
             )
         self._facts(gate, request_id, self.review_facts(lease, out, part))
         return out
+
+    # example kits (spec on eq01, draft on eq02, review on eq03) ----------------------------------
+    def _bundles(self) -> dict[str, dict[str, Any]]:
+        if self._kit_bundles is None:
+            self._kit_bundles = {str(b["request"]["kit_id"]): b for b in load_example_bundles()}
+        return self._kit_bundles
+
+    def kit(self, gate: LeaseGate, lease: Lease) -> dict[str, Any]:
+        """One step of an example kit's rebuild, in plain words; publication follows the review."""
+        worker, key_id = self.config.label, self.config.key_id
+        if lease.kind == "spec":
+            return dict(
+                run_spec_step(gate, worker=worker, key_id=key_id) or {"status": "nothing_claimed"}
+            ) | {"status": "spec_done"}
+        if lease.kind == "draft":
+            kit_id = str(((lease.brief or {}).get("request") or {}).get("kit_id") or "")
+            bundle = self._bundles().get(kit_id)
+            if bundle is None:
+                raise ValueError(f"there is no example kit {kit_id!r} on this machine")
+            draft = plain(bundle["draft"])
+            if left := forbidden(draft):
+                raise ValueError(f"the kit still says a forbidden word at {', '.join(left[:3])}")
+            done = run_draft_step(gate, draft, worker=worker, key_id=key_id)
+            return {"status": "submitted" if done else "nothing_claimed", "kit_id": kit_id}
+        dep = lease.dependencies[0]
+        if dep.state != "done" or not isinstance(dep.output, dict):
+            receipt = gate.submit(
+                lease.task_id,
+                lease.fencing_token,
+                {"node": "review", "status": "nothing_to_review", "draft_state": dep.state},
+                idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
+                ok=True,
+            )
+            return {"status": "nothing_to_review", "receipt": receipt.receipt_hash}
+        draft = KitDraft.model_validate(dep.output["draft"])
+        decision = synthesize_review_decision(
+            draft,
+            VerificationReport.model_validate(dep.output["verification"]),
+            worker=worker,
+            key_id=key_id,
+        )
+        if forbidden(dep.output):
+            decision = decision.model_copy(
+                update={
+                    "verdict": "needs_revision",
+                    "notes": "The kit still says a word the owner forbids; it is not published.",
+                }
+            )
+        return dict(
+            run_review_step(gate, decision, worker=worker, key_id=key_id)
+            or {"status": "nothing_claimed"}
+        )
 
     def review_facts(self, lease: Lease, out: dict[str, Any], part: Any) -> list[dict[str, Any]]:
         who, status = self.config.display, out.get("status")

@@ -320,7 +320,12 @@ def check_claims(
     sources: list[dict[str, Any]],
     rules: dict[str, Any],
 ) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
-    """Keep a proposed claim only when its quote is verbatim and its words come from the quote."""
+    """Keep a proposed claim only when its words come from the sentence it cites.
+
+    The model cites a numbered sentence; the quote is that sentence, copied by code from the
+    fetched source, so it is verbatim by construction (a quote the model typed is ignored). The
+    claim stays the model's own words and must rest on the quote.
+    """
     research = rules.get("research") or {}
     overlap_needed = float(research.get("support_overlap") or 0.5)
     by_id = {s["id"]: s for s in sentences}
@@ -333,14 +338,14 @@ def check_claims(
         if not isinstance(item, dict):
             dropped.append({"sentence": "?", "reason": "not an object"})
             continue
-        sid = str(item.get("sentence") or "")
-        quote = " ".join(str(item.get("quote") or "").split())
+        sid = str(item.get("sentence") or "").strip().strip("[]")
         claim = " ".join(str(item.get("claim") or "").split())
         entry = by_id.get(sid)
         if entry is None:
             dropped.append({"sentence": sid, "reason": "names no numbered sentence"})
             continue
         source_id = entry["source"]
+        quote = " ".join(str(entry["text"]).split())
         if problem := quote_finding(sid, source_id, quote, texts[source_id]):
             dropped.append({"sentence": sid, "reason": "quote not verbatim: " + problem})
             continue
@@ -463,7 +468,13 @@ def do_research(
     proposed: Any = {}
     if sentences:
         system, user = prompt_text(worker_rules, brief["question"], sentences, sources)
-        proposed = model.chat_json(system, user, meter=meter)
+        # The first attempt samples greedily; a retried verb samples a little more widely, with a
+        # different seed, so it does not repeat the same failure. Both are in the execution report.
+        attempt = max(1, int(getattr(lease, "attempt", 1) or 1))
+        temperature = 0.0 if attempt == 1 else min(0.6, 0.2 * attempt)
+        proposed = model.chat_json(
+            system, user, meter=meter, temperature=temperature, seed=20261031 + attempt - 1
+        )
     claims, dropped = check_claims(proposed, sentences, sources, worker_rules)
     stages = {
         "fetch": {

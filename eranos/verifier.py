@@ -25,7 +25,7 @@ from eranos.tracks import get_track
 PRACTICE_CHECKS: list[str] = [
     "track_alignment",
     "human_only_boundaries",
-    "synthetic_fixtures",
+    "practice_case_fixtures",
     "non_accusatory_copy",
     "prohibited_topics",
     "spdx_license_allowlist",
@@ -237,7 +237,7 @@ def practice_verify_kit(
     # 4. Synthetic fixture checks
     raw_fixtures = raw.get("fixtures")
     if not isinstance(raw_fixtures, list) or len(raw_fixtures) < 2:
-        add_issue("fixtures must provide at least 2 synthetic test cases")
+        add_issue("fixtures must provide at least 2 practice cases")
     else:
         has_esc = False
         has_rou = False

@@ -22,7 +22,11 @@ from eranos.schemas.tracks import (
 KIT_ID = r"^[A-Z]{2,4}-[A-Z0-9]{2,8}-[0-9]{2}$"
 # A visible mark that a test case is made up. New packages use MADE-UP (the owner asked that public
 # packages never use the older word); the older mark stays accepted for existing example kits.
-FIXTURE_MARKS: tuple[str, ...] = ("MADE-UP", "SYNTHETIC")
+FIXTURE_MARKS: tuple[str, ...] = (
+    "Practice case: an example, not a real person or case",
+    "MADE-UP",
+    "SYNTHETIC",
+)
 BRIEF_ID = r"^[A-Z][0-9]{1,3}$"
 EffectClass = Literal["read", "write-internal", "write-repo", "public"]
 OwnerType = Literal["claude-code", "muse-code", "muse-assistant", "human"]

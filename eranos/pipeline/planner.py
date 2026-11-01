@@ -643,7 +643,23 @@ class Planner:
             )
             return closed
         due = float(latest.get("next_at") or 0)
-        if due and time.time() < due - 5:
+        # An operator may re-run a parked occurrence now (resume input {"rerun": true}); recorded.
+        rerun = any(
+            isinstance(i, dict) and i.get("rerun") is True for i in (self.lease.inputs or [])[-1:]
+        )
+        if rerun:
+            self._facts(
+                [
+                    fact(
+                        "queued",
+                        **self.who,
+                        ref=f"{self.request_id} park {latest.get('park')}",
+                        reason="An operator re-ran this recurring request's occurrence now instead of at its next date.",
+                        summary={"rerun": True, "occurrence": int(latest["n"]) + 1},
+                    )
+                ]
+            )
+        if due and time.time() < due - 5 and not rerun:
             return self.park(occurrences, int(self.terms["period_s"]), wait=due - time.time())
         return self.plan(int(latest["n"]) + 1, reuse=False)
 
