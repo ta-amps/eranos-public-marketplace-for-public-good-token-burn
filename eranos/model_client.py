@@ -129,19 +129,30 @@ class ChatModel(Protocol):
     ) -> dict[str, Any]: ...
 
 
+KEY_NAME = "META_API_KEY"
+# The owner's caps and Meta's list rates, as ceilings and floors in code: a Task Object can lower
+# the caps or raise the rates, never the other way (review M1). A model missing here is not called.
+MAX_DAILY_USD, MAX_TOTAL_USD = 5.0, 150.0
+MIN_RATES_USD_PER_MILLION = {
+    "muse-spark-1.3": {"input": 1.25, "output": 4.25},
+    "muse-wonder-1.0": {"input": 4.0, "output": 20.0},
+}
+
+
 def key_from_text(text: str) -> str:
-    """The key in a key file: the file's only content, or the value of a `..._KEY=` line (an
-    0600 env file such as `META_API_KEY=...`). Never logged or returned to a caller that prints."""
+    """The key in a key file: the file's only content, or the value of its `META_API_KEY=` line
+    (an 0600 env file). No other name is read, so a worker env file's Tessera key is never taken
+    for the Meta key (review M3). Never logged or returned to a caller that prints."""
     for line in text.splitlines():
         name, sep, value = line.partition("=")
-        if sep and name.strip().upper().endswith("KEY") and not name.strip().startswith("#"):
+        if sep and name.strip() == KEY_NAME:
             return value.strip().strip("'\"")
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     return lines[0] if len(lines) == 1 and "=" not in lines[0] else ""
 
 
 def refuse_contributor(model_id: str) -> None:
-    if model_id.endswith("-contributor") or "contributor" in model_id.split("-"):
+    if "contributor" in model_id.lower():  # any spelling, case or separator
         raise ContributorTierRefused(f"{model_id!r} is a contributor-tier model; refused")
 
 
@@ -153,20 +164,31 @@ class Ledger:
 
     def __init__(self, path: str | Path, *, daily_usd: float, total_usd: float) -> None:
         self.path = Path(path)
-        self.daily_usd, self.total_usd = float(daily_usd), float(total_usd)
+        # The noun can only lower the owner's caps (review M1).
+        self.daily_usd = min(float(daily_usd), MAX_DAILY_USD)
+        self.total_usd = min(float(total_usd), MAX_TOTAL_USD)
 
     def _update(self, change: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
+        """Read, change and write the ledger under a lock on a side file. The new contents go to a
+        temporary file in the same folder, are synced, then replace the ledger in one rename, so a
+        kill at any moment leaves the old ledger or the new one, never an empty one (review M2)."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        fd = os.open(self.path, os.O_RDWR | os.O_CREAT, 0o600)
-        with os.fdopen(fd, "r+", encoding="utf-8") as fh:
-            fcntl.flock(fh, fcntl.LOCK_EX)
-            text = fh.read()
+        lock = os.open(self.path.with_name(self.path.name + ".lock"), os.O_RDWR | os.O_CREAT, 0o600)
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            text = self.path.read_text(encoding="utf-8") if self.path.exists() else ""
             data = json.loads(text) if text.strip() else {"days": {}, "total_usd": 0.0, "calls": 0}
-            change(data)  # raising here leaves the file as it was
-            fh.seek(0)
-            fh.truncate()
-            fh.write(json.dumps(data, sort_keys=True))
+            change(data)  # raising here leaves the ledger as it was
+            temp = self.path.with_name(f".{self.path.name}.{os.getpid()}.tmp")
+            fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as fh:
+                fh.write(json.dumps(data, sort_keys=True))
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(temp, self.path)
             return dict(data)
+        finally:
+            os.close(lock)
 
     def _refuse(self, data: dict[str, Any], day: str, estimate: float) -> None:
         spent_today = float((data.get("days") or {}).get(day, 0.0))
@@ -239,9 +261,19 @@ class MetaModel:
         host = (urlsplit(self.base_url).hostname or "").lower()
         if urlsplit(self.base_url).scheme != "https" or host not in META_HOSTS:
             raise ValueError("the workers' model is reached only through the Meta API over https")
-        self.prices = dict(settings.get("prices_usd_per_million") or {})
-        if not {"input", "output"} <= set(self.prices):
-            raise ValueError("the worker noun must give the model's input and output prices")
+        given = dict(settings.get("prices_usd_per_million") or {})
+        floor = MIN_RATES_USD_PER_MILLION.get(self.model)
+        if floor is None:
+            raise ValueError(f"{self.model} has no rates in code, so it is never called")
+        if (
+            not {"input", "output"} <= set(given)
+            or min(float(given[k]) for k in ("input", "output")) <= 0
+        ):
+            raise ValueError("the catalog must give the model's positive input and output prices")
+        # The catalog can only raise a rate above Meta's list rate, never lower it (review M1).
+        self.prices = {k: max(float(given[k]), floor[k]) for k in ("input", "output")}
+        if given.get("cached_input"):
+            self.prices["cached_input"] = max(float(given["cached_input"]), 0.0)
         self.max_tokens = int(settings.get("max_tokens") or 1500)
         self.reasoning_effort = settings.get("reasoning_effort")
         self.key_file = key_file or os.environ.get(KEY_FILE_ENV, "")

@@ -45,7 +45,27 @@ INFRA = re.compile(
     r"ModelUnavailable|BudgetExhausted|StorageQuota|lease was lost|could not be reached|key file",
     re.IGNORECASE,
 )
-_URL = re.compile(r"https?://|www\.", re.IGNORECASE)
+# The persona gate (review C1, from review-b1/gate_candidate.py): links and spelled-out addresses,
+# instruction-override cues, role markers, structure characters, secret words, and names.
+_LINK = re.compile(
+    r"https?|www\.|\b[a-z0-9-]+\.(?:gov|org|com|net|edu|io|ai|info|us|uk)\b|\b[a-z0-9-]+\.[a-z]{2,}/",
+    re.I,
+)
+_AT_DOT = re.compile(r"\bat\b.{0,40}\bdot\b|\[at\]|\(at\)|\[dot\]|\(dot\)", re.I)
+_OVERRIDE = re.compile(
+    r"\b(?:ignore|disregard|forget|override|bypass|jailbreak)\b|\bprevious\b|\bprior instructions\b|"
+    r"\b(?:system|assistant|developer|user)\s*:|<\||\|>|[<>{}\[\]`\\]|"
+    r"\b(?:api|secret|token|password|credential|key|environment|env)s?\b|\bapprove every\b|\bwithout (?:a )?quote\b|\bskip (?:the |all |every )?(?:sentence |quote )?(?:checks?|rules?)\b|\bin your own words\b|\beven when\b",
+    re.I,
+)
+_NAME = re.compile(
+    r"(?<=[a-z,;] )[A-Z][a-z]+(?: [A-Z][a-z.]*){1,3}\b"
+)  # capitalised words mid-sentence
+CHOICES = (
+    "use",
+    "changes",
+    "dont",
+)  # a person's decision at Ready for you; anything else is ignored
 
 
 @dataclass(frozen=True)
@@ -154,7 +174,7 @@ def outcomes_from_events(
                 out.append(Outcome("make", maker, (1.0 - pen) if passed else 0.0, 1.0, ref, kind))
             out.extend(_check_pair(tune, rewards, weight_missed, ref))
             last_check[part] = {"check": str(tune.get("variant") or ""), "make": maker}
-        elif kind == "decided" and part in last_check:
+        elif kind == "decided" and part in last_check and event.get("choice") in CHOICES:
             used = event.get("choice") == "use"
             for step, variant in (
                 ("make", last_check[part]["make"]),
@@ -371,18 +391,30 @@ def proposal_prompt(step: str, base: dict[str, Any], failed: list[Outcome]) -> t
 
 
 def checked_persona(answer: Any) -> tuple[dict[str, str] | None, str]:
-    """A drafted persona that passes every rule, or None and why it was refused."""
+    """A persona that passes every rule, or None and why it was refused. ASCII only (no look-alike
+    letters or zero-width marks), no link or address, no instruction-override cue, role marker,
+    structure character or secret word, no name, the owner's wording, no accusation, no personal
+    data. Every live persona is checked again before it runs (Worker.usable)."""
     if not isinstance(answer, dict):
         return None, "the draft was not a JSON object"
     title, text = str(answer.get("title") or "").strip(), str(answer.get("text") or "").strip()
     if not (3 <= len(title) <= 60 and 40 <= len(text) <= 500):
         return None, "the draft's title or text length is out of bounds"
-    persona = {"title": title, "text": text}
-    if forbidden(persona) or find_accusatory_words(f"{title} {text}") or _URL.search(text):
-        return None, "the draft breaks the wording, accusation or link rule"
+    both = f"{title} {text}"
+    if not both.isascii():
+        return None, "the draft has non-ASCII characters (look-alike letters or zero-width marks)"
+    if forbidden({"title": title, "text": text}) or find_accusatory_words(both):
+        return None, "the draft breaks the wording or accusation rule"
+    if _LINK.search(both) or _AT_DOT.search(both):
+        return None, "the draft holds a link or an address"
+    if _OVERRIDE.search(both) or _NAME.search(text):
+        return None, "the draft holds an override cue, a role marker, a secret word or a name"
     if personal_data_findings({"title": title, "text": text}):
         return None, "the draft holds personal data"
-    return persona, "passed the wording, accusation, link and personal-data checks"
+    return {
+        "title": title,
+        "text": text,
+    }, "passed the wording, accusation, link, override and personal-data checks"
 
 
 def trial_variant(

@@ -246,3 +246,53 @@ def test_a_file_without_a_key_is_refused(tmp_path: Path) -> None:
     path.write_text("TESSERA_URL=https://example.org\nOTHER=1\n")
     with pytest.raises(ModelUnavailable, match="holds no key"):
         MetaModel(SETTINGS, key_file=str(path), transport=transport([])).healthy()
+
+
+def test_only_the_meta_key_by_its_exact_name_is_read(tmp_path: Path) -> None:
+    from eranos.model_client import key_from_text
+
+    assert key_from_text(f"META_API_KEY={PLACEHOLDER_CREDENTIAL}\n") == PLACEHOLDER_CREDENTIAL
+    # A worker env file: its Tessera key must never be taken for the Meta key (review M3).
+    assert key_from_text("TESSERA_KEY=tsk_example_only\nERANOS_KEY_ID=k_1\n") == ""
+    assert key_from_text("OTHER_META_API_KEY=x\n") == ""
+
+
+@pytest.mark.parametrize(
+    "model_id",
+    [
+        "Muse-Spark-1.3-CONTRIBUTOR",
+        "muse-spark-1.3_contributor",
+        "muse-spark-1.3.contributor",
+        "muse-spark-1.3-contributor ",
+    ],
+)
+def test_a_contributor_id_is_refused_in_any_spelling(model_id: str) -> None:
+    with pytest.raises(ContributorTierRefused):
+        MetaModel({**SETTINGS, "id": model_id})
+
+
+def test_the_owners_caps_and_metas_rates_hold_whatever_the_nouns_say(tmp_path: Path) -> None:
+    ledger = Ledger(tmp_path / "spend.json", daily_usd=1_000_000, total_usd=1_000_000)
+    assert (ledger.daily_usd, ledger.total_usd) == (5.0, 150.0)  # the noun can only lower them
+    assert Ledger(tmp_path / "s2.json", daily_usd=1, total_usd=20).daily_usd == 1.0
+    cheap = MetaModel({**SETTINGS, "prices_usd_per_million": {"input": 0.01, "output": 0.01}})
+    assert (
+        cheap.prices["input"] == 4.0 and cheap.prices["output"] == 20.0
+    )  # never below the list rate
+    for rates in ({"input": 0, "output": 0}, {"input": -1, "output": 20}):
+        with pytest.raises(ValueError, match="positive"):
+            MetaModel({**SETTINGS, "prices_usd_per_million": rates})
+    with pytest.raises(ValueError, match="no rates in code"):
+        MetaModel({**SETTINGS, "id": "muse-spark-1.2"})
+
+
+def test_the_ledger_is_replaced_whole_never_truncated(tmp_path: Path) -> None:
+    path = tmp_path / "spend.json"
+    ledger = Ledger(path, daily_usd=5, total_usd=150)
+    ledger.settle(0.5)
+    first = path.stat().st_ino
+    ledger.settle(0.25)
+    assert path.stat().st_ino != first  # a new file moved into place, not the old one rewritten
+    assert spend(path)["total_usd"] == 0.75 and spend(path)["calls"] == 2
+    assert sorted(p.name for p in tmp_path.iterdir()) == ["spend.json", "spend.json.lock"]
+    assert stat.S_IMODE(os.stat(path).st_mode) == 0o600

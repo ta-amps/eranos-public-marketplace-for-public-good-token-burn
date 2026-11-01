@@ -54,6 +54,7 @@ from eranos.donor_worker import synthesize_review_decision
 from eranos.log import TraceWriter
 from eranos.model_client import (
     LEDGER_ENV,
+    MIN_RATES_USD_PER_MILLION,
     BudgetExhausted,
     ContributorTierRefused,
     Ledger,
@@ -586,9 +587,16 @@ class Worker:
         return model
 
     def usable(self, variant: dict[str, Any]) -> bool:
-        """A variant may run only with a priced Muse model at the standard tier."""
+        """A variant may run only with a priced Muse model at the standard tier, and only with a
+        persona that passes the gate again here, so a hand edit of the noun cannot bypass it."""
         model_id = str(variant.get("model") or "")
-        if not model_id or "contributor" in model_id.split("-"):
+        if not model_id or "contributor" in model_id.lower():
+            return False
+        if model_id not in MIN_RATES_USD_PER_MILLION:
+            return False
+        persona = variant.get("persona")
+        if persona is not None and tuning_mod.checked_persona(persona)[0] is None:
+            self.trace.write("persona_refused", level="warning", variant=variant.get("id"))
             return False
         return {"input", "output"} <= set((self.catalog().get(model_id) or {}).get("rates") or {})
 
