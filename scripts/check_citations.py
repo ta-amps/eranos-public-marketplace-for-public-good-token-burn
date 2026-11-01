@@ -17,12 +17,17 @@ whitespace collapsed, in the fetched text. Exit 0 only when every quote passes, 
 from __future__ import annotations
 
 import argparse
+import http.client
+import ipaddress
 import json
 import re
+import socket
+import ssl
 import sys
-import urllib.request
+import time
 from html.parser import HTMLParser
 from typing import Any
+from urllib.parse import urljoin, urlsplit
 
 BLOCK = set(
     [
@@ -105,12 +110,73 @@ def collapse(text: str) -> str:
     return " ".join(text.replace("\xa0", " ").split())
 
 
-def get(url: str) -> tuple[str, bytes]:
-    if not url.startswith("https://"):
-        raise ValueError("only https addresses are checked")
-    request = urllib.request.Request(url, headers={"User-Agent": UA})  # noqa: S310 - https only
-    with urllib.request.urlopen(request, timeout=30) as response:  # noqa: S310 - https only
-        return str(response.headers.get("content-type") or "").lower(), response.read(4_000_000)
+TRANSLATED = [
+    ipaddress.ip_network(n) for n in ("64:ff9b::/96", "64:ff9b:1::/48", "2002::/16", "2001::/32")
+]
+
+
+def public_ip(host: str) -> str:
+    """The address to connect to; refuses a host that resolves to any non-public address."""
+    addresses = [
+        str(info[4][0]) for info in socket.getaddrinfo(host, 443, proto=socket.IPPROTO_TCP)
+    ]
+    for text in addresses:
+        ip = ipaddress.ip_address(text.split("%", 1)[0])
+        if (
+            not ip.is_global
+            or ip.is_multicast
+            or (ip.version == 6 and any(ip in n for n in TRANSLATED))
+        ):
+            raise ValueError(f"{host} resolves to a non-public address")
+    if not addresses:
+        raise ValueError(f"{host} does not resolve")
+    return addresses[0]
+
+
+class Pinned(http.client.HTTPSConnection):
+    """Connects to the checked address; the certificate is still checked against the host name."""
+
+    def __init__(self, host: str, ip: str) -> None:
+        self.tls = ssl.create_default_context()
+        super().__init__(host, 443, timeout=20, context=self.tls)
+        self.ip = ip
+
+    def connect(self) -> None:
+        sock = socket.create_connection((self.ip, 443), timeout=self.timeout)
+        self.sock = self.tls.wrap_socket(sock, server_hostname=self.host)
+
+
+def get(url: str, redirects: int = 3) -> tuple[str, bytes]:
+    """GET a public https address (no proxy; each redirect is checked again), within 60 s and 4 MB."""
+    parts = urlsplit(url)
+    host = (parts.hostname or "").lower()
+    if parts.scheme != "https" or parts.port not in (None, 443) or parts.username or not host:
+        raise ValueError("only plain https addresses on port 443 are checked")
+    try:
+        ipaddress.ip_address(host)
+    except ValueError:
+        pass
+    else:
+        raise ValueError("addresses must name a host, not an IP address")
+    conn = Pinned(host, public_ip(host))
+    deadline = time.monotonic() + 60
+    try:
+        path = (parts.path or "/") + (f"?{parts.query}" if parts.query else "")
+        conn.request("GET", path, headers={"User-Agent": UA, "Accept-Encoding": "identity"})
+        response = conn.getresponse()
+        location = response.getheader("location")
+        if response.status in (301, 302, 303, 307, 308) and location and redirects > 0:
+            return get(urljoin(url, location), redirects - 1)
+        if response.status >= 400:
+            raise ValueError(f"{host} answered {response.status}")
+        body = b""
+        while chunk := response.read(65536):
+            body += chunk
+            if len(body) > 4_000_000 or time.monotonic() > deadline:
+                raise ValueError(f"{host} sent too much or took too long")
+        return str(response.getheader("content-type") or "").lower(), body
+    finally:
+        conn.close()
 
 
 def page_text(content_type: str, raw: bytes) -> str:

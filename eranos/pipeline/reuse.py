@@ -68,9 +68,10 @@ def _report_text(value: dict[str, Any]) -> str:
     return " ".join(str(report.get(k) or "") for k in ("title", "question")) + " " + claims
 
 
-def _kit_text(value: dict[str, Any]) -> str:
-    kit = value.get("kit") or {}
-    return " ".join(str(kit.get(k) or "") for k in ("title", "summary", "target_org", "track_id"))
+def _process_text(value: dict[str, Any]) -> str:
+    return " ".join(
+        str(value.get(k) or "") for k in ("title", "summary", "description", "request_text")
+    )
 
 
 def candidates(backend: Any, rules: dict[str, Any]) -> list[tuple[str, Any, str, str, str]]:
@@ -86,13 +87,30 @@ def candidates(backend: Any, rules: dict[str, Any]) -> list[tuple[str, Any, str,
             value = record.value if isinstance(record.value, dict) else {}
             if store == "eranos.solutions":
                 receipt = str(value.get("review_receipt") or "")
-                if receipt and not value.get("synthetic") and not value.get("reused_from"):
+                made_up = value.get("made_up_sample") or value.get("synthetic")
+                if receipt and not made_up and not value.get("reused_from"):
                     out.append((store, record, _report_text(value), "report", receipt))
-            elif store == "eranos.catalog":
+            elif store == "eranos.processes":
                 receipt = str(value.get("review_receipt") or "")
-                if receipt and "status:verified" in (value.get("tags") or []):
-                    out.append((store, record, _kit_text(value), "kit", receipt))
+                if receipt and value.get("review_task_id"):
+                    out.append((store, record, _process_text(value), "process", receipt))
     return out
+
+
+def verified(backend: Any, value: dict[str, Any], receipt: str) -> bool:
+    """Tessera, not the record, says the review happened: its result carries this receipt."""
+    task_id = str(value.get("review_task_id") or "")
+    if not task_id:
+        return False
+    try:
+        results = backend.results(task_id)
+    except Exception:
+        return False
+    for result in results:
+        out = result.output if isinstance(result.output, dict) else {}
+        if result.receipt_hash == receipt and result.ok and out.get("approved") is True:
+            return True
+    return False
 
 
 def find_reuse(
@@ -103,19 +121,19 @@ def find_reuse(
     if len(wanted) < 3:
         return None
     threshold = float(rules.get("threshold") or 0.6)
-    best: Match | None = None
+    scored: list[tuple[float, str, Any, str, str]] = []
     for store, record, have_text, kind, receipt in candidates(backend, rules):
         if output_type == "information" and kind != "report":
             continue
         if output_type == "process" and kind == "report":
             continue
         value = score(wanted, terms(have_text, rules))
-        if value >= threshold and (best is None or value > best.score):
-            title = str(
-                ((record.value or {}).get("report") or (record.value or {}).get("kit") or {}).get(
-                    "title"
-                )
-                or ""
-            )
-            best = Match(store, str(record.key), int(record.version), value, kind, receipt, title)
-    return best
+        if value >= threshold:
+            scored.append((value, store, record, kind, receipt))
+    for value, store, record, kind, receipt in sorted(scored, key=lambda item: -item[0]):
+        body = record.value if isinstance(record.value, dict) else {}
+        if not verified(backend, body, receipt):
+            continue
+        title = str((body.get("report") or body).get("title") or "")
+        return Match(store, str(record.key), int(record.version), value, kind, receipt, title)
+    return None

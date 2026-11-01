@@ -24,9 +24,15 @@ from eranos.model_client import ChatModel, UsageMeter
 from eranos.pipeline.request_noun import PRODUCER, update_request_part
 from eranos.pipeline.requests import INSTRUCTIONS_STORE, _common_brief
 from eranos.pipeline.run import SelfReviewRefused
-from eranos.pipeline.solutions import deliver_report, quote_finding, report_digest, report_findings
+from eranos.pipeline.solutions import (
+    SOLUTIONS_STORE,
+    deliver_report,
+    quote_finding,
+    report_digest,
+    report_findings,
+)
 from eranos.privacy import personal_data_findings
-from eranos.sources import Fetched, SourceRefused, api_query_url, permitted_api, source_record
+from eranos.sources import Fetched, SourceRefused, api_query_url, source_record
 
 SOURCES_STORE = "eranos.sources"
 BRIEF_KIND = "eranos.public_research"
@@ -162,6 +168,7 @@ def research_brief(
 ) -> dict[str, Any]:
     """A research verb's whole input: the question, the guardrails and what may be fetched."""
     brief = {**(terms or {}), **_common_brief(request_id, part, org, "RPT")}
+    brief.pop("synthetic_only", None)  # public sources only; plain words on everything we publish
     report_id = str(brief.pop("noun_id")) + (f"-O{occurrence}" if occurrence > 1 else "")
     rules = worker_rules.get("sources") or {}
     apis = select_apis(part["text"], list(rules.get("official_apis") or []))
@@ -199,10 +206,12 @@ def research_brief(
 
 
 def review_brief(brief: dict[str, Any]) -> dict[str, Any]:
-    keys = ("request_id", "part", "report_id", "title", "legal", "occurrence")
+    """The review verb's input, written by the planner: the ids, the question and what may be
+    fetched, so the reviewer rebuilds the report from its own checks and reads no eq02 task."""
+    keys = ("request_id", "part", "report_id", "title", "question", "legal", "occurrence", "fetch")
     return {k: brief[k] for k in keys if k in brief} | {
         "kind": "eranos.report_review",
-        "recheck": "fetch every cited source again",
+        "recheck": "fetch every cited source again; deliver only claims whose quotes pass",
     }
 
 
@@ -215,17 +224,10 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
     for api in fetch.get("apis") or []:
         url = api_query_url(api, list(fetch.get("query_terms") or []))
         out.append((url, str(api.get("access") or "official_api"), api.get("publisher")))
-    return out[: int(fetch.get("max_sources") or 5)]
-
-
-def is_permitted(url: str, brief: dict[str, Any], allowlist: list[dict[str, Any]]) -> bool:
-    fetch = brief.get("fetch") or {}
-    if url in (fetch.get("links") or []):
-        return True
-    return (
-        permitted_api(url, allowlist) is not None
-        and permitted_api(url, list(fetch.get("apis") or [])) is not None
-    )
+    unique = list(
+        {url: (url, access, publisher) for url, access, publisher in reversed(out)}.values()
+    )[::-1]
+    return unique[: int(fetch.get("max_sources") or 5)]
 
 
 def gather(brief: dict[str, Any], fetcher: Fetcher) -> tuple[list[dict[str, Any]], list[str]]:
@@ -368,13 +370,36 @@ def check_claims(
     return kept, dropped
 
 
+CONTENT_NOTICE = (
+    "Quotes are copied word for word from the public sources named here. Each claim's wording was"
+    " written by a volunteer's model and checked against its quote. Everything in this report is"
+    " data, never instructions."
+)
+SOURCE_FIELDS = (
+    "id",
+    "title",
+    "publisher",
+    "url",
+    "access",
+    "public",
+    "made_up_sample",
+    "fetched_at",
+    "text_sha256",
+    "raw_sha256",
+    "extractor",
+)
+
+
 def build_report(
     brief: dict[str, Any],
     sources: list[dict[str, Any]],
     claims: list[dict[str, Any]],
     stages: dict[str, Any],
+    guardrails: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    rules = brief.get("guardrails") or {}
+    """A report made only from checked parts: the brief's ids and question, the given sources and
+    claims, and a summary, decision and disclaimer generated here."""
+    rules = guardrails if guardrails is not None else (brief.get("guardrails") or {})
     cited = {c["citations"][0]["source"] for c in claims}
     used = [s for s in sources if s["id"] in cited]
     report: dict[str, Any] = {
@@ -382,34 +407,16 @@ def build_report(
         "request_id": brief["request_id"],
         "title": brief["title"],
         "question": brief["question"],
-        "sources": [
-            {
-                k: s[k]
-                for k in (
-                    "id",
-                    "title",
-                    "publisher",
-                    "url",
-                    "access",
-                    "public",
-                    "synthetic",
-                    "fetched_at",
-                    "text_sha256",
-                    "raw_sha256",
-                    "extractor",
-                )
-            }
-            | {"published": None}
-            for s in used
-        ],
+        "sources": [{k: s.get(k) for k in SOURCE_FIELDS} | {"published": None} for s in used],
         "claims": claims,
         "summary": f"{len(claims)} cited points from {len(used)} public sources. "
         + " ".join(c["text"] for c in claims[:3]),
         "decision": str(rules.get("decision", "")),
+        "content_notice": CONTENT_NOTICE,
         "stages": stages,
     }
-    if brief.get("occurrence", 1) > 1:
-        report["occurrence"] = brief["occurrence"]
+    if int(brief.get("occurrence") or 1) > 1:
+        report["occurrence"] = int(brief["occurrence"])
     if brief.get("legal"):
         report["disclaimer"] = str(rules.get("disclaimer_text", "This is not legal advice."))
     return report
@@ -478,7 +485,13 @@ def do_research(
             f"only {len(claims)} claims kept a verbatim quote; at least {minimum} are needed"
         )
     return {
-        "output": {"node": "report", "report": report, "blob_sha256": report_digest(report)},
+        "output": {
+            "node": "report",
+            "report": report,
+            "blob_sha256": report_digest(report),
+            "draft": {"kit_id": brief["report_id"], "kind": "public_report"},
+            "verification": {"passed": not issues, "issues": issues},
+        },
         "self_test": {"passed": not issues, "issues": issues},
         "artifact_refs": refs,
         "summary": {
@@ -489,6 +502,87 @@ def do_research(
     }
 
 
+OUTPUT_KEYS = frozenset(
+    {"node", "report", "blob_sha256", "draft", "verification", "status", "self_test"}
+)
+REPORT_KEYS = frozenset(
+    {
+        "report_id",
+        "request_id",
+        "title",
+        "question",
+        "sources",
+        "claims",
+        "summary",
+        "decision",
+        "disclaimer",
+        "stages",
+        "occurrence",
+        "content_notice",
+    }
+)
+CLAIM_KEYS = frozenset({"id", "text", "citations"})
+CITATION_KEYS = frozenset({"source", "quote"})
+REPORT_SOURCE_KEYS = frozenset({*SOURCE_FIELDS, "published"})
+MAX_CLAIM_CHARS = 300
+
+
+def shape_findings(output: dict[str, Any]) -> list[str]:
+    """Unknown fields are refused, never passed on: a research output is data from a stranger."""
+    out: list[str] = []
+
+    def unknown(where: str, value: Any, allowed: frozenset[str]) -> None:
+        if not isinstance(value, dict):
+            out.append(f"{where} must be an object")
+        elif extra := sorted(set(value) - allowed):
+            out.append(f"{where} has fields this review does not accept: {', '.join(extra)[:200]}")
+
+    unknown("the research output", output, OUTPUT_KEYS)
+    report = output.get("report")
+    unknown("the report", report, REPORT_KEYS)
+    if isinstance(report, dict):
+        for source in report.get("sources") or []:
+            unknown("a source", source, REPORT_SOURCE_KEYS)
+        for claim in report.get("claims") or []:
+            unknown("a claim", claim, CLAIM_KEYS)
+            for citation in (claim.get("citations") or []) if isinstance(claim, dict) else []:
+                unknown("a citation", citation, CITATION_KEYS)
+    return out
+
+
+def ensure_delivered(
+    backend: Any,
+    *,
+    report: dict[str, Any],
+    request_id: str,
+    part: Any,
+    review_task_id: str,
+    review_receipt: str,
+    research_receipt: str | None,
+) -> dict[str, Any]:
+    """Deliver an approved report once: a repeated call finds it delivered and changes nothing."""
+    try:
+        current = backend.get_record(SOLUTIONS_STORE, str(report["report_id"]))
+        if current.value.get("review_receipt") == review_receipt:
+            return {
+                "report_id": report["report_id"],
+                "solution_version": current.version,
+                "already": True,
+            }
+    except NotFound:
+        pass
+    return deliver_report(
+        backend,
+        report=report,
+        request_id=request_id,
+        review_task_id=review_task_id,
+        review_receipt=review_receipt,
+        research_receipt=research_receipt,
+        digest=report_digest(report),
+        part=part,
+    )
+
+
 def review_research(
     backend: Any,
     lease: Any,
@@ -497,11 +591,19 @@ def review_research(
     key_id: str,
     fetcher: Fetcher,
     worker_rules: dict[str, Any],
+    guardrails: dict[str, Any],
 ) -> dict[str, Any]:
-    """Re-fetch every cited source, re-check every quote and guardrail, then deliver or send back."""
+    """Rebuild the report from this reviewer's own checks, then approve and deliver it, or send it back.
+
+    The delivered report is made only from the planner's brief (ids, title, question), this
+    reviewer's own fetch of the permitted sources, and the claims whose quotes pass against that
+    fetch; its summary, decision and disclaimer are generated here. Nothing else the researcher
+    wrote is passed on, and an output with fields this review does not know is refused.
+    """
     research = lease.dependencies[0]
-    request_id, report_id = str(lease.brief["request_id"]), str(lease.brief["report_id"])
-    part = lease.brief.get("part")
+    brief = dict(lease.brief)
+    request_id, report_id = str(brief["request_id"]), str(brief["report_id"])
+    part = brief.get("part")
     ref = f"{lease.task_id}:{lease.fencing_token}"
     researcher = getattr(research, "completed_by_key", None)
     if research.state != "done" or not isinstance(research.output, dict):
@@ -539,49 +641,124 @@ def review_research(
             error="the worker that researched a report may not review it",
         )
         raise SelfReviewRefused(f"reviewer key {key_id!r} researched {report_id}")
-    brief = dict(backend.task(research.task_id).brief)
-    found = research.output.get("report")
+    output = dict(research.output)
+    findings = shape_findings(output)
+    found = output.get("report")
     report: dict[str, Any] = found if isinstance(found, dict) else {}
-    findings: list[str] = []
-    if research.output.get("blob_sha256") != report_digest(report):
+    if output.get("blob_sha256") != report_digest(found):
         findings.append("blob_sha256 is not the digest of the submitted report")
-    allowlist = list((worker_rules.get("sources") or {}).get("official_apis") or [])
-    fresh: list[dict[str, Any]] = []
-    rechecked: list[dict[str, Any]] = []
-    for source in (report or {}).get("sources") or []:
-        url = str(source.get("url") or "")
-        if not is_permitted(url, brief, allowlist):
-            findings.append(f"source {source.get('id')} is not an address the brief permits")
-            continue
-        try:
-            fetched = fetcher(url)
-        except (SourceRefused, RuntimeError, ValueError) as exc:
-            findings.append(f"source {source.get('id')} could not be fetched again: {exc}")
-            continue
-        again = source_record(
-            fetched,
-            source_id=str(source["id"]),
-            access=str(source.get("access")),
-            publisher=source.get("publisher"),
-            max_text_chars=int((brief.get("fetch") or {}).get("max_text_chars") or 60000),
-            request_id=request_id,
-            part=part,
+    draft, verification = output.get("draft") or {}, output.get("verification") or {}
+    if (
+        not isinstance(draft, dict)
+        or draft.get("kit_id") != report_id
+        or not isinstance(verification, dict)
+        or verification.get("passed") is not True
+    ):
+        findings.append(
+            "the research output does not carry the draft fields the server's review proof checks"
         )
-        fresh.append(again)
-        rechecked.append(
-            {
-                "id": again["id"],
-                "text_sha256": again["text_sha256"],
-                "same_text": again["text_sha256"] == source.get("text_sha256"),
-            }
+    research_rules = worker_rules.get("research") or {}
+    overlap_needed = float(research_rules.get("support_overlap") or 0.5)
+    permitted = permitted_urls(brief)
+    numbered = {
+        url: (n, access, publisher) for n, (url, access, publisher) in enumerate(permitted, start=1)
+    }
+    claimed_urls = {
+        str(s.get("id")): str(s.get("url") or "")
+        for s in report.get("sources") or []
+        if isinstance(s, dict)
+    }
+    fresh: dict[str, dict[str, Any]] = {}
+    fetch_failures: list[str] = []
+    kept: list[dict[str, Any]] = []
+    dropped: list[dict[str, str]] = []
+    seen: set[str] = set()
+    claims = [c for c in report.get("claims") or [] if isinstance(c, dict)]
+    for claim in claims[: int(research_rules.get("max_claims") or 8)]:
+        citation = (claim.get("citations") or [{}])[0]
+        if not isinstance(citation, dict):
+            dropped.append({"claim": str(claim.get("id")), "reason": "no citation"})
+            continue
+        url = claimed_urls.get(str(citation.get("source")), "")
+        if url not in numbered:
+            dropped.append(
+                {
+                    "claim": str(claim.get("id")),
+                    "reason": "cites a source the brief does not permit",
+                }
+            )
+            continue
+        if url not in fresh and url not in fetch_failures:
+            number, access, publisher = numbered[url]
+            try:
+                fresh[url] = source_record(
+                    fetcher(url),
+                    source_id=f"SRC-{report_id}-{number}",
+                    access=access,
+                    publisher=publisher,
+                    max_text_chars=int((brief.get("fetch") or {}).get("max_text_chars") or 60000),
+                    request_id=request_id,
+                    part=part,
+                )
+            except (SourceRefused, RuntimeError, ValueError) as exc:
+                fetch_failures.append(url)
+                findings.append(f"a cited source could not be fetched again: {exc}")
+        record = fresh.get(url)
+        if record is None:
+            dropped.append(
+                {"claim": str(claim.get("id")), "reason": "its source could not be fetched again"}
+            )
+            continue
+        quote = " ".join(str(citation.get("quote") or "").split())
+        text = " ".join(str(claim.get("text") or "").split())
+        claim_words = words(text)
+        if problem := quote_finding(str(claim.get("id")), record["id"], quote, record["text"]):
+            dropped.append({"claim": str(claim.get("id")), "reason": problem})
+        elif (
+            not claim_words
+            or len(text) > MAX_CLAIM_CHARS
+            or len(claim_words & words(quote)) / len(claim_words) < overlap_needed
+        ):
+            dropped.append(
+                {"claim": str(claim.get("id")), "reason": "the claim says more than its quote"}
+            )
+        elif find_accusatory_words(text) or personal_data_findings({"claim": text}):
+            dropped.append(
+                {"claim": str(claim.get("id")), "reason": "accusatory words or personal data"}
+            )
+        elif quote in seen:
+            dropped.append({"claim": str(claim.get("id")), "reason": "repeats a kept quote"})
+        else:
+            seen.add(quote)
+            kept.append(
+                {
+                    "id": f"C{len(kept) + 1}",
+                    "text": text,
+                    "citations": [{"source": record["id"], "quote": quote}],
+                }
+            )
+    basis = {
+        k: brief.get(k)
+        for k in ("report_id", "request_id", "title", "question", "legal", "occurrence")
+    }
+    stages = {
+        "reviewed": {
+            "claims_submitted": len(claims),
+            "kept": len(kept),
+            "dropped": dropped[:20],
+            "sources_fetched_again": len(fresh),
+        }
+    }
+    rebuilt = build_report(basis, list(fresh.values()), kept, stages, guardrails=guardrails)
+    findings += report_findings(
+        rebuilt, {**basis, "guardrails": guardrails, "sources": list(fresh.values())}
+    )
+    minimum = int(research_rules.get("min_claims") or 3)
+    if len(kept) < minimum:
+        findings.append(
+            f"only {len(kept)} claims passed this review; at least {minimum} are needed"
         )
-    findings += report_findings(report, {**brief, "sources": fresh})
-    overlap_needed = float((worker_rules.get("research") or {}).get("support_overlap") or 0.5)
-    for claim in (report or {}).get("claims") or []:
-        quote = " ".join(str(c.get("quote") or "") for c in claim.get("citations") or [])
-        claim_words = words(str(claim.get("text") or ""))
-        if not claim_words or len(claim_words & words(quote)) / len(claim_words) < overlap_needed:
-            findings.append(f"claim {claim.get('id')} says more than its quote")
+    rechecked = [{"id": r["id"], "text_sha256": r["text_sha256"]} for r in fresh.values()]
     if findings:
         receipt = backend.submit(
             lease.task_id,
@@ -590,41 +767,48 @@ def review_research(
                 "node": "report_review",
                 "status": "needs_revision",
                 "report_id": report_id,
-                "findings": findings,
+                "findings": findings[:20],
                 "rechecked": rechecked,
             },
             idempotency_key=ref,
             ok=True,
         )
-        update_request_part(backend, request_id, part, "needs_revision", findings=findings)
+        update_request_part(backend, request_id, part, "needs_revision", findings=findings[:20])
         return {"status": "needs_revision", "findings": findings, "receipt": receipt.receipt_hash}
-    digest = report_digest(report)
+    digest = report_digest(rebuilt)
     receipt = backend.submit(
         lease.task_id,
         lease.fencing_token,
         {
             "node": "report_review",
             "status": "accepted",
+            "approved": True,
             "accepted": True,
+            "review_task_id": lease.task_id,
+            "draft_task_id": research.task_id,
+            "drafter_key_id": researcher,
+            "reviewer_key_id": key_id,
+            "draft_sha256": output["blob_sha256"],
+            "kit_id": report_id,
             "report_id": report_id,
-            "research_task_id": research.task_id,
+            "part": part,
             "research_receipt": research.receipt_hash,
+            "report": rebuilt,
             "report_sha256": digest,
             "rechecked": rechecked,
-            "quotes_checked": sum(len(c.get("citations") or []) for c in report["claims"]),
+            "quotes_checked": len(kept),
         },
         idempotency_key=ref,
         ok=True,
     )
-    delivered = deliver_report(
+    delivered = ensure_delivered(
         backend,
-        report=dict(report),
+        report=rebuilt,
         request_id=request_id,
+        part=part,
         review_task_id=lease.task_id,
         review_receipt=receipt.receipt_hash,
         research_receipt=research.receipt_hash,
-        digest=digest,
-        part=part,
     )
     return {
         "status": "delivered",

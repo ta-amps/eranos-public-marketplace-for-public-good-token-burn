@@ -19,7 +19,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from tessera import ChildSpec, NotFound, VersionConflict
+from tessera import ChildSpec, NotFound, TesseraError, VersionConflict
 
 from eranos.pipeline import process as process_part
 from eranos.pipeline import research
@@ -33,12 +33,9 @@ from eranos.pipeline.requests import (
     _write_plan,
     check_findings,
     classify_parts,
-    kit_brief,
-    match_track,
 )
 from eranos.pipeline.reuse import find_reuse
 from eranos.pipeline.status_events import fact, queue_snapshot, record_events
-from eranos.tracks import load_tracks
 
 OUTPUT_TYPES = ("process", "information", "both")
 FREQUENCIES = ("one-off", "recurring")
@@ -106,7 +103,8 @@ class Planner:
         text = str(brief.get("text") or brief.get("description") or "")
         self.text = _CONTROL.sub("", text).strip()[:4000]
         org = _CONTROL.sub("", str(brief.get("organization_type") or "")).strip()[:120]
-        self.org = org or "Nonprofit"
+        # The type of organization is published with the plan, so it passes the same screen.
+        self.org = org if org and not check_findings({"organization_type": org}) else "Nonprofit"
         self.links = [str(x) for x in brief.get("links") or [] if _LINK.match(str(x))][:10]
         self.terms = request_terms(brief, self.rules)
 
@@ -136,7 +134,7 @@ class Planner:
                 "request_id": self.request_id,
                 "status": "received",
                 "text": self.text,
-                "source": source or {"kind": "requester"},
+                "source": source,
                 **{k: v for k, v in self.terms.items() if k != "period_s"},
             }
             with contextlib.suppress(VersionConflict):
@@ -232,6 +230,11 @@ class Planner:
                     worker=self.worker,
                     parts=plan,
                     places=places,
+                    summary={
+                        "places": "estimated from the number of verbs waiting when this was planned"
+                    }
+                    if places
+                    else None,
                     queue=queue_snapshot(self.b),
                     occurrence=occurrence if self.terms.get("frequency") == "recurring" else None,
                     ref=f"{PLANS_STORE}/{self.request_id}",
@@ -263,10 +266,8 @@ class Planner:
     def children(
         self, parts: list[dict[str, Any]], occurrence: int
     ) -> tuple[list[ChildSpec], list[dict[str, Any]]]:
-        tracks = load_tracks(self.tracks_root)
         out: list[ChildSpec] = []
         plan: list[dict[str, Any]] = []
-        output_type = self.terms.get("output_type")
         request = {
             "request_id": self.request_id,
             "text": self.text,
@@ -291,30 +292,18 @@ class Planner:
                 )
                 entry.update(report_id=brief["report_id"])
                 kinds, review = ("research", "report_review"), research.review_brief(brief)
-            elif part["route"] == "private-files" and output_type in ("process", "both"):
+            elif part["route"] == "private-files":
+                # Work on the nonprofit's own files becomes a process package its agent runs.
                 brief = process_part.process_brief(
                     self.request_id, part, self.org, request, occurrence
                 )
                 entry.update(route="process")
                 kinds = (process_part.BUILD_KIND, process_part.REVIEW_KIND)
-                review = {k: brief[k] for k in ("request_id", "part", "occurrence", "title")}
+                review = process_part.process_review_brief(brief)
             else:
-                track = match_track({"organization_type": self.org, "job": part["text"]}, tracks)
-                if part["route"] == "public-only" or track is None:
-                    entry["route"] = "held"
-                    plan.append(entry)
-                    continue
-                brief = kit_brief(self.request_id, part, self.org, track)
-                entry.update(
-                    kit_id=brief["kit_id"],
-                    track_id=track.id,
-                    needs_person_signoff=track.needs_steward_signoff,
-                )
-                kinds = ("build", "review")
-                review = {
-                    k: brief[k]
-                    for k in ("request_id", "part", "kit_id", "title", "needs_steward_signoff")
-                } | {"track_id": track.id, "requested_visibility_scope": "public_commons"}
+                entry["route"] = "held"
+                plan.append(entry)
+                continue
             entry["children"] = [len(out), len(out) + 1]
             tags = [f"part:{part['part']}"]
             out.append(
@@ -496,10 +485,52 @@ class Planner:
     ) -> None:
         self._facts(events, status=status, fields={"occurrences": occurrences})
 
+    def recover(self, ids: list[str]) -> list[dict[str, Any]]:
+        """Finish an approved review whose delivery or publication was cut short (a crash, a lost
+        connection): the review's recorded output holds everything needed, and both steps are
+        idempotent, so a result that was already delivered is left as it is."""
+        done: list[dict[str, Any]] = []
+        for child in self.lease.children:
+            out = child.output if isinstance(child.output, dict) else {}
+            if (
+                child.task_id not in set(ids)
+                or child.state != "done"
+                or out.get("approved") is not True
+            ):
+                continue
+            try:
+                if out.get("node") == "report_review" and isinstance(out.get("report"), dict):
+                    mine = out["report"].get("request_id") == self.request_id
+                    if mine:
+                        research.ensure_delivered(
+                            self.b,
+                            report=out["report"],
+                            request_id=self.request_id,
+                            part=out.get("part"),
+                            review_task_id=child.task_id,
+                            review_receipt=str(child.receipt_hash),
+                            research_receipt=out.get("research_receipt"),
+                        )
+                    done.append({"task_id": child.task_id, "delivered": mine})
+                elif out.get("node") == "process_review" and isinstance(out.get("records"), dict):
+                    process_part.ensure_published(
+                        self.b,
+                        out,
+                        review_task_id=child.task_id,
+                        review_receipt=str(child.receipt_hash),
+                        request_id=self.request_id,
+                        part=out.get("part"),
+                    )
+                    done.append({"task_id": child.task_id, "published": True})
+            except TesseraError as exc:
+                done.append({"task_id": child.task_id, "error": type(exc).__name__})
+        return done
+
     def finish(self, latest: dict[str, Any]) -> dict[str, Any]:
         noun = read_request(self.b, self.request_id)
         value = noun[0] if noun else {}
         occurrences = list(value.get("occurrences") or [latest])
+        self.recover(list(latest.get("children") or []))
         outcomes = self._outcomes(list(latest.get("children") or []))
         latest = {
             **latest,

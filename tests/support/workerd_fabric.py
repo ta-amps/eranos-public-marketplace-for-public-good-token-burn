@@ -94,7 +94,7 @@ class LocalTessera:
                 "/v1/session/requester",
                 json={
                     "profile": {
-                        "display_name": f"SYNTHETIC {name}",
+                        "display_name": f"Made-up sample {name}",
                         "organization_type": "Food pantry",
                         "causes": ["food security"],
                     }
@@ -227,16 +227,18 @@ def local_tessera(
         log.close()
 
 
-# SYNTHETIC fixtures: a public-rules page and a stand-in model --------------------------------------
-RULES_URL = "https://rules.example.org/synthetic/charity-political-activity"
-RULES_HTML = """<!doctype html><html><head><title>SYNTHETIC public rules: charities and political campaigns</title>
+# Test fixtures (SYNTHETIC, made up for these tests): a public-rules page and a stand-in model --------------------------------------
+RULES_URL = "https://rules.example.org/made-up/charity-political-activity"
+# The page's visible test mark is its heading, which is never quoted; the title and every sentence
+# use plain words, because nothing the workers publish may say "synthetic" (owner's rule).
+RULES_HTML = """<!doctype html><html><head><title>Made-up rules page, a test we wrote: charities and political campaigns</title>
 <script>var tracking = "never extracted";</script></head><body><nav>Home | Rules</nav>
 <h1>SYNTHETIC rules page used only in tests</h1>
-<p>Under these synthetic rules, a charity registered under section 501(c)(3) may not take part in any political campaign for or against a candidate for public office.</p>
+<p>Under these made-up rules, a charity registered under section 501(c)(3) may not take part in any political campaign for or against a candidate for public office.</p>
 <p>A charity may hold nonpartisan voter registration drives when the drives do not favor any candidate or party.</p>
-<p>Contributions to a political campaign fund from a charity's own money are not allowed under these synthetic rules.</p>
+<p>Contributions to a political campaign fund from a charity's own money are not allowed under these made-up rules.</p>
 <p>A charity may publish candidate questionnaires only when every candidate is asked the same questions in a neutral way.</p>
-<p>Violating the campaign rule can cost a charity its tax-exempt status under these synthetic rules.</p>
+<p>Violating the campaign rule can cost a charity its tax-exempt status under these made-up rules.</p>
 </body></html>"""
 
 

@@ -28,6 +28,7 @@ from tessera import NotFound, VersionConflict
 from eranos.pipeline.request_noun import FINAL, REQUESTS_STORE, read_request, write_request
 
 MAX_EVENTS = 300
+MAX_HEARTBEATS = 3
 _ATTEMPTS = 8
 
 
@@ -74,7 +75,13 @@ def record_events(
         value, version = current
         value = dict(value)
         stamped = [{**event, "version": version + 1} for event in events]
-        value["events"] = [*(value.get("events") or []), *stamped][-MAX_EVENTS:]
+        history = [*(value.get("events") or []), *stamped]
+        if any(e.get("type") == "heartbeat" for e in stamped):
+            # Liveness, not history: keep only the newest few heartbeats so the record stays small.
+            beats = [i for i, e in enumerate(history) if e.get("type") == "heartbeat"]
+            drop = set(beats[:-MAX_HEARTBEATS])
+            history = [e for i, e in enumerate(history) if i not in drop]
+        value["events"] = history[-MAX_EVENTS:]
         if fields:
             value.update(fields)
         if parts:

@@ -651,9 +651,9 @@ def cmd_work(role: str, *, label: str | None, once: bool, max_leases: int | None
     """One worker loop; the key comes from the environment (an 0600 env file) and is never printed."""
     from eranos.worker_loop import run_cli
 
-    stats = run_cli(role, once=once, max_leases=max_leases, label=label)
-    print(json.dumps({"role": role, **stats}, sort_keys=True))
-    return 0
+    code, stats = run_cli(role, once=once, max_leases=max_leases, label=label)
+    print(json.dumps({"role": role, "exit_code": code, **stats}, sort_keys=True))
+    return code
 
 
 if __name__ == "__main__":

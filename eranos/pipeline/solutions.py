@@ -260,7 +260,10 @@ def deliver_report(
         "next_step": "A person at the nonprofit decides what to do with this result.",
     }
     sources = [s for s in report.get("sources") or [] if isinstance(s, dict)]
-    value["synthetic"] = bool(sources) and all(s.get("synthetic") is True for s in sources)
+    # Plain words on public records: a report built only from made-up samples says so.
+    value["made_up_sample"] = bool(sources) and all(
+        s.get("made_up_sample") is True or s.get("synthetic") is True for s in sources
+    )
     try:
         version = backend.get_record(SOLUTIONS_STORE, report_id).version
     except NotFound:

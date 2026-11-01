@@ -1,12 +1,13 @@
 """The volunteer worker loop: unit checks, then whole flows against a local Tessera on workerd.
 
-SYNTHETIC data only: the public-rules page and the model are test stand-ins. The integration tests
+Made-up samples only (SYNTHETIC test fixtures): the public-rules page and the model are test stand-ins. The integration tests
 need ERANOS_WORKERD_TESSERA (a Tessera checkout with node_modules) and are skipped without it.
 """
 
 from __future__ import annotations
 
 import json
+import re
 import time
 from pathlib import Path
 from typing import Any
@@ -23,6 +24,7 @@ from support.workerd_fabric import (
 
 from eranos.jsonfile import load_json
 from eranos.model_client import ContributorTierRefused, OllamaModel
+from eranos.pipeline import process as process_part
 from eranos.pipeline.planner import request_terms
 from eranos.pipeline.research import check_claims
 from eranos.pipeline.reuse import find_reuse, score, terms
@@ -81,7 +83,7 @@ def test_worker_claims_at_most_once_per_minute_on_an_empty_queue(tmp_path: Path)
 
 def test_html_text_drops_scripts_and_keeps_sentences_whole() -> None:
     title, text = extract_text("text/html; charset=utf-8", RULES_HTML.encode())
-    assert title.startswith("SYNTHETIC public rules")
+    assert title.startswith("Made-up rules page")
     assert "tracking" not in text
     assert (
         "a charity registered under section 501(c)(3) may not take part in any political campaign"
@@ -194,6 +196,29 @@ def fabric(tmp_path_factory: pytest.TempPathFactory) -> Any:
         yield running
 
 
+PUBLIC_STORES = (
+    "eranos.requests",
+    "eranos.plans",
+    "eranos.solutions",
+    "eranos.processes",
+    "eranos.process_templates",
+)
+
+
+def assert_nothing_public_says_synthetic(fabric: Any, task_ids: list[str]) -> None:
+    """The owner's rule: no public record, status fact or execution report says "synthetic"."""
+    seen = []
+    for store in PUBLIC_STORES:
+        for record in fabric.get(f"/v1/stores/{store}/records?limit=200")["records"]:
+            if record.get("visibility_scope") == "public_commons":
+                seen.append(json.dumps(record["value"]))
+    for task_id in task_ids:
+        seen += [json.dumps(r) for r in _executions(fabric, task_id)]
+    assert seen
+    for text in seen:
+        assert not re.search("synthetic", text, re.IGNORECASE), text[:300]
+
+
 def _record(fabric: Any, request_id: str) -> dict[str, Any]:
     return dict(fabric.get(f"/v1/stores/eranos.requests/records/{request_id}")["value"])
 
@@ -266,14 +291,15 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
     part = plan["parts"][0]
     solution = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")["value"]
     claims = solution["report"]["claims"]
-    assert len(claims) >= 3 and solution["synthetic"] is False
+    assert len(claims) >= 3 and solution["made_up_sample"] is False
     _, page = extract_text("text/html", RULES_HTML.encode())
     assert all(c["citations"][0]["quote"] in page for c in claims)
     assert "not legal advice" in solution["report"]["disclaimer"]
-    assert solution["report"]["stages"]["dropped"], "the invented quote was dropped"
 
     work = fabric.get(f"/v1/tasks/{part['work_task_id']}/results")["results"][-1]
     review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
+    assert work["output"]["report"]["stages"]["dropped"], "the builder dropped the invented quote"
+    assert solution["report"]["stages"]["reviewed"]["kept"] == len(claims)
     assert work["completed_by_key"] == fabric.keys["builder"]["key_id"]
     assert (
         review["completed_by_key"] == fabric.keys["reviewer"]["key_id"] != work["completed_by_key"]
@@ -283,6 +309,15 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
     assert report["harness"]["cost_usd"] == 0.0 and report["harness"]["role"] == "builder"
     review_report = _executions(fabric, part["review_task_id"])[0]["report"]
     assert review_report["model"] is None and review_report["usage"]["total_tokens"] == 0
+    # The approval carries the shape Tessera's eq03 rule checks, and the server accepted it (M2).
+    assert review["ok"] is True and review["output"]["approved"] is True
+    assert review["output"]["drafter_key_id"] == work["completed_by_key"]
+    assert solution["report"]["title"] == plan["parts"][0]["text"] or solution["report"][
+        "title"
+    ].startswith("Legal-aid clinic:")
+    assert_nothing_public_says_synthetic(
+        fabric, [part["work_task_id"], part["review_task_id"], rid]
+    )
 
 
 @needs_workerd
@@ -318,7 +353,7 @@ def test_reworded_repeat_is_answered_from_stored_work_with_no_new_verbs_or_token
 
 
 @needs_workerd
-def test_process_request_without_a_handler_records_every_failure(fabric: Any) -> None:
+def test_process_request_waits_for_a_real_handler_and_the_stub_never_claims_it(fabric: Any) -> None:
     requester = fabric.requester()
     rid = fabric.file_request(
         requester,
@@ -335,63 +370,52 @@ def test_process_request_without_a_handler_records_every_failure(fabric: Any) ->
     assert w["planner"].run_once() == "worked"
     part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
     assert part["route"] == "process"
-    for _ in range(3):
-        deadline = time.time() + 10
-        while w["builder"].run_once() != "worked" and time.time() < deadline:
-            time.sleep(0.3)
-    results = fabric.get(f"/v1/tasks/{part['work_task_id']}/results")["results"]
-    assert len(results) == 3 and all(not r["ok"] and "not built yet" in r["error"] for r in results)
-    assert fabric.get(f"/v1/tasks/{part['work_task_id']}")["state"] == "dead"
-    assert w["reviewer"].run_once() == "worked"
-    assert w["planner"].run_once() == "worked"
+    assert w["builder"].run_once() == "empty"  # the stub does not claim what it cannot build
+    assert fabric.get(f"/v1/tasks/{part['work_task_id']}")["state"] == "ready"
+    assert not fabric.get(f"/v1/tasks/{part['work_task_id']}/results")["results"]
     record = _record(fabric, rid)
-    assert _types(record).count("work_failed") == 3
-    assert "check_sent_back" in _types(record) and record["status"] == "closed"
+    assert record["status"] == "open_for_build" and "work_failed" not in _types(record)
+
+
+HANDLER_FILE = """
+import os, hashlib, json
+from pathlib import Path
+name = "test handler (a test we wrote)"
+
+def build_process(request, plan_part):
+    bundle = Path(os.environ["TEST_BUNDLE"])
+    return {"bundle_path": str(bundle),
+            "catalog_record": {"store": "eranos.requests", "key": "rq-someone-else", "value": {"title": "Made-up sample data-cleaning process"}},
+            "task_template_record": {"store": "eranos.process_templates", "key": "anything", "value": {"kind": "run_process"}},
+            "test_report": {"passed": True, "tests": 4, "issues": [], "pack_id": "data-cleaning"}}
+
+def review_process(package, request, plan_part):
+    data = Path(package["bundle_path"]).read_bytes()
+    checks = ["the bundle matches its digest" if hashlib.sha256(data).hexdigest() == package["bundle_sha256"] else "digest mismatch",
+              "no worker key in the review environment" if "TESSERA_KEY" not in os.environ else "LEAKED KEY",
+              "the bundle is the reviewer's own copy" if not package["bundle_path"].startswith(os.environ.get("TEST_BUNDLE_DIR", "/nowhere")) else "builder path"]
+    return {"passed": all(not c.isupper() and "mismatch" not in c and "builder" not in c for c in checks), "checks": checks}
+"""
 
 
 @needs_workerd
 def test_process_request_with_a_handler_is_built_reviewed_and_published(
-    fabric: Any, tmp_path: Path
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    bundle = tmp_path / "bundle.tgz"
-    bundle.write_bytes(b"SYNTHETIC process bundle")
-
-    class Handler:
-        name = "test handler"
-
-        def build_process(
-            self, request: dict[str, Any], plan_part: dict[str, Any]
-        ) -> dict[str, Any]:
-            key = f"PROC-{request['request_id'][-6:]}"
-            return {
-                "bundle_path": str(bundle),
-                "catalog_record": {
-                    "store": "eranos.processes",
-                    "key": key,
-                    "value": {"title": "SYNTHETIC data-cleaning process", "synthetic": True},
-                },
-                "task_template_record": {
-                    "store": "eranos.process_templates",
-                    "key": key,
-                    "value": {"kind": "run_process", "synthetic": True},
-                },
-                "test_report": {"passed": True, "tests": 4, "issues": []},
-            }
-
-        def review_process(
-            self, package: dict[str, Any], request: dict[str, Any], plan_part: dict[str, Any]
-        ) -> dict[str, Any]:
-            return {
-                "passed": package["bundle_bytes"] > 0,
-                "checks": ["bundle present", "4 tests passed"],
-            }
-
-    handler = Handler()
+    bundle = tmp_path / "bundle" / "bundle.tgz"
+    bundle.parent.mkdir()
+    bundle.write_bytes(b"made-up sample process bundle")
+    handler_path = tmp_path / "handler.py"
+    handler_path.write_text(HANDLER_FILE)
+    monkeypatch.setenv("TEST_BUNDLE", str(bundle))
+    monkeypatch.setenv("TEST_BUNDLE_DIR", str(bundle.parent))
+    monkeypatch.setenv("TESSERA_KEY", "tsk_must_never_reach_package_code")
+    handler = process_part.load_handler(str(handler_path))
     requester = fabric.requester()
     rid = fabric.file_request(
         requester,
         {
-            "text": "A reusable process to merge our SYNTHETIC shift lists and flag gaps.",
+            "text": "A reusable process to merge our made-up shift lists and flag gaps.",
             "links": [],
             "organization_type": "Food pantry",
             "output_type": "process",
@@ -411,9 +435,22 @@ def test_process_request_with_a_handler_is_built_reviewed_and_published(
             )
     record = _record(fabric, rid)
     assert _types(record)[-5:] == ["check_approved", "published", "added", "plan_claimed", "closed"]
-    key = f"PROC-{rid[-6:]}"
-    stored = fabric.get(f"/v1/stores/eranos.processes/records/{key}")
-    assert stored["visibility_scope"] == "public_commons"
+    refs = process_part.record_refs(rid, 1)
+    stored = fabric.get(f"/v1/stores/eranos.processes/records/{refs['catalog']['key']}")
+    assert stored["visibility_scope"] == "public_commons" and stored["value"]["review_receipt"]
+    with pytest.raises(
+        Exception, match="404"
+    ):  # the handler named someone else's record: never written
+        fabric.get("/v1/stores/eranos.requests/records/rq-someone-else")
+    part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+    review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
+    assert (
+        review["output"]["approved"] is True
+        and "no worker key in the review environment" in review["output"]["checks"]
+    )
+    assert_nothing_public_says_synthetic(
+        fabric, [part["work_task_id"], part["review_task_id"], rid]
+    )
 
 
 @needs_workerd
@@ -513,7 +550,7 @@ def test_a_lost_lease_is_recorded_as_a_failure(fabric: Any) -> None:
             with fabric.http() as http:  # an operator cancels the verb while it is being worked
                 http.post(
                     "/v1/tasks/cancel",
-                    json={"task_id": part["work_task_id"], "reason": "SYNTHETIC test"},
+                    json={"task_id": part["work_task_id"], "reason": "a test we wrote"},
                     headers={"authorization": f"Bearer {fabric.admin}", "x-namespace": "main"},
                 ).raise_for_status()
             return super().chat_json(system, user, **kwargs)
@@ -541,7 +578,9 @@ def test_an_empty_hosted_style_claim_returns_the_servers_retry_after(fabric: Any
     client.close()
 
 
-def test_find_reuse_requires_a_review_receipt() -> None:
+def test_find_reuse_requires_a_review_receipt_that_tessera_confirms() -> None:
+    from types import SimpleNamespace
+
     class Record:
         def __init__(self, key: str, value: dict[str, Any]) -> None:
             self.key, self.value, self.version = key, value, 1
@@ -550,11 +589,23 @@ def test_find_reuse_requires_a_review_receipt() -> None:
         def list_records(self, store: str, limit: int) -> list[Record]:
             if store != "eranos.solutions":
                 return []
-            report = {"title": "SYNTHETIC rules", "question": INFO_TEXT, "claims": []}
+            report = {"title": "Made-up rules", "question": INFO_TEXT, "claims": []}
             return [
                 Record("RPT-unreviewed", {"report": report}),
-                Record("RPT-reviewed", {"report": report, "review_receipt": "r" * 64}),
+                Record(
+                    "RPT-claimed",
+                    {"report": report, "review_receipt": "f" * 64, "review_task_id": "t-forged"},
+                ),
+                Record(
+                    "RPT-reviewed",
+                    {"report": report, "review_receipt": "r" * 64, "review_task_id": "t-review"},
+                ),
             ]
+
+        def results(self, task_id: str) -> list[Any]:
+            if task_id != "t-review":
+                return []
+            return [SimpleNamespace(receipt_hash="r" * 64, ok=True, output={"approved": True})]
 
     match = find_reuse(Backend(), REWORDED, RULES["reuse"], output_type="information")
     assert match is not None and match.key == "RPT-reviewed"

@@ -332,7 +332,7 @@
         "claims": {
           "heartbeat_fraction": 0.5,
           "min_empty_interval_seconds": 60,
-          "status_heartbeat_seconds": 120
+          "status_heartbeat_seconds": 600
         },
         "for": "the authorized worker processes that claim request verbs on eq01, work verbs on eq02 and review verbs on eq03",
         "instructions": [
@@ -554,12 +554,13 @@
           ],
           "stores": [
             "eranos.solutions",
-            "eranos.catalog"
+            "eranos.processes"
           ],
           "threshold": 0.6
         },
         "schema_version": 1,
         "sources": {
+          "deadline_seconds": 30,
           "max_bytes": 2000000,
           "max_sources": 5,
           "max_text_chars": 60000,
@@ -606,7 +607,7 @@
               ]
             }
           ],
-          "timeout_seconds": 20
+          "timeout_seconds": 10
         },
         "title": "Rules for Eranos's volunteer workers"
       }

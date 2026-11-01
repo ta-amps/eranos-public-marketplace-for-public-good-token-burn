@@ -2,8 +2,10 @@
 
 Only two kinds of address are fetched: the request's own https links, and query or document URLs on
 the allowlist of official open APIs in the `eranos.instructions/worker` noun. Nothing is crawled, no
-form is submitted and no login is used. Every address must be https on port 443 and resolve only to
-public IP addresses, so a link in a public request cannot reach this machine or its network.
+form is submitted, no login and no proxy are used. Every address must be https on port 443 and
+resolve only to public IP addresses (address-translation prefixes count as internal), and the
+connection goes to the address that was checked, so a link in a public request cannot reach this
+machine or its network, even by changing its DNS answer between the check and the connection.
 
 Text extraction is deliberately simple and documented, so an independent checker can repeat it:
 - HTML: drop `script`, `style`, `noscript`, `template`, `svg` and `head` content except `title`;
@@ -16,13 +18,13 @@ Standard library only.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import ipaddress
 import json
 import re
 import socket
+import ssl
 import time
-import urllib.error
-import urllib.request
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from typing import Any
@@ -84,13 +86,25 @@ class FetchFailed(RuntimeError):
 
 @dataclass(frozen=True)
 class SourcePolicy:
-    """Fetch limits. `allow_private` exists only for tests against a local fixture server."""
+    """Fetch limits. `deadline_seconds` bounds a whole fetch, redirects included; `timeout_seconds`
+    bounds each socket operation. `allow_private` and `allow_http_hosts` exist only for tests."""
 
     max_bytes: int = 2_000_000
-    timeout_seconds: float = 20.0
+    timeout_seconds: float = 10.0
+    deadline_seconds: float = 30.0
     max_redirects: int = 3
     allow_private: bool = False
     allow_http_hosts: frozenset[str] = field(default_factory=frozenset)
+
+
+def policy_from_rules(rules: dict[str, Any]) -> SourcePolicy:
+    """The fetch limits the `eranos.instructions/worker` noun sets, within this module's ceilings."""
+    sources = rules.get("sources") or {}
+    return SourcePolicy(
+        max_bytes=min(int(sources.get("max_bytes") or 2_000_000), 4_000_000),
+        timeout_seconds=min(float(sources.get("timeout_seconds") or 10.0), 30.0),
+        deadline_seconds=min(float(sources.get("deadline_seconds") or 30.0), 120.0),
+    )
 
 
 @dataclass(frozen=True)
@@ -103,28 +117,40 @@ class Fetched:
     fetched_at: float
 
 
-def _public_address(host: str) -> bool:
+# Address-translation prefixes can carry an internal IPv4 address inside a "global" IPv6 address.
+_TRANSLATED = tuple(
+    ipaddress.ip_network(n) for n in ("64:ff9b::/96", "64:ff9b:1::/48", "2002::/16", "2001::/32")
+)
+
+
+def _is_public(text: str) -> bool:
+    address = ipaddress.ip_address(text.split("%", 1)[0])
+    if not address.is_global or address.is_multicast:
+        return False
+    return not (address.version == 6 and any(address in net for net in _TRANSLATED))
+
+
+def _resolve_public(host: str) -> str | None:
+    """The address to connect to, when every address the host resolves to is public."""
     try:
         infos = socket.getaddrinfo(host, 443, proto=socket.IPPROTO_TCP)
     except socket.gaierror:
-        return False
-    addresses = {str(info[4][0]) for info in infos}
-    for text in addresses:
-        address = ipaddress.ip_address(text.split("%", 1)[0])
-        if not address.is_global or address.is_multicast:
-            return False
-    return bool(addresses)
+        return None
+    addresses = [str(info[4][0]) for info in infos]
+    if not addresses or not all(_is_public(a) for a in addresses):
+        return None
+    return addresses[0]
 
 
-def check_address(url: str, policy: SourcePolicy) -> None:
-    """Raise SourceRefused unless the URL is a public https address this worker may fetch."""
+def check_address(url: str, policy: SourcePolicy) -> str:
+    """The checked IP address to connect to; SourceRefused unless the URL may be fetched."""
     parts = urlsplit(url)
     host = (parts.hostname or "").lower()
     if parts.username or parts.password:
         raise SourceRefused("addresses with credentials are never fetched")
     netloc = f"{host}:{parts.port}" if parts.port else host
     if parts.scheme == "http" and netloc in policy.allow_http_hosts:
-        return
+        return host
     if parts.scheme != "https" or not host:
         raise SourceRefused("only https addresses are fetched")
     if parts.port not in (None, 443):
@@ -135,46 +161,100 @@ def check_address(url: str, policy: SourcePolicy) -> None:
         pass
     else:
         raise SourceRefused("addresses must name a host, not an IP address")
-    if not policy.allow_private and not _public_address(host):
+    if policy.allow_private:
+        return host
+    address = _resolve_public(host)
+    if address is None:
         raise SourceRefused(f"{host} does not resolve only to public addresses")
+    return address
 
 
-class _NoRedirect(urllib.request.HTTPRedirectHandler):
-    def redirect_request(self, *args: Any, **kwargs: Any) -> None:
-        return None
+class _Pinned(http.client.HTTPSConnection):
+    """An https connection to the address that was checked, with SNI and Host set to the name."""
+
+    def __init__(self, host: str, address: str, timeout: float) -> None:
+        self._tls = ssl.create_default_context()
+        super().__init__(host, 443, timeout=timeout, context=self._tls)
+        self._address = address
+
+    def connect(self) -> None:
+        sock = socket.create_connection((self._address, 443), timeout=self.timeout)
+        peer = str(sock.getpeername()[0])
+        if peer != self._address:
+            sock.close()
+            raise SourceRefused("the connection reached a different address than the one checked")
+        self.sock = self._tls.wrap_socket(sock, server_hostname=self.host)
+
+
+def _connection(url: str, address: str, timeout: float) -> http.client.HTTPConnection:
+    parts = urlsplit(url)
+    if parts.scheme == "http":  # test fixtures only (SourcePolicy.allow_http_hosts)
+        return http.client.HTTPConnection(parts.hostname or "", parts.port or 80, timeout=timeout)
+    return _Pinned(parts.hostname or "", address, timeout)
 
 
 def fetch(url: str, policy: SourcePolicy) -> Fetched:
-    """GET one permitted address; every redirect target is checked like the first address."""
-    opener = urllib.request.build_opener(_NoRedirect)
+    """GET one permitted address within one total deadline; every redirect is checked again.
+
+    No proxy is used (http.client reads no proxy settings); the type is checked before the body
+    is read; the body is read in pieces against the deadline and the size cap.
+    """
+    deadline = time.monotonic() + policy.deadline_seconds
     current = url
     for _ in range(policy.max_redirects + 1):
-        check_address(current, policy)
-        request = urllib.request.Request(  # noqa: S310 - check_address allows https only
-            current,
-            headers={"User-Agent": USER_AGENT, "Accept": ", ".join(TEXT_TYPES)},
-            method="GET",
+        address = check_address(current, policy)
+        parts = urlsplit(current)
+        host = parts.hostname or "?"
+        path = (parts.path or "/") + (f"?{parts.query}" if parts.query else "")
+        conn = _connection(
+            current, address, min(policy.timeout_seconds, max(0.1, deadline - time.monotonic()))
         )
         try:
-            response = opener.open(request, timeout=policy.timeout_seconds)
-        except urllib.error.HTTPError as exc:
-            if exc.code in (301, 302, 303, 307, 308) and exc.headers.get("location"):
-                current = urljoin(current, exc.headers["location"])
-                continue
-            raise FetchFailed(f"{urlsplit(current).hostname} answered {exc.code}") from exc
-        except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            raise FetchFailed(f"{urlsplit(current).hostname} could not be reached") from exc
-        with response:
-            content_type = str(response.headers.get("content-type") or "").lower()
-            raw = response.read(policy.max_bytes + 1)
-            status = int(response.status)
-        if len(raw) > policy.max_bytes:
-            raise FetchFailed(
-                f"{urlsplit(current).hostname} sent more than {policy.max_bytes} bytes"
+            conn.request(
+                "GET",
+                path,
+                headers={
+                    "User-Agent": USER_AGENT,
+                    "Accept": ", ".join(TEXT_TYPES),
+                    "Accept-Encoding": "identity",
+                },
             )
-        if not any(content_type.startswith(t) for t in TEXT_TYPES):
-            raise FetchFailed(f"{urlsplit(current).hostname} sent {content_type or 'no type'}")
-        return Fetched(url, current, status, content_type, raw, time.time())
+            response = conn.getresponse()
+            if response.status in (301, 302, 303, 307, 308) and response.getheader("location"):
+                current = urljoin(current, str(response.getheader("location")))
+                continue
+            if response.status >= 400:
+                raise FetchFailed(f"{host} answered {response.status}")
+            content_type = str(response.getheader("content-type") or "").lower()
+            if not any(content_type.startswith(t) for t in TEXT_TYPES):
+                raise FetchFailed(f"{host} sent {content_type or 'no type'}")
+            declared = response.getheader("content-length")
+            if declared and declared.isdigit() and int(declared) > policy.max_bytes:
+                raise FetchFailed(f"{host} would send more than {policy.max_bytes} bytes")
+            chunks: list[bytes] = []
+            size = 0
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise FetchFailed(f"{host} took longer than {policy.deadline_seconds:.0f} s")
+                if conn.sock is not None:
+                    conn.sock.settimeout(min(policy.timeout_seconds, remaining))
+                chunk = (
+                    response.read1(65536) if hasattr(response, "read1") else response.read(65536)
+                )
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > policy.max_bytes:
+                    raise FetchFailed(f"{host} sent more than {policy.max_bytes} bytes")
+                chunks.append(chunk)
+            return Fetched(
+                url, current, int(response.status), content_type, b"".join(chunks), time.time()
+            )
+        except (OSError, http.client.HTTPException) as exc:
+            raise FetchFailed(f"{host} could not be reached ({type(exc).__name__})") from exc
+        finally:
+            conn.close()
     raise FetchFailed("too many redirects")
 
 
@@ -293,7 +373,7 @@ def source_record(
         "final_url": fetched.final_url,
         "access": access,
         "public": True,
-        "synthetic": False,
+        "made_up_sample": False,
         "fetched_at": round(fetched.fetched_at, 3),
         "http_status": fetched.status,
         "content_type": fetched.content_type[:100],

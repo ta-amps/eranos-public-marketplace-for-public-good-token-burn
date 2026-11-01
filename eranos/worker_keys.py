@@ -22,12 +22,14 @@ SCOPES = [
     "namespace:main",
     "surface:eranos",
 ]
-REVIEW_KINDS = ["report_review", "review", "process_review"]
+REVIEW_KINDS = ["report_review", "process_review"]
+# Least privilege per role: the planner needs eq02 and eq03 only to split a request into them; the
+# builder works eq02 only; a reviewer reads everything it needs from its own eq03 brief and lease.
 ROLE_KEYS: dict[str, dict[str, Any]] = {
     "planner": {"queues": ["eq01", "eq02", "eq03"], "kinds": ["request"], "role": "planner"},
-    "builder": {"queues": ["eq02"], "kinds": ["research", "build", "process"], "role": "builder"},
-    "reviewer": {"queues": ["eq02", "eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
-    "reviewer2": {"queues": ["eq02", "eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
+    "builder": {"queues": ["eq02"], "kinds": ["research", "process"], "role": "builder"},
+    "reviewer": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
+    "reviewer2": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
 }
 
 
@@ -73,8 +75,12 @@ def issue_key(
 def write_env_file(
     path: Path, issued: dict[str, Any], *, tessera_url: str, extra: dict[str, str] | None = None
 ) -> None:
-    """The worker's environment file, created 0600 before the secret is written into it."""
-    path.parent.mkdir(parents=True, exist_ok=True)
+    """The worker's environment file: written to a new 0600 file, then moved into place.
+
+    The new file is created exclusively (never through a link) under a 0077 umask, so the key is
+    never in a file anyone else can read, even for a moment, and an old file's mode cannot leak.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
     lines = {
         "ERANOS_BACKEND": "tessera",
         "TESSERA_URL": tessera_url,
@@ -84,10 +90,32 @@ def write_env_file(
         "ERANOS_WORKER_LABEL": f"eranos-{issued['name']}",
         **(extra or {}),
     }
-    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "w", encoding="utf-8") as fh:
-        fh.write("".join(f"{k}={v}\n" for k, v in lines.items()))
-    path.chmod(0o600)
+    temp = path.with_name(f".{path.name}.{os.getpid()}.new")
+    old_mask = os.umask(0o077)
+    try:
+        fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    finally:
+        os.umask(old_mask)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            os.fchmod(fh.fileno(), 0o600)
+            fh.write("".join(f"{k}={v}\n" for k, v in lines.items()))
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(temp, path)
+    finally:
+        if temp.exists():
+            temp.unlink()
+
+
+def key_ids_in(directory: Path) -> dict[str, str]:
+    """The key ids named in a folder's env files (not secrets), for revoking before replacing."""
+    out = {}
+    for path in sorted(directory.glob("*.env")):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if line.startswith("ERANOS_KEY_ID="):
+                out[path.name] = line.split("=", 1)[1].strip()
+    return out
 
 
 def public_summary(issued: dict[str, Any]) -> dict[str, Any]:

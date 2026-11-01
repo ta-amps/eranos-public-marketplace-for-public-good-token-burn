@@ -195,7 +195,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (16)
+## tests/ (17)
 
 | File | What it is |
 |---|---|
@@ -215,6 +215,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_seed_packs.py](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
 | [tests/test_tracks_and_verifier.py](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
 | [tests/test_worker_loop.py](tests/test_worker_loop.py) | The volunteer worker loop: unit checks, then whole flows against a local Tessera on workerd. |
+| [tests/test_worker_safety.py](tests/test_worker_safety.py) | Regression tests for the independent review of the worker loop (findings B1-B3, M1-M4, m1-m12). |
 
 ## tracks/ (14)
 

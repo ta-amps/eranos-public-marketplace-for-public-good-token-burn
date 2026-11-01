@@ -120,7 +120,7 @@ class OllamaModel:
         self.seed = seed
         self.num_ctx = num_ctx
         self.adapter = adapter
-        self._http = httpx.Client(base_url=self.url, timeout=timeout)
+        self._http = httpx.Client(base_url=self.url, timeout=timeout, trust_env=False)
         self._described: dict[str, Any] | None = None
 
     def close(self) -> None:
