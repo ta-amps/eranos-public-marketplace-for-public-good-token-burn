@@ -399,7 +399,7 @@ export interface PlainWords {
   tags: { not_yet: T; made: T; checked: T; changing: T };
   happened_title: T;
   happened_more: T;
-  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "check_refused" | "work_claimed_eranos", T>;
+  happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T>;
   share_lead: T;
   share: T;
   shared: T;
@@ -414,11 +414,14 @@ export interface PlainWords {
   strip_ready_public: T;
   bands: {
     sorted: Record<"title" | "process" | "information" | "checked" | "waiting", T>;
-    made: Record<"title_now" | "title_done" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded", T>;
+    made: Record<
+      "title_now" | "title_done" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded" | "failed" | "retry" | "retry_count",
+      T
+    >;
     checked: Record<"title" | "rule" | "blocked" | "sent_back_one" | "sent_back_many" | "waiting" | "checking" | "done" | "upcoming", T>;
     ready: Record<
       | "title" | "title_public" | "process" | "information" | "open_process" | "open_information" | "decide" | "decide_link"
-      | "library_title" | "library_added" | "library_link" | "library_how" | "upcoming",
+      | "library_title" | "library_added" | "library_link" | "library_how" | "upcoming" | "reused" | "reused_link" | "next_run",
       T
     >;
   };

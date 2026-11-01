@@ -23,7 +23,29 @@ const FALLBACK_SECONDS = 90;
 function kindOf(part: Part): Kind {
   const declared = part.plan.output_type;
   if (declared === "process" || declared === "information") return declared;
+  if (part.plan.route === "reused") {
+    const from = (part.plan as { reused_from?: { kind?: string } }).reused_from;
+    return from?.kind === "report" ? "information" : "process";
+  }
   return part.plan.route === "private-files" ? "process" : "information";
+}
+
+/** A date and time for a run that may be days away. */
+function when(at: number): string {
+  return new Date(at * 1000).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+/** The first sentence of a worker's reason, short enough for one line. */
+function shortReason(reason: string): string {
+  const first = reason.split(/(?<=[.!?])\s/)[0] ?? reason;
+  return first.length > 140 ? `${first.slice(0, 138)}\u2026` : first;
+}
+
+/** Where a reused answer came from: its catalog page, or the public record that holds it. */
+function sourceHref(event: StatusEvent): string | null {
+  if (/^(KIT|PRC)-/.test(event.result_id ?? "")) return `/catalog/${encodeURIComponent(event.result_id ?? "")}`;
+  const ref = /^(eranos\.[a-z_.]+)\/([A-Za-z0-9][A-Za-z0-9_.:-]*)/.exec(event.ref ?? "");
+  return ref ? `/api/nouns/${ref[1]}/${encodeURIComponent(ref[2] ?? "")}` : null;
 }
 
 /** A part is being remade after the requester asked for changes, until a new check approves it. */
@@ -139,6 +161,10 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         push(h.received);
         break;
       case "queued": {
+        if (event.summary?.next_at) {
+          push(fill(h.scheduled, { time: when(event.summary.next_at) }));
+          break;
+        }
         const place = event.part ? (event.places?.[String(event.part)] ?? event.place) : event.place;
         if (place) push(place === 1 ? h.queued_next : fill(h.queued, { nth: ordinal(place) }));
         break;
@@ -158,7 +184,7 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         break;
       }
       case "work_released":
-        push(h.work_released);
+        push(event.reason ? h.work_failed : h.work_released);
         break;
       case "work_submitted":
         push(again ? h.work_submitted_changes : h.work_submitted);
@@ -175,6 +201,10 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
       case "check_approved":
       case "delivered":
       case "published": {
+        if (event.summary?.reused) {
+          push(h.reused);
+          break;
+        }
         const keyFor = `${n}:${again ? "again" : "first"}`;
         if (readied.has(keyFor)) break;
         readied.add(keyFor);
@@ -335,6 +365,17 @@ export function PlainStatus({
                   {agent.claimedAt != null && fill(agent.dedicated ? b.made.picked_eranos : b.made.picked, { time: clock(agent.claimedAt) })}
                 </p>
               )}
+              {(() => {
+                const tries = events.filter((e) => e.part === n && (e.type === "work_claimed" || e.type === "work_released"));
+                const last = tries.at(-1);
+                if (!last || last.type !== "work_released" || !last.reason || done) return null;
+                const retry = last.summary?.attempt && last.summary.max_attempts ? fill(b.made.retry_count, { n: last.summary.attempt, m: last.summary.max_attempts }) : b.made.retry;
+                return (
+                  <p className="er-band-failed" data-testid={`failed-${n}`}>
+                    {fill(b.made.failed, { reason: shortReason(last.reason) })} {retry}
+                  </p>
+                );
+              })()}
               {waitingForVolunteer && (
                 <p className="er-small" data-testid={`waiting-${n}`}>
                   {fill(b.made.waiting, { nth: ordinal(part.place ?? 1) })}{" "}
@@ -385,6 +426,14 @@ export function PlainStatus({
       </Band>
 
       <Band n={4} title={requester ? b.ready.title : b.ready.title_public} state={stripState(4)}>
+        {(() => {
+          const next = events.filter((e) => e.type === "queued" && e.summary?.next_at && (e.receipt || e.ref)).at(-1)?.summary?.next_at;
+          return next ? (
+            <p className="er-small" data-testid="next-run">
+              {fill(b.ready.next_run, { time: when(next) })}
+            </p>
+          ) : null;
+        })()}
         {parts.some((p) => p.decide === "yourturn" || p.decide === "decided") ? (
           <>
             <div className="er-ready-cards">
@@ -399,6 +448,26 @@ export function PlainStatus({
                   </div>
                 ))}
             </div>
+            {parts.map((part) => {
+              const reused = events.filter((e) => e.part === part.plan.part && (e.type === "delivered" || e.type === "published") && e.summary?.reused).at(-1);
+              if (!reused) return null;
+              const href = sourceHref(reused);
+              return (
+                <p key={`reused-${part.plan.part}`} data-testid={`reused-${part.plan.part}`}>
+                  {b.ready.reused}{" "}
+                  {href &&
+                    (href.startsWith("/catalog/") ? (
+                      <AppLink to={href} className="er-text-link">
+                        {b.ready.reused_link}
+                      </AppLink>
+                    ) : (
+                      <a href={href} className="er-text-link">
+                        {b.ready.reused_link}
+                      </a>
+                    ))}
+                </p>
+              );
+            })}
             {requester && summary.yourTurn && (
               <p>
                 <strong>{b.ready.decide}</strong>{" "}

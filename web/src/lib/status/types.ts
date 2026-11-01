@@ -4,7 +4,8 @@
  * every node, chip and log line from these facts and nothing else, so no step can show as done without one.
  */
 
-export type PartRoute = "public-only" | "private-files" | "held";
+/** "reused": the planner answered the part from the library (the live workers, eranos/pipeline/planner.py). */
+export type PartRoute = "public-only" | "private-files" | "held" | "reused";
 
 /** One part of a plan, as the classify step records it in `eranos.plans/<request_id>`. */
 export interface PartPlan {
@@ -77,7 +78,12 @@ export interface StatusEvent {
   /** The plan's place in line, before it is claimed. */
   place?: number;
   queue?: QueueSnapshot;
-  summary?: { sources?: number };
+  /**
+   * What the live workers add (eranos-worker, eranos/pipeline/status_events.py): `reused` on a delivered or
+   * published part answered from the library, `next_at` (Unix seconds) and `occurrence` on a recurring request's
+   * next run, and `attempt` / `max_attempts` / `retry_at` on a failed try when the worker knows them.
+   */
+  summary?: { sources?: number; reused?: boolean; next_at?: number; occurrence?: number; attempt?: number; max_attempts?: number; retry_at?: number };
   reason?: string;
   findings?: string[];
   choice?: DecisionChoice;

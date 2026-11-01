@@ -9,8 +9,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 BANNER = ROOT / "web" / "public" / "agent-banner.js"
-# Agora's site/assets/agent-banner.js at commit e29f515 (branch claude/agora-design-20261031).
-SHARED_SHA256 = "5616c09ee423eea8e05bb95cee93e3765194c17f8c7c1bd76fbb2eeae934226f"
+# Agora's site/assets/agent-banner.js at commit 83a615e (review N2 to N4).
+SHARED_SHA256 = "fd51472c4ab130983996925b64d8934d775be243f3221df50181a8a9c72cdf5b"
 
 
 def _sha(path: Path) -> str:

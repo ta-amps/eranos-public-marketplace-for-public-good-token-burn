@@ -182,10 +182,12 @@ a { color: var(--link); text-decoration: underline; text-underline-offset: 0.18e
     }
 
     href(value) {
+      // Only web links: a noun fetched from another site must not be able to run script through a link (review N2).
       try {
-        return new URL(value || "/", this.getAttribute("base") || window.location.origin).href;
+        const url = new URL(value || "/", this.getAttribute("base") || window.location.origin);
+        return url.protocol === "https:" || url.protocol === "http:" ? url.href : "#";
       } catch (error) {
-        return value;
+        return "#";
       }
     }
 
@@ -305,6 +307,7 @@ a { color: var(--link); text-decoration: underline; text-underline-offset: 0.18e
       } else {
         this.root.replaceChildren(el("style", { text: CSS }), section);
       }
+      this.setOpen(false, false); // names the toggle from the start, even where it shows only the glyph (review N3)
       this.dataset.ready = "true";
       this.dispatchEvent(new CustomEvent("ta-agent-banner-ready", { bubbles: true }));
     }

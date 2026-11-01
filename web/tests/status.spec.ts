@@ -196,6 +196,77 @@ test.describe("on the hosted build", () => {
     await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so one of Eranos\u2019s own workers started making it.");
   });
 
+  for (const names of ["the live workers' names", "the page's own names"] as const) {
+    test(`live workers' facts, with ${names}: a reused answer, a library entry, a failed try and the next run`, async ({ page }) => {
+      const now = Math.floor(Date.now() / 1000);
+      const workers = names === "the live workers' names";
+      const event = (version: number, value: Record<string, unknown>) => ({
+        version,
+        created_at: now - 600 + version,
+        value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 600 + version, ...value } },
+      });
+      // Shapes as eranos-worker writes them (eranos/pipeline/planner.py reuse() and park, worker_loop.py facts).
+      const reusedFrom = { store: "eranos.solutions", key: "RPT-REUSED-01", version: 2, score: 0.93, kind: "report", review_receipt: "f".repeat(64), title: "Tenant deposit rules 2026" };
+      const history = [
+        event(1, { type: "received", receipt: "a".repeat(64) }),
+        event(2, {
+          type: "planned",
+          receipt: "b".repeat(64),
+          parts: [
+            { part: 1, route: "reused", text: "Summarize the deposit rules.", reused_from: reusedFrom },
+            { part: 2, route: "public-only", text: "List the new grant deadlines.", report_id: "RPT-NEW-02" },
+          ],
+        }),
+        event(3, {
+          type: workers ? "reused" : "delivered",
+          part: 1,
+          receipt: "c".repeat(64),
+          ref: "eranos.solutions/RPT-REUSED-01",
+          result_id: "RPT-REUSED-01",
+          reason: "Found an existing reviewed answer: no new work and no new tokens.",
+          summary: { reused: true, score: 0.93, new_verbs: 0, model_tokens: 0 },
+        }),
+        event(4, {
+          type: workers ? "added" : "library_added",
+          part: 1,
+          receipt: "c".repeat(64),
+          ref: "eranos.solutions/RPT-REUSED-01",
+          library_ref: "https://eranos.ta-amps.workers.dev/api/nouns/eranos.solutions/RPT-REUSED-01",
+          result_id: "RPT-REUSED-01",
+          summary: { nouns: ["eranos.solutions/RPT-REUSED-01@2"], tasks: [] },
+        }),
+        event(5, { type: "work_claimed", part: 2, receipt: "d".repeat(64), worker: "volunteer-7", model: "llama-3.2-3b" }),
+        event(6, {
+          type: workers ? "work_failed" : "work_released",
+          part: 2,
+          receipt: "e".repeat(64),
+          reason: "self-test failed: two points had no source. Retrying from the brief.",
+          summary: { role: "builder", kind: "research", attempt: 1, max_attempts: 3 },
+        }),
+        event(7, {
+          type: workers ? "scheduled" : "queued",
+          ref: `${REQUEST_ID} park 1`,
+          reason: "Recurring: the next occurrence starts at 2026-11-08 14:00 UTC.",
+          summary: { next_at: now + 7 * 86400, occurrence: 2 },
+        }),
+      ];
+      await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the deposit rules. List the new grant deadlines." } });
+      await page.goto(`/requests/${REQUEST_ID}`);
+      const reused = page.getByTestId("reused-1");
+      await expect(reused).toContainText("Answered from the library with no new work.");
+      await expect(reused.getByRole("link")).toHaveAttribute("href", "/api/nouns/eranos.solutions/RPT-REUSED-01");
+      await expect(page.locator("#step-library")).toHaveAttribute("data-state", "done");
+      await expect(page.getByTestId("failed-2")).toContainText("The last try failed: self-test failed: two points had no source.");
+      await expect(page.getByTestId("failed-2")).toContainText("(try 1 of 3)");
+      await expect(page.getByTestId("next-run")).toContainText("Next run:");
+      const happened = page.getByTestId("plain-happened");
+      await expect(happened).toContainText("The next run starts");
+      await expect(happened).toContainText("A try at making it failed, and it went back in line.");
+      await page.getByRole("button", { name: /Show everything/ }).click();
+      await expect(happened).toContainText("Answered from the library with no new work.");
+    });
+  }
+
   test("B4: a published process package shows 'Download the process' with its SHA-256; an unreviewed one does not", async ({ page }) => {
     const processExample = noun<{ solution: Record<string, unknown> }>("request-example-process");
     const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "private-files", text: "A process.", kit_id: "PRC-35DE86-01" }] };

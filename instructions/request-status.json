@@ -548,7 +548,10 @@
       "withdrawn": "This request was withdrawn.",
       "closed": "This request is closed.",
       "check_refused": "The maker tried to approve its own work, and Tessera refused it.",
-      "work_claimed_eranos": "No volunteer was free, so one of Eranos’s own workers started making it."
+      "work_claimed_eranos": "No volunteer was free, so one of Eranos’s own workers started making it.",
+      "reused": "Answered from the library with no new work.",
+      "scheduled": "The next run starts {time}.",
+      "work_failed": "A try at making it failed, and it went back in line."
     },
     "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
     "share": "Share this request",
@@ -591,7 +594,10 @@
         "picked_eranos": "Picked it up at {time}: no volunteer was free.",
         "waiting": "Waiting for a volunteer · {nth} in line.",
         "fallback": "If none is free by {time}, one of Eranos’s own workers will pick it up.",
-        "recorded": "Recorded ✓ Every step is recorded."
+        "recorded": "Recorded ✓ Every step is recorded.",
+        "failed": "The last try failed: {reason}",
+        "retry": "It is back in line.",
+        "retry_count": "It is back in line (try {n} of {m})."
       },
       "checked": {
         "title": "Checked by a second volunteer",
@@ -617,7 +623,10 @@
         "library_added": "✓ Added to the shared library",
         "library_link": "See it in the library →",
         "library_how": "How it’s stored, on Agora ↗",
-        "upcoming": "Your team decides once a second volunteer has checked it."
+        "upcoming": "Your team decides once a second volunteer has checked it.",
+        "reused": "Answered from the library with no new work.",
+        "reused_link": "See where it came from →",
+        "next_run": "Next run: {time}"
       }
     }
   },

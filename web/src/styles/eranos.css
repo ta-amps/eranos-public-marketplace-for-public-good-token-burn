@@ -2563,3 +2563,9 @@ button.er-choice-pill {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+.er-band-failed {
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--danger, #b3261e);
+  background: var(--surface);
+}
