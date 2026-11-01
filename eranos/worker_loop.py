@@ -358,6 +358,15 @@ class Worker:
         self.model = model
         self.fetcher = fetcher
         self.handler = handler if handler is not None else process_part.load_handler()
+        # A reviewer that runs a process handler must name the builder keys it trusts; it refuses to
+        # start without them, so a package written by any other key can never be approved.
+        self.process_builder_keys = process_part.trusted_builder_keys()
+        if (
+            config.role == "reviewer"
+            and not process_part.is_stub(self.handler)
+            and not self.process_builder_keys
+        ):
+            raise process_part.BuilderKeysMissing(process_part.BUILDER_KEYS_REQUIRED)
         self.pacer = Pacer(config.min_empty_seconds)
         self.clock, self.sleep = clock, sleep
         self.stop = threading.Event()
@@ -899,7 +908,11 @@ class Worker:
             )
         else:
             out = process_part.review_package(
-                gate, lease, handler=self.handler, key_id=self.config.key_id
+                gate,
+                lease,
+                handler=self.handler,
+                key_id=self.config.key_id,
+                trusted_keys=self.process_builder_keys,
             )
         self._facts(gate, request_id, self.review_facts(lease, out, part))
         return out

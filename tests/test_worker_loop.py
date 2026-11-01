@@ -244,8 +244,17 @@ def _workers(fabric: Any, *, model: Any = None, handler: Any = None) -> dict[str
         "builder": fabric.worker(
             "builder", model=model or FakeModel(), fetcher=fetcher, handler=handler
         ),
-        "reviewer": fabric.worker("reviewer", fetcher=fetcher, handler=handler),
+        "reviewer": _reviewer(fabric, fetcher=fetcher, handler=handler),
     }
+
+
+def _reviewer(fabric: Any, name: str = "reviewer", **kwargs: Any) -> Worker:
+    """A reviewer with a process handler starts only with the builder keys it trusts."""
+    from unittest import mock
+
+    keys = {process_part.BUILDER_KEYS_ENV: fabric.keys["builder"]["key_id"]}
+    with mock.patch.dict(os.environ, keys):
+        return fabric.worker(name, **kwargs)
 
 
 @needs_workerd
@@ -405,14 +414,17 @@ def build_process(request, plan_part):
             "task_template_record": {**ids["task_template_record"], "value": {"kind": "run_process", "pack": "data-cleaning"}},
             "test_report": {"passed": True, "tests": 4, "issues": [], "pack_id": "data-cleaning"}}
 
-def review_process(package, request, plan_part, *, bundle_path=None, records=None):
-    if bundle_path is None:
-        return {"passed": False, "checks": ["no bundle_path: fail closed"]}
+def review_process(package, request, plan_part, *, bundle_path=None, records=None, builder_key_id=None, trusted_builder_keys=None):
+    if bundle_path is None or not trusted_builder_keys:
+        return {"passed": False, "checks": ["no bundle_path or no trusted builder keys: fail closed"]}
     data = Path(bundle_path).read_bytes()
+    writers = {name: (rec or {}).get("owner_key_id") for name, rec in (records or {}).items()}
     checks = ["the bundle matches its digest" if hashlib.sha256(data).hexdigest() == package["blob_sha256"] else "MISMATCH",
               "no worker key in the review environment" if "TESSERA_KEY" not in os.environ else "LEAKED KEY",
-              "reviewed the reviewer's own copy" if str(bundle_path) != os.environ.get("TEST_BUNDLE") else "BUILDER PATH"]
-    verified = {name: {"value_sha256": record_digest(value)} for name, value in (records or {}).items()}
+              "reviewed the reviewer's own copy" if str(bundle_path) != os.environ.get("TEST_BUNDLE") else "BUILDER PATH",
+              "the build's key is a trusted builder" if builder_key_id in trusted_builder_keys else "UNTRUSTED BUILDER",
+              "both drafts were written by the build's key" if set(writers.values()) == {builder_key_id} else "OTHER WRITER"]
+    verified = {name: {"value_sha256": record_digest(rec["value"])} for name, rec in (records or {}).items()}
     return {"passed": not any(c.isupper() for c in checks), "checks": checks, "verified": verified}
 """
 
@@ -461,6 +473,7 @@ def test_process_request_with_a_handler_is_built_reviewed_and_published(
     assert review["output"]["approved"] is True and review["output"]["publication_sha256"]
     assert "no worker key in the review environment" in review["output"]["checks"]
     assert "reviewed the reviewer's own copy" in review["output"]["checks"]
+    assert "both drafts were written by the build's key" in review["output"]["checks"]
     assert_nothing_public_says_synthetic(
         fabric, [part["work_task_id"], part["review_task_id"], rid]
     )

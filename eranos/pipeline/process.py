@@ -35,6 +35,24 @@ from eranos.pipeline.request_noun import PRODUCER, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
 
 HANDLER_ENV = "ERANOS_PROCESS_HANDLER"
+# Required for any reviewer that runs a process handler: the builder key ids it trusts.
+BUILDER_KEYS_ENV = "ERANOS_PROCESS_BUILDER_KEYS"
+BUILDER_KEYS_REQUIRED = (
+    f"{BUILDER_KEYS_ENV} must name the builder key ids this reviewer trusts (comma-separated) "
+    "before a reviewer runs the process handler"
+)
+
+
+class BuilderKeysMissing(RuntimeError):
+    """A reviewer with a process handler was started without its trusted builder keys."""
+
+
+def trusted_builder_keys(raw: str | None = None) -> frozenset[str]:
+    """The builder key ids named in ERANOS_PROCESS_BUILDER_KEYS (or `raw`), without blanks."""
+    text = os.environ.get(BUILDER_KEYS_ENV, "") if raw is None else raw
+    return frozenset(k.strip() for k in text.split(",") if k.strip())
+
+
 BUILD_KIND, REVIEW_KIND = "process", "process_review"
 NOT_IMPLEMENTED = "process packages are not built yet: no process handler (build B4) is installed"
 
@@ -85,14 +103,14 @@ _KIT_ID = re.compile(r"[A-Z]{2,4}-[A-Z0-9]{2,8}-[0-9]{2}")
 _PASS_ENV = ("PATH", "LANG", "LC_ALL", "HOME", "DOCKER_HOST", "XDG_RUNTIME_DIR")
 _RUNNER = """
 import json, sys, importlib.util, pathlib
-handler, package, request, part, records, bundle = sys.argv[1:7]
+handler, package, request, part, records, bundle, extra = sys.argv[1:8]
 sys.path.insert(0, str(pathlib.Path(handler).parent))
 spec = importlib.util.spec_from_file_location("eranos_process_handler", handler)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 load = lambda p: json.loads(pathlib.Path(p).read_text())
 review = module.review_process
-kwargs = {"bundle_path": pathlib.Path(bundle), "records": load(records)}
+kwargs = {"bundle_path": pathlib.Path(bundle), "records": load(records), **load(extra)}
 print(json.dumps(review(load(package), load(request), load(part), **kwargs), default=str))
 """
 
@@ -151,7 +169,7 @@ def process_brief(
         "part": part["part"],
         "occurrence": occurrence,
         "title": f"{org}: a reusable process"[:140],
-        "made_up_samples_only": True,
+        "made_up_data_only": True,
         "request": request,
         "plan_part": {k: part[k] for k in ("part", "route", "text", "legal") if k in part},
         "output": {
@@ -159,7 +177,7 @@ def process_brief(
             "contract": "build_process(request, plan_part) -> {bundle_path, catalog_record, task_template_record, test_report}",
         },
         "acceptance": [
-            "The package's tests pass on made-up samples only, never on real people's data.",
+            "The package's tests pass on made-up sample files only (no real data).",
             "Its bundle SHA-256 is its identity; the catalog record names it.",
             "A different key re-runs the checks in a clean environment before anything is public.",
         ],
@@ -263,6 +281,7 @@ def _clean_review(
     records: dict[str, Any],
     bundle: Path,
     workdir: Path,
+    extra: dict[str, Any],
 ) -> dict[str, Any]:
     """Run the handler's review_process in a separate process with no worker keys or settings."""
     for name, value in (
@@ -270,6 +289,7 @@ def _clean_review(
         ("request", request),
         ("plan_part", plan_part),
         ("records", records),
+        ("extra", extra),
     ):
         (workdir / f"{name}.json").write_text(json.dumps(value))
     env = {k: os.environ[k] for k in _PASS_ENV if k in os.environ}
@@ -277,7 +297,16 @@ def _clean_review(
     env.update(TMPDIR=str(workdir), PYTHONDONTWRITEBYTECODE="1")
     args = [str(workdir / f"{n}.json") for n in ("package", "request", "plan_part", "records")]
     done = subprocess.run(
-        [sys.executable, "-I", "-c", _RUNNER, handler_file, *args, str(bundle)],
+        [
+            sys.executable,
+            "-I",
+            "-c",
+            _RUNNER,
+            handler_file,
+            *args,
+            str(bundle),
+            str(workdir / "extra.json"),
+        ],
         cwd=workdir,
         env=env,
         capture_output=True,
@@ -369,7 +398,7 @@ def ensure_published(
                 backend,
                 ref["store"],
                 ref["key"],
-                final if name == "catalog_record" else value,
+                final if name == "catalog_record" else review.get("template_value", value),
                 public=True,
             )
         )
@@ -404,8 +433,19 @@ def ensure_published(
     return published
 
 
-def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> dict[str, Any]:
-    """A different key checks the package it fetched itself, in a clean process, then publishes it."""
+def review_package(
+    backend: Any,
+    lease: Any,
+    *,
+    handler: Any,
+    key_id: str,
+    trusted_keys: frozenset[str] | None = None,
+) -> dict[str, Any]:
+    """A different key checks the package it fetched itself, in a clean process, then publishes it.
+
+    The handler is told who completed the build and which builder keys this reviewer trusts, and it
+    sees who wrote each draft record, so a package written by any other key is never approved.
+    """
     build = lease.dependencies[0]
     brief = dict(lease.brief)
     request_id, part = str(brief["request_id"]), brief.get("part")
@@ -460,19 +500,26 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
     if package.get("blob_sha256") != digest or not re.fullmatch(r"[0-9a-f]{64}", digest):
         findings.append("the build gives no bundle digest")
     handler_file = getattr(handler, "__file__", None)
+    trusted = trusted_keys if trusted_keys is not None else trusted_builder_keys()
     if not findings and (
         is_stub(handler)
         or not callable(getattr(handler, "review_process", None))
         or not handler_file
     ):
         findings.append("no independent process check is installed (review_process)")
+    elif not findings and not trusted:
+        findings.append(BUILDER_KEYS_REQUIRED)
     records: dict[str, Any] = {}
     if not findings:
         for name in ("catalog_record", "task_template_record"):
             current = backend.get_record(ids[name]["store"], ids[name]["key"])
             if int(current.version) != int((package.get(name) or {}).get("version") or 0):
                 findings.append(f"the {name} changed after the build")
-            records[name] = current.value
+            # The handler checks who wrote each draft (the build's own key), not only what it says.
+            records[name] = {
+                "value": current.value,
+                "owner_key_id": getattr(current, "owner_key_id", None),
+            }
     verdict: dict[str, Any] = {}
     if not findings:
         with tempfile.TemporaryDirectory(prefix="eranos-process-review-") as tmp:
@@ -483,8 +530,12 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
             else:
                 path = workdir / "bundle.tar.gz"
                 path.write_bytes(bundle)
+                extra = {
+                    "builder_key_id": build.completed_by_key,
+                    "trusted_builder_keys": sorted(trusted),
+                }
                 verdict = _clean_review(
-                    str(handler_file), package, request, plan_part, records, path, workdir
+                    str(handler_file), package, request, plan_part, records, path, workdir, extra
                 )
         if not findings and verdict.get("passed") is not True:
             findings += [str(c) for c in verdict.get("checks") or []][:10] or [
@@ -492,7 +543,8 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
             ]
         verified = verdict.get("verified") or {}
         if not findings and any(
-            _digest_of(handler, records[name]) != (verified.get(name) or {}).get("value_sha256")
+            _digest_of(handler, records[name]["value"])
+            != (verified.get(name) or {}).get("value_sha256")
             for name in records
         ):
             findings.append("the records the review verified are not the records stored now")
@@ -506,9 +558,11 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
         )
         update_request_part(backend, request_id, part, "needs_revision", findings=findings)
         return {"status": "needs_revision", "findings": findings, "receipt": receipt.receipt_hash}
+    # Publish what the reviewer rebuilt from the bundle and the request, never the draft's own text.
+    rebuilt = verdict.get("verified") or {}
     value = reviewed_value(
         handler,
-        records["catalog_record"],
+        rebuilt.get("catalog_value", records["catalog_record"]["value"]),
         {
             "reviewed_by": key_id,
             "reviewed_by_key": key_id,
@@ -538,6 +592,7 @@ def review_package(backend: Any, lease: Any, *, handler: Any, key_id: str) -> di
         "ids": ids,
         "verified": verdict.get("verified") or {},
         "catalog_value": value,
+        "template_value": rebuilt.get("template_value", records["task_template_record"]["value"]),
         "part": part,
         "checks": [str(c) for c in verdict.get("checks") or []][:20],
     }

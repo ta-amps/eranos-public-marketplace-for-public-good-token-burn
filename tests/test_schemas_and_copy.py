@@ -53,7 +53,7 @@ def test_interviews_and_decisions_must_stay_human_only() -> None:
 
 
 def test_synthetic_fixture_requires_synthetic_mark() -> None:
-    with pytest.raises(ValidationError, match="SYNTHETIC"):
+    with pytest.raises(ValidationError, match="MADE-UP"):
         SyntheticFixture(
             id="FX-NO-MARK",
             scenario="Missing synthetic prefix",

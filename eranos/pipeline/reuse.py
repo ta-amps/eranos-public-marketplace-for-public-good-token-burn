@@ -137,11 +137,17 @@ def keyed_reuse(
     key = (keyed(text) or {}).get("key")
     if not key:
         return None
+    expected_kit = f"PRC-{key.split('-', 1)[1][:6].upper()}-01" if "-" in key else ""
     for store, record, _text, kind, receipt in candidates(backend, rules):
         value = record.value if isinstance(record.value, dict) else {}
+        tags = [str(t) for t in value.get("tags") or []]
+        # Exactly this package: one reuse tag, the kit id the key derives, and a process package.
         if (
             store == "eranos.catalog"
-            and f"reuse:{key}" in (value.get("tags") or [])
+            and [t for t in tags if t.startswith("reuse:")] == [f"reuse:{key}"]
+            and str(record.key) == expected_kit
+            and (value.get("kit") or {}).get("kit_id") == expected_kit
+            and "kind:process_package" in tags
             and verified(backend, value, receipt)
         ):
             title = str((value.get("kit") or {}).get("title") or value.get("title") or "")

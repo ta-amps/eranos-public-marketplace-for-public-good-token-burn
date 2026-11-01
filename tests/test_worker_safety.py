@@ -444,6 +444,38 @@ def test_dedicated_grace_is_counted_from_when_the_verb_was_queued(tmp_path: Path
     }
 
 
+def test_a_process_reviewer_refuses_to_start_without_trusted_builder_keys(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import dataclasses
+
+    handler = SimpleNamespace(
+        build_process=lambda *a: {}, review_process=lambda *a, **k: {}, __file__="/x/handler.py"
+    )
+    config = WorkerConfig(
+        role="reviewer",
+        label="r",
+        tessera_url="http://127.0.0.1:9",
+        key="x",
+        key_id="k_reviewer",
+        trace_path=str(tmp_path / "r.jsonl"),
+    )
+    start = {"backend": Mem(), "heartbeat_backend": Mem()}
+    monkeypatch.delenv(process_part.BUILDER_KEYS_ENV, raising=False)
+    with pytest.raises(process_part.BuilderKeysMissing, match=process_part.BUILDER_KEYS_ENV):
+        Worker(config, handler=handler, **start)
+    monkeypatch.setenv(process_part.BUILDER_KEYS_ENV, " , ")
+    with pytest.raises(process_part.BuilderKeysMissing):
+        Worker(config, handler=handler, **start)
+    monkeypatch.setenv(process_part.BUILDER_KEYS_ENV, " k_builder , ")
+    assert Worker(config, handler=handler, **start).process_builder_keys == frozenset({"k_builder"})
+    monkeypatch.delenv(process_part.BUILDER_KEYS_ENV)
+    Worker(config, handler=process_part.StubHandler(), **start)  # no handler: nothing to trust
+    Worker(
+        dataclasses.replace(config, role="builder"), handler=handler, **start
+    )  # builders need no list
+
+
 def test_m3_the_stub_never_claims_process_verbs(tmp_path: Path) -> None:
     for role in ("builder", "reviewer"):
         config = WorkerConfig(
