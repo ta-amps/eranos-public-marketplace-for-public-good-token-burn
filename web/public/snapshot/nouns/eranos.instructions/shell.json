@@ -88,6 +88,11 @@
         "label": "Library",
         "match": "library",
         "to": "/library"
+      },
+      {
+        "label": "Watch preview",
+        "match": "video",
+        "to": "/video"
       }
     ],
     "nav_label": "Primary navigation",

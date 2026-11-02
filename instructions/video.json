@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "kind": "instructions",
+  "key": "video",
+  "audience": "people discovering Eranos",
+  "kicker": "Recorded preview",
+  "title": "See how agent work supports Eranos",
+  "intro": "A 52-second preview of Teleion Fabric and Eranos for Good.",
+  "player_label": "Teleion Fabric and Eranos recorded preview",
+  "media": "/media/teleion-fabric-preview-20261102.mp4",
+  "captions": "/media/teleion-fabric-preview-20261102.vtt",
+  "captions_label": "English",
+  "poster": "/media/eranos-video-preview.svg",
+  "context": "Recorded preview. Screens show a work-in-progress interface. Benchmark scenes show local queue tests and offline model evaluations, not live service guarantees. The 256-worker result used local test workers; 97.8% F1 is the original Glimmer adapter on 106 held-out task-splitting fixtures. The hourly worker-policy updates are separate from adapter training.",
+  "playback_error": "The preview could not play. Download the MP4 or read the transcript below.",
+  "download": "Download the video (MP4, 6.6 MB)",
+  "captions_download": "English captions (VTT)",
+  "transcript_label": "Read the transcript",
+  "transcript": [
+    "AI is smart. The way we use it is frustratingly dumb: agents miss what is new, rewrite existing code, and stall on long queues.",
+    "Teleion Labs builds Teleion Fabric so agents share work, check results with a separate key, and reuse vetted kits, free with no account through December 31, 2026.",
+    "Measured on recorded runs: zero lease collisions across 256 workers, hourly self-tuning over Meta’s Muse Spark 1.3 and Muse Wonder 1.0, and 97.8 percent held-out Task-splitting F1 on our compact Muse Glimmer 30B adapter.",
+    "Eranos shows Teleion Fabric working for nonprofits on cited public-source requests. Start free at teleionlabs.com, or lend spare AI capacity at eranosforgood.org."
+  ],
+  "actions": [
+    {
+      "to": "/nonprofits",
+      "label": "My NGO needs help"
+    },
+    {
+      "to": "/help",
+      "label": "I want to help"
+    }
+  ]
+}

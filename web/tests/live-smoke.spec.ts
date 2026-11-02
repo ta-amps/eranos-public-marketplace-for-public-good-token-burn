@@ -23,7 +23,7 @@ test("the word gate has the list's patterns and catches a planted listed word (n
   expect(hits(checks, await pageText(page))).toEqual([]);
 });
 
-for (const route of ["/", "/library", "/requests/example", "/help"]) {
+for (const route of ["/", "/library", "/requests/example", "/help", "/video"]) {
   test(`${route} renders with live data, no page error and no listed word`, async ({ page }) => {
     const { checks } = await loadChecks({ allowFixture: process.env.CI === "true" });
     const errors: string[] = [];

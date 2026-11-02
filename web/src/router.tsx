@@ -10,6 +10,7 @@ export type RouteMatch =
   | { name: "tracks" }
   | { name: "fabric" }
   | { name: "about" }
+  | { name: "video" }
   | { name: "connect" }
   | { name: "library" }
   | { name: "yours" }
@@ -29,6 +30,7 @@ const STATIC_ROUTES: Record<string, RouteMatch> = {
   "/tracks": { name: "tracks" },
   "/fabric": { name: "fabric" },
   "/about": { name: "about" },
+  "/video": { name: "video" },
   "/connect": { name: "connect" },
   "/library": { name: "library" },
   "/requests": { name: "yours" },

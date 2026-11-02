@@ -27,6 +27,11 @@
       "to": "/library",
       "label": "Library",
       "match": "library"
+    },
+    {
+      "to": "/video",
+      "label": "Watch preview",
+      "match": "video"
     }
   ],
   "external_note": "opens on Agora",

@@ -9,7 +9,7 @@ import { darkPanels } from "./support/light";
 // element larger than 5% of the viewport with a dark background, on a dark media query in the built CSS, and on a
 // color-scheme meta other than "only light" or "light". The deploy's build step runs it next to the release guard.
 
-const ROUTES = ["/", "/help", "/nonprofits", "/library", "/requests", "/requests/example", "/requests/example?moment=your-turn", "/requests/example/result?part=1", "/requests/example-process/result?part=1", "/catalog", "/catalog/KIT-HOTLINE-02", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/privacy", "/terms", "/report", "/no-such-page"];
+const ROUTES = ["/", "/help", "/nonprofits", "/library", "/requests", "/requests/example", "/requests/example?moment=your-turn", "/requests/example/result?part=1", "/requests/example-process/result?part=1", "/catalog", "/catalog/KIT-HOTLINE-02", "/contribute", "/tracks", "/fabric", "/about", "/video", "/connect", "/privacy", "/terms", "/report", "/no-such-page"];
 
 test("the detector fails an ink panel like the home FAQ that came back", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });

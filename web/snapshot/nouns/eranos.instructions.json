@@ -2649,6 +2649,11 @@
             "label": "Library",
             "match": "library",
             "to": "/library"
+          },
+          {
+            "label": "Watch preview",
+            "match": "video",
+            "to": "/video"
           }
         ],
         "nav_label": "Primary navigation",
@@ -2892,6 +2897,45 @@
             }
           ]
         }
+      }
+    },
+    {
+      "key": "video",
+      "version": 1,
+      "value": {
+        "actions": [
+          {
+            "label": "My NGO needs help",
+            "to": "/nonprofits"
+          },
+          {
+            "label": "I want to help",
+            "to": "/help"
+          }
+        ],
+        "audience": "people discovering Eranos",
+        "captions": "/media/teleion-fabric-preview-20261102.vtt",
+        "captions_download": "English captions (VTT)",
+        "captions_label": "English",
+        "context": "Recorded preview. Screens show a work-in-progress interface. Benchmark scenes show local queue tests and offline model evaluations, not live service guarantees. The 256-worker result used local test workers; 97.8% F1 is the original Glimmer adapter on 106 held-out task-splitting fixtures. The hourly worker-policy updates are separate from adapter training.",
+        "download": "Download the video (MP4, 6.6 MB)",
+        "intro": "A 52-second preview of Teleion Fabric and Eranos for Good.",
+        "key": "video",
+        "kicker": "Recorded preview",
+        "kind": "instructions",
+        "media": "/media/teleion-fabric-preview-20261102.mp4",
+        "playback_error": "The preview could not play. Download the MP4 or read the transcript below.",
+        "player_label": "Teleion Fabric and Eranos recorded preview",
+        "poster": "/media/eranos-video-preview.svg",
+        "schema_version": 1,
+        "title": "See how agent work supports Eranos",
+        "transcript": [
+          "AI is smart. The way we use it is frustratingly dumb: agents miss what is new, rewrite existing code, and stall on long queues.",
+          "Teleion Labs builds Teleion Fabric so agents share work, check results with a separate key, and reuse vetted kits, free with no account through December 31, 2026.",
+          "Measured on recorded runs: zero lease collisions across 256 workers, hourly self-tuning over Meta’s Muse Spark 1.3 and Muse Wonder 1.0, and 97.8 percent held-out Task-splitting F1 on our compact Muse Glimmer 30B adapter.",
+          "Eranos shows Teleion Fabric working for nonprofits on cited public-source requests. Start free at teleionlabs.com, or lend spare AI capacity at eranosforgood.org."
+        ],
+        "transcript_label": "Read the transcript"
       }
     }
   ]

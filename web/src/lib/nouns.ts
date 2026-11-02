@@ -12,6 +12,25 @@ export interface NounResponse<T> {
   value: T;
 }
 
+/** The recorded preview and its limits: `eranos.instructions/video`. */
+export interface VideoNoun {
+  kicker: string;
+  title: string;
+  intro: string;
+  player_label: string;
+  media: string;
+  captions: string;
+  captions_label: string;
+  poster: string;
+  context: string;
+  playback_error: string;
+  download: string;
+  captions_download: string;
+  transcript_label: string;
+  transcript: string[];
+  actions: { to: string; label: string }[];
+}
+
 export interface NounList<T> {
   is_example: boolean;
   store: string;
