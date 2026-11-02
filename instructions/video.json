@@ -57,7 +57,7 @@
       },
       {
         "time": "0:34 – 0:45",
-        "scene": "eranosforgood.org/requests/example/result?part=1",
+        "scene": "Recorded volunteer shift-schedule kit run",
         "text": "In one recorded run, the draft finished in three minutes twenty-seven seconds, and a second worker holding its own key checked every rule and citation in one minute twenty-three seconds."
       },
       {
@@ -92,14 +92,14 @@
         "text": "Verified kits and reports free for the next nonprofit to reuse."
       },
       {
-        "label": "Teleion Fabric walkthrough (1 min 39 s) ↗",
+        "label": "Teleion Fabric walkthrough on teleionlabs.com/video ↗",
         "href": "https://teleionlabs.com/video/",
         "text": "Companion walkthrough starting from Teleion Fabric and closing with this Eranos request."
       },
       {
         "label": "Teleion Fabric & benchmarks ↗",
         "href": "https://teleionlabs.com/benchmarks/",
-        "text": "Recorded 3 min 27 s build + 1 min 23 s check, 256-worker queue run, and Muse model evaluations."
+        "text": "Recorded 3 min 27 s build + 1 min 23 s check on a volunteer shift-schedule kit run, 256-worker queue run, and Muse model evaluations."
       }
     ]
   },

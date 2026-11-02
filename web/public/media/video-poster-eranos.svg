@@ -16,13 +16,13 @@
 
     <rect x="424" y="0" width="390" height="232" rx="18" fill="#F5F2EA" stroke="#E2DCCF" stroke-width="2"/>
     <text x="456" y="52" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600" fill="#B34E2B">02 · DRAFTED</text>
-    <text x="456" y="102" font-family="Space Grotesk, system-ui, sans-serif" font-size="32" font-weight="600" fill="#11161F">3 min 27 s</text>
+    <text x="456" y="102" font-family="Space Grotesk, system-ui, sans-serif" font-size="32" font-weight="600" fill="#11161F">Cited sources</text>
     <text x="456" y="148" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" fill="#4A515E">Dedicated Muse Spark 1.3</text>
     <text x="456" y="180" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" fill="#4A515E">worker cites public sources.</text>
 
     <rect x="848" y="0" width="390" height="232" rx="18" fill="#F5F2EA" stroke="#E2DCCF" stroke-width="2"/>
     <text x="880" y="52" font-family="JetBrains Mono, monospace" font-size="20" font-weight="600" fill="#237648">03 · CHECKED</text>
-    <text x="880" y="102" font-family="Space Grotesk, system-ui, sans-serif" font-size="32" font-weight="600" fill="#11161F">1 min 23 s</text>
+    <text x="880" y="102" font-family="Space Grotesk, system-ui, sans-serif" font-size="32" font-weight="600" fill="#11161F">Separate key</text>
     <text x="880" y="148" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" fill="#4A515E">Second worker with its own</text>
     <text x="880" y="180" font-family="IBM Plex Sans, system-ui, sans-serif" font-size="22" fill="#4A515E">key verifies every source.</text>
 
