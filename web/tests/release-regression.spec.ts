@@ -10,8 +10,8 @@ for (const colorScheme of ["light", "dark"] as const) {
       test(`${route} remains light and uses the reviewed surface`, async ({ page }) => {
         await mockSite(page);
         await page.goto(route);
-        await expect(page.locator('meta[name="color-scheme"]')).toHaveAttribute("content", "light");
-        await expect(page.locator("html")).toHaveCSS("color-scheme", "light");
+        await expect(page.locator('meta[name="color-scheme"]')).toHaveAttribute("content", "only light");
+        await expect(page.locator("html")).toHaveCSS("color-scheme", /^(light only|only light|light)$/);
         await expect(page.locator("body")).toHaveCSS("background-color", "rgb(245, 242, 234)");
         if (route.startsWith("/requests/")) {
           const toggles = page.locator('[data-testid^="band-toggle-"]');

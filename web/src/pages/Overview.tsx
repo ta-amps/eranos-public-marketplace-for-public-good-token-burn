@@ -71,9 +71,16 @@ export function Overview({ site }: { site: SiteNoun | null }) {
     <div className="er-home">
       <section className="er-landing" aria-labelledby="hero-title" data-testid="landing">
         <div className="er-landing-layers" aria-hidden="true">
-          {LAYERS.map((layer) => (
-            <span key={layer.id} className={`er-layer er-layer-${layer.id} er-depth-${layer.depth}`} />
-          ))}
+          {LAYERS.map((layer) => {
+            // The four big tiles carry the request flow's steps, in reading order: b, a, then c, d.
+            const step = ["b", "a", "c", "d"].indexOf(layer.id);
+            const label = step >= 0 ? home?.tiles?.[step] : undefined;
+            return (
+              <span key={layer.id} className={`er-layer er-layer-${layer.id} er-depth-${layer.depth}${label ? ` er-layer-step-${step}` : ""}`}>
+                {label && <span className="er-layer-label">{label}</span>}
+              </span>
+            );
+          })}
         </div>
         <div className="er-landing-inner er-landing-center">
           {home && <p className="er-landing-pill">{home.eyebrow}</p>}

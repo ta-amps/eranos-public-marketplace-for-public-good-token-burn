@@ -2,10 +2,13 @@
   "schema": "eranos.surface-release-policy.v1",
   "required_ancestors": [
     "9ed6de94a8f6147c7f86633f861f05b64d6b70e7",
-    "c059a7f09882d4be412237632e3bac360ec7a973"
+    "c059a7f09882d4be412237632e3bac360ec7a973",
+    "7fad977d91c3b529c6ffb4f3b53e64199aa68005",
+    "f9913b68d7fe6bb5b588b3f0443c22b3a63e3609"
   ],
   "rules": [
     "Keep the reviewed light-only surface and four-step request accordion.",
+    "Run make light-check (MUST-FOLLOW rule 13) in the deploy's build step, after the release guard: no dark panel, no dark palette, color-scheme only light.",
     "Preserve the later track readiness, refusal details and read-after-write fixes.",
     "Run isolated browser checks under both OS color preferences before a fresh production build.",
     "The release operator must re-read Cloudflare and require expected_live_version unchanged immediately before deploy.",

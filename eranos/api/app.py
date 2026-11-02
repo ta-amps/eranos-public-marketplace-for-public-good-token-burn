@@ -611,39 +611,6 @@ def tasks_alias() -> dict[str, Any]:
     return {"synthetic": True, "tasks": rows}
 
 
-@app.get("/api/feedback")
-def get_feedback_alias() -> dict[str, Any]:
-    return {
-        "ok": True,
-        "synthetic": True,
-        "surface": "eranos",
-        "upstream": "https://herma.ta-amps.workers.dev/q/feedback",
-        "proposals_url": "https://herma.ta-amps.workers.dev/q/proposals",
-        "items": [],
-    }
-
-
-@app.post("/api/feedback")
-async def post_feedback_alias(request: Request) -> dict[str, Any]:
-    try:
-        body = await request.json()
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=f"invalid JSON payload: {exc}") from exc
-    if not isinstance(body, dict):
-        raise HTTPException(status_code=400, detail="feedback payload must be a JSON object")
-    summary = str(
-        body.get("summary") or body.get("title") or body.get("message") or "worker feedback"
-    )[:280]
-    return {
-        "ok": True,
-        "synthetic": True,
-        "accepted": True,
-        "surface": "eranos",
-        "upstream": "https://herma.ta-amps.workers.dev/q/feedback",
-        "item": {"kind": "worker_feedback", "surface": "eranos", "summary": summary},
-    }
-
-
 @app.get("/api/fabric")
 def fabric() -> dict[str, Any]:
     backend = get_adapter()

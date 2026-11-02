@@ -151,6 +151,8 @@ export interface HomeNoun {
   honesty_short?: string;
   /** The hero's line under the headline (EranosHome); the site noun's subline when absent. */
   lead?: string;
+  /** The hero's four tiles: the request flow's steps, lit once after load (owner, Nov 1 evening). */
+  tiles?: string[];
   /** The mini request track at the foot of the hero: its stations, in order (EranosHome). */
   track?: string[];
   gets: {

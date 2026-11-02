@@ -6,3 +6,5 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 .env*.local
+dist-light/
+test-results-light/

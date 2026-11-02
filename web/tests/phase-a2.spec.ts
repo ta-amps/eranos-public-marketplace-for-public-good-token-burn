@@ -414,3 +414,40 @@ test.describe("a checked part waiting for a person's sign-off", () => {
     await expect(page.getByTestId("band-status-4")).toHaveText("Waiting for a person to sign off");
   });
 });
+
+test("at 1280 × 613, with the track stuck, all four step headers and the open step fit without scrolling", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 613 });
+  for (const moment of ["working", "review", "your-turn"]) {
+    await page.goto(`/requests/example?moment=${moment}`);
+    await expect(page.getByTestId("track-token")).toBeVisible();
+    await page.evaluate(() => {
+      const track = document.querySelector("[data-testid='request-track']") as HTMLElement;
+      window.scrollTo(0, track.getBoundingClientRect().top + window.scrollY - 1);
+    });
+    const fit = await page.evaluate(() => {
+      const bottom = (el: Element | null) => (el ? el.getBoundingClientRect().bottom : Infinity);
+      const heads = [1, 2, 3, 4].map((n) => bottom(document.querySelector(`[data-testid='band-toggle-${n}']`)));
+      const open = [...document.querySelectorAll(".er-band-body:not([hidden])")].map((el) => bottom(el));
+      return { heads, open, height: window.innerHeight };
+    });
+    for (const b of [...fit.heads, ...fit.open]) expect(b, moment).toBeLessThanOrEqual(fit.height);
+  }
+});
+
+test("the hero's four tiles carry the flow's steps, lit once after load, and simply lit with reduced motion", async ({ browser }) => {
+  for (const reducedMotion of ["no-preference", "reduce"] as const) {
+    const context = await browser.newContext({ reducedMotion, viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
+    await page.goto("/");
+    const labels = page.locator(".er-layer-label");
+    await expect(labels).toHaveText(["Picked up", "A request", "Checked", "Public good"]);
+    const look = await labels.evaluateAll((els) => els.map((el) => ({ name: getComputedStyle(el).animationName, count: getComputedStyle(el).animationIterationCount })));
+    for (const l of look) {
+      if (reducedMotion === "reduce") expect(l.name).toBe("none");
+      else expect(l.count).toBe("1");
+    }
+    await page.waitForTimeout(5200);
+    for (const o of await labels.evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity))) expect(o).toBe("1");
+    await context.close();
+  }
+});

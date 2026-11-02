@@ -6,7 +6,7 @@
   "main": "worker.js",
   "build": {
     "cwd": ".",
-    "command": "python3 scripts/check_surface_release.py --check"
+    "command": "python3 scripts/check_surface_release.py --check && make light-check"
   },
   "compatibility_date": "2026-10-01",
   "workers_dev": true,

@@ -1465,7 +1465,6 @@ function buildStaticAgentCard(request) {
       models: "/api/models",
       tasks: "/api/tasks",
       fabric: "/api/fabric",
-      feedback: "/api/feedback",
       dashboard: "/dashboard",
       process_markdown: "/p/{request_id}/agent.md",
       practice_cases: "/p/{request_id}/practice.md",
@@ -1757,104 +1756,7 @@ async function loadOpenTasksFromTessera(env) {
   return { reachable, tasks };
 }
 
-const FEEDBACK_FORWARD_HEADERS = [
-  "content-type",
-  "authorization",
-  "accept",
-  "x-agent-label",
-  "x-herma-key",
-  "x-herma-harness",
-  "x-herma-project",
-  "x-herma-cohort",
-  "x-request-id",
-  "cf-connecting-ip",
-];
-
-async function handleFeedbackProxy(request, env) {
-  if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "POST") {
-    return problem(405, "Method Not Allowed", "Use GET or POST on /api/feedback.", "method_not_allowed", {
-      allow: "GET, HEAD, POST",
-    });
-  }
-  const hasBody = request.method === "POST";
-  const rawBody = hasBody ? await request.text() : "";
-  let parsedBody = null;
-  if (hasBody) {
-    try {
-      parsedBody = rawBody ? JSON.parse(rawBody) : {};
-    } catch {
-      return problem(400, "Bad Request", "invalid JSON payload", "invalid_request");
-    }
-    if (!parsedBody || typeof parsedBody !== "object" || Array.isArray(parsedBody)) {
-      return problem(400, "Bad Request", "feedback payload must be a JSON object", "invalid_request");
-    }
-  }
-  if (env.HERMA) {
-    try {
-      const incoming = new URL(request.url);
-      const headers = { "X-Surface-Id": "eranos" };
-      for (const name of FEEDBACK_FORWARD_HEADERS) {
-        const val = request.headers.get(name);
-        if (val) headers[name] = val;
-      }
-      if (hasBody && !headers["content-type"]) headers["content-type"] = "application/json";
-      const timeoutInit =
-        typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
-          ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) }
-          : {};
-      const resp = await env.HERMA.fetch(`https://herma.internal/q/feedback${incoming.search}`, {
-        method: request.method,
-        headers,
-        body: hasBody ? rawBody : undefined,
-        ...timeoutInit,
-      });
-      if (resp.status !== 404) {
-        const contentType = resp.headers.get("content-type") || "application/json";
-        if (contentType.includes("json")) {
-          const data = await resp.json().catch(() => null);
-          if (data !== null) return jsonResp(data, resp.status);
-        }
-        const text = await resp.text();
-        return new Response(visibleText(text), {
-          status: resp.status,
-          headers: { "content-type": contentType, "cache-control": "private, no-store" },
-        });
-      }
-      await resp.body?.cancel();
-    } catch {
-      // fall through to safe JSON fallback when HERMA is offline in local unit tests or unreachable
-    }
-  }
-  if (hasBody) {
-    return jsonResp({
-      ok: true,
-      synthetic: true,
-      accepted: true,
-      surface: "eranos",
-      upstream: "https://herma.ta-amps.workers.dev/q/feedback",
-      item: {
-        kind: "worker_feedback",
-        surface: "eranos",
-        received_at: Math.floor(Date.now() / 1000),
-        summary: String(parsedBody.summary || parsedBody.title || parsedBody.message || "worker feedback").slice(0, 280),
-      },
-    });
-  }
-  return jsonResp({
-    ok: true,
-    synthetic: true,
-    surface: "eranos",
-    upstream: "https://herma.ta-amps.workers.dev/q/feedback",
-    proposals_url: "https://herma.ta-amps.workers.dev/q/proposals",
-    items: [],
-    note: "Submit or query structured worker feedback as a task object via POST /api/feedback or https://herma.ta-amps.workers.dev/q/feedback.",
-  });
-}
-
 async function handleCloudApi(request, env, pathname) {
-  if (pathname === "/api/feedback") {
-    return handleFeedbackProxy(request, env);
-  }
   if (pathname === "/api/practice") {
     if (request.method !== "POST") {
       return problem(405, "Method Not Allowed", "POST JSON draft payload to /api/practice.", "method_not_allowed", {

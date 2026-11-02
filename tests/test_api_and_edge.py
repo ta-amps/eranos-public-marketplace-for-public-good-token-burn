@@ -714,7 +714,7 @@ def test_edge_lockdown_blocks_direct_origin_requests(
     assert allowed.status_code == 200
 
 
-def test_cloudflare_worker_swarm_fabric_aliases_feedback_and_rich_llms() -> None:
+def test_cloudflare_worker_swarm_fabric_aliases_and_rich_llms() -> None:
     worker_path = (REPO_ROOT / "deploy" / "cloudflare" / "worker.js").as_posix()
     dist_dir = (REPO_ROOT / "web" / "public").as_posix()
     script = f"""
@@ -796,25 +796,6 @@ const tasksAlias = await (await worker.fetch(new Request("https://eranos.ta-amps
 const tasksOfflineResp = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/tasks"), {{}});
 const dashRedirect = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/dashboard", {{ headers: {{ accept: "text/html" }} }}), env);
 const dashJson = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/dashboard", {{ headers: {{ accept: "application/json" }} }}), env)).json();
-const fbGet = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/feedback?limit=5"), env)).json();
-const fbPostResp = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/api/feedback", {{
-    method: "POST",
-    headers: {{ "content-type": "application/json", "x-agent-label": "test-worker" }},
-    body: JSON.stringify({{ summary: "Schema clarity looks great" }}),
-  }}),
-  env,
-);
-const fbPost = await fbPostResp.json();
-const fbOfflinePostResp = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/api/feedback", {{
-    method: "POST",
-    headers: {{ "content-type": "application/json" }},
-    body: JSON.stringify({{ summary: "Offline fallback check" }}),
-  }}),
-  {{}},
-);
-const fbOfflinePost = await fbOfflinePostResp.json();
 const llms = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms.txt"), env)).text();
 const llmsFull = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms-full.txt"), env)).text();
 
@@ -828,11 +809,6 @@ console.log(JSON.stringify({{
   dashRedirectStatus: dashRedirect.status,
   dashLocation: dashRedirect.headers.get("location"),
   dashJson,
-  fbGet,
-  fbPostStatus: fbPostResp.status,
-  fbPost,
-  fbOfflineStatus: fbOfflinePostResp.status,
-  fbOfflinePost,
   llmsLen: llms.length,
   llmsFullLen: llmsFull.length,
   llms,
@@ -867,12 +843,6 @@ console.log(JSON.stringify({{
     assert out["dashLocation"] == "https://herma.ta-amps.workers.dev/dashboard"
     assert out["dashJson"]["dashboard_url"] == "https://herma.ta-amps.workers.dev/dashboard"
     assert out["dashJson"]["swarm"]["registered_workers"] == 51
-    assert out["fbGet"]["proxied"] is True
-    assert out["fbPostStatus"] == 201
-    assert out["fbPost"]["proxied"] is True
-    assert out["fbPost"]["summary"] == "Schema clarity looks great"
-    assert out["fbOfflineStatus"] == 200
-    assert out["fbOfflinePost"]["accepted"] is True
     assert out["llmsLen"] > 20000
     assert out["llmsFullLen"] > out["llmsLen"]
     for expected in (
@@ -880,7 +850,6 @@ console.log(JSON.stringify({{
         "https://agora.ta-amps.workers.dev",
         "https://herma.ta-amps.workers.dev",
         "https://tessera.ta-amps.workers.dev",
-        "/api/feedback",
         "/q/feedback",
         "/q/upload",
         "16 MiB",
@@ -889,3 +858,39 @@ console.log(JSON.stringify({{
         "atomic_build_step",
     ):
         assert expected in out["llms"], expected
+
+
+def test_every_eranos_api_route_refuses_writes() -> None:
+    """Owner rule: Eranos /api/* is GET/HEAD only; writes go to Tessera directly (no proxy, no Herma key here).
+    POST /api/practice and POST /api/handshake predate the rule and are the two listed exceptions."""
+    routes = [
+        "/api/catalog",
+        "/api/catalog/KIT-HOTLINE-02",
+        "/api/tracks",
+        "/api/examples",
+        "/api/requests",
+        "/api/fabric",
+        "/api/open-tasks",
+        "/api/models",
+        "/api/nouns/eranos.instructions/home",
+        "/api/feed",
+        "/api/health",
+        "/api/tasks",
+        "/api/feedback",
+    ]
+    script = f"""
+import worker from {json.dumps((REPO_ROOT / "deploy" / "cloudflare" / "worker.js").as_uri())};
+const out = [];
+for (const path of {json.dumps(routes)}) {{
+  for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {{
+    const r = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev" + path, {{ method, headers: {{ "content-type": "application/json" }}, body: "{{}}" }}), {{}});
+    out.push([path, method, r.status]);
+  }}
+}}
+console.log(JSON.stringify(out));
+"""
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    for path, method, status in json.loads(run.stdout):
+        assert status in (404, 405), (path, method, status)

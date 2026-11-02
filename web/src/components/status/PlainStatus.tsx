@@ -498,7 +498,7 @@ function Band({
           <span className="er-band-chevron" aria-hidden="true" />
         </button>
       </h2>
-      <div id={`band-${n}-body`} className="er-band-body" hidden={!open} data-by-event={byEvent}>
+      <div id={`band-${n}-body`} className="er-band-body" hidden={!open} data-by-event={byEvent} role="region" aria-labelledby={`band-${n}`} tabIndex={0}>
         {children}
       </div>
     </section>

@@ -131,5 +131,11 @@
     "Agent working",
     "Checked",
     "Shared library"
+  ],
+  "tiles": [
+    "A request",
+    "Picked up",
+    "Checked",
+    "Public good"
   ]
 }

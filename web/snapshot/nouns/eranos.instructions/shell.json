@@ -8,8 +8,27 @@
     "external_note": "opens the overview deck on Agora",
     "footer": {
       "brand": "Eranos",
-      "line": "Spare AI tokens, for good. Part of ta-amps.",
       "links": [
+        {
+          "label": "Library",
+          "to": "/library"
+        },
+        {
+          "label": "Your requests",
+          "to": "/requests"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/status/",
+          "label": "Status ↗"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/",
+          "label": "Agora ↗"
+        },
+        {
+          "href": "https://agora.ta-amps.workers.dev/source/",
+          "label": "Source ↗"
+        },
         {
           "label": "Privacy",
           "to": "/privacy"
@@ -21,26 +40,11 @@
         {
           "label": "Report a problem",
           "to": "/report"
-        },
-        {
-          "href": "https://agora.ta-amps.workers.dev/models/",
-          "label": "Models used ↗"
-        },
-        {
-          "href": "https://agora.ta-amps.workers.dev/status/",
-          "label": "Status ↗"
-        },
-        {
-          "href": "https://agora.ta-amps.workers.dev/accessibility/",
-          "label": "Accessibility ↗"
-        },
-        {
-          "href": "https://agora.ta-amps.workers.dev/source/",
-          "label": "Source ↗"
         }
       ],
       "links_label": "Site information",
-      "storage": "No accounts. This browser keeps only your requests’ private links, until request codes replace them. Nothing else is stored. Every request is public."
+      "spec": "ta-amps.footer/1 (notes/claude-work-2026-10-31/shared/footer.v1.json)",
+      "storage": "This browser keeps only your requests’ private links. Nothing else is stored."
     },
     "home_label": "Eranos home",
     "key": "shell",

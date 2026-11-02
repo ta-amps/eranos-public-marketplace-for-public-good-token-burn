@@ -34,19 +34,21 @@ def tree(dist: Path) -> dict[str, str]:
 
 def inspect_assets(dist: Path) -> dict[str, str]:
     html = (dist / "index.html").read_text()
-    require(
-        bool(re.search(r'<meta\s+name="color-scheme"\s+content="light"\s*/?>', html)),
-        "Light-only HTML required",
-    )
+    # Light only (rule 13): the meta and the CSS say "only light" or "light", and nothing else.
+    metas = re.findall(r'<meta\s+name="color-scheme"\s+content="([^"]*)"', html)
+    require(metas and all(m in ("only light", "light") for m in metas), "Light-only HTML required")
     css = "\n".join(p.read_text() for p in (dist / "assets").glob("*.css"))
-    require(
-        bool(re.search(r"color-scheme\s*:\s*light\s*[;}]", css)), "Compiled light scheme missing"
-    )
     require(
         not re.search(
             r"prefers-color-scheme\s*:\s*dark|color-scheme\s*:\s*(?:light\s+dark|dark)", css
         ),
         "Retired dark palette present",
+    )
+    schemes = re.findall(r"color-scheme\s*:\s*([^;}]+)", css)
+    require(bool(schemes), "Compiled light scheme missing")
+    require(
+        all(s.strip() in ("only light", "light", "light only") for s in schemes),
+        "Compiled color-scheme must be only light",
     )
     js = "\n".join(p.read_text() for p in (dist / "assets").glob("*.js"))
     require("band-toggle-" in js and "aria-expanded" in js, "Reviewed request accordion missing")

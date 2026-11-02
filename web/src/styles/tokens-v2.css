@@ -1,7 +1,7 @@
 /* Paper & Ink tokens v3 (Claude Design, Nov 1). Light only, by the owner's rule: no dark palette anywhere. */
 /* Generated from tokens.json v2 by tools/build_tokens_css.py. Do not edit by hand. */
 :root {
-  color-scheme: light;
+  color-scheme: only light;
   --bg: #F5F2EA;
   --surface: #FFFDF8;
   --sunken: #EDE8DC;

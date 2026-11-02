@@ -243,7 +243,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (176)
+## web/ (179)
 
 | File | What it is |
 |---|---|
@@ -252,6 +252,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/index.html](web/index.html) |  |
 | [web/package.json](web/package.json) | Eranos public-good & nonprofit volunteer agent tooling catalog. |
 | [web/playwright.config.ts](web/playwright.config.ts) |  |
+| [web/playwright.light.config.ts](web/playwright.light.config.ts) |  |
 | [web/pnpm-workspace.yaml](web/pnpm-workspace.yaml) | Astryx postinstall scripts only print a hint to run astryx init, which would |
 | [web/public/agent-banner.js](web/public/agent-banner.js) |  |
 | [web/public/fonts/OFL-IBMPlexSans.txt](web/public/fonts/OFL-IBMPlexSans.txt) |  |
@@ -413,6 +414,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
 | [web/tests/fixtures/models.meta.json](web/tests/fixtures/models.meta.json) | JSON object: kind, id, version, runtime, fixture_note |
+| [web/tests/light.spec.ts](web/tests/light.spec.ts) |  |
 | [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |
 | [web/tests/perf.spec.ts](web/tests/perf.spec.ts) |  |
 | [web/tests/phase-a2.spec.ts](web/tests/phase-a2.spec.ts) |  |
@@ -420,6 +422,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [web/tests/shell.spec.ts](web/tests/shell.spec.ts) |  |
 | [web/tests/status-logic.spec.ts](web/tests/status-logic.spec.ts) |  |
 | [web/tests/status.spec.ts](web/tests/status.spec.ts) |  |
+| [web/tests/support/light.ts](web/tests/support/light.ts) |  |
 | [web/tests/support/mocks.ts](web/tests/support/mocks.ts) |  |
 | [web/tsconfig.json](web/tsconfig.json) | JSON object: compilerOptions, include |
 | [web/vite.config.ts](web/vite.config.ts) |  |

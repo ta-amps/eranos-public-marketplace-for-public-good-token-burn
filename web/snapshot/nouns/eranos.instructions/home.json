@@ -129,6 +129,12 @@
       "title": "Questions people ask"
     },
     "schema_version": 1,
+    "tiles": [
+      "A request",
+      "Picked up",
+      "Checked",
+      "Public good"
+    ],
     "title": "Home page",
     "track": [
       "Your request",

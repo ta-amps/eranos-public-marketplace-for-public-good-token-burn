@@ -236,8 +236,8 @@ test("light only: with the dark scheme emulated, every page stays on paper", asy
       banner: getComputedStyle(document.querySelector("ta-agent-banner")!).backgroundColor,
     }));
     expect(look.body, route).toBe("rgb(245, 242, 234)");
-    expect(look.scheme, route).toBe("light");
-    expect(look.meta, route).toBe("light");
+    expect(look.scheme, route).toMatch(/^(light only|only light|light)$/);
+    expect(look.meta, route).toBe("only light");
     expect(look.banner, route).toBe("rgb(237, 232, 220)");
   }
   await context.close();

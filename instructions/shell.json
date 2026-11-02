@@ -39,9 +39,29 @@
   },
   "footer": {
     "brand": "Eranos",
-    "line": "Spare AI tokens, for good. Part of ta-amps.",
+    "spec": "ta-amps.footer/1 (notes/claude-work-2026-10-31/shared/footer.v1.json)",
     "links_label": "Site information",
     "links": [
+      {
+        "label": "Library",
+        "to": "/library"
+      },
+      {
+        "label": "Your requests",
+        "to": "/requests"
+      },
+      {
+        "label": "Status ↗",
+        "href": "https://agora.ta-amps.workers.dev/status/"
+      },
+      {
+        "label": "Agora ↗",
+        "href": "https://agora.ta-amps.workers.dev/"
+      },
+      {
+        "label": "Source ↗",
+        "href": "https://agora.ta-amps.workers.dev/source/"
+      },
       {
         "label": "Privacy",
         "to": "/privacy"
@@ -53,25 +73,9 @@
       {
         "label": "Report a problem",
         "to": "/report"
-      },
-      {
-        "label": "Models used ↗",
-        "href": "https://agora.ta-amps.workers.dev/models/"
-      },
-      {
-        "label": "Status ↗",
-        "href": "https://agora.ta-amps.workers.dev/status/"
-      },
-      {
-        "label": "Accessibility ↗",
-        "href": "https://agora.ta-amps.workers.dev/accessibility/"
-      },
-      {
-        "label": "Source ↗",
-        "href": "https://agora.ta-amps.workers.dev/source/"
       }
     ],
-    "storage": "No accounts. This browser keeps only your requests’ private links, until request codes replace them. Nothing else is stored. Every request is public."
+    "storage": "This browser keeps only your requests’ private links. Nothing else is stored."
   },
   "right": {
     "href": "https://agora.ta-amps.workers.dev/how-it-works/",

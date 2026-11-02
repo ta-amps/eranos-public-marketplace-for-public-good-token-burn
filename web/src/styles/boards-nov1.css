@@ -14,7 +14,7 @@
   --door-ink-sub: color-mix(in srgb, var(--action-text) 82%, var(--action));
 }
 
-/* ---------------------------------------------------------------- SiteFooter */
+/* ---------------------------------------------------------------- the standard footer (ta-amps.footer/1) */
 .er-site-footer {
   background: var(--sunken);
   border-top: 1px solid var(--line);
@@ -23,18 +23,12 @@
 .er-site-footer-row {
   max-width: 1248px;
   margin: 0 auto;
-  padding: 22px 24px 12px;
+  padding: 18px 24px 6px;
   box-sizing: border-box;
   display: flex;
-  align-items: flex-start;
-  gap: 16px 32px;
+  align-items: center;
+  gap: 8px 28px;
   flex-wrap: wrap;
-}
-.er-site-footer-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 220px;
 }
 .er-site-footer-name {
   display: inline-flex;
@@ -43,19 +37,11 @@
   font-family: var(--font-display);
   font-size: 1.0625rem;
 }
-.er-site-footer-line,
-.er-site-footer-note,
-.er-site-footer-privacy {
-  font-size: var(--fs-small);
-  line-height: var(--lh-small);
-  color: var(--text-2);
-}
+/* One row of links: they wrap only when the screen is too narrow for them. */
 .er-site-footer-links {
-  flex: 1;
   display: flex;
   flex-wrap: wrap;
   gap: 4px 20px;
-  padding-top: 2px;
   font-size: var(--fs-ui);
 }
 .er-site-footer-links a {
@@ -69,24 +55,20 @@
 .er-site-footer-links a:hover {
   color: var(--link-hover);
 }
-.er-site-footer-note {
-  margin: 0;
-  max-width: 300px;
-}
-.er-site-footer-privacy {
+.er-site-footer-line {
   max-width: 1248px;
   margin: 0 auto;
-  padding: 0 24px 28px;
+  padding: 0 24px 22px;
   box-sizing: border-box;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--text-2);
 }
 @media (max-width: 599px) {
   .er-site-footer-row,
-  .er-site-footer-privacy {
+  .er-site-footer-line {
     padding-left: 16px;
     padding-right: 16px;
-  }
-  .er-site-footer-note {
-    max-width: none;
   }
 }
 
@@ -646,5 +628,110 @@
   }
   .er-band-status {
     text-align: left;
+  }
+}
+
+/* Owner, Nov 1 evening: every step header and the open step fit one wide screen (1280 x 613) once the track is stuck.
+   Folded steps are one dense line; the open step keeps its own scroll when it is long. */
+.er-plain .er-rq-band {
+  margin-top: 6px;
+  padding: 8px 18px;
+}
+.er-plain .er-rq-band[data-open="true"] {
+  padding-bottom: 14px;
+}
+.er-band-head,
+.er-band-toggle {
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+.er-band-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.er-band-body {
+  margin-top: 10px;
+  max-height: max(160px, calc(100vh - var(--er-track-h, 80px) - 310px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.er-band-body:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.er-plain .er-track {
+  padding: 8px 0 8px;
+}
+@media (max-width: 599px) {
+  .er-band-title {
+    white-space: normal;
+  }
+}
+
+/* The hero's four tiles (owner, Nov 1 evening): each carries a tiny label, and after load they light up once, in the
+   order a request moves: a request, picked up, checked, public good. One pass of under five seconds (WCAG 2.2.2), then
+   all four rest lit. Opacity only, nothing moves in the layout; with reduced motion they are simply lit. */
+.er-layer-label {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+.er-layer-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--object);
+}
+.er-layer-step-1 .er-layer-label::before {
+  background: var(--task);
+}
+.er-layer-step-2 .er-layer-label::before {
+  background: var(--real);
+}
+.er-layer-step-3 .er-layer-label::before {
+  background: var(--attention);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .er-layer-label {
+    animation: er-tile-step 1100ms var(--ease-standard) both;
+  }
+  .er-layer-step-0 .er-layer-label {
+    animation-delay: 900ms;
+  }
+  .er-layer-step-1 .er-layer-label {
+    animation-delay: 1900ms;
+  }
+  .er-layer-step-2 .er-layer-label {
+    animation-delay: 2900ms;
+  }
+  .er-layer-step-3 .er-layer-label {
+    animation-delay: 3900ms;
+  }
+}
+@keyframes er-tile-step {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 599px) {
+  .er-layer-label {
+    display: none;
   }
 }

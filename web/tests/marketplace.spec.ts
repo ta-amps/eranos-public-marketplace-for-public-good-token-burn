@@ -315,8 +315,8 @@ test.describe("on the hosted build", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByTestId("right-now")).toHaveCount(0);
-    await expect(page.locator(".er-safety-grid")).toContainText("never call a model inline during a request");
-    await expect(page.locator(".er-safety-grid")).toContainText("always-on dedicated baseline workers");
+    await expect(page.locator(".er-safety-grid")).toContainText("the site calls no AI model");
+    await expect(page.locator(".er-safety-grid")).toContainText("a dedicated worker run by ta-amps picks it up, at any hour");
     await page.unroute(`${LIVE}/api/**`);
     await mockSite(page, {
       fabric: {
@@ -352,9 +352,9 @@ test.describe("on the hosted build", () => {
     await page.reload();
     await expect(page.getByTestId("right-now")).toContainText("1 request in progress");
     await expect(page.getByTestId("right-now")).toContainText("1 open task");
-    await expect(page.getByTestId("right-now-swarm")).toContainText("18 NGO and public-good tasks open across the shared worker queue");
-    await expect(page.getByTestId("right-now-swarm")).toContainText("51 registered volunteer and dedicated workers");
-    await expect(page.getByTestId("right-now-swarm")).toContainText("375 tasks completed");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("18 tasks open for nonprofits and public-good groups across the shared work queue");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("51 volunteer and dedicated workers");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("375 finished");
   });
 
 
@@ -534,27 +534,20 @@ test.describe("wording and accessibility", () => {
     expect(dark.text).toBe(light.text);
   });
 
-  test("the footer says what the site loads and keeps, from the site noun, and links to trust and Agora pages", async ({ page }) => {
+  test("the footer is the standard one: one row of links and one short line (ta-amps.footer/1, rule 13)", async ({ page }) => {
     for (const path of ["/", "/help", "/nonprofits", "/connect"]) {
       await page.goto(path);
-      await expect(page.getByTestId("privacy-line")).toHaveText(siteNoun.privacy);
+      await expect(page.getByTestId("storage-line")).toHaveText("This browser keeps only your requests’ private links. Nothing else is stored.");
     }
     const footer = page.locator("footer.er-footer");
+    const links = footer.getByRole("navigation", { name: "Site information" }).getByRole("link");
+    await expect(links).toHaveText(["Library", "Your requests", "Status ↗", "Agora ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
     await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-    await expect(footer.getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
-    await expect(footer.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "/report");
     await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/status/");
-    // SiteFooter (Nov 1, v2): the trust links, then Agora's Models used, Status, Accessibility and Source pages.
-    await expect(footer.getByRole("navigation", { name: "Site information" }).getByRole("link")).toHaveText([
-      "Privacy",
-      "Terms",
-      "Report a problem",
-      "Models used ↗",
-      "Status ↗",
-      "Accessibility ↗",
-      "Source ↗",
-    ]);
-    await expect(footer.getByRole("link", { name: "Models used ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/models/");
+    // One row: at desktop width every link sits on the same line.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const tops = await links.evaluateAll((els) => [...new Set(els.map((el) => Math.round(el.getBoundingClientRect().top)))]);
+    expect(tops).toHaveLength(1);
   });
 
   test("trust pages (/privacy, /terms, /report) and 404 render plain-language guidance without status stamps", async ({ page }) => {

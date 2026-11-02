@@ -1037,3 +1037,29 @@ def test_trust_routes_security_txt_and_owner_wording() -> None:
     assert "A person decides. Nothing is used before that." in trust_text
     assert "CC BY 4.0" in trust_text and "Apache-2.0" in trust_text
     assert "history.replaceState" in trust_text and "#k=" in trust_text
+
+
+def test_footer_is_the_shared_standard_footer() -> None:
+    """MUST-FOLLOW rule 13: one standard footer on every surface, from notes/.../shared/footer.v1.json: the same
+    links in the same order, one row of links plus one short line."""
+    shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
+    labels = [link["label"] for link in shell["footer"]["links"]]
+    assert labels == [
+        "Library",
+        "Your requests",
+        "Status ↗",
+        "Agora ↗",
+        "Source ↗",
+        "Privacy",
+        "Terms",
+        "Report a problem",
+    ]
+    for parent in ROOT.parents:
+        spec_path = parent / "shared" / "footer.v1.json"
+        if spec_path.is_file():
+            spec = json.loads(spec_path.read_text(encoding="utf-8"))
+            assert [link["label"] for link in spec["links"]] == [
+                label.removesuffix(" ↗") for label in labels
+            ]
+            assert shell["footer"]["storage"] == spec["line"]["eranos"]
+            return
