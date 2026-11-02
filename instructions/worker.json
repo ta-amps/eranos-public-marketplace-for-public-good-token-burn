@@ -400,7 +400,17 @@
           "kitchen"
         ],
         "url": "https://www.fda.gov/food/buy-store-serve-safe-food/safe-food-handling",
-        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food."
+        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+        "requires": [
+          "food",
+          "pantry",
+          "kitchen",
+          "meal",
+          "perishable",
+          "foodborne",
+          "food-safety",
+          "food-bank"
+        ]
       },
       {
         "id": "food-epa-donation-basics",
@@ -419,7 +429,17 @@
           "food-bank"
         ],
         "url": "https://www.epa.gov/sustainable-management-food/food-donation-basics",
-        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food."
+        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+        "requires": [
+          "food",
+          "pantry",
+          "kitchen",
+          "meal",
+          "perishable",
+          "foodborne",
+          "food-safety",
+          "food-bank"
+        ]
       },
       {
         "id": "food-fda-food-code",
@@ -436,7 +456,17 @@
           "foodborne"
         ],
         "url": "https://www.fda.gov/food/retail-food-protection/fda-food-code",
-        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food."
+        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+        "requires": [
+          "food",
+          "pantry",
+          "kitchen",
+          "meal",
+          "perishable",
+          "foodborne",
+          "food-safety",
+          "food-bank"
+        ]
       },
       {
         "id": "food-fda-storing",
@@ -462,7 +492,17 @@
           "leftover"
         ],
         "url": "https://www.fda.gov/consumers/consumer-updates/are-you-storing-food-safely",
-        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food."
+        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+        "requires": [
+          "food",
+          "pantry",
+          "kitchen",
+          "meal",
+          "perishable",
+          "foodborne",
+          "food-safety",
+          "food-bank"
+        ]
       },
       {
         "id": "food-cdc-prevention",
@@ -484,7 +524,17 @@
           "sick"
         ],
         "url": "https://www.cdc.gov/food-safety/prevention/index.html",
-        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food."
+        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+        "requires": [
+          "food",
+          "pantry",
+          "kitchen",
+          "meal",
+          "perishable",
+          "foodborne",
+          "food-safety",
+          "food-bank"
+        ]
       },
       {
         "id": "food-usc-good-samaritan",
@@ -501,7 +551,17 @@
           "food-bank"
         ],
         "url": "https://www.govinfo.gov/content/pkg/USCODE-2022-title42/html/USCODE-2022-title42-chap13A-sec1791.htm",
-        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food."
+        "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+        "requires": [
+          "food",
+          "pantry",
+          "kitchen",
+          "meal",
+          "perishable",
+          "foodborne",
+          "food-safety",
+          "food-bank"
+        ]
       }
     ],
     "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it."

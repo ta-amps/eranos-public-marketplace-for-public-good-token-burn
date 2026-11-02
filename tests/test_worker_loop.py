@@ -1429,3 +1429,55 @@ def test_a_food_safety_information_request_is_delivered_with_a_source_for_every_
         assert citation["source"] in sources and citation["quote"]
         assert citation["quote"] in FOOD_PAGES[sources[citation["source"]]["url"]]
     assert "state and local health departments" in report["summary"]
+
+
+# The review's T2 and T3: the food pages go only to requests about food, and come first for them.
+UNRELATED_TO_FOOD = {
+    "stock or vehicle gift": "What are the legal requirements for accepting a donation of stock or a vehicle?",
+    "in-kind donations": "How do we acknowledge in-kind donations for tax purposes?",
+    "volunteer liability": "What liability protections do volunteers have under federal law?",
+    "youth program safety": "What safety rules apply to volunteers working at a youth program?",
+    "Internal Revenue Code": "What does the Internal Revenue Code say about private inurement for 501(c)(3) organizations?",
+    "event permits": "What permits do we need for a street fair fundraiser?",
+    "data handling": "What are the federal rules for data handling and breach notices at a nonprofit?",
+    "records storing": "What rules apply to storing client records and how long must we keep them?",
+    "cloud storage": "What cloud storage security rules apply to nonprofits?",
+    "separate bank account": "Do we need a separate bank account for restricted grants?",
+    "sick leave": "What are the rules for sick leave for nonprofit employees?",
+    "thrift store": "What retail sales tax rules apply when a nonprofit runs a thrift store?",
+    "building inspection": "What is required for a building inspection of our community center?",
+    "animal rescue": "What are federal rules for animal rescue nonprofits?",
+    "surplus property": "How can a nonprofit get surplus federal property?",
+}
+
+
+def _brief_for(text: str) -> dict[str, Any]:
+    from eranos.pipeline import research
+
+    return research.research_brief(
+        "rq-topics",
+        {"part": 1, "route": "public-only", "legal": False, "text": text},
+        "Nonprofit",
+        load_json(ROOT / "instructions" / "public-research.json"),
+        RULES,
+        [],
+    )
+
+
+@pytest.mark.parametrize("name", sorted(UNRELATED_TO_FOOD))
+def test_a_request_about_something_else_gets_no_food_page(name: str) -> None:
+    pages = [p["id"] for p in _brief_for(UNRELATED_TO_FOOD[name])["fetch"]["pages"]]
+    assert not [p for p in pages if p.startswith("food-")], (name, pages)
+
+
+def test_a_pantry_question_with_filing_words_gets_its_food_pages_first() -> None:
+    from eranos.pipeline import research
+
+    brief = _brief_for(
+        "What annual return must a tax-exempt food pantry file with the IRS, and what are its food safety duties?"
+    )
+    fetched = [u for u, _, _ in research.permitted_urls(brief)][: brief["fetch"]["max_sources"]]
+    ids = {p["url"]: p["id"] for p in brief["fetch"]["pages"]}
+    first = [ids.get(u, u) for u in fetched]
+    food = [i for i in first if i.startswith("food-")]
+    assert len(food) >= 3 and first[: len(food)] == food, first

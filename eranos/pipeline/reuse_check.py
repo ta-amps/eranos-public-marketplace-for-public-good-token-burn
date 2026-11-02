@@ -26,7 +26,7 @@ from typing import Any
 from tessera import NotFound
 
 from eranos.pipeline import reuse
-from eranos.pipeline.plain_words import plain_text
+from eranos.pipeline.plain_words import forbidden, plain_text
 from eranos.pipeline.request_noun import read_request, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
 
@@ -88,19 +88,29 @@ def library_view(kind: str, value: dict[str, Any], max_points: int = 6) -> dict[
     }
 
 
+# Every link-like token: any scheme (hxxps:// too), www., a dotted host with any letter ending
+# (short links such as t.me included), an IP address with an optional port or path, and "dot"
+# spelled out between words. A reason that still holds "://" or an "@" afterwards is dropped.
 _LINKISH = re.compile(
-    r"https?://\S+|www\.\S+|\b[\w-]+\.(?:gov|org|com|net|edu|io|ai|us|uk)\b\S*", re.I
+    r"\b[a-z][a-z0-9+.-]*://\S*"
+    r"|\bwww\.\S+"
+    r"|\b(?:\d{1,3}\.){3}\d{1,3}(?::\d+)?\S*"
+    r"|\b(?:[a-z0-9-]+\.)+[a-z]{2,}\b(?:[/:?#]\S*)?"
+    r"|\b[a-z0-9-]+\s*(?:\[\s*dot\s*\]|\(\s*dot\s*\)|\s+dot\s+)\s*[a-z]{2,}\b",
+    re.I,
 )
-_RETIRED = re.compile(
-    r"l+ama", re.I
-)  # the shared list's always-banned family (rules/banned-words.json)
+_LEFTOVER = re.compile(r"://|@")
 
 
 def clean_why(text: str) -> str:
-    """The model's one-sentence reason as it may be published: no links or addresses, the owner's
-    plain words, nothing from the always-banned list (then no reason at all), at most MAX_WHY."""
+    """The model's one-sentence reason as it may be published: every link-like token taken out, the
+    owner's plain words, and no reason at all if an address shape or the retired word is left; at
+    most MAX_WHY characters. The display layer filters published text through the shared word list
+    as well (rules/banned-words.json); no copy of that list is kept here."""
     why = " ".join(_LINKISH.sub("", plain_text(str(text or ""))).split())[:MAX_WHY]
-    return "" if _RETIRED.search(why) else why
+    if _LEFTOVER.search(why) or forbidden(why):
+        return ""
+    return why
 
 
 def read_judgment(answer: Any) -> dict[str, str]:

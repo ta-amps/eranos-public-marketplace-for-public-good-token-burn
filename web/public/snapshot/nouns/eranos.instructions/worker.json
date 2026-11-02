@@ -436,6 +436,16 @@
           "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
           "id": "food-fda-safe-handling",
           "publisher": "U.S. Food and Drug Administration",
+          "requires": [
+            "food",
+            "pantry",
+            "kitchen",
+            "meal",
+            "perishable",
+            "foodborne",
+            "food-safety",
+            "food-bank"
+          ],
           "topics": [
             "food-safety",
             "safety",
@@ -457,6 +467,16 @@
           "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
           "id": "food-epa-donation-basics",
           "publisher": "U.S. Environmental Protection Agency",
+          "requires": [
+            "food",
+            "pantry",
+            "kitchen",
+            "meal",
+            "perishable",
+            "foodborne",
+            "food-safety",
+            "food-bank"
+          ],
           "topics": [
             "pantry",
             "donation",
@@ -476,6 +496,16 @@
           "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
           "id": "food-fda-food-code",
           "publisher": "U.S. Food and Drug Administration",
+          "requires": [
+            "food",
+            "pantry",
+            "kitchen",
+            "meal",
+            "perishable",
+            "foodborne",
+            "food-safety",
+            "food-bank"
+          ],
           "topics": [
             "food-safety",
             "food-code",
@@ -493,6 +523,16 @@
           "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
           "id": "food-fda-storing",
           "publisher": "U.S. Food and Drug Administration",
+          "requires": [
+            "food",
+            "pantry",
+            "kitchen",
+            "meal",
+            "perishable",
+            "foodborne",
+            "food-safety",
+            "food-bank"
+          ],
           "topics": [
             "food-safety",
             "safety",
@@ -519,6 +559,16 @@
           "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
           "id": "food-cdc-prevention",
           "publisher": "U.S. Centers for Disease Control and Prevention",
+          "requires": [
+            "food",
+            "pantry",
+            "kitchen",
+            "meal",
+            "perishable",
+            "foodborne",
+            "food-safety",
+            "food-bank"
+          ],
           "topics": [
             "food-safety",
             "safety",
@@ -541,6 +591,16 @@
           "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
           "id": "food-usc-good-samaritan",
           "publisher": "U.S. Government Publishing Office (42 U.S.C. 1791, as amended in 2022)",
+          "requires": [
+            "food",
+            "pantry",
+            "kitchen",
+            "meal",
+            "perishable",
+            "foodborne",
+            "food-safety",
+            "food-bank"
+          ],
           "topics": [
             "pantry",
             "donation",

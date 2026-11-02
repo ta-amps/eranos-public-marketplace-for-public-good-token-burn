@@ -678,11 +678,9 @@ def test_the_checks_reason_is_published_without_links_or_retired_words() -> None
             + "etic case differs.",
         }
     )["why"]
-    assert "http" not in why and "www." not in why and not forbidden(why)
-    assert (
-        reuse_check.read_judgment({"answers": "yes", "why": "It names " + "Lla" + "ma."})["why"]
-        == ""
-    )
+    # Links go; the retired word becomes plain words. The display layer filters everything else
+    # through the shared list, which this repository does not copy.
+    assert "http" not in why and "www." not in why and not forbidden(why) and "made-up" in why
 
 
 def test_a_part_level_reuse_is_found_for_a_reopen() -> None:
@@ -691,3 +689,59 @@ def test_a_part_level_reuse_is_found_for_a_reopen() -> None:
     assert reuse_check.reused_pointer(value) == pointer
     assert reuse_check.reused_pointer({"reused_from": pointer, "parts": {}}) == pointer
     assert reuse_check.reused_pointer({"parts": {"1": {"route": "public-only"}}}) == {}
+
+
+@pytest.mark.parametrize(
+    "reason",
+    [
+        "Compare it with spam.xyz first.",
+        "The news.info story differs.",
+        "See bit.ly/abc123 for the rules.",
+        "Ask in t.me/somegroup.",
+        "It is on 192.168.1.10:8080/path today.",
+        "Try hxxps://evil.example/x for more.",
+        "The page at example dot org disagrees.",
+        "Mail someone at user@example.com about it.",
+    ],
+)
+def test_no_link_like_token_survives_in_the_published_reason(reason: str) -> None:
+    import re
+
+    why = reuse_check.read_judgment({"answers": "no", "why": reason})["why"]
+    assert not re.search(
+        r"://|@|\b\w+\.(?:xyz|info|ly|me|example|org|com)\b|\d+\.\d+\.\d+|\bdot org\b", why
+    ), why
+
+
+def test_a_plan_whose_record_keeps_failing_is_planned_again_three_times_then_closed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import eranos.pipeline.planner as planner_mod
+
+    def always_fails(*a: Any, **k: Any) -> Any:
+        raise RuntimeError("a made-up storage error, every time")
+
+    fabric = Fabric()
+    rid = "rq-never-recorded"
+    monkeypatch.setattr(planner_mod, "_write_plan", always_fails)
+    with pytest.raises(RuntimeError):
+        _planner(fabric, _lease(rid, "request", "eq01", _request_brief(NEAR_REQUEST))).run()
+    children: list[ChildResult] = []
+    outcomes = []
+    for _ in range(6):
+        _, _, ids = fabric.splits[-1]
+        children += [ChildResult(task_id=i, state="dead", ok=False, output=None) for i in ids]
+        try:
+            outcomes.append(
+                _planner(
+                    fabric,
+                    _lease(rid, "request", "eq01", _request_brief(NEAR_REQUEST), list(children)),
+                ).run()["status"]
+            )
+        except RuntimeError:
+            outcomes.append("split, unrecorded")
+        if outcomes[-1] == "closed":
+            break
+    assert outcomes[-1] == "closed" and len(fabric.splits) == 1 + planner_mod.MAX_UNRECORDED_REPLANS
+    blocked = [e for e in fabric.history(rid) if e.get("type") == "blocked"]
+    assert blocked and "could not be recorded" in blocked[-1]["findings"][0]

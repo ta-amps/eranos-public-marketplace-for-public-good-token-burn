@@ -143,8 +143,22 @@ def words(text: str) -> set[str]:
 
 
 def select_apis(text: str, apis: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The sources whose topics a request names, best first. A source that also lists `requires`
+    (context words, such as food or pantry for the food-safety pages) is chosen only when the request
+    names one of them, so an unrelated request that shares a common word (donation, safety, code)
+    never gets it (the review's T2)."""
     wanted = words(text)
-    return [api for api in apis if wanted & words(" ".join(api.get("topics") or []))]
+    scored: list[tuple[int, int, int, dict[str, Any]]] = []
+    for order, api in enumerate(apis):
+        context = words(" ".join(api.get("requires") or []))
+        if context and not wanted & context:
+            continue
+        matched = wanted & words(" ".join(api.get("topics") or []))
+        if matched:
+            scored.append((-int(bool(context)), -len(matched), order, api))
+    # Pages the request's own subject calls for come first, then the best topic match, then the
+    # noun's order, so a pantry question with filing words still gets its food pages (the review's T3).
+    return [api for *_, api in sorted(scored, key=lambda s: s[:3])]
 
 
 def query_terms(text: str, limit: int = 6) -> list[str]:

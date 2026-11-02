@@ -47,6 +47,7 @@ from eranos.pipeline.reuse_check import (
 from eranos.pipeline.status_events import fact, has_event, queue_snapshot, record_events
 
 OUTPUT_TYPES = ("process", "information", "both")
+MAX_UNRECORDED_REPLANS = 3  # re-plans of a plan whose record write kept failing (the review's F1b)
 REUSE_CHECK_WORDS = (
     "A reviewed answer from the library may fit. Another worker checks that it answers this request"
     " before it is sent; if it does not, new work is planned."
@@ -729,8 +730,27 @@ class Planner:
             for c in self.lease.children
         ):
             # The plan's record was cut short and nothing came of its parts: plan it again rather
-            # than close a request with no answer and no new work.
-            return self.plan(int(latest.get("n") or 1), reuse=False)
+            # than close a request with no answer and no new work, at most MAX_UNRECORDED_REPLANS
+            # times (the review's F1b); then the failure is recorded and the request is closed, and
+            # the operator's reopen can take it up again.
+            noun = read_request(self.b, self.request_id)
+            tries = int(((noun[0] if noun else {}) or {}).get("unrecorded_replans") or 0)
+            tries = max(tries, (len(self.lease.children) - 1) // 2)
+            if tries < MAX_UNRECORDED_REPLANS:
+                self._set_fields(unrecorded_replans=tries + 1)
+                return self.plan(int(latest.get("n") or 1), reuse=False)
+            finding = f"the plan could not be recorded after {tries} tries; nothing more is planned"
+            self._facts(
+                [
+                    fact(
+                        "blocked",
+                        **self.who,
+                        ref=f"{self.request_id} plan record",
+                        findings=[finding],
+                        reason="The request could not be planned, so it is closed with no result.",
+                    )
+                ]
+            )
         noun = read_request(self.b, self.request_id)
         value = noun[0] if noun else {}
         occurrences = list(value.get("occurrences") or [latest])
