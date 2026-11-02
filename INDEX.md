@@ -44,7 +44,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`briefs/E3.json`](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [`briefs/E4.json`](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (13)
+## deploy/ (14)
 
 | File | What it is |
 |---|---|
@@ -53,6 +53,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`deploy/cloudflare/README.md`](deploy/cloudflare/README.md) | Cloudflare: the Eranos edge |
 | [`deploy/cloudflare/access.js`](deploy/cloudflare/access.js) | Public browser-agent access uses bearer headers, never cookies. |
 | [`deploy/cloudflare/agent_start.js`](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
+| [`deploy/cloudflare/display_words.js`](deploy/cloudflare/display_words.js) | Plain words for stored record text on pages (MUST-FOLLOW rule 16: data a page shows passes the shared word li… |
 | [`deploy/cloudflare/kit-draft.schema.json`](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
 | [`deploy/cloudflare/schema.js`](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
 | [`deploy/cloudflare/surface-release-policy.json`](deploy/cloudflare/surface-release-policy.json) | JSON object: `schema`, `required_ancestors`, `rules` |
@@ -193,20 +194,23 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`instructions/site.json`](instructions/site.json) | Spare tokens for good |
 | [`instructions/trust.json`](instructions/trust.json) | Privacy, terms, report and judge tour |
 
-## scripts/ (5)
+## scripts/ (6)
 
 | File | What it is |
 |---|---|
+| [`scripts/banned_list.mjs`](scripts/banned_list.mjs) | Reads the ONE shared word list (MUST-FOLLOW rule 16) from OUTSIDE this repository, plus Eranos's plain-word |
 | [`scripts/build_index.py`](scripts/build_index.py) | Build this repo's indexes from its own files. |
 | [`scripts/check_architecture.py`](scripts/check_architecture.py) | Check that architecture.json still describes this repo truthfully. |
 | [`scripts/check_public.py`](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (16)
+## tests/ (18)
 
 | File | What it is |
 |---|---|
+| [`tests/fixtures/made-up-banned-words.json`](tests/fixtures/made-up-banned-words.json) | JSON object: `note`, `version`, `updated`, `case_insensitive`, `always`, `visible_text` |
+| [`tests/fixtures/made-up-neutral-words.json`](tests/fixtures/made-up-neutral-words.json) | JSON object: `note`, `rules` |
 | [`tests/test_agent_access.py`](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
 | [`tests/test_agent_banner_shared.py`](tests/test_agent_banner_shared.py) | The agent banner is one shared file: Agora and Eranos serve the same bytes, so the two sites never drift. |
 | [`tests/test_api_and_edge.py`](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |

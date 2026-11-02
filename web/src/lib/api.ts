@@ -130,7 +130,8 @@ export async function getJson<T>(path: ApiPath, signal?: AbortSignal): Promise<T
     }
     return shownWords(found) as T;
   }
-  const response = await fetch(path, { headers: { accept: "application/json" }, signal });
+  // A page's read: the Worker shows stored record text in the site's plain words; the records themselves never change.
+  const response = await fetch(path, { headers: { accept: "application/json", "x-eranos-view": "page" }, signal });
   if (!response.ok) {
     throw new ApiError(`${path} answered ${response.status} ${response.statusText}`, response.status);
   }

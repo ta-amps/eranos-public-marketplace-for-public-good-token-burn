@@ -83,7 +83,7 @@
       "many": "{n} verified kits in the catalog"
     },
     "swarm": "{open} tasks open for nonprofits and public-good groups across the shared work queue ({ngo_ready} for nonprofits first, {leased} being worked on now, {workers} volunteer and dedicated workers, {done} finished)",
-    "note": "Live from the queue at {time} (refreshes every 15s). Requests in progress are being planned, built or independently reviewed across eq01–eq03; verified kits are already two-step reviewed in eranos.catalog, distinct from unreviewed task objects on the shared worker queue."
+    "note": "Live from the shared queue at {time} (refreshes every 15s). Requests in progress are being sorted, made or checked. Kits in the library were already checked by a different helper; Task Objects still on the queue are unchecked."
   },
   "safety": {
     "title": "Questions people ask",

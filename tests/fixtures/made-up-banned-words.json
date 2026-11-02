@@ -1,0 +1,9 @@
+{
+  "note": "Made-up words for the tests only, in the shared list's shape. The real list lives outside this repository.",
+  "version": 0,
+  "updated": "2026-11-02",
+  "case_insensitive": true,
+  "always": { "patterns": ["zorblat"] },
+  "visible_text": { "patterns": ["\\bquibbits?\\b", "\\bflumox\\b"] },
+  "agent_apps_outside_models_page": { "patterns": [] }
+}

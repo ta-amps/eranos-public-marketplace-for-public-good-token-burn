@@ -3,6 +3,8 @@ import kitSchema from "./kit-draft.schema.json" with { type: "json" };
 import llmsFallbackNoun from "../../instructions/llms.json" with { type: "json" };
 import { schemaIssues } from "./schema.js";
 import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
+import WORD_LIST from "./banned_words.generated.js";
+import { makeNeutral } from "./display_words.js";
 // Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback), intercepts
 // AI-agent discovery endpoints (/favicon.svg, /healthz, /robots.txt, /llms.txt, /llms-full.txt,
 // /.well-known/agent-card.json, POST /mcp) before SPA fallback, and serves /api/* natively 24/7 from
@@ -329,6 +331,12 @@ function finish(response, method) {
   for (const [name, value] of Object.entries({...SECURITY_HEADERS, ...CORS_HEADERS})) out.headers.set(name, value);
   out.headers.set("x-request-id", crypto.randomUUID());
   if (method !== "GET" && method !== "HEAD") out.headers.set("cache-control", "no-store");
+  // no-transform on every HTML page: the zone would otherwise add an analytics script, which the CSP blocks.
+  if ((out.headers.get("content-type") || "").toLowerCase().includes("text/html")) {
+    const cc = out.headers.get("cache-control");
+    if (!cc) out.headers.set("cache-control", "no-transform");
+    else if (!/no-transform/i.test(cc)) out.headers.set("cache-control", `${cc}, no-transform`);
+  }
   return out;
 }
 
@@ -388,9 +396,12 @@ function internalWords(value) {
   return value;
 }
 
+// Stored record text a page shows passes the shared word list (rule 16), in plain words; the records never change.
+const neutralText = makeNeutral(WORD_LIST);
+
 /** The site's words everywhere, for a page to show (never served as the record itself). */
 function pageWords(value) {
-  if (typeof value === "string") return visibleText(value);
+  if (typeof value === "string") return neutralText(visibleText(value));
   if (Array.isArray(value)) return value.map(pageWords);
   if (value && typeof value === "object") {
     const out = {};
@@ -400,8 +411,27 @@ function pageWords(value) {
   return value;
 }
 
+function isPageRead(request) {
+  return new URL(request.url).searchParams.get("view") === "page" || request.headers.get("x-eranos-view") === "page";
+}
+
 function forPage(request, data) {
-  return new URL(request.url).searchParams.get("view") === "page" ? pageWords(data) : data;
+  return isPageRead(request) ? pageWords(data) : data;
+}
+
+/** A page's read of any API answer (the app sends x-eranos-view: page): its JSON in the site's words. */
+async function inPageWords(response) {
+  if (!response || !(response.headers.get("content-type") || "").toLowerCase().includes("json")) return response;
+  let data;
+  try {
+    data = await response.clone().json();
+  } catch {
+    return response;
+  }
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  headers.append("vary", "x-eranos-view");
+  return new Response(JSON.stringify(pageWords(data)), { status: response.status, statusText: response.statusText, headers });
 }
 
 function jsonResp(data, status = 200) {
@@ -2268,6 +2298,7 @@ const onboardingApplication = {
         } else {
           response = await handleCloudApi(request, env, pathname);
         }
+        if (request.method === "GET" && isPageRead(request)) response = await inPageWords(response);
       } else if (request.method === "GET" || request.method === "HEAD") {
         response = env.ASSETS
           ? await env.ASSETS.fetch(request)

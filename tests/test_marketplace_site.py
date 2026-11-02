@@ -232,11 +232,15 @@ def test_data_the_site_shows_never_names_a_retired_pack() -> None:
 
 
 def test_the_worker_code_never_names_a_retired_surface() -> None:
-    """Hunt, October 30: access.js still branched on an archived surface's name (MUST-FOLLOW item 9)."""
+    """Hunt, October 30: access.js still branched on an archived surface's name (MUST-FOLLOW item 9).
+
+    The gitignored word-list module is skipped: it is the shared list itself, built outside the repo's files.
+    """
     named = [
         path.name
         for path in sorted((ROOT / "deploy" / "cloudflare").glob("*.js"))
-        if OLD_NAMES.search(path.read_text(encoding="utf-8"))
+        if path.name != "banned_words.generated.js"
+        and OLD_NAMES.search(path.read_text(encoding="utf-8"))
     ]
     assert named == []
 
@@ -1116,3 +1120,116 @@ def test_page_text_comes_from_the_deploy_not_an_older_copy_in_tessera() -> None:
     )
     body = json.loads(out["library"]["body"])
     assert body["value"]["heading"] == "Find a solution" and "tries" in body["value"]
+
+
+DISPLAY_SCRIPT = r"""
+import { makeNeutral } from DISPLAY;
+import { displayRules } from LISTER;
+import fs from "node:fs";
+
+const list = JSON.parse(fs.readFileSync(FIXTURE_LIST, "utf8"));
+const neutral = JSON.parse(fs.readFileSync(FIXTURE_NEUTRAL, "utf8"));
+const show = makeNeutral({ displayRules: displayRules(list, neutral) });
+const cases = ["a quibbit and two Quibbits", "Zorblat rows go here", "the flumox step", "quibbit", "no listed word here"];
+const once = cases.map(show);
+console.log(JSON.stringify({ once, twice: once.map(show) }));
+"""
+
+
+def test_the_page_word_filter_shows_plain_words_in_prose_and_leaves_ids_alone() -> None:
+    """Rule 16 at display time, with made-up words (the real list lives outside this repo)."""
+    fixtures = ROOT / "tests" / "fixtures"
+    script = (
+        DISPLAY_SCRIPT.replace(
+            "DISPLAY", json.dumps((ROOT / "deploy" / "cloudflare" / "display_words.js").as_uri())
+        )
+        .replace("LISTER", json.dumps((ROOT / "scripts" / "banned_list.mjs").as_uri()))
+        .replace("FIXTURE_LIST", json.dumps((fixtures / "made-up-banned-words.json").as_posix()))
+        .replace(
+            "FIXTURE_NEUTRAL", json.dumps((fixtures / "made-up-neutral-words.json").as_posix())
+        )
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    out = json.loads(run.stdout)
+    assert out["once"] == [
+        "a record and two Records",
+        "Example rows go here",
+        "the … step",
+        "quibbit",
+        "no listed word here",
+    ]
+    assert out["twice"] == out["once"]
+
+
+PAGE_VIEW_SCRIPT = r"""
+import fs from "node:fs";
+import path from "node:path";
+import worker from WORKER;
+import list from GENERATED;
+import { makeNeutral } from DISPLAY;
+
+const publicDir = PUBLIC_DIR;
+const env = {
+  ASSETS: {
+    async fetch(req) {
+      const url = new URL(typeof req === "string" ? req : req.url);
+      const target = path.join(publicDir, url.pathname.replace(/^\//, ""));
+      if (fs.existsSync(target) && fs.statSync(target).isFile()) {
+        return new Response(fs.readFileSync(target), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      return new Response("<!doctype html><title>Eranos</title>", { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+    },
+  },
+};
+const read = async (pathname, headers = {}) => {
+  const response = await worker.fetch(new Request("https://eranosforgood.org" + pathname, { headers }), env);
+  return { status: response.status, cache: response.headers.get("cache-control") || "", body: await response.text() };
+};
+const rules = (list.displayRules || []).map((rule) => new RegExp(rule.re, rule.flags.includes("g") ? rule.flags : rule.flags + "g"));
+const hits = (text) => rules.reduce((n, re) => n + (String(text).match(re) || []).length, 0);
+const raw = await read("/api/catalog/KIT-GRANT-04");
+const byQuery = await read("/api/catalog/KIT-GRANT-04?view=page");
+const byHeader = await read("/api/catalog/KIT-GRANT-04", { "x-eranos-view": "page" });
+const summary = (r) => { const d = JSON.parse(r.body); return (d.kit || d.value?.kit || {}).summary; };
+const page = await read("/library", { accept: "text/html" });
+console.log(JSON.stringify({
+  statuses: [raw.status, byQuery.status, byHeader.status],
+  raw: summary(raw), query: summary(byQuery), header: summary(byHeader),
+  hits: { raw: hits(summary(raw)), query: hits(summary(byQuery)), header: hits(summary(byHeader)) },
+  html_cache: page.cache, api_cache: raw.cache,
+}));
+"""
+
+
+def test_pages_read_stored_records_in_plain_words_and_the_records_stay_as_stored() -> None:
+    """A page's read passes the shared list (rule 16); the record itself, read without it, is exactly as stored."""
+    generated = ROOT / "deploy" / "cloudflare" / "banned_words.generated.js"
+    assert generated.is_file(), "run node scripts/banned_list.mjs --ensure (make test does)"
+    script = (
+        PAGE_VIEW_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
+        .replace("GENERATED", json.dumps(generated.as_uri()))
+        .replace(
+            "DISPLAY", json.dumps((ROOT / "deploy" / "cloudflare" / "display_words.js").as_uri())
+        )
+        .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    out = json.loads(run.stdout.strip().splitlines()[-1])
+    stored = json.loads(
+        (ROOT / "web" / "public" / "snapshot" / "catalog" / "KIT-GRANT-04.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert out["statuses"] == [200, 200, 200]
+    assert out["raw"] == stored["kit"]["summary"]
+    assert out["hits"]["query"] == out["hits"]["header"] == 0
+    assert out["query"] == out["header"]
+    if out["hits"]["raw"]:
+        assert out["query"] != out["raw"]
+    # Cloudflare's zone adds nothing to an HTML page that says no-transform (its analytics script would hit the CSP).
+    assert "no-transform" in out["html_cache"]
+    assert "no-transform" not in out["api_cache"]

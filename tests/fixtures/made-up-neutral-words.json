@@ -1,0 +1,7 @@
+{
+  "note": "Made-up replacements for the tests only, in the shape of Eranos's real file, which lives outside this repository.",
+  "rules": [
+    { "pattern": "zorblat", "to": "example" },
+    { "pattern": "\\bquibbits?\\b", "to": { "quibbit": "record", "quibbits": "records" } }
+  ]
+}

@@ -6,7 +6,7 @@
   "main": "worker.js",
   "build": {
     "cwd": ".",
-    "command": "python3 scripts/check_surface_release.py --check && make light-check && make live-smoke"
+    "command": "node scripts/banned_list.mjs && python3 scripts/check_surface_release.py --check && make light-check && make live-smoke"
   },
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
