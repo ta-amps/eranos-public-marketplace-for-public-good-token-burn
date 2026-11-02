@@ -83,7 +83,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [docs/status.md](docs/status.md) | Status |
 | [docs/summary.md](docs/summary.md) | Summary |
 
-## eranos/ (46)
+## eranos/ (48)
 
 | File | What it is |
 |---|---|
@@ -106,6 +106,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/log.py](eranos/log.py) | Structured JSON Lines run logger (ts, level, event, taskid, kitid, queue, leaseid, costusd). |
 | [eranos/model_client.py](eranos/model_client.py) | The workers' model: Meta's Muse models through the Meta API, at the standard tier only. |
 | [eranos/nouns.py](eranos/nouns.py) | Eranos's page text, onboarding steps, starting brief, research rules and stand-in sources are nouns. |
+| [eranos/pacing.py](eranos/pacing.py) | What the workers' requests cost, counted, and local wake-ups instead of fast polling. |
 | [eranos/pipeline/__init__.py](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
 | [eranos/pipeline/examples.py](eranos/pipeline/examples.py) | Example needs and recorded example runs: the nouns the marketplace shows about its example kits. |
 | [eranos/pipeline/plain_words.py](eranos/pipeline/plain_words.py) | Plain words for everything the workers publish: never the word the owner forbids (Oct 31). |
@@ -115,7 +116,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [eranos/pipeline/request_noun.py](eranos/pipeline/request_noun.py) | The nonprofit request noun (eranos.requests/<requestid>) and its recorded states. |
 | [eranos/pipeline/requests.py](eranos/pipeline/requests.py) | A nonprofit's request is one verb on eq01; the worker that claims it classifies it and splits it. |
 | [eranos/pipeline/research.py](eranos/pipeline/research.py) | Information parts answered from permitted public sources, with a quote for every claim. |
-| [eranos/pipeline/reuse.py](eranos/pipeline/reuse.py) | Reuse before work: answer a request from a reviewed result that already exists, with no model call. |
+| [eranos/pipeline/reuse.py](eranos/pipeline/reuse.py) | Reuse before work: a reviewed result that already exists may answer a request, after a check. |
+| [eranos/pipeline/reuse_check.py](eranos/pipeline/reuse_check.py) | The reuse check: a library answer answers a request only after another worker's key approves it. |
 | [eranos/pipeline/run.py](eranos/pipeline/run.py) | Two-step volunteer agent pipeline on Tessera (eq01 spec -> eq02 draft -> eq03 review -> CAS catalog). |
 | [eranos/pipeline/seed_packs.py](eranos/pipeline/seed_packs.py) | Example kits whose nouns and verbs live in the seed-pack library. |
 | [eranos/pipeline/solutions.py](eranos/pipeline/solutions.py) | The solution path for public-only requests: an independent review that re-checks every citation of a research… |
@@ -199,11 +201,12 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (21)
+## tests/ (24)
 
 | File | What it is |
 |---|---|
 | [tests/support/local_tessera.mjs](tests/support/local_tessera.mjs) | A local Tessera for the worker tests: Tessera's own Cloudflare Worker on actual workerd (Miniflare), |
+| [tests/support/status-event.schema.json](tests/support/status-event.schema.json) | JSON object: $schema, $comment, $ref, $defs |
 | [tests/support/workerd_fabric.py](tests/support/workerd_fabric.py) | A local Tessera on workerd for the worker-loop tests, with locally generated keys only. |
 | [tests/test_agent_access.py](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
 | [tests/test_api_and_edge.py](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
@@ -213,9 +216,11 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [tests/test_model_client.py](tests/test_model_client.py) | The workers' Meta client: standard tier only, the key from its file, caps before any call, no fallback. |
 | [tests/test_open_contribution.py](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
+| [tests/test_pacing.py](tests/test_pacing.py) | Requests against the hosted sites' daily cap: counted, paced while idle, and woken locally. |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
 | [tests/test_plain_log.py](tests/test_plain_log.py) | The plain log the film's C2 shot records: only plain words, short numbers and the log's separators. |
 | [tests/test_public_feed.py](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
+| [tests/test_reuse_check.py](tests/test_reuse_check.py) | Finding F-REUSE-001: a library answer never closes a request without a check by another key. |
 | [tests/test_review_contract.py](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
 | [tests/test_schemas_and_copy.py](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
 | [tests/test_seed_packs.py](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |

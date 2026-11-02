@@ -22,7 +22,12 @@ SCOPES = [
     "namespace:main",
     "surface:eranos",
 ]
-REVIEW_KINDS = ["report_review", "process_review", "review"]
+REVIEW_KINDS = [
+    "report_review",
+    "process_review",
+    "review",
+    "reuse_review",
+]  # reuse_review: F-REUSE-001
 # Least privilege per role: the planner needs eq02 and eq03 only to split a request into them; the
 # builder works eq02 only; a reviewer reads everything it needs from its own eq03 brief and lease.
 # The kit kinds (spec, draft, review) let the dedicated workers rebuild the example kits; the

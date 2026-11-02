@@ -164,8 +164,9 @@ def test_a_changed_noun_switches_the_model_at_its_next_read(tmp_path: Path, meta
     worker = make(tmp_path, backend=backend, clock=lambda: now[0])
     assert worker._model().model == "muse-spark-1.3"
     backend.rules = {**RULES, "model": {**RULES["model"], "id": "muse-wonder-1.0"}}
-    assert worker._model().model == "muse-spark-1.3"  # the noun is read again after five minutes
-    now[0] += 301
+    # The noun is read again after its refresh interval (claims.noun_refresh_seconds).
+    assert worker._model().model == "muse-spark-1.3"
+    now[0] += worker.refresh_seconds() + 1
     assert worker._model().model == "muse-wonder-1.0"
 
 

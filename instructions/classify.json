@@ -90,6 +90,7 @@
     "public-only": "We'll do this part from public information. Volunteers' agents research it, a different volunteer checks every source, and a person on your team decides what to do with it.",
     "private-files": "This part touches your files, so we'll build a kit your own agent runs. Your data stays with you.",
     "held": "A person needs to look at this part before work starts.",
-    "blocked": "We couldn't take this request because it seems to include personal information. Please describe the job without details about people."
+    "blocked": "We couldn't take this request because it seems to include personal information. Please describe the job without details about people.",
+    "reuse_check": "A reviewed answer from the library may fit. Another worker checks that it answers this request before it is sent; if it does not, new work is planned."
   }
 }

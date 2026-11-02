@@ -622,6 +622,17 @@
         "tests/test_open_contribution.py::test_personal_data_screen_names_kinds_never_text",
         "tests/test_open_contribution.py::test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimers"
       ]
+    },
+    {
+      "id": "E14",
+      "statement": "No request is answered from the library without a reuse check that a key other than the planner's approves with a recorded model verdict; a check that says no or is unsure, or never finishes, has new work planned, and a wrongly reused request is opened again only by a reopen its own record names",
+      "enforced_by": "pipeline",
+      "checked_by": [
+        "tests/test_reuse_check.py::test_the_film_request_never_matches_the_political_campaign_report",
+        "tests/test_reuse_check.py::test_a_near_duplicate_only_queues_a_reuse_check_by_another_key",
+        "tests/test_reuse_check.py::test_a_check_that_says_no_or_is_unsure_has_new_work_planned",
+        "tests/test_reuse_check.py::test_a_reopen_the_request_record_does_not_name_is_refused_and_writes_nothing"
+      ]
     }
   ],
   "import_rules": [

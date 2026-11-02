@@ -1,12 +1,20 @@
-"""Reuse before work: answer a request from a reviewed result that already exists, with no model call.
+"""Reuse before work: a reviewed result that already exists may answer a request, after a check.
 
 Before a request is split, the planner compares it with delivered reports (`eranos.solutions`) and
-published kits (`eranos.catalog`). The comparison is deterministic and follows the
-`eranos.instructions/worker` noun's `reuse` rules: words are lowercased, stopwords dropped, plurals
-and common endings trimmed, and synonyms mapped to one canonical word; the score is the weighted
-share of the new request's words found in a candidate (numbers and acronyms weigh more). Only a
-reviewed candidate can match: a report with its review receipt, or a kit with its review receipt.
-A match is delivered as a pointer; nothing is copied, re-run or re-reviewed.
+reviewed process packages (`eranos.catalog`). The comparison is deterministic and follows the
+`eranos.instructions/worker` noun's `reuse` rules. It compares the new request with the request each
+candidate answered (a report's question, a package's request text), never with a title that carries
+the organization's name or with the claims. Shared request phrasing (the form's "a source for every
+point", an organization's description) is stripped first, words are lowercased, stopwords dropped,
+plurals and common endings trimmed, synonyms mapped to one canonical word, and words too generic to
+tell two requests apart dropped. The score is the harmonic mean of the two weighted coverages (each
+request's words found in the other; numbers and acronyms weigh more), so a long candidate cannot
+match by covering everything. Only a reviewed candidate can match: a report or package whose review
+receipt Tessera confirms.
+
+A match never closes a request on its own (finding F-REUSE-001): the planner queues a reuse check, a
+verb another worker's key claims, and only an approved check answers the request from the library.
+Every decision records the best candidate, its score and the threshold.
 """
 
 from __future__ import annotations
@@ -36,18 +44,44 @@ def _stem(word: str) -> str:
     return word
 
 
+# The bar in code: a noun may raise the reuse threshold, never lower it below this.
+MIN_THRESHOLD = 0.7
+MIN_TERMS = 3
+
+
+def strip_shared(text: str, rules: dict[str, Any]) -> str:
+    """The request without the phrasing many requests share (the noun's `strip` patterns)."""
+    out = text
+    for pattern in rules.get("strip") or []:
+        try:
+            out = re.sub(str(pattern), " ", out, flags=re.IGNORECASE)
+        except re.error:
+            continue
+    return out
+
+
 def terms(text: str, rules: dict[str, Any]) -> set[str]:
     stop = set(rules.get("stopwords") or [])
+    generic = set(rules.get("generic") or [])
     canonical: dict[str, str] = rules.get("canonical") or {}
     out: set[str] = set()
-    for raw in _TOKEN.findall(text.lower()):
+    for raw in _TOKEN.findall(strip_shared(text, rules).lower()):
         word = raw.strip("'-")
         if not word or word in stop:
             continue
-        word = canonical.get(word, word)
-        word = canonical.get(_stem(word), _stem(word)) if word not in canonical.values() else word
-        if len(word) >= 3 or any(c.isdigit() for c in word):
-            out.add(word)
+        # A hyphenated word counts as its parts ("food-safety" is "food" and "safety"), unless the
+        # noun maps the whole word ("sign-up" is "signup").
+        pieces = [word] if word in canonical or "-" not in word else word.split("-")
+        for piece in pieces:
+            if not piece or piece in stop:
+                continue
+            piece = canonical.get(piece, piece)
+            if piece not in canonical.values():
+                piece = canonical.get(_stem(piece), _stem(piece))
+            if piece in generic:
+                continue
+            if len(piece) >= 3 or any(c.isdigit() for c in piece):
+                out.add(piece)
     return out
 
 
@@ -62,16 +96,31 @@ def score(wanted: set[str], have: set[str]) -> float:
     return round(sum(_weight(w) for w in wanted & have) / total, 4)
 
 
+def similarity(wanted: set[str], have: set[str]) -> float:
+    """Both ways at once: the harmonic mean of each side's weighted share found in the other."""
+    forward, back = score(wanted, have), score(have, wanted)
+    if not forward or not back:
+        return 0.0
+    return round(2 * forward * back / (forward + back), 4)
+
+
+def _untitled(title: str) -> str:
+    """A title without the organization prefix the planner gives it ("Food pantry: ...")."""
+    head, sep, rest = title.partition(": ")
+    return rest if sep and len(head) <= 80 else title
+
+
 def _report_text(value: dict[str, Any]) -> str:
+    """The request a report answered: its question (its title only when it has none)."""
     report = value.get("report") or {}
-    claims = " ".join(str(c.get("text") or "") for c in report.get("claims") or [])
-    return " ".join(str(report.get(k) or "") for k in ("title", "question")) + " " + claims
+    return str(report.get("question") or _untitled(str(report.get("title") or "")))
 
 
 def _process_text(value: dict[str, Any]) -> str:
-    return " ".join(
-        str(value.get(k) or "") for k in ("title", "summary", "description", "request_text")
-    )
+    """The request a package answered: its request text, or its title and summary."""
+    if value.get("request_text"):
+        return str(value["request_text"])
+    return " ".join(str(value.get(k) or "") for k in ("title", "summary", "description"))
 
 
 def candidates(backend: Any, rules: dict[str, Any]) -> list[tuple[str, Any, str, str, str]]:
@@ -156,29 +205,56 @@ def keyed_reuse(
 
 
 def find_reuse(
-    backend: Any, text: str, rules: dict[str, Any], *, output_type: str | None, keyed: Any = None
+    backend: Any,
+    text: str,
+    rules: dict[str, Any],
+    *,
+    output_type: str | None,
+    keyed: Any = None,
+    considered: dict[str, Any] | None = None,
 ) -> Match | None:
-    """The best reviewed result for this request at or above the threshold, or None."""
+    """The best reviewed result for this request at or above the threshold, or None. A match is a
+    candidate for a reuse check, never an answer by itself. `considered`, when given, receives the
+    decision for the record: the best candidate and its score, the threshold, how many were compared."""
+    note = considered if considered is not None else {}
+    threshold = max(float(rules.get("threshold") or MIN_THRESHOLD), MIN_THRESHOLD)
+    note.update({"threshold": threshold, "compared": 0, "best": None})
     exact = keyed_reuse(backend, text, rules, keyed, output_type)
     if exact is not None:
+        note.update(best=_brief_match(exact), outcome="exact package key: a reuse check decides")
         return exact
     wanted = terms(text, rules)
-    if len(wanted) < 3:
+    if len(wanted) < MIN_TERMS:
+        note["outcome"] = "too few distinctive words to compare"
         return None
-    threshold = float(rules.get("threshold") or 0.6)
     scored: list[tuple[float, str, Any, str, str]] = []
     for store, record, have_text, kind, receipt in candidates(backend, rules):
         if output_type == "information" and kind != "report":
             continue
         if output_type == "process" and kind == "report":
             continue
-        value = score(wanted, terms(have_text, rules))
-        if value >= threshold:
-            scored.append((value, store, record, kind, receipt))
-    for value, store, record, kind, receipt in sorted(scored, key=lambda item: -item[0]):
+        have = terms(have_text, rules)
+        if len(have) < MIN_TERMS:
+            continue
+        note["compared"] += 1
+        scored.append((similarity(wanted, have), store, record, kind, receipt))
+    scored.sort(key=lambda item: -item[0])
+    if scored:
+        value, store, record, kind, _ = scored[0]
+        note["best"] = {"store": store, "key": str(record.key), "score": value, "kind": kind}
+    for value, store, record, kind, receipt in scored:
+        if value < threshold:
+            break
         body = record.value if isinstance(record.value, dict) else {}
         if not verified(backend, body, receipt):
             continue
         title = str((body.get("report") or body.get("kit") or body).get("title") or "")
-        return Match(store, str(record.key), int(record.version), value, kind, receipt, title)
+        match = Match(store, str(record.key), int(record.version), value, kind, receipt, title)
+        note.update(best=_brief_match(match), outcome="above the threshold: a reuse check decides")
+        return match
+    note["outcome"] = "no reviewed result reaches the threshold"
     return None
+
+
+def _brief_match(match: Match) -> dict[str, Any]:
+    return {"store": match.store, "key": match.key, "score": match.score, "kind": match.kind}

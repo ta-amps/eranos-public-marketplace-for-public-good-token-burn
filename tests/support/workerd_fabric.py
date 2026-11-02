@@ -263,10 +263,13 @@ class FakeModel:
     """Stands in for the Meta model (no call is made): claims from the first numbered sentences,
     plus one bad quote. It reports the default model's id; its display name comes from the catalog."""
 
-    def __init__(self, bad: bool = True, model_id: str = "muse-spark-1.3") -> None:
+    def __init__(
+        self, bad: bool = True, model_id: str = "muse-spark-1.3", reuse_answer: str = "yes"
+    ) -> None:
         self.bad = bad
         self.calls = 0
         self.model_id = model_id
+        self.reuse_answer = reuse_answer  # the reuse check's verdict (F-REUSE-001)
 
     def describe(self) -> dict[str, Any]:
         return {
@@ -304,6 +307,8 @@ class FakeModel:
                 cost_usd=0.0123,
             ),
         )
+        if system.startswith("You decide whether an answer that already exists"):  # reuse check
+            return {"answers": self.reuse_answer, "why": "A made-up verdict from the test model."}
         if system.startswith("You check claims"):  # the model check: every quote supports its claim
             asked = json.loads(user).get("claims") or []
             return {"claims": [{"id": c["id"], "supported": True} for c in asked]}

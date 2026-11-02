@@ -513,8 +513,10 @@ def _write_plan(
     return int(saved.version)
 
 
-def _close(backend: Any, lease: Any) -> dict[str, Any]:
-    """Every part resolved: record each child's outcome and the request's final receipt."""
+def _close(backend: Any, lease: Any, request_id: str | None = None) -> dict[str, Any]:
+    """Every part resolved: record each child's outcome and the request's final receipt. A reopen
+    verb closes the request it was opened for (`request_id`), not a request of its own."""
+    request = str(request_id or lease.task_id)
     outcomes = [
         {
             "task_id": child.task_id,
@@ -526,7 +528,7 @@ def _close(backend: Any, lease: Any) -> dict[str, Any]:
         }
         for child in lease.children
     ]
-    output = {"node": "close", "request_id": lease.task_id, "children": outcomes}
+    output = {"node": "close", "request_id": request, "children": outcomes}
     receipt = backend.submit(
         lease.task_id,
         lease.fencing_token,
@@ -534,12 +536,12 @@ def _close(backend: Any, lease: Any) -> dict[str, Any]:
         idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
         ok=True,
     )
-    update_request_status(backend, str(lease.task_id), "closed", close_receipt=receipt.receipt_hash)
+    update_request_status(backend, request, "closed", close_receipt=receipt.receipt_hash)
     with contextlib.suppress(NotFound):
-        current = backend.get_record(PLANS_STORE, str(lease.task_id))
+        current = backend.get_record(PLANS_STORE, request)
         backend.put_record(
             PLANS_STORE,
-            str(lease.task_id),
+            request,
             {**current.value, "closed": {"receipt": receipt.receipt_hash, "children": outcomes}},
             expected_version=current.version,
             producer_surface=PRODUCER,

@@ -1,8 +1,10 @@
 """The planner's work on one claimed request verb (`eq01`, kind `request`).
 
 A fresh request is checked (personal data, accusations, prohibited topics), then compared with
-reviewed results that already exist (reuse: a match is delivered as a pointer, no new verbs and no
-model call). Otherwise it is split into parts by what the nonprofit asked for (`output_type`
+reviewed results that already exist. A match never answers the request by itself (F-REUSE-001): it
+becomes one reuse check verb on eq03, which another worker's key claims, and only an approved check
+answers the request from the library; a check that sends it back, is unsure or never finishes has
+the request planned again as new work. Otherwise it is split into parts by what the nonprofit asked for (`output_type`
 information, process or both; without one, by the classify noun's markers): information parts
 become research verbs with permitted public sources, process parts become process-package builds,
 and kit parts (requests from the earlier one-box form) become kit builds; each with its own review
@@ -36,9 +38,19 @@ from eranos.pipeline.requests import (
     classify_parts,
 )
 from eranos.pipeline.reuse import find_reuse
-from eranos.pipeline.status_events import fact, queue_snapshot, record_events
+from eranos.pipeline.reuse_check import (
+    REUSE_KIND,
+    ensure_reuse_delivered,
+    reopen_target,
+    reuse_brief,
+)
+from eranos.pipeline.status_events import fact, has_event, queue_snapshot, record_events
 
 OUTPUT_TYPES = ("process", "information", "both")
+REUSE_CHECK_WORDS = (
+    "A reviewed answer from the library may fit. Another worker checks that it answers this request"
+    " before it is sent; if it does not, new work is planned."
+)
 FREQUENCIES = ("one-off", "recurring")
 
 
@@ -94,8 +106,10 @@ class Planner:
         tracks_root: Path | None = None,
         handler: Any = None,
         who: dict[str, Any] | None = None,
+        key_id: str | None = None,
     ) -> None:
         self.b = backend
+        self.key_id = key_id  # recorded on a reuse check, whose reviewer must hold another key
         self.handler = handler
         self.who = dict(who or {"worker": worker})
         self.lease = lease
@@ -104,7 +118,9 @@ class Planner:
         self.classify = nouns["classify"]
         self.guardrails = nouns.get("public-research")
         self.tracks_root = tracks_root
-        self.request_id = str(lease.task_id)
+        # A recorded reopen works for the request its record names; any other request verb is its own.
+        self.reopen_of = reopen_target(backend, lease)
+        self.request_id = self.reopen_of or str(lease.task_id)
         brief = lease.brief if isinstance(lease.brief, dict) else {}
         self.brief = brief
         text = str(brief.get("text") or brief.get("description") or "")
@@ -169,7 +185,9 @@ class Planner:
         self._facts([*events, self._claimed_fact()])
         occurrences = list(noun.get("occurrences") or [])
         if not self.lease.children and not occurrences:
-            return self.plan(1, reuse=self.terms.get("frequency") != "recurring")
+            # A reopened request was answered wrongly from the library once: it gets new work.
+            fresh = self.terms.get("frequency") != "recurring" and not self.reopen_of
+            return self.plan(1, reuse=fresh)
         latest = (
             occurrences[-1]
             if occurrences
@@ -192,6 +210,7 @@ class Planner:
             findings.append("the request needs at least a sentence describing the job")
         if findings:
             return self.block(findings)
+        considered: dict[str, Any] = {}
         if reuse:
             match = find_reuse(
                 self.b,
@@ -199,9 +218,10 @@ class Planner:
                 self.rules.get("reuse") or {},
                 output_type=self.terms.get("output_type"),
                 keyed=getattr(self.handler, "reuse_signature", None),
+                considered=considered,
             )
             if match is not None:
-                return self.reuse(match)
+                return self.check_reuse(match, considered)
         parts = _parts(self.text, self.classify, self.terms.get("output_type"))
         children, plan = self.children(parts, occurrence)
         if not children:
@@ -219,7 +239,8 @@ class Planner:
             for p in plan
         ]
         if occurrence == 1:
-            _write_plan(self.b, self.request_id, self.lease, plan, plain, **self.terms)
+            extra = {"reuse": considered} if considered else {}
+            _write_plan(self.b, self.request_id, self.lease, plan, plain, **extra, **self.terms)
         else:
             self._plan_noun_occurrence(occurrence, plan, plain)
         noun = read_request(self.b, self.request_id)
@@ -241,10 +262,16 @@ class Planner:
                     parts=plan,
                     places=places,
                     summary={
-                        "places": "estimated from the number of verbs waiting when this was planned"
+                        **(
+                            {
+                                "places": "estimated from the number of verbs waiting when this was planned"
+                            }
+                            if places
+                            else {}
+                        ),
+                        **({"reuse": considered} if considered else {}),
                     }
-                    if places
-                    else None,
+                    or None,
                     queue=queue_snapshot(self.b),
                     occurrence=occurrence if self.terms.get("frequency") == "recurring" else None,
                     ref=f"{PLANS_STORE}/{self.request_id}",
@@ -404,7 +431,8 @@ class Planner:
         )
         return {"status": "blocked", "findings": findings, "receipt": receipt.receipt_hash}
 
-    def reuse(self, match: Any) -> dict[str, Any]:
+    def check_reuse(self, match: Any, considered: dict[str, Any]) -> dict[str, Any]:
+        """A reviewed answer that may fit: one reuse check verb on eq03, never a close (F-REUSE-001)."""
         pointer = {
             "store": match.store,
             "key": match.key,
@@ -414,69 +442,156 @@ class Planner:
             "review_receipt": match.review_receipt,
             "title": match.title,
         }
-        plain = [
-            f"Found an existing reviewed answer: {match.title or match.key}. No new work was needed."
-        ]
-        _write_plan(
-            self.b,
+        brief = reuse_brief(
             self.request_id,
-            self.lease,
-            [{"part": 1, "route": "reused", "text": self.text, "reused_from": pointer}],
-            plain,
+            self.text,
+            self.terms,
+            pointer,
+            proposed_by_key=self.key_id,
+            considered=considered,
         )
-        receipt = self.b.submit(
-            self.lease.task_id,
-            self.lease.fencing_token,
-            {
-                "node": "close",
-                "status": "reused",
-                "request_id": self.request_id,
-                "reused": pointer,
-                "new_verbs": 0,
-                "model_tokens": 0,
-            },
-            idempotency_key=f"{self.lease.task_id}:{self.lease.fencing_token}",
-            ok=True,
+        child = ChildSpec(
+            queue="eq03",
+            kind=REUSE_KIND,
+            effect_class="write-internal",
+            brief=brief,
+            tags=["part:1", f"kind:{REUSE_KIND}"],
         )
-        result_ref = f"{match.store}/{match.key}"
-        part = {
-            "route": "reused",
-            "status": "delivered" if match.kind == "report" else "published",
-            "review_receipt": match.review_receipt,
+        ids = self.b.split(self.lease.task_id, self.lease.fencing_token, [child])
+        entry: dict[str, Any] = {
+            "part": 1,
+            "route": "reuse_check",
+            "text": self.text,
             "reused_from": pointer,
-        }
-        if match.kind == "report":
-            part["solution"] = {"store": match.store, "key": match.key, "version": match.version}
-        else:
-            part["kit_id"] = match.key
+            "review_task_id": ids[0],
+        } | dict(self.terms)
+        words = self.classify.get("plain_words") or {}
+        plain = [f"Part 1: {words.get('reuse_check') or REUSE_CHECK_WORDS}"]
+        _write_plan(
+            self.b, self.request_id, self.lease, [entry], plain, reuse=considered, **self.terms
+        )
+        noun = read_request(self.b, self.request_id)
+        occurrences = list((noun[0] if noun else {}).get("occurrences") or [])
+        occurrences.append(
+            {
+                "n": 1,
+                "status": "planned",
+                "children": ids,
+                "planned_at": round(time.time(), 3),
+                "reuse_check": pointer,
+            }
+        )
         self._facts(
             [
                 fact(
-                    "delivered" if match.kind == "report" else "published",
-                    part=1,
-                    receipt=receipt.receipt_hash,
+                    "planned",
+                    receipt=self.lease.claim_receipt,
                     **self.who,
-                    ref=result_ref,
-                    result_id=match.key,
-                    reason="Found an existing reviewed answer: no new work and no new tokens.",
-                    summary={
-                        "reused": True,
-                        "score": match.score,
-                        "new_verbs": 0,
-                        "model_tokens": 0,
-                    },
+                    parts=[entry],
+                    summary={"reuse": considered},
+                    queue=queue_snapshot(self.b),
+                    ref=f"{PLANS_STORE}/{self.request_id}",
                 ),
-                fact("closed", receipt=receipt.receipt_hash, **self.who),
+                fact(
+                    "queued",
+                    **self.who,
+                    ref=f"{PLANS_STORE}/{self.request_id}",
+                    reason="A reviewed answer from the library may fit; another worker checks it first.",
+                    summary={"parts": 1, "reuse_check": True},
+                ),
             ],
-            status="closed",
-            parts={"1": part},
+            status="open_for_build",
+            parts={"1": {"route": "reuse_check", "status": "in_review", "occurrence": 1}},
             fields={
-                "close_receipt": receipt.receipt_hash,
-                "reused_from": pointer,
                 "plan": {"store": PLANS_STORE, "key": self.request_id},
+                "occurrences": occurrences,
             },
         )
-        return {"status": "reused", "receipt": receipt.receipt_hash, "reused": pointer}
+        return {
+            "node": "check",
+            "status": "reuse_check",
+            "request_id": self.request_id,
+            "plan": [entry],
+            "candidate": pointer,
+        }
+
+    def after_reuse_check(self, latest: dict[str, Any]) -> dict[str, Any] | None:
+        """The reuse check resolved: an approval answers the request from the library (None: close
+        it as usual); anything else keeps the attempt on the record and plans new work."""
+        ids = set(latest.get("children") or [])
+        child = next((c for c in self.lease.children if c.task_id in ids), None)
+        out = child.output if child is not None and isinstance(child.output, dict) else {}
+        if (
+            child is not None
+            and child.state == "done"
+            and out.get("node") == REUSE_KIND
+            and out.get("accepted") is True
+            and out.get("request_id") == self.request_id
+        ):
+            ensure_reuse_delivered(
+                self.b, self.request_id, out, child.task_id, str(child.receipt_hash)
+            )
+            noun = read_request(self.b, self.request_id)
+            if not has_event(noun[0] if noun else {}, "delivered", part=1):
+                pointer = dict(out.get("reused") or {})
+                self._facts(
+                    [
+                        fact(
+                            "delivered" if pointer.get("kind") == "report" else "published",
+                            part=1,
+                            receipt=child.receipt_hash,
+                            **self.who,
+                            ref=f"{pointer.get('store')}/{pointer.get('key')}",
+                            result_id=pointer.get("key"),
+                            reason="Answered from the library after another worker checked that it fits.",
+                            summary={"reused": True, "score": pointer.get("score")},
+                        )
+                    ]
+                )
+            return None
+        noun = read_request(self.b, self.request_id)
+        value = dict(noun[0]) if noun else {}
+        occurrences = list(value.get("occurrences") or [latest])
+        occurrences[-1] = {
+            **latest,
+            "status": "reuse_sent_back",
+            "outcomes": self._outcomes(list(ids)),
+            "finished_at": round(time.time(), 3),
+        }
+        if child is None or child.state != "done":
+            # The check never finished (no fact from a reviewer): say so before new work is planned.
+            self._facts(
+                [
+                    fact(
+                        "check_sent_back",
+                        part=1,
+                        ref=f"{child.task_id if child else 'reuse check'} ended {child.state if child else 'missing'}",
+                        **self.who,
+                        reason="The check of a library answer did not finish, so new work is planned.",
+                        summary={"role": "planner", "reuse_check": True},
+                    )
+                ],
+                fields={"occurrences": occurrences},
+            )
+        else:
+            self._set_fields(occurrences=occurrences)
+        return self.plan(int(latest.get("n") or 1), reuse=False)
+
+    def _set_fields(self, **fields: Any) -> None:
+        """Fields on the request record without a new fact (a version with no event)."""
+        for _ in range(4):
+            current = read_request(self.b, self.request_id)
+            if current is None:
+                return
+            value, version = current
+            value = {k: v for k, v in value.items() if k != "event"}
+            try:
+                write_request(
+                    self.b, self.request_id, {**value, **fields}, expected_version=version
+                )
+                return
+            except VersionConflict:
+                continue
 
     # after the parts resolve ----------------------------------------------------------------
     def _outcomes(self, ids: list[str]) -> list[dict[str, Any]]:
@@ -550,6 +665,10 @@ class Planner:
         return done
 
     def finish(self, latest: dict[str, Any]) -> dict[str, Any]:
+        if latest.get("reuse_check"):
+            replanned = self.after_reuse_check(latest)
+            if replanned is not None:
+                return replanned
         noun = read_request(self.b, self.request_id)
         value = noun[0] if noun else {}
         occurrences = list(value.get("occurrences") or [latest])
@@ -582,7 +701,7 @@ class Planner:
         limit = int((self.rules.get("recurring") or {}).get("max_occurrences") or 12)
         if recurring and int(latest["n"]) < limit:
             return self.park(occurrences, int(self.terms["period_s"]))
-        closed = _close(self.b, self.lease)
+        closed = _close(self.b, self.lease, self.request_id)
         self._store_occurrences(
             occurrences,
             [
@@ -642,7 +761,7 @@ class Planner:
         recurring = self.terms.get("frequency") == "recurring" and self.terms.get("period_s")
         limit = int((self.rules.get("recurring") or {}).get("max_occurrences") or 12)
         if not recurring or int(latest["n"]) >= limit:
-            closed = _close(self.b, self.lease)
+            closed = _close(self.b, self.lease, self.request_id)
             self._store_occurrences(
                 occurrences, [fact("closed", receipt=closed["receipt"], **self.who)]
             )

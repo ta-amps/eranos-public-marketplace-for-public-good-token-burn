@@ -347,8 +347,10 @@ def fabric(tmp_path_factory: pytest.TempPathFactory) -> Any:
         yield running
 
 
-# The request-status page's event types (docs/status-events.schema.json at the redesign's 2a1510b).
+# The request-status page's event types (docs/status-events.schema.json at the redesign's 2a1510b,
+# plus `reopened` from the Eranos web commit 59c932c).
 SCHEMA_TYPES = {
+    "reopened",
     "received",
     "plan_claimed",
     "plan_released",
@@ -556,9 +558,11 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
 
 
 @needs_workerd
-def test_reworded_repeat_is_answered_from_stored_work_with_no_new_verbs_or_tokens(
+def test_reworded_repeat_is_answered_from_the_library_only_after_another_keys_check(
     fabric: Any,
 ) -> None:
+    """F-REUSE-001: a reuse match queues one check on eq03 and no research; a reviewer's key (not
+    the planner's) approves it with a model, and only then is the request answered and closed."""
     if not fabric.get("/v1/stores/eranos.solutions/records?limit=5")["records"]:
         test_information_request_is_claimed_worked_reviewed_and_delivered(fabric)
     before = fabric.get("/v1/counts")
@@ -574,19 +578,36 @@ def test_reworded_repeat_is_answered_from_stored_work_with_no_new_verbs_or_token
         },
         "info2",
     )
-    assert _workers(fabric)["planner"].run_once() == "worked"
+    w = _workers(fabric)
+    assert w["planner"].run_once() == "worked"
     after = fabric.get("/v1/counts")
-    for queue in ("eq02", "eq03"):
-        assert sum(after["queues"][queue].values()) == sum(before["queues"][queue].values()), queue
+    assert sum(after["queues"]["eq02"].values()) == sum(before["queues"]["eq02"].values())
+    assert sum(after["queues"]["eq03"].values()) == sum(before["queues"]["eq03"].values()) + 1
+    plan = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]
+    check_id = plan["parts"][0]["review_task_id"]
+    assert plan["parts"][0]["route"] == "reuse_check" and _record(fabric, rid)["status"] != "closed"
+    assert w["reviewer"].run_once() == "worked"
+    assert w["planner"].run_once() == "worked"
     record = _record(fabric, rid)
-    assert record["status"] == "closed" and record["reused_from"]["store"] == "eranos.solutions"
-    assert _types(record)[-2:] == ["delivered", "closed"] and set(_types(record)) <= SCHEMA_TYPES
+    assert record["status"] == "closed" and record["parts"]["1"]["status"] == "delivered"
+    assert record["parts"]["1"]["reused_from"]["store"] == "eranos.solutions"
+    types = _types(record)
+    assert types[-5:] == ["check_claimed", "check_approved", "delivered", "plan_claimed", "closed"]
+    assert set(_types(record)) <= SCHEMA_TYPES
+    approved = next(e for e in record["events"] if e["type"] == "check_approved")
+    assert approved["summary"]["reuse_check"]["answers"] == "yes"
+    assert approved["summary"]["reuse_check"]["model"] == "muse-spark-1.3"
     delivered = next(e for e in record["events"] if e["type"] == "delivered")
-    assert delivered["summary"]["reused"] is True and delivered["summary"]["model_tokens"] == 0
+    assert delivered["summary"]["reused"] is True
+    check = [r for r in fabric.get(f"/v1/tasks/{check_id}/results")["results"] if r["ok"]][-1]
+    assert check["output"]["accepted"] is True and "approved" not in check["output"]
+    assert check["completed_by_key"] != fabric.keys["planner"]["key_id"]
     task = fabric.get(f"/v1/tasks/{rid}")
     assert task["state"] == "done" and task["pending_children"] == 0
-    report = _executions(fabric, rid)[0]["report"]
-    assert report["model"] is None and report["usage"]["total_tokens"] == 0
+    planner_report = _executions(fabric, rid)[0]["report"]
+    assert planner_report["model"] is None and planner_report["usage"]["total_tokens"] == 0
+    check_report = _executions(fabric, check_id)[0]["report"]
+    assert check_report["usage"]["total_tokens"] > 0  # the reuse check called a model
 
 
 @needs_workerd
@@ -732,7 +753,7 @@ def test_film_data_cleaning_request_is_built_reviewed_published_and_reused(
 ) -> None:
     """The film's request end to end with B4's real handler (adapted from its reference branch):
     claim, build, a different key's review in a clean process, published and listed; then a
-    reworded request is answered from the stored package with no new verbs and no model tokens."""
+    reworded request is answered from the stored package after another key's reuse check."""
     monkeypatch.setenv("B4_OUT_DIR", str(tmp_path / "b4"))
     handler = process_part.load_handler(B4_HANDLER)
     requester = fabric.requester()
@@ -786,9 +807,12 @@ def test_film_data_cleaning_request_is_built_reviewed_published_and_reused(
         and "synthetic" not in json.dumps(value).lower()
     )
     reused = fabric.file_request(requester, {"text": FILM_REWORDED, **terms}, "film2")
-    assert w["planner"].run_once() == "worked"
+    for role in ("planner", "reviewer", "planner"):  # the match, the reuse check, the close
+        assert w[role].run_once() == "worked", role
     plan = fabric.get(f"/v1/stores/eranos.plans/records/{reused}")["value"]
-    assert _record(fabric, reused)["status"] == "closed" and plan["parts"][0]["route"] == "reused"
+    assert plan["parts"][0]["route"] == "reuse_check"
+    again = _record(fabric, reused)
+    assert again["status"] == "closed" and again["parts"]["1"]["status"] == "published"
     assert (
         plan["parts"][0]["reused_from"]["key"] == output["draft"]["kit_id"]
         and plan["parts"][0]["reused_from"]["score"] == 1.0

@@ -64,11 +64,20 @@ from eranos.model_client import (
     UsageMeter,
     refuse_contributor,
 )
+from eranos.pacing import CountingTransport, RequestCounter, hourly_summary, poke, wake_mark
 from eranos.pipeline import load_example_bundles, research
 from eranos.pipeline import process as process_part
 from eranos.pipeline import tuning as tuning_mod
 from eranos.pipeline.plain_words import forbidden, plain
 from eranos.pipeline.planner import Planner, load_nouns
+from eranos.pipeline.reuse_check import (
+    REUSE_KIND,
+    ReopenRefused,
+    judge_user,
+    read_judgment,
+    reopen_target,
+    review_reuse,
+)
 from eranos.pipeline.run import SelfReviewRefused, run_draft_step, run_review_step, run_spec_step
 from eranos.pipeline.status_events import fact, queue_snapshot, record_events
 from eranos.schemas import KitDraft, VerificationReport
@@ -79,13 +88,16 @@ from eranos.sources import Fetched, fetch, policy_from_rules
 ROLES: dict[str, tuple[str, tuple[str, ...]]] = {
     "planner": ("eq01", ("request", "spec", "tune")),
     "builder": ("eq02", ("research", process_part.BUILD_KIND, "draft")),
-    "reviewer": ("eq03", ("report_review", process_part.REVIEW_KIND, "review")),
+    "reviewer": ("eq03", ("report_review", process_part.REVIEW_KIND, "review", REUSE_KIND)),
 }
 KIT_KINDS = frozenset({"spec", "draft", "review"})
 # The volunteer mode does research and checks research, nothing else (its key says the same).
 VOLUNTEER_KINDS = frozenset({"research", "report_review"})
 # The steps that call a model, by verb kind (the tuning noun's steps).
 MODEL_STEPS = {"research": "make", "report_review": "check"}
+# Verbs that need a model to answer, so none is claimed while it cannot (the reuse check runs the
+# worker noun's fixed model, not a tuned variant).
+MODEL_KINDS = frozenset({*MODEL_STEPS, REUSE_KIND})
 MODEL_CATALOG = ("eranos.instructions", "models.meta")
 LOCAL_CATALOG = Path(__file__).resolve().parents[1] / "instructions" / "models.meta.json"
 DECLARED = {
@@ -96,6 +108,7 @@ DECLARED = {
     "draft": "example kit in plain words (no model)",
     "review": "deterministic kit checks (no model)",
     process_part.REVIEW_KIND: "process handler review, in a clean process",
+    REUSE_KIND: "a Muse model checks that a library answer fits the request",
 }
 EXIT_STORAGE_ALLOWANCE = (
     75  # EX_TEMPFAIL: the hosted storage allowance is spent; the units do not restart
@@ -122,6 +135,7 @@ STEP_WORDS = {
     "draft": "a kit Task",
     "review": "a kit check",
     "tune": "the hourly tuning Task",
+    REUSE_KIND: "a check of a library answer",
 }
 
 
@@ -177,6 +191,8 @@ class Pacer:
     max_idle_seconds: float = 300.0
     next_at: dict[str, float] = field(default_factory=dict)
     idle: dict[str, int] = field(default_factory=dict)
+    jitter: float = 0.0  # up to this share longer, so restarted workers do not poll in step
+    rng: random.Random = field(default_factory=random.Random, repr=False)
 
     def ready(self, queue: str, now: float) -> bool:
         return now >= self.next_at.get(queue, 0.0)
@@ -185,6 +201,8 @@ class Pacer:
         n = self.idle.get(queue, 0) + 1
         self.idle[queue] = n
         backoff = min(self.max_idle_seconds, self.min_empty_seconds * 2 ** min(n - 1, 16))
+        if self.jitter > 0:
+            backoff *= 1.0 + min(self.jitter, 1.0) * self.rng.random()
         self.next_at[queue] = now + max(backoff, self.min_empty_seconds, retry_after)
         return self.next_at[queue]
 
@@ -368,6 +386,7 @@ class Heartbeat(threading.Thread):
         # every beat costs storage rows on the free plan, so beat no more often than that.
         interval = max(2.0, float(lease.heartbeat_seconds) * 0.92)
         last_fact = 0.0
+        request_id = self.worker.request_of(lease)  # once per lease, not one read per beat
         while not self.gate.ended_event.wait(interval):
             try:
                 self.worker.heartbeat_backend.heartbeat(lease.task_id, lease.fencing_token)
@@ -399,7 +418,6 @@ class Heartbeat(threading.Thread):
                 beats=self.beats,
             )
             now = time.time()
-            request_id = self.worker.request_of(lease)
             if request_id and now - last_fact >= self.worker.config.status_heartbeat_seconds:
                 last_fact = now
                 with contextlib.suppress(TesseraError):
@@ -435,14 +453,16 @@ class Worker:
         self.config = config
         self.queue, self.kinds = ROLES[config.role]
         self.trace = TraceWriter(config.trace_path)
-        client = backend or _client(config)
+        # Every request this worker sends is counted (the hosted sites share a daily request cap).
+        self.requests = RequestCounter()
+        client = backend or _client(config, self.requests)
         self.client = client
         self.backend = (
             TracedBackend(client, backend="tessera", trace_path=config.trace_path)
             if backend is None
             else backend
         )
-        self.heartbeat_backend = heartbeat_backend or _client(config)
+        self.heartbeat_backend = heartbeat_backend or _client(config, self.requests)
         self.model = model
         self.fetcher = fetcher
         self.handler = handler if handler is not None else process_part.load_handler()
@@ -465,6 +485,7 @@ class Worker:
         self._catalog_at = 0.0
         self._model_settings: dict[str, Any] | None = None
         self._metas: dict[str, tuple[Any, Any]] = {}
+        self._woke_at = wake_mark(self.queue)  # a poke from before this start is not news
         self._tuning: tuple[dict[str, Any], int] | None = None
         self._tuning_at = 0.0
         self._pick: dict[str, Any] | None = None  # the running lease's pick, for its failure fact
@@ -508,10 +529,16 @@ class Worker:
             return "spare Meta API credit given by the volunteer who started this worker (standard tier)"
         return "the owner's Meta API credit (standard tier)"
 
+    def refresh_seconds(self) -> float:
+        """How long a read noun is used before it is read again (`claims.noun_refresh_seconds`,
+        five minutes by default): each read is a request against the hosted sites' daily cap."""
+        claims = (self._noun or {}).get("claims") or {}
+        return max(60.0, float(claims.get("noun_refresh_seconds") or 300))
+
     def rules(self) -> dict[str, Any]:
-        """The worker noun, read again at most every five minutes (claim timing comes from it)."""
+        """The worker noun, read again at most every `refresh_seconds` (claim timing comes from it)."""
         now = self.clock()
-        if self._noun is None or now - self._noun_at > 300:
+        if self._noun is None or now - self._noun_at > self.refresh_seconds():
             try:
                 self._noun = dict(self.backend.get_record("eranos.instructions", "worker").value)
                 self._noun_at = now
@@ -523,9 +550,7 @@ class Worker:
         """Volunteers first: seconds until the oldest ready verb of these kinds has waited the grace
         period since it was queued (0 means claim now), or None when none is ready."""
         claims = self.rules().get("claims") or {}
-        self.pacer.max_idle_seconds = float(
-            claims.get("max_idle_seconds", self.pacer.max_idle_seconds)
-        )
+        self.pacing(claims)
         dedicated = self.rules().get("dedicated") or {}
         grace = float(dedicated.get("grace_seconds", 90))
         if grace <= 0 or self.queue not in (dedicated.get("queues") or ("eq01", "eq02", "eq03")):
@@ -543,13 +568,21 @@ class Worker:
         )
         return max(0.0, queued + grace - now)
 
+    def pacing(self, claims: dict[str, Any]) -> None:
+        """Claim timing from the worker noun: the longest idle wait (per queue when it says so) and
+        the jitter that keeps restarted workers from polling in step."""
+        by_queue = claims.get("max_idle_seconds_by_queue") or {}
+        idle = by_queue.get(self.queue, claims.get("max_idle_seconds", self.pacer.max_idle_seconds))
+        self.pacer.max_idle_seconds = float(idle)
+        self.pacer.jitter = float(claims.get("idle_jitter") or 0.0)
+
     # model and sources -----------------------------------------------------------------------
     def catalog(self) -> dict[str, dict[str, Any]]:
         """The model catalog noun (`models.meta`), as id -> {display, rates}: its `runtime` section
         names each id and gives its token rates. It is read again at most every five minutes; the
         repository's copy stands in until the Tessera record exists."""
         now = self.clock()
-        if self._catalog is None or now - self._catalog_at > 300:
+        if self._catalog is None or now - self._catalog_at > self.refresh_seconds():
             value: Any = None
             try:
                 value = self.backend.get_record(*MODEL_CATALOG).value
@@ -629,6 +662,7 @@ class Worker:
                     "prices_usd_per_million": {k: rates[k] for k in ("input", "output")},
                 },
                 ledger=ledger,
+                transport=CountingTransport(httpx.HTTPTransport(retries=0), self.requests, "meta"),
             )
         except (ContributorTierRefused, ValueError) as exc:
             raise ModelUnavailable(f"the worker noun's model is refused: {exc}") from exc
@@ -739,7 +773,7 @@ class Worker:
             kinds = [
                 k for k in kinds if k not in (process_part.BUILD_KIND, process_part.REVIEW_KIND)
             ]
-        if any(k in MODEL_STEPS for k in kinds):
+        if any(k in MODEL_KINDS for k in kinds):
             try:
                 model = self._model()
                 if hasattr(model, "healthy"):
@@ -754,7 +788,7 @@ class Worker:
                     else "model_unavailable"
                 )
                 self.trace.write(event, level="warning", error=str(exc)[:200])
-                kinds = [k for k in kinds if k not in MODEL_STEPS]
+                kinds = [k for k in kinds if k not in MODEL_KINDS]
         return kinds
 
     def model_fields(self, kind: str, pick: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -769,10 +803,14 @@ class Worker:
             return {**out, "method": f"process handler: {name}"}
         return {**out, "method": DECLARED.get(kind, "deterministic (no model)")}
 
-    @staticmethod
-    def request_of(lease: Lease) -> str | None:
+    def request_of(self, lease: Lease) -> str | None:
+        """The request a verb's facts go to: a request verb's own id, or the request its recorded
+        reopen names (none for a reopen its request's record does not name: nothing is written)."""
         if lease.kind == "request":
-            return str(lease.task_id)
+            try:
+                return reopen_target(self.backend, lease) or str(lease.task_id)
+            except ReopenRefused:
+                return None
         brief = lease.brief if isinstance(lease.brief, dict) else {}
         return str(brief["request_id"]) if brief.get("request_id") else None
 
@@ -928,6 +966,7 @@ class Worker:
                     retry_at=round(until, 1),
                 )
                 outcome = "error"
+            self.report_requests()
             if (
                 outcome == "worked"
                 and max_leases is not None
@@ -935,15 +974,49 @@ class Worker:
             ):
                 break
             if outcome not in ("worked", "stopped"):
-                self.stop.wait(min(60.0, max(1.0, self.pacer.wait(self.clock()))))
+                self.idle_wait()
         self.trace.write(
             "worker_stopped",
             role=self.config.role,
             worker=self.config.label,
             exit_code=self.exit_code,
             stats=dict(self.stats),
+            requests_this_hour=self.requests.current(),
+            requests_since_start=dict(self.requests.total),
         )
         return self.stats
+
+    def report_requests(self) -> None:
+        """Each whole hour's requests by target and method, once, in the run log."""
+        for hour, counts in self.requests.finished():
+            self.trace.write("requests_hourly", queue=self.queue, **hourly_summary(hour, counts))
+
+    def idle_wait(self) -> None:
+        """Wait for the queue's next claim time, looking every few seconds (one local stat) at its
+        wake file: a poke from a worker that just made work here, or an operator, ends the wait."""
+        end = time.monotonic() + min(60.0, max(1.0, self.pacer.wait(self.clock())))
+        while not self.stop.is_set():
+            mark = wake_mark(self.queue)
+            if mark > self._woke_at:
+                self._woke_at = mark
+                self.pacer.worked(self.queue, self.clock())
+                self.trace.write("woken", queue=self.queue)
+                return
+            left = end - time.monotonic()
+            if left <= 0:
+                return
+            self.stop.wait(min(5.0, left))
+
+    def poke_after(self, lease: Lease, outcome: Any) -> None:
+        """Wake the local worker of the queue this lease just made work for."""
+        status = (outcome or {}).get("status") if isinstance(outcome, dict) else None
+        if lease.kind == "request" and status in ("split", "reuse_check"):
+            poke("eq02")
+            poke("eq03")
+        elif lease.queue == "eq02":
+            poke("eq03")  # a submitted part's check is ready
+        elif lease.queue == "eq03":
+            poke("eq01")  # a decided check wakes its request for the planner
 
     # the work ----------------------------------------------------------------------------------
     def _report_factory(
@@ -1042,6 +1115,7 @@ class Worker:
                     nouns=load_nouns(gate),
                     handler=self.handler,
                     who=self.who(),
+                    key_id=self.config.key_id,
                 ).run()
                 self.say(
                     f"planned it · {str((outcome or {}).get('status') or 'done').replace('_', ' ')}"
@@ -1051,6 +1125,7 @@ class Worker:
             else:
                 outcome = self.review(gate, lease, meter, notes, part, request_id)
             self.stats["worked"] += 1
+            self.poke_after(lease, outcome)
             self.trace.write(
                 "lease_done",
                 task_id=lease.task_id,
@@ -1129,7 +1204,11 @@ class Worker:
                 receipt=receipt,
                 lease_lost=beat.lost is not None or gate.ended == "lost",
             )
-            if request_id and not self.stop.is_set() and not isinstance(exc, NotInPlan):
+            if (
+                request_id
+                and not self.stop.is_set()
+                and not isinstance(exc, (NotInPlan, ReopenRefused))
+            ):
                 # G2: a Task its request's plan does not list writes nothing onto that request.
                 # A self-approval that was refused is the page's check_refused; any other failure
                 # puts the verb back in line (work_released), citing its ok=false receipt if any.
@@ -1329,6 +1408,8 @@ class Worker:
         request_id: str | None,
     ) -> dict[str, Any]:
         self.planned_task(gate, lease, request_id)
+        if lease.kind == REUSE_KIND:
+            return self.check_reuse(gate, lease, meter, part, request_id)
         pick = self.pick_for("check", lease) if lease.kind == "report_review" else None
         notes["pick"] = self._pick = pick
         self._claimed("check_claimed", lease, part, request_id, pick)
@@ -1362,6 +1443,95 @@ class Worker:
             else "reported: sent back for another try"
         )
         return out
+
+    def reuse_pick(self) -> dict[str, Any]:
+        """The reuse check's fixed model (the worker noun's `reuse.check.model`), as facts name it."""
+        check = (self.rules().get("reuse") or {}).get("check") or {}
+        model_id = str(check.get("model") or self.model_id())
+        variant = {"id": "reuse-check", "step": "reuse", "model": model_id, "temperature": 0.0}
+        why = "the reuse check's fixed model (the worker noun)"
+        return {"variant": variant, "probability": 1.0, "tuner_version": None, "why": why}
+
+    def check_reuse(
+        self, gate: LeaseGate, lease: Lease, meter: UsageMeter, part: Any, request_id: str | None
+    ) -> dict[str, Any]:
+        """F-REUSE-001: decide with a Muse model whether a library answer fits this request."""
+        pick = self.reuse_pick()
+        self._claimed("check_claimed", lease, part, request_id, pick)
+        rules = (self.rules().get("reuse") or {}).get("check") or {}
+        model_id = str(pick["variant"]["model"])
+
+        def judge(question: str, library: dict[str, Any]) -> dict[str, Any]:
+            spent, started = meter.cost_usd, time.time()
+            answer = self.meta(model_id).chat_json(
+                str(rules.get("prompt") or ""),
+                judge_user(question, library),
+                meter=meter,
+                temperature=float(rules.get("temperature") or 0.0),
+                reasoning_effort=rules.get("reasoning_effort"),
+            )
+            return {
+                **read_judgment(answer),
+                "model": model_id,
+                "model_display": self.model_display(model_id),
+                "cost_usd": round(meter.cost_usd - spent, 6),
+                "seconds": round(time.time() - started, 1),
+            }
+
+        out = review_reuse(gate, lease, key_id=self.config.key_id, judge=judge)
+        self._facts(gate, request_id, self.reuse_facts(lease, out, part))
+        check = out.get("check") or {}
+        self.say(
+            "checks passed · reported: answered from the library"
+            if out.get("status") == "delivered"
+            else f"reported: the library answer does not fit ({check.get('answers')}) · new work next"
+        )
+        return out
+
+    def reuse_facts(self, lease: Lease, out: dict[str, Any], part: Any) -> list[dict[str, Any]]:
+        """The check's facts: its model, verdict and reason, then the answer from the library."""
+        who, receipt = self.who()["worker"], out.get("receipt")
+        pointer, check = dict(out.get("reused") or {}), dict(out.get("check") or {})
+        summary = {
+            "reuse_check": {
+                k: check.get(k)
+                for k in (
+                    "answers",
+                    "why",
+                    "model",
+                    "model_display",
+                    "similarity",
+                    "cost_usd",
+                    "seconds",
+                )
+            },
+            "candidate": {k: pointer.get(k) for k in ("store", "key", "version", "score", "kind")},
+        }
+        if out.get("status") == "delivered":
+            kind = "delivered" if pointer.get("kind") == "report" else "published"
+            return [
+                fact("check_approved", part=part, receipt=receipt, worker=who, summary=summary),
+                fact(
+                    kind,
+                    part=part,
+                    receipt=receipt,
+                    ref=f"{pointer.get('store')}/{pointer.get('key')}",
+                    result_id=pointer.get("key"),
+                    reason=f"Answered from the library after another worker checked that it fits: {check.get('why') or 'it answers this request'}",
+                    summary={"reused": True, "score": pointer.get("score"), "new_verbs": 1},
+                ),
+            ]
+        return [
+            fact(
+                "check_sent_back",
+                part=part,
+                receipt=receipt,
+                worker=who,
+                reason=f"The library answer does not fit this request, so new work is planned: {check.get('why') or check.get('answers')}",
+                findings=[f"reuse check: {check.get('answers')}"],
+                summary=summary,
+            )
+        ]
 
     # example kits (spec on eq01, draft on eq02, review on eq03) ----------------------------------
     def _bundles(self) -> dict[str, dict[str, Any]]:
@@ -1750,15 +1920,19 @@ def _task_ids(value: Any) -> set[str]:
     return found
 
 
-def _client(config: WorkerConfig) -> WorkerClient:
-    """A Tessera client for this worker's key; an explicit transport means no proxy from the environment."""
+def _client(config: WorkerConfig, counter: RequestCounter | None = None) -> WorkerClient:
+    """A Tessera client for this worker's key; an explicit transport means no proxy from the
+    environment. With a counter, every request it sends is counted."""
+    transport: httpx.BaseTransport = httpx.HTTPTransport(retries=0)
+    if counter is not None:
+        transport = CountingTransport(transport, counter, "tessera")
     return WorkerClient(
         config.tessera_url,
         key=config.key,
         surface_id="eranos",
         namespace="main",
         max_retries=0,
-        transport=httpx.HTTPTransport(retries=0),
+        transport=transport,
     )
 
 
