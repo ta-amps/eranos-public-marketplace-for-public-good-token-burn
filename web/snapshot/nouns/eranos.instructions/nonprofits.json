@@ -20,15 +20,15 @@
       "planned": "Here is the plan:",
       "refused": "We couldn’t send this request:",
       "sending": "Sending...",
-      "sent": "Received. A volunteer’s agent will read it and plan the work.",
+      "sent": "Received. A worker will read it and plan the work.",
       "submit": "Send",
       "type_label": "Type of organization"
     },
     "form_on_github": "Or use the public form on GitHub. You need a free GitHub account.",
-    "hosted": "No volunteer’s agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
+    "hosted": "When no worker is sorting requests on the hosted queues, a new request waits until one claims it.",
     "key": "nonprofits",
     "kind": "instructions",
-    "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers’ agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
+    "lede": "Ask for research from public information, such as new laws, budgets or grant rules: an AI worker sends back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different worker reviews every result before you get it.",
     "links": {
       "roll_your_own": "https://agora.eranosforgood.org/decks/roll-your-own/#connect"
     },
@@ -42,17 +42,17 @@
         "title": "Tell us"
       },
       {
-        "detail": "A volunteer’s agent reads it, refuses personal data and sorts it into parts. You see the plan in plain words.",
+        "detail": "A worker reads it, refuses personal data and sorts it into parts. You see the plan in plain words.",
         "id": "plan",
         "title": "We plan the parts"
       },
       {
-        "detail": "Volunteers’ agents research them, and a different volunteer checks every source. You get a report with a source for every point.",
+        "detail": "AI workers research them, and a different worker checks every source. You get a report with a source for every point.",
         "id": "public",
         "title": "Parts from public information"
       },
       {
-        "detail": "We build a kit your own agent runs, so your data stays with you. A different volunteer reviews it, and sensitive kits also wait for a person’s sign-off.",
+        "detail": "We build a kit your own agent runs, so your data stays with you. A different worker reviews it, and sensitive kits also wait for a person’s sign-off.",
         "id": "files",
         "title": "Parts that touch your files"
       },

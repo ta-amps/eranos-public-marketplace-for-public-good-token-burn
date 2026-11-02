@@ -89,6 +89,12 @@ export interface StatusEvent {
   model_name?: string;
   /** True when one of Eranos's own (dedicated) workers claimed it because no volunteer was free in time. */
   dedicated?: boolean;
+  /**
+   * Who claimed it, as the claim records it: "dedicated" for one of Eranos's own workers, "volunteer" for an outside
+   * volunteer's agent. The page says a volunteer's AI did a step only when its claim is marked "volunteer" (or
+   * `dedicated` is false); an unmarked claim reads as an AI worker.
+   */
+  worker_kind?: "volunteer" | "dedicated";
   parts?: PartPlan[];
   /** Places in line, by part number, after this fact. */
   places?: Record<string, number>;

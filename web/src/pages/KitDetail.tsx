@@ -314,7 +314,7 @@ export function KitDetail({ id }: { id: string }) {
             <dd>{kit.drafted_by}</dd>
           </div>
           <div>
-            <dt>Checked by a different volunteer</dt>
+            <dt>Checked by a different worker</dt>
             <dd>{entry.reviewed_by}</dd>
           </div>
           <div>

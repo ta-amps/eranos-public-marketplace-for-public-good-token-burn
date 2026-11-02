@@ -119,7 +119,7 @@ test("kit detail runs zero-storage practice verifier with persisted: false", asy
   await expect(result).toContainText("SPDX: CC-BY-4.0");
 });
 
-test("kit detail says a different volunteer reviewed it, with the real reviewer and receipt, and that you decide", async ({ page }) => {
+test("kit detail says a different worker reviewed it, with the real reviewer and receipt, and that you decide", async ({ page }) => {
   const kit = (
     JSON.parse(fs.readFileSync(new URL("../snapshot/catalog/KIT-HOTLINE-02.json", import.meta.url), "utf8")) as {
       reviewed_by: string;
@@ -128,7 +128,7 @@ test("kit detail says a different volunteer reviewed it, with the real reviewer 
   );
   await page.goto("/catalog/KIT-HOTLINE-02");
   const line = page.getByTestId("kit-reviewed");
-  await expect(line).toContainText(`A different volunteer reviewed this: ${kit.reviewed_by}`);
+  await expect(line).toContainText(`A different worker reviewed this: ${kit.reviewed_by}`);
   // People-readable facts only: a "Record" link, never the receipt's hash.
   await expect(line).toContainText("Record");
   await expect(line).not.toContainText(kit.review_receipt.slice(0, 12));

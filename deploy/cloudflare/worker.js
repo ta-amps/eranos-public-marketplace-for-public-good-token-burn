@@ -215,9 +215,9 @@ const FALLBACK_STAGES = [
   {
     queue: "eq02",
     node: "draft",
-    title: "Volunteer agent draft & deterministic checks",
+    title: "Agent draft & deterministic checks",
     effect_class: "write-internal",
-    purpose: "One volunteer agent builds the kit, fixtures, skill, and MCP tool spec; verifier runs.",
+    purpose: "One agent builds the kit, fixtures, skill, and MCP tool spec; verifier runs.",
   },
   {
     queue: "eq03",
@@ -1286,7 +1286,7 @@ function processAgentMarkdown(origin, id, found) {
     mdList(o.person_only, false),
     "## Rules",
     `- Work only on the folder the person chooses. Nothing leaves their computer.\n- Never send anything outside their organization.\n- Before real files, try the made-up examples: ${origin}/p/${id}/practice.md`,
-    found.review_receipt ? `Checked by a second volunteer. Review receipt: ${found.review_receipt}` : "",
+    found.review_receipt ? `Checked by a different worker. Review receipt: ${found.review_receipt}` : "",
   ].filter(Boolean).join("\n\n") + "\n";
 }
 
@@ -2089,7 +2089,7 @@ async function handleCloudApi(request, env, pathname) {
           return problem(
             404,
             "Not Found",
-            `request ${key} is queued on eq01 (${pending.state}) awaiting volunteer scope planning; no public eranos.requests noun exists until screened; poll /api/requests/${key} for immediate read-after-write status.`,
+            `request ${key} is queued on eq01 (${pending.state}) awaiting scope planning; no public eranos.requests noun exists until screened; poll /api/requests/${key} for immediate read-after-write status.`,
             "pending_scope_plan"
           );
         }
@@ -2366,7 +2366,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const origin = new URL(request.url).origin;
       const pkg = processDoc[2] === "agent" ? await publishedPackage(request, env, id) : null;
       const download = pkg
-        ? `\n## Download the process\n${origin}/p/${id}/download${part > 1 ? `?part=${part}` : ""}\nSHA-256: ${pkg.value.blob_sha256}. A different volunteer's key reviewed it; check the hash before you run it.\n`
+        ? `\n## Download the process\n${origin}/p/${id}/download${part > 1 ? `?part=${part}` : ""}\nSHA-256: ${pkg.value.blob_sha256}. A different worker's key reviewed it; check the hash before you run it.\n`
         : "";
       let text = found ? (processDoc[2] === "agent" ? processAgentMarkdown(origin, id, found) + download : processPracticeMarkdown(origin, id, found)) : null;
       if (!text && pkg) {

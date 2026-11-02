@@ -53,6 +53,8 @@ interface Agent {
   who?: string;
   /** One of Eranos's own workers (the fallback when no volunteer is free), not a volunteer's agent. */
   dedicated?: boolean;
+  /** An outside volunteer's agent, only when its claim says so (worker_kind "volunteer" or dedicated false). */
+  volunteer?: boolean;
   model?: string;
   /** How the step ran when it runs no model ("deterministic planner (no model)"): no model is credited then. */
   method?: string;
@@ -116,10 +118,25 @@ function evidence(event: StatusEvent): Evidence {
   return { receipt: event.receipt, ref: event.ref, at: event.at ?? null };
 }
 
+/** True when one of Eranos's own (dedicated) workers recorded the fact: its flag or kind, or else its label. */
+export function ownWorker(event: StatusEvent): boolean {
+  if (typeof event.dedicated === "boolean") return event.dedicated;
+  return event.worker_kind === "dedicated" || /^eranos[-_.\s]/i.test(event.worker ?? "");
+}
+
+/**
+ * True only when the claim marks an outside volunteer: worker_kind "volunteer", or dedicated set to false. A claim
+ * that says neither is an AI worker, never "a volunteer's AI" (Eranos never credits volunteers with its own work).
+ */
+export function outsideVolunteer(event: StatusEvent): boolean {
+  return !ownWorker(event) && (event.worker_kind === "volunteer" || event.dedicated === false);
+}
+
 function agent(event: StatusEvent): Agent {
   return {
     who: event.worker,
-    dedicated: event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? ""),
+    dedicated: ownWorker(event),
+    volunteer: outsideVolunteer(event),
     // The model id the fact declares; its display name comes from the models.meta Task Object (lib/models.ts).
     model: event.model,
     persona: typeof event.persona === "string" && event.persona.trim() ? event.persona.trim() : undefined,

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { AGORA_HOW_IT_WORKS_URL } from "../../lib/marketplace";
 import { fill, type PlainWords } from "../../lib/nouns";
-import { applyEvents, type Facts } from "../../lib/status/derive";
+import { applyEvents, outsideVolunteer, ownWorker, type Facts } from "../../lib/status/derive";
 import { ordinal } from "../../lib/status/estimate";
 import type { StatusEvent } from "../../lib/status/types";
 import { AppLink, useHash } from "../../router";
@@ -40,7 +40,7 @@ function cleanPlainReason(raw: string | undefined): string {
     .replace(/^ReviewRefused:\s*/i, "")
     .replace(/\b[0-9a-f]{12,}\b/gi, "")
     .replace(/\bR-[A-Z0-9]{4}\b/g, "")
-    .replace(/\b(?:wren|kestrel|heron)-[a-z0-9-]+\b/gi, "a volunteer")
+    .replace(/\b(?:wren|kestrel|heron)-[a-z0-9-]+\b/gi, "a worker")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -56,10 +56,8 @@ function shortReason(reason: string): string {
   return first.length > 140 ? `${first.slice(0, 138)}\u2026` : first;
 }
 
-/** True when one of Eranos's own (dedicated) workers recorded the fact: its flag, or else its label. */
-function byEranos(event: StatusEvent): boolean {
-  return event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? "");
-}
+/** True when one of Eranos's own (dedicated) workers recorded the fact. */
+const byEranos = ownWorker;
 
 /** Where a reused answer came from: its catalog page, or the public record that holds it. */
 function sourceHref(event: StatusEvent): string | null {
@@ -384,8 +382,14 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         push(fill(h.blocked, { reason: event.reason ?? "" }));
         break;
       case "work_claimed": {
+        // Only a claim marked as an outside volunteer is credited to a volunteer; an unmarked one is an AI worker.
         const eranos = byEranos(event);
-        push(again ? h.work_claimed_changes : eranos ? h.work_claimed_eranos : h.work_claimed);
+        const volunteer = outsideVolunteer(event);
+        push(
+          again
+            ? volunteer ? (h.work_claimed_changes_volunteer ?? h.work_claimed_changes) : h.work_claimed_changes
+            : eranos ? h.work_claimed_eranos : volunteer ? (h.work_claimed_volunteer ?? h.work_claimed) : h.work_claimed,
+        );
         break;
       }
       case "work_released": {
@@ -401,7 +405,12 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         break;
       case "check_claimed": {
         const eranos = byEranos(event);
-        push(again ? (eranos ? (h.check_claimed_changes_eranos ?? h.check_claimed_changes) : h.check_claimed_changes) : eranos ? (h.check_claimed_eranos ?? h.check_claimed) : h.check_claimed);
+        const volunteer = outsideVolunteer(event);
+        push(
+          again
+            ? eranos ? (h.check_claimed_changes_eranos ?? h.check_claimed_changes) : volunteer ? (h.check_claimed_changes_volunteer ?? h.check_claimed_changes) : h.check_claimed_changes
+            : eranos ? (h.check_claimed_eranos ?? h.check_claimed) : volunteer ? (h.check_claimed_volunteer ?? h.check_claimed) : h.check_claimed,
+        );
         break;
       }
       case "check_sent_back":
@@ -770,7 +779,7 @@ export function PlainStatus({
                   {many && <h3 className="er-making-kind">{words.kind[kindOf(part)]}</h3>}
                   {agent && (
                     <p className="er-helper" data-testid={`helper-${n}`}>
-                      <strong>{agent.dedicated ? b.made.helper_eranos : b.made.helper_volunteer}</strong>{" "}
+                      <strong>{agent.dedicated ? b.made.helper_eranos : agent.volunteer ? b.made.helper_volunteer : b.made.helper_worker}</strong>{" "}
                       {agent.claimedAt != null && fill(agent.dedicated ? b.made.picked_eranos : b.made.picked, { time: clock(agent.claimedAt) })}
                     </p>
                   )}
@@ -846,7 +855,9 @@ export function PlainStatus({
                     : part.check === "working"
                       ? part.checkAgent?.dedicated && b.checked.checking_eranos
                         ? b.checked.checking_eranos
-                        : b.checked.checking
+                        : part.checkAgent?.volunteer && b.checked.checking_volunteer
+                          ? b.checked.checking_volunteer
+                          : b.checked.checking
                       : part.work === "done"
                         ? b.checked.waiting
                         : b.checked.upcoming;

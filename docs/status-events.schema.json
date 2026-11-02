@@ -200,7 +200,15 @@
         },
         "dedicated": {
           "type": "boolean",
-          "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker run by the ta-amps team on Meta's latest Muse model through the Meta API (standard tier), under the same claim and report rules. Without this field the page treats a worker label starting with 'eranos' as dedicated."
+          "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker run by the ta-amps team on Meta's latest Muse model through the Meta API (standard tier), under the same claim and report rules. Without this field the page treats worker_kind 'dedicated', or a worker label starting with 'eranos', as dedicated."
+        },
+        "worker_kind": {
+          "type": "string",
+          "enum": [
+            "volunteer",
+            "dedicated"
+          ],
+          "description": "Who claimed it, as the claim records it: 'dedicated' for one of Eranos's own workers, 'volunteer' for an outside volunteer's agent. The page credits a volunteer's AI with a step only when its claim is marked 'volunteer' (or dedicated is false); an unmarked claim reads as an AI worker, so Eranos never credits volunteers with its own workers' work."
         },
         "method": {
           "type": "string",

@@ -127,16 +127,16 @@
       "next_title": "What happens after you send",
       "steps": [
         {
-          "detail": "A volunteer’s agent reads it, refuses personal data, and plans the work in plain words.",
+          "detail": "A worker reads it, refuses personal data, and plans the work in plain words.",
           "title": "We plan it."
         },
         {
           "detail": "A part can wait until an agent has spare capacity.",
-          "title": "Volunteers’ agents do each part."
+          "title": "AI workers do each part."
         },
         {
           "detail": "Sensitive processes also wait for a person’s sign-off.",
-          "title": "A different volunteer checks it."
+          "title": "A different worker checks it."
         },
         {
           "detail": "A person on your team decides what to use. Reports are not legal advice.",
@@ -237,7 +237,7 @@
         "process": "What should the process do, and where will it run? For example: read scanned intake forms on our own computer and fill in our spreadsheet."
       },
       "privacy": "Requests are public. Leave out names, contact details and case details.",
-      "profile_note": "Your private link needs these two answers. Volunteers see the type of organization with your request.",
+      "profile_note": "Your private link needs these two answers. Workers see the type of organization with your request.",
       "ready_note": "You’ll go straight to your request’s own page and can watch it move.",
       "send": "Send request",
       "sending": "Sending...",
@@ -271,7 +271,7 @@
       ],
       "default_cadence": "monthly",
       "help": {
-        "information_once": "You get one report, checked by a second volunteer.",
+        "information_once": "You get one report, checked by a different worker.",
         "information_regular": "We run it again {every} and add each update to your request’s page.",
         "none": "Once is most common. Regular requests repeat on a schedule.",
         "process_once": "You get the process once, ready to run whenever you like.",
@@ -299,7 +299,7 @@
       "options": [
         {
           "example": "For example: what changed in our state’s tenant deposit rules this year.",
-          "hint": "A cited report or answer, checked by a second volunteer.",
+          "hint": "A cited report or answer, checked by a different worker.",
           "label": "Information",
           "value": "information"
         },
@@ -333,7 +333,7 @@
       "refused": {
         "action": "Edit and send again",
         "head": "We couldn’t send this request.",
-        "not_filed": "Tessera answered: {reason}. Your request wasn’t filed, so no volunteer will see it.",
+        "not_filed": "Tessera answered: {reason}. Your request wasn’t filed, so no one will see it.",
         "other": "Tessera answered: {reason}. Nothing was saved.",
         "personal": "It seems to include a person’s contact details. Take them out and send again. Nothing was saved."
       },

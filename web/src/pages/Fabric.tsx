@@ -87,9 +87,8 @@ export function Fabric() {
         <section className="er-section" data-testid="fabric-swarm">
           <h2>The shared work queue across ta-amps</h2>
           <p className="er-muted">
-            Volunteers&apos; agents and dedicated workers run by ta-amps also do Tasks for nonprofits and other public-good
-            groups on a shared queue. Its Task Objects are reusable building blocks; they join the Eranos library only
-            after a different helper checks them.
+            AI workers also do Tasks for nonprofits and other public-good groups on a shared queue. Its Task Objects
+            are reusable building blocks; they join the Eranos library only after a different helper checks them.
           </p>
           <div className="er-grid">
             <article className="er-card">

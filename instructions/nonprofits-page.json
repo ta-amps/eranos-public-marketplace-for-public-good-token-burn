@@ -65,7 +65,7 @@
     "name_label": "Your organization’s name",
     "type_label": "Type of organization",
     "type_placeholder": "For example: tenant legal-aid clinic",
-    "profile_note": "Your private link needs these two answers. Volunteers see the type of organization with your request.",
+    "profile_note": "Your private link needs these two answers. Workers see the type of organization with your request.",
     "details_summary": "Add details (optional): public links, causes",
     "links_label": "Public links, one per line",
     "links_hint": "One public https link per line, such as a law, a budget or a news page.",
@@ -115,7 +115,7 @@
       "head": "We couldn’t send this request.",
       "personal": "It seems to include a person’s contact details. Take them out and send again. Nothing was saved.",
       "other": "Tessera answered: {reason}. Nothing was saved.",
-      "not_filed": "Tessera answered: {reason}. Your request wasn’t filed, so no volunteer will see it.",
+      "not_filed": "Tessera answered: {reason}. Your request wasn’t filed, so no one will see it.",
       "action": "Edit and send again"
     },
     "quota": {
@@ -139,14 +139,14 @@
     "steps": [
       {
         "title": "We plan it.",
-        "detail": "A volunteer’s agent reads it, refuses personal data, and plans the work in plain words."
+        "detail": "A worker reads it, refuses personal data, and plans the work in plain words."
       },
       {
-        "title": "Volunteers’ agents do each part.",
+        "title": "AI workers do each part.",
         "detail": "A part can wait until an agent has spare capacity."
       },
       {
-        "title": "A different volunteer checks it.",
+        "title": "A different worker checks it.",
         "detail": "Sensitive processes also wait for a person’s sign-off."
       },
       {
@@ -185,7 +185,7 @@
       {
         "value": "information",
         "label": "Information",
-        "hint": "A cited report or answer, checked by a second volunteer.",
+        "hint": "A cited report or answer, checked by a different worker.",
         "example": "For example: what changed in our state’s tenant deposit rules this year."
       },
       {
@@ -230,7 +230,7 @@
     "help": {
       "process_once": "You get the process once, ready to run whenever you like.",
       "process_regular": "We build it to run {every} on your side, with the schedule included.",
-      "information_once": "You get one report, checked by a second volunteer.",
+      "information_once": "You get one report, checked by a different worker.",
       "information_regular": "We run it again {every} and add each update to your request’s page.",
       "none": "Once is most common. Regular requests repeat on a schedule."
     }

@@ -486,7 +486,9 @@ export interface PlainWords {
   happened_title: T;
   happened_more: T;
   happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_released_reason" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "closed_unfinished" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T> &
-    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened" | "reopened_reason" | "reopened_plain" | "reuse_fits" | "reuse_does_not_fit" | "planned_reuse_check", T>>;
+    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened" | "reopened_reason" | "reopened_plain" | "reuse_fits" | "reuse_does_not_fit" | "planned_reuse_check", T>> &
+    /** Shown only when the claim is marked as an outside volunteer (worker_kind "volunteer"); otherwise the neutral line. */
+    Partial<Record<"work_claimed_volunteer" | "work_claimed_changes_volunteer" | "check_claimed_volunteer" | "check_claimed_changes_volunteer", T>>;
   share_lead: T;
   share: T;
   shared: T;
@@ -502,13 +504,13 @@ export interface PlainWords {
   bands: {
     sorted: Record<"title" | "process" | "information" | "checked" | "waiting", T>;
     made: Record<
-      | "title_now" | "title_done" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded"
+      | "title_now" | "title_done" | "helper_worker" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded"
       | "models_link" | "models_href" | "failed" | "retry" | "retry_count",
       T
     > &
       Partial<Record<"title_reused", T>>;
     checked: Record<"title" | "rule" | "blocked" | "sent_back_one" | "sent_back_many" | "waiting" | "checking" | "done" | "upcoming", T> &
-      Partial<Record<"title_eranos" | "checking_eranos" | "title_reused", T>>;
+      Partial<Record<"title_eranos" | "checking_eranos" | "checking_volunteer" | "title_reused", T>>;
     ready: Record<
       | "title" | "title_public" | "process" | "information" | "open_process" | "open_information" | "decide" | "decide_link"
       | "library_title" | "library_added" | "library_link" | "library_how" | "upcoming" | "reused" | "reused_link" | "next_run",

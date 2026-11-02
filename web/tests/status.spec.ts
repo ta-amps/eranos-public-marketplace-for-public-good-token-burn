@@ -1,7 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import type { RequestExampleNoun } from "../src/lib/status/example";
-import { FakeTessera, LIVE, mockSite, noun } from "./support/mocks";
+import type { PlainWords } from "../src/lib/nouns";
+import { FakeTessera, LIVE, mockSite, noun, type SiteMocks } from "./support/mocks";
 
 // The request flow on the hosted build: Send, the private link (E03), the status diagram bound to records (E04),
 // motion from real facts only (E05), the Send morph (E07), the decision (E08) and the corner states (E10).
@@ -215,6 +216,61 @@ test.describe("on the hosted build", () => {
     await expect(page.getByTestId("helper-1")).toContainText("A dedicated worker run by ta-amps");
     await expect(page.getByTestId("helper-1")).toContainText("no volunteer was free");
     await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so a dedicated worker run by ta-amps started making it.");
+  });
+
+  test("who did it: a volunteer is credited only when the claim says so; the split and an unmarked claim read as workers", async ({ page }) => {
+    // Honesty fix (Nov 2): Eranos never credits volunteers with its own workers' work. A claim marked worker_kind
+    // "volunteer" (as the worker's volunteer mode writes it) says a volunteer's AI; an unmarked one says an AI worker.
+    const words = noun<{ plain: PlainWords }>("request-status").plain;
+    const now = Math.floor(Date.now() / 1000);
+    const event = (version: number, value: Record<string, unknown>) => ({
+      version,
+      created_at: now - 300 + version,
+      value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 300 + version, ...value } },
+    });
+    const planned = { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] };
+    const request = { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." };
+    const mocks: SiteMocks & { history: NonNullable<SiteMocks["history"]> } = { history: [event(1, { type: "received", receipt: "a".repeat(64) })], request };
+    await mockSite(page, mocks);
+    const plain = page.getByTestId("plain-status");
+    // Each line starts with its time, then the words.
+    const latest = page.getByTestId("plain-happened").locator("li").first();
+
+    // Before the split: the first step names a worker, never a volunteer.
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(plain.locator('[data-band="1"]')).toContainText(words.bands.sorted.waiting);
+    expect(words.bands.sorted.waiting).not.toMatch(/volunteer/i);
+    expect(await plain.innerText()).not.toMatch(/volunteer[’']s (AI|agent)/i);
+
+    // The planner, one of Eranos's own workers with no model: its own wording, never a volunteer's.
+    mocks.history = [...mocks.history, event(2, { type: "plan_claimed", receipt: "p".repeat(64), worker: "dedicated worker 1 (run by ta-amps)", dedicated: true, worker_kind: "dedicated", method: "deterministic planner (no model)" })];
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(latest).toContainText(words.happened.plan_claimed_eranos ?? "");
+
+    // An unmarked claim (a label only): an AI worker.
+    mocks.history = [event(1, { type: "received", receipt: "a".repeat(64) }), event(2, planned), event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark-1.3" })];
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(latest).toContainText(words.happened.work_claimed);
+    await expect(page.getByTestId("helper-1")).toContainText(words.bands.made.helper_worker);
+    expect(await plain.innerText()).not.toMatch(/volunteer[’']s (AI|agent)/i);
+
+    // A claim marked as an outside volunteer, as the worker's volunteer mode records it: a volunteer's AI.
+    const volunteer = { worker: "a volunteer's AI", dedicated: false, worker_kind: "volunteer" };
+    mocks.history = [event(1, { type: "received", receipt: "a".repeat(64) }), event(2, planned), event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), model: "muse-spark-1.3", ...volunteer })];
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(latest).toContainText(words.happened.work_claimed_volunteer ?? "");
+    await expect(page.getByTestId("helper-1")).toContainText(words.bands.made.helper_volunteer);
+
+    // The check: unmarked reads as a different worker; marked reads as a different volunteer's AI.
+    const made = [event(1, { type: "received", receipt: "a".repeat(64) }), event(2, planned), event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "dedicated worker 2 (run by ta-amps)", dedicated: true }), event(4, { type: "work_submitted", part: 1, receipt: "d".repeat(64) })];
+    mocks.history = [...made, event(5, { type: "check_claimed", part: 1, receipt: "e".repeat(64), worker: "volunteer-9" })];
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(latest).toContainText(words.happened.check_claimed);
+    await expect(page.getByTestId("check-1")).toHaveText(words.bands.checked.checking);
+    mocks.history = [...made, event(5, { type: "check_claimed", part: 1, receipt: "e".repeat(64), ...volunteer })];
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(latest).toContainText(words.happened.check_claimed_volunteer ?? "");
+    await expect(page.getByTestId("check-1")).toHaveText(words.bands.checked.checking_volunteer ?? "");
   });
 
   for (const names of ["the live workers' names", "the page's own names"] as const) {
@@ -437,7 +493,8 @@ test.describe("E04 and E05: the example request", () => {
     await expect(page.getByTestId("overall")).toHaveText(/Being checked|Made · waiting for a check/);
     const text = await plain.innerText();
     expect(text).not.toMatch(/\b[0-9a-f]{12,}\b|receipt|R-[A-Z0-9]{4}|wren-|kestrel-|heron-|\bnot yet\b|\bplanned\b/i);
-    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("second volunteer");
+    // The example's made-up workers are not marked as volunteers, so the check reads as a different worker.
+    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("A different worker started checking it.");
     await page.getByTestId("view-switch").click();
     await expect(page.getByTestId("status-diagram")).toBeVisible();
     await expect(page).toHaveURL(/view=technical/);
@@ -454,7 +511,7 @@ test.describe("E04 and E05: the example request", () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/requests/example?moment=planned");
     const waiting = page.getByTestId("waiting-1");
-    await expect(waiting).toContainText("Waiting for a volunteer");
+    await expect(waiting).toContainText("Waiting for a worker");
     await expect(waiting).toContainText("a dedicated worker run by ta-amps will pick it up.");
   });
 

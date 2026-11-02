@@ -105,7 +105,7 @@ export function Catalog() {
       <section className="er-section">
         <h1>Kit catalog: reviewed agent kits</h1>
         <p className="er-lede">
-          Every kit here passed its checks and tests on <code>eq02</code>, then a review by a different volunteer
+          Every kit here passed its checks and tests on <code>eq02</code>, then a review by a different worker
           on <code>eq03</code> (<code>drafter != reviewer</code>), before it was published to{" "}
           <code>eranos.catalog</code>. All of them use example data. A reviewed kit is not certified for your
           organization.

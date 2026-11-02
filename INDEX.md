@@ -205,7 +205,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (18)
+## tests/ (19)
 
 | File | What it is |
 |---|---|
@@ -227,6 +227,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tests/test_seed_packs.py`](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
 | [`tests/test_surface_release.py`](tests/test_surface_release.py) | Release regression controls: reject stale modes/assets, retain safe dark ink. |
 | [`tests/test_tracks_and_verifier.py`](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
+| [`tests/test_who_does_the_work.py`](tests/test_who_does_the_work.py) | Eranos never says or implies that outside volunteers did work its own workers did (honesty fix, Nov 2). |
 
 ## tracks/ (14)
 

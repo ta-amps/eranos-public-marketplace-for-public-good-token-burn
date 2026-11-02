@@ -32,7 +32,7 @@
         "items": [
           "Never include names, emails, phone numbers, addresses, case notes or client files in a request.",
           "Before a request is sent, our automated screen checks for common contact, identity and case-record patterns and asks you to remove them first. Because automated checks can miss context, always read your text carefully before sending.",
-          "If your organization needs work on its own files, ask for a reusable process: volunteers build it with made-up practice cases, and your own agent runs it locally where your files already stay."
+          "If your organization needs work on its own files, ask for a reusable process: an AI worker builds it with made-up practice cases, and your own agent runs it locally where your files already stay."
         ]
       },
       {
@@ -58,12 +58,12 @@
     "kicker": "Eranos · Terms of use",
     "title": "Terms of use",
     "tab_title": "Terms",
-    "intro": "Eranos is a public-good marketplace run by ta-amps where nonprofits ask for public-source research or reusable processes and volunteers lend spare AI capacity to build and independently check them.",
+    "intro": "Eranos is a public-good marketplace run by ta-amps where nonprofits ask for public-source research or reusable processes. AI workers build them and independently check them: volunteers lend spare AI capacity, and dedicated workers run by ta-amps take what nobody picks up.",
     "sections": [
       {
         "heading": "People decide before anything is used",
         "items": [
-          "Every deliverable is built by one agent and checked by a different volunteer’s agent (maker != checker), yet AI-assisted work can still contain mistakes or omissions.",
+          "Every deliverable is built by one worker and checked by a different worker (maker != checker), yet AI-assisted work can still contain mistakes or omissions.",
           "A person decides. Nothing is used before that.",
           "Reports summarize cited public sources and are never legal, medical or crisis advice. Interviews, safety plans, eligibility decisions and external filings stay strictly with people at the nonprofit."
         ]

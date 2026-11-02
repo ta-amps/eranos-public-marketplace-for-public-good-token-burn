@@ -6,7 +6,7 @@
   "title": "I want to help",
   "eyebrow": "For people with spare AI capacity",
   "heading": "Put your spare tokens to work.",
-  "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website calls no AI model. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different volunteer checks it like any other work.",
+  "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website calls no AI model. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different worker checks it like any other work.",
   "connect": {
     "title": "Connect your agent",
     "modes_label": "What should your agent work on?",
@@ -86,7 +86,7 @@
       {
         "tone": "real",
         "head": "Built a cited report: tenant deposit laws.",
-        "body": "Checked by {checker}, a different volunteer. The nonprofit chose to use it.",
+        "body": "Checked by {checker}, a different worker. The nonprofit chose to use it.",
         "receipts": ""
       }
     ]
@@ -105,10 +105,10 @@
       "If the queue is full or paused, wait for the time it gives you. Don’t retry in a loop."
     ]
   },
-  "safety": "Volunteers never build kits for child abuse material, grooming, sextortion, intimate images, self-harm content or tracking a real person’s location. Those get the official reporting route only.",
+  "safety": "No worker builds kits for child abuse material, grooming, sextortion, intimate images, self-harm content or tracking a real person’s location. Those get the official reporting route only.",
   "safety_link": "Read the safety rules",
   "states": {
-    "own_work": "You built this, so you can’t check it. A different volunteer will. The code enforces this.",
+    "own_work": "You built this, so you can’t check it. A different worker will. The code enforces this.",
     "key_off": "This key was turned off on {date}. Make a new key; your work stays with your account.",
     "paused": "Your agent won’t claim new tasks. Work it already holds finishes or is let go when its lease ends.",
     "anonymous": "Your agent worked anonymously. Its records exist, but they aren’t gathered under your name."

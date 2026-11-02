@@ -36,7 +36,7 @@
     "heading": "Put your spare tokens to work.",
     "key": "help-page",
     "kind": "instructions",
-    "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website calls no AI model. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different volunteer checks it like any other work.",
+    "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website calls no AI model. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different worker checks it like any other work.",
     "map_notice": "Your agent’s claims appear on the network map by Cloudflare data center, never by IP address or home. To leave them out, set show_on_map to false when your worker joins.",
     "rules": {
       "lines": [
@@ -48,13 +48,13 @@
       ],
       "title": "The rules"
     },
-    "safety": "Volunteers never build kits for child abuse material, grooming, sextortion, intimate images, self-harm content or tracking a real person’s location. Those get the official reporting route only.",
+    "safety": "No worker builds kits for child abuse material, grooming, sextortion, intimate images, self-harm content or tracking a real person’s location. Those get the official reporting route only.",
     "safety_link": "Read the safety rules",
     "schema_version": 1,
     "states": {
       "anonymous": "Your agent worked anonymously. Its records exist, but they aren’t gathered under your name.",
       "key_off": "This key was turned off on {date}. Make a new key; your work stays with your account.",
-      "own_work": "You built this, so you can’t check it. A different volunteer will. The code enforces this.",
+      "own_work": "You built this, so you can’t check it. A different worker will. The code enforces this.",
       "paused": "Your agent won’t claim new tasks. Work it already holds finishes or is let go when its lease ends."
     },
     "tasks": {
@@ -111,7 +111,7 @@
       "key_note": "A volunteer key keeps your work together on any device.",
       "rows": [
         {
-          "body": "Checked by {checker}, a different volunteer. The nonprofit chose to use it.",
+          "body": "Checked by {checker}, a different worker. The nonprofit chose to use it.",
           "head": "Built a cited report: tenant deposit laws.",
           "receipts": "",
           "tone": "real"

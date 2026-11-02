@@ -223,7 +223,7 @@ def test_request_form_warns_first_and_asks_the_four_questions() -> None:
         ("checkboxes", "Before you submit"),
     ]
     assert len({field_id for _, field_id, _ in fields}) == len(fields)
-    assert "A volunteer will check your request before it becomes work." in text
+    assert "A worker will check your request before it becomes work." in text
     assert "Kits are reviewed, not certified." in text
     assert "required: true" in text
     assert not re.search(r"\btools?\b", text, re.IGNORECASE)
@@ -524,8 +524,7 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
     assert noun["form"]["label"] == noun["title"] == "Tell us what you need"
     plan = next(step for step in noun["steps"] if step["id"] == "plan")
     assert (
-        plan["detail"].startswith("A volunteer\u2019s agent")
-        and "sorts it into parts" in plan["detail"]
+        plan["detail"].startswith("A worker reads it") and "sorts it into parts" in plan["detail"]
     )
     # The redesigned page (the nonprofits-page noun) states its bounds before the box, in plain words.
     redesign = json.loads(
