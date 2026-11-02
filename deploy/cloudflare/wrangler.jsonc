@@ -10,13 +10,10 @@
   },
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
-  // eranosforgood.org is the canonical address (attached Nov 2, 00:09 UTC); www redirects to it in the Worker.
-  "routes": [
-    { "pattern": "eranosforgood.org", "custom_domain": true },
-    { "pattern": "www.eranosforgood.org", "custom_domain": true }
-  ],
-  // Uncomment or set via notes/bind-single-domain.sh once your single root domain is added to Cloudflare:
-  // "routes": [{ "pattern": "eranos.<your-domain>", "custom_domain": true }],
+  // eranosforgood.org is the canonical address; www redirects to it in the Worker. Custom domains are attached and
+  // managed in Cloudflare, never declared here: once any "routes" entry has "custom_domain": true, Wrangler replaces
+  // this Worker's whole custom-domain set with the declared list, detaching every hostname left out and moving a
+  // declared one from another Worker. With none declared, a deploy leaves the attached domains as they are.
   "assets": {
     "directory": "../../web/dist",
     "binding": "ASSETS",
