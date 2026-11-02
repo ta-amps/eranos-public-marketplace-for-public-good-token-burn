@@ -296,3 +296,32 @@ def test_the_ledger_is_replaced_whole_never_truncated(tmp_path: Path) -> None:
     assert spend(path)["total_usd"] == 0.75 and spend(path)["calls"] == 2
     assert sorted(p.name for p in tmp_path.iterdir()) == ["spend.json", "spend.json.lock"]
     assert stat.S_IMODE(os.stat(path).st_mode) == 0o600
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), "not a number", None, -3])
+def test_a_rate_that_is_not_a_positive_finite_number_is_refused(bad: Any) -> None:
+    with pytest.raises(ValueError, match="positive"):
+        MetaModel({**SETTINGS, "prices_usd_per_million": {"input": bad, "output": 20.0}})
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("-inf"), "x", 0])
+def test_a_cap_that_is_not_a_positive_finite_number_refuses_every_call(
+    tmp_path: Path, bad: Any
+) -> None:
+    ledger = Ledger(tmp_path / "spend.json", daily_usd=bad, total_usd=150)
+    with pytest.raises(BudgetExhausted):
+        ledger.reserve(0.01)
+
+
+def test_a_cost_or_a_ledger_that_is_not_a_number_never_wipes_the_spend(tmp_path: Path) -> None:
+    path = tmp_path / "spend.json"
+    ledger = Ledger(path, daily_usd=5, total_usd=150)
+    ledger.settle(1.0)
+    day = ledger.reserve(0.5)
+    ledger.settle(float("nan"), reserved=0.5, day=day)  # keeps the reservation counted
+    assert spend(path)["total_usd"] == 1.5
+    with pytest.raises(BudgetExhausted, match="not a number"):
+        ledger.reserve(float("nan"))
+    path.write_text(json.dumps({"days": {}, "total_usd": float("nan"), "calls": 1}))
+    with pytest.raises(BudgetExhausted, match="not a number"):
+        ledger.reserve(0.01)  # a damaged ledger refuses, it never starts again from zero

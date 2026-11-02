@@ -145,6 +145,9 @@ def outcomes_from_events(
     check of that part."""
     out: list[Outcome] = []
     pending: dict[Any, dict[str, Any]] = {}  # part -> the last submitted make pick
+    quiet: dict[
+        Any, list[Outcome]
+    ] = {}  # part -> empty answers, charged only if claims are found later
     last_check: dict[Any, dict[str, Any]] = {}
     weight_missed = float(rewards.get("missed_fault_weight") or 3)
     for event in events:
@@ -153,8 +156,17 @@ def outcomes_from_events(
         if isinstance(tune, dict) and tune.get("step") == "make":
             if kind == "work_submitted":
                 pending[part] = tune
+                out.extend(
+                    quiet.pop(part, [])
+                )  # another attempt found claims: the empty answers count
             elif kind == "work_released" and not INFRA.search(str(event.get("reason") or "")):
-                out.append(Outcome("make", str(tune.get("variant")), 0.0, 1.0, ref, "failed"))
+                failed = Outcome("make", str(tune.get("variant")), 0.0, 1.0, ref, "failed")
+                if tune.get("no_claims"):
+                    quiet.setdefault(part, []).append(failed)
+                elif not tune.get(
+                    "source_side"
+                ):  # a source that gave nothing is not the variant's fault
+                    out.append(failed)
         elif (
             isinstance(tune, dict)
             and tune.get("step") == "check"

@@ -544,3 +544,32 @@ def test_only_the_three_choices_a_person_can_make_count() -> None:
             "rq", [*base, {"type": "decided", "part": 1, "at": 3, "choice": choice}], REWARDS
         )
         assert any(o.reason.startswith("person:") for o in out) is counted, choice
+
+
+def test_a_source_that_gave_nothing_is_never_charged_to_the_maker() -> None:
+    nothing = made(1, "make-spark-careful", 1, kind="work_released", source_side=True) | {
+        "reason": "self-test failed: the report makes no cited claims"
+    }
+    assert tuning.outcomes_from_events("rq-s", [nothing], REWARDS) == []
+
+
+def test_an_empty_answer_counts_only_when_another_attempt_found_claims() -> None:
+    empty = made(1, "make-wonder-careful", 1, kind="work_released", no_claims=True) | {
+        "reason": "self-test failed: only 0 claims kept a verbatim quote"
+    }
+    # Every attempt came back empty (FB1-024): the sources had nothing, no variant is charged.
+    assert tuning.outcomes_from_events("rq-e", [empty, empty], REWARDS) == []
+    # Another variant then found claims on the same part: the empty answer was the variant's.
+    later = [
+        empty,
+        made(1, "make-spark-quick", 5),
+        checked(1, 6, True, "check-spark-skeptical", "make-spark-quick"),
+    ]
+    out = [
+        (o.variant, o.success)
+        for o in tuning.outcomes_from_events("rq-e", later, REWARDS)
+        if o.step == "make"
+    ]
+    assert ("make-wonder-careful", 0.0) in out and any(
+        v == "make-spark-quick" and s > 0 for v, s in out
+    )

@@ -317,3 +317,20 @@ def test_every_model_a_worker_can_name_resolves_through_the_catalog() -> None:
             model_id
         )
     assert runtime["tier"] == "standard"
+
+
+def test_a_failed_research_says_whether_its_sources_or_its_answer_came_up_empty(
+    tmp_path: Path,
+) -> None:
+    worker = make(tmp_path, model=Declared("muse-spark-1.3"))
+    lease = SimpleNamespace(kind="research", task_id="t_r", fencing_token=1)
+    worker._pick = worker.pick_for("make", lease)
+
+    def failed(fetched: int, candidates: int, answer: str) -> dict[str, Any]:
+        stages = {"fetch": {"fetched": fetched}, "candidates": candidates, "answer": answer}
+        return worker._failed_tuning(lease, {"output": {"report": {"stages": stages}}})["tuning"]
+
+    assert failed(0, 0, "no_call").get("source_side") is True
+    assert failed(2, 0, "no_call").get("source_side") is True
+    assert failed(2, 16, "no_claims").get("no_claims") is True
+    assert not {"source_side", "no_claims"} & set(failed(2, 16, "unparsed"))  # the variant's answer

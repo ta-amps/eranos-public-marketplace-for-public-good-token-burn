@@ -1169,7 +1169,7 @@ class Worker:
                         **self.who(),
                         reason=error[:500],
                         summary={**(done.get("summary") or {}), "tokens": meter.total_tokens},
-                        **self._failed_tuning(lease),
+                        **self._failed_tuning(lease, done),
                     )
                 ],
             )
@@ -1368,13 +1368,22 @@ class Worker:
         ]
 
     # self-tuning ------------------------------------------------------------------------------
-    def _failed_tuning(self, lease: Lease) -> dict[str, Any]:
+    def _failed_tuning(self, lease: Lease, done: dict[str, Any] | None = None) -> dict[str, Any]:
         """A failed make attempt's variant, for the tuner (which leaves out failures of the model
-        or the store, by the recorded reason)."""
+        or the store, by the recorded reason). A research that fetched nothing or found no
+        candidate sentence failed on its sources (`source_side`), and an empty answer is marked
+        `no_claims`, so neither is charged to the variant on its own (FB1-024)."""
         pick = self._pick
         if pick is None or lease.kind != "research":
             return {}
-        return {"tuning": {"step": "make", "variant": pick["variant"].get("id")}}
+        record: dict[str, Any] = {"step": "make", "variant": pick["variant"].get("id")}
+        stages = ((((done or {}).get("output") or {}).get("report") or {}).get("stages")) or {}
+        if stages:
+            if not (stages.get("fetch") or {}).get("fetched") or not stages.get("candidates"):
+                record["source_side"] = True
+            elif stages.get("answer") == "no_claims":
+                record["no_claims"] = True
+        return {"tuning": record}
 
     def _check_tuning(self, lease: Lease, out: dict[str, Any]) -> dict[str, Any]:
         """A check's record for the tuner: its variant, the make variant it judged, what it and

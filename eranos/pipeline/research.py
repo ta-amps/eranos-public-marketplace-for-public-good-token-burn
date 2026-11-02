@@ -504,6 +504,15 @@ def do_research(
         },
         "candidates": len(sentences),
         "proposed": len((proposed or {}).get("claims") or []) if isinstance(proposed, dict) else 0,
+        # "no_claims": the model answered with an empty list; the tuner charges that to a variant
+        # only when another attempt on the same part found claims (FB1-024).
+        "answer": "no_call"
+        if not sentences
+        else "claims"
+        if isinstance(proposed, dict) and proposed.get("claims")
+        else "no_claims"
+        if isinstance(proposed, dict) and isinstance(proposed.get("claims"), list)
+        else "unparsed",
         "kept": len(claims),
         "dropped": dropped[:20],
     }

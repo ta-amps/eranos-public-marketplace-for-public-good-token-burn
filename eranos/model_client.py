@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import fcntl
 import json
+import math
 import os
 import threading
 import time
@@ -164,9 +165,10 @@ class Ledger:
 
     def __init__(self, path: str | Path, *, daily_usd: float, total_usd: float) -> None:
         self.path = Path(path)
-        # The noun can only lower the owner's caps (review M1).
-        self.daily_usd = min(float(daily_usd), MAX_DAILY_USD)
-        self.total_usd = min(float(total_usd), MAX_TOTAL_USD)
+        # The noun can only lower the owner's caps (review M1); a cap that is not a positive finite
+        # number refuses every call instead of letting any through.
+        self.daily_usd = min(_usd(daily_usd), MAX_DAILY_USD)
+        self.total_usd = min(_usd(total_usd), MAX_TOTAL_USD)
 
     def _update(self, change: Callable[[dict[str, Any]], None]) -> dict[str, Any]:
         """Read, change and write the ledger under a lock on a side file. The new contents go to a
@@ -193,6 +195,8 @@ class Ledger:
     def _refuse(self, data: dict[str, Any], day: str, estimate: float) -> None:
         spent_today = float((data.get("days") or {}).get(day, 0.0))
         spent = float(data.get("total_usd", 0.0))
+        if not all(math.isfinite(v) and v >= 0 for v in (spent_today, spent, estimate)):
+            raise BudgetExhausted("the spend ledger or a cost is not a number; no call is sent")
         if spent_today + estimate > self.daily_usd:
             raise BudgetExhausted(
                 f"the daily Meta cap (${self.daily_usd:.2f}) is reached: ${spent_today:.4f} spent today"
@@ -223,6 +227,8 @@ class Ledger:
     ) -> dict[str, Any]:
         """Replace a reservation with the call's real cost (0 when nothing was billed)."""
         when = day or _today()
+        if not (math.isfinite(cost) and cost >= 0):
+            cost = reserved  # a cost that is not a number keeps the reservation counted
 
         def change(data: dict[str, Any]) -> None:
             _add(data, when, cost - reserved)
@@ -236,7 +242,17 @@ def _today() -> str:
     return time.strftime("%Y-%m-%d", time.gmtime())
 
 
+def _usd(value: Any) -> float:
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return 0.0
+    return number if math.isfinite(number) and number > 0 else 0.0
+
+
 def _add(data: dict[str, Any], day: str, amount: float) -> None:
+    if not math.isfinite(amount):
+        raise ValueError("a spend that is not a number is never written to the ledger")
     days = data.setdefault("days", {})
     days[day] = round(max(0.0, float(days.get(day, 0.0)) + amount), 6)
     data["total_usd"] = round(max(0.0, float(data.get("total_usd", 0.0)) + amount), 6)
@@ -265,15 +281,14 @@ class MetaModel:
         floor = MIN_RATES_USD_PER_MILLION.get(self.model)
         if floor is None:
             raise ValueError(f"{self.model} has no rates in code, so it is never called")
-        if (
-            not {"input", "output"} <= set(given)
-            or min(float(given[k]) for k in ("input", "output")) <= 0
+        if not {"input", "output"} <= set(given) or not all(
+            _usd(given[k]) > 0 for k in ("input", "output")
         ):
             raise ValueError("the catalog must give the model's positive input and output prices")
         # The catalog can only raise a rate above Meta's list rate, never lower it (review M1).
-        self.prices = {k: max(float(given[k]), floor[k]) for k in ("input", "output")}
-        if given.get("cached_input"):
-            self.prices["cached_input"] = max(float(given["cached_input"]), 0.0)
+        self.prices = {k: max(_usd(given[k]), floor[k]) for k in ("input", "output")}
+        if _usd(given.get("cached_input")) > 0:
+            self.prices["cached_input"] = _usd(given["cached_input"])
         self.max_tokens = int(settings.get("max_tokens") or 1500)
         self.reasoning_effort = settings.get("reasoning_effort")
         self.key_file = key_file or os.environ.get(KEY_FILE_ENV, "")
