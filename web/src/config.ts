@@ -20,4 +20,4 @@ export const FABRIC_PUBLIC_URL = resolvePublicUrl(import.meta.env.VITE_TESSERA_U
 export const LIVE_QUEUE_POLL_MS =
   Number.parseInt(String(import.meta.env.VITE_LIVE_QUEUE_POLL_MS || ""), 10) > 0
     ? Number.parseInt(String(import.meta.env.VITE_LIVE_QUEUE_POLL_MS), 10)
-    : 15_000;
+    : 60_000;

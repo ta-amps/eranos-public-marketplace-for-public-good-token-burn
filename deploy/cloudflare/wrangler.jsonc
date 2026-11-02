@@ -18,7 +18,10 @@
     "directory": "../../web/dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": true
+    // The Workers Free plan counts every Worker run (100,000 a day, shared by every surface). Pages, /api, /mcp and the
+    // agent files run the Worker; the build's static files (hashed scripts and styles, fonts, page text, the banner
+    // script) are served straight from the asset store, which costs no Worker run.
+    "run_worker_first": ["/*", "!/assets/*", "!/fonts/*", "!/snapshot/*", "!/agent-banner.js"]
   },
   "d1_databases": [
     {

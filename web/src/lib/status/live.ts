@@ -189,12 +189,24 @@ async function requestHistory(id: string): Promise<HistoryVersion[] | null> {
 }
 
 /** Everything this page may see about a request: the public nouns, plus the keyed read when there is one. */
+/**
+ * The plan and history last read for each request, with the request noun they went with. Every fact is a new version
+ * of the request noun, so while that noun is unchanged its plan and history are too, and a refresh costs one read.
+ */
+const lastRead = new Map<string, { request: string; plan: PlanNounValue | null; history: HistoryVersion[] | null }>();
+
 export async function readLive(id: string, keyed: KeyedData | null): Promise<LiveSnapshot> {
-  const [plan, request, history] = await Promise.all([
-    publicNoun<PlanNounValue>("eranos.plans", id),
-    publicNoun<RequestNounValue>("eranos.requests", id),
-    requestHistory(id),
-  ]);
+  const request = await publicNoun<RequestNounValue>("eranos.requests", id);
+  const seen = lastRead.get(id);
+  const stamp = JSON.stringify(request);
+  let plan: PlanNounValue | null;
+  let history: HistoryVersion[] | null;
+  if (seen && seen.request === stamp && request !== null) {
+    ({ plan, history } = seen);
+  } else {
+    [plan, history] = await Promise.all([publicNoun<PlanNounValue>("eranos.plans", id), requestHistory(id)]);
+    lastRead.set(id, { request: stamp, plan, history });
+  }
   const task = keyed?.task ?? null;
   const claimEvents = keyed?.events ?? [];
   const results = keyed?.results ?? [];

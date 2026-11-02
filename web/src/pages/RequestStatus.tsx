@@ -414,8 +414,15 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
   );
 }
 
-const VISIBLE_MS = 5_000;
-const HIDDEN_MS = 30_000;
+// A Worker run per read counts toward the Free plan's 100,000 a day, shared by every surface (Nov 2): one read of the
+// request noun every 15 s while the tab is visible (its plan and history only when it changed), every 2 min hidden,
+// every 5 min once the request is closed or withdrawn, 5 s after a failed read, paused after 3 failures. The queue
+// line (/api/fabric) is read at most once a minute, and only while the request is open.
+const VISIBLE_MS = 15_000;
+const HIDDEN_MS = 120_000;
+const SETTLED_MS = 300_000;
+const RETRY_MS = 5_000;
+const FABRIC_MS = 60_000;
 // The requester key's claim events: at most one long poll every 15 s, only while the tab is visible; the task and
 // the key's own nouns every 5 minutes.
 const EVENTS_MS = 15_000;
@@ -437,6 +444,8 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
   const lastFull = useRef(0);
   const failures = useRef(0);
   const notBefore = useRef(0);
+  const settled = useRef(false);
+  const lastFabric = useRef(0);
 
   const poll = useCallback(async () => {
     if (Date.now() < notBefore.current) return;
@@ -453,11 +462,17 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
       setUpdated(Date.now() / 1000);
       failures.current = 0;
       setPausedAt(null);
-      try {
-        const fabric = await getJson<FabricResponse>("/api/fabric");
-        setQueue(queueFromFabric(fabric.queues));
-      } catch {
-        setQueue(null);
+      // Settled: its last close, withdrawal or reopen is a close or a withdrawal.
+      const last = [...snap.record.events].reverse().find((e) => e.type === "closed" || e.type === "withdrawn" || e.type === "reopened");
+      settled.current = last?.type === "closed" || last?.type === "withdrawn";
+      if (!settled.current && Date.now() - lastFabric.current >= FABRIC_MS) {
+        lastFabric.current = Date.now();
+        try {
+          const fabric = await getJson<FabricResponse>("/api/fabric");
+          setQueue(queueFromFabric(fabric.queues));
+        } catch {
+          setQueue(null);
+        }
       }
     } catch (error) {
       if (error instanceof TesseraError && error.retryAfter) notBefore.current = Date.now() + error.retryAfter * 1000;
@@ -472,7 +487,16 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
     const run = async () => {
       await poll();
       if (stopped) return;
-      const delay = failures.current >= 3 ? PAUSE_MS : document.visibilityState === "visible" ? VISIBLE_MS : HIDDEN_MS;
+      const delay =
+        failures.current >= 3
+          ? PAUSE_MS
+          : failures.current > 0
+            ? RETRY_MS
+            : settled.current
+              ? SETTLED_MS
+              : document.visibilityState === "visible"
+                ? VISIBLE_MS
+                : HIDDEN_MS;
       timer = window.setTimeout(() => void run(), delay);
     };
     void run();

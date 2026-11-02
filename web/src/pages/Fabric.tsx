@@ -12,7 +12,7 @@ function doneLabelForQueue(name: string): string {
 
 export function Fabric() {
   const fabric = useResource<FabricResponse>("/api/fabric", { pollMs: LIVE_QUEUE_POLL_MS });
-  const catalog = useResource<CatalogResponse>("/api/catalog", { pollMs: LIVE_QUEUE_POLL_MS });
+  const catalog = useResource<CatalogResponse>("/api/catalog");
   const requests = useResource<RequestsResponse>("/api/requests");
   const fabricState = fabric.state;
   const catalogState = catalog.state;

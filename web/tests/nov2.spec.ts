@@ -125,7 +125,7 @@ test.describe("on the hosted build, a page that fails to draw", () => {
     page.on("pageerror", (e) => errors.push(String(e)));
     await mockSite(page);
     // Page text of a very different shape (the Nov 2 rollback's case): only a title and a lead.
-    await page.route(`${LIVE}/api/nouns/eranos.instructions/library`, (route) =>
+    await page.route(`${LIVE}/snapshot/nouns/eranos.instructions/library.json`, (route) =>
       route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ store: "eranos.instructions", key: "library", value: { title: "Library", lead: "Older words." } }) }),
     );
     await page.goto("/library");

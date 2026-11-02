@@ -92,7 +92,12 @@ def _worker(
 def test_marketplace_pages_load_directly_and_on_refresh() -> None:
     wrangler = (ROOT / "deploy" / "cloudflare" / "wrangler.jsonc").read_text(encoding="utf-8")
     assert '"not_found_handling": "single-page-application"' in wrangler
-    assert '"run_worker_first": true' in wrangler
+    # Pages, /api and the agent files run the Worker; the build's static files never do (Free plan request budget).
+    routing = re.search(r'"run_worker_first": (\[[^\]]*\])', wrangler)
+    assert routing
+    patterns = json.loads(routing.group(1))
+    assert patterns[0] == "/*"
+    assert {"!/assets/*", "!/fonts/*", "!/snapshot/*", "!/agent-banner.js"} <= set(patterns)
     out = _worker(
         [
             ("home", "GET", "/", None),
