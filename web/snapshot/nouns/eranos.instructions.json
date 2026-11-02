@@ -2577,19 +2577,61 @@
       "key": "shell",
       "version": 1,
       "value": {
+        "schema_version": 1,
+        "kind": "instructions",
+        "key": "shell",
         "audience": "everyone who reads Eranos",
+        "title": "Header, menu and footer",
+        "skip": "Skip to content",
+        "home_label": "Eranos home",
+        "nav_label": "Primary navigation",
+        "nav": [
+          {
+            "to": "/nonprofits",
+            "label": "My NGO needs help",
+            "match": "nonprofits"
+          },
+          {
+            "to": "/help",
+            "label": "I want to help",
+            "match": "help"
+          },
+          {
+            "to": "/requests",
+            "label": "Requests",
+            "match": "yours"
+          },
+          {
+            "to": "/library",
+            "label": "Library",
+            "match": "library"
+          },
+          {
+            "to": "/video",
+            "label": "Video",
+            "match": "video"
+          }
+        ],
         "external_note": "opens on Agora",
+        "menu": {
+          "button": "Menu",
+          "open_label": "Open menu",
+          "close": "Close",
+          "close_label": "Close menu",
+          "sheet_label": "Menu"
+        },
         "footer": {
           "brand": "Eranos",
-          "line": "We don’t accept private information at this stage.",
+          "spec": "ta-amps.footer/2 (notes/coordination-2026-10-31/claude-design-components.v2.json, SiteFooter, Eranos)",
+          "links_label": "Site information",
           "links": [
             {
-              "href": "https://agora.eranosforgood.org/",
-              "label": "Agora ↗"
+              "label": "Agora ↗",
+              "href": "https://agora.eranosforgood.org/"
             },
             {
-              "href": "https://teleionlabs.com/",
-              "label": "Teleion Labs ↗"
+              "label": "Teleion Labs ↗",
+              "href": "https://teleionlabs.com/"
             },
             {
               "label": "Library",
@@ -2600,20 +2642,20 @@
               "to": "/requests"
             },
             {
-              "href": "https://agora.eranosforgood.org/network/",
-              "label": "Network ↗"
+              "label": "Network ↗",
+              "href": "https://agora.eranosforgood.org/network/"
             },
             {
-              "href": "https://agora.eranosforgood.org/models/",
-              "label": "Models used ↗"
+              "label": "Models used ↗",
+              "href": "https://agora.eranosforgood.org/models/"
             },
             {
-              "href": "https://agora.eranosforgood.org/status/",
-              "label": "Status ↗"
+              "label": "Status ↗",
+              "href": "https://agora.eranosforgood.org/status/"
             },
             {
-              "href": "https://agora.eranosforgood.org/source/",
-              "label": "Source ↗"
+              "label": "Source ↗",
+              "href": "https://agora.eranosforgood.org/source/"
             },
             {
               "label": "Privacy",
@@ -2628,56 +2670,19 @@
               "to": "/report"
             }
           ],
-          "links_label": "Site information",
-          "spec": "ta-amps.footer/2 (notes/coordination-2026-10-31/claude-design-components.v2.json, SiteFooter, Eranos)"
-        },
-        "home_label": "Eranos home",
-        "key": "shell",
-        "kind": "instructions",
-        "menu": {
-          "button": "Menu",
-          "close": "Close",
-          "close_label": "Close menu",
-          "open_label": "Open menu",
-          "sheet_label": "Menu"
-        },
-        "nav": [
-          {
-            "label": "My NGO needs help",
-            "match": "nonprofits",
-            "to": "/nonprofits"
-          },
-          {
-            "label": "I want to help",
-            "match": "help",
-            "to": "/help"
-          },
-          {
-            "label": "Requests",
-            "match": "yours",
-            "to": "/requests"
-          },
-          {
-            "label": "Library",
-            "match": "library",
-            "to": "/library"
-          }
-        ],
-        "nav_label": "Primary navigation",
-        "page_error": {
-          "body": "Part of it didn’t load as expected. Reload the page, or start again from the home page.",
-          "home": "Go to the home page",
-          "reload": "Reload the page",
-          "title": "This page couldn’t be shown"
+          "line": "We don’t accept private information at this stage."
         },
         "right": {
-          "external": true,
           "href": "https://agora.eranosforgood.org/how-it-works/",
-          "label": "How it works"
+          "label": "How it works",
+          "external": true
         },
-        "schema_version": 1,
-        "skip": "Skip to content",
-        "title": "Header, menu and footer"
+        "page_error": {
+          "title": "This page couldn’t be shown",
+          "body": "Part of it didn’t load as expected. Reload the page, or start again from the home page.",
+          "reload": "Reload the page",
+          "home": "Go to the home page"
+        }
       }
     },
     {

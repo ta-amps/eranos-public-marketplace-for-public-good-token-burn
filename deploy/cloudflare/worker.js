@@ -327,7 +327,10 @@ function stripHopByHop(headers) {
 }
 
 function finish(response, method) {
-  const out = new Response(method === "HEAD" ? null : response.body, response);
+  const init = response.status === 206
+    ? { status: response.status, statusText: response.statusText, headers: response.headers, encodeBody: "manual" }
+    : response;
+  const out = new Response(method === "HEAD" ? null : response.body, init);
   stripHopByHop(out.headers);
   for (const [name, value] of Object.entries({...SECURITY_HEADERS, ...CORS_HEADERS})) out.headers.set(name, value);
   out.headers.set("x-request-id", crypto.randomUUID());
@@ -2420,8 +2423,116 @@ async function handleDiscoveryRoute(request, env, pathname) {
   return null;
 }
 
+const MEDIA_BYTES = {
+  "/media/eranos-demo-v1.mp4": 9050361,
+  "/media/teleion-fabric-preview-20261102.mp4": 6600196,
+};
+const MEDIA_MAX_BYTES = 32 * 1024 * 1024;
+const MEDIA_WRITE_CHUNK = 64 * 1024;
+
+function parseSingleRange(value, size) {
+  const match = /^bytes=(\d*)-(\d*)$/i.exec(value.trim());
+  if (!match || (!match[1] && !match[2])) return null;
+  const first = match[1] ? Number(match[1]) : null;
+  const last = match[2] ? Number(match[2]) : null;
+  if ((first !== null && !Number.isSafeInteger(first)) || (last !== null && !Number.isSafeInteger(last))) return null;
+  if (first === null) {
+    return last === 0 ? { unsatisfiable: true } : { start: Math.max(0, size - last), end: size - 1 };
+  }
+  if (first >= size || (last !== null && last < first)) return { unsatisfiable: true };
+  return { start: first, end: last === null ? size - 1 : Math.min(last, size - 1) };
+}
+
+function ifRangeOk(value, asset) {
+  if (!value) return true;
+  const tag = asset.headers.get("ETag");
+  return Boolean(tag && !tag.startsWith("W/") && value.trim() === tag);
+}
+
+async function maybeMediaRange(request, asset, ctx) {
+  const pathname = new URL(request.url).pathname;
+  if (pathname.startsWith("/media/") && pathname.endsWith(".vtt") && asset.status === 200) {
+    const h = new Headers(asset.headers);
+    h.set("Content-Type", "text/vtt; charset=utf-8");
+    h.set("Cache-Control", "public, max-age=31536000, immutable");
+    return new Response(asset.body, { status: 200, headers: h });
+  }
+  const knownBytes = MEDIA_BYTES[pathname];
+  if (!knownBytes || asset.status !== 200) return asset;
+  const method = request.method.toUpperCase();
+  if (method !== "GET" && method !== "HEAD") return asset;
+  const encoding = asset.headers.get("Content-Encoding");
+  const length = asset.headers.get("Content-Length");
+  if ((encoding && encoding.toLowerCase() !== "identity") || (length !== null && !/^\d+$/.test(length))) return asset;
+  const size = length === null ? knownBytes : Number(length);
+  if (!Number.isSafeInteger(size) || size !== knownBytes || size <= 0 || size > MEDIA_MAX_BYTES) return asset;
+
+  const baseHeaders = new Headers(asset.headers);
+  for (const name of ["Content-Length", "Transfer-Encoding", "Content-Digest", "Content-MD5"]) baseHeaders.delete(name);
+  baseHeaders.set("Content-Type", "video/mp4");
+  baseHeaders.set("Cache-Control", "public, max-age=31536000, immutable");
+  baseHeaders.set("Accept-Ranges", "bytes");
+
+  const range = request.headers.get("Range");
+  const selected = range && ifRangeOk(request.headers.get("If-Range"), asset) ? parseSingleRange(range, size) : null;
+
+  if (method === "HEAD") {
+    if (selected && selected.unsatisfiable) {
+      baseHeaders.set("Content-Range", `bytes */${size}`);
+      return new Response(null, { status: 416, headers: baseHeaders });
+    }
+    if (selected) {
+      baseHeaders.set("Content-Length", String(selected.end - selected.start + 1));
+      baseHeaders.set("Content-Range", `bytes ${selected.start}-${selected.end}/${size}`);
+      return new Response(null, { status: 206, headers: baseHeaders });
+    }
+    baseHeaders.set("Content-Length", String(size));
+    return new Response(null, { status: 200, headers: baseHeaders });
+  }
+
+  if (!asset.body) return asset;
+  if (!selected) return new Response(asset.body, { status: 200, headers: baseHeaders });
+  if (selected.unsatisfiable) {
+    await asset.body.cancel();
+    baseHeaders.set("Content-Range", `bytes */${size}`);
+    return new Response(null, { status: 416, headers: baseHeaders });
+  }
+
+  const len = selected.end - selected.start + 1;
+  const hasFixed = typeof globalThis.FixedLengthStream === "function";
+  const stream = hasFixed ? new globalThis.FixedLengthStream(len) : new TransformStream();
+  const reader = asset.body.getReader();
+  const writer = stream.writable.getWriter();
+  const transfer = (async () => {
+    let position = 0;
+    try {
+      while (position <= selected.end) {
+        const { value, done } = await reader.read();
+        if (done) throw new Error("Media asset ended before requested byte interval");
+        const lower = Math.max(0, selected.start - position);
+        const upper = Math.min(value.byteLength, selected.end + 1 - position);
+        for (let offset = lower; offset < upper; offset += MEDIA_WRITE_CHUNK) {
+          await writer.write(value.subarray(offset, Math.min(offset + MEDIA_WRITE_CHUNK, upper)));
+        }
+        position += value.byteLength;
+      }
+      await writer.close();
+    } catch (error) {
+      await writer.abort(error).catch(() => {});
+      throw error;
+    } finally {
+      await reader.cancel().catch(() => {});
+    }
+  })();
+  if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(transfer);
+  else transfer.catch(() => {});
+  baseHeaders.set("Content-Range", `bytes ${selected.start}-${selected.end}/${size}`);
+  if (!hasFixed) baseHeaders.set("Content-Length", String(len));
+  return new Response(stream.readable, { status: 206, headers: baseHeaders, encodeBody: "manual" });
+}
+
 const onboardingApplication = {
-  async fetch(request, env = {}) {
+  async fetch(request, env = {}, ctx) {
     const { pathname } = new URL(request.url);
     const trimmed = pathname.replace(/\/+$/, "");
     if ((trimmed === "/film" || pathname.startsWith("/film/")) && (request.method === "GET" || request.method === "HEAD")) {
@@ -2443,7 +2554,7 @@ const onboardingApplication = {
         if (request.method === "GET" && isPageRead(request)) response = await inPageWords(response);
       } else if (request.method === "GET" || request.method === "HEAD") {
         response = env.ASSETS
-          ? await env.ASSETS.fetch(request)
+          ? await maybeMediaRange(request, await env.ASSETS.fetch(request), ctx)
           : new Response("Not Found", { status: 404 });
         const html = (response.headers.get("content-type") || "").includes("text/html");
         if (
