@@ -8,7 +8,8 @@ as it is. Only a yes answers the request from the library; no, unsure, an answer
 library answer that changed or lost its confirmed review sends it back, and the planner then plans new
 work. Every check records its model, verdict and reason.
 
-A wrongly reused request that closed before this check existed is opened again by a recorded reopen:
+A wrongly reused request that closed before this check existed, or a request whose parts all ended
+without a result, is opened again by a recorded reopen:
 the operator writes a `reopened` fact (the request page reads it and keeps the reuse in the history
 as a failed attempt) and names a new request verb in the request record, which the planner accepts
 only when the record names it, so a forged reopen of another request is refused.
@@ -231,16 +232,17 @@ def reopen_fact(
 ) -> dict[str, Any]:
     """The `reopened` status fact (docs/status-events.schema.json): the page clears the close and the
     reuse it rested on, keeps both in the history as a failed attempt and shows the request in line."""
+    summary: dict[str, Any] = {"reopen": n, "finding": finding}
+    if wrong:
+        summary["wrong_reuse"] = {
+            k: wrong.get(k) for k in ("store", "key", "version", "score", "kind")
+        }
     return {
         "type": "reopened",
         "at": round(at, 3),
         "ref": task_id,
         "reason": reason[:500],
-        "summary": {
-            "reopen": n,
-            "finding": finding,
-            "wrong_reuse": {k: wrong.get(k) for k in ("store", "key", "version", "score", "kind")},
-        },
+        "summary": summary,
     }
 
 
@@ -258,7 +260,13 @@ def reopened_value(
     }
     out["status"] = "received"
     out["parts"] = {}
-    out["reuse_withdrawn"] = [*(value.get("reuse_withdrawn") or []), {**wrong, "reopen": n}]
+    if wrong:
+        out["reuse_withdrawn"] = [*(value.get("reuse_withdrawn") or []), {**wrong, "reopen": n}]
+    else:  # a request whose parts all ended without a result: its earlier parts stay on the record
+        out["parts_before_reopen"] = [
+            *(value.get("parts_before_reopen") or []),
+            {"reopen": n, "parts": value.get("parts") or {}},
+        ]
     out["reopens"] = [
         *(value.get("reopens") or []),
         {

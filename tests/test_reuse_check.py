@@ -459,3 +459,36 @@ def test_a_reopen_the_request_record_does_not_name_is_refused_and_writes_nothing
     with pytest.raises(reuse_check.ReopenRefused):
         _planner(fabric, forged)
     assert fabric.records == before
+
+
+def test_a_request_whose_research_never_finished_can_be_reopened_as_new_work() -> None:
+    """The annual and grantdl examples: closed with every part sent back, no result, no reuse."""
+    fabric = Fabric()
+    rid = "rq-closed-without-a-result"
+    events = [
+        {"type": "received", "at": 1.0, "ref": rid},
+        {"type": "closed", "at": 3.0, "receipt": "c" * 64},
+    ]
+    fabric.records[(REQUESTS_STORE, rid)] = [
+        {
+            "schema_version": 1,
+            "request_id": rid,
+            "status": "closed",
+            "text": NEAR_REQUEST,
+            "output_type": "information",
+            "frequency": "one-off",
+            "parts": {"1": {"route": "public-only", "status": "needs_revision"}},
+            "occurrences": [{"n": 1, "status": "finished", "children": ["t_old_0", "t_old_1"]}],
+            "events": events,
+            "event": events[-1],
+        }
+    ]
+    task_id = _reopen(fabric, rid)
+    record = fabric.request(rid)
+    jsonschema.validate(record["event"], EVENT_SCHEMA)
+    assert "wrong_reuse" not in record["event"]["summary"] and "reuse_withdrawn" not in record
+    assert record["parts_before_reopen"][0]["parts"]["1"]["status"] == "needs_revision"
+    brief = {**_request_brief(NEAR_REQUEST), "reopens": rid, "reopen": 1}
+    out = _planner(fabric, _lease(task_id, "request", "eq01", brief)).run()
+    assert out["status"] == "split" and _kinds(fabric) == [["research", "report_review"]]
+    assert fabric.request(rid)["status"] == "open_for_build"

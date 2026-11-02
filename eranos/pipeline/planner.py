@@ -184,10 +184,12 @@ class Planner:
         )
         self._facts([*events, self._claimed_fact()])
         occurrences = list(noun.get("occurrences") or [])
+        if self.reopen_of and not self.lease.children:
+            # A recorded reopen is new work: never a library answer again, and never the close of
+            # the attempt it replaces (which stays in the request's history).
+            return self.plan(1, reuse=False)
         if not self.lease.children and not occurrences:
-            # A reopened request was answered wrongly from the library once: it gets new work.
-            fresh = self.terms.get("frequency") != "recurring" and not self.reopen_of
-            return self.plan(1, reuse=fresh)
+            return self.plan(1, reuse=self.terms.get("frequency") != "recurring")
         latest = (
             occurrences[-1]
             if occurrences
