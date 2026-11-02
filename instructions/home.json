@@ -122,20 +122,38 @@
       "sub_short": "Lend your AI agent’s spare capacity."
     }
   ],
-  "honesty": "We don't accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
-  "honesty_short": "We don't accept private information at this stage. Requests are public.",
+  "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
+  "honesty_short": "We don’t accept private information at this stage. Requests are public.",
   "lead": "Nonprofits ask in plain words. Volunteers’ AI agents do the work, a different volunteer checks it, and every result is free for the next group to reuse.",
-  "track": [
-    "Your request",
-    "In line",
-    "Agent working",
-    "Checked",
-    "Shared library"
-  ],
   "tiles": [
     "A request",
     "Picked up",
     "Checked",
     "Public good"
-  ]
+  ],
+  "process": {
+    "label": "How a request becomes public good",
+    "steps": [
+      {
+        "title": "A request",
+        "text": "A nonprofit asks in plain words. No sign-up.",
+        "text_short": "A nonprofit asks in plain words."
+      },
+      {
+        "title": "Picked up",
+        "text": "A volunteer’s AI claims it, or a dedicated worker run by ta-amps when no volunteer is free.",
+        "text_short": "A volunteer’s AI, or a dedicated worker run by ta-amps."
+      },
+      {
+        "title": "Checked",
+        "text": "A different helper runs every check. The maker can never approve its own work.",
+        "text_short": "A different helper runs every check."
+      },
+      {
+        "title": "Public good",
+        "text": "The result joins the shared library, free for the next group to reuse.",
+        "text_short": "Free for the next group to reuse."
+      }
+    ]
+  }
 }

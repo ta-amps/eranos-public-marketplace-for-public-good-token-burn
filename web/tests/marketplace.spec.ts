@@ -133,23 +133,52 @@ test.describe("owner 2: the landing", () => {
     });
   }
 
-  test("the layers move only while the page scrolls, and never with reduced motion", async ({ browser }) => {
-    for (const reducedMotion of ["no-preference", "reduce"] as const) {
-      const context = await browser.newContext({ reducedMotion, viewport: { width: 1440, height: 900 } });
+  // The film's opening shot (Nov 2): the hero's tiles must never cover its text, at any moment of the load animation
+  // or while the page scrolls. Sampled every 100 ms for 4 s, then every 40 px of scroll.
+  for (const [width, height, scale] of [
+    [1280, 613, 1.5],
+    [390, 844, 3],
+  ] as const) {
+    test(`the hero's tiles never cross its text at ${width} x ${height}, during the animation or a scroll`, async ({ browser }) => {
+      test.setTimeout(60_000);
+      const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: scale });
       const page = await context.newPage();
       await page.goto("/");
-      await page.waitForTimeout(300);
-      const before = await page.locator(".er-layer-a").evaluate((el) => getComputedStyle(el).transform);
-      await page.waitForTimeout(600);
-      expect(await page.locator(".er-layer-a").evaluate((el) => getComputedStyle(el).transform)).toBe(before);
-      await page.mouse.wheel(0, 500);
-      await page.waitForTimeout(400);
-      const after = await page.locator(".er-layer-a").evaluate((el) => getComputedStyle(el).transform);
-      if (reducedMotion === "reduce") expect(after).toBe(before);
-      else expect(after).not.toBe(before);
+      await expect(page.locator(".er-hero-tile")).toHaveCount(4);
+      if (width >= 1024) {
+        // The film's window: both doors are whole above the fold.
+        for (const box of await page.locator(".er-door").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().bottom))) {
+          expect(box).toBeLessThanOrEqual(height);
+        }
+      }
+      const crossings = () =>
+        page.evaluate(() => {
+          const boxes = (selector: string) => [...document.querySelectorAll(selector)].map((el) => ({ el, r: el.getBoundingClientRect() }));
+          const text = boxes(".er-landing-words > *, .er-landing-words .er-door");
+          const tiles = boxes(".er-hero-tile, .er-hero-tile-lit");
+          const hit = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+          const out: string[] = [];
+          for (const t of tiles) for (const w of text) if (hit(t.r, w.r)) out.push(`${t.el.className} x ${w.el.className || w.el.tagName}`);
+          return out;
+        });
+      const seen = new Set<string>();
+      const moves = new Set<string>();
+      const first = await page.locator(".er-hero-tile").first().boundingBox();
+      for (let t = 0; t < 40; t++) {
+        for (const c of await crossings()) seen.add(`${t * 100} ms: ${c}`);
+        const now = await page.locator(".er-hero-tile").first().boundingBox();
+        if (first && now && (now.x !== first.x || now.y !== first.y)) moves.add(`${t * 100} ms`);
+        await page.waitForTimeout(100);
+      }
+      for (let y = 0; y <= 600; y += 40) {
+        await page.evaluate((top) => window.scrollTo(0, top), y);
+        for (const c of await crossings()) seen.add(`scroll ${y}: ${c}`);
+      }
+      expect([...seen]).toEqual([]);
+      expect([...moves], "the tiles light up in place; they never move").toEqual([]);
       await context.close();
-    }
-  });
+    });
+  }
 });
 
 test.describe("owner 3: the request page (RequestForm board)", () => {

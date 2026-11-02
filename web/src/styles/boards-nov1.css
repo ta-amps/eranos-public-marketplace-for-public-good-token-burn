@@ -79,12 +79,6 @@
 }
 
 /* ---------------------------------------------------------------- EranosHome hero */
-.er-landing-center {
-  max-width: 1040px;
-  align-items: center;
-  text-align: center;
-  padding-bottom: 150px;
-}
 .er-landing-pill {
   margin: 0;
   padding: 6px 14px;
@@ -94,31 +88,6 @@
   color: var(--text-2);
   font-size: 1rem;
   font-weight: 600;
-}
-.er-landing-center .er-display {
-  max-width: none;
-  margin: 0;
-  font-size: clamp(2.75rem, 1.5rem + 5vw, 5.75rem);
-  line-height: 0.98;
-  letter-spacing: -0.035em;
-}
-.er-landing-center .er-landing-lead {
-  max-width: 760px;
-  margin: 0;
-  font-size: clamp(1.125rem, 1rem + 0.6vw, 1.375rem);
-  line-height: 1.45;
-}
-.er-landing-center .er-honesty {
-  margin: 0 auto;
-  color: var(--text-2);
-  font-size: var(--fs-ui);
-}
-.er-landing-center .er-landing-buttons {
-  width: 100%;
-  max-width: 920px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-  margin-top: 14px;
 }
 /* The two doors: "My NGO needs help" in ink, first and left; "I want to help" outlined in ink on paper. */
 .er-landing-buttons .er-door {
@@ -168,83 +137,7 @@
   color: var(--text-2);
 }
 
-/* The mini request track at the foot of the hero: the five stations a request passes, on one dashed rail. */
-.er-landing-track {
-  position: absolute;
-  z-index: 1;
-  left: 50%;
-  bottom: 36px;
-  width: min(1180px, calc(100% - 48px));
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-.er-landing-track::before {
-  content: "";
-  position: absolute;
-  left: 60px;
-  right: 60px;
-  top: 50%;
-  border-top: 2px dashed var(--line-strong);
-  opacity: 0.6;
-}
-.er-landing-station {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 44px;
-  padding: 0 18px;
-  box-sizing: border-box;
-  border-radius: 22px;
-  font-size: var(--fs-ui);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.er-landing-station-0,
-.er-landing-station-4 {
-  min-height: 56px;
-  border-radius: 12px;
-  background: var(--object-wash);
-  border: 2px solid var(--object);
-  color: var(--object-text);
-}
-.er-landing-station-1 {
-  background: var(--waiting-wash);
-  border: 1.5px dashed var(--waiting);
-  color: var(--text-2);
-}
-.er-landing-station-2 {
-  background: var(--task);
-  color: #ffffff;
-}
-.er-landing-station-3 {
-  background: var(--real-wash);
-  border: 1.5px solid var(--real);
-  color: var(--real);
-}
-@media (max-width: 899px) {
-  .er-landing-track {
-    display: none;
-  }
-  .er-landing-center {
-    padding-bottom: 72px;
-  }
-}
-@media (max-width: 719px) {
-  .er-landing-center .er-landing-buttons {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 @media (max-width: 599px) {
-  .er-landing-center {
-    padding-bottom: 40px;
-  }
   .er-landing-buttons .er-door {
     min-height: 96px;
     padding: 18px 20px;
@@ -675,60 +568,165 @@
   }
 }
 
-/* The hero's four tiles (owner, Nov 1 evening): each carries a tiny label, and after load they light up once, in the
-   order a request moves: a request, picked up, checked, public good. One pass of under five seconds (WCAG 2.2.2), then
-   all four rest lit. Opacity only, nothing moves in the layout; with reduced motion they are simply lit. */
-.er-layer-label {
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  display: inline-flex;
+/* ---------------------------------------------------------------- EranosHome split hero (Nov 2) */
+/* Words and the two doors on the left, the four process tiles on the right, in their own grid column: nothing in a
+   tile can ever cross the hero's text. Each tile starts as a dashed paper outline and its tinted layer fades in once
+   after load (600 ms at 0.4, 1.2, 2.0 and 2.8 s, all lit by 3.4 s), then stays lit; nothing moves. With reduced motion
+   they are simply lit. */
+.er-landing-split {
+  max-width: 1248px;
+  padding: 24px 24px 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 48px;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--surface);
-  border: 1px solid var(--line);
+}
+/* Sized so the two doors and the privacy line sit above the fold of a 1280 x 613 window (the film's). */
+.er-landing-words {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.er-landing-split .er-landing-pill {
+  align-self: flex-start;
+}
+.er-landing-split .er-display {
+  max-width: none;
+  margin: 0;
+  font-size: clamp(2.5rem, 1.2rem + 3vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+.er-landing-split .er-landing-lead {
+  max-width: 600px;
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+.er-landing-split .er-landing-buttons {
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 4px;
+}
+.er-landing-split .er-landing-buttons .er-door {
+  min-height: 104px;
+  padding: 18px 22px;
+}
+.er-landing-split .er-landing-buttons .er-door-label {
+  font-size: 1.5rem;
+}
+.er-landing-split .er-honesty {
+  margin: 0;
   color: var(--text-2);
-  font-size: var(--fs-small);
+  font-size: var(--fs-ui);
+}
+.er-hero-tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  min-width: 0;
+}
+.er-hero-tile {
+  position: relative;
+  min-height: 214px;
+  box-sizing: border-box;
+  border-radius: 24px;
+  border: 2px dashed #c9c1b1;
+  background: var(--surface);
+  padding: 22px 22px 20px;
+  text-align: left;
+}
+.er-hero-tile-0 {
+  --tile-bg: var(--object-wash);
+  --tile-edge: var(--object);
+  --tile-icon: var(--object-text);
+}
+.er-hero-tile-1 {
+  --tile-bg: var(--task-wash);
+  --tile-edge: var(--task);
+  --tile-icon: var(--task-text);
+}
+.er-hero-tile-2 {
+  --tile-bg: var(--real-wash);
+  --tile-edge: var(--real);
+  --tile-icon: var(--real);
+}
+.er-hero-tile-3 {
+  --tile-bg: var(--sunken);
+  --tile-edge: var(--text-2);
+  --tile-icon: var(--text);
+}
+.er-hero-tile-lit {
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  border: 2px solid var(--tile-edge);
+  background: var(--tile-bg);
+}
+.er-hero-tile-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.er-hero-tile-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.er-hero-tile-n {
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.er-hero-tile-icon {
+  stroke: var(--tile-icon);
+}
+.er-hero-tile-title {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
   font-weight: 600;
-  line-height: 1.3;
-  white-space: nowrap;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--text);
 }
-.er-layer-label::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--object);
-}
-.er-layer-step-1 .er-layer-label::before {
-  background: var(--task);
-}
-.er-layer-step-2 .er-layer-label::before {
-  background: var(--real);
-}
-.er-layer-step-3 .er-layer-label::before {
-  background: var(--attention);
+.er-hero-tile-text {
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--text-2);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .er-layer-label {
-    animation: er-tile-step 1100ms var(--ease-standard) both;
+  .er-hero-tile-lit {
+    animation: er-tile-on 600ms var(--ease-standard) both;
   }
-  .er-layer-step-0 .er-layer-label {
-    animation-delay: 900ms;
+  .er-hero-tile-0 .er-hero-tile-lit {
+    animation-delay: 0.4s;
   }
-  .er-layer-step-1 .er-layer-label {
-    animation-delay: 1900ms;
+  .er-hero-tile-1 .er-hero-tile-lit {
+    animation-delay: 1.2s;
   }
-  .er-layer-step-2 .er-layer-label {
-    animation-delay: 2900ms;
+  .er-hero-tile-2 .er-hero-tile-lit {
+    animation-delay: 2s;
   }
-  .er-layer-step-3 .er-layer-label {
-    animation-delay: 3900ms;
+  .er-hero-tile-3 .er-hero-tile-lit {
+    animation-delay: 2.8s;
   }
 }
-@keyframes er-tile-step {
+@keyframes er-tile-on {
   from {
     opacity: 0;
   }
@@ -736,8 +734,50 @@
     opacity: 1;
   }
 }
+@media (max-width: 1023px) {
+  .er-landing-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .er-hero-tile {
+    min-height: 170px;
+  }
+}
+@media (max-width: 719px) {
+  .er-landing-split .er-landing-buttons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
 @media (max-width: 599px) {
-  .er-layer-label {
-    display: none;
+  .er-landing-split {
+    padding: 28px 16px 32px;
+    gap: 24px;
+  }
+  .er-landing-split .er-landing-buttons .er-door {
+    min-height: 96px;
+    padding: 18px 20px;
+  }
+  .er-landing-split .er-landing-buttons .er-door-label {
+    font-size: 1.5rem;
+  }
+  .er-landing-split .er-landing-lead {
+    font-size: 1.125rem;
+  }
+  .er-hero-tiles {
+    gap: 12px;
+  }
+  .er-hero-tile {
+    min-height: 0;
+    padding: 16px 14px 14px;
+    border-radius: 18px;
+  }
+  .er-hero-tile-lit {
+    border-radius: 18px;
+  }
+  .er-hero-tile-title {
+    font-size: 1.25rem;
+  }
+  .er-hero-tile-text {
+    font-size: 0.875rem;
   }
 }

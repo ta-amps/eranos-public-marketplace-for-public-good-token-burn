@@ -6,14 +6,12 @@ import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
 import { Icon } from "../components/Icon";
 
-/** Tiles of the mark at three depths behind the landing. They move only while the page scrolls. */
-const LAYERS = [
-  { id: "a", depth: "far" },
-  { id: "b", depth: "far" },
-  { id: "c", depth: "mid" },
-  { id: "d", depth: "mid" },
-  { id: "e", depth: "near" },
-  { id: "f", depth: "near" },
+/** The process tiles' icons (EranosHome board, Lucide paths): a request, picked up, checked, public good. */
+const TILE_ICONS = [
+  "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4",
+  "M12 8V5M9 5h6M6 8h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2zM9.5 13v1.5M14.5 13v1.5",
+  "M22 11.1V12a10 10 0 1 1-5.9-9.1M22 4 12 14l-3-3",
+  "M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z",
 ] as const;
 
 const PIPELINE_QUEUES = ["eq01", "eq02", "eq03"] as const;
@@ -70,65 +68,72 @@ export function Overview({ site }: { site: SiteNoun | null }) {
   return (
     <div className="er-home">
       <section className="er-landing" aria-labelledby="hero-title" data-testid="landing">
-        <div className="er-landing-layers" aria-hidden="true">
-          {LAYERS.map((layer) => {
-            // The four big tiles carry the request flow's steps, in reading order: b, a, then c, d.
-            const step = ["b", "a", "c", "d"].indexOf(layer.id);
-            const label = step >= 0 ? home?.tiles?.[step] : undefined;
-            return (
-              <span key={layer.id} className={`er-layer er-layer-${layer.id} er-depth-${layer.depth}${label ? ` er-layer-step-${step}` : ""}`}>
-                {label && <span className="er-layer-label">{label}</span>}
-              </span>
-            );
-          })}
-        </div>
-        <div className="er-landing-inner er-landing-center">
-          {home && <p className="er-landing-pill">{home.eyebrow}</p>}
-          <h1 id="hero-title" className="er-display">
-            {site?.headline ?? ""}
-          </h1>
-          {(home?.lead ?? site?.subline) && <p className="er-landing-lead">{home?.lead ?? site?.subline}</p>}
-          {home && (
-            <div className="er-landing-buttons" role="group" aria-label={home.buttons_label}>
-              {/* The two doors (EranosHome): "My NGO needs help" first and left, in ink; "I want to help" outlined. */}
-              {home.buttons.map((button, index) => (
-                <AppLink
-                  key={button.id}
-                  to={button.to}
-                  className={index === 0 ? "er-btn-primary er-door er-door-ink" : "er-btn-secondary er-door er-door-paper"}
-                  data-door={button.id}
-                >
-                  <span className="er-door-label">
-                    {button.label}
-                    <Icon name="arrow-right" size={24} />
-                  </span>
-                  {button.sub && (
-                    <span className="er-door-sub">
-                      <span className="er-long">{button.sub}</span>
-                      <span className="er-short">{button.sub_short ?? button.sub}</span>
+        {/* The split hero (EranosHome, Nov 2): words and the two doors on the left, the four process tiles on the
+            right. The tiles sit in their own column, so nothing in them ever crosses the hero's text; they only light
+            up once after load (opacity), and never move. */}
+        <div className="er-landing-inner er-landing-split">
+          <div className="er-landing-words">
+            {home && <p className="er-landing-pill">{home.eyebrow}</p>}
+            <h1 id="hero-title" className="er-display">
+              {site?.headline ?? ""}
+            </h1>
+            {(home?.lead ?? site?.subline) && <p className="er-landing-lead">{home?.lead ?? site?.subline}</p>}
+            {home && (
+              <div className="er-landing-buttons" role="group" aria-label={home.buttons_label}>
+                {/* The two doors (EranosHome): "My NGO needs help" first and left, in ink; "I want to help" outlined. */}
+                {home.buttons.map((button, index) => (
+                  <AppLink
+                    key={button.id}
+                    to={button.to}
+                    className={index === 0 ? "er-btn-primary er-door er-door-ink" : "er-btn-secondary er-door er-door-paper"}
+                    data-door={button.id}
+                  >
+                    <span className="er-door-label">
+                      {button.label}
+                      <Icon name="arrow-right" size={24} />
                     </span>
-                  )}
-                </AppLink>
+                    {button.sub && (
+                      <span className="er-door-sub">
+                        <span className="er-long">{button.sub}</span>
+                        <span className="er-short">{button.sub_short ?? button.sub}</span>
+                      </span>
+                    )}
+                  </AppLink>
+                ))}
+              </div>
+            )}
+            {home && (
+              <p className="er-honesty">
+                <span className="er-long">{home.honesty}</span>
+                <span className="er-short">{home.honesty_short ?? home.honesty}</span>
+              </p>
+            )}
+          </div>
+          {home?.process && (
+            <ol className="er-hero-tiles" aria-label={home.process.label}>
+              {home.process.steps.map((step, index) => (
+                <li key={step.title} className={`er-hero-tile er-hero-tile-${index}`}>
+                  <span className="er-hero-tile-lit" aria-hidden="true" />
+                  <span className="er-hero-tile-body">
+                    <span className="er-hero-tile-head">
+                      <span className="er-hero-tile-n" aria-hidden="true">
+                        {index + 1}
+                      </span>
+                      <svg className="er-hero-tile-icon" aria-hidden="true" width="30" height="30" viewBox="0 0 24 24" fill="none" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                        <path d={TILE_ICONS[index] ?? TILE_ICONS[0]} />
+                      </svg>
+                    </span>
+                    <strong className="er-hero-tile-title">{step.title}</strong>
+                    <span className="er-hero-tile-text">
+                      <span className="er-long">{step.text}</span>
+                      <span className="er-short">{step.text_short ?? step.text}</span>
+                    </span>
+                  </span>
+                </li>
               ))}
-            </div>
-          )}
-          {home && (
-            <p className="er-honesty">
-              <span className="er-long">{home.honesty}</span>
-              <span className="er-short">{home.honesty_short ?? home.honesty}</span>
-            </p>
+            </ol>
           )}
         </div>
-        {home?.track && (
-          // The request track in miniature, at the foot of the hero. The real one is each request's own page.
-          <ol className="er-landing-track" aria-hidden="true">
-            {home.track.map((station, index) => (
-              <li key={station} className={`er-landing-station er-landing-station-${index}`}>
-                {station}
-              </li>
-            ))}
-          </ol>
-        )}
       </section>
 
       {home && (

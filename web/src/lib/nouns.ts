@@ -153,8 +153,8 @@ export interface HomeNoun {
   lead?: string;
   /** The hero's four tiles: the request flow's steps, lit once after load (owner, Nov 1 evening). */
   tiles?: string[];
-  /** The mini request track at the foot of the hero: its stations, in order (EranosHome). */
-  track?: string[];
+  /** The four process tiles with their lines (copy contract v1, eranos.home), in the split hero's right column. */
+  process?: { label: string; steps: { title: string; text: string; text_short?: string }[] };
   gets: {
     title: string;
     items: { id: string; tag?: string; title: string; line: string; examples?: string[]; link?: string; to?: string }[];

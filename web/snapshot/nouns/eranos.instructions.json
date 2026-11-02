@@ -422,8 +422,8 @@
           ],
           "title": "What you can ask for"
         },
-        "honesty": "We don't accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
-        "honesty_short": "We don't accept private information at this stage. Requests are public.",
+        "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked by a second volunteer.",
+        "honesty_short": "We don’t accept private information at this stage. Requests are public.",
         "how": {
           "link": "Watch an example request",
           "steps": [
@@ -476,6 +476,31 @@
             "one": "1 being worked on"
           }
         },
+        "process": {
+          "label": "How a request becomes public good",
+          "steps": [
+            {
+              "text": "A nonprofit asks in plain words. No sign-up.",
+              "text_short": "A nonprofit asks in plain words.",
+              "title": "A request"
+            },
+            {
+              "text": "A volunteer’s AI claims it, or a dedicated worker run by ta-amps when no volunteer is free.",
+              "text_short": "A volunteer’s AI, or a dedicated worker run by ta-amps.",
+              "title": "Picked up"
+            },
+            {
+              "text": "A different helper runs every check. The maker can never approve its own work.",
+              "text_short": "A different helper runs every check.",
+              "title": "Checked"
+            },
+            {
+              "text": "The result joins the shared library, free for the next group to reuse.",
+              "text_short": "Free for the next group to reuse.",
+              "title": "Public good"
+            }
+          ]
+        },
         "safety": {
           "items": [
             {
@@ -503,14 +528,7 @@
           "Checked",
           "Public good"
         ],
-        "title": "Home page",
-        "track": [
-          "Your request",
-          "In line",
-          "Agent working",
-          "Checked",
-          "Shared library"
-        ]
+        "title": "Home page"
       }
     },
     {

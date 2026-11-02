@@ -179,17 +179,23 @@ test.describe("the model in the details comes from the models.meta Task Object",
 });
 
 test.describe("part 2 pages", () => {
-  test("the home: the doors, the mini request track, and 'What you can ask for' on paper", async ({ page }) => {
+  test("the home: the doors, the four process tiles beside them, and 'What you can ask for' on paper", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
     const doors = page.getByRole("group", { name: "Choose your side" }).getByRole("link");
     await expect(doors).toHaveText([/^My NGO needs help/, /^I want to help/]);
-    await expect(page.locator(".er-landing-track li")).toHaveText(["Your request", "In line", "Agent working", "Checked", "Shared library"]);
+    const tiles = page.getByRole("list", { name: "How a request becomes public good" }).locator(".er-hero-tile-title");
+    await expect(tiles).toHaveText(["A request", "Picked up", "Checked", "Public good"]);
+    const [words, column] = [await page.locator(".er-landing-words").boundingBox(), await page.locator(".er-hero-tiles").boundingBox()];
+    if (!words || !column) throw new Error("no layout box");
+    expect(column.x).toBeGreaterThanOrEqual(words.x + words.width);
     const asks = page.locator("section.er-asks");
     expect(await asks.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(237, 232, 220)");
     for (const card of await asks.locator(".er-ask-card").all()) expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(255, 253, 248)");
     await page.setViewportSize({ width: 390, height: 844 });
-    await expect(page.locator(".er-landing-track")).toBeHidden();
+    const [stack, below] = [await page.locator(".er-landing-words").boundingBox(), await page.locator(".er-hero-tiles").boundingBox()];
+    if (!stack || !below) throw new Error("no layout box");
+    expect(below.y).toBeGreaterThanOrEqual(stack.y + stack.height);
   });
 
   test("/library searches solutions, filters them, and offers 'Ask for this' when nothing fits", async ({ page }) => {
@@ -449,15 +455,16 @@ test("the hero's four tiles carry the flow's steps, lit once after load, and sim
     const context = await browser.newContext({ reducedMotion, viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
     await page.goto("/");
-    const labels = page.locator(".er-layer-label");
-    await expect(labels).toHaveText(["Picked up", "A request", "Checked", "Public good"]);
-    const look = await labels.evaluateAll((els) => els.map((el) => ({ name: getComputedStyle(el).animationName, count: getComputedStyle(el).animationIterationCount })));
+    await expect(page.locator(".er-hero-tile-title")).toHaveText(["A request", "Picked up", "Checked", "Public good"]);
+    const lit = page.locator(".er-hero-tile-lit");
+    const look = await lit.evaluateAll((els) => els.map((el) => ({ name: getComputedStyle(el).animationName, count: getComputedStyle(el).animationIterationCount, delay: getComputedStyle(el).animationDelay })));
     for (const l of look) {
       if (reducedMotion === "reduce") expect(l.name).toBe("none");
       else expect(l.count).toBe("1");
     }
-    await page.waitForTimeout(5200);
-    for (const o of await labels.evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity))) expect(o).toBe("1");
+    if (reducedMotion === "no-preference") expect(look.map((l) => l.delay)).toEqual(["0.4s", "1.2s", "2s", "2.8s"]);
+    await page.waitForTimeout(3600);
+    for (const o of await lit.evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity))) expect(o).toBe("1");
     await context.close();
   }
 });

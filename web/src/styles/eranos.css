@@ -514,103 +514,6 @@ ta-agent-banner {
   color: var(--text-3);
   font-size: var(--fs-small);
 }
-/* The layers: soft tiles of the mark at three depths. Still unless the page scrolls; never with reduced motion. */
-.er-landing-layers {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.er-layer {
-  position: absolute;
-  border-radius: 28%;
-}
-.er-layer-a {
-  width: 240px;
-  height: 240px;
-  right: 6%;
-  top: 9%;
-  background: var(--noun-wash);
-}
-.er-layer-b {
-  width: 240px;
-  height: 240px;
-  right: calc(6% + 270px);
-  top: 9%;
-  background: var(--verb-wash);
-}
-.er-layer-c {
-  width: 240px;
-  height: 240px;
-  right: calc(6% + 270px);
-  top: calc(9% + 270px);
-  background: var(--sunken);
-}
-.er-layer-d {
-  width: 240px;
-  height: 240px;
-  right: 6%;
-  top: calc(9% + 270px);
-  background: var(--noun-wash);
-}
-.er-layer-e {
-  width: 64px;
-  height: 64px;
-  right: calc(6% + 236px);
-  top: calc(9% + 236px);
-  background: var(--verb);
-  opacity: 0.85;
-}
-.er-layer-f {
-  width: 40px;
-  height: 40px;
-  right: calc(6% - 18px);
-  top: calc(9% + 200px);
-  background: var(--noun);
-  opacity: 0.75;
-}
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: scroll()) {
-    .er-layer {
-      animation: linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 90vh;
-    }
-    .er-depth-far {
-      animation-name: er-depth-far;
-    }
-    .er-depth-mid {
-      animation-name: er-depth-mid;
-    }
-    .er-depth-near {
-      animation-name: er-depth-near;
-    }
-  }
-}
-@keyframes er-depth-far {
-  to {
-    transform: translate3d(0, 90px, 0);
-  }
-}
-@keyframes er-depth-mid {
-  to {
-    transform: translate3d(0, 40px, 0);
-  }
-}
-@keyframes er-depth-near {
-  to {
-    transform: translate3d(0, -50px, 0);
-  }
-}
-@media (max-width: 1023px) {
-  .er-layer {
-    opacity: 0.55;
-  }
-  .er-layer-e,
-  .er-layer-f {
-    opacity: 0.4;
-  }
-}
 @media (max-width: 599px) {
   .er-landing {
     min-height: auto;
@@ -621,32 +524,6 @@ ta-agent-banner {
   }
   .er-landing-buttons {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .er-layer-a,
-  .er-layer-b,
-  .er-layer-c,
-  .er-layer-d {
-    width: 120px;
-    height: 120px;
-  }
-  .er-layer-a {
-    right: -40px;
-    top: 16px;
-  }
-  .er-layer-b {
-    right: 96px;
-    top: -60px;
-  }
-  .er-layer-c,
-  .er-layer-d,
-    .er-layer-e {
-    right: 70px;
-    top: 72px;
-    width: 32px;
-    height: 32px;
-  }
-  .er-layer-f {
-    display: none;
   }
 }
 
