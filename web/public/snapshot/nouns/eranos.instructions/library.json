@@ -13,7 +13,7 @@
       "read": "Read it now",
       "read_note": "Found by search. Reading it needs no new agent work.",
       "send": "Send as a new request",
-      "send_note": "Only if these don't answer it.",
+      "send_note": "Only if these don’t answer it.",
       "title": "Already answered in the shared library"
     },
     "count_all_many": "{n} solutions",
@@ -86,15 +86,15 @@
     "stored_lead": "Tessera is the shared, durable queue of Tasks and store of Task Objects: every request is a few Tasks and Task Objects with their own ids. This is the list for {short}.",
     "stored_objects": "Task Objects",
     "stored_rows": {
-      "decisions": "Your team's decisions, in your own space",
+      "decisions": "Your team’s decisions, in your own space",
       "kit": "Part {n}: the agent kit (a reusable process)",
       "own_noun": "Your request as you sent it, in your own space (only your private link reads it)",
       "plan": "The plan: how the request was split into parts",
-      "public_request": "The public record of your request and each part's state",
+      "public_request": "The public record of your request and each part’s state",
       "report": "Part {n}: the cited report",
-      "request_verb": "The request itself, in the queue for a volunteer's agent to plan",
+      "request_verb": "The request itself, in the queue for a volunteer’s agent to plan",
       "review": "Part {n}: the check, by a different volunteer",
-      "work": "Part {n}: the work, for one volunteer's agent"
+      "work": "Part {n}: the work, for one volunteer’s agent"
     },
     "stored_tasks": "Tasks",
     "stored_title": "How request {short} is stored",

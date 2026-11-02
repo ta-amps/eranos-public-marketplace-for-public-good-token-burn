@@ -5,25 +5,25 @@
   "audience": "nonprofits, NGOs and public-good groups",
   "title": "Tell us what you need",
   "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
-  "no_agent": "You don't need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",
-  "warning": "Don't include anyone's personal information. Requests are public.",
+  "no_agent": "You don’t need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",
+  "warning": "Don’t include anyone’s personal information. Requests are public.",
   "form": {
     "label": "Tell us what you need",
     "hint": "Describe the job in plain words. Describe the job, not the people.",
     "placeholder": "For example: summarize new state laws on tenant deposits for our staff, and help us sort our intake notes for referrals.",
     "links_label": "Public links (optional)",
     "links_hint": "One public https link per line, such as a law, a budget or a news page.",
-    "name_label": "Your organization's name",
+    "name_label": "Your organization’s name",
     "type_label": "Type of organization",
     "causes_label": "Causes (optional, separated by commas)",
-    "consent": "This request contains no one's personal information, and I understand that requests are public.",
+    "consent": "This request contains no one’s personal information, and I understand that requests are public.",
     "submit": "Send",
     "sending": "Sending...",
-    "sent": "Received. A volunteer's agent will read it and plan the work.",
+    "sent": "Received. A volunteer’s agent will read it and plan the work.",
     "planned": "Here is the plan:",
     "follow": "Keep this page open to follow it; reloading forgets your key.",
     "offline": "This offline copy of the site does not send requests.",
-    "refused": "We couldn't send this request:"
+    "refused": "We couldn’t send this request:"
   },
   "next_title": "What happens after you send",
   "steps": [
@@ -35,7 +35,7 @@
     {
       "id": "plan",
       "title": "We plan the parts",
-      "detail": "A volunteer's agent reads it, refuses personal data and sorts it into parts. You see the plan in plain words."
+      "detail": "A volunteer’s agent reads it, refuses personal data and sorts it into parts. You see the plan in plain words."
     },
     {
       "id": "public",
@@ -45,7 +45,7 @@
     {
       "id": "files",
       "title": "Parts that touch your files",
-      "detail": "We build a kit your own agent runs, so your data stays with you. A different volunteer reviews it, and sensitive kits also wait for a person's sign-off."
+      "detail": "We build a kit your own agent runs, so your data stays with you. A different volunteer reviews it, and sensitive kits also wait for a person’s sign-off."
     },
     {
       "id": "decide",
@@ -53,10 +53,10 @@
       "detail": "A person on your team decides what to do with every result. Reports are not legal advice."
     }
   ],
-  "hosted": "No volunteer's agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
-  "follow": "Follow each request here: received, planned, in review, then delivered or published.",
+  "hosted": "No volunteer’s agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
+  "follow": "Follow each request here: received, sorted, in review, then delivered or published.",
   "form_on_github": "Or use the public form on GitHub. You need a free GitHub account.",
   "links": {
-    "roll_your_own": "https://agora.ta-amps.workers.dev/decks/roll-your-own/#connect"
+    "roll_your_own": "https://agora.eranosforgood.org/decks/roll-your-own/#connect"
   }
 }

@@ -24,7 +24,7 @@ async function stubClipboardForStatus(page: Page) {
 
 async function fillRequest(page: Page) {
   await page.getByRole("button", { name: "Tenant deposit rules" }).click();
-  await page.getByLabel("Your organization's name").fill("Riverside Tenant Clinic");
+  await page.getByLabel(/Your organization[’']s name/).fill("Riverside Tenant Clinic");
   await page.getByLabel("Type of organization").fill("Tenant legal-aid clinic");
   await page.getByRole("checkbox", { name: /private information/ }).check();
 }
@@ -94,15 +94,15 @@ test.describe("on the hosted build", () => {
     const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", legal: true, report_id: "RPT-RAAAAAAA-01" }] };
     await mockSite(page, { plan, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws.", parts: { "1": { status: "open" } } } });
     await page.goto(`/requests/${REQUEST_ID}`);
-    await expect(page.getByTestId("notice-read-only")).toContainText("You're viewing a public request.");
+    await expect(page.getByTestId("notice-read-only")).toContainText("You’re viewing a public request.");
     await expect(page.getByRole("button", { name: "Copy private link" })).toHaveCount(0);
     await page.goto(`/requests/rq-${PRINCIPAL}-zzzz9999`);
     await page.unroute(`${LIVE}/api/**`);
     await mockSite(page);
     await page.reload();
-    await expect(page.getByTestId("notice-key-missing")).toContainText("This browser doesn't have your private link.");
+    await expect(page.getByTestId("notice-key-missing")).toContainText("This browser doesn’t have your private link.");
     await page.goto("/requests/not-a-request");
-    await expect(page.getByTestId("notice-unknown")).toContainText("We can't find request not-a-request.");
+    await expect(page.getByTestId("notice-unknown")).toContainText("We can’t find request not-a-request.");
   });
 
   test("E07: Send morphs the request box into the 'Your request' node, and skips the morph with reduced motion", async ({ page }) => {

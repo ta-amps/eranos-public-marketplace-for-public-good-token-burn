@@ -60,8 +60,8 @@ const ZERO_QUEUE_COUNTS = {
 // The tile mark (Paper & Ink, light-only).
 const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.i{fill:#11161F}</style><rect x="0" y="0" width="44" height="44" rx="10" fill="#2A5DB0"/><rect x="56" y="0" width="44" height="44" rx="10" fill="#B8541F"/><rect class="i" x="0" y="56" width="44" height="44" rx="10"/><rect x="56" y="56" width="44" height="44" rx="10" fill="#2A5DB0"/></svg>`;
 
-// The canonical address (owner, Nov 1): eranos.ta-amps.workers.dev keeps serving the same pages for agents that have
-// it cached, but every absolute URL and canonical points here.
+// The canonical address (owner, Nov 1; design §0.15, Nov 2): every other host answers with a permanent redirect here
+// (canonicalRedirect below), and every absolute URL and canonical points here.
 const CANONICAL_ORIGIN = "https://eranosforgood.org";
 
 const ROBOTS_TXT = `User-agent: *
@@ -300,7 +300,7 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self' https://tessera.ta-amps.workers.dev",
+  "connect-src 'self' https://tessera.teleionlabs.com https://tessera.ta-amps.workers.dev",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -751,6 +751,20 @@ const APP_REQUEST_PAGE_RE = /^\/requests\/[^/]+(?:\/result)?$/;
 // Example request addresses: these show the example request (instructions/request-example), never a real record.
 // REQ-INTAKE-07 is the address an earlier film used; it now opens the same example, and the page says so.
 const EXAMPLE_REQUEST_ALIASES = { example: "request-example", "example-process": "request-example-process", "REQ-INTAKE-07": "request-example" };
+
+/** The app shell with this page's own canonical address and og:url (the app keeps them current after it runs). */
+async function withCanonical(response, pathname) {
+  const path = pathname === "/" ? "/" : pathname.replace(/\/+$/, "") || "/";
+  if (path === "/") return response;
+  const href = escapeHtml(`${CANONICAL_ORIGIN}${path}`);
+  const html = (await response.text())
+    .replace(/<link rel="canonical" href="[^"]*"/, `<link rel="canonical" href="${href}"`)
+    .replace(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="${href}"`);
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  headers.delete("etag");
+  return new Response(html, { status: response.status, statusText: response.statusText, headers });
+}
 
 function isAppPage(pathname) {
   const path = pathname.replace(/\/+$/, "") || "/";
@@ -1776,6 +1790,84 @@ async function fetchFabricPayload(env) {
   };
 }
 
+// The home page's "Right now" strip (LiveMapStrip, site eranos): Herma's public network summary (GET /q/network), read
+// over the service binding, cut to what the strip shows. Never an IP, a home or anything that identifies a person: the
+// summary only counts Cloudflare data centres and continents. When Herma has no such summary yet, or it does not
+// answer, the strip says so with { available: false } and shows its quiet state; it never makes a number up.
+function networkStrip(raw) {
+  const totals = raw && typeof raw.totals === "object" && raw.totals ? raw.totals : null;
+  const count = (value) => (Number.isFinite(Number(value)) && Number(value) >= 0 ? Math.floor(Number(value)) : null);
+  if (!totals || count(totals.workers) === null) return { available: false };
+  const last = Array.isArray(raw.recent_claims) && raw.recent_claims[0] && typeof raw.recent_claims[0] === "object" ? raw.recent_claims[0] : null;
+  const via = last && last.via && typeof last.via === "object" ? last.via : {};
+  return {
+    available: true,
+    generated_at: typeof raw.generated_at === "string" ? raw.generated_at : null,
+    recent_minutes: count(raw.recent_minutes) ?? 10,
+    totals: {
+      workers: count(totals.workers),
+      continents: count(totals.continents),
+      claims: count(totals.claims),
+      nonprofit_claims: count(totals.nonprofit_claims),
+    },
+    last: last
+      ? {
+          at: typeof last.at === "string" ? last.at : null,
+          kind_label: typeof last.kind_label === "string" ? last.kind_label : null,
+          model: last.model && typeof last.model.name === "string" ? { name: last.model.name, declared: Boolean(last.model.declared) } : null,
+          via: { type: via.type === "data_centre" ? "data_centre" : "continent", city: typeof via.city === "string" ? via.city : null, continent: typeof via.continent === "string" ? via.continent : null },
+        }
+      : null,
+  };
+}
+
+// The open Tasks on the shared queue (Herma's public GET /q/tasks), for the volunteer page's list: title, tier and
+// age only, never an id or a key. Titles are workers' own words, so the route answers them in the site's plain words.
+async function fetchSharedTasks(env) {
+  if (!env.HERMA) return { available: false, tasks: [] };
+  try {
+    const resp = await env.HERMA.fetch("https://herma.internal/q/tasks?limit=12", {
+      headers: { "X-Surface-Id": "eranos", accept: "application/json" },
+      ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
+    });
+    if (!resp.ok || !(resp.headers.get("content-type") || "").includes("json")) {
+      await resp.body?.cancel();
+      return { available: false, tasks: [] };
+    }
+    const raw = await resp.json();
+    const rows = Array.isArray(raw && raw.tasks) ? raw.tasks : [];
+    const tasks = rows
+      .filter((t) => t && typeof t.title === "string" && t.title.trim())
+      .slice(0, 12)
+      .map((t) => ({
+        title: t.title.trim().replace(/\s+/g, " ").slice(0, 160),
+        tier: t.tier === "ngo_priority" ? "ngo_priority" : "public_general",
+        created_at: typeof t.created_at === "string" ? t.created_at : null,
+      }));
+    const total = Number.isFinite(Number(raw && raw.total_matching)) ? Number(raw.total_matching) : tasks.length;
+    return { available: true, total, tasks };
+  } catch {
+    return { available: false, tasks: [] };
+  }
+}
+
+async function fetchNetworkStrip(env) {
+  if (!env.HERMA) return { available: false };
+  try {
+    const resp = await env.HERMA.fetch("https://herma.internal/q/network", {
+      headers: { "X-Surface-Id": "eranos", accept: "application/json" },
+      ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
+    });
+    if (!resp.ok || !(resp.headers.get("content-type") || "").includes("json")) {
+      await resp.body?.cancel();
+      return { available: false };
+    }
+    return networkStrip(await resp.json());
+  } catch {
+    return { available: false };
+  }
+}
+
 async function loadOpenTasksFromTessera(env) {
   let reachable = false;
   const tasks = [];
@@ -1936,7 +2028,7 @@ async function handleCloudApi(request, env, pathname) {
           synthetic: true,
           tasks: [],
           open_tasks_url: "/api/open-tasks",
-          shared_queue_url: "https://herma.ta-amps.workers.dev/q/pulse",
+          shared_queue_url: "https://herma.teleionlabs.com/q/pulse",
         });
       }
       return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
@@ -2089,6 +2181,14 @@ async function handleCloudApi(request, env, pathname) {
     return jsonResp(await fetchFabricPayload(env));
   }
 
+  if (pathname === "/api/network") {
+    return jsonResp(await fetchNetworkStrip(env));
+  }
+
+  if (pathname === "/api/shared-tasks") {
+    return jsonResp(pageWords(await fetchSharedTasks(env)));
+  }
+
   if (pathname === "/api/feed") {
     const reqUrl = new URL(request.url);
     const rawAfter = Number.parseInt(reqUrl.searchParams.get("after") ?? "0", 10);
@@ -2211,7 +2311,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
           ok: true,
           synthetic: true,
           surface: "eranos",
-          dashboard_url: "https://herma.ta-amps.workers.dev/dashboard",
+          dashboard_url: "https://herma.teleionlabs.com/dashboard",
           fabric_page: "/fabric",
           fabric_api: "/api/fabric",
           ...(await fetchFabricPayload(env)),
@@ -2220,7 +2320,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       return new Response(null, {
         status: 307,
         headers: {
-          location: "https://herma.ta-amps.workers.dev/dashboard",
+          location: "https://herma.teleionlabs.com/dashboard",
           "cache-control": "no-store",
         },
       });
@@ -2254,7 +2354,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
       const fromNoun = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : null;
       const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms.txt");
-      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.ta-amps.workers.dev/connect.\n", "text/plain; charset=utf-8");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
@@ -2311,6 +2411,8 @@ const onboardingApplication = {
             (await isMissingKitPage(request, env, pathname)))
         ) {
           response = new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers });
+        } else if (response.status === 200 && html && request.method === "GET") {
+          response = await withCanonical(response, pathname);
         }
       } else {
         response = new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD" } });
@@ -2323,14 +2425,26 @@ const onboardingApplication = {
 // The vendored onboarding module still serves /agent-start.{js,css,json}. Its landing banner is not
 // injected here: the home page opens on the marketplace's two front doors, and the /help page copies the
 // same starting brief, built in the browser with this same module.
+// One canonical address (Nov 2 design §0.15): every other host that reaches this Worker (the www alias, the
+// workers.dev alias, any other attached name) answers with a permanent redirect to eranosforgood.org, keeping the path
+// and query: 301 for GET and HEAD, 308 for any other method, so a client keeps its method and body. A CORS preflight is
+// answered where it arrives (a preflight may not be redirected), and local hosts and version previews serve as they are.
+const CANONICAL_HOST = new URL(CANONICAL_ORIGIN).hostname;
+function canonicalRedirect(request) {
+  const url = new URL(request.url);
+  const host = url.hostname.toLowerCase();
+  if (host === CANONICAL_HOST || request.method === "OPTIONS") return null;
+  if (host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host.endsWith(".localhost")) return null;
+  if (/^[0-9a-f]{8}-/.test(host) && host.endsWith(".workers.dev")) return null;
+  return new Response(null, {
+    status: request.method === "GET" || request.method === "HEAD" ? 301 : 308,
+    headers: { location: `${CANONICAL_ORIGIN}${url.pathname}${url.search}`, "cache-control": "public, max-age=3600", ...CORS_HEADERS },
+  });
+}
+
 export default {
   ...onboardingApplication,
   async fetch(request, env, ctx) {
-    // www.eranosforgood.org is an alias: one permanent redirect to the apex, keeping the path and query.
-    const url = new URL(request.url);
-    if (url.hostname === "www.eranosforgood.org") {
-      return Response.redirect(`${CANONICAL_ORIGIN}${url.pathname}${url.search}`, 301);
-    }
-    return agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
+    return canonicalRedirect(request) || agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
   },
 };

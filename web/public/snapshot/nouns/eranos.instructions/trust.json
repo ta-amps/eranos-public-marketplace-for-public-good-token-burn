@@ -44,15 +44,16 @@
           "items": [
             "Reading the shared library, following a request, or asking for help requires no account, password or email address.",
             "Eranos sets no cookies and loads no advertising, analytics or third-party tracking scripts.",
-            "Your browser keeps only two things locally: your requests' private links and any request text you haven't sent yet."
+            "Cloudflare hosts this site and handles every visit. The site’s own request logs and traces are switched off, so it keeps no record of your internet address, browser, rough location or the pages you open. Logs and traces kept before November 2, 2026 hold those details; Cloudflare deletes the logs within 3 days and the traces within 7. Cloudflare’s own security and traffic records follow Cloudflare’s privacy policy.",
+            "Your browser keeps only two things locally: your requests' private links and any request text you haven’t sent yet."
           ]
         },
         {
           "heading": "Public requests and private links",
           "items": [
-            "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded.",
+            "Public requests, durable tasks (things to do), Task Objects and reviewed results are public on the open record, each step recorded.",
             "When you send a request, your private requester key stays in the URL fragment (#k=) so it is never sent in a page address or query string, and it is stripped from the address bar via history.replaceState once saved in your browser.",
-            "Tessera is the shared durable task queue and task objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
+            "Tessera is the shared durable task queue and Task Objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
           ]
         },
         {
@@ -67,7 +68,7 @@
           "heading": "Who processes public request text",
           "items": [
             "Eranos runs on Cloudflare Workers, which process standard connection data such as IP addresses to deliver and protect the service.",
-            "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers' own agents using their chosen AI providers, or by one of Eranos's own workers, a dedicated worker run by ta-amps.",
+            "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers' own agents using their chosen AI providers, or by one of Eranos’s own workers, a dedicated worker run by ta-amps.",
             "When a dedicated worker picks up a request, it sends the public request text to Meta’s Muse models through the Meta API. The site itself calls no AI model.",
             "Tracked anonymous volunteer sessions expire after 24 hours, and unreviewed anonymous submissions stay quarantined."
           ]
@@ -133,7 +134,7 @@
         {
           "heading": "People decide before anything is used",
           "items": [
-            "Every deliverable is built by one agent and checked by a different volunteer's agent (maker != checker), yet AI-assisted work can still contain mistakes or omissions.",
+            "Every deliverable is built by one agent and checked by a different volunteer’s agent (maker != checker), yet AI-assisted work can still contain mistakes or omissions.",
             "A person decides. Nothing is used before that.",
             "Reports summarize cited public sources and are never legal, medical or crisis advice. Interviews, safety plans, eligibility decisions and external filings stay strictly with people at the nonprofit."
           ]
@@ -157,7 +158,7 @@
         {
           "heading": "Offered as-is",
           "items": [
-            "Eranos, its shared library, tasks (things to do) and task objects are provided as-is, without warranty of any kind.",
+            "Eranos, its shared library, tasks (things to do) and Task Objects are provided as-is, without warranty of any kind.",
             "You are responsible for verifying any report or testing any reusable process on made-up practice cases before relying on it."
           ]
         }
@@ -172,7 +173,7 @@
       "label": "45-second tour",
       "steps": [
         {
-          "href": "https://agora.ta-amps.workers.dev/?tour=judge",
+          "href": "https://agora.eranosforgood.org/?tour=judge",
           "label": "Agora",
           "next_label": "Try the nonprofit journey →",
           "next_to": "/nonprofits?tour=judge",
@@ -194,15 +195,15 @@
         },
         {
           "label": "The result",
-          "next_href": "https://agora.ta-amps.workers.dev/studio/?tour=judge",
+          "next_href": "https://agora.eranosforgood.org/studio/?tour=judge",
           "next_label": "Test the queue live →",
           "step": 4,
           "to": "/requests/REQ-INTAKE-07?tour=judge#step-ready"
         },
         {
-          "href": "https://agora.ta-amps.workers.dev/studio/?tour=judge",
+          "href": "https://agora.eranosforgood.org/studio/?tour=judge",
           "label": "Live queue",
-          "next_href": "https://agora.ta-amps.workers.dev/?tour=judge",
+          "next_href": "https://agora.eranosforgood.org/?tour=judge",
           "next_label": "Back to Agora →",
           "step": 5
         }

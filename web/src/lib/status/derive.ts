@@ -52,6 +52,8 @@ interface Agent {
   /** One of Eranos's own workers (the fallback when no volunteer is free), not a volunteer's agent. */
   dedicated?: boolean;
   model?: string;
+  /** A dedicated worker's persona that ran, from its claim record. */
+  persona?: string;
   claimedAt?: number | null;
   leaseEnds?: number;
   receipt?: string;
@@ -105,6 +107,7 @@ function agent(event: StatusEvent): Agent {
     dedicated: event.dedicated ?? /^eranos[-_.\s]/i.test(event.worker ?? ""),
     // The model id the fact declares; its display name comes from the models.meta Task Object (lib/models.ts).
     model: event.model,
+    persona: typeof event.persona === "string" && event.persona.trim() ? event.persona.trim() : undefined,
     claimedAt: event.at ?? null,
     leaseEnds: event.lease_ends,
     receipt: event.receipt,
@@ -426,14 +429,20 @@ export function workerLabel(words: RequestStatusNoun, who: string | undefined, d
 }
 
 function agentChipText(words: RequestStatusNoun, a: Agent, options: DeriveOptions): string {
-  // A dedicated worker is named as the owner asked: "dedicated worker N (run by ta-amps)", with its model through
-  // the Meta API; a volunteer's chip names the model it declared. Names come from the models.meta Task Object.
+  // Details name models, never agent apps (rule 9): a dedicated worker shows the model and persona that ran, from its
+  // claim record; a volunteer's AI shows the model it declared, or "Not declared". Names come from models.meta.
   const who = workerLabel(words, a.who, a.dedicated) ?? (a.dedicated ? fill(words.chips.dedicated ?? "", { n: "1" }) : undefined);
   const model = options.modelName ? options.modelName(a.model, Boolean(a.dedicated)) : null;
-  if (who && model && a.dedicated && words.chips.dedicated_model) return fill(words.chips.dedicated_model, { who, model });
-  if (who && model) return fill(words.chips.worker_model ?? "", { who, model });
-  if (a.dedicated) return who ?? "";
-  return a.who ?? words.chips.agent ?? "";
+  if (a.dedicated) {
+    if (!who) return "";
+    if (!model) return who;
+    const ran = a.persona && words.chips.dedicated_persona ? fill(words.chips.dedicated_persona, { model, persona: a.persona }) : model;
+    return words.chips.dedicated_model ? fill(words.chips.dedicated_model, { who, model: ran }) : who;
+  }
+  const name = who ?? a.who ?? words.chips.agent ?? "";
+  if (!name) return "";
+  const declared = model ?? words.chips.not_declared;
+  return declared && words.chips.worker_model ? fill(words.chips.worker_model, { who: name, model: declared }) : name;
 }
 
 /** A finished step's chip names who did it; the record itself is a "Record" link in the list, never a hash. */

@@ -100,8 +100,8 @@
       },
       {
         "q": "Who checks the work?",
-        "a": "A different volunteer's agent checks every result. A person on your team decides what to use.",
-        "a_short": "A different volunteer's agent, then a person decides."
+        "a": "A different volunteer’s agent checks every result. A person on your team decides what to use.",
+        "a_short": "A different volunteer’s agent, then a person decides."
       }
     ]
   },
@@ -155,5 +155,26 @@
         "text_short": "Free for the next group to reuse."
       }
     ]
+  },
+  "right_now": {
+    "eyebrow": "Right now",
+    "label": "Right now on the network",
+    "headline": "{workers} workers on {continents} continents are picking up Tasks",
+    "headline_short": "{workers} workers are picking up Tasks",
+    "sub": "{nonprofit_claims} for nonprofits today. Shown by Cloudflare data centre, never by home.",
+    "last": "Last claim: {kind} claimed · {model} · via {city} data centre · {ago}",
+    "last_continent": "Last claim: {kind} claimed · {model} · via a data centre in {continent} · {ago}",
+    "declared": "{model} (declared)",
+    "not_declared": "Model not declared",
+    "cta": "See the network ↗",
+    "cta_href": "https://agora.eranosforgood.org/network/",
+    "quiet_title": "Quiet on the network",
+    "quiet_text": "No Tasks claimed in the last 10 minutes. The map updates when one is.",
+    "empty_title": "No workers connected yet today",
+    "empty_text": "When a worker connects, its data centre shows on the map.",
+    "empty_cta": "Connect your agent →",
+    "empty_to": "/help",
+    "off_title": "Right now",
+    "off_text": "This strip shows live claims once the network map is on. It updates by itself."
   }
 }

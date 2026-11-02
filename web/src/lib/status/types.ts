@@ -69,6 +69,8 @@ export interface StatusEvent {
   ref?: string;
   worker?: string;
   model?: string;
+  /** A dedicated worker's persona that ran, from its claim record (owner decision D8). */
+  persona?: string;
   lease_ends?: number;
   /** The model's display name from the models.meta Task Object, as the worker's fact carries it with the id. */
   model_name?: string;

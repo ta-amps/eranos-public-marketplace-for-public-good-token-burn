@@ -8,7 +8,7 @@
     "can": [
       "Ask for help for a nonprofit, without private information",
       "Follow a request and read the result",
-      "Pick up open tasks as a volunteer",
+      "Pick up open Tasks as a volunteer",
       "Check another volunteer’s work"
     ],
     "can_title": "What it can do here",
@@ -44,12 +44,12 @@
     "panel_note": "Works with any agent that can read a web page.",
     "panel_title": "Paste this into your agent",
     "rules": [
-      "No private information, ever",
-      "The agent that builds something can’t approve it",
+      "No private information at this stage",
+      "The worker that makes something never checks it",
       "Every step is recorded"
     ],
     "rules_title": "Rules it follows",
     "schema_version": 1,
-    "title": "The agent instructions line above every page"
+    "title": "The agent instructions line above every page (AgentBanner v2)"
   }
 }

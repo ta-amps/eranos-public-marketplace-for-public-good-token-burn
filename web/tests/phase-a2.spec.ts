@@ -172,7 +172,7 @@ test.describe("the model in the details comes from the models.meta Task Object",
     test(label, async ({ page }) => {
       await mockSite(page, { history: events.map((value, i) => fact(i + 1, value)), models, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
       await page.goto(`/requests/${REQUEST_ID}?view=technical`);
-      await expect(page.locator("main")).toContainText(`dedicated worker 1 (run by ta-amps) · model: ${name}, through the Meta API`);
+      await expect(page.locator("main")).toContainText(`dedicated worker 1 (run by ta-amps) · model and persona that ran: ${name}`);
       expect(await page.locator("main").innerText()).not.toContain("muse-spark-1.3");
     });
   }
@@ -235,7 +235,7 @@ test.describe("part 2 pages", () => {
     // The build step is done and folded at this moment: open it.
     await page.getByTestId("band-toggle-2").click();
     await expect(band).toContainText("One helper at a time. Every step is recorded.");
-    await expect(band.getByRole("link", { name: "Which model does what ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/models/");
+    await expect(band.getByRole("link", { name: "Which model does what ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/models/");
   });
 });
 
@@ -297,7 +297,7 @@ test("no horizontal scroll at 390 px, or at 640 px (a 1280 px window at 200% zoo
 test("the header's How it works ↗ opens Agora's How it works page", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/how-it-works/");
+  await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://agora.eranosforgood.org/how-it-works/");
 });
 
 for (const [width, height] of [

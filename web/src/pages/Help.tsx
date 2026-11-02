@@ -5,7 +5,7 @@ import { LIVE_QUEUE_POLL_MS, SNAPSHOT } from "../config";
 import { briefWithInterests, fill, type HelpNoun, type HelpPageNoun } from "../lib/nouns";
 import type { RequestExampleNoun } from "../lib/status/example";
 import { shortReceipt } from "../lib/status/ids";
-import type { FabricResponse } from "../lib/types";
+import type { FabricResponse, SharedTasksResponse } from "../lib/types";
 import { useNoun } from "../lib/useNoun";
 import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
@@ -35,6 +35,7 @@ export function Help() {
   const example = useNoun<RequestExampleNoun>("request-example").value;
   const fabric = useResource<FabricResponse>("/api/fabric", { pollMs: LIVE_QUEUE_POLL_MS });
   const open = useResource<{ tasks: OpenTask[] }>("/api/open-tasks", { pollMs: LIVE_QUEUE_POLL_MS });
+  const shared = useResource<SharedTasksResponse>("/api/shared-tasks", { pollMs: 60_000 });
   const [copiedTask, setCopiedTask] = useState("");
   const [mode, setMode] = useState<Mode>("any");
   const [interests, setInterests] = useState("");
@@ -191,7 +192,7 @@ export function Help() {
                     <span className="er-open-task-title">
                       <strong>{task.title || task.task_id}</strong>
                     </span>
-                    <span className={task.queue === "eq03" ? "er-chip er-chip-verb" : "er-chip er-chip-noun"}>{tasks.by_kind[task.kind] ?? task.kind}</span>
+                    <span className={task.queue === "eq03" ? "er-chip er-chip-task" : "er-chip er-chip-object"}>{tasks.by_kind[task.kind] ?? task.kind}</span>
                     <span className="er-small">
                       {waited(tasks, task.created_at)}
                       {!task.open_to_anonymous ? ` · ${tasks.check_needs_key}` : ""}
@@ -245,8 +246,39 @@ export function Help() {
                 })}
               </p>
             )}
+            {!SNAPSHOT && tasks.shared_title && shared.state.status === "ready" && shared.state.data.available && (
+              <div className="er-shared-tasks" data-testid="shared-task-list">
+                <h3>{tasks.shared_title}</h3>
+                {shared.state.data.tasks.length > 0 ? (
+                  <>
+                    <p className="er-small">{fill(tasks.shared_count ?? "", { n: shared.state.data.total ?? shared.state.data.tasks.length })}</p>
+                    <ul className="er-open-tasks">
+                      {shared.state.data.tasks.map((task, index) => (
+                        <li key={`${index}-${task.title}`}>
+                          <span className="er-open-task-title">
+                            <strong>{task.title}</strong>
+                          </span>
+                          <span className={task.tier === "ngo_priority" ? "er-chip er-chip-task" : "er-chip er-chip-object"}>
+                            {tasks.shared_tier?.[task.tier] ?? task.tier}
+                          </span>
+                          <span className="er-small">{waited(tasks, task.created_at ? Date.parse(task.created_at) / 1000 : null)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <p className="er-small">{tasks.shared_none}</p>
+                )}
+                {tasks.shared_link && tasks.shared_href && <a href={tasks.shared_href}>{tasks.shared_link}</a>}
+              </div>
+            )}
             <p className="er-small">{tasks.guard_note}</p>
             <p className="er-small">{tasks.list_note}</p>
+            {page.map_notice && (
+              <p className="er-small" data-testid="map-notice">
+                {page.map_notice}
+              </p>
+            )}
           </section>
 
           <section className="er-panel er-panel-large" aria-labelledby="tokens-title" data-testid="your-tokens">

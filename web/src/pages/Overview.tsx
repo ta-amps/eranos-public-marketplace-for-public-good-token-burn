@@ -5,6 +5,7 @@ import { useNoun } from "../lib/useNoun";
 import { useResource } from "../lib/useResource";
 import { AppLink } from "../router";
 import { Icon } from "../components/Icon";
+import { RightNowStrip } from "../components/RightNowStrip";
 
 /** The process tiles' icons (EranosHome board, Lucide paths): a request, picked up, checked, public good. */
 const TILE_ICONS = [
@@ -133,6 +134,7 @@ export function Overview({ site }: { site: SiteNoun | null }) {
               ))}
             </ol>
           )}
+          {home?.right_now && <RightNowStrip words={home.right_now} />}
         </div>
       </section>
 

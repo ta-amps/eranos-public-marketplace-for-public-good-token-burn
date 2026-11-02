@@ -3,7 +3,7 @@
   "kind": "instructions",
   "key": "agent-banner",
   "audience": "people who use a site through their own AI agent, and the agents themselves",
-  "title": "The agent instructions line above every page",
+  "title": "The agent instructions line above every page (AgentBanner v2)",
   "for": "the <ta-agent-banner> element (web/public/agent-banner.js), shared by Eranos and Agora",
   "label": "Use this site with your AI agent",
   "copy": "Copy for your agent",
@@ -36,13 +36,13 @@
   "can": [
     "Ask for help for a nonprofit, without private information",
     "Follow a request and read the result",
-    "Pick up open tasks as a volunteer",
+    "Pick up open Tasks as a volunteer",
     "Check another volunteer’s work"
   ],
   "rules_title": "Rules it follows",
   "rules": [
-    "No private information, ever",
-    "The agent that builds something can’t approve it",
+    "No private information at this stage",
+    "The worker that makes something never checks it",
     "Every step is recorded"
   ],
   "fallback": "Read eranosforgood.org/llms.txt"

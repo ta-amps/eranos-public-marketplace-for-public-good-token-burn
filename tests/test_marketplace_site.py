@@ -50,7 +50,7 @@ for (const [name, method, pathname, body] of requests) {
     init.body = JSON.stringify(body);
     init.headers = { "content-type": "application/json" };
   }
-  const response = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev" + pathname, init), env);
+  const response = await worker.fetch(new Request("https://eranosforgood.org" + pathname, init), env);
   const bytes = method === "HEAD" ? new Uint8Array() : new Uint8Array(await response.arrayBuffer());
   const digest = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
   const binary = (response.headers.get("content-type") || "").includes("gzip");
@@ -147,7 +147,7 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
     start = json.loads(out["start_json"]["body"])
     assert start["version"] == "agent.onboarding.v1"
     assert start["activates_work"] is False
-    assert "https://eranos.ta-amps.workers.dev/connect.json" in start["modes"]["any"]
+    assert "https://eranosforgood.org/connect.json" in start["modes"]["any"]
     assert out["start_js"]["status"] == 200 and "javascript" in out["start_js"]["type"]
     card = json.loads(out["card"]["body"])
     assert "agent kits" in card["description"]
@@ -158,8 +158,8 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
     assert noun["text"].strip().splitlines()[0] in llms
     for line in (
         "Ask for help for a nonprofit, without private information",
-        "Pick up open tasks as a volunteer",
-        "The agent that builds something can't approve it",
+        "Pick up open Tasks as a volunteer",
+        "The worker that makes something never checks it",
         "/connect.json",
     ):
         assert line in llms, line
@@ -282,7 +282,10 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     practice = json.loads(out["practice"]["body"])
     expected = hashlib.sha256(canonical_json(draft).encode("utf-8")).hexdigest()
     assert practice["draft_sha256"] == expected
-    assert "connect-src 'self' https://tessera.ta-amps.workers.dev" in out["help"]["csp"]
+    assert (
+        "connect-src 'self' https://tessera.teleionlabs.com https://tessera.ta-amps.workers.dev"
+        in out["help"]["csp"]
+    )
 
 
 def test_static_page_and_readme_match_the_site_noun() -> None:
@@ -497,11 +500,12 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
     noun = json.loads((ROOT / "instructions" / "nonprofits.json").read_text(encoding="utf-8"))
     opening = f"{noun['lede']} {noun['no_agent']}"
     assert not re.search(r"\b(nouns?|verbs?|seed packs?)\b", opening, re.IGNORECASE)
-    assert "You don't need your own AI agent for research requests." in noun["no_agent"]
+    assert "You don\u2019t need your own AI agent for research requests." in noun["no_agent"]
     assert noun["form"]["label"] == noun["title"] == "Tell us what you need"
     plan = next(step for step in noun["steps"] if step["id"] == "plan")
     assert (
-        plan["detail"].startswith("A volunteer's agent") and "sorts it into parts" in plan["detail"]
+        plan["detail"].startswith("A volunteer\u2019s agent")
+        and "sorts it into parts" in plan["detail"]
     )
     # The redesigned page (the nonprofits-page noun) states its bounds before the box, in plain words.
     redesign = json.loads(
@@ -509,7 +513,7 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
     )
     opening = f"{redesign['heading']} {redesign['lead']} {redesign['bounds']['head']} {redesign['bounds']['body']}"
     assert not re.search(r"\b(nouns?|verbs?|seed packs?)\b", opening, re.IGNORECASE)
-    assert redesign["bounds"]["head"] == "We don't accept private information at this stage."
+    assert redesign["bounds"]["head"] == "We don\u2019t accept private information at this stage."
     page = (ROOT / "web" / "src" / "pages" / "Nonprofits.tsx").read_text(encoding="utf-8")
     assert page.index("page.bounds.head") < page.index("<RequestBox")
 
@@ -530,7 +534,10 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
     for name in ("default-src", "script-src", "style-src", "font-src"):
         assert directives[name] == "'self'", name
     assert directives["img-src"] == "'self' data:"
-    assert directives["connect-src"] == "'self' https://tessera.ta-amps.workers.dev"
+    assert (
+        directives["connect-src"]
+        == "'self' https://tessera.teleionlabs.com https://tessera.ta-amps.workers.dev"
+    )
     # Zero browser storage (owner, Nov 1), except, until request codes replace them (Phase C), a request's private
     # link (lib/status/keys.ts), which the footer names.
     allowed = {"keys.ts"}
@@ -540,10 +547,15 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
         if path.name not in allowed:
             assert "localStorage" not in text, path.name
     shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
-    assert (
-        "private links" in shell["footer"]["storage"]
-        and "Nothing else is stored" in shell["footer"]["storage"]
-    )
+    assert shell["footer"]["line"] == "We don\u2019t accept private information at this stage."
+    trust = json.loads((ROOT / "instructions" / "trust.json").read_text(encoding="utf-8"))
+    privacy = " ".join(" ".join(s["items"]) for s in trust["privacy"]["sections"])
+    assert "private links" in privacy
+    # F-PRIV-LOGS-001: what Cloudflare keeps is said in the page's own words, and matches wrangler.jsonc.
+    assert "request logs and traces are switched off" in privacy
+    wrangler = (ROOT / "deploy" / "cloudflare" / "wrangler.jsonc").read_text(encoding="utf-8")
+    assert '"invocation_logs": false' in wrangler
+    assert re.search(r'"traces":\s*\{\s*"enabled": false', wrangler)
     assert "set-cookie" not in worker.lower()
 
 
@@ -649,7 +661,7 @@ def test_the_agent_banner_copies_the_llms_line_and_pages_link_no_dead_github_add
     assert banner["copy_text"] == "Read https://eranosforgood.org/llms.txt and follow it."
     assert banner["chip"] == "Read eranosforgood.org/llms.txt"
     assert all(
-        link["href"].startswith(("/", "https://agora.ta-amps.workers.dev/"))
+        link["href"].startswith(("/", "https://agora.eranosforgood.org/"))
         for link in banner["links"]
     )
     dead = re.compile(r"github\.com/ta-amps")
@@ -1035,40 +1047,58 @@ def test_trust_routes_security_txt_and_owner_wording() -> None:
         assert not bad_terms.search(text), path.name
         assert "cloud workers" not in text.lower(), path.name
     trust_text = (ROOT / "instructions" / "trust.json").read_text(encoding="utf-8")
-    assert "task objects" in trust_text and "tasks (things to do)" in trust_text
+    assert "Task Objects" in trust_text and "tasks (things to do)" in trust_text
     assert "A person decides. Nothing is used before that." in trust_text
     assert "CC BY 4.0" in trust_text and "Apache-2.0" in trust_text
     assert "history.replaceState" in trust_text and "#k=" in trust_text
 
 
 def test_footer_is_the_shared_standard_footer() -> None:
-    """MUST-FOLLOW rule 13: one standard footer on every surface, from notes/.../shared/footer.v1.json: the same
-    links in the same order, one row of links plus one short line."""
+    """MUST-FOLLOW rule 13 and footer v2 (ta-amps.footer/2, components contract v2): one row of links in the canonical
+    order (a link to another host is absolute and carries ↗) plus one short line, the privacy line."""
     shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
-    labels = [link["label"] for link in shell["footer"]["links"]]
+    links = shell["footer"]["links"]
+    labels = [link["label"] for link in links]
     assert labels == [
+        "Agora ↗",
+        "Teleion Labs ↗",
         "Library",
-        "Your requests",
+        "Requests",
+        "Network ↗",
+        "Models used ↗",
         "Status ↗",
-        "How it works ↗",
         "Source ↗",
         "Privacy",
         "Terms",
         "Report a problem",
     ]
+    for link in links:
+        external = link["label"].endswith(" ↗")
+        assert external == ("href" in link) and external != ("to" in link), link
+        if external:
+            assert link["href"].startswith("https://"), link
+    assert shell["footer"]["line"] == "We don\u2019t accept private information at this stage."
     for parent in ROOT.parents:
-        spec_path = parent / "shared" / "footer.v1.json"
+        spec_path = parent / "coordination-2026-10-31" / "claude-design-components.v2.json"
         if spec_path.is_file():
-            spec = json.loads(spec_path.read_text(encoding="utf-8"))
-            assert [link["label"] for link in spec["links"]] == [
-                label.removesuffix(" ↗") for label in labels
+            spec = json.loads(spec_path.read_text(encoding="utf-8"))["components"]["SiteFooter"]
+            eranos = spec["surfaces"]["eranos"]
+            assert [link["label"] for link in eranos["links"]] == labels
+            assert [link["href"] for link in eranos["links"]] == [
+                link.get("href") or link["to"] for link in links
             ]
-            assert shell["footer"]["storage"] == spec["line"]["eranos"]
-            return
+            assert shell["footer"]["line"] == eranos["line"]
+            break
+    page = (ROOT / "web" / "src" / "pages" / "Nonprofits.tsx").read_text(encoding="utf-8")
+    assert page.index("page.bounds.head") < page.index("<RequestBox")
 
 
-def test_both_hosts_serve_the_same_pages_and_www_redirects_to_the_canonical_apex() -> None:
-    """eranosforgood.org is canonical (owner, Nov 1); eranos.ta-amps.workers.dev serves the same pages; www 301s."""
+def test_every_other_host_redirects_to_the_canonical_apex_and_pages_name_their_own_canonical() -> (
+    None
+):
+    """One canonical address (Nov 2 design §0.15): eranosforgood.org serves; the www and workers.dev aliases answer
+    301 for GET and HEAD and 308 for other methods, keeping path and query; a CORS preflight and local hosts are
+    answered where they arrive; every page's first HTML names its own canonical address."""
     script = (
         WORKER_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
         .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
@@ -1076,15 +1106,23 @@ def test_both_hosts_serve_the_same_pages_and_www_redirects_to_the_canonical_apex
         .replace("EXTRA_ENV", "({})")
         .replace("REQUESTS", "[]")
         + """
-const hosts = {};
-for (const host of ["https://eranosforgood.org", "https://eranos.ta-amps.workers.dev"]) {
-  const page = await worker.fetch(new Request(host + "/nonprofits", { headers: { accept: "text/html" } }), env);
-  const card = await (await worker.fetch(new Request(host + "/.well-known/agent-card.json"), env)).json();
-  hosts[host] = { status: page.status, body: await page.text(), card: card.url };
-}
-const www = await worker.fetch(new Request("https://www.eranosforgood.org/requests/example?moment=decided"), env);
-hosts.www = { status: www.status, location: www.headers.get("location") };
-console.log(JSON.stringify(hosts));
+const res = {};
+const at = async (name, url, init = {}) => {
+  const r = await worker.fetch(new Request(url, init), env);
+  res[name] = { status: r.status, location: r.headers.get("location"), cors: r.headers.get("access-control-allow-origin"), body: init.method === "HEAD" ? "" : await r.text() };
+};
+await at("apex", "https://eranosforgood.org/nonprofits", { headers: { accept: "text/html" } });
+await at("apexHome", "https://eranosforgood.org/", { headers: { accept: "text/html" } });
+await at("www", "https://www.eranosforgood.org/requests/example?moment=decided");
+await at("dev", "https://eranos.ta-amps.workers.dev/library?q=grants");
+await at("devHead", "https://eranos.ta-amps.workers.dev/help", { method: "HEAD" });
+await at("devPost", "https://eranos.ta-amps.workers.dev/mcp", { method: "POST", body: "{}", headers: { "content-type": "application/json" } });
+await at("devPreflight", "https://eranos.ta-amps.workers.dev/mcp", { method: "OPTIONS", headers: { origin: "https://example.org", "access-control-request-method": "POST" } });
+await at("local", "http://localhost:8787/help", { headers: { accept: "text/html" } });
+await at("preview", "https://6d7470f5-eranos.ta-amps.workers.dev/help", { headers: { accept: "text/html" } });
+const card = await (await worker.fetch(new Request("https://eranosforgood.org/.well-known/agent-card.json"), env)).json();
+res.card = card.url;
+console.log(JSON.stringify(res));
 """
     )
     run = subprocess.run(
@@ -1095,14 +1133,35 @@ console.log(JSON.stringify(hosts));
         cwd=ROOT,
     )
     out = json.loads(run.stdout.strip().splitlines()[-1])
-    new, old = out["https://eranosforgood.org"], out["https://eranos.ta-amps.workers.dev"]
-    assert new["status"] == old["status"] == 200 and new["body"] == old["body"]
-    assert '<link rel="canonical" href="https://eranosforgood.org/" />' in new["body"]
-    assert new["card"] == old["card"] == "https://eranosforgood.org"
-    assert out["www"] == {
-        "status": 301,
-        "location": "https://eranosforgood.org/requests/example?moment=decided",
-    }
+    assert out["apex"]["status"] == 200
+    assert (
+        '<link rel="canonical" href="https://eranosforgood.org/nonprofits"' in out["apex"]["body"]
+    )
+    assert (
+        '<meta property="og:url" content="https://eranosforgood.org/nonprofits"'
+        in out["apex"]["body"]
+    )
+    assert '<link rel="canonical" href="https://eranosforgood.org/"' in out["apexHome"]["body"]
+    assert (out["www"]["status"], out["www"]["location"]) == (
+        301,
+        "https://eranosforgood.org/requests/example?moment=decided",
+    )
+    assert (out["dev"]["status"], out["dev"]["location"]) == (
+        301,
+        "https://eranosforgood.org/library?q=grants",
+    )
+    assert (out["devHead"]["status"], out["devHead"]["location"]) == (
+        301,
+        "https://eranosforgood.org/help",
+    )
+    assert (out["devPost"]["status"], out["devPost"]["location"]) == (
+        308,
+        "https://eranosforgood.org/mcp",
+    )
+    assert out["dev"]["cors"] == "*"
+    assert out["devPreflight"]["status"] != 308 and out["devPreflight"]["location"] is None
+    assert out["local"]["status"] == 200 and out["preview"]["status"] == 200
+    assert out["card"] == "https://eranosforgood.org"
 
 
 def test_page_text_comes_from_the_deploy_not_an_older_copy_in_tessera() -> None:

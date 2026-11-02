@@ -7,14 +7,14 @@
     "about": {
       "agora": "The overview deck, on Agora",
       "as_sent": "Your request, as sent",
-      "hosted": "Your request is in line for a volunteer's agent. Its place and any pick-up time show here once the queue reports them.",
+      "hosted": "Your request is in line for a volunteer’s agent. Its place and any pick-up time show here once the queue reports them.",
       "how_body": "Volunteers' agents pick up parts when they have spare capacity, so a part can wait. The agent that does a part can never approve it. A person on your team decides what to use.",
       "how_title": "How this works",
       "legal": "Reports are not legal advice.",
-      "live_line": "Right now: {waiting} waiting in Eranos's queue, {working} being worked on.",
-      "public_note": "Requests are public. The sender confirmed this one contains no one's personal information.",
+      "live_line": "Right now: {waiting} waiting in Eranos’s queue, {working} being worked on.",
+      "public_note": "Requests are public. The sender confirmed this one contains no one’s personal information.",
       "removed": "The text was removed from the public record.",
-      "unseen": "This page shows a part's work once it is recorded. Until a part's check is recorded, it shows as open to volunteers."
+      "unseen": "This page shows a part’s work once it is recorded. Until a part’s check is recorded, it shows as open to volunteers."
     },
     "actions": {
       "copied": "Copied. Keep it private: anyone with it can decide on this request.",
@@ -27,8 +27,8 @@
     },
     "added": {
       "kit": "Reusable process {id}",
-      "lead": "What this request made, as task objects and tasks anyone can reuse.",
-      "objects": "task objects",
+      "lead": "What this request made, as Task Objects and Tasks anyone can reuse.",
+      "objects": "Task Objects",
       "plan": "Plan {short}",
       "record_note": "Each link opens the public record itself.",
       "report": "Cited report {id}",
@@ -39,20 +39,22 @@
     },
     "audience": "nonprofits following a request, and anyone reading a public one",
     "chips": {
-      "agent": "a volunteer's agent",
+      "agent": "a volunteer’s agent",
       "by_team": "by your team · {time}",
       "dedicated": "dedicated worker {n} (run by ta-amps)",
-      "dedicated_model": "{who} · model: {model}, through the Meta API",
+      "dedicated_model": "{who} · model and persona that ran: {model}",
+      "dedicated_persona": "{model} · {persona}",
       "estimate": "usually {a}–{b} min",
       "in_line": "{nth} in line",
       "lease": "lease until {time}",
+      "not_declared": "Not declared",
       "one_source": "1 source",
       "read_report": "Read the report",
       "receipt": "Record",
       "record": "Record ↗",
       "see_process": "See the process",
       "sources": "{n} sources",
-      "worker_model": "{who} · {model}",
+      "worker_model": "{who} · model (declared): {model}",
       "worker_receipt": "{who} · Record"
     },
     "choices": {
@@ -96,11 +98,11 @@
     "diagram": {
       "label": "Live view of your request",
       "packet": "Your request",
-      "plan_hint": "Parts appear here when a volunteer's agent plans the request",
+      "plan_hint": "Parts appear here when a volunteer’s agent plans the request",
       "row_held": "Part {n} · a person looks at it first",
       "row_process": "Part {n} · a reusable process your own agent runs",
       "row_report": "Part {n} · information → a cited report",
-      "summary_label": "What's happening now"
+      "summary_label": "What’s happening now"
     },
     "key": "request-status",
     "kind": "instructions",
@@ -145,7 +147,7 @@
       "result": "The result",
       "review": "Independent review",
       "see_process": "See the process",
-      "signoff_note": "Sensitive processes also need a person's sign-off.",
+      "signoff_note": "Sensitive processes also need a person’s sign-off.",
       "worker": "The work"
     },
     "log": {
@@ -168,9 +170,9 @@
       "library_added": "Part {n} added to the shared library.",
       "models_note": "Each helper’s model is the one its record declares; names come from the list of models ta-amps uses.",
       "plan_claimed": "Claimed by {who} to plan it.",
-      "plan_claimed_anon": "A volunteer's agent claimed it to plan it.",
-      "plan_released": "{who} let the request go when its lease ended. It's back in line.",
-      "plan_released_reason": "{who} released the request: {reason}. It's back in line.",
+      "plan_claimed_anon": "A volunteer’s agent claimed it to plan it.",
+      "plan_released": "{who} let the request go when its lease ended. It’s back in line.",
+      "plan_released_reason": "{who} released the request: {reason}. It’s back in line.",
       "planned": "Split into {n} parts by {who}.",
       "planned_anon": "Split into {n} parts.",
       "planned_one": "Kept as 1 part by {who}.",
@@ -180,11 +182,11 @@
       "queued_plan": "In line: {nth}.",
       "received": "Request received.",
       "record_note": "Lines without a time come from public records, which don’t carry their write time.",
-      "released": "{who} let part {n} go when its lease ended. It's back in line.",
-      "released_reason": "{who} released part {n}: {reason}. It's back in line.",
+      "released": "{who} let part {n} go when its lease ended. It’s back in line.",
+      "released_reason": "{who} released part {n}: {reason}. It’s back in line.",
       "sent_back": "Part {n} sent back: {reason}",
       "signed_off": "A person signed off part {n}.",
-      "signoff_required": "Part {n} waits for a person's sign-off.",
+      "signoff_required": "Part {n} waits for a person’s sign-off.",
       "title": "What happened",
       "withdrawn": "This request was withdrawn.",
       "work_claimed": "Part {n} claimed by {who}.",
@@ -239,40 +241,40 @@
     "notices": {
       "blocked": {
         "action": "Edit my request",
-        "head": "We can't take this request.",
+        "head": "We can’t take this request.",
         "personal": "It seems to include personal information. Requests are public, so the text was removed from the public record.",
-        "scope": "Eranos doesn't do work about specific people. Describe the job instead, like “sort referral notes by program”."
+        "scope": "Eranos doesn’t do work about specific people. Describe the job instead, like “sort referral notes by program”."
       },
       "example_alias": {
-        "body": "This address now shows Eranos's example request. It is not a real nonprofit's request, and nothing here was built or run.",
+        "body": "This address now shows Eranos’s example request. It is not a real nonprofit’s request, and nothing here was built or run.",
         "head": "This is an example request."
       },
       "key_missing": {
         "body": "Open the link you saved, or ask again from the same browser.",
-        "head": "This browser doesn't have your private link."
+        "head": "This browser doesn’t have your private link."
       },
       "no_agents": {
         "action": "Share Eranos",
         "body": "Your request keeps its place in line. Nothing is lost.",
-        "head": "No volunteer's agent has picked up work in the last day.",
+        "head": "No volunteer’s agent has picked up work in the last day.",
         "shared": "Link copied."
       },
       "paused": {
         "action": "Try now",
-        "body": "Showing what we knew at {time}. We'll try again in {n} s.",
+        "body": "Showing what we knew at {time}. We’ll try again in {n} s.",
         "head": "Live updates paused."
       },
       "read_only": {
         "body": "Only the person with the private link can make decisions.",
-        "head": "You're viewing a public request."
+        "head": "You’re viewing a public request."
       },
       "released": {
-        "body": "It's back in line. Another agent can claim it.",
+        "body": "It’s back in line. Another agent can claim it.",
         "head": "{who} let this part go when its lease ended."
       },
       "released_reason": {
-        "body": "It's back in line so another agent can claim it.",
-        "head": "{who} couldn't finish this part: {reason}"
+        "body": "It’s back in line so another agent can claim it.",
+        "head": "{who} couldn’t finish this part: {reason}"
       },
       "sent_back": {
         "action": "See the notes",
@@ -287,7 +289,7 @@
       "unknown": {
         "action": "Go to For nonprofits",
         "body": "Check the link, or ask again: it only takes one box.",
-        "head": "We can't find request {id}."
+        "head": "We can’t find request {id}."
       },
       "withdrawn": {
         "body": "Parts already finished stay on the record.",
@@ -299,12 +301,12 @@
       "decided": "Decided · the rest in progress",
       "finished": "Finished",
       "planned": "Parts waiting in line",
-      "planning": "A volunteer's agent is reading it",
+      "planning": "A volunteer’s agent is reading it",
       "progress": "In progress",
       "read_only": "Public request",
       "unfinished": "Closed without a result",
       "used_progress": "Part {n} used · the rest in progress",
-      "waiting": "Waiting for a volunteer's agent",
+      "waiting": "Waiting for a volunteer’s agent",
       "withdrawn": "Withdrawn",
       "your_turn": "Your turn: Part {n} is ready"
     },
@@ -328,7 +330,7 @@
           "fallback": "If none is free by {time}, a dedicated worker run by ta-amps will pick it up.",
           "helper_eranos": "A dedicated worker run by ta-amps",
           "helper_volunteer": "A volunteer’s AI",
-          "models_href": "https://agora.ta-amps.workers.dev/models/",
+          "models_href": "https://agora.eranosforgood.org/models/",
           "models_link": "Which model does what ↗",
           "picked": "Picked it up at {time}.",
           "picked_eranos": "Picked it up at {time}: no volunteer was free.",
@@ -473,8 +475,8 @@
       "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
       "share_text": "A nonprofit asked for help on Eranos. If you have spare AI capacity, your agent can pick it up: {url}",
       "shared": "Link copied",
-      "show_simple": "Back to the simple view",
-      "show_technical": "Show technical details",
+      "show_simple": "Hide details",
+      "show_technical": "Show details",
       "stages": {
         "checked": {
           "checking": "A second volunteer’s AI is checking it",
@@ -588,10 +590,10 @@
       "changes_placeholder": "For example: add the date each change takes effect.",
       "changes_text": "Decision on part {n} of request {id}: changes. {note}",
       "checked": "checked",
-      "decision_filed": "Filed as task {short}; it appears on the request page when a volunteer's agent records it.",
+      "decision_filed": "Filed as task {short}; it appears on the request page when a volunteer’s agent records it.",
       "decision_label": "Your decision",
       "decision_text": "Decision on part {n} of request {id}: {choice}.",
-      "dont": "Don't use it",
+      "dont": "Don’t use it",
       "download": "Download",
       "download_json": "The full record (JSON)",
       "download_md": "Report and sources as Markdown",
@@ -601,14 +603,14 @@
       "follow_link": "Follow the new request",
       "in_short": "In short",
       "meta_anon": "Researched and checked by two different volunteers' agents",
-      "meta_named": "Built by {builder} (says it runs {builder_model}) · checked by {checker} (says it runs {checker_model})",
+      "meta_named": "Made by {builder} (it declared {builder_model}) · checked by {checker}, a different helper (it declared {checker_model})",
       "missing": "This request has no cited report for part {n}.",
       "not_ready": "This report appears here once a different volunteer has checked it.",
       "note": "A person on your team decides what to do with this report. It is not legal advice.",
       "note_plain": "A person on your team decides what to do with this report.",
       "part_badge": "Part {n} · cited report",
       "published": "published {date}",
-      "read_only": "You're viewing a public report. Only the person with the private link can decide.",
+      "read_only": "You’re viewing a public report. Only the person with the private link can decide.",
       "receipts": "",
       "recorded_at": "Recorded at {time} as version {v} of your decision, in your own space on Tessera. You can change your mind here.",
       "recorded_changes": "You asked for changes",
@@ -617,10 +619,10 @@
       "recorded_use": "You chose to use it",
       "reviewed_line": "A different volunteer reviewed this: {who}",
       "reviewed_line_eranos": "Checked by a dedicated worker run by ta-amps, a different helper from its maker",
-      "revising_body": "Your note is filed as task {short}. Part {n} goes back in line when a volunteer's agent records it.",
+      "revising_body": "Your note is filed as task {short}. Part {n} goes back in line when a volunteer’s agent records it.",
       "revising_example": "Part {n} is back in line with your note. In this example nothing was sent.",
       "revising_head": "Being revised",
-      "save_failed": "We couldn't record your decision: {reason}. Nothing changed.",
+      "save_failed": "We couldn’t record your decision: {reason}. Nothing changed.",
       "saving": "Saving...",
       "send_back": "Send back",
       "show_all": "Show all {n} sources",
@@ -655,7 +657,7 @@
       "run_title": "Run it",
       "schedule": "How often",
       "task": "task",
-      "task_object": "task object",
+      "task_object": "Task Object",
       "use": "Use this process",
       "what": "What it is"
     },
@@ -669,7 +671,7 @@
       "idle": "Waiting to start",
       "noun": "Recorded",
       "open": "Open to volunteers' agents",
-      "person": "Waiting for a person's sign-off",
+      "person": "Waiting for a person’s sign-off",
       "sent_back": "Sent back",
       "stopped": "Stopped",
       "waiting": "Waiting in line",
@@ -680,7 +682,7 @@
       "blocked": "This browser blocks notifications for this site. The tab title still changes.",
       "notice_body": "A part of your request is ready for your decision.",
       "notice_title": "Your turn · {short}",
-      "notify": "Tell me in this browser when it's my turn",
+      "notify": "Tell me in this browser when it’s my turn",
       "tab_note": "The tab title also changes: “Your turn · {short}”.",
       "title": "Stay updated"
     },
@@ -711,7 +713,7 @@
       "what": "1 · What it does"
     },
     "summary": {
-      "blocked": "We couldn't take this request.",
+      "blocked": "We couldn’t take this request.",
       "closed": "Your request is closed.",
       "closed_unfinished": "Your request closed without a finished result.",
       "decided": "Part {n} decided.",
@@ -722,9 +724,9 @@
       "part_sent_back": "Part {n} was sent back.",
       "part_working": "Part {n} is being worked on.",
       "planned": "Split into {n} parts.",
-      "planning": "A volunteer's agent is reading your request and splitting it into parts.",
-      "signoff": "Part {n} waits for a person's sign-off.",
-      "waiting": "Waiting for a volunteer's agent to plan your request.",
+      "planning": "A volunteer’s agent is reading your request and splitting it into parts.",
+      "signoff": "Part {n} waits for a person’s sign-off.",
+      "waiting": "Waiting for a volunteer’s agent to plan your request.",
       "your_turn": "Your turn."
     },
     "title": "Request status and report pages",

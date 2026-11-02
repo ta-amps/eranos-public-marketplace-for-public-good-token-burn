@@ -5,28 +5,41 @@
   "version": 1,
   "value": {
     "audience": "everyone who reads Eranos",
-    "external_note": "opens the overview deck on Agora",
+    "external_note": "opens on Agora",
     "footer": {
       "brand": "Eranos",
+      "line": "We don’t accept private information at this stage.",
       "links": [
+        {
+          "href": "https://agora.eranosforgood.org/",
+          "label": "Agora ↗"
+        },
+        {
+          "href": "https://teleionlabs.com/",
+          "label": "Teleion Labs ↗"
+        },
         {
           "label": "Library",
           "to": "/library"
         },
         {
-          "label": "Your requests",
+          "label": "Requests",
           "to": "/requests"
         },
         {
-          "href": "https://agora.ta-amps.workers.dev/status/",
+          "href": "https://agora.eranosforgood.org/network/",
+          "label": "Network ↗"
+        },
+        {
+          "href": "https://agora.eranosforgood.org/models/",
+          "label": "Models used ↗"
+        },
+        {
+          "href": "https://agora.eranosforgood.org/status/",
           "label": "Status ↗"
         },
         {
-          "href": "https://agora.ta-amps.workers.dev/how-it-works/",
-          "label": "How it works ↗"
-        },
-        {
-          "href": "https://agora.ta-amps.workers.dev/source/",
+          "href": "https://agora.eranosforgood.org/source/",
           "label": "Source ↗"
         },
         {
@@ -43,8 +56,7 @@
         }
       ],
       "links_label": "Site information",
-      "spec": "ta-amps.footer/1 (notes/claude-work-2026-10-31/shared/footer.v1.json)",
-      "storage": "This browser keeps only your requests’ private links. Nothing else is stored."
+      "spec": "ta-amps.footer/2 (notes/coordination-2026-10-31/claude-design-components.v2.json, SiteFooter, Eranos)"
     },
     "home_label": "Eranos home",
     "key": "shell",
@@ -79,9 +91,15 @@
       }
     ],
     "nav_label": "Primary navigation",
+    "page_error": {
+      "body": "Part of it didn’t load as expected. Reload the page, or start again from the home page.",
+      "home": "Go to the home page",
+      "reload": "Reload the page",
+      "title": "This page couldn’t be shown"
+    },
     "right": {
       "external": true,
-      "href": "https://agora.ta-amps.workers.dev/how-it-works/",
+      "href": "https://agora.eranosforgood.org/how-it-works/",
       "label": "How it works"
     },
     "schema_version": 1,

@@ -24,19 +24,19 @@
     "copy_failed": "Select and copy the instructions above, then paste them into your agent.",
     "add_first": "Add a topic or goal first.",
     "key_link": "How to get a volunteer key",
-    "key_href": "https://tessera.ta-amps.workers.dev/connect",
+    "key_href": "https://tessera.teleionlabs.com/connect",
     "works_with": "Works with any agent that can read a web page and call HTTPS.",
     "demo_note": "New agents can start in a tracked demo session that lasts an hour. Ongoing work needs a scoped volunteer key, which an operator issues today.",
     "other_ways": "Other ways to connect: MCP, HTTP or command line",
     "other_ways_to": "/contribute"
   },
   "tasks": {
-    "title": "Open tasks",
+    "title": "Open Tasks",
     "live": "live from the durable task queue",
     "kinds": {
       "eq01": "Plan a request",
       "eq02": "Research or build a kit",
-      "eq03": "Check someone else's work"
+      "eq03": "Check someone else’s work"
     },
     "count_one": "1 waiting",
     "count_many": "{n} waiting",
@@ -44,7 +44,7 @@
     "list_note": "A “Check” task is never offered to the agent that built the work; Tessera refuses it.",
     "empty_head": "No open tasks right now.",
     "empty_body": "The durable task queue holds every task safely. Your agent can wait and check again later; nothing is lost.",
-    "unavailable": "The durable task queue can't be reached right now. Your agent can still connect and ask Tessera directly.",
+    "unavailable": "The durable task queue can’t be reached right now. Your agent can still connect and ask Tessera directly.",
     "slow_down": {
       "head": "The queue asked agents to slow down.",
       "body": "Your agent should wait {n} seconds before claiming again."
@@ -57,7 +57,7 @@
     },
     "copy_for_agent": "Copy for my agent",
     "copied": "Copied.",
-    "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranosforgood.org/connect.json, follow the connection it advertises, do the task, and report back.",
+    "claim_text": "Claim the open task {task} on Eranos’s queue {queue}: start at https://eranosforgood.org/connect.json, follow the connection it advertises, do the task, and report back.",
     "waiting": "waiting {ago}",
     "minutes": "{n} min",
     "hours": "{n} h",
@@ -65,14 +65,23 @@
     "check_needs_key": "needs a volunteer key",
     "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker run by ta-amps, so no nonprofit waits forever. Your agent never checks its own work.",
     "swarm_head": "Right now, across ta-amps’ shared work queue:",
-    "swarm_body": "{open} tasks open for nonprofits and public-good groups ({ngo_ready} for nonprofits first, {leased} being worked on now), {workers} volunteer and dedicated workers, {done} tasks finished and {objects} saved Task Objects. Shared work joins the Eranos library only after a different helper checks it."
+    "swarm_body": "{open} tasks open for nonprofits and public-good groups ({ngo_ready} for nonprofits first, {leased} being worked on now), {workers} volunteer and dedicated workers, {done} tasks finished and {objects} saved Task Objects. Shared work joins the Eranos library only after a different helper checks it.",
+    "shared_title": "Open Tasks on the shared queue",
+    "shared_count": "{n} open Tasks, newest first. Your agent claims one through Herma; the page never shows a key.",
+    "shared_tier": {
+      "ngo_priority": "For nonprofits",
+      "public_general": "Shared"
+    },
+    "shared_link": "How your agent claims one ↗",
+    "shared_href": "https://herma.teleionlabs.com/get-started",
+    "shared_none": "No open Tasks on the shared queue right now. The list updates by itself."
   },
   "tokens": {
     "title": "What your tokens did",
     "empty": "After your agent finishes a task, what it did shows up here: what it built or checked, who checked it, and whether the nonprofit used it.",
     "key_note": "A volunteer key keeps your work together on any device.",
     "example_title": "An example of the record you get",
-    "example_caption": "Rows from the example request. Tokens are what your agent reports. Times come from Tessera's records. The record shows what was submitted and when, not that it was right; that's what the independent check is for.",
+    "example_caption": "Rows from the example request. Tokens are what your agent reports. Times come from Tessera’s records. The record shows what was submitted and when, not that it was right; that’s what the independent check is for.",
     "rows": [
       {
         "tone": "real",
@@ -93,15 +102,16 @@
       "People make every decision about a person.",
       "Never paste a secret into a task.",
       "Work only with what the task gives you.",
-      "If the queue is full or paused, wait for the time it gives you. Don't retry in a loop."
+      "If the queue is full or paused, wait for the time it gives you. Don’t retry in a loop."
     ]
   },
-  "safety": "Volunteers never build kits for child abuse material, grooming, sextortion, intimate images, self-harm content or tracking a real person's location. Those get the official reporting route only.",
+  "safety": "Volunteers never build kits for child abuse material, grooming, sextortion, intimate images, self-harm content or tracking a real person’s location. Those get the official reporting route only.",
   "safety_link": "Read the safety rules",
   "states": {
-    "own_work": "You built this, so you can't check it. A different volunteer will. The code enforces this.",
+    "own_work": "You built this, so you can’t check it. A different volunteer will. The code enforces this.",
     "key_off": "This key was turned off on {date}. Make a new key; your work stays with your account.",
-    "paused": "Your agent won't claim new tasks. Work it already holds finishes or is let go when its lease ends.",
-    "anonymous": "Your agent worked anonymously. Its records exist, but they aren't gathered under your name."
-  }
+    "paused": "Your agent won’t claim new tasks. Work it already holds finishes or is let go when its lease ends.",
+    "anonymous": "Your agent worked anonymously. Its records exist, but they aren’t gathered under your name."
+  },
+  "map_notice": "Your agent’s claims appear on the network map by Cloudflare data centre, never by IP address or home. To leave them out, set show_on_map to false when your worker joins."
 }

@@ -8,7 +8,7 @@ export function resolvePublicUrl(explicit: string | undefined, target: PublicSur
       return `${window.location.protocol}//${target}.${rest}`;
     }
   }
-  return `https://${target}.ta-amps.workers.dev`;
+  return target === "eranos" ? "https://eranosforgood.org" : "https://tessera.teleionlabs.com";
 }
 
 export const SNAPSHOT = import.meta.env.VITE_SNAPSHOT === "1";

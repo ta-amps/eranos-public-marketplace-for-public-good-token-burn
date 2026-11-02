@@ -8,7 +8,7 @@ import type { Page, Route } from "@playwright/test";
  * keeps requester keys, requests and records in memory, the way the real one answers them.
  */
 export const LIVE = `http://localhost:${Number(process.env.ERANOS_TEST_PORT ?? 4174) + 1}`;
-export const TESSERA = "https://tessera.ta-amps.workers.dev";
+export const TESSERA = "https://tessera.teleionlabs.com";
 
 const SNAPSHOT = new URL("../../snapshot/", import.meta.url);
 
@@ -34,6 +34,12 @@ export interface SiteMocks {
   openTasks?: unknown[];
   /** Catalog records by key, as /api/catalog/<key> answers them. */
   catalog?: Record<string, unknown>;
+  /** Tracks as /api/tracks answers them; the build's snapshot by default. */
+  tracks?: unknown;
+  /** Herma's network summary as /api/network answers it; { available: false } (the default) until Herma serves one. */
+  network?: Record<string, unknown>;
+  /** The shared queue's open Tasks as /api/shared-tasks answers them; unavailable by default. */
+  sharedTasks?: Record<string, unknown>;
   /** The models.meta Task Object as /api/models answers it; null (the default) until Tessera holds it. */
   models?: unknown;
 }
@@ -64,6 +70,9 @@ export async function mockSite(page: Page, mocks: SiteMocks = {}): Promise<strin
       return found ? json(200, { value: found }) : json(404, { detail: "no such noun" });
     }
     if (path === "/api/models") return json(200, { store: "eranos.instructions", key: "models.meta", catalog: mocks.models ?? null });
+    if (path === "/api/network") return json(200, mocks.network ?? { available: false });
+    if (path === "/api/tracks") return json(200, mocks.tracks ?? snapshot("tracks.json"));
+    if (path === "/api/shared-tasks") return json(200, mocks.sharedTasks ?? { available: false, tasks: [] });
     if (path === "/api/fabric") {
       if (mocks.fabricFails) return route.abort("failed");
       return json(200, mocks.fabric ?? { queues: ["eq01", "eq02", "eq03"].map((name) => ({ name, ready: 0, leased: 0, waiting: 0, done: 0, dead: 0, cancelled: 0 })) });

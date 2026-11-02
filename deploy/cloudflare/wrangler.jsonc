@@ -41,10 +41,16 @@
     "STORAGE_MODE": "cloud",
     "API_ORIGIN": "https://eranos-api.fly.dev"
   },
+  // Privacy (F-PRIV-LOGS-001, Nov 2): no invocation logs and no traces, so Cloudflare keeps no per-request record of a
+  // visitor (internet address, browser, rough location, full URL) for this Worker. Only the Worker's own console output
+  // would be logged, and it writes none. The privacy page says the same.
   "observability": {
     "enabled": true,
+    "logs": {
+      "invocation_logs": false
+    },
     "traces": {
-      "enabled": true
+      "enabled": false
     }
   }
 }

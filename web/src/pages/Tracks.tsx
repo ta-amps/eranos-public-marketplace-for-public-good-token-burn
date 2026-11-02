@@ -27,7 +27,7 @@ export function Tracks() {
                   <DomainBadge domain={track.domain} label={track.domain_label} />
                   <code>{track.id}</code>
                   {track.kit_ready && (
-                    <span className="er-chip er-chip-drafts">
+                    <span className="er-chip er-chip-drafts er-chip-wrap">
                       Catalog kit: {(track.catalog_kit_ids ?? []).join(", ") || "ready"}
                     </span>
                   )}

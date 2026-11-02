@@ -29,7 +29,7 @@
       "match": "library"
     }
   ],
-  "external_note": "opens the overview deck on Agora",
+  "external_note": "opens on Agora",
   "menu": {
     "button": "Menu",
     "open_label": "Open menu",
@@ -39,28 +39,40 @@
   },
   "footer": {
     "brand": "Eranos",
-    "spec": "ta-amps.footer/1 (notes/claude-work-2026-10-31/shared/footer.v1.json)",
+    "spec": "ta-amps.footer/2 (notes/coordination-2026-10-31/claude-design-components.v2.json, SiteFooter, Eranos)",
     "links_label": "Site information",
     "links": [
+      {
+        "label": "Agora ↗",
+        "href": "https://agora.eranosforgood.org/"
+      },
+      {
+        "label": "Teleion Labs ↗",
+        "href": "https://teleionlabs.com/"
+      },
       {
         "label": "Library",
         "to": "/library"
       },
       {
-        "label": "Your requests",
+        "label": "Requests",
         "to": "/requests"
       },
       {
-        "label": "Status ↗",
-        "href": "https://agora.ta-amps.workers.dev/status/"
+        "label": "Network ↗",
+        "href": "https://agora.eranosforgood.org/network/"
       },
       {
-        "label": "How it works ↗",
-        "href": "https://agora.ta-amps.workers.dev/how-it-works/"
+        "label": "Models used ↗",
+        "href": "https://agora.eranosforgood.org/models/"
+      },
+      {
+        "label": "Status ↗",
+        "href": "https://agora.eranosforgood.org/status/"
       },
       {
         "label": "Source ↗",
-        "href": "https://agora.ta-amps.workers.dev/source/"
+        "href": "https://agora.eranosforgood.org/source/"
       },
       {
         "label": "Privacy",
@@ -75,11 +87,17 @@
         "to": "/report"
       }
     ],
-    "storage": "This browser keeps only your requests’ private links. Nothing else is stored."
+    "line": "We don’t accept private information at this stage."
   },
   "right": {
-    "href": "https://agora.ta-amps.workers.dev/how-it-works/",
+    "href": "https://agora.eranosforgood.org/how-it-works/",
     "label": "How it works",
     "external": true
+  },
+  "page_error": {
+    "title": "This page couldn’t be shown",
+    "body": "Part of it didn’t load as expected. Reload the page, or start again from the home page.",
+    "reload": "Reload the page",
+    "home": "Go to the home page"
   }
 }

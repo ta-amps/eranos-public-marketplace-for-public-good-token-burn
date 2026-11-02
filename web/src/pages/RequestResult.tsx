@@ -518,7 +518,7 @@ export function RequestResult({ id }: { id: string }) {
       <article className="er-result-main">
         {back}
         <p className="er-chip-row" data-testid="result-tags">
-          <span className="er-chip er-chip-noun">{processPart ? words.steps.tag_process : words.steps.tag_information}</span>
+          <span className="er-chip er-chip-object">{processPart ? words.steps.tag_process : words.steps.tag_information}</span>
           {revision ? (
             <span className="er-chip">{words.steps.tag_updating}</span>
           ) : (

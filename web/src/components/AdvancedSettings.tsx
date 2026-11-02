@@ -151,7 +151,7 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
     <details className="er-details er-advanced" data-testid="advanced-settings" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
       <summary>
         <span className="er-advanced-title">{words.summary}</span> <span className="er-small">{words.optional}</span>{" "}
-        <span className="er-chip er-chip-noun" data-testid="advanced-count">
+        <span className="er-chip er-chip-object" data-testid="advanced-count">
           {count ? fill(words.count_some, { n: count }) : words.count_none}
         </span>
       </summary>

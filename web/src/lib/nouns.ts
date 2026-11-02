@@ -137,8 +137,10 @@ export interface ShellNoun {
   right?: NounLink;
   external_note: string;
   menu: { button: string; open_label: string; close: string; close_label: string; sheet_label: string };
-  /** SiteFooter (Nov 1): the brand and its line, the trust links, and what this browser keeps. */
-  footer: { brand?: string; line: string; links_label: string; links: NounLink[]; storage: string };
+  /** SiteFooter v2 (ta-amps.footer/2, Nov 2): the brand, ONE row of links in the canonical order, and one short line. */
+  footer: { brand?: string; line: string; links_label: string; links: NounLink[] };
+  /** What a page that failed to draw says instead of going blank (the app's error boundary). */
+  page_error?: { title: string; body: string; reload: string; home: string };
 }
 
 /** The home page: `eranos.instructions/home`. */
@@ -170,6 +172,30 @@ export interface HomeNoun {
     note: string;
   };
   safety: { title: string; items: { q: string; a: string; a_short: string }[] };
+  /** The "Right now" strip under the doors (LiveMapStrip, site eranos): live, quiet, empty and off states. */
+  right_now?: RightNowWords;
+}
+
+export interface RightNowWords {
+  eyebrow: string;
+  label: string;
+  headline: string;
+  headline_short: string;
+  sub: string;
+  last: string;
+  last_continent: string;
+  declared: string;
+  not_declared: string;
+  cta: string;
+  cta_href: string;
+  quiet_title: string;
+  quiet_text: string;
+  empty_title: string;
+  empty_text: string;
+  empty_cta: string;
+  empty_to: string;
+  off_title: string;
+  off_text: string;
 }
 
 /** The request box and its page: `eranos.instructions/nonprofits-page`. */
@@ -345,12 +371,21 @@ export interface HelpPageNoun {
   safety: string;
   safety_link: string;
   states: Words;
+  /** The network map notice (network map contract v1): claims show by Cloudflare data centre, never by home. */
+  map_notice?: string;
 }
 
 /** The `tasks` part of the volunteer page noun, whose `kinds` names each Eranos queue's work. */
 export interface HelpTasksWords {
   title: string;
   live: string;
+  /** The open Tasks on the shared queue (Herma), listed under Eranos's own. */
+  shared_title?: string;
+  shared_count?: string;
+  shared_tier?: Record<string, string>;
+  shared_link?: string;
+  shared_href?: string;
+  shared_none?: string;
   kinds: Record<string, string>;
   count_one: string;
   count_many: string;

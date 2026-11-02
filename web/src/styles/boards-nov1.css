@@ -1,20 +1,14 @@
 /*
  * Claude Design's Nov 1 boards, as classes on the tokens: SiteFooter, the EranosHome hero (centered, the two doors,
  * the mini request track) and its light "What you can ask for" section, and SearchSolutions on /library.
- * Light only: dark ink is text, primary buttons and the logo, never a panel. New code names colors through the
- * Task and Task Object aliases below; the token file keeps its --verb and --noun names.
+ * Light only: dark ink is text, primary buttons and the logo, never a panel. Colors use the tokens v4 names
+ * (--task and --object) directly.
  */
 :root {
-  --task: var(--verb);
-  --task-text: var(--verb-text);
-  --task-wash: var(--verb-wash);
-  --object: var(--noun);
-  --object-text: var(--noun-text);
-  --object-wash: var(--noun-wash);
   --door-ink-sub: color-mix(in srgb, var(--action-text) 82%, var(--action));
 }
 
-/* ---------------------------------------------------------------- the standard footer (ta-amps.footer/1) */
+/* ---------------------------------------------------------------- the standard footer (ta-amps.footer/2) */
 .er-site-footer {
   background: var(--sunken);
   border-top: 1px solid var(--line);

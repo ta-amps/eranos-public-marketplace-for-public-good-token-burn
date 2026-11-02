@@ -5,6 +5,12 @@
  */
 
 /* ---------------------------------------------------------------- shared */
+/* The request track's token (tokens v4 motion: track_token, 900 ms standard, only on a recorded event). */
+:root {
+  --dur-track: 900ms;
+  --ease-track: var(--ease-standard);
+}
+
 .er-container {
   max-width: var(--container);
   margin: 0 auto;
@@ -24,7 +30,7 @@
   font-weight: 500;
 }
 .er-receipt {
-  color: var(--noun-text);
+  color: var(--object-text);
   white-space: nowrap;
 }
 .er-text-link {
@@ -87,17 +93,17 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: var(--noun-wash);
-  color: var(--noun-text);
+  background: var(--object-wash);
+  color: var(--object-text);
 }
 .er-feature-tile-small {
   width: 36px;
   height: 36px;
   border-radius: 10px;
 }
-.er-feature-tile-verb {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+.er-feature-tile-task {
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 .er-btn-small {
   min-height: 36px;
@@ -212,7 +218,7 @@ ta-agent-banner {
   --agent-banner-ink: #11161f;
   --agent-banner-muted: #3b4252;
   --agent-banner-raised: #fffdf8;
-  --agent-banner-line: #d8d0c0;
+  --agent-banner-line: #e2dccf;
   --agent-banner-edge: #8a8476;
   --agent-banner-link: #24519b;
   --agent-banner-focus: #2a5db0;
@@ -933,7 +939,7 @@ ta-agent-banner {
   gap: 10px;
   padding: 18px 20px;
   border-radius: var(--radius-lg);
-  background: var(--noun-wash);
+  background: var(--object-wash);
   color: var(--text);
 }
 .er-library-check h2 {
@@ -1066,8 +1072,8 @@ ta-agent-banner {
   color: var(--text-2);
 }
 .er-overall-verb {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 .er-overall-attention {
   background: var(--attention-wash);
@@ -1082,8 +1088,8 @@ ta-agent-banner {
   color: var(--caution);
 }
 .er-overall-noun {
-  background: var(--noun-wash);
-  color: var(--noun-text);
+  background: var(--object-wash);
+  color: var(--object-text);
 }
 .er-live {
   padding: 12px 20px 14px;
@@ -1118,7 +1124,7 @@ ta-agent-banner {
   background: var(--real);
 }
 .er-live-dot-example {
-  background: var(--noun);
+  background: var(--object);
 }
 .er-live-dot-paused {
   background: var(--text-3);
@@ -1201,9 +1207,9 @@ ta-agent-banner {
   border: 1.5px dashed var(--waiting);
 }
 .er-node-working {
-  background: var(--verb);
+  background: var(--task);
   color: #ffffff;
-  border: 1.5px solid var(--verb);
+  border: 1.5px solid var(--task);
 }
 .er-node-done {
   background: var(--surface);
@@ -1237,9 +1243,9 @@ ta-agent-banner {
   border: 1.5px solid var(--text);
 }
 .er-node-noun {
-  background: var(--noun-wash);
-  color: var(--noun-text);
-  border: 2px solid var(--noun);
+  background: var(--object-wash);
+  color: var(--object-text);
+  border: 2px solid var(--object);
 }
 .er-node-request {
   view-transition-name: request;
@@ -1279,7 +1285,7 @@ ta-agent-banner {
 }
 .er-lease-left {
   fill: none;
-  stroke: var(--verb);
+  stroke: var(--task);
   stroke-width: 2;
 }
 .er-lease-bot {
@@ -1291,7 +1297,7 @@ ta-agent-banner {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid var(--verb);
+  border: 2px solid var(--task);
   pointer-events: none;
 }
 .er-dots {
@@ -1307,7 +1313,7 @@ ta-agent-banner {
   box-shadow: 0 0 0 3px var(--surface);
 }
 .er-dot-noun {
-  background: var(--noun);
+  background: var(--object);
 }
 .er-dot-real {
   background: var(--real);
@@ -1322,9 +1328,9 @@ ta-agent-banner {
   align-items: center;
   padding: 0 10px;
   border-radius: 13px;
-  background: var(--noun-wash);
-  color: var(--noun-text);
-  border: 1.5px solid var(--noun);
+  background: var(--object-wash);
+  color: var(--object-text);
+  border: 1.5px solid var(--object);
   font-size: var(--fs-small);
   font-weight: 600;
   white-space: nowrap;
@@ -1438,9 +1444,9 @@ ta-agent-banner {
   background: var(--waiting-wash);
   color: var(--text-2);
 }
-.er-count-verb {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+.er-count-task {
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 /* The list view: the phone layout and the diagram's accessible alternative. */
 .er-status-list {
@@ -1506,20 +1512,20 @@ ta-agent-banner {
   background: var(--waiting-wash);
 }
 .er-step-working {
-  background: var(--verb-wash);
+  background: var(--task-wash);
   border-color: transparent;
 }
 .er-step-working .er-step-word {
-  color: var(--verb-text);
+  color: var(--task-text);
 }
 .er-step-done,
 .er-step-noun {
-  background: var(--noun-wash);
+  background: var(--object-wash);
   border-color: transparent;
 }
 .er-step-done .er-step-word,
 .er-step-noun .er-step-word {
-  color: var(--noun-text);
+  color: var(--object-text);
 }
 .er-step-approved {
   background: var(--real-wash);
@@ -1609,8 +1615,8 @@ ta-agent-banner {
 .er-quote {
   margin: 6px 0 0;
   padding: 6px 12px;
-  border-left: 3px solid var(--noun);
-  background: var(--noun-wash);
+  border-left: 3px solid var(--object);
+  background: var(--object-wash);
   color: var(--text);
   font-size: var(--fs-ui);
 }
@@ -1819,7 +1825,7 @@ ta-agent-banner {
   font-size: var(--fs-ui);
 }
 .er-stored code {
-  color: var(--noun-text);
+  color: var(--object-text);
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
   overflow-wrap: anywhere;
@@ -2624,4 +2630,78 @@ button.er-choice-pill {
   .er-track-lane[data-animate="true"] .er-track-token {
     transition: none;
   }
+}
+
+/* ---------------------------------------------------------------- Right now, under the doors (LiveMapStrip) */
+.er-now-strip {
+  margin-top: 20px;
+  max-width: 640px;
+  padding: 14px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+.er-now-strip p {
+  margin: 0;
+}
+.er-now-strip-eyebrow {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--text-2);
+}
+.er-now-strip-headline {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--text);
+}
+.er-now-strip-sub,
+.er-now-strip-last {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--text-2);
+}
+.er-now-strip-cta {
+  justify-self: start;
+  margin-top: 4px;
+  font-size: var(--fs-ui);
+  font-weight: 500;
+}
+.er-now-strip-quiet-body {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--text-2);
+}
+.er-now-strip-quiet-body svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--text-3);
+}
+.er-now-strip-quiet-body strong {
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------- a page that failed to draw */
+.er-page-error {
+  padding-top: 48px;
+  padding-bottom: 64px;
+}
+.er-page-error h1 {
+  font-size: var(--fs-h2);
+  margin: 0 0 12px;
+}
+.er-page-error p {
+  max-width: 60ch;
+  color: var(--text-2);
+}
+.er-page-error-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }

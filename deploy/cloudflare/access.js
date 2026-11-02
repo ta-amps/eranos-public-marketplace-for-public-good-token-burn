@@ -1,5 +1,5 @@
 // Public browser-agent access uses bearer headers, never cookies.
-export const FABRIC_CONNECT = "https://tessera.ta-amps.workers.dev/connect";
+export const FABRIC_CONNECT = "https://tessera.teleionlabs.com/connect";
 export const CORS_HEADERS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET, HEAD, POST, OPTIONS",
@@ -9,10 +9,10 @@ export const CORS_HEADERS = {
 };
 export function accessDescriptor(surface) {
   return {
-    surface, fabric_connect_url: FABRIC_CONNECT, mcp_url: `https://${surface}.ta-amps.workers.dev/mcp`,
+    surface, fabric_connect_url: FABRIC_CONNECT, mcp_url: surface === "eranos" ? "https://eranosforgood.org/mcp" : `https://${surface}.ta-amps.workers.dev/mcp`,
     authentication: "Public reads and practice need no key. Tracked work on Tasks uses a Tessera anonymous session or an API key.",
     surface_persistence: false, cookies: false,
-    anonymous: {session_endpoint: "https://tessera.ta-amps.workers.dev/v1/session/anonymous", token_prefix: "tan_", scope: "isolated demo namespace; quotas and expiry returned at mint"},
+    anonymous: {session_endpoint: "https://tessera.teleionlabs.com/v1/session/anonymous", token_prefix: "tan_", scope: "isolated demo namespace; quotas and expiry returned at mint"},
     keyed: {token_prefix: "tsk_", connect_url: FABRIC_CONNECT, scope: "account and key grants; operator approval for production writes"},
     practice: surface === "eranos" ? {endpoint: "/api/practice", persisted: false} : null,
     restrictions: "Practice never persists or publishes kits. Donations and publication require scoped Tessera keys.",

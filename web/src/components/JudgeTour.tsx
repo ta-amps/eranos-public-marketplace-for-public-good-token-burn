@@ -10,7 +10,7 @@ const FALLBACK_TOUR: JudgeTourNoun = {
     {
       step: 1,
       label: "Agora",
-      href: "https://agora.ta-amps.workers.dev/?tour=judge",
+      href: "https://agora.eranosforgood.org/?tour=judge",
       next_label: "Try the nonprofit journey →",
       next_to: "/nonprofits?tour=judge",
     },
@@ -33,14 +33,14 @@ const FALLBACK_TOUR: JudgeTourNoun = {
       label: "The result",
       to: "/requests/REQ-INTAKE-07?tour=judge#step-ready",
       next_label: "Test the queue live →",
-      next_href: "https://agora.ta-amps.workers.dev/studio/?tour=judge",
+      next_href: "https://agora.eranosforgood.org/studio/?tour=judge",
     },
     {
       step: 5,
       label: "Live queue",
-      href: "https://agora.ta-amps.workers.dev/studio/?tour=judge",
+      href: "https://agora.eranosforgood.org/studio/?tour=judge",
       next_label: "Back to Agora →",
-      next_href: "https://agora.ta-amps.workers.dev/?tour=judge",
+      next_href: "https://agora.eranosforgood.org/?tour=judge",
     },
   ],
 };

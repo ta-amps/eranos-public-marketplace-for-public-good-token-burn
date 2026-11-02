@@ -9,10 +9,10 @@
   "anonymous_link": "Get an anonymous demo session",
   "key_link": "Create or use an API key",
   "anonymous_note": "Anonymous work has immutable demo and untrusted labels, a private demo namespace, quotas and an expiry shown when the session is created.",
-  "bearer_note": "Use Authorization: Bearer YOUR_TOKEN with the Tessera MCP endpoint. No token is required for this surface's public tools.",
+  "bearer_note": "Use Authorization: Bearer YOUR_TOKEN with the Tessera MCP endpoint. No token is required for this surface’s public tools.",
   "machine_link": "Machine-readable access modes",
   "links": {
-    "fabric_connect": "https://tessera.ta-amps.workers.dev/connect",
+    "fabric_connect": "https://tessera.teleionlabs.com/connect",
     "machine": "/connect.json"
   }
 }

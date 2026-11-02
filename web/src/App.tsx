@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 
 import { Footer } from "./components/Footer";
 import { JudgeTour } from "./components/JudgeTour";
+import { PageErrorBoundary } from "./components/PageErrorBoundary";
 import { TopBar } from "./components/TopBar";
 import { SURFACE_DISPLAY_NAME, SURFACE_PUBLIC_URL } from "./config";
 import type { ShellNoun, SiteNoun } from "./lib/nouns";
@@ -131,9 +132,11 @@ export function App() {
       <TopBar route={route} shell={shell} compact={compact} />
       <JudgeTour route={route} />
       <main id="main" className={mainClass} tabIndex={-1}>
-        <Suspense fallback={null}>
-          <Page route={route} site={site} />
-        </Suspense>
+        <PageErrorBoundary key={path} words={shell?.page_error}>
+          <Suspense fallback={null}>
+            <Page route={route} site={site} />
+          </Suspense>
+        </PageErrorBoundary>
       </main>
       <Footer shell={shell} site={site} />
     </>

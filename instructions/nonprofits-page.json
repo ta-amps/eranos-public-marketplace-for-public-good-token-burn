@@ -6,7 +6,7 @@
   "title": "Tell us what you need",
   "eyebrow": "For nonprofits, NGOs and public-good groups",
   "heading": "Tell us what you need.",
-  "lead": "In plain words. You don't need your own AI agent to ask.",
+  "lead": "In plain words. You don’t need your own AI agent to ask.",
   "form": {
     "label": "Describe it",
     "hint": "Describe the job, not the people.",
@@ -49,9 +49,9 @@
         "address": "a street address"
       },
       "and": " and ",
-      "empty": "As you type, an automatic check looks for emails, phone numbers, ID and card numbers, bank account numbers and street addresses. It can't recognise names or case details, so please leave them out.",
-      "clean": "Automatic check: no emails, phone, ID, card or bank numbers or street addresses found. It can't recognise names or case details, so please leave them out.",
-      "case_hint": "This may describe a real person ({kinds}). The check can't tell for sure, so please leave out anything that could identify someone.",
+      "empty": "As you type, an automatic check looks for emails, phone numbers, ID and card numbers, bank account numbers and street addresses. It can’t recognise names or case details, so please leave them out.",
+      "clean": "Automatic check: no emails, phone, ID, card or bank numbers or street addresses found. It can’t recognise names or case details, so please leave them out.",
+      "case_hint": "This may describe a real person ({kinds}). The check can’t tell for sure, so please leave out anything that could identify someone.",
       "case_kinds": {
         "named": "a client or patient with a name",
         "birth": "a date of birth",
@@ -62,7 +62,7 @@
       "head": "Tell us a little more.",
       "body": "What should the result help your team do?"
     },
-    "name_label": "Your organization's name",
+    "name_label": "Your organization’s name",
     "type_label": "Type of organization",
     "type_placeholder": "For example: tenant legal-aid clinic",
     "profile_note": "Your private link needs these two answers. Volunteers see the type of organization with your request.",
@@ -74,11 +74,11 @@
     "send": "Send request",
     "sending": "Sending...",
     "waiting_connection": "Waiting for connection",
-    "after_send": "You'll get a private link to follow your request and make decisions.",
-    "hosted": "Right now: {waiting} waiting in Eranos's queue, {working} being worked on.",
+    "after_send": "You’ll get a private link to follow your request and make decisions.",
+    "hosted": "Right now: {waiting} waiting in Eranos’s queue, {working} being worked on.",
     "missing": {
       "need": "Add at least a sentence about the job.",
-      "name": "Add your organization's name.",
+      "name": "Add your organization’s name.",
       "type": "Add the type of organization.",
       "consent": "Please confirm before sending.",
       "output": "Choose at least one kind of output.",
@@ -112,14 +112,14 @@
   },
   "states": {
     "refused": {
-      "head": "We couldn't send this request.",
-      "personal": "It seems to include a person's contact details. Take them out and send again. Nothing was saved.",
+      "head": "We couldn’t send this request.",
+      "personal": "It seems to include a person’s contact details. Take them out and send again. Nothing was saved.",
       "other": "Tessera answered: {reason}. Nothing was saved.",
-      "not_filed": "Tessera answered: {reason}. Your request wasn't filed, so no volunteer will see it.",
+      "not_filed": "Tessera answered: {reason}. Your request wasn’t filed, so no volunteer will see it.",
       "action": "Edit and send again"
     },
     "quota": {
-      "head": "Eranos can't take new requests right now.",
+      "head": "Eranos can’t take new requests right now.",
       "body": "The shared queue is full for today and resets at {time}. Your text stays in this tab.",
       "action": "Copy my text",
       "copied": "Copied."
@@ -129,8 +129,8 @@
       "body": "Please try again after {time}. Your text stays in this tab."
     },
     "offline": {
-      "head": "You're offline.",
-      "body": "Your text stays in this tab. Send when you're back online."
+      "head": "You’re offline.",
+      "body": "Your text stays in this tab. Send when you’re back online."
     },
     "snapshot": "This offline copy of the site does not send requests."
   },
@@ -139,7 +139,7 @@
     "steps": [
       {
         "title": "We plan it.",
-        "detail": "A volunteer's agent reads it, refuses personal data, and plans the work in plain words."
+        "detail": "A volunteer’s agent reads it, refuses personal data, and plans the work in plain words."
       },
       {
         "title": "Volunteers' agents do each part.",
@@ -147,7 +147,7 @@
       },
       {
         "title": "A different volunteer checks it.",
-        "detail": "Sensitive processes also wait for a person's sign-off."
+        "detail": "Sensitive processes also wait for a person’s sign-off."
       },
       {
         "title": "You decide.",
@@ -175,8 +175,8 @@
     "kits_to": "/catalog"
   },
   "bounds": {
-    "head": "We don't accept private information at this stage.",
-    "body": "Describe the task in general terms; if it needs your files, we'll build a process your own agent runs on them."
+    "head": "We don’t accept private information at this stage.",
+    "body": "Describe the task in general terms; if it needs your files, we’ll build a process your own agent runs on them."
   },
   "output": {
     "legend": "What would help most?",

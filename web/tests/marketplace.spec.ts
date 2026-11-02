@@ -3,6 +3,20 @@ import { expect, test, type Page } from "@playwright/test";
 import type { NonprofitsPageNoun } from "../src/lib/nouns";
 import { LIVE, mockSite, noun } from "./support/mocks";
 
+
+/** Every hero text box a tile (or its lit layer) intersects, as "tile class x text class". Empty when none. */
+function heroCrossings(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const boxes = (selector: string) => [...document.querySelectorAll(selector)].map((el) => ({ el, r: el.getBoundingClientRect() }));
+    const text = boxes(".er-landing-words > *, .er-landing-words .er-door");
+    const tiles = boxes(".er-hero-tile, .er-hero-tile-lit");
+    const hit = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    const out: string[] = [];
+    for (const t of tiles) for (const w of text) if (hit(t.r, w.r)) out.push(`${t.el.className} x ${w.el.className || w.el.tagName}`);
+    return out;
+  });
+}
+
 // The two-sided marketplace after the Paper & Ink redesign: the agent banner on every page (owner requirement 1),
 // the parallax landing with exactly two buttons (2), the request page and its bounds (3), the volunteer page
 // (E09), and the older accessibility and wording guarantees.
@@ -97,7 +111,7 @@ test.describe("owner 1: the agent instructions banner", () => {
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     const panel = banner.locator(".panel");
     await expect(panel).toBeVisible();
-    for (const text of ["Paste this into your agent", "What it can do here", "Rules it follows", "Pick up open tasks as a volunteer"]) {
+    for (const text of ["Paste this into your agent", "What it can do here", "Rules it follows", "Pick up open Tasks as a volunteer"]) {
       await expect(panel).toContainText(text);
     }
     await expect(panel.getByRole("link", { name: "Full agent guide (/connect)" })).toHaveAttribute("href", /\/connect$/);
@@ -133,6 +147,22 @@ test.describe("owner 2: the landing", () => {
     });
   }
 
+  test("the hero overlap check fails on its own when a tile sits over the hero's text (its fixture)", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 613 });
+    await page.goto("/");
+    await expect(page.locator(".er-hero-tile")).toHaveCount(4);
+    expect(await heroCrossings(page)).toEqual([]);
+    await page.evaluate(() => {
+      const h1 = document.querySelector(".er-landing-words h1") as HTMLElement;
+      const r = h1.getBoundingClientRect();
+      const chip = document.createElement("div");
+      chip.className = "er-hero-tile er-hero-tile-fixture";
+      Object.assign(chip.style, { position: "fixed", left: `${r.left + 10}px`, top: `${r.top + 5}px`, width: "90px", height: "28px", minHeight: "0", padding: "0" });
+      document.body.append(chip);
+    });
+    expect(await heroCrossings(page)).toContain("er-hero-tile er-hero-tile-fixture x er-display");
+  });
+
   // The film's opening shot (Nov 2): the hero's tiles must never cover its text, at any moment of the load animation
   // or while the page scrolls. Sampled every 100 ms for 4 s, then every 40 px of scroll.
   for (const [width, height, scale] of [
@@ -151,16 +181,7 @@ test.describe("owner 2: the landing", () => {
           expect(box).toBeLessThanOrEqual(height);
         }
       }
-      const crossings = () =>
-        page.evaluate(() => {
-          const boxes = (selector: string) => [...document.querySelectorAll(selector)].map((el) => ({ el, r: el.getBoundingClientRect() }));
-          const text = boxes(".er-landing-words > *, .er-landing-words .er-door");
-          const tiles = boxes(".er-hero-tile, .er-hero-tile-lit");
-          const hit = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
-          const out: string[] = [];
-          for (const t of tiles) for (const w of text) if (hit(t.r, w.r)) out.push(`${t.el.className} x ${w.el.className || w.el.tagName}`);
-          return out;
-        });
+      const crossings = () => heroCrossings(page);
       const seen = new Set<string>();
       const moves = new Set<string>();
       const first = await page.locator(".er-hero-tile").first().boundingBox();
@@ -227,7 +248,7 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     );
     await page.getByRole("button", { name: "Tenant deposit rules" }).click();
     await expect(page.getByTestId("check-line")).toHaveText(askNoun.form.check.clean);
-    await page.getByLabel("Your organization's name").fill("Riverside Tenant Clinic");
+    await page.getByLabel(/Your organization[’']s name/).fill("Riverside Tenant Clinic");
     await page.getByLabel("Type of organization").fill("Tenant legal-aid clinic");
     await expect(send).toHaveAttribute("aria-disabled", "true");
     await page.getByRole("checkbox", { name: /private information/ }).check();
@@ -289,7 +310,7 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
   test("the offline copy of the site says it does not send", async ({ page }) => {
     await page.goto("/nonprofits");
     await page.getByRole("button", { name: "New grants every month" }).click();
-    await page.getByLabel("Your organization's name").fill("Riverside Pantry");
+    await page.getByLabel(/Your organization[’']s name/).fill("Riverside Pantry");
     await page.getByLabel("Type of organization").fill("Food pantry");
     await page.getByRole("checkbox", { name: /private information/ }).check();
     await page.getByRole("button", { name: "Send request", exact: true }).click();
@@ -335,7 +356,7 @@ test.describe("on the hosted build", () => {
     await expect(list.locator("li").first()).toContainText("Practice case: an example, not a real person or case. Summarize tenant deposit rules");
     await expect(list.locator("li").nth(1)).toContainText("needs a volunteer key");
     await list.locator("li").first().getByRole("button", { name: "Copy for my agent" }).click();
-    expect((await copied(page)).at(-1)).toContain("Claim the open task t-research-1 on Eranos's queue eq02");
+    expect((await copied(page)).at(-1)).toMatch(/Claim the open task t-research-1 on Eranos[’']s queue eq02/);
   });
 
 
@@ -566,13 +587,13 @@ test.describe("wording and accessibility", () => {
   test("the footer is the standard one: one row of links and one short line (ta-amps.footer/1, rule 13)", async ({ page }) => {
     for (const path of ["/", "/help", "/nonprofits", "/connect"]) {
       await page.goto(path);
-      await expect(page.getByTestId("storage-line")).toHaveText("This browser keeps only your requests’ private links. Nothing else is stored.");
+      await expect(page.getByTestId("footer-line")).toHaveText("We don’t accept private information at this stage.");
     }
     const footer = page.locator("footer.er-footer");
     const links = footer.getByRole("navigation", { name: "Site information" }).getByRole("link");
-    await expect(links).toHaveText(["Library", "Your requests", "Status ↗", "How it works ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
+    await expect(links).toHaveText(["Agora ↗", "Teleion Labs ↗", "Library", "Requests", "Network ↗", "Models used ↗", "Status ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
     await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-    await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/status/");
+    await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/status/");
     // One row: at desktop width every link sits on the same line.
     await page.setViewportSize({ width: 1440, height: 900 });
     const tops = await links.evaluateAll((els) => [...new Set(els.map((el) => Math.round(el.getBoundingClientRect().top)))]);
@@ -584,9 +605,9 @@ test.describe("wording and accessibility", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Privacy, in plain words" })).toBeVisible();
     await expect(page.locator("main")).toContainText("#k=");
     await expect(page.locator("main")).toContainText("history.replaceState");
-    await expect(page.locator("main")).toContainText("one of Eranos's own workers");
+    await expect(page.locator("main")).toContainText("one of Eranos’s own workers");
     await expect(page.locator("main")).toContainText("tasks (things to do)");
-    await expect(page.locator("main")).toContainText("task objects");
+    await expect(page.locator("main")).toContainText("Task Objects");
 
     await page.goto("/terms");
     await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
@@ -619,13 +640,13 @@ test.describe("wording and accessibility", () => {
     const mainBox = await page.locator("main#main").boundingBox();
     expect(headerBox && tourBox && mainBox && tourBox.y >= headerBox.y + headerBox.height - 1 && mainBox.y >= tourBox.y + tourBox.height - 1).toBe(true);
 
-    await expect(tour.getByRole("link", { name: /Agora/ }).first()).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/?tour=judge");
+    await expect(tour.getByRole("link", { name: /Agora/ }).first()).toHaveAttribute("href", "https://agora.eranosforgood.org/?tour=judge");
     const askStep = tour.locator("ol a", { hasText: "Ask" });
     await expect(askStep).toHaveAttribute("aria-current", "step");
     await expect(askStep).toHaveAttribute("href", "/nonprofits?tour=judge");
     await expect(tour.locator("ol a", { hasText: "Watch a request" })).toHaveAttribute("href", "/requests/REQ-INTAKE-07?tour=judge");
     await expect(tour.locator("ol a", { hasText: "The result" })).toHaveAttribute("href", "/requests/REQ-INTAKE-07?tour=judge#step-ready");
-    await expect(tour.locator("ol a", { hasText: "Live queue" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/studio/?tour=judge");
+    await expect(tour.locator("ol a", { hasText: "Live queue" })).toHaveAttribute("href", "https://agora.eranosforgood.org/studio/?tour=judge");
 
     await tour.locator("ol a", { hasText: "Watch a request" }).click();
     await expect(page).toHaveURL(/\/requests\/REQ-INTAKE-07\?tour=judge$/);

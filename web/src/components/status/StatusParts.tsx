@@ -300,11 +300,11 @@ export function QueuePanel({ queue, words, showAgents, note }: { queue: QueueSna
           <b>{queue.waiting}</b>
           {words.queue.waiting}
         </span>
-        <span className="er-count er-count-verb">
+        <span className="er-count er-count-task">
           <b>{queue.working}</b>
           {words.queue.working}
         </span>
-        <span className="er-count er-count-verb">
+        <span className="er-count er-count-task">
           <b>{queue.checking}</b>
           {words.queue.checking}
         </span>

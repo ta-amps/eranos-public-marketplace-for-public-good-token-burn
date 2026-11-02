@@ -23,6 +23,8 @@ export type ApiPath =
   | "/api/requests"
   | `/api/requests/${string}`
   | "/api/fabric"
+  | "/api/network"
+  | "/api/shared-tasks"
   | "/api/open-tasks"
   | "/api/models"
   | `/api/nouns/${string}`;

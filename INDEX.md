@@ -175,7 +175,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 
 | File | What it is |
 |---|---|
-| [`instructions/agent-banner.json`](instructions/agent-banner.json) | The agent instructions line above every page |
+| [`instructions/agent-banner.json`](instructions/agent-banner.json) | The agent instructions line above every page (AgentBanner v2) |
 | [`instructions/agent-brief.v3.txt`](instructions/agent-brief.v3.txt) |  |
 | [`instructions/classify.json`](instructions/classify.json) | Classify a request and break it into parts |
 | [`instructions/connect.json`](instructions/connect.json) | Connect to Eranos |
@@ -183,7 +183,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`instructions/help.json`](instructions/help.json) | Help in six steps |
 | [`instructions/home.json`](instructions/home.json) | Home page |
 | [`instructions/library.json`](instructions/library.json) | Find a solution |
-| [`instructions/llms.json`](instructions/llms.json) | llms.txt: how an agent uses Eranos and the shared ta-amps queue |
+| [`instructions/llms.json`](instructions/llms.json) | llms.txt: how an agent uses Eranos |
 | [`instructions/nonprofits-page.json`](instructions/nonprofits-page.json) | Tell us what you need |
 | [`instructions/nonprofits.json`](instructions/nonprofits.json) | Tell us what you need |
 | [`instructions/public-research.json`](instructions/public-research.json) | Rules for public-only research |
@@ -247,7 +247,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (181)
+## web/ (184)
 
 | File | What it is |
 |---|---|
@@ -362,7 +362,9 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/src/components/JudgeTour.tsx`](web/src/components/JudgeTour.tsx) |  |
 | [`web/src/components/Mark.tsx`](web/src/components/Mark.tsx) |  |
 | [`web/src/components/OpenTasks.tsx`](web/src/components/OpenTasks.tsx) |  |
+| [`web/src/components/PageErrorBoundary.tsx`](web/src/components/PageErrorBoundary.tsx) |  |
 | [`web/src/components/RequestBox.tsx`](web/src/components/RequestBox.tsx) |  |
+| [`web/src/components/RightNowStrip.tsx`](web/src/components/RightNowStrip.tsx) |  |
 | [`web/src/components/TopBar.tsx`](web/src/components/TopBar.tsx) |  |
 | [`web/src/components/status/PlainStatus.tsx`](web/src/components/status/PlainStatus.tsx) |  |
 | [`web/src/components/status/StatusParts.tsx`](web/src/components/status/StatusParts.tsx) |  |
@@ -415,13 +417,14 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/src/styles/boards-nov1.css`](web/src/styles/boards-nov1.css) |  |
 | [`web/src/styles/eranos.css`](web/src/styles/eranos.css) |  |
 | [`web/src/styles/fonts.css`](web/src/styles/fonts.css) |  |
-| [`web/src/styles/tokens-v2.css`](web/src/styles/tokens-v2.css) | Paper & Ink tokens v3 (Claude Design, Nov 1). |
+| [`web/src/styles/tokens-v4.css`](web/src/styles/tokens-v4.css) | Generated from tokens.json v4 by tools/buildtokenscss.py. |
 | [`web/src/vite-env.d.ts`](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
 | [`web/tests/csp.spec.ts`](web/tests/csp.spec.ts) |  |
 | [`web/tests/fixtures/models.meta.json`](web/tests/fixtures/models.meta.json) | JSON object: `kind`, `id`, `version`, `runtime`, `fixture_note` |
 | [`web/tests/light.spec.ts`](web/tests/light.spec.ts) |  |
 | [`web/tests/live-smoke.spec.ts`](web/tests/live-smoke.spec.ts) |  |
 | [`web/tests/marketplace.spec.ts`](web/tests/marketplace.spec.ts) |  |
+| [`web/tests/nov2.spec.ts`](web/tests/nov2.spec.ts) |  |
 | [`web/tests/perf.spec.ts`](web/tests/perf.spec.ts) |  |
 | [`web/tests/phase-a2.spec.ts`](web/tests/phase-a2.spec.ts) |  |
 | [`web/tests/release-regression.spec.ts`](web/tests/release-regression.spec.ts) |  |

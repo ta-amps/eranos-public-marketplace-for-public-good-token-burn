@@ -3,9 +3,9 @@ import { AppLink } from "../router";
 import { Mark } from "./Mark";
 
 /**
- * The standard footer (ta-amps.footer/1, the same links and order on every surface; MUST-FOLLOW rule 13): the tile
- * mark and the name, ONE row of links, and one short line about what this browser keeps. Every word is the `shell`
- * noun's footer. The agent links live in the banner above every page.
+ * The standard footer (ta-amps.footer/2, MUST-FOLLOW rule 13): the tile mark and the name, ONE row of links in the
+ * canonical order (a link to another host is absolute and carries ↗), and one short line: the privacy line. Every
+ * word is the `shell` noun's footer. The agent links live in the banner above every page.
  */
 export function Footer({ shell }: { shell: ShellNoun | null; site: SiteNoun | null }) {
   if (!shell) return <footer className="er-footer er-site-footer" />;
@@ -30,8 +30,8 @@ export function Footer({ shell }: { shell: ShellNoun | null; site: SiteNoun | nu
           )}
         </nav>
       </div>
-      <p className="er-site-footer-line" data-testid="storage-line">
-        {shell.footer.storage}
+      <p className="er-site-footer-line" data-testid="footer-line">
+        {shell.footer.line}
       </p>
     </footer>
   );

@@ -108,7 +108,7 @@ def test_worker_schema_matches_python_and_invalid_skill_is_rejected() -> None:
     assert practice_verify_kit(draft)["passed"] is False
     script = f"""
 import worker from {json.dumps((ROOT / "deploy/cloudflare/worker.js").as_uri())};
-const r=await worker.fetch(new Request('https://example.com/api/practice',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{draft:{json.dumps(draft)}}})}}),{{}});
+const r=await worker.fetch(new Request('https://eranosforgood.org/api/practice',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{draft:{json.dumps(draft)}}})}}),{{}});
 console.log(JSON.stringify(await r.json()));
 """
     run = subprocess.run(
@@ -133,7 +133,7 @@ def test_practice_receipt_is_explicitly_an_outcome_not_a_content_digest() -> Non
 import worker from WORKER;
 const out=[];
 for (const draft of DRAFTS) {
- const response=await worker.fetch(new Request("https://example.com/api/practice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({draft})}),{});
+ const response=await worker.fetch(new Request("https://eranosforgood.org/api/practice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({draft})}),{});
  out.push(await response.json());
 }
 console.log(JSON.stringify(out));

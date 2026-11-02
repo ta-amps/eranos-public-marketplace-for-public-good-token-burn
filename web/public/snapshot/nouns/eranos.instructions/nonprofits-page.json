@@ -127,7 +127,7 @@
       "next_title": "What happens after you send",
       "steps": [
         {
-          "detail": "A volunteer's agent reads it, refuses personal data, and plans the work in plain words.",
+          "detail": "A volunteer’s agent reads it, refuses personal data, and plans the work in plain words.",
           "title": "We plan it."
         },
         {
@@ -135,7 +135,7 @@
           "title": "Volunteers' agents do each part."
         },
         {
-          "detail": "Sensitive processes also wait for a person's sign-off.",
+          "detail": "Sensitive processes also wait for a person’s sign-off.",
           "title": "A different volunteer checks it."
         },
         {
@@ -146,24 +146,24 @@
     },
     "audience": "nonprofits, NGOs and public-good groups",
     "bounds": {
-      "body": "Describe the task in general terms; if it needs your files, we'll build a process your own agent runs on them.",
-      "head": "We don't accept private information at this stage."
+      "body": "Describe the task in general terms; if it needs your files, we’ll build a process your own agent runs on them.",
+      "head": "We don’t accept private information at this stage."
     },
     "eyebrow": "For nonprofits, NGOs and public-good groups",
     "form": {
-      "after_send": "You'll get a private link to follow your request and make decisions.",
+      "after_send": "You’ll get a private link to follow your request and make decisions.",
       "causes_label": "Causes, separated by commas",
       "check": {
         "and": " and ",
         "ask": "Please take it out before sending.",
-        "case_hint": "This may describe a real person ({kinds}). The check can't tell for sure, so please leave out anything that could identify someone.",
+        "case_hint": "This may describe a real person ({kinds}). The check can’t tell for sure, so please leave out anything that could identify someone.",
         "case_kinds": {
           "birth": "a date of birth",
           "health": "a diagnosis or health detail",
           "named": "a client or patient with a name"
         },
-        "clean": "Automatic check: no emails, phone, ID, card or bank numbers or street addresses found. It can't recognise names or case details, so please leave them out.",
-        "empty": "As you type, an automatic check looks for emails, phone numbers, ID and card numbers, bank account numbers and street addresses. It can't recognise names or case details, so please leave them out.",
+        "clean": "Automatic check: no emails, phone, ID, card or bank numbers or street addresses found. It can’t recognise names or case details, so please leave them out.",
+        "empty": "As you type, an automatic check looks for emails, phone numbers, ID and card numbers, bank account numbers and street addresses. It can’t recognise names or case details, so please leave them out.",
         "kinds": {
           "address": "a street address",
           "card": "a payment card number",
@@ -203,7 +203,7 @@
       ],
       "examples_label": "Try an example:",
       "hint": "Describe the job, not the people.",
-      "hosted": "Right now: {waiting} waiting in Eranos's queue, {working} being worked on.",
+      "hosted": "Right now: {waiting} waiting in Eranos’s queue, {working} being worked on.",
       "label": "Describe it",
       "links_hint": "One public https link per line, such as a law, a budget or a news page.",
       "links_label": "Public links, one per line",
@@ -212,12 +212,12 @@
         "cadence": "Choose how often it should run.",
         "consent": "Please confirm before sending.",
         "frequency": "Choose how often you need it.",
-        "name": "Add your organization's name.",
+        "name": "Add your organization’s name.",
         "need": "Add at least a sentence about the job.",
         "output": "Choose at least one kind of output.",
         "type": "Add the type of organization."
       },
-      "name_label": "Your organization's name",
+      "name_label": "Your organization’s name",
       "not_ready": {
         "and": " and ",
         "consent": "tick the box",
@@ -292,7 +292,7 @@
     "heading": "Tell us what you need.",
     "key": "nonprofits-page",
     "kind": "instructions",
-    "lead": "In plain words. You don't need your own AI agent to ask.",
+    "lead": "In plain words. You don’t need your own AI agent to ask.",
     "output": {
       "hint": "Choose one or both.",
       "legend": "What would help most?",
@@ -317,14 +317,14 @@
     "schema_version": 1,
     "states": {
       "offline": {
-        "body": "Your text stays in this tab. Send when you're back online.",
-        "head": "You're offline."
+        "body": "Your text stays in this tab. Send when you’re back online.",
+        "head": "You’re offline."
       },
       "quota": {
         "action": "Copy my text",
         "body": "The shared queue is full for today and resets at {time}. Your text stays in this tab.",
         "copied": "Copied.",
-        "head": "Eranos can't take new requests right now."
+        "head": "Eranos can’t take new requests right now."
       },
       "rate": {
         "body": "Please try again after {time}. Your text stays in this tab.",
@@ -332,10 +332,10 @@
       },
       "refused": {
         "action": "Edit and send again",
-        "head": "We couldn't send this request.",
-        "not_filed": "Tessera answered: {reason}. Your request wasn't filed, so no volunteer will see it.",
+        "head": "We couldn’t send this request.",
+        "not_filed": "Tessera answered: {reason}. Your request wasn’t filed, so no volunteer will see it.",
         "other": "Tessera answered: {reason}. Nothing was saved.",
-        "personal": "It seems to include a person's contact details. Take them out and send again. Nothing was saved."
+        "personal": "It seems to include a person’s contact details. Take them out and send again. Nothing was saved."
       },
       "snapshot": "This offline copy of the site does not send requests."
     },
