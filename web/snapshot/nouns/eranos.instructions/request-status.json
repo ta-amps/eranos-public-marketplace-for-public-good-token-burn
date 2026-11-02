@@ -722,7 +722,9 @@
    "task": "task",
    "task_object": "Task Object",
    "use": "Use this process",
-   "what": "What it is"
+   "what": "What it is",
+   "closed_without_result": "This request closed without a result for this part.",
+   "reused_note": "This is an earlier checked answer to a similar question, reused with no new work. Check that it fits what you asked."
   },
   "rule": "Every node, chip and log line comes from a recorded step. Nothing shows as done without its record.",
   "schema_version": 1,

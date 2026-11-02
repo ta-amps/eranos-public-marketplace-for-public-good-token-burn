@@ -2,7 +2,7 @@
  * Owner, October 31: "DO NOT INCLUDE SYNTHETIC." The site's own words never say it. Records bound by a digest (an
  * example kit, say) are served exactly as stored, so their digests verify; this page shows their labels in the
  * site's words: "example", and "Practice case: an example, not a real person or case." for a practice case's mark.
- * Quotes, a source's own text and a request's own words are shown verbatim. Display only: nothing is sent back.
+ * Quotes and a source's own text are shown verbatim. A request's own words pass the filter too (owner: never anywhere). Display only: nothing is sent back.
  * eranos/visible.py and the Worker hold the same rules.
  */
 const CASE_MARK = "Practice case: an example, not a real person or case.";
@@ -17,7 +17,7 @@ const RULES: [RegExp, string | ((match: string, word: string) => string)][] = [
   [/Synthetic/g, "Example"],
   [/synthetic/gi, "example"],
 ];
-const VERBATIM_KEYS = new Set(["quote", "quotes", "excerpt", "source_text", "text"]);
+const VERBATIM_KEYS = new Set(["quote", "quotes", "excerpt", "source_text"]);
 
 export function shownText(text: string): string {
   let out = text;

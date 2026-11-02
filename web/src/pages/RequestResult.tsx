@@ -49,6 +49,8 @@ interface Loaded {
   requestId: string;
   part: PartPlan | null;
   solution: Solution | null;
+  /** The request has closed with no result for this part, so "appears once checked" would be untrue. */
+  closedWithoutResult?: boolean;
   /** The workers' names and declared models, when the record has them (the example does). */
   builder?: { who?: string; model?: string };
   checker?: { who?: string; model?: string };
@@ -218,11 +220,21 @@ function useResult(id: string, partNumber: number, key: string | null): { loaded
         const plan = await getJson<NounResponse<{ parts?: PartPlan[] }>>(`/api/nouns/eranos.plans/${encodeURIComponent(id)}`);
         const part = plan.value.parts?.find((p) => p.part === partNumber) ?? null;
         let solution: Solution | null = null;
-        // A report part names its report; a process part names its kit. Both results are eranos.solutions nouns.
-        const resultId = part?.report_id ?? part?.kit_id;
+        // A report part names its report; a process part names its kit; a reused part names the earlier result it
+        // reuses. All three are eranos.solutions nouns.
+        const resultId = part?.report_id ?? part?.kit_id ?? part?.reused_from?.key;
         if (resultId) {
           try {
             solution = (await getJson<NounResponse<Solution>>(`/api/nouns/eranos.solutions/${encodeURIComponent(resultId)}`)).value;
+          } catch (error) {
+            if (!(error instanceof ApiError && error.status === 404)) throw error;
+          }
+        }
+        let closedWithoutResult = false;
+        if (!solution) {
+          try {
+            const request = await getJson<NounResponse<{ status?: string }>>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}`);
+            closedWithoutResult = request.value.status === "closed";
           } catch (error) {
             if (!(error instanceof ApiError && error.status === 404)) throw error;
           }
@@ -235,7 +247,7 @@ function useResult(id: string, partNumber: number, key: string | null): { loaded
           const mine = record?.value.parts?.[String(partNumber)];
           if (mine) decision = { choice: mine.choice, at: mine.decided_at, version: record?.version };
         }
-        if (current) setLoaded({ example: false, requestId: id, part, solution, decision, decisionsVersion });
+        if (current) setLoaded({ example: false, requestId: id, part, solution, closedWithoutResult, decision, decisionsVersion });
       } catch {
         if (current) setMissing(true);
       }
@@ -525,7 +537,13 @@ export function RequestResult({ id }: { id: string }) {
             approved && <span className="er-chip er-chip-real">{words.steps.tag_checked}</span>
           )}
         </p>
-        {!solution && <StateNotice tone="wait" head={processPart ? (words.result.not_ready ?? "") : (r.not_ready ?? "")} testId="result-not-ready" />}
+        {!solution &&
+          (view.closedWithoutResult ? (
+            <StateNotice tone="wait" head={words.result.closed_without_result ?? ""} testId="result-closed-without-result" />
+          ) : (
+            <StateNotice tone="wait" head={processPart ? (words.result.not_ready ?? "") : (r.not_ready ?? "")} testId="result-not-ready" />
+          ))}
+        {solution && view.part?.reused_from && <StateNotice tone="wait" head={words.result.reused_note ?? ""} testId="result-reused-note" />}
         {report && (
           <>
             <h1>{report.title}</h1>

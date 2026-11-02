@@ -413,6 +413,16 @@ test.describe("on the hosted build", () => {
     await expect(page.getByTestId("download-process")).toHaveCount(0);
   });
 
+  test("a reused part shows the earlier checked result, says so, and never claims it is still waiting", async ({ page }) => {
+    const example = noun<{ solution: { report: { report_id: string } } & Record<string, unknown> }>("request-example");
+    const key = example.solution.report.report_id;
+    const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "reused", text: "A question", reused_from: { key, kind: "report" } }] };
+    await mockSite(page, { plan, solutions: { [key]: { ...example.solution, request_id: "rq-earlier" } } });
+    await page.goto(`/requests/${REQUEST_ID}/result?part=1`);
+    await expect(page.getByTestId("result-reused-note")).toContainText("earlier checked answer");
+    await expect(page.getByTestId("result-not-ready")).toHaveCount(0);
+  });
+
   test("E10: a request withdrawn by its key, a part sent back, and a sensitive kit waiting for sign-off", async ({ page }) => {
     const plan = {
       request_id: REQUEST_ID,

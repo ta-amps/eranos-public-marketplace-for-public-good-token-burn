@@ -366,10 +366,10 @@ function visibleText(text) {
   for (const [pattern, replacement] of VISIBLE_RULES) out = out.replace(pattern, replacement);
   return out;
 }
-// Never rewritten: a quote, a source's own text or a request's own words stay verbatim, and a record bound by a
+// Never rewritten: a quote or a source's own text stays verbatim, and a record bound by a
 // digest (any *_sha256 field) is served exactly as stored, so quotes are never misquoted and digests still verify.
 // Such records carry the word only until their producers stop writing it (the B1 workers drop those claims).
-const VERBATIM_KEYS = new Set(["quote", "quotes", "excerpt", "source_text", "text"]);
+const VERBATIM_KEYS = new Set(["quote", "quotes", "excerpt", "source_text"]);
 function visibleWords(value) {
   if (typeof value === "string") return visibleText(value);
   if (Array.isArray(value)) return value.map(visibleWords);

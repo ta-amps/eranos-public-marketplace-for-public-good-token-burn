@@ -862,7 +862,7 @@ def test_nothing_the_site_serves_says_synthetic() -> None:
     out = _worker(calls)
 
     def own_words(body: str) -> str:
-        # Records bound by a digest and verbatim quotes, source text and request text are served exactly as
+        # Records bound by a digest and verbatim quotes and source text are served exactly as
         # stored (eranos/visible.py); everything else is the site's own words.
         try:
             return json.dumps(shown_parts(json.loads(body)))
@@ -879,6 +879,20 @@ def test_nothing_the_site_serves_says_synthetic() -> None:
         for p in files
         if word.search(own_words(p.read_text(encoding="utf-8")))
     ] == []
+
+
+def test_a_requests_own_words_pass_the_display_filter_but_quotes_do_not() -> None:
+    """A request's text is contributed data, shown through the word filter; stored records and a source's own quote
+    stay as they are. The Worker and the page hold the same rule."""
+    from eranos.visible import visible
+
+    word = "syn" + "thetic"
+    shown = visible({"text": f"a {word} case", "quote": f"a {word} case"})
+    assert word not in shown["text"]
+    assert word in shown["quote"]
+    for path in ("deploy/cloudflare/worker.js", "web/src/lib/shown.ts"):
+        line = next(x for x in (ROOT / path).read_text(encoding="utf-8").splitlines() if "VERBATIM_KEYS = new Set" in x)
+        assert '"text"' not in line, path
 
 
 def test_a_kit_draft_marked_as_practice_cases_passes_the_practice_check() -> None:

@@ -18,6 +18,8 @@ export interface PartPlan {
   frequency?: string;
   report_id?: string;
   kit_id?: string;
+  /** Answered from the library: the earlier checked result this part reuses. */
+  reused_from?: { key?: string; kind?: string; title?: string };
   track_id?: string;
   needs_person_signoff?: boolean;
   work_task_id?: string;
