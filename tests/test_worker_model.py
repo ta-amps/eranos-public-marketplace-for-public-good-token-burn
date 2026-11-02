@@ -428,3 +428,54 @@ def test_a_narrow_volunteer_key_writes_no_record_and_holds_one_queue() -> None:
     assert (check["queues"], check["kinds"]) == (["eq03"], ["report_review"])
     for body in seen:
         assert "cas:write" not in body["scopes"] and "verbs:claim" in body["scopes"]
+
+
+def test_a_task_the_requests_plan_does_not_name_is_never_worked(tmp_path: Path) -> None:
+    from eranos.worker_loop import NotInPlan, _task_ids
+
+    plan = {
+        "parts": [{"work_task_id": "t_a", "review_task_id": "t_b"}],
+        "occurrences": [{"parts": [{"work_task_id": "t_c", "review_task_id": "t_d"}]}],
+    }
+    assert _task_ids(plan) == {"t_a", "t_b", "t_c", "t_d"}
+
+    class Plans:
+        def __init__(self, value: Any) -> None:
+            self.value, self.reads = value, 0
+
+        def get_record(self, store: str, key: str) -> Any:
+            self.reads += 1
+            return SimpleNamespace(value=self.value)
+
+    worker = make(tmp_path, model=Declared("muse-spark-1.3"))
+    worker.sleep = lambda seconds: None
+    named = SimpleNamespace(task_id="t_c", kind="research")
+    worker.planned_task(Plans(plan), named, "rq-1")  # an occurrence's Task: worked
+    forged = SimpleNamespace(task_id="t_forged", kind="research")
+    gate = Plans(plan)
+    with pytest.raises(NotInPlan):
+        worker.planned_task(gate, forged, "rq-1")
+    assert (
+        gate.reads == 3
+    )  # read again before refusing: the planner writes the plan just after the Tasks
+    worker.planned_task(
+        Plans(None), SimpleNamespace(task_id="t_k", kind="draft"), None
+    )  # kit Tasks have no plan
+
+
+def test_a_failure_line_names_only_the_exceptions_class(tmp_path: Path) -> None:
+    worker = make(tmp_path, dedicated=True)
+    worker.config.plain_log = str(tmp_path / "plain.log")
+    lease = SimpleNamespace(
+        task_id="t_x", kind="research", fencing_token=1, attempt=1, queue="eq02", brief={}
+    )
+    gate = SimpleNamespace(ended="failed", receipt=None)
+    beat = SimpleNamespace(lost=None)
+    worker.fail(
+        gate, lease, RuntimeError("www.evil.example answered 404 \\x1b[2J"), None, None, beat
+    )  # type: ignore[arg-type]
+    line = (tmp_path / "plain.log").read_text()
+    assert (
+        line.rstrip().endswith("could not finish a research Task · RuntimeError")
+        and "evil" not in line
+    )

@@ -130,6 +130,10 @@ def plain_words_only(text: str) -> str:
     return " ".join(t if _OK.fullmatch(t) else "…" for t in text.split())
 
 
+class NotInPlan(RuntimeError):
+    """A Task that names a request whose plan does not list it: never worked (anti-forgery)."""
+
+
 class ExampleOnlyRefused(InvalidRequest):
     """Tessera refused personal or payment data in a write. Its code is `example_only`; older
     Tessera Workers send the former code for the same refusal, and both are understood here."""
@@ -1085,7 +1089,7 @@ class Worker:
         """Record a failure: submit ok=false while the lease is held, log it, write a fact. Never raises."""
         self.stats["failed"] += 1
         message = f"{type(exc).__name__}: {str(exc)[:900]}"
-        self.say(f"could not finish {STEP_WORDS.get(lease.kind, 'a Task')}: {str(exc)[:160]}")
+        self.say(f"could not finish {STEP_WORDS.get(lease.kind, 'a Task')} · {type(exc).__name__}")
         if isinstance(exc, ExampleOnlyRefused):
             message = (
                 "Tessera refused personal or payment data in a write (example_only); the part"
@@ -1189,6 +1193,23 @@ class Worker:
             ],
         )
 
+    def planned_task(self, gate: LeaseGate, lease: Lease, request_id: str | None) -> None:
+        """Refuse a request's research, build or check Task unless the request's plan names it, so a
+        Task someone else queued with a brief of their own is never worked or published. The planner
+        writes the plan just after it creates the Tasks, so a missing name is read again shortly."""
+        if not request_id or lease.kind in KIT_KINDS:
+            return
+        for wait in (0.0, 2.0, 5.0):
+            if wait:
+                self.sleep(wait)
+            try:
+                plan = gate.get_record("eranos.plans", request_id).value
+            except NotFound:
+                plan = None
+            if lease.task_id in _task_ids(plan):
+                return
+        raise NotInPlan("the request's plan does not name this Task")
+
     def build(
         self,
         gate: LeaseGate,
@@ -1198,6 +1219,7 @@ class Worker:
         part: Any,
         request_id: str | None,
     ) -> dict[str, Any]:
+        self.planned_task(gate, lease, request_id)
         pick = self.pick_for("make", lease) if lease.kind == "research" else None
         notes["pick"] = self._pick = pick
         self._claimed("work_claimed", lease, part, request_id, pick)
@@ -1303,6 +1325,7 @@ class Worker:
         part: Any,
         request_id: str | None,
     ) -> dict[str, Any]:
+        self.planned_task(gate, lease, request_id)
         pick = self.pick_for("check", lease) if lease.kind == "report_review" else None
         notes["pick"] = self._pick = pick
         self._claimed("check_claimed", lease, part, request_id, pick)
@@ -1333,7 +1356,7 @@ class Worker:
             if status == "delivered"
             else "checks passed · reported: published to the library"
             if status == "published"
-            else f"reported: sent back ({str((out.get('findings') or [status])[0])[:120]})"
+            else "reported: sent back for another try"
         )
         return out
 
@@ -1707,6 +1730,21 @@ class Worker:
         scaled = {k: round(v * (1.0 - share), 4) for k, v in shares.items()}
         nxt["mix"][step] = {**scaled, trial["id"]: share}
         return {"step": step, "added": trial["id"], "why": why, "drafted_with": model_id}
+
+
+def _task_ids(value: Any) -> set[str]:
+    """Every work and check Task id a plan names, in its parts and in each occurrence's parts."""
+    found: set[str] = set()
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key in ("work_task_id", "review_task_id") and isinstance(item, str):
+                found.add(item)
+            else:
+                found |= _task_ids(item)
+    elif isinstance(value, list):
+        for item in value:
+            found |= _task_ids(item)
+    return found
 
 
 def _client(config: WorkerConfig) -> WorkerClient:

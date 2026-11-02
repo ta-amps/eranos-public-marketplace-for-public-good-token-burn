@@ -687,6 +687,10 @@ def test_m10_a_fact_that_cannot_be_written_keeps_the_success(tmp_path: Path) -> 
     )
     brief = research.research_brief("rq-f", PART, "Food bank", GUARDRAILS, RULES, [RULES_URL])
     lease = _lease("research", "eq02", brief, [])
+    # The request's plan names the Task (workers refuse a Task their request's plan does not name).
+    backend.records[("eranos.plans", "rq-f")] = SimpleNamespace(
+        value={"parts": [{"part": PART, "work_task_id": lease.task_id}]}, version=1
+    )
     config = WorkerConfig(
         role="builder",
         label="t",
