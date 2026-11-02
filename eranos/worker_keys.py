@@ -61,20 +61,23 @@ def issue_key(
     *,
     days: float,
     account_prefix: str = "eranos-worker",
+    account_id: str | None = None,
+    label: str | None = None,
 ) -> dict[str, Any]:
     """Issue one role's key; the returned dict holds the secret, so callers must not print it."""
     spec = (
         INTAKE_KEY
         if name == "kit-intake"
         else VOLUNTEER_KEY
-        if name == "volunteer"
+        if name.startswith("volunteer")
         else ROLE_KEYS[name]
     )
     response = http.post(
         "/v1/admin/keys",
         json={
-            "label": f"eranos-{name}",
-            "account_id": spec.get("account_id") or f"{account_prefix}-{name}",
+            "label": label or f"eranos-{name}",
+            # Each named volunteer is its own principal: its own account, never another's.
+            "account_id": account_id or spec.get("account_id") or f"{account_prefix}-{name}",
             "queues": spec["queues"],
             "kinds": spec["kinds"],
             "effect_classes": ["read", "write-internal"],

@@ -24,6 +24,7 @@ import contextlib
 import json
 import os
 import random
+import re
 import signal
 import socket
 import threading
@@ -99,6 +100,28 @@ DECLARED = {
 EXIT_STORAGE_ALLOWANCE = (
     75  # EX_TEMPFAIL: the hosted storage allowance is spent; the units do not restart
 )
+
+
+# What the plain log never shows: hashes, Task and request ids, key ids and keys, links.
+_UNPLAIN = re.compile(
+    r"\b[0-9a-f]{12,}\b|\bt_[0-9a-f]+\b|\brq-[\w.-]+|\b(?:k|tsk)_[\w-]+|https?://\S+|\b[A-Z]{3}-[\w-]*\d[\w-]*\b"
+)
+STEP_WORDS = {
+    "research": "a research Task",
+    "report_review": "a check Task",
+    "request": "a request to plan",
+    "process": "a build Task",
+    "process_review": "a check of a build",
+    "spec": "a kit Task",
+    "draft": "a kit Task",
+    "review": "a kit check",
+    "tune": "the hourly tuning Task",
+}
+
+
+def plain_words_only(text: str) -> str:
+    """A log line with ids, keys, hashes and links taken out."""
+    return " ".join(_UNPLAIN.sub("…", text).split())
 
 
 class ExampleOnlyRefused(InvalidRequest):
@@ -268,6 +291,8 @@ class WorkerConfig:
     trace_path: str
     # A volunteer donates spare Meta credits through the same client: no grace delay, its own key.
     volunteer: bool = False
+    # One readable line per step, with no ids, keys or hashes (ERANOS_PLAIN_LOG; "" for none).
+    plain_log: str = ""
     min_empty_seconds: float = 60.0
     status_heartbeat_seconds: float = 600.0
     # A dedicated worker is run by ta-amps on its own machine; it gives volunteers first pick.
@@ -308,6 +333,7 @@ class WorkerConfig:
             key_id=key_id,
             trace_path=os.environ.get("ERANOS_TRACE") or f"traces/worker-{role}.jsonl",
             volunteer=volunteer,
+            plain_log=os.environ.get("ERANOS_PLAIN_LOG", ""),
             min_empty_seconds=max(60.0, float(os.environ.get("ERANOS_MIN_EMPTY_SECONDS") or 60)),
             dedicated=os.environ.get("ERANOS_DEDICATED", "") == "1" and not volunteer,
             display_name=os.environ.get("ERANOS_WORKER_DISPLAY", ""),
@@ -450,6 +476,21 @@ class Worker:
                 "run_by": "ta-amps",
             }
         return {"worker": self.config.display, "worker_kind": "volunteer"}
+
+    def say(self, text: str) -> None:
+        """One plain line for people watching: no ids, keys or hashes, never fatal."""
+        if not self.config.plain_log:
+            return
+        line = f"{time.strftime('%H:%M:%S')}  {self.who()['worker']} · {plain_words_only(text)}\n"
+        if line[10:] == getattr(self, "_last_said", None):
+            return  # the same idle line again is not news
+        self._last_said = line[10:]
+        with contextlib.suppress(OSError):
+            path = Path(self.config.plain_log)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            fd = os.open(path, os.O_WRONLY | os.O_APPEND | os.O_CREAT, 0o644)
+            with os.fdopen(fd, "a", encoding="utf-8") as fh:
+                fh.write(line)
 
     def payer(self) -> str:
         """Who pays for this worker's model calls, as its execution reports say."""
@@ -630,11 +671,25 @@ class Worker:
         settings = self.rules().get("model") or {}
         tuning, _ = self.tuning()
         version = tuning.get("tuner_version")
+        rng = random.Random(f"{lease.task_id}:{lease.fencing_token}:{step}:{len(exclude)}")  # noqa: S311
         if self.config.volunteer:
-            fixed = {"id": "volunteer", "step": step, "model": self.model_id(), "temperature": 0.0}
+            # A volunteer runs its own model and draws a persona from the mix's variants on it, so its
+            # facts name the model and the persona; with none usable it runs the model plainly.
+            own = self.model_id()
+            drawn = tuning_mod.pick(
+                tuning,
+                step,
+                rng,
+                usable=lambda v: self.usable(v) and v.get("model") == own,
+                exclude=exclude,
+            )
+            if drawn is not None:
+                return {**drawn, "why": f"a volunteer's AI on its own model: {drawn['why']}"}
+            if exclude:
+                return None
+            fixed = {"id": "volunteer", "step": step, "model": own, "temperature": 0.0}
             why = "the volunteer mode runs its own fixed model"
             return {"variant": fixed, "probability": 1.0, "tuner_version": None, "why": why}
-        rng = random.Random(f"{lease.task_id}:{lease.fencing_token}:{step}:{len(exclude)}")  # noqa: S311
         picked = tuning_mod.pick(tuning, step, rng, usable=self.usable, exclude=exclude)
         if picked is not None or exclude:
             return picked
@@ -787,6 +842,9 @@ class Worker:
                     wait_seconds=round(wait, 1),
                     next_claim_at=round(until, 1),
                 )
+                self.say(
+                    "a Task is waiting · volunteers get the first pick, so this worker waits its turn"
+                )
                 return "grace"
         self.stats["claims"] += 1
         try:
@@ -840,6 +898,9 @@ class Worker:
             worker=self.config.label,
             queue=self.queue,
             version=__version__,
+        )
+        self.say(
+            f"started ({self.config.role}), looking for {', '.join(STEP_WORDS.get(k, k) for k in self.kinds)}"
         )
         while not self.stop.is_set():
             try:
@@ -963,6 +1024,7 @@ class Worker:
             elif lease.kind == "tune":
                 outcome = self.tune(gate, lease, meter)
             elif self.config.role == "planner":
+                self.say("claimed a request to plan · deterministic planner (no model)")
                 outcome = Planner(
                     gate,
                     lease,
@@ -971,6 +1033,9 @@ class Worker:
                     handler=self.handler,
                     who=self.who(),
                 ).run()
+                self.say(
+                    f"planned it · {str((outcome or {}).get('status') or 'done').replace('_', ' ')}"
+                )
             elif self.config.role == "builder":
                 outcome = self.build(gate, lease, meter, notes, part, request_id)
             else:
@@ -1014,6 +1079,7 @@ class Worker:
         """Record a failure: submit ok=false while the lease is held, log it, write a fact. Never raises."""
         self.stats["failed"] += 1
         message = f"{type(exc).__name__}: {str(exc)[:900]}"
+        self.say(f"could not finish {STEP_WORDS.get(lease.kind, 'a Task')}: {str(exc)[:160]}")
         if isinstance(exc, ExampleOnlyRefused):
             message = (
                 "Tessera refused personal or payment data in a write (example_only); the part"
@@ -1092,6 +1158,14 @@ class Worker:
         request_id: str | None,
         pick: dict[str, Any] | None = None,
     ) -> None:
+        fields = self.model_fields(lease.kind, pick)
+        how = (
+            f"{fields['model_display']}"
+            + (f" · persona {fields['persona']}" if fields.get("persona") else "")
+            if pick is not None
+            else str(fields.get("method") or "")
+        )
+        self.say(f"claimed {STEP_WORDS.get(lease.kind, 'a Task')} · {how}")
         self._facts(
             self.backend,
             request_id,
@@ -1138,6 +1212,14 @@ class Worker:
             done = process_part.do_process(gate, lease, handler=self.handler)
         notes["artifact_refs"] = done.get("artifact_refs") or []
         idem = f"{lease.task_id}:{lease.fencing_token}"
+        stages = (((done.get("output") or {}).get("report") or {}).get("stages")) or {}
+        if pick is not None and stages:
+            fetched = int((stages.get("fetch") or {}).get("fetched", 0) or 0)
+            kept = int(stages.get("kept", 0) or 0)
+            self.say(
+                f"fetched {fetched} public source{'' if fetched == 1 else 's'} · "
+                f"{kept} claim{'' if kept == 1 else 's'} kept with word-for-word quotes"
+            )
         if not done["self_test"]["passed"]:
             error = "self-test failed: " + "; ".join(done["self_test"]["issues"])[:900]
             receipt = gate.submit(
@@ -1177,6 +1259,7 @@ class Worker:
         receipt = gate.submit(
             lease.task_id, lease.fencing_token, done["output"], idempotency_key=idem, ok=True
         )
+        self.say("its own checks passed · reported: submitted for an independent check")
         self._facts(
             gate,
             request_id,
@@ -1238,6 +1321,14 @@ class Worker:
                 trusted_keys=self.process_builder_keys,
             )
         self._facts(gate, request_id, self.review_facts(lease, out, part))
+        status = out.get("status")
+        self.say(
+            "checks passed · reported: delivered to the requester"
+            if status == "delivered"
+            else "checks passed · reported: published to the library"
+            if status == "published"
+            else f"reported: sent back ({str((out.get('findings') or [status])[0])[:120]})"
+        )
         return out
 
     # example kits (spec on eq01, draft on eq02, review on eq03) ----------------------------------

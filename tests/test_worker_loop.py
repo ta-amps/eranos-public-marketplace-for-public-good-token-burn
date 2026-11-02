@@ -446,6 +446,13 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
         "info1",
     )
     w = _workers(fabric)
+    plain = Path(fabric.trace_dir) / "workers.plain.log"
+    for role in (
+        "planner",
+        "builder",
+        "reviewer",
+    ):  # one shared plain log, as the live units write it
+        w[role].config.plain_log = str(plain)
     assert w["planner"].run_once() == "worked"
     plan = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]
     assert [p["route"] for p in plan["parts"]] == ["public-only"]
@@ -495,6 +502,21 @@ def test_information_request_is_claimed_worked_reviewed_and_delivered(fabric: An
     approved = next(e for e in record["events"] if e["type"] == "check_approved")
     assert approved["tuning"]["maker_variant"] == claimed["variant"]
     assert approved["tuning"]["unsupported"] == []
+    # The plain log reads as plain steps, with no ids, keys or hashes (the film's C2 shot).
+    lines = [line.split("  ", 1)[1] for line in plain.read_text().splitlines()]
+    steps = [line.split(" · ", 1)[1] for line in lines]
+    assert any(
+        t.startswith(
+            f"claimed a research Task · {claimed['model_display']} · persona {claimed['persona']}"
+        )
+        for t in steps
+    )
+    assert any(t.startswith("fetched 1 public source · ") for t in steps)
+    assert "claimed a request to plan · deterministic planner (no model)" in steps
+    assert "its own checks passed · reported: submitted for an independent check" in steps
+    assert any(t.startswith("claimed a check Task · ") for t in steps)
+    assert "checks passed · reported: delivered to the requester" in steps
+    assert not re.search(r"[0-9a-f]{12,}|\bt_[0-9a-f]|rq-|k_|https?://", plain.read_text())
 
     part = plan["parts"][0]
     solution = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")["value"]
@@ -925,6 +947,9 @@ def test_a_volunteer_researches_at_once_under_its_own_label_key_and_model(fabric
         "Muse Spark 1.3",
         "eranos-worker",
     )
+    assert claim["persona"] and claim["variant"].startswith(
+        "make-spark-"
+    )  # model and persona recorded
     assert "delivered" in _types(record)
     approved = next(e for e in record["events"] if e["type"] == "check_approved")
     assert approved["worker"] == "test-reviewer"

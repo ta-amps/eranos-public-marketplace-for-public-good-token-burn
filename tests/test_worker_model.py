@@ -214,8 +214,13 @@ def test_a_volunteer_claims_at_once_and_only_research(tmp_path: Path) -> None:
         "worker_kind": "volunteer",
     }
     pick = worker.pick_for("make", SimpleNamespace(task_id="t_vol", fencing_token=1))
-    assert pick is not None and worker.pick_fields(pick)["variant"] == "volunteer"
-    assert worker.pick_fields(pick)["model_display"] == "Muse Spark 1.3"
+    assert pick is not None
+    fields = worker.pick_fields(pick)
+    # A volunteer runs its own model and draws a persona from the mix's variants on that model.
+    assert fields["model_display"] == "Muse Spark 1.3" and fields["variant"].startswith(
+        "make-spark-"
+    )
+    assert fields["persona"] and fields["why"].startswith("a volunteer's AI on its own model")
     checker = make(
         tmp_path,
         role="reviewer",
@@ -260,8 +265,10 @@ def test_execution_reports_name_the_model_tier_tokens_cost_and_payer(tmp_path: P
     )
     harness = report["harness"]
     assert harness["name"] == "eranos-worker" and harness["declared_model"] == "muse-spark-1.3"
-    assert harness["variant"] == "volunteer" and harness["probability"] == 1.0
-    assert harness["why"] == "the volunteer mode runs its own fixed model"
+    assert harness["variant"].startswith("make-spark-") and harness["persona"]
+    assert harness["probability"] == 0.5 and harness["why"].startswith(
+        "a volunteer's AI on its own model"
+    )
     assert harness["tier"] == "standard" and harness["cost_usd"] == 0.00205
     assert harness["worker_kind"] == "volunteer"
     assert harness["payer"].startswith("spare Meta API credit given by the volunteer")
@@ -341,3 +348,53 @@ def test_the_second_maker_has_its_own_key_shape_and_the_noun_allows_five_workers
 
     assert ROLE_KEYS["builder2"] == ROLE_KEYS["builder"]  # the same scope, issued as its own key
     assert RULES["dedicated"]["max_workers"] == 5 and RULES["model"]["budget"]["daily_usd"] == 25
+
+
+def test_the_plain_log_never_shows_an_id_a_key_a_hash_or_a_link(tmp_path: Path) -> None:
+    from eranos.worker_loop import plain_words_only
+
+    text = plain_words_only(
+        "could not finish t_de01286fed9c49aabd492c33b2cb1da5 for rq-r_02c6-exrecu with k_12323a7b4649 "
+        "tsk_secretvalue123 at https://example.org/x digest 64fd2f0fab24ea41194eed3650c71c5de8203b1d RPT-R49552D4-01"
+    )
+    assert not any(
+        bit in text for bit in ("t_de0", "rq-", "k_1", "tsk_", "https://", "64fd2f", "RPT-")
+    )
+    worker = make(tmp_path, dedicated=True)
+    worker.config.plain_log = str(tmp_path / "plain.log")
+    worker.say("claimed a research Task · Muse Spark 1.3 · persona Careful maker")
+    worker.say("claimed a research Task · Muse Spark 1.3 · persona Careful maker")  # not repeated
+    worker.say("waiting t_abc123def456789")
+    lines = (tmp_path / "plain.log").read_text().splitlines()
+    assert len(lines) == 2 and lines[0].endswith(
+        "dedicated worker 2 (run by ta-amps) · claimed a research Task · Muse Spark 1.3 · persona Careful maker"
+    )
+    assert "t_abc" not in lines[1]
+
+
+def test_each_named_volunteer_is_its_own_principal() -> None:
+    import httpx
+
+    from eranos.worker_keys import issue_key
+
+    seen: list[dict[str, Any]] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return httpx.Response(201, json={"key": "tsk_" + "x" * 32, "key_id": f"k_{len(seen)}"})
+
+    with httpx.Client(
+        base_url="https://tessera.example", transport=httpx.MockTransport(handle)
+    ) as http:
+        for name in ("ag1", "ag2"):
+            issue_key(
+                http,
+                "admin-placeholder",
+                "volunteer",
+                days=8,
+                account_id=f"eranos-volunteer-{name}",
+                label=f"eranos-volunteer-{name}",
+            )
+    assert [b["account_id"] for b in seen] == ["eranos-volunteer-ag1", "eranos-volunteer-ag2"]
+    for body in seen:  # research and its checks only: no planner, builder or kit kinds
+        assert body["queues"] == ["eq02", "eq03"] and body["kinds"] == ["research", "report_review"]

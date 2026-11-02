@@ -402,7 +402,7 @@ def claim_and_draft_once(
         "tags": draft.tags,
         "requested_visibility_scope": requested_scope,
     }
-    receipt = backend.submit(
+    record = backend.submit(
         lease.task_id,
         lease.fencing_token,
         payload,
@@ -410,7 +410,7 @@ def claim_and_draft_once(
         ok=report.passed,
         error=None if report.passed else "; ".join(report.issues),
     )
-    return {**payload, "draft_receipt": receipt.receipt_hash}
+    return {**payload, "draft_receipt": record.receipt_hash}
 
 
 def synthesize_review_decision(

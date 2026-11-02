@@ -612,6 +612,11 @@ def main(argv: list[str] | None = None) -> int:
     work.add_argument(
         "--volunteer", action="store_true", help="Run as a volunteer: its own key, no grace delay"
     )
+    work.add_argument(
+        "--plain-log",
+        default=None,
+        help="Also write one readable line per step to this file (no ids)",
+    )
 
     args = parser.parse_args(argv)
     if args.cmd == "tracks":
@@ -647,6 +652,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.cmd == "work":
         if args.volunteer:  # the volunteer mode: its own key from its env file, no grace delay
             os.environ["ERANOS_VOLUNTEER"] = "1"
+        if args.plain_log:
+            os.environ["ERANOS_PLAIN_LOG"] = str(args.plain_log)
         return cmd_work(
             str(args.role), label=args.label, once=bool(args.once), max_leases=args.max_leases
         )
