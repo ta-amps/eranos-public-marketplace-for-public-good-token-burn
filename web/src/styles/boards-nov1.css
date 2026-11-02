@@ -775,3 +775,98 @@
     font-size: 0.875rem;
   }
 }
+
+/* ---------------------------------------------------------------- the calm request page (Nov 2, RequestStatusPage) */
+/* Owner, Nov 2: on one wide screen every step shows without scrolling, the open step expanded and the finished ones
+   folded. The board's budget for a 1280 x 613 window: banner 36, header 64, title block 76, track 92, three folded
+   steps of 45 (a 44 px header button and a 1 px rule, joined in one list) and the open step at most 209 (header 44,
+   body at most 148, padding 12, rule 1). Phones keep the roomier layout above. */
+@media (min-width: 900px) {
+  .er-main-wide {
+    padding-top: 8px;
+  }
+  .er-status-page {
+    gap: 6px;
+  }
+  .er-status-head {
+    align-items: center;
+  }
+  .er-status-titles h1 {
+    font-size: 1.375rem;
+  }
+  .er-plain {
+    gap: 0;
+    margin-top: 0;
+  }
+  .er-plain > * + * {
+    margin-top: 16px;
+  }
+  .er-plain > .er-rq-band {
+    margin-top: -1px;
+    padding: 0 18px;
+    border-radius: 0;
+  }
+  .er-plain > .er-visually-hidden + .er-rq-band {
+    margin-top: 8px;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+  .er-plain > .er-rq-band[data-band="4"] {
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+  }
+  /* The current step's ink outline sits above its neighbours' rules. */
+  .er-plain > .er-rq-band-now {
+    z-index: 1;
+  }
+  .er-plain .er-rq-band[data-open="true"] {
+    padding-bottom: 12px;
+  }
+  .er-band-toggle {
+    min-height: 44px;
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  .er-rq-band[data-open="true"] .er-band-toggle {
+    font-size: 1.375rem;
+  }
+  .er-band-n {
+    width: 30px;
+    height: 30px;
+    flex: none;
+  }
+  .er-band-status {
+    font-size: 0.9375rem;
+  }
+  .er-band-body {
+    margin-top: 0;
+    max-height: max(148px, calc(100vh - 465px));
+  }
+  /* Compact step bodies: one helper line, the list in tight rows, one note. */
+  .er-plain .er-helper {
+    margin: 0 0 4px;
+  }
+  .er-plain .er-making,
+  .er-plain .er-band-list {
+    margin-top: 4px;
+    gap: 2px;
+  }
+  .er-plain .er-band-ok {
+    margin-top: 2px;
+  }
+  .er-plain .er-ready-cards {
+    margin: 4px 0 6px;
+    gap: 8px;
+  }
+  .er-plain .er-ready-card {
+    min-height: 52px;
+    box-sizing: border-box;
+    padding: 6px 14px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .er-plain .er-band-body > p {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+}

@@ -82,25 +82,36 @@ test.describe("on the hosted build", () => {
   });
 });
 
-test("at 1280 × 613 (scale 1.5), with the track stuck, the step headers and the open step fit in five moments", async ({ browser }) => {
+// The calm request page (owner, Nov 2: "all steps visible on one wide screen without scrolling, the open step expanded,
+// finished ones collapsed"): at 1280 x 613 (scale 1.5), with no scroll, the four step headers and the open step's last
+// line sit above the fold, the open step needs no scroll of its own, and folded steps are the board's 45 px rows.
+test("the calm request page fits 1280 × 613 (scale 1.5) with no scroll in the making, checking, ready and library moments", async ({ browser }) => {
   test.setTimeout(60_000);
   const context = await browser.newContext({ viewport: { width: 1280, height: 613 }, deviceScaleFactor: 1.5 });
   const page = await context.newPage();
-  // planned, making (working), checking (review), ready (your-turn) and library (decided).
-  for (const moment of ["planned", "working", "review", "your-turn", "decided"]) {
+  for (const moment of ["working", "review", "your-turn", "decided", "planned"]) {
     await page.goto(`/requests/example?moment=${moment}`);
     await expect(page.getByTestId("band-toggle-4")).toBeVisible();
-    await page.evaluate(() => {
-      const track = document.querySelector("[data-testid='request-track']") as HTMLElement;
-      window.scrollTo(0, track.getBoundingClientRect().top + window.scrollY - 1);
-    });
+    await page.waitForTimeout(300);
     const fit = await page.evaluate(() => {
-      const bottom = (el: Element | null) => (el ? el.getBoundingClientRect().bottom : Infinity);
-      const heads = [1, 2, 3, 4].map((n) => bottom(document.querySelector(`[data-testid='band-toggle-${n}']`)));
-      const open = [...document.querySelectorAll(".er-band-body:not([hidden])")].map((el) => bottom(el));
-      return { heads, open, height: window.innerHeight };
+      const heads = [1, 2, 3, 4].map((n) => (document.querySelector(`[data-testid='band-toggle-${n}']`) as HTMLElement).getBoundingClientRect().bottom);
+      const body = document.querySelector(".er-band-body:not([hidden])") as HTMLElement | null;
+      const lines = body ? [...body.querySelectorAll("*")].filter((el) => el.getClientRects().length && !el.children.length && (el.textContent ?? "").trim()) : [];
+      const last = lines.length ? Math.max(...lines.map((el) => el.getBoundingClientRect().bottom)) : 0;
+      const folded = [...document.querySelectorAll("[data-band][data-open='false']")].map((el) => Math.round(el.getBoundingClientRect().height));
+      return {
+        scrollY: window.scrollY,
+        heads,
+        last,
+        inner: body ? body.scrollHeight - body.clientHeight : 0,
+        folded,
+        height: window.innerHeight,
+      };
     });
-    for (const b of [...fit.heads, ...fit.open]) expect(b, moment).toBeLessThanOrEqual(fit.height);
+    expect(fit.scrollY, moment).toBe(0);
+    for (const b of [...fit.heads, fit.last]) expect(b, moment).toBeLessThanOrEqual(fit.height);
+    expect(fit.inner, `${moment}: the open step scrolls inside`).toBeLessThanOrEqual(0);
+    for (const h of fit.folded) expect(h, `${moment}: a folded step`).toBeLessThanOrEqual(46);
   }
   await context.close();
 });
