@@ -1481,3 +1481,20 @@ def test_a_pantry_question_with_filing_words_gets_its_food_pages_first() -> None
     first = [ids.get(u, u) for u in fetched]
     food = [i for i in first if i.startswith("food-")]
     assert len(food) >= 3 and first[: len(food)] == food, first
+
+
+def test_specific_actionable_sentences_rank_first_among_a_sources_candidates() -> None:
+    from eranos.pipeline.research import candidate_sentences, specificity
+
+    assert specificity("Keep the refrigerator at 40 °F or below.") == 2
+    assert specificity("A person shall not be subject to civil liability for donated food.") == 1
+    assert specificity("Follow these four simple steps: clean, separate, cook, and chill.") == 0
+    text = (
+        "Food pantries follow simple food rules every day of the week. "
+        "Keep cold pantry food at 40 °F or below and throw it out after 2 hours outside. "
+        "A pantry that gives food in good faith is protected from liability for that food."
+    )
+    picked = candidate_sentences(
+        [{"id": "SRC-1", "text": text}], "What food rules apply to a pantry?", 2
+    )
+    assert [p["text"][:9] for p in picked] == ["Keep cold", "A pantry "]

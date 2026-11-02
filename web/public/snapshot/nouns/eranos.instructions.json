@@ -804,6 +804,7 @@
             "Write up to {max_claims} short claims that answer the question. Each claim must rest on exactly one numbered sentence.",
             "For each claim give: \"sentence\" (the number of the sentence it rests on, like S2-4) and \"claim\" (one plain sentence that says what that sentence says, using its words; add nothing it does not say). The sentence itself is quoted for you, word for word.",
             "When several sources answer the question, take points from each of them rather than many from one.",
+            "Prefer sentences that say something specific a reader can act on: a number with its unit, a temperature, a time limit, or who is protected or required to do what.",
             "Use only sentences that answer the question. Never invent a sentence, a number or a source.",
             "Reply with JSON only: {\"claims\": [{\"sentence\": \"S1-1\", \"claim\": \"...\"}]}"
           ],
@@ -1276,6 +1277,33 @@
             {
               "access": "public_web_page",
               "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+              "id": "food-usc-good-samaritan",
+              "publisher": "U.S. Government Publishing Office (42 U.S.C. 1791, as amended in 2022)",
+              "requires": [
+                "food",
+                "pantry",
+                "kitchen",
+                "meal",
+                "perishable",
+                "foodborne",
+                "food-safety",
+                "food-bank"
+              ],
+              "topics": [
+                "pantry",
+                "donation",
+                "donate",
+                "donated",
+                "liability",
+                "samaritan",
+                "emerson",
+                "food-bank"
+              ],
+              "url": "https://www.govinfo.gov/content/pkg/USCODE-2022-title42/html/USCODE-2022-title42-chap13A-sec1791.htm"
+            },
+            {
+              "access": "public_web_page",
+              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
               "id": "food-cdc-prevention",
               "publisher": "U.S. Centers for Disease Control and Prevention",
               "requires": [
@@ -1304,33 +1332,6 @@
                 "sick"
               ],
               "url": "https://www.cdc.gov/food-safety/prevention/index.html"
-            },
-            {
-              "access": "public_web_page",
-              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
-              "id": "food-usc-good-samaritan",
-              "publisher": "U.S. Government Publishing Office (42 U.S.C. 1791, as amended in 2022)",
-              "requires": [
-                "food",
-                "pantry",
-                "kitchen",
-                "meal",
-                "perishable",
-                "foodborne",
-                "food-safety",
-                "food-bank"
-              ],
-              "topics": [
-                "pantry",
-                "donation",
-                "donate",
-                "donated",
-                "liability",
-                "samaritan",
-                "emerson",
-                "food-bank"
-              ],
-              "url": "https://www.govinfo.gov/content/pkg/USCODE-2022-title42/html/USCODE-2022-title42-chap13A-sec1791.htm"
             }
           ],
           "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it.",

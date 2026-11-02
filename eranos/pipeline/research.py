@@ -280,6 +280,36 @@ def gather(brief: dict[str, Any], fetcher: Fetcher) -> tuple[list[dict[str, Any]
     return records, failures
 
 
+# A sentence a reader can act on: a number with its unit (a temperature, a time, a size, an
+# amount), a time limit, or who is protected or required to do what. General, not tied to a topic.
+_UNIT = re.compile(
+    r"\b\d+(?:[.,]\d+)?\s*(?:\u00b0\s*[fc]\b|degrees?\b|percent\b|%|hours?\b|minutes?\b|days?\b|"
+    r"weeks?\b|months?\b|years?\b|seconds?\b|inch(?:es)?\b|feet\b|foot\b|pounds?\b|lbs?\b|"
+    r"ounces?\b|oz\b|gallons?\b|quarts?\b|miles?\b|dollars?\b)|\$\s?\d|\b\d+\s*\u00b0",
+    re.IGNORECASE,
+)
+_LIMIT = re.compile(
+    r"\b(?:within|no (?:more|later|longer) than|at (?:least|most)|up to|until)\s+\$?\d",
+    re.IGNORECASE,
+)
+_DUTY = re.compile(
+    r"\b(?:must|shall|required|requires|requirement|may not|prohibited|liable|liability|"
+    r"protects?|protected|protection|immune|immunity|exempt)\b",
+    re.IGNORECASE,
+)
+
+
+def specificity(sentence: str) -> int:
+    """How much a sentence says that a reader can act on (0 to 3): a number with a unit counts
+    two, a time limit one, and who is protected or required to do what one."""
+    return min(
+        3,
+        2 * bool(_UNIT.search(sentence))
+        + bool(_LIMIT.search(sentence))
+        + bool(_DUTY.search(sentence)),
+    )
+
+
 def candidate_sentences(
     sources: list[dict[str, Any]], question: str, limit: int
 ) -> list[dict[str, Any]]:
@@ -301,8 +331,10 @@ def candidate_sentences(
                     continue  # headings and repeated lines are not claims
                 seen.add(sentence)
                 overlap = len(wanted & words(sentence))
-                if overlap:
-                    scored.append((overlap, position, sentence))
+                if (
+                    overlap
+                ):  # it must share a word with the question; then specific ones rank higher
+                    scored.append((overlap + specificity(sentence), position, sentence))
         scored.sort(key=lambda item: (-item[0], item[1]))
         for rank, (overlap, position, sentence) in enumerate(scored[:12]):
             picked.append(
