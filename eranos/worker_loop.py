@@ -327,6 +327,9 @@ class WorkerConfig:
     dedicated: bool = False
     display_name: str = ""
     our_key_ids: tuple[str, ...] = ()
+    # Set to "ta-amps" for a program ta-amps runs itself in the volunteer mode (the on-camera take):
+    # its claims are ours and never shown as an outside volunteer's (ERANOS_RUN_BY).
+    run_by: str = ""
 
     @property
     def display(self) -> str:
@@ -365,6 +368,7 @@ class WorkerConfig:
             min_empty_seconds=max(60.0, float(os.environ.get("ERANOS_MIN_EMPTY_SECONDS") or 60)),
             dedicated=os.environ.get("ERANOS_DEDICATED", "") == "1" and not volunteer,
             display_name=os.environ.get("ERANOS_WORKER_DISPLAY", ""),
+            run_by=os.environ.get("ERANOS_RUN_BY", "").strip(),
             our_key_ids=tuple(
                 k for k in os.environ.get("ERANOS_DEDICATED_KEY_IDS", "").split(",") if k
             ),
@@ -495,18 +499,27 @@ class Worker:
         self.stats = {"claims": 0, "empty": 0, "refused": 0, "worked": 0, "failed": 0, "lost": 0}
 
     def who(self) -> dict[str, Any]:
-        """How this worker appears on a request's record: a dedicated worker run by ta-amps, or a
-        volunteer's agent; the model each declares is in the facts that name the work."""
-        if self.config.volunteer:
+        """How this worker appears on a request's record. Only an outside volunteer's run (the
+        explicit volunteer mode, not run by ta-amps) is marked `volunteer`; a dedicated worker, the
+        default mode and ta-amps's own volunteer-mode take are ours and marked `dedicated`, run by
+        ta-amps, so our work never appears as an outside volunteer's. The model each declares is in
+        the facts that name the work."""
+        if self.config.volunteer and self.config.run_by != "ta-amps":
             return {"worker": "a volunteer's AI", "dedicated": False, "worker_kind": "volunteer"}
-        if self.config.dedicated:
+        if self.config.volunteer:
+            label = self.config.display_name or "the on-camera worker (run by ta-amps)"
             return {
-                "worker": self.config.display,
+                "worker": label,
                 "dedicated": True,
                 "worker_kind": "dedicated",
                 "run_by": "ta-amps",
             }
-        return {"worker": self.config.display, "worker_kind": "volunteer"}
+        return {
+            "worker": self.config.display,
+            "dedicated": True,
+            "worker_kind": "dedicated",
+            "run_by": "ta-amps",
+        }
 
     def say(self, text: str) -> None:
         """One plain line for people watching: no ids, keys or hashes, never fatal."""
@@ -1842,6 +1855,7 @@ class Worker:
             tags=["kind:instructions", "kind:worker_policy"],
         )
         self._tuning = (nxt, int(saved.version))
+        self._write_shares(gate, nxt, len(outcomes), now)
         output = {
             "node": "tune",
             "status": "tuned",
@@ -1860,6 +1874,38 @@ class Worker:
         )
         self.trace.write("tuned", tuner_version=nxt["tuner_version"], outcomes=len(outcomes))
         return output
+
+    def _write_shares(
+        self, gate: LeaseGate, policy: dict[str, Any], outcomes: int, now: float
+    ) -> None:
+        """The public share line beside the tuning noun (eranos.instructions/worker.shares); a
+        failed write is logged and never fails the tune."""
+        value = tuning_mod.shares(
+            list(policy.get("variants") or []),
+            dict(policy.get("mix") or {}),
+            dict(policy.get("stats") or {}),
+            tuner_version=int(policy.get("tuner_version") or 0),
+            as_of=now,
+            outcomes=outcomes,
+        )
+        try:
+            try:
+                version = int(
+                    gate.get_record(tuning_mod.TUNING_STORE, tuning_mod.SHARES_KEY).version
+                )
+            except NotFound:
+                version = 0
+            gate.put_record(
+                tuning_mod.TUNING_STORE,
+                tuning_mod.SHARES_KEY,
+                value,
+                expected_version=version,
+                producer_surface="surface:eranos",
+                visibility_scope="public_commons",
+                tags=["kind:instructions", "kind:worker_shares"],
+            )
+        except Exception as exc:
+            self.trace.write("shares_not_written", level="warning", error=type(exc).__name__)
 
     def _propose(
         self,

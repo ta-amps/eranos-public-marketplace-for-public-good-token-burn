@@ -592,3 +592,50 @@ def test_a_quiet_month_is_not_charged_when_a_later_month_finds_claims() -> None:
     out = tuning.outcomes_from_events("rq-r", events, REWARDS)
     assert [o.variant for o in out if o.step == "make" and o.success == 0.0] == []
     assert any(o.variant == "make-spark-quick" and o.success > 0 for o in out)
+
+
+def test_the_public_share_line_names_models_and_shares_only() -> None:
+    value = tuning.shares(
+        TUNING["variants"], TUNING["mix"], {}, tuner_version=7, as_of=1793620800.0, outcomes=12
+    )
+    assert (
+        value["key"] == "worker.shares" and value["tuner_version"] == 7 and value["outcomes"] == 12
+    )
+    make = value["steps"]["make"]
+    assert {e["model"] for e in make} == {
+        v["model"] for v in TUNING["variants"] if v["step"] == "make"
+    }
+    assert sum(e["percent"] for e in make) == 100 and make == sorted(
+        make, key=lambda e: -e["share"]
+    )
+    assert value["line"].startswith("Right now: ") and "% of making" in value["line"]
+    assert "% of checking" in value["line"]
+    text = json.dumps(value)
+    for variant in TUNING["variants"]:  # no persona title or prompt, no variant id
+        persona = variant.get("persona") or {}
+        assert not persona or (persona["text"] not in text and persona["title"] not in text)
+        assert variant["id"] not in text
+
+
+def test_the_tuner_writes_the_share_line_beside_the_policy(tmp_path: Path) -> None:
+    from tessera import NotFound
+
+    class SharesBackend(Backend):
+        def get_record(self, store: str, key: str) -> Any:
+            if key == "worker.shares":
+                raise NotFound(key)
+            return super().get_record(store, key)
+
+    backend = SharesBackend(failing_requests())
+    worker = planner(
+        tmp_path,
+        backend,
+        Drafter({"title": "Careful checker", "text": "Check each quote word by word."}),
+    )
+    lease = SimpleNamespace(task_id="tune-x", fencing_token=1, kind="tune", brief={})
+    worker.tune(backend, lease, worker_meter())
+    written = {key: value for store, key, value, kw in backend.puts}
+    assert set(written) == {"worker.policy", "worker.shares"}
+    shares = written["worker.shares"]
+    assert shares["tuner_version"] == written["worker.policy"]["tuner_version"]
+    assert shares["line"].startswith("Right now: ") and shares["outcomes"] == 3

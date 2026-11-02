@@ -352,6 +352,70 @@ def summary(
     return out
 
 
+SHARES_KEY = "worker.shares"
+STEP_NAMES = {"make": "making", "check": "checking"}
+
+
+def shares(
+    variants: list[dict[str, Any]],
+    mix: dict[str, dict[str, float]],
+    stats: dict[str, dict[str, float]],
+    *,
+    tuner_version: int,
+    as_of: float,
+    outcomes: int,
+) -> dict[str, Any]:
+    """The public share line (owner D8): by step, each model's share of the work now and the
+    outcomes it rests on. Model ids, names and numbers only: no variant's persona or prompt."""
+    by_id = {v["id"]: v for v in variants}
+    steps: dict[str, list[dict[str, Any]]] = {}
+    for step, step_mix in mix.items():
+        per: dict[str, dict[str, Any]] = {}
+        for vid, share in step_mix.items():
+            variant = by_id.get(vid, {})
+            model = str(variant.get("model") or "")
+            entry = per.setdefault(
+                model,
+                {
+                    "model": model,
+                    "model_display": str(variant.get("model_display") or model),
+                    "share": 0.0,
+                    "outcomes": 0,
+                },
+            )
+            entry["share"] += float(share)
+            entry["outcomes"] += int(stats.get(vid, {}).get("outcomes", 0))
+        rows = sorted(per.values(), key=lambda e: (-e["share"], e["model"]))
+        percents = dict(_percentages({e["model"]: e["share"] for e in rows}))
+        for entry in rows:
+            entry["share"] = round(entry["share"], 4)
+            entry["percent"] = percents.get(entry["model"], 0)
+        steps[step] = rows
+    phrases = []
+    for step, rows in steps.items():
+        if rows:
+            first, rest = rows[0], rows[1:]
+            phrase = (
+                f"{first['model_display']} does {first['percent']}% of {STEP_NAMES.get(step, step)}"
+            )
+            phrases.append(
+                ", ".join([phrase, *(f"{e['model_display']} {e['percent']}%" for e in rest)])
+            )
+    return {
+        "schema_version": 1,
+        "kind": "worker_shares",
+        "key": SHARES_KEY,
+        "title": "Which models do the work right now",
+        "about": "Written by the hourly tuner from the tuning noun's mix (eranos.instructions/worker.policy):"
+        " each step's share by model and the recorded outcomes it rests on. Model names and numbers only.",
+        "as_of": round(as_of, 3),
+        "tuner_version": tuner_version,
+        "outcomes": outcomes,
+        "steps": steps,
+        "line": "Right now: " + "; ".join(phrases) + "." if phrases else "",
+    }
+
+
 def _percentages(shares: dict[str, float]) -> list[tuple[str, int]]:
     """Whole percentages that add up to 100 (largest remainder), largest first."""
     total = sum(shares.values()) or 1.0

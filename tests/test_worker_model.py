@@ -598,3 +598,40 @@ def test_a_task_that_names_no_request_is_refused_and_a_refusal_writes_no_fact(
         SimpleNamespace(lost=None),
     )  # type: ignore[arg-type]
     assert worker.backend.puts == []  # nothing is written onto the request the forged brief names
+
+
+@pytest.mark.parametrize(
+    ("volunteer", "dedicated", "run_by", "kind", "shown"),
+    [
+        (True, False, "", "volunteer", "a volunteer's AI"),  # an outside volunteer's own run
+        (True, False, "ta-amps", "dedicated", "the on-camera worker (run by ta-amps)"),  # our take
+        (False, True, "", "dedicated", "dedicated worker 2 (run by ta-amps)"),
+        (
+            False,
+            False,
+            "",
+            "dedicated",
+            "test-worker",
+        ),  # the default mode is ours, never a volunteer's
+    ],
+)
+def test_only_an_outside_volunteers_run_is_marked_volunteer(
+    tmp_path: Path, volunteer: bool, dedicated: bool, run_by: str, kind: str, shown: str
+) -> None:
+    worker = make(tmp_path, volunteer=volunteer, dedicated=dedicated)
+    worker.config.run_by = run_by
+    who = worker.who()
+    assert who["worker_kind"] == kind and who["worker"] == shown
+    if kind == "volunteer":
+        assert who["dedicated"] is False and "run_by" not in who
+    else:
+        assert who["dedicated"] is True and who["run_by"] == "ta-amps"
+
+
+def test_the_run_by_setting_comes_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("TESSERA_URL", "http://127.0.0.1:9")
+    monkeypatch.setenv("TESSERA_KEY", "x")
+    monkeypatch.setenv("ERANOS_KEY_ID", "k_test")
+    monkeypatch.setenv("ERANOS_VOLUNTEER", "1")
+    monkeypatch.setenv("ERANOS_RUN_BY", "ta-amps")
+    assert WorkerConfig.from_env("builder").run_by == "ta-amps"
