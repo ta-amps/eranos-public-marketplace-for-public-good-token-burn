@@ -183,6 +183,7 @@ export function cueFor(
     case "library_added":
       return fade(node(`result-${n}`), reduced);
     case "closed":
+    case "reopened":
     case "withdrawn":
       return fade(target(host, "[data-motion=overall]"), reduced);
   }

@@ -54,6 +54,7 @@ export type StatusEventType =
   | "decided"
   | "heartbeat"
   | "closed"
+  | "reopened"
   | "withdrawn";
 
 export type DecisionChoice = "use" | "changes" | "dont";

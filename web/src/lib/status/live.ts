@@ -148,7 +148,7 @@ export async function readKeyed(id: string, key: string, previous: KeyedData | n
  * The live workers' other names for facts the page already knows (both are accepted): `added` is `library_added`;
  * `reused` is a part delivered or published from the library with no new work; `scheduled` is a recurring
  * request's next run (`queued` with `summary.next_at`); `work_failed` is a failed try that went back in line
- * (`work_released` with its reason).
+ * (`work_released` with its reason); `reopen` is `reopened`, a closed request open again.
  */
 export function canonicalEvent(event: StatusEvent): StatusEvent {
   const raw = event as Omit<StatusEvent, "type"> & { type: string; next_at?: number };
@@ -163,6 +163,9 @@ export function canonicalEvent(event: StatusEvent): StatusEvent {
       return { ...event, type: "queued", summary: { ...event.summary, next_at: event.summary?.next_at ?? raw.next_at } };
     case "work_failed":
       return { ...event, type: "work_released", reason: event.reason || "the try failed" };
+    case "reopen":
+    case "re_opened":
+      return { ...event, type: "reopened" };
     default:
       return event;
   }

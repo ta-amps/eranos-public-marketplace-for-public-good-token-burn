@@ -118,7 +118,8 @@
     "finished": "Finished",
     "withdrawn": "Withdrawn",
     "read_only": "Public request",
-    "unfinished": "Closed without a result"
+    "unfinished": "Closed without a result",
+    "reused": "Answered from the library"
   },
   "list": {
     "plan_title": "Plan",
@@ -178,7 +179,8 @@
     "heartbeat": "",
     "released_reason": "{who} released part {n}: {reason}. It’s back in line.",
     "closed_unfinished": "Closed before any part was approved.",
-    "plan_released_reason": "{who} released the request: {reason}. It’s back in line."
+    "plan_released_reason": "{who} released the request: {reason}. It’s back in line.",
+    "reopened": "Opened again. The earlier answer stays on the record as a failed attempt."
   },
   "queue": {
     "title": "Eranos queue right now",
@@ -227,7 +229,9 @@
     "blocked": "We couldn’t take this request.",
     "part_released": "Part {n} is back in line.",
     "signoff": "Part {n} waits for a person’s sign-off.",
-    "closed_unfinished": "Your request closed without a finished result."
+    "closed_unfinished": "Your request closed without a finished result.",
+    "reused": "Answered from the library with no new work.",
+    "reopened": "Opened again: back in line."
   },
   "notices": {
     "no_agents": {
@@ -467,7 +471,8 @@
       "in_use_plain": "Decided: use it",
       "sent_back": "Sent back for fixes",
       "ready_public": "Ready for the nonprofit",
-      "unfinished": "Closed without a finished result"
+      "unfinished": "Closed without a finished result",
+      "reused": "Answered from the library"
     },
     "stages_label": "Where your request is",
     "stages": {
@@ -574,7 +579,8 @@
       "check_claimed_eranos": "A dedicated worker run by ta-amps started checking it.",
       "check_claimed_changes_eranos": "A dedicated worker run by ta-amps started checking them.",
       "work_released_reason": "The volunteer couldn’t finish it ({reason}). It’s back in line.",
-      "closed_unfinished": "This request closed before a checked result was ready."
+      "closed_unfinished": "This request closed before a checked result was ready.",
+      "reopened": "Opened again: the library answer didn’t fit, so it went back in line."
     },
     "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
     "share": "Share this request",
@@ -693,9 +699,20 @@
         "your_turn": "Your turn to decide",
         "their_turn": "The nonprofit decides",
         "upcoming": "Waiting to start",
-        "signoff": "Waiting for a person to sign off"
+        "signoff": "Waiting for a person to sign off",
+        "closed": "Closed before this step",
+        "reused_sorted": "Matched in the library",
+        "reused_made": "No new work",
+        "reused_checked": "Checked when first made",
+        "reused_ready": "Answered from the library · {time}"
+      },
+      "reused": {
+        "sorted": "An answer already in the shared library matched this request, so it was answered from there.",
+        "made": "Nothing new was made and no new tokens were spent: the answer already existed.",
+        "checked": "A different helper checked that answer when it was first made."
       }
-    }
+    },
+    "reopened_note": "Opened again: the library answer didn’t fit this request, so it’s back in line. The first answer stays in its history."
   },
   "steps": {
     "tag_process": "A reusable process",

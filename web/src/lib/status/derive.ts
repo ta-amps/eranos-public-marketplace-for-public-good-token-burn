@@ -22,6 +22,7 @@
  * | delivered / published  | Result: your turn                                                         |
  * | decided                | Result: decided ("You used it"), with its record                          |
  * | closed                 | the request is finished                                                   |
+ * | reopened               | a closed request is open again (a wrong reuse stays in the history)        |
  * | withdrawn              | open steps stop; finished parts stay                                      |
  *
  * In live mode a part's queue step starts as "open": Tessera doesn't yet share a part's claim with the requester's
@@ -91,6 +92,11 @@ export interface Facts {
   planPlace?: number;
   blocked?: Evidence & { findings: string[] };
   parts: PartFacts[];
+  /** Answered from the library with no new work: a reused delivery that came before (or without) any plan. */
+  reused?: Evidence & { id?: string; reason?: string; part?: number };
+  /** A reuse that a recorded reopen undid; it stays in the history as a failed attempt. */
+  reuseUndone?: Evidence & { id?: string };
+  reopened?: Evidence & { reason?: string };
   closed?: Evidence;
   withdrawn?: Evidence;
   queue?: QueueSnapshot;
@@ -261,6 +267,13 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
       case "delivered":
       case "published": {
         const p = part(event.part);
+        // Answered from the library before any plan (F-UI-STALE-001): the request's own state, not an ignored fact.
+        if (!p && event.summary?.reused) {
+          facts.reused = { ...evidence(event), id: event.result_id, reason: event.reason, part: event.part };
+          facts.plan = "done";
+          facts.planAgent = undefined;
+          break;
+        }
         if (!p) break;
         if (p.work !== "done") p.work = "done";
         if (p.check !== "approved") p.check = "approved";
@@ -281,8 +294,23 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
       }
       case "closed":
         facts.closed = evidence(event);
-        if (facts.parts.length > 0) {
+        facts.reopened = undefined;
+        if (facts.parts.length > 0 || facts.reused) {
           facts.plan = "done";
+          facts.planAgent = undefined;
+        }
+        break;
+      case "reopened":
+        // Open again: the close and any library answer it rested on are undone (the history keeps both); a request
+        // that had no plan of its own goes back in line.
+        facts.closed = undefined;
+        facts.reopened = { ...evidence(event), reason: event.reason };
+        if (facts.reused) {
+          facts.reuseUndone = { ...facts.reused };
+          facts.reused = undefined;
+        }
+        if (facts.parts.length === 0) {
+          facts.plan = "waiting";
           facts.planAgent = undefined;
         }
         break;
@@ -561,6 +589,9 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         break;
       case "closed":
         text = parts.size > 0 && approvedParts.size === 0 ? (words.log.closed_unfinished ?? words.log.closed ?? "") : (words.log.closed ?? "");
+        break;
+      case "reopened":
+        text = words.log.reopened ?? "";
         break;
       case "withdrawn":
         text = words.log.withdrawn ?? "";
@@ -913,7 +944,8 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
   let overall: StatusView["overall"];
   if (facts.withdrawn) overall = { label: words.overall.withdrawn ?? "", tone: "waiting" };
   else if (facts.plan === "stopped") overall = { label: words.overall.blocked ?? "", tone: "caution" };
-  else if (facts.closed && facts.parts.length > 0 && !anyApproved)
+  else if (facts.reused) overall = { label: words.overall.reused ?? words.overall.finished ?? "", tone: "real" };
+  else if (facts.closed && !anyApproved)
     overall = { label: words.overall.unfinished ?? words.overall.finished ?? "", tone: "caution" };
   else if (facts.closed) overall = { label: words.overall.finished ?? "", tone: "real" };
   else if (yourTurnPart !== undefined) overall = { label: fill(words.overall.your_turn ?? "", { n: yourTurnPart }), tone: "attention" };
@@ -1000,10 +1032,13 @@ export function summaryLine(events: StatusEvent[], words: RequestStatusNoun): st
     case "decided":
       return fill(words.summary.decided ?? "", { n });
     case "closed": {
-      const hadParts = events.some((e) => e.type === "planned" && (e.parts ?? []).length > 0);
       const hadApproved = events.some((e) => e.type === "check_approved" || e.type === "delivered" || e.type === "published");
-      return hadParts && !hadApproved ? (words.summary.closed_unfinished ?? words.summary.closed ?? "") : (words.summary.closed ?? "");
+      const reused = events.some((e) => (e.type === "delivered" || e.type === "published") && e.summary?.reused);
+      if (reused) return words.summary.reused ?? words.summary.closed ?? "";
+      return !hadApproved ? (words.summary.closed_unfinished ?? words.summary.closed ?? "") : (words.summary.closed ?? "");
     }
+    case "reopened":
+      return words.summary.reopened ?? "";
     case "withdrawn":
       return words.log.withdrawn ?? "";
     default:

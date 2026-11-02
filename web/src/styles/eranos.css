@@ -2705,3 +2705,25 @@ button.er-choice-pill {
   gap: 12px;
   flex-wrap: wrap;
 }
+
+/* ---------------------------------------------------------------- a request that closed (F-UI-STALE-001) */
+/* A step the request closed before reaching reads as closed, not as waiting; a closed request's last station is
+   where it stopped, with no token waiting there. */
+.er-rq-band-closed {
+  border-style: dashed;
+}
+.er-rq-band-closed .er-band-status {
+  color: var(--text-3);
+}
+.er-track li[data-state="closed"] .er-track-dot {
+  background: var(--sunken);
+  border-color: var(--line-strong);
+  border-style: solid;
+}
+.er-reopened {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--sunken);
+  color: var(--text-2);
+}

@@ -13,7 +13,8 @@ import { AppLink, useHash } from "../../router";
  * same recorded facts as the diagram, so the two views never disagree.
  */
 
-type StageState = "done" | "now" | "upcoming";
+/** A step's state; "closed" is a step the request closed before reaching. */
+type StageState = "done" | "now" | "upcoming" | "closed";
 type Kind = "process" | "information";
 type Part = Facts["parts"][number];
 
@@ -80,7 +81,8 @@ export interface PlainSummary {
 }
 
 /** wait: in line, or a person's turn to wait for; work: someone is on it; turn: a person decides; done: delivered. */
-export type TrackTone = "wait" | "work" | "turn" | "done";
+/** closed: the request closed with no result, so its last station is where it stopped, not where it waits. */
+export type TrackTone = "wait" | "work" | "turn" | "done" | "closed";
 export interface TrackState {
   at: number;
   tone: TrackTone;
@@ -110,6 +112,12 @@ export function trackState(facts: Facts): TrackState {
 }
 
 export function plainSummary(facts: Facts, words: PlainWords, every: string, requester = true): PlainSummary {
+  const c = words.chip;
+  // Answered from the library (F-UI-STALE-001): the request's own state decides the steps. Every step is settled, and
+  // the top of the page says how, instead of an "In line" that no event will ever move.
+  if (facts.reused) {
+    return { bands: ["done", "done", "done", "done"], track: { at: 5, tone: "done", back: false }, chip: c.reused ?? c.in_use, waiting: false, yourTurn: false };
+  }
   const parts = facts.parts;
   const planned = facts.plan === "done" && parts.length > 0;
   const anyWorking = parts.some((p) => p.work === "working");
@@ -117,7 +125,8 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
   const anyChecking = parts.some((p) => p.check === "working");
   const allChecked = planned && parts.every((p) => p.check === "approved");
   const anyApproved = parts.some((p) => p.check === "approved" || p.decide === "yourturn" || p.decide === "decided");
-  const closedUnfinished = Boolean(facts.closed) && planned && !anyApproved;
+  // Closed with no result, with or without a plan: the steps it never reached are closed, not waiting to start.
+  const closedUnfinished = Boolean(facts.closed) && !anyApproved && !facts.withdrawn && !facts.blocked;
   const sentBack = parts.some((p) => p.check === "sent_back");
   const waitingCheck = parts.some((p) => p.work === "done" && p.check !== "approved" && p.check !== "working" && p.check !== "sent_back");
   const yourTurn = parts.some((p) => p.decide === "yourturn");
@@ -126,14 +135,14 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
   const inLibrary = parts.some((p) => p.library);
   const remaking = parts.some(changing);
   const state = (done: boolean, now: boolean): StageState => (done ? "done" : now ? "now" : "upcoming");
-  const bands: StageState[] = [
+  const open: StageState[] = [
     state(planned, !planned),
     state(allMade && !remaking, planned),
     state(allChecked && !remaking, anyChecking || waitingCheck || sentBack),
     state(allDecided, yourTurn || parts.some((p) => p.decide === "person")),
   ];
+  const bands: StageState[] = closedUnfinished ? open.map((band) => (band === "done" ? "done" : "closed")) : open;
 
-  const c = words.chip;
   const chip = facts.withdrawn
     ? c.withdrawn
     : facts.blocked
@@ -166,7 +175,8 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
                       ? c.waiting_volunteer
                       : c.planning;
   const waiting = !facts.withdrawn && !facts.blocked && !closedUnfinished && !yourTurn && !allDecided && !anyWorking && !anyChecking;
-  return { bands, track: trackState(facts), chip, waiting, yourTurn };
+  const track = trackState(facts);
+  return { bands, track: closedUnfinished ? { ...track, tone: "closed" } : track, chip, waiting, yourTurn };
 }
 
 /** The board's caption names for the film frame (RequestStatusPage onEvent), from the recorded event types. */
@@ -257,10 +267,11 @@ function RequestTrack({
       <ol>
         {words.stations.map((station, i) => {
           const done = i < track.at || (i === 5 && delivered);
-          const now = i === track.at && !done;
+          const stopped = i === track.at && track.tone === "closed";
+          const now = i === track.at && !done && !stopped;
           const name = now ? (i === 5 && !requester ? (station.now_public ?? station.now) : station.now) : station.other;
           return (
-            <li key={i} data-step={i} data-state={done ? "done" : now ? "now" : "upcoming"} data-tone={now ? track.tone : undefined}>
+            <li key={i} data-step={i} data-state={done ? "done" : now ? "now" : stopped ? "closed" : "upcoming"} data-tone={now ? track.tone : undefined}>
               <a href={`#${BAND_IDS[STATION_BAND[i] ?? 0]}`} aria-current={now ? "step" : undefined} onClick={() => onStation?.((STATION_BAND[i] ?? 0) + 1)}>
                 <span className="er-track-dot" aria-hidden="true" />
                 <span className="er-track-name">{name}</span>
@@ -278,7 +289,7 @@ function RequestTrack({
           );
         })}
       </ol>
-      {settled && <TrackToken track={track} events={events} />}
+      {settled && track.tone !== "closed" && <TrackToken track={track} events={events} />}
     </nav>
   );
 }
@@ -377,6 +388,9 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
       }
       case "signoff_required":
         push(h.signoff_required);
+        break;
+      case "reopened":
+        push(h.reopened);
         break;
       case "decided":
         if (event.choice === "changes") remade.add(n);
@@ -535,6 +549,9 @@ export function PlainStatus({
   const many = parts.length > 1;
   const b = words.bands;
   const planned = facts.plan === "done" && parts.length > 0;
+  // Answered from the library (F-UI-STALE-001): each step says so, from the request's own record.
+  const reuse = facts.reused;
+  const reusedHref = reuse ? sourceHref({ type: "delivered", result_id: reuse.id, ref: reuse.ref }) : null;
 
   // Each new recorded fact is announced once for the film frame (the board's onEvent): its caption name, band and line.
   const announced = useRef(happened.length);
@@ -581,7 +598,7 @@ export function PlainStatus({
   const doneLine = (at: number | null) => (at ? fill(st.done, { time: clock(at) }) : st.done_untimed);
   const anyChecking = parts.some((p) => p.check === "working");
   const sentBack = parts.some((p) => p.check === "sent_back");
-  const bandStatus = [
+  const openStatus = [
     stripState(1) === "done" ? doneLine(lastAt(["planned"])) : stripState(1) === "now" ? st.sorting : st.upcoming,
     stripState(2) === "done"
       ? doneLine(lastAt(["work_submitted"]))
@@ -609,6 +626,14 @@ export function PlainStatus({
             : st.their_turn
           : st.upcoming,
   ];
+  const bandStatus = reuse
+    ? [
+        st.reused_sorted ?? st.done_untimed,
+        st.reused_made ?? st.done_untimed,
+        st.reused_checked ?? st.done_untimed,
+        reuse.at ? fill(st.reused_ready ?? st.done, { time: clock(reuse.at) }) : (st.reused_ready ?? st.done_untimed),
+      ]
+    : openStatus.map((line, i) => (stripState(i + 1) === "closed" ? (st.closed ?? line) : line));
   const bandProps = (n: number) => ({
     status: bandStatus[n - 1] ?? "",
     open: bands.open.has(n),
@@ -631,177 +656,219 @@ export function PlainStatus({
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
         {happened[0]?.text ?? ""}
       </p>
+      {facts.reopened && words.reopened_note && (
+        <p className="er-small er-reopened" data-testid="reopened-note">
+          {words.reopened_note}
+        </p>
+      )}
 
       <Band n={1} title={b.sorted.title} state={stripState(1)} {...bandProps(1)}>
-        {facts.received?.at != null && <p className="er-band-ok">{fill(b.sorted.checked, { time: clock(facts.received.at) })}</p>}
-        {planned ? (
-          <ul className="er-band-list">
-            {parts.map((part) => (
-              <li key={part.plan.part}>
-                <strong>{kindOf(part) === "process" ? b.sorted.process : b.sorted.information}</strong>
-                <span className="er-small">{part.plan.text}</span>
-              </li>
-            ))}
-          </ul>
+        {reuse ? (
+          <p className="er-band-line" data-testid="reused-sorted">
+            {b.reused?.sorted}
+          </p>
         ) : (
-          <p className="er-small">{b.sorted.waiting}</p>
+          <>
+            {facts.received?.at != null && <p className="er-band-ok">{fill(b.sorted.checked, { time: clock(facts.received.at) })}</p>}
+            {planned ? (
+              <ul className="er-band-list">
+                {parts.map((part) => (
+                  <li key={part.plan.part}>
+                    <strong>{kindOf(part) === "process" ? b.sorted.process : b.sorted.information}</strong>
+                    <span className="er-small">{part.plan.text}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="er-small">{b.sorted.waiting}</p>
+            )}
+          </>
         )}
       </Band>
 
       <Band n={2} title={stripState(2) === "done" ? b.made.title_done : b.made.title_now} state={stripState(2)} {...bandProps(2)}>
-        {!planned && <p className="er-small">{b.made.waiting.replace(/ · .*$/, "")}</p>}
-        {parts.map((part) => {
-          const n = part.plan.part;
-          const agent = part.workAgent;
-          const done = part.work === "done";
-          const waitingForVolunteer = !agent && !done && part.work !== "held";
-          const since = waitingForVolunteer ? waitingSince(events, n) : null;
-          return (
-            <div key={n} className="er-band-part" data-part={n}>
-              {many && <h3 className="er-making-kind">{words.kind[kindOf(part)]}</h3>}
-              {agent && (
-                <p className="er-helper" data-testid={`helper-${n}`}>
-                  <strong>{agent.dedicated ? b.made.helper_eranos : b.made.helper_volunteer}</strong>{" "}
-                  {agent.claimedAt != null && fill(agent.dedicated ? b.made.picked_eranos : b.made.picked, { time: clock(agent.claimedAt) })}
-                </p>
-              )}
-              {(() => {
-                const tries = events.filter((e) => e.part === n && (e.type === "work_claimed" || e.type === "work_released"));
-                const last = tries.at(-1);
-                if (!last || last.type !== "work_released" || !last.reason || done) return null;
-                const retry = last.summary?.attempt && last.summary.max_attempts ? fill(b.made.retry_count, { n: last.summary.attempt, m: last.summary.max_attempts }) : b.made.retry;
-                return (
-                  <p className="er-band-failed" data-testid={`failed-${n}`}>
-                    {fill(b.made.failed, { reason: shortReason(last.reason) })} {retry}
-                  </p>
-                );
-              })()}
-              {waitingForVolunteer && (
-                <p className="er-small" data-testid={`waiting-${n}`}>
-                  {fill(b.made.waiting, { nth: ordinal(part.place ?? 1) })}{" "}
-                  {since != null && fill(b.made.fallback, { time: clock(since + FALLBACK_SECONDS) })}
-                </p>
-              )}
-              <ul className="er-making" data-testid={`making-${n}`}>
-                {words.making[kindOf(part)].map((item, index) => (
-                  <li key={item}>
-                    <span>{item}</span>
-                    <span className="er-tag">{tagFor(part, index)}</span>
-                  </li>
-                ))}
-              </ul>
-              {done && (
-                <p className="er-small er-band-ok">
-                  {b.made.recorded}
-                  {b.made.models_link && b.made.models_href && (
-                    <>
-                      {" "}
-                      <a href={b.made.models_href}>{b.made.models_link}</a>
-                    </>
+        {reuse ? (
+          <p className="er-band-line" data-testid="reused-made">
+            {b.reused?.made}
+          </p>
+        ) : (
+          <>
+            {!planned && <p className="er-small">{b.made.waiting.replace(/ · .*$/, "")}</p>}
+            {parts.map((part) => {
+              const n = part.plan.part;
+              const agent = part.workAgent;
+              const done = part.work === "done";
+              const waitingForVolunteer = !agent && !done && part.work !== "held";
+              const since = waitingForVolunteer ? waitingSince(events, n) : null;
+              return (
+                <div key={n} className="er-band-part" data-part={n}>
+                  {many && <h3 className="er-making-kind">{words.kind[kindOf(part)]}</h3>}
+                  {agent && (
+                    <p className="er-helper" data-testid={`helper-${n}`}>
+                      <strong>{agent.dedicated ? b.made.helper_eranos : b.made.helper_volunteer}</strong>{" "}
+                      {agent.claimedAt != null && fill(agent.dedicated ? b.made.picked_eranos : b.made.picked, { time: clock(agent.claimedAt) })}
+                    </p>
                   )}
-                </p>
-              )}
-            </div>
-          );
-        })}
+                  {(() => {
+                    const tries = events.filter((e) => e.part === n && (e.type === "work_claimed" || e.type === "work_released"));
+                    const last = tries.at(-1);
+                    if (!last || last.type !== "work_released" || !last.reason || done) return null;
+                    const retry = last.summary?.attempt && last.summary.max_attempts ? fill(b.made.retry_count, { n: last.summary.attempt, m: last.summary.max_attempts }) : b.made.retry;
+                    return (
+                      <p className="er-band-failed" data-testid={`failed-${n}`}>
+                        {fill(b.made.failed, { reason: shortReason(last.reason) })} {retry}
+                      </p>
+                    );
+                  })()}
+                  {waitingForVolunteer && (
+                    <p className="er-small" data-testid={`waiting-${n}`}>
+                      {fill(b.made.waiting, { nth: ordinal(part.place ?? 1) })}{" "}
+                      {since != null && fill(b.made.fallback, { time: clock(since + FALLBACK_SECONDS) })}
+                    </p>
+                  )}
+                  <ul className="er-making" data-testid={`making-${n}`}>
+                    {words.making[kindOf(part)].map((item, index) => (
+                      <li key={item}>
+                        <span>{item}</span>
+                        <span className="er-tag">{tagFor(part, index)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  {done && (
+                    <p className="er-small er-band-ok">
+                      {b.made.recorded}
+                      {b.made.models_link && b.made.models_href && (
+                        <>
+                          {" "}
+                          <a href={b.made.models_href}>{b.made.models_link}</a>
+                        </>
+                      )}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </>
+        )}
       </Band>
 
       <Band n={3} title={parts.some((p) => p.checkAgent?.dedicated) && b.checked.title_eranos ? b.checked.title_eranos : b.checked.title} state={stripState(3)} {...bandProps(3)}>
-        <p className="er-small">{b.checked.rule}</p>
-        {parts.map((part) => {
-          const n = part.plan.part;
-          const refused = events.some((e) => e.type === "check_refused" && e.part === n && (e.receipt || e.ref));
-          const notes = part.checkEvidence?.reason ? 1 : 0;
-          const findings = events.filter((e) => e.type === "check_sent_back" && e.part === n).at(-1)?.findings?.length ?? notes;
-          const line =
-            part.check === "approved"
-              ? b.checked.done
-              : part.check === "sent_back"
-                ? findings > 1
-                  ? fill(b.checked.sent_back_many, { n: findings })
-                  : b.checked.sent_back_one
-                : part.check === "working"
-                  ? part.checkAgent?.dedicated && b.checked.checking_eranos
-                    ? b.checked.checking_eranos
-                    : b.checked.checking
-                  : part.work === "done"
-                    ? b.checked.waiting
-                    : b.checked.upcoming;
-          return (
-            <p key={n} className="er-band-line" data-testid={`check-${n}`}>
-              {many && <strong>{words.kind[kindOf(part)]}: </strong>}
-              {refused && <span className="er-band-blocked">{b.checked.blocked} · </span>}
-              {line}
-            </p>
-          );
-        })}
-      </Band>
-
-      <Band n={4} title={stripState(4) === "done" && b.ready.title_done ? b.ready.title_done : requester ? b.ready.title : b.ready.title_public} state={stripState(4)} {...bandProps(4)}>
-        {(() => {
-          const next = events.filter((e) => e.type === "queued" && e.summary?.next_at && (e.receipt || e.ref)).at(-1)?.summary?.next_at;
-          return next ? (
-            <p className="er-small" data-testid="next-run">
-              {fill(b.ready.next_run, { time: when(next) })}
-            </p>
-          ) : null;
-        })()}
-        {parts.some((p) => p.decide === "yourturn" || p.decide === "decided") ? (
+        {reuse ? (
+          <p className="er-band-line" data-testid="reused-checked">
+            {b.reused?.checked}
+          </p>
+        ) : (
           <>
-            <div className="er-ready-cards">
-              {parts
-                .filter((p) => p.decide === "yourturn" || p.decide === "decided")
-                .map((part) => (
-                  <div key={part.plan.part} className="er-ready-card" data-testid={`ready-${part.plan.part}`}>
-                    <strong>{kindOf(part) === "process" ? b.ready.process : b.ready.information}</strong>
-                    <AppLink to={resultPage(part.plan.part)} className="er-text-link">
-                      {kindOf(part) === "process" ? b.ready.open_process : b.ready.open_information}
-                    </AppLink>
-                  </div>
-                ))}
-            </div>
+            <p className="er-small">{b.checked.rule}</p>
             {parts.map((part) => {
-              const reused = events.filter((e) => e.part === part.plan.part && (e.type === "delivered" || e.type === "published") && e.summary?.reused).at(-1);
-              if (!reused) return null;
-              const href = sourceHref(reused);
+              const n = part.plan.part;
+              const refused = events.some((e) => e.type === "check_refused" && e.part === n && (e.receipt || e.ref));
+              const notes = part.checkEvidence?.reason ? 1 : 0;
+              const findings = events.filter((e) => e.type === "check_sent_back" && e.part === n).at(-1)?.findings?.length ?? notes;
+              const line =
+                part.check === "approved"
+                  ? b.checked.done
+                  : part.check === "sent_back"
+                    ? findings > 1
+                      ? fill(b.checked.sent_back_many, { n: findings })
+                      : b.checked.sent_back_one
+                    : part.check === "working"
+                      ? part.checkAgent?.dedicated && b.checked.checking_eranos
+                        ? b.checked.checking_eranos
+                        : b.checked.checking
+                      : part.work === "done"
+                        ? b.checked.waiting
+                        : b.checked.upcoming;
               return (
-                <p key={`reused-${part.plan.part}`} data-testid={`reused-${part.plan.part}`}>
-                  {b.ready.reused}{" "}
-                  {href &&
-                    (href.startsWith("/catalog/") ? (
-                      <AppLink to={href} className="er-text-link">
-                        {b.ready.reused_link}
-                      </AppLink>
-                    ) : (
-                      <a href={href} className="er-text-link">
-                        {b.ready.reused_link}
-                      </a>
-                    ))}
+                <p key={n} className="er-band-line" data-testid={`check-${n}`}>
+                  {many && <strong>{words.kind[kindOf(part)]}: </strong>}
+                  {refused && <span className="er-band-blocked">{b.checked.blocked} · </span>}
+                  {line}
                 </p>
               );
             })}
-            {requester && summary.yourTurn && (
-              <p>
-                <strong>{b.ready.decide}</strong>{" "}
-                <AppLink to={resultPage(parts.find((p) => p.decide === "yourturn")?.plan.part ?? 1)} className="er-text-link">
-                  {b.ready.decide_link}
-                </AppLink>
-              </p>
+          </>
+        )}
+      </Band>
+
+      <Band n={4} title={stripState(4) === "done" && b.ready.title_done ? b.ready.title_done : requester ? b.ready.title : b.ready.title_public} state={stripState(4)} {...bandProps(4)}>
+        {reuse ? (
+          <p className="er-band-line" data-testid="reused-ready">
+            {b.ready.reused}{" "}
+            {reusedHref && (
+              <a href={reusedHref} className="er-text-link">
+                {b.ready.reused_link}
+              </a>
             )}
-            {parts.some((p) => p.library) && (
-              <p className="er-small" data-testid="ready-library">
-                <strong>{b.ready.library_title}:</strong> {b.ready.library_added}{" "}
-                <AppLink to={`/library?request=${encodeURIComponent(routeId)}`} className="er-text-link">
-                  {b.ready.library_link}
-                </AppLink>{" "}
-                <a href={AGORA_HOW_IT_WORKS_URL} className="er-text-link">
-                  {b.ready.library_how}
-                </a>
-              </p>
+          </p>
+        ) : (
+          <>
+            {(() => {
+              const next = events.filter((e) => e.type === "queued" && e.summary?.next_at && (e.receipt || e.ref)).at(-1)?.summary?.next_at;
+              return next ? (
+                <p className="er-small" data-testid="next-run">
+                  {fill(b.ready.next_run, { time: when(next) })}
+                </p>
+              ) : null;
+            })()}
+            {parts.some((p) => p.decide === "yourturn" || p.decide === "decided") ? (
+              <>
+                <div className="er-ready-cards">
+                  {parts
+                    .filter((p) => p.decide === "yourturn" || p.decide === "decided")
+                    .map((part) => (
+                      <div key={part.plan.part} className="er-ready-card" data-testid={`ready-${part.plan.part}`}>
+                        <strong>{kindOf(part) === "process" ? b.ready.process : b.ready.information}</strong>
+                        <AppLink to={resultPage(part.plan.part)} className="er-text-link">
+                          {kindOf(part) === "process" ? b.ready.open_process : b.ready.open_information}
+                        </AppLink>
+                      </div>
+                    ))}
+                </div>
+                {parts.map((part) => {
+                  const reused = events.filter((e) => e.part === part.plan.part && (e.type === "delivered" || e.type === "published") && e.summary?.reused).at(-1);
+                  if (!reused) return null;
+                  const href = sourceHref(reused);
+                  return (
+                    <p key={`reused-${part.plan.part}`} data-testid={`reused-${part.plan.part}`}>
+                      {b.ready.reused}{" "}
+                      {href &&
+                        (href.startsWith("/catalog/") ? (
+                          <AppLink to={href} className="er-text-link">
+                            {b.ready.reused_link}
+                          </AppLink>
+                        ) : (
+                          <a href={href} className="er-text-link">
+                            {b.ready.reused_link}
+                          </a>
+                        ))}
+                    </p>
+                  );
+                })}
+                {requester && summary.yourTurn && (
+                  <p>
+                    <strong>{b.ready.decide}</strong>{" "}
+                    <AppLink to={resultPage(parts.find((p) => p.decide === "yourturn")?.plan.part ?? 1)} className="er-text-link">
+                      {b.ready.decide_link}
+                    </AppLink>
+                  </p>
+                )}
+                {parts.some((p) => p.library) && (
+                  <p className="er-small" data-testid="ready-library">
+                    <strong>{b.ready.library_title}:</strong> {b.ready.library_added}{" "}
+                    <AppLink to={`/library?request=${encodeURIComponent(routeId)}`} className="er-text-link">
+                      {b.ready.library_link}
+                    </AppLink>{" "}
+                    <a href={AGORA_HOW_IT_WORKS_URL} className="er-text-link">
+                      {b.ready.library_how}
+                    </a>
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="er-small">{b.ready.upcoming}</p>
             )}
           </>
-        ) : (
-          <p className="er-small">{b.ready.upcoming}</p>
         )}
       </Band>
 

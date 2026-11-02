@@ -450,7 +450,11 @@ export interface PlainWords {
     | "blocked"
     | "unfinished",
     T
-  >;
+  > &
+    /** reused: a request answered from the library with no new work (F-UI-STALE-001). */
+    Partial<Record<"reused", T>>;
+  /** Over the steps when a closed request was opened again. */
+  reopened_note?: T;
   stages_label: T;
   stages: {
     sent: { title: T; done: T };
@@ -467,7 +471,7 @@ export interface PlainWords {
   happened_title: T;
   happened_more: T;
   happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_released_reason" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "closed_unfinished" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T> &
-    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos", T>>;
+    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened", T>>;
   share_lead: T;
   share: T;
   shared: T;
@@ -499,7 +503,11 @@ export interface PlainWords {
     status: Record<
       "done" | "done_untimed" | "sorting" | "working" | "waiting_helper" | "checking" | "waiting_check" | "sent_back" | "your_turn" | "their_turn" | "signoff" | "upcoming",
       T
-    >;
+    > &
+      /** closed: a step the request closed before reaching; reused_*: each step of a request answered from the library. */
+      Partial<Record<"closed" | "reused_sorted" | "reused_made" | "reused_checked" | "reused_ready", T>>;
+    /** What each step says for a request answered from the library. */
+    reused?: Record<"sorted" | "made" | "checked", T>;
   };
 }
 
