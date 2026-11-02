@@ -321,7 +321,7 @@
       ],
       "official_pages": [
         {
-          "access": "official_page",
+          "access": "public_web_page",
           "id": "irs-annual-filing",
           "publisher": "Internal Revenue Service",
           "topics": [
@@ -340,7 +340,7 @@
           "url": "https://www.irs.gov/charities-non-profits/exempt-organization-annual-filing-requirements-overview"
         },
         {
-          "access": "official_page",
+          "access": "public_web_page",
           "id": "irs-990-n",
           "publisher": "Internal Revenue Service",
           "topics": [
@@ -359,7 +359,7 @@
           "url": "https://www.irs.gov/charities-non-profits/annual-electronic-filing-requirement-for-small-exempt-organizations-form-990-n-e-postcard"
         },
         {
-          "access": "official_page",
+          "access": "public_web_page",
           "id": "irs-revocation",
           "publisher": "Internal Revenue Service",
           "topics": [

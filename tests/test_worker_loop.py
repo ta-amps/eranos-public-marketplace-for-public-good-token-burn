@@ -1005,6 +1005,48 @@ def _trace(worker: Worker) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines()] if path.exists() else []
 
 
+ANNUAL_PAGES = {
+    page[
+        "url"
+    ]: f"""<!doctype html><html><head><title>Made-up filing page {n}, a test we wrote</title></head><body>
+<h1>Practice page used only in tests</h1>
+<p>Under these made-up rules, a small tax-exempt nonprofit files an annual return with the IRS each year.</p>
+<p>Under these made-up rules, an organization with small gross receipts may file the Form 990-N electronic postcard.</p>
+<p>Under these made-up rules, an organization that does not file an annual return for three years loses its exemption.</p>
+<p>Under these made-up rules, larger organizations file Form 990-EZ or Form 990 instead of the postcard.</p>
+</body></html>"""
+    for n, page in enumerate(RULES["sources"]["official_pages"], start=1)
+}
+
+
+@needs_workerd
+def test_a_research_task_that_uses_the_topics_official_pages_is_delivered(fabric: Any) -> None:
+    """Review B1 of 4c509ee: the official pages a topic brings in pass the report's own checks."""
+    requester = fabric.requester()
+    rid = fabric.file_request(
+        requester,
+        {
+            "text": "Which annual return must a small tax-exempt nonprofit file with the IRS (Form 990-N, 990-EZ or 990)?",
+            "links": [],
+            "organization_type": "Small nonprofit",
+            "output_type": "information",
+            "frequency": "one-off",
+        },
+        "annual1",
+    )
+    fetcher = fixture_fetcher(ANNUAL_PAGES)
+    planner = fabric.worker("planner")
+    builder = fabric.worker("builder", model=FakeModel(bad=False), fetcher=fetcher)
+    reviewer = _reviewer(fabric, fetcher=fetcher)
+    assert [w.run_once() for w in (planner, builder, reviewer)] == ["worked"] * 3
+    assert "delivered" in _types(_record(fabric, rid))
+    part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+    solution = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")["value"]
+    sources = solution["report"]["sources"]
+    assert {s["url"] for s in sources} <= set(ANNUAL_PAGES) and sources
+    assert {s["access"] for s in sources} == {"public_web_page"}
+
+
 @needs_workerd
 def test_recurring_request_is_parked_for_its_period_and_planned_again(fabric: Any) -> None:
     requester = fabric.requester()

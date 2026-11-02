@@ -273,7 +273,7 @@
       {
         "id": "irs-annual-filing",
         "publisher": "Internal Revenue Service",
-        "access": "official_page",
+        "access": "public_web_page",
         "topics": [
           "annual",
           "return",
@@ -292,7 +292,7 @@
       {
         "id": "irs-990-n",
         "publisher": "Internal Revenue Service",
-        "access": "official_page",
+        "access": "public_web_page",
         "topics": [
           "annual",
           "return",
@@ -311,7 +311,7 @@
       {
         "id": "irs-revocation",
         "publisher": "Internal Revenue Service",
-        "access": "official_page",
+        "access": "public_web_page",
         "topics": [
           "annual",
           "return",

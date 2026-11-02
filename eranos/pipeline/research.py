@@ -229,7 +229,7 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
     ]
     for page in fetch.get("pages") or []:  # official pages chosen by topic (the worker noun)
         out.append(
-            (str(page["url"]), str(page.get("access") or "official_page"), page.get("publisher"))
+            (str(page["url"]), str(page.get("access") or "public_web_page"), page.get("publisher"))
         )
     for api in fetch.get("apis") or []:
         url = api_query_url(api, list(fetch.get("query_terms") or []))
