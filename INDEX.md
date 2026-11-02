@@ -302,7 +302,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/public/snapshot/nouns/eranos.instructions/shell.json`](web/public/snapshot/nouns/eranos.instructions/shell.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/site.json`](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/trust.json`](web/public/snapshot/nouns/eranos.instructions/trust.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
-| [`web/public/snapshot/nouns/eranos.instructions/video.json`](web/public/snapshot/nouns/eranos.instructions/video.json) | Walkthrough video |
+| [`web/public/snapshot/nouns/eranos.instructions/video.json`](web/public/snapshot/nouns/eranos.instructions/video.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.sources.json`](web/public/snapshot/nouns/eranos.sources.json) | JSON object: `is_example`, `store`, `records` |
 | [`web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json`](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json`](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
@@ -348,7 +348,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/snapshot/nouns/eranos.instructions/shell.json`](web/snapshot/nouns/eranos.instructions/shell.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/site.json`](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/trust.json`](web/snapshot/nouns/eranos.instructions/trust.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
-| [`web/snapshot/nouns/eranos.instructions/video.json`](web/snapshot/nouns/eranos.instructions/video.json) | Walkthrough video |
+| [`web/snapshot/nouns/eranos.instructions/video.json`](web/snapshot/nouns/eranos.instructions/video.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.sources.json`](web/snapshot/nouns/eranos.sources.json) | JSON object: `is_example`, `store`, `records` |
 | [`web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json`](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json`](web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
