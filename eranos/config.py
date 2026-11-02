@@ -33,7 +33,7 @@ def surface_display_name() -> str:
 
 
 def surface_public_url() -> str:
-    return os.environ.get(PUBLIC_URL_ENV, "https://eranos.ta-amps.workers.dev")
+    return os.environ.get(PUBLIC_URL_ENV, "https://eranosforgood.org")
 
 
 def sibling_detection_name() -> str:

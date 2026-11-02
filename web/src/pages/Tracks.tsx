@@ -22,12 +22,12 @@ export function Tracks() {
         {state.status === "ready" && (
           <div className="er-grid">
             {state.data.tracks.map((track) => (
-              <article key={track.id} className="er-card">
+              <article key={track.id} className="er-card" data-source-text>
                 <div className="er-chip-row">
                   <DomainBadge domain={track.domain} label={track.domain_label} />
                   <code>{track.id}</code>
                   {track.kit_ready && (
-                    <span className="er-chip er-chip-drafts">
+                    <span className="er-chip er-chip-drafts er-chip-wrap">
                       Catalog kit: {(track.catalog_kit_ids ?? []).join(", ") || "ready"}
                     </span>
                   )}

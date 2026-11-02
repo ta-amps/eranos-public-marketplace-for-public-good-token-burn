@@ -15,7 +15,9 @@ Eranos API on Fly.io (`API_ORIGIN`, default `https://eranos-api.fly.dev`):
 Eranos is one of exactly two public surfaces; Tessera, like Herma, is infrastructure. To bind
 `eranos.<your-domain>` alongside `tessera.<your-domain>` on a single Cloudflare zone:
 
-1. Uncomment `"routes"` in [`wrangler.jsonc`](wrangler.jsonc) and set `"pattern": "eranos.<your-domain>"`.
+1. Attach `eranos.<your-domain>` to the `eranos` Worker in Cloudflare (the Worker's domain settings). Don't declare
+   `"routes"` in [`wrangler.jsonc`](wrangler.jsonc): once any custom domain is declared there, Wrangler replaces the
+   Worker's whole custom-domain set with that list and detaches the rest.
 2. Set `CUSTOM_DOMAIN="eranos.<your-domain>"` and `HEALTH_URL="https://eranos.<your-domain>/api/health"` in
    [`../hosting.env`](../hosting.env).
 3. Deploy via the GitHub `deploy` workflow (requires approval in the `production` environment).

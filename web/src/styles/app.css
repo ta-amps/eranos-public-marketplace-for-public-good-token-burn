@@ -191,11 +191,17 @@
   font-weight: 600;
   line-height: 1.45;
   white-space: nowrap;
+  max-width: 100%;
+}
+/* A chip that lists several ids (a track's kits on live data) wraps inside the row instead of pushing the page sideways. */
+.er-chip-wrap {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .er-chip-drafts,
 .er-chip-assists {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 .er-chip-human {
   background: var(--attention-wash);
@@ -206,13 +212,13 @@
   background: var(--real-wash);
   color: var(--real);
 }
-.er-chip-noun {
-  background: var(--noun-wash);
-  color: var(--noun-text);
+.er-chip-object {
+  background: var(--object-wash);
+  color: var(--object-text);
 }
-.er-chip-verb {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+.er-chip-task {
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 .er-chip-waiting {
   background: var(--waiting-wash);

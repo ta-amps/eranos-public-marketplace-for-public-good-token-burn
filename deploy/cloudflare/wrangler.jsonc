@@ -4,15 +4,24 @@
 {
   "name": "eranos",
   "main": "worker.js",
+  "build": {
+    "cwd": ".",
+    "command": "node scripts/banned_list.mjs && python3 scripts/check_surface_release.py --check && make light-check && make live-smoke"
+  },
   "compatibility_date": "2026-10-01",
   "workers_dev": true,
-  // Uncomment or set via notes/bind-single-domain.sh once your single root domain is added to Cloudflare:
-  // "routes": [{ "pattern": "eranos.<your-domain>", "custom_domain": true }],
+  // eranosforgood.org is the canonical address; www redirects to it in the Worker. Custom domains are attached and
+  // managed in Cloudflare, never declared here: once any "routes" entry has "custom_domain": true, Wrangler replaces
+  // this Worker's whole custom-domain set with the declared list, detaching every hostname left out and moving a
+  // declared one from another Worker. With none declared, a deploy leaves the attached domains as they are.
   "assets": {
     "directory": "../../web/dist",
     "binding": "ASSETS",
     "not_found_handling": "single-page-application",
-    "run_worker_first": true
+    // The Workers Free plan counts every Worker run (100,000 a day, shared by every surface). Pages, /api, /mcp and the
+    // agent files run the Worker; the build's static files (hashed scripts and styles, fonts, page text, the banner
+    // script) are served straight from the asset store, which costs no Worker run.
+    "run_worker_first": ["/*", "!/assets/*", "!/fonts/*", "!/snapshot/*", "!/agent-banner.js"]
   },
   "d1_databases": [
     {
@@ -35,10 +44,16 @@
     "STORAGE_MODE": "cloud",
     "API_ORIGIN": "https://eranos-api.fly.dev"
   },
+  // Privacy (F-PRIV-LOGS-001, Nov 2): no invocation logs and no traces, so Cloudflare keeps no per-request record of a
+  // visitor (internet address, browser, rough location, full URL) for this Worker. Only the Worker's own console output
+  // would be logged, and it writes none. The privacy page says the same.
   "observability": {
     "enabled": true,
+    "logs": {
+      "invocation_logs": false
+    },
     "traces": {
-      "enabled": true
+      "enabled": false
     }
   }
 }

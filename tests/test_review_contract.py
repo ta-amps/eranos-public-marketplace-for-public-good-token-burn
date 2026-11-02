@@ -18,18 +18,28 @@ from eranos.verifier import practice_verify_kit, verify_kit
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_default_provider_never_receives_an_unrelated_generic_key(
+def test_live_call_needs_its_configured_endpoint_and_key(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    monkeypatch.delenv("OLLAMA_API_KEY", raising=False)
-    monkeypatch.setenv("MODEL_API_KEY", "synthetic-marker")
+    """There is no default provider: without an endpoint, or without a key, no request leaves."""
+    monkeypatch.delenv("MODEL_BASE_URL", raising=False)
+    monkeypatch.delenv("MODEL_API_KEY", raising=False)
     calls: list[httpx.Request] = []
-    with pytest.raises(RuntimeError, match="OLLAMA_API_KEY"):
+    transport = httpx.MockTransport(lambda request: calls.append(request))  # type: ignore[arg-type,func-returns-value]
+    with pytest.raises(ValueError, match="endpoint"):
         _call_chat_model(
-            model="muse-spark-open",
-            prompt_payload={"SYNTHETIC": True},
-            transport=httpx.MockTransport(lambda request: calls.append(request)),
-        )  # type: ignore[arg-type,func-returns-value]
+            model="muse-spark-1.3",
+            prompt_payload={"practice": True},
+            api_key="practice-marker",
+            transport=transport,
+        )
+    with pytest.raises(RuntimeError, match="MODEL_API_KEY"):
+        _call_chat_model(
+            model="muse-spark-1.3",
+            prompt_payload={"practice": True},
+            base_url="https://models.example/v1",
+            transport=transport,
+        )
     assert calls == []
 
 
@@ -68,6 +78,7 @@ def test_review_receives_candidate_and_can_reject_without_fabricating_usage() ->
         worker="synthetic-reviewer",
         key_id="synthetic-review-key",
         dry_model=False,
+        base_url="https://models.example/v1",
         api_key="synthetic-marker",
         transport=transport,
     )
@@ -75,8 +86,9 @@ def test_review_receives_candidate_and_can_reject_without_fabricating_usage() ->
     assert seen[0]["draft"] == draft.model_dump(mode="json")
     assert seen[0]["verification"] == report.model_dump(mode="json")
     _, _, input_tokens, output_tokens = _call_chat_model(
-        model="muse-spark-open",
+        model="muse-spark-1.3",
         prompt_payload={"SYNTHETIC": True},
+        base_url="https://models.example/v1",
         api_key="synthetic-marker",
         transport=transport,
     )
@@ -96,7 +108,7 @@ def test_worker_schema_matches_python_and_invalid_skill_is_rejected() -> None:
     assert practice_verify_kit(draft)["passed"] is False
     script = f"""
 import worker from {json.dumps((ROOT / "deploy/cloudflare/worker.js").as_uri())};
-const r=await worker.fetch(new Request('https://example.com/api/practice',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{draft:{json.dumps(draft)}}})}}),{{}});
+const r=await worker.fetch(new Request('https://eranosforgood.org/api/practice',{{method:'POST',headers:{{'Content-Type':'application/json'}},body:JSON.stringify({{draft:{json.dumps(draft)}}})}}),{{}});
 console.log(JSON.stringify(await r.json()));
 """
     run = subprocess.run(
@@ -121,7 +133,7 @@ def test_practice_receipt_is_explicitly_an_outcome_not_a_content_digest() -> Non
 import worker from WORKER;
 const out=[];
 for (const draft of DRAFTS) {
- const response=await worker.fetch(new Request("https://example.com/api/practice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({draft})}),{});
+ const response=await worker.fetch(new Request("https://eranosforgood.org/api/practice",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({draft})}),{});
  out.push(await response.json());
 }
 console.log(JSON.stringify(out));

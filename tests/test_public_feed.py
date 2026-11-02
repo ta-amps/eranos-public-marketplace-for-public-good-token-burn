@@ -80,7 +80,7 @@ const env = {STORAGE_MODE:"cloud", TESSERA_SURFACE_KEY:"synthetic-binding-marker
   return Response.json(payload);
  }
 }};
-const request = new Request("https://surface.example/api/feed",{headers:{Origin:"https://assistant.example.com"}});
+const request = new Request("https://eranosforgood.org/api/feed",{headers:{Origin:"https://assistant.example.com"}});
 const response = await worker.fetch(request,env);
 console.log(JSON.stringify({status:response.status,body:await response.json(),calls,callerKeyed:request.headers.has("authorization")}));
 """.replace("WORKER", json.dumps((ROOT / "deploy/cloudflare/worker.js").as_uri())).replace(

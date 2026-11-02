@@ -5,11 +5,12 @@ import { Evidence, StateNotice } from "../components/status/StatusParts";
 import { SNAPSHOT } from "../config";
 import { ApiError, getJson } from "../lib/api";
 import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
+import { modelName, useModels } from "../lib/models";
 import { fill, type NounResponse, type RequestStatusNoun } from "../lib/nouns";
 import type { ExampleSolution, Report, RequestExampleNoun } from "../lib/status/example";
 import { requesterKeyFor, dropKeyFromAddress } from "../lib/status/keys";
 import { DECISIONS_STORE, type DecisionsValue } from "../lib/status/live";
-import { shortReceipt, shortRequestId } from "../lib/status/receipts";
+import { shortReceipt, shortRequestId } from "../lib/status/ids";
 import { rememberKey } from "../lib/status/keys";
 import { enqueueRequest, getOwnRecord, putOwnRecord } from "../lib/status/tessera";
 import type { DecisionChoice, PartPlan } from "../lib/status/types";
@@ -48,6 +49,8 @@ interface Loaded {
   requestId: string;
   part: PartPlan | null;
   solution: Solution | null;
+  /** The request has closed with no result for this part, so "appears once checked" would be untrue. */
+  closedWithoutResult?: boolean;
   /** The workers' names and declared models, when the record has them (the example does). */
   builder?: { who?: string; model?: string };
   checker?: { who?: string; model?: string };
@@ -217,11 +220,21 @@ function useResult(id: string, partNumber: number, key: string | null): { loaded
         const plan = await getJson<NounResponse<{ parts?: PartPlan[] }>>(`/api/nouns/eranos.plans/${encodeURIComponent(id)}`);
         const part = plan.value.parts?.find((p) => p.part === partNumber) ?? null;
         let solution: Solution | null = null;
-        // A report part names its report; a process part names its kit. Both results are eranos.solutions nouns.
-        const resultId = part?.report_id ?? part?.kit_id;
+        // A report part names its report; a process part names its kit; a reused part names the earlier result it
+        // reuses. All three are eranos.solutions nouns.
+        const resultId = part?.report_id ?? part?.kit_id ?? part?.reused_from?.key;
         if (resultId) {
           try {
             solution = (await getJson<NounResponse<Solution>>(`/api/nouns/eranos.solutions/${encodeURIComponent(resultId)}`)).value;
+          } catch (error) {
+            if (!(error instanceof ApiError && error.status === 404)) throw error;
+          }
+        }
+        let closedWithoutResult = false;
+        if (!solution) {
+          try {
+            const request = await getJson<NounResponse<{ status?: string }>>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}`);
+            closedWithoutResult = request.value.status === "closed";
           } catch (error) {
             if (!(error instanceof ApiError && error.status === 404)) throw error;
           }
@@ -234,7 +247,7 @@ function useResult(id: string, partNumber: number, key: string | null): { loaded
           const mine = record?.value.parts?.[String(partNumber)];
           if (mine) decision = { choice: mine.choice, at: mine.decided_at, version: record?.version };
         }
-        if (current) setLoaded({ example: false, requestId: id, part, solution, decision, decisionsVersion });
+        if (current) setLoaded({ example: false, requestId: id, part, solution, closedWithoutResult, decision, decisionsVersion });
       } catch {
         if (current) setMissing(true);
       }
@@ -382,6 +395,8 @@ function DecisionPanel({
 /** `/requests/<id>/result?part=N`: a part's cited report or reusable process, and your decision on it. */
 export function RequestResult({ id }: { id: string }) {
   const words = useNoun<RequestStatusNoun>("request-status").value;
+  // Model names come from the models.meta Task Object (lib/models.ts), never from typed text.
+  const catalog = useModels();
   const search = useSearch();
   const partNumber = Math.max(1, Number(new URLSearchParams(search).get("part")) || 1);
   const [key] = useState(() => (EXAMPLES[id] ? "example" : requesterKeyFor(id, window.location.hash)));
@@ -481,11 +496,26 @@ export function RequestResult({ id }: { id: string }) {
     }
   }
 
+  const namedModel = (helper: { who?: string; model?: string } | undefined) =>
+    words.model_names
+      ? (modelName(catalog, helper?.model, words.model_names, /^eranos[-_.\s]/i.test(helper?.who ?? "")) ?? words.model_names.own)
+      : "";
+  // The record that holds this result: the example's own noun, or the delivered report in the public store.
+  const recordHref = loaded?.example
+    ? `/api/nouns/eranos.instructions/${processPart ? "request-example-process" : "request-example"}`
+    : report
+      ? `/api/nouns/eranos.solutions/${encodeURIComponent(report.report_id)}`
+      : undefined;
   const receipts = [solution?.research_receipt ?? solution?.build_receipt, solution?.review_receipt].filter((x): x is string => Boolean(x));
   const named = view.builder?.who && view.checker?.who;
   const meta = [
     named
-      ? fill(r.meta_named ?? "", { builder: view.builder?.who ?? "", builder_model: view.builder?.model ?? "", checker: view.checker?.who ?? "", checker_model: view.checker?.model ?? "" })
+      ? fill(r.meta_named ?? "", {
+          builder: view.builder?.who ?? "",
+          builder_model: namedModel(view.builder),
+          checker: view.checker?.who ?? "",
+          checker_model: namedModel(view.checker),
+        })
       : processPart
         ? words.result.meta_anon
         : r.meta_anon,
@@ -500,14 +530,20 @@ export function RequestResult({ id }: { id: string }) {
       <article className="er-result-main">
         {back}
         <p className="er-chip-row" data-testid="result-tags">
-          <span className="er-chip er-chip-noun">{processPart ? words.steps.tag_process : words.steps.tag_information}</span>
+          <span className="er-chip er-chip-object">{processPart ? words.steps.tag_process : words.steps.tag_information}</span>
           {revision ? (
             <span className="er-chip">{words.steps.tag_updating}</span>
           ) : (
             approved && <span className="er-chip er-chip-real">{words.steps.tag_checked}</span>
           )}
         </p>
-        {!solution && <StateNotice tone="wait" head={processPart ? (words.result.not_ready ?? "") : (r.not_ready ?? "")} testId="result-not-ready" />}
+        {!solution &&
+          (view.closedWithoutResult ? (
+            <StateNotice tone="wait" head={words.result.closed_without_result ?? ""} testId="result-closed-without-result" />
+          ) : (
+            <StateNotice tone="wait" head={processPart ? (words.result.not_ready ?? "") : (r.not_ready ?? "")} testId="result-not-ready" />
+          ))}
+        {solution && view.part?.reused_from && <StateNotice tone="wait" head={words.result.reused_note ?? ""} testId="result-reused-note" />}
         {report && (
           <>
             <h1>{report.title}</h1>
@@ -576,7 +612,7 @@ export function RequestResult({ id }: { id: string }) {
                   <a href={`/p/${encodeURIComponent(id)}/download${partNumber > 1 ? `?part=${partNumber}` : ""}`} className="er-btn-secondary er-btn-small" download>
                     {words.steps.download}
                   </a>
-                  <span className="er-small">{fill(words.steps.download_note, { sha: packageSha.slice(0, 12) })}</span>
+                  <span className="er-small">{words.steps.download_note}</span>
                 </p>
               )}
               <ul className="er-plain-list">
@@ -636,8 +672,17 @@ export function RequestResult({ id }: { id: string }) {
           <details className="er-details er-checked-how">
             <summary>{words.steps.checked_how}</summary>
             <p className="er-reviewed-line" data-testid="reviewed-badge">
-              {view.checker?.who ? fill(r.reviewed_line ?? "", { who: view.checker.who }) : r.approved_badge}
-              {solution?.review_receipt && <span className="er-receipt"> · {fill(words.chips.receipt ?? "", { r: shortReceipt(solution.review_receipt) })}</span>}
+              {view.checker?.who
+                ? /^eranos[-_.\s]/i.test(view.checker.who) && r.reviewed_line_eranos
+                  ? r.reviewed_line_eranos
+                  : fill(r.reviewed_line ?? "", { who: view.checker.who })
+                : r.approved_badge}
+              {solution?.review_receipt && (
+                <>
+                  {" "}
+                  · <Evidence value={solution.review_receipt} words={words} href={recordHref} />
+                </>
+              )}
             </p>
             <p className="er-result-meta">{meta.join(" · ")}</p>
           </details>
@@ -692,9 +737,7 @@ export function RequestResult({ id }: { id: string }) {
             >
               {r.download_json}
             </button>
-            {receipts.map((receipt) => (
-              <Evidence key={receipt} value={receipt} words={words} />
-            ))}
+            {receipts.length > 0 && <Evidence value={receipts[0]} words={words} href={recordHref} />}
           </section>
         )}
       </aside>

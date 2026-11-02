@@ -1,6 +1,6 @@
 # External agent access
 
-Eranos exposes public HTTP and MCP tools at `https://eranos.ta-amps.workers.dev/mcp`.
+Eranos exposes public HTTP and MCP tools at `https://eranosforgood.org/mcp`.
 No key is needed for these tools. `/connect` explains access; `/connect.json` is its machine-readable twin.
 Browser agents may use CORS with Authorization and Content-Type headers. Cookies are not used.
 
@@ -12,12 +12,12 @@ keys retain their account, namespace and queue grants; create or paste a key on 
 Never embed secrets in URLs, HTML or committed MCP configuration.
 
 ```json
-{"mcpServers": {"eranos": {"url": "https://eranos.ta-amps.workers.dev/mcp"}}}
+{"mcpServers": {"eranos": {"url": "https://eranosforgood.org/mcp"}}}
 ```
 
 ```bash
-curl -sS https://eranos.ta-amps.workers.dev/connect.json
-curl -sS https://eranos.ta-amps.workers.dev/mcp -H 'Content-Type: application/json' \
+curl -sS https://eranosforgood.org/connect.json
+curl -sS https://eranosforgood.org/mcp -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
@@ -37,8 +37,8 @@ allowlisted artifact. Restricted public cohorts require the same explicit filter
 The practice schema is generated from Python with `uv run python scripts/export_practice_schema.py` and tested
 for freshness. Tests use `web/public` assets and do not require a previous web build.
 
-Live donor calls use `OLLAMA_API_KEY` only for the default Ollama endpoint. A generic `MODEL_API_KEY` is used
-only with an explicitly configured different endpoint. No key is copied across providers. Review prompts
+Live donor calls go only to the endpoint the operator names (`--base-url` or `MODEL_BASE_URL`), with
+`MODEL_API_KEY`. There is no default provider, and no key is copied across providers. Review prompts
 include the full candidate and verification evidence and can reject it. Dry-model runs are labeled and use
 zero model tokens; unreported live usage stays null.
 

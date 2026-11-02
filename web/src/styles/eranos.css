@@ -5,6 +5,12 @@
  */
 
 /* ---------------------------------------------------------------- shared */
+/* The request track's token (tokens v4 motion: track_token, 900 ms standard, only on a recorded event). */
+:root {
+  --dur-track: 900ms;
+  --ease-track: var(--ease-standard);
+}
+
 .er-container {
   max-width: var(--container);
   margin: 0 auto;
@@ -24,7 +30,7 @@
   font-weight: 500;
 }
 .er-receipt {
-  color: var(--noun-text);
+  color: var(--object-text);
   white-space: nowrap;
 }
 .er-text-link {
@@ -68,9 +74,9 @@
   flex-wrap: wrap;
 }
 .er-panel-dark {
-  background: var(--action);
-  color: var(--action-text);
-  border-color: var(--action);
+  background: var(--sunken);
+  color: var(--text);
+  border-color: var(--line);
 }
 .er-panel-dark ul {
   margin: 0;
@@ -87,17 +93,17 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: var(--noun-wash);
-  color: var(--noun-text);
+  background: var(--object-wash);
+  color: var(--object-text);
 }
 .er-feature-tile-small {
   width: 36px;
   height: 36px;
   border-radius: 10px;
 }
-.er-feature-tile-verb {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+.er-feature-tile-task {
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 .er-btn-small {
   min-height: 36px;
@@ -212,11 +218,13 @@ ta-agent-banner {
   --agent-banner-ink: #11161f;
   --agent-banner-muted: #3b4252;
   --agent-banner-raised: #fffdf8;
-  --agent-banner-line: #d8d0c0;
+  --agent-banner-paper: #f5f2ea;
+  --agent-banner-line: #e2dccf;
   --agent-banner-edge: #8a8476;
   --agent-banner-link: #24519b;
   --agent-banner-focus: #2a5db0;
 }
+
 .er-header {
   background: var(--bg);
   border-bottom: 1px solid var(--line);
@@ -393,7 +401,9 @@ ta-agent-banner {
     gap: 18px;
   }
 }
-@media (max-width: 599px) {
+/* The full nav needs about 900 px; below that (phones, and a 1280 px window at 200% zoom) the Menu button opens it,
+   so the header never scrolls sideways (WCAG 1.4.10). */
+@media (max-width: 1023px) {
   .er-header .er-nav,
   .er-header .er-yours-link {
     display: none;
@@ -401,6 +411,11 @@ ta-agent-banner {
   .er-menu-button {
     display: inline-flex;
   }
+  .er-header nav:not(.er-nav):not(.er-menu-nav) {
+    display: none;
+  }
+}
+@media (max-width: 599px) {
   .er-header-inner,
   .er-header-compact .er-header-inner {
     height: 56px;
@@ -506,103 +521,6 @@ ta-agent-banner {
   color: var(--text-3);
   font-size: var(--fs-small);
 }
-/* The layers: soft tiles of the mark at three depths. Still unless the page scrolls; never with reduced motion. */
-.er-landing-layers {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.er-layer {
-  position: absolute;
-  border-radius: 28%;
-}
-.er-layer-a {
-  width: 240px;
-  height: 240px;
-  right: 6%;
-  top: 9%;
-  background: var(--noun-wash);
-}
-.er-layer-b {
-  width: 240px;
-  height: 240px;
-  right: calc(6% + 270px);
-  top: 9%;
-  background: var(--verb-wash);
-}
-.er-layer-c {
-  width: 240px;
-  height: 240px;
-  right: calc(6% + 270px);
-  top: calc(9% + 270px);
-  background: var(--sunken);
-}
-.er-layer-d {
-  width: 240px;
-  height: 240px;
-  right: 6%;
-  top: calc(9% + 270px);
-  background: var(--noun-wash);
-}
-.er-layer-e {
-  width: 64px;
-  height: 64px;
-  right: calc(6% + 236px);
-  top: calc(9% + 236px);
-  background: var(--verb);
-  opacity: 0.85;
-}
-.er-layer-f {
-  width: 40px;
-  height: 40px;
-  right: calc(6% - 18px);
-  top: calc(9% + 200px);
-  background: var(--noun);
-  opacity: 0.75;
-}
-@media (prefers-reduced-motion: no-preference) {
-  @supports (animation-timeline: scroll()) {
-    .er-layer {
-      animation: linear both;
-      animation-timeline: scroll(root block);
-      animation-range: 0 90vh;
-    }
-    .er-depth-far {
-      animation-name: er-depth-far;
-    }
-    .er-depth-mid {
-      animation-name: er-depth-mid;
-    }
-    .er-depth-near {
-      animation-name: er-depth-near;
-    }
-  }
-}
-@keyframes er-depth-far {
-  to {
-    transform: translate3d(0, 90px, 0);
-  }
-}
-@keyframes er-depth-mid {
-  to {
-    transform: translate3d(0, 40px, 0);
-  }
-}
-@keyframes er-depth-near {
-  to {
-    transform: translate3d(0, -50px, 0);
-  }
-}
-@media (max-width: 1023px) {
-  .er-layer {
-    opacity: 0.55;
-  }
-  .er-layer-e,
-  .er-layer-f {
-    opacity: 0.4;
-  }
-}
 @media (max-width: 599px) {
   .er-landing {
     min-height: auto;
@@ -613,32 +531,6 @@ ta-agent-banner {
   }
   .er-landing-buttons {
     grid-template-columns: minmax(0, 1fr);
-  }
-  .er-layer-a,
-  .er-layer-b,
-  .er-layer-c,
-  .er-layer-d {
-    width: 120px;
-    height: 120px;
-  }
-  .er-layer-a {
-    right: -40px;
-    top: 16px;
-  }
-  .er-layer-b {
-    right: 96px;
-    top: -60px;
-  }
-  .er-layer-c,
-  .er-layer-d,
-    .er-layer-e {
-    right: 70px;
-    top: 72px;
-    width: 32px;
-    height: 32px;
-  }
-  .er-layer-f {
-    display: none;
   }
 }
 
@@ -733,8 +625,9 @@ ta-agent-banner {
 .er-safety {
   margin-top: 32px;
   padding: 56px 0;
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--sunken);
+  color: var(--text);
+  border-top: 1px solid var(--line);
 }
 .er-safety-grid {
   display: grid;
@@ -747,7 +640,7 @@ ta-agent-banner {
 }
 .er-safety-grid dd {
   margin: 8px 0 0;
-  opacity: 0.86;
+  color: var(--text-2);
 }
 .er-main-home + .er-footer {
   margin-top: 0;
@@ -916,8 +809,9 @@ ta-agent-banner {
   width: min(320px, 80vw);
   padding: 12px 14px;
   border-radius: var(--radius-md);
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line-strong);
   font-size: var(--fs-small);
   font-weight: 400;
   line-height: 1.45;
@@ -931,8 +825,12 @@ ta-agent-banner {
   visibility: visible;
   opacity: 1;
 }
-/* On a phone the tip spans its option card, so it never reaches past the screen's edge. */
-@media (max-width: 599px) {
+.er-tip[data-dismissed="true"] .er-tip-text {
+  display: none;
+}
+/* On a phone, or a window zoomed to 200%, the tip spans its option card, so it never reaches past the screen's
+   edge (and never makes the page scroll sideways). */
+@media (max-width: 1023px) {
   .er-choice-card {
     position: relative;
   }
@@ -1042,7 +940,7 @@ ta-agent-banner {
   gap: 10px;
   padding: 18px 20px;
   border-radius: var(--radius-lg);
-  background: var(--noun-wash);
+  background: var(--object-wash);
   color: var(--text);
 }
 .er-library-check h2 {
@@ -1169,14 +1067,19 @@ ta-agent-banner {
 .er-overall {
   padding: 7px 14px;
   font-size: var(--fs-ui);
+  /* A long state ("Answered from the library · not checked for this request") wraps inside the pill on a phone
+     instead of pushing the page sideways. */
+  max-width: 100%;
+  white-space: normal;
+  box-sizing: border-box;
 }
 .er-overall-waiting {
   background: var(--waiting-wash);
   color: var(--text-2);
 }
 .er-overall-verb {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 .er-overall-attention {
   background: var(--attention-wash);
@@ -1191,8 +1094,8 @@ ta-agent-banner {
   color: var(--caution);
 }
 .er-overall-noun {
-  background: var(--noun-wash);
-  color: var(--noun-text);
+  background: var(--object-wash);
+  color: var(--object-text);
 }
 .er-live {
   padding: 12px 20px 14px;
@@ -1227,7 +1130,7 @@ ta-agent-banner {
   background: var(--real);
 }
 .er-live-dot-example {
-  background: var(--noun);
+  background: var(--object);
 }
 .er-live-dot-paused {
   background: var(--text-3);
@@ -1310,9 +1213,9 @@ ta-agent-banner {
   border: 1.5px dashed var(--waiting);
 }
 .er-node-working {
-  background: var(--verb);
+  background: var(--task);
   color: #ffffff;
-  border: 1.5px solid var(--verb);
+  border: 1.5px solid var(--task);
 }
 .er-node-done {
   background: var(--surface);
@@ -1341,14 +1244,14 @@ ta-agent-banner {
   border: 1.5px dashed var(--attention);
 }
 .er-node-decided {
-  background: var(--text);
-  color: var(--bg);
+  background: var(--real-wash);
+  color: var(--real);
   border: 1.5px solid var(--text);
 }
 .er-node-noun {
-  background: var(--noun-wash);
-  color: var(--noun-text);
-  border: 2px solid var(--noun);
+  background: var(--object-wash);
+  color: var(--object-text);
+  border: 2px solid var(--object);
 }
 .er-node-request {
   view-transition-name: request;
@@ -1388,7 +1291,7 @@ ta-agent-banner {
 }
 .er-lease-left {
   fill: none;
-  stroke: var(--verb);
+  stroke: var(--task);
   stroke-width: 2;
 }
 .er-lease-bot {
@@ -1400,7 +1303,7 @@ ta-agent-banner {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid var(--verb);
+  border: 2px solid var(--task);
   pointer-events: none;
 }
 .er-dots {
@@ -1416,7 +1319,7 @@ ta-agent-banner {
   box-shadow: 0 0 0 3px var(--surface);
 }
 .er-dot-noun {
-  background: var(--noun);
+  background: var(--object);
 }
 .er-dot-real {
   background: var(--real);
@@ -1431,9 +1334,9 @@ ta-agent-banner {
   align-items: center;
   padding: 0 10px;
   border-radius: 13px;
-  background: var(--noun-wash);
-  color: var(--noun-text);
-  border: 1.5px solid var(--noun);
+  background: var(--object-wash);
+  color: var(--object-text);
+  border: 1.5px solid var(--object);
   font-size: var(--fs-small);
   font-weight: 600;
   white-space: nowrap;
@@ -1547,9 +1450,9 @@ ta-agent-banner {
   background: var(--waiting-wash);
   color: var(--text-2);
 }
-.er-count-verb {
-  background: var(--verb-wash);
-  color: var(--verb-text);
+.er-count-task {
+  background: var(--task-wash);
+  color: var(--task-text);
 }
 /* The list view: the phone layout and the diagram's accessible alternative. */
 .er-status-list {
@@ -1615,20 +1518,20 @@ ta-agent-banner {
   background: var(--waiting-wash);
 }
 .er-step-working {
-  background: var(--verb-wash);
+  background: var(--task-wash);
   border-color: transparent;
 }
 .er-step-working .er-step-word {
-  color: var(--verb-text);
+  color: var(--task-text);
 }
 .er-step-done,
 .er-step-noun {
-  background: var(--noun-wash);
+  background: var(--object-wash);
   border-color: transparent;
 }
 .er-step-done .er-step-word,
 .er-step-noun .er-step-word {
-  color: var(--noun-text);
+  color: var(--object-text);
 }
 .er-step-approved {
   background: var(--real-wash);
@@ -1718,8 +1621,8 @@ ta-agent-banner {
 .er-quote {
   margin: 6px 0 0;
   padding: 6px 12px;
-  border-left: 3px solid var(--noun);
-  background: var(--noun-wash);
+  border-left: 3px solid var(--object);
+  background: var(--object-wash);
   color: var(--text);
   font-size: var(--fs-ui);
 }
@@ -1742,8 +1645,9 @@ ta-agent-banner {
   flex-wrap: wrap;
   padding: 22px 24px;
   border-radius: 20px;
-  background: var(--action);
-  color: var(--action-text);
+  background: var(--sunken);
+  color: var(--text);
+  border: 1px solid var(--line);
 }
 .er-bridge > span:nth-child(2) {
   flex: 1;
@@ -1755,9 +1659,9 @@ ta-agent-banner {
   height: 40px;
   border-radius: 10px;
   background:
-    linear-gradient(var(--action), var(--action)) 50% 0 / 4.8px 100% no-repeat,
-    linear-gradient(var(--action), var(--action)) 0 50% / 100% 4.8px no-repeat,
-    conic-gradient(var(--mark-2) 0 25%, var(--mark-4) 0 50%, var(--bg) 0 75%, var(--mark-1) 0);
+    linear-gradient(var(--sunken), var(--sunken)) 50% 0 / 4.8px 100% no-repeat,
+    linear-gradient(var(--sunken), var(--sunken)) 0 50% / 100% 4.8px no-repeat,
+    conic-gradient(var(--mark-2) 0 25%, var(--mark-4) 0 50%, var(--mark-3) 0 75%, var(--mark-1) 0);
 }
 .er-result-aside {
   flex: 1 1 300px;
@@ -1927,7 +1831,7 @@ ta-agent-banner {
   font-size: var(--fs-ui);
 }
 .er-stored code {
-  color: var(--noun-text);
+  color: var(--object-text);
   font-family: var(--font-mono);
   font-size: var(--fs-mono);
   overflow-wrap: anywhere;
@@ -2188,9 +2092,12 @@ button.er-choice-pill {
 
 .er-yours-link {
   display: inline-flex;
+  margin-left: 24px;
+}
+.er-yours-link > a {
+  display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-left: 24px;
   padding: 0 14px;
   border: 1.5px solid var(--line-strong);
   border-radius: var(--radius-pill);
@@ -2198,7 +2105,7 @@ button.er-choice-pill {
   text-decoration: none;
   white-space: nowrap;
 }
-.er-yours-link[aria-current="page"] {
+.er-yours-link > a[aria-current="page"] {
   border-color: var(--text);
 }
 .er-yours-list {
@@ -2350,7 +2257,7 @@ button.er-choice-pill {
   }
 }
 /* The request box morphs into the plain view's first stage, as it does into the diagram's request node. */
-.er-plain .er-stage[data-stage="sent"] {
+.er-plain .er-track li[data-step="0"] {
   view-transition-name: request;
 }
 
@@ -2447,4 +2354,519 @@ button.er-choice-pill {
   align-items: center;
   gap: 10px;
   margin: 4px 0 12px;
+}
+
+/* ------------------------------------------------- request page v6: strip and bands */
+.er-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+.er-strip-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-top: 3px solid var(--line);
+  font-weight: 600;
+  font-size: var(--fs-small);
+}
+.er-strip-step.er-stage-done {
+  border-top-color: var(--text);
+}
+.er-strip-step.er-stage-now {
+  border-top-color: var(--action);
+}
+.er-strip-step.er-stage-upcoming {
+  color: var(--text-2);
+  opacity: 1;
+}
+.er-rq-band {
+  position: relative;
+}
+.er-band-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  font-size: var(--fs-small);
+}
+.er-rq-band-done .er-band-n {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
+}
+.er-rq-band-now {
+  border-color: var(--text);
+}
+.er-rq-band-upcoming {
+  border-style: dashed;
+}
+.er-band-list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.er-band-list li {
+  display: grid;
+  gap: 2px;
+}
+.er-band-ok {
+  margin: 4px 0 0;
+}
+.er-band-part + .er-band-part {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.er-helper {
+  margin: 6px 0;
+}
+.er-ready-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  margin: 8px 0 12px;
+}
+.er-ready-card {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+.er-switch {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0;
+}
+@media (max-width: 899px) {
+  .er-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (max-width: 479px) {
+  .er-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.er-band-failed {
+  margin: 6px 0;
+  padding: 8px 12px;
+  border-left: 3px solid var(--danger, #b3261e);
+  background: var(--surface);
+}
+
+/* ------------------------------------------------ the request track (RequestStatusPage, calm; owner v2, Nov 1) */
+.er-track {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  padding: 12px 0 14px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.er-track ol {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+/* The rail, through the station centres. */
+.er-track ol::before {
+  content: "";
+  position: absolute;
+  top: 9px;
+  left: calc(100% / 12);
+  right: calc(100% / 12);
+  height: 4px;
+  border-radius: 2px;
+  background: var(--line);
+}
+.er-track a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 0 4px;
+  color: var(--text-3);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  text-decoration: none;
+}
+.er-track li[data-state="done"] a,
+.er-track a[aria-current="step"] {
+  color: var(--text);
+}
+.er-track a[aria-current="step"] {
+  font-weight: 700;
+}
+.er-track-dot {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.5px dashed var(--line-strong);
+  background: var(--bg);
+  color: var(--text-inverse);
+  font-size: 14px;
+  line-height: 1;
+}
+.er-track li[data-state="done"] .er-track-dot {
+  background: var(--text);
+  border: 0;
+}
+.er-track li[data-state="done"] .er-track-dot::before {
+  content: "✓";
+}
+.er-track li[data-step="5"][data-state="done"] .er-track-dot {
+  background: var(--real);
+}
+.er-track li[data-state="now"] .er-track-dot {
+  border: 3px solid var(--text);
+  background: var(--surface);
+}
+.er-track li[data-state="now"][data-tone="work"] .er-track-dot {
+  border: 0;
+  background: var(--task);
+}
+.er-track li[data-state="now"][data-tone="turn"] .er-track-dot {
+  border: 0;
+  background: var(--attention);
+}
+/* The token rides a lane one station wide; data-pos moves it a whole station at a time, by transform only. */
+.er-track-lane {
+  position: absolute;
+  top: 16px;
+  left: 0;
+  width: calc(100% / 6);
+  height: 14px;
+  pointer-events: none;
+}
+.er-track-token {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  transform: translateX(0);
+}
+.er-track-token::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--object);
+  box-shadow: 0 0 0 4px var(--bg);
+}
+.er-track-token[data-tone="work"]::before {
+  background: var(--task);
+}
+.er-track-token[data-tone="turn"]::before {
+  background: var(--attention);
+}
+.er-track-token[data-tone="done"]::before {
+  background: var(--real);
+}
+.er-track-token[data-back="true"]::before {
+  background: var(--task-text);
+  outline: 2px solid var(--task-wash);
+}
+.er-track-token[data-pos="1"] {
+  transform: translateX(100%);
+}
+.er-track-token[data-pos="2"] {
+  transform: translateX(200%);
+}
+.er-track-token[data-pos="3"] {
+  transform: translateX(300%);
+}
+.er-track-token[data-pos="4"] {
+  transform: translateX(400%);
+}
+.er-track-token[data-pos="5"] {
+  transform: translateX(500%);
+}
+.er-track-lane[data-animate="true"] .er-track-token {
+  transition: transform var(--dur-track) var(--ease-track);
+}
+.er-ghosts {
+  display: inline-flex;
+  gap: 3px;
+}
+.er-ghost {
+  width: 14px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--line-strong);
+}
+.er-rq-band {
+  scroll-margin-top: max(160px, calc(var(--er-track-h, 80px) + 16px));
+}
+/* Focus is never hidden under the sticky track (WCAG 2.2 SC 2.4.11): anything focusable scrolls clear of it, by the
+   track's measured height at this width (--er-track-h, set by the track itself). */
+.er-status-page :is(a, button, input, select, textarea, summary, [tabindex]) {
+  scroll-margin-top: calc(var(--er-track-h, 80px) + 16px);
+}
+/* The station links live in the sticky track itself, so tabbing through them never moves the page. */
+.er-status-page .er-track a {
+  scroll-margin-top: 0;
+}
+/* Reduced motion: the token jumps to its station; nothing travels. */
+@media (prefers-reduced-motion: reduce) {
+  .er-track-lane[data-animate="true"] .er-track-token {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- Right now, under the doors (LiveMapStrip) */
+.er-now-strip {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  margin-top: 8px;
+  padding: 18px 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+/* Every state (loading, off, empty, quiet, live) keeps the live card's height at each width, measured with long
+   live words, so the hero never grows or shrinks when /api/network answers or the state changes (E01, CLS < 0.1). */
+.er-now-strip {
+  min-height: 168px;
+  align-content: center;
+}
+@media (min-width: 1024px) and (max-width: 1099px) {
+  .er-now-strip {
+    min-height: 180px;
+  }
+}
+@media (max-width: 599px) {
+  .er-now-strip {
+    min-height: 236px;
+  }
+}
+@media (max-width: 440px) {
+  .er-now-strip {
+    min-height: 256px;
+  }
+}
+@media (max-width: 374px) {
+  .er-now-strip {
+    min-height: 276px;
+  }
+}
+.er-now-strip-pending {
+  align-content: start;
+}
+.er-now-strip p {
+  margin: 0;
+}
+.er-now-strip-eyebrow {
+  font-size: var(--fs-small);
+  font-weight: 600;
+  color: var(--text-2);
+}
+.er-now-strip-headline {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 600;
+  color: var(--text);
+}
+.er-now-strip-sub,
+.er-now-strip-last {
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--text-2);
+}
+.er-now-strip-cta {
+  justify-self: start;
+  margin-top: 4px;
+  font-size: var(--fs-ui);
+  font-weight: 500;
+}
+.er-now-strip-quiet-body {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--text-2);
+}
+.er-now-strip-quiet-body svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--text-3);
+}
+.er-now-strip-quiet-body strong {
+  color: var(--text);
+}
+
+/* ---------------------------------------------------------------- a page that failed to draw */
+.er-page-error {
+  padding-top: 48px;
+  padding-bottom: 64px;
+}
+.er-page-error h1 {
+  font-size: var(--fs-h2);
+  margin: 0 0 12px;
+}
+.er-page-error p {
+  max-width: 60ch;
+  color: var(--text-2);
+}
+.er-page-error-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------------------------------------------------------------- a request that closed (F-UI-STALE-001) */
+/* A step the request closed before reaching reads as closed, not as waiting; a closed request's last station is
+   where it stopped, with no token waiting there. */
+.er-rq-band-closed {
+  border-style: dashed;
+}
+.er-rq-band-closed .er-band-status {
+  color: var(--text-3);
+}
+.er-track li[data-state="closed"] .er-track-dot {
+  background: var(--sunken);
+  border-color: var(--line-strong);
+  border-style: solid;
+}
+.er-reopened {
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--sunken);
+  color: var(--text-2);
+}
+
+/* ---------------------------------------------------------------- walkthrough video (/video) */
+.er-home-video-cta {
+  margin: 10px 0 0;
+  font-size: var(--fs-ui);
+}
+.er-video-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: none;
+}
+.er-video-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.er-video-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.er-video-meta li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+.er-video-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.er-video-player-card,
+.er-video-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.er-video-player-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.er-video-player-head h2 {
+  margin: 0;
+}
+.er-video-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.er-video-element {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.er-video-transcript,
+.er-video-evidence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.er-video-transcript-row,
+.er-video-evidence-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.er-video-transcript-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+.er-video-transcript-row p {
+  margin: 0;
+}
+.er-video-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
 }

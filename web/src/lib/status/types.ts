@@ -4,7 +4,9 @@
  * every node, chip and log line from these facts and nothing else, so no step can show as done without one.
  */
 
-export type PartRoute = "public-only" | "private-files" | "process" | "report" | "held";
+/** Routes recorded by current workers, including reused library answers. */
+/** reuse_check (F-REUSE-001): the plan's part that checks whether a similar library answer fits; nothing is made. */
+export type PartRoute = "public-only" | "private-files" | "process" | "report" | "held" | "reused" | "reuse_check";
 
 /** One part of a plan, as the classify step records it in `eranos.plans/<request_id>`. */
 export interface PartPlan {
@@ -16,6 +18,8 @@ export interface PartPlan {
   frequency?: string;
   report_id?: string;
   kit_id?: string;
+  /** Answered from the library: the earlier checked result this part reuses. */
+  reused_from?: { key?: string; kind?: string; title?: string };
   track_id?: string;
   needs_person_signoff?: boolean;
   work_task_id?: string;
@@ -49,9 +53,12 @@ export type StatusEventType =
   | "delivered"
   | "published"
   | "library_added"
+  | "check_refused"
   | "decided"
   | "heartbeat"
   | "closed"
+  | "reopened"
+  | "reuse_checked"
   | "withdrawn";
 
 export type DecisionChoice = "use" | "changes" | "dont";
@@ -67,14 +74,41 @@ export interface StatusEvent {
   ref?: string;
   worker?: string;
   model?: string;
+  /** How a step ran when it runs no model, as the claim records it (for example "deterministic planner (no model)"). */
+  method?: string;
+  /**
+   * reuse_checked (F-REUSE-001): a different key's check of whether a similar library answer fits this request.
+   * `verdict` is "fits" or "does_not_fit"; `checker_role` names the checker's role; `model` the model it ran;
+   * `similarity` the match score; `ref` the matched answer.
+   */
+  verdict?: "fits" | "does_not_fit";
+  checker_role?: string;
+  similarity?: number;
+  /** A dedicated worker's persona that ran, from its claim record (owner decision D8). */
+  persona?: string;
   lease_ends?: number;
+  /** The model's display name from the models.meta Task Object, as the worker's fact carries it with the id. */
+  model_name?: string;
+  /** True when one of Eranos's own (dedicated) workers claimed it because no volunteer was free in time. */
+  dedicated?: boolean;
+  /**
+   * Who claimed it, as the claim records it: "dedicated" for one of Eranos's own workers, "volunteer" for an outside
+   * volunteer's agent. The page says a volunteer's AI did a step only when its claim is marked "volunteer" (or
+   * `dedicated` is false); an unmarked claim reads as an AI worker.
+   */
+  worker_kind?: "volunteer" | "dedicated";
   parts?: PartPlan[];
   /** Places in line, by part number, after this fact. */
   places?: Record<string, number>;
   /** The plan's place in line, before it is claimed. */
   place?: number;
   queue?: QueueSnapshot;
-  summary?: { sources?: number };
+  /**
+   * What the live workers add (eranos-worker, eranos/pipeline/status_events.py): `reused` on a delivered or
+   * published part answered from the library, `next_at` (Unix seconds) and `occurrence` on a recurring request's
+   * next run, and `attempt` / `max_attempts` / `retry_at` on a failed try when the worker knows them.
+   */
+  summary?: { sources?: number; reused?: boolean; score?: number; next_at?: number; occurrence?: number; attempt?: number; max_attempts?: number; retry_at?: number };
   reason?: string;
   findings?: string[];
   choice?: DecisionChoice;

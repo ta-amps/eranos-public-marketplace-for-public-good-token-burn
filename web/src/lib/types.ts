@@ -276,3 +276,24 @@ export interface FabricResponse {
   queues: QueueCount[];
   swarm?: FabricSwarmCounts;
 }
+
+/** `/api/network`: Herma's network summary, cut to what the home strip shows; `available: false` when there is none. */
+export interface NetworkStripResponse {
+  available: boolean;
+  generated_at?: string | null;
+  recent_minutes?: number;
+  totals?: { workers: number | null; continents: number | null; claims: number | null; nonprofit_claims: number | null };
+  last?: {
+    at: string | null;
+    kind_label: string | null;
+    model: { name: string; declared: boolean } | null;
+    via: { type: "data_centre" | "continent"; city: string | null; continent: string | null };
+  } | null;
+}
+
+/** `/api/shared-tasks`: open Tasks on the shared queue, in plain words; title, tier and age only. */
+export interface SharedTasksResponse {
+  available: boolean;
+  total?: number;
+  tasks: { title: string; tier: "ngo_priority" | "public_general"; created_at: string | null }[];
+}

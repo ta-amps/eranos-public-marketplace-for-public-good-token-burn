@@ -427,9 +427,9 @@ def test_cli_practice_and_verify_examples_dry_run(capsys: pytest.CaptureFixture[
 
 
 def test_donor_worker_refuses_contributor_tier_models() -> None:
-    check_donor_model("muse-spark-open")
+    check_donor_model("muse-spark-1.3")
     with pytest.raises(ContributorModelRefused):
-        check_donor_model("muse-spark-open-contributor")
+        check_donor_model("muse-spark-1.3-contributor")
 
 
 def test_donor_demo_synthesizes_verifies_and_publishes_with_distinct_keys() -> None:
@@ -437,7 +437,7 @@ def test_donor_demo_synthesizes_verifies_and_publishes_with_distinct_keys() -> N
     assert out["ok"] is True
     assert out["kit_id"] == "KIT-DONOR-90"
     assert out["drafted_by"] == "opencode-donor-01"
-    assert out["reviewed_by"] == "ollama-reviewer-02"
+    assert out["reviewed_by"] == "volunteer-reviewer-02"
     assert out["eq03_scope_blocked"] is True
     assert out["catalog_version"] == 1
     assert out["jobs_recorded"] == 1

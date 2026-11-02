@@ -1,5 +1,5 @@
 name: Tell us what you need
-description: "Don't include anyone's personal information. Requests are public. Tell volunteers about a job your organization needs done."
+description: "Don't include anyone's personal information. Requests are public. Tell us about a job your organization needs done."
 title: "Request: "
 labels: ["request"]
 body:
@@ -10,7 +10,7 @@ body:
 
         Leave out names, contact details, case notes, photos and stories about real people, including clients, staff and volunteers. Describe the job, not the people. Use made-up examples only.
 
-        **What happens next.** A volunteer will check your request before it becomes work. The check refuses personal information, applies the safety rules and plans the parts. Parts that need only public information are researched by volunteers' agents and come back as a report with a source for every point. Parts that touch your files become a kit your own agent runs, so your data stays with you. A different volunteer reviews every part. Volunteers pick up requests when they can, so there is no set timeline.
+        **What happens next.** A worker will check your request before it becomes work. The check refuses personal information, applies the safety rules and plans the parts. Parts that need only public information are researched by an AI worker and come back as a report with a source for every point. Parts that touch your files become a kit your own agent runs, so your data stays with you. A different worker reviews every part. Workers pick up requests when they can, so there is no set timeline.
 
         **Kits are reviewed, not certified.** Check any kit with your own staff and rules before you use it.
   - type: dropdown
@@ -60,5 +60,5 @@ body:
       options:
         - label: This request contains no one's personal information, and I understand that requests are public.
           required: true
-        - label: I understand that a volunteer checks this request first, and that kits are reviewed, not certified.
+        - label: I understand that a worker checks this request first, and that kits are reviewed, not certified.
           required: true

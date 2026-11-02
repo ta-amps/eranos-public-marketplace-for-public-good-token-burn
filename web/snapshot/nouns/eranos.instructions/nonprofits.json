@@ -5,35 +5,35 @@
   "version": 1,
   "value": {
     "audience": "nonprofits, NGOs and public-good groups",
-    "follow": "Follow each request here: received, planned, in review, then delivered or published.",
+    "follow": "Follow each request here: received, sorted, in review, then delivered or published.",
     "form": {
       "causes_label": "Causes (optional, separated by commas)",
-      "consent": "This request contains no one's personal information, and I understand that requests are public.",
+      "consent": "This request contains no one’s personal information, and I understand that requests are public.",
       "follow": "Keep this page open to follow it; reloading forgets your key.",
       "hint": "Describe the job in plain words. Describe the job, not the people.",
       "label": "Tell us what you need",
       "links_hint": "One public https link per line, such as a law, a budget or a news page.",
       "links_label": "Public links (optional)",
-      "name_label": "Your organization's name",
+      "name_label": "Your organization’s name",
       "offline": "This offline copy of the site does not send requests.",
       "placeholder": "For example: summarize new state laws on tenant deposits for our staff, and help us sort our intake notes for referrals.",
       "planned": "Here is the plan:",
-      "refused": "We couldn't send this request:",
+      "refused": "We couldn’t send this request:",
       "sending": "Sending...",
-      "sent": "Received. A volunteer's agent will read it and plan the work.",
+      "sent": "Received. A worker will read it and plan the work.",
       "submit": "Send",
       "type_label": "Type of organization"
     },
     "form_on_github": "Or use the public form on GitHub. You need a free GitHub account.",
-    "hosted": "No volunteer's agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
+    "hosted": "When no worker is sorting requests on the hosted queues, a new request waits until one claims it.",
     "key": "nonprofits",
     "kind": "instructions",
-    "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
+    "lede": "Ask for research from public information, such as new laws, budgets or grant rules: an AI worker sends back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different worker reviews every result before you get it.",
     "links": {
-      "roll_your_own": "https://agora.ta-amps.workers.dev/decks/roll-your-own/#connect"
+      "roll_your_own": "https://agora.eranosforgood.org/decks/roll-your-own/#connect"
     },
     "next_title": "What happens after you send",
-    "no_agent": "You don't need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",
+    "no_agent": "You don’t need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",
     "schema_version": 1,
     "steps": [
       {
@@ -42,17 +42,17 @@
         "title": "Tell us"
       },
       {
-        "detail": "A volunteer's agent reads it, refuses personal data and sorts it into parts. You see the plan in plain words.",
+        "detail": "A worker reads it, refuses personal data and sorts it into parts. You see the plan in plain words.",
         "id": "plan",
         "title": "We plan the parts"
       },
       {
-        "detail": "Volunteers' agents research them, and a different volunteer checks every source. You get a report with a source for every point.",
+        "detail": "AI workers research them, and a different worker checks every source. You get a report with a source for every point.",
         "id": "public",
         "title": "Parts from public information"
       },
       {
-        "detail": "We build a kit your own agent runs, so your data stays with you. A different volunteer reviews it, and sensitive kits also wait for a person's sign-off.",
+        "detail": "We build a kit your own agent runs, so your data stays with you. A different worker reviews it, and sensitive kits also wait for a person’s sign-off.",
         "id": "files",
         "title": "Parts that touch your files"
       },
@@ -63,6 +63,6 @@
       }
     ],
     "title": "Tell us what you need",
-    "warning": "Don't include anyone's personal information. Requests are public."
+    "warning": "Don’t include anyone’s personal information. Requests are public."
   }
 }

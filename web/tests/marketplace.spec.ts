@@ -3,6 +3,20 @@ import { expect, test, type Page } from "@playwright/test";
 import type { NonprofitsPageNoun } from "../src/lib/nouns";
 import { LIVE, mockSite, noun } from "./support/mocks";
 
+
+/** Every hero text box a tile (or its lit layer) intersects, as "tile class x text class". Empty when none. */
+function heroCrossings(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const boxes = (selector: string) => [...document.querySelectorAll(selector)].map((el) => ({ el, r: el.getBoundingClientRect() }));
+    const text = boxes(".er-landing-words > *, .er-landing-words .er-door");
+    const tiles = boxes(".er-hero-tile, .er-hero-tile-lit");
+    const hit = (a: DOMRect, b: DOMRect) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+    const out: string[] = [];
+    for (const t of tiles) for (const w of text) if (hit(t.r, w.r)) out.push(`${t.el.className} x ${w.el.className || w.el.tagName}`);
+    return out;
+  });
+}
+
 // The two-sided marketplace after the Paper & Ink redesign: the agent banner on every page (owner requirement 1),
 // the parallax landing with exactly two buttons (2), the request page and its bounds (3), the volunteer page
 // (E09), and the older accessibility and wording guarantees.
@@ -90,14 +104,14 @@ test.describe("owner 1: the agent instructions banner", () => {
     await expect(banner.locator(".bar")).toContainText("Have an AI agent?");
     await expect(banner.getByRole("region", { name: "Use this site with your AI agent" })).toBeVisible();
     await banner.locator(".bar button.copy").click();
-    expect(await copied(page)).toEqual(["Read https://eranos.ta-amps.workers.dev/llms.txt and follow it."]);
+    expect(await copied(page)).toEqual(["Read https://eranosforgood.org/llms.txt and follow it."]);
     const toggle = banner.locator("button.toggle");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await toggle.click();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     const panel = banner.locator(".panel");
     await expect(panel).toBeVisible();
-    for (const text of ["Paste this into your agent", "What it can do here", "Rules it follows", "Pick up open tasks as a volunteer"]) {
+    for (const text of ["Paste this into your agent", "What it can do here", "Rules it follows", "Pick up open Tasks as a volunteer"]) {
       await expect(panel).toContainText(text);
     }
     await expect(panel.getByRole("link", { name: "Full agent guide (/connect)" })).toHaveAttribute("href", /\/connect$/);
@@ -133,23 +147,59 @@ test.describe("owner 2: the landing", () => {
     });
   }
 
-  test("the layers move only while the page scrolls, and never with reduced motion", async ({ browser }) => {
-    for (const reducedMotion of ["no-preference", "reduce"] as const) {
-      const context = await browser.newContext({ reducedMotion, viewport: { width: 1440, height: 900 } });
+  test("the hero overlap check fails on its own when a tile sits over the hero's text (its fixture)", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 613 });
+    await page.goto("/");
+    await expect(page.locator(".er-hero-tile")).toHaveCount(4);
+    expect(await heroCrossings(page)).toEqual([]);
+    await page.evaluate(() => {
+      const h1 = document.querySelector(".er-landing-words h1") as HTMLElement;
+      const r = h1.getBoundingClientRect();
+      const chip = document.createElement("div");
+      chip.className = "er-hero-tile er-hero-tile-fixture";
+      Object.assign(chip.style, { position: "fixed", left: `${r.left + 10}px`, top: `${r.top + 5}px`, width: "90px", height: "28px", minHeight: "0", padding: "0" });
+      document.body.append(chip);
+    });
+    expect(await heroCrossings(page)).toContain("er-hero-tile er-hero-tile-fixture x er-display");
+  });
+
+  // The film's opening shot (Nov 2): the hero's tiles must never cover its text, at any moment of the load animation
+  // or while the page scrolls. Sampled every 100 ms for 4 s, then every 40 px of scroll.
+  for (const [width, height, scale] of [
+    [1280, 613, 1.5],
+    [390, 844, 3],
+  ] as const) {
+    test(`the hero's tiles never cross its text at ${width} x ${height}, during the animation or a scroll`, async ({ browser }) => {
+      test.setTimeout(60_000);
+      const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: scale });
       const page = await context.newPage();
       await page.goto("/");
-      await page.waitForTimeout(300);
-      const before = await page.locator(".er-layer-a").evaluate((el) => getComputedStyle(el).transform);
-      await page.waitForTimeout(600);
-      expect(await page.locator(".er-layer-a").evaluate((el) => getComputedStyle(el).transform)).toBe(before);
-      await page.mouse.wheel(0, 500);
-      await page.waitForTimeout(400);
-      const after = await page.locator(".er-layer-a").evaluate((el) => getComputedStyle(el).transform);
-      if (reducedMotion === "reduce") expect(after).toBe(before);
-      else expect(after).not.toBe(before);
+      await expect(page.locator(".er-hero-tile")).toHaveCount(4);
+      if (width >= 1024) {
+        // The film's window: both doors are whole above the fold.
+        for (const box of await page.locator(".er-door").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().bottom))) {
+          expect(box).toBeLessThanOrEqual(height);
+        }
+      }
+      const crossings = () => heroCrossings(page);
+      const seen = new Set<string>();
+      const moves = new Set<string>();
+      const first = await page.locator(".er-hero-tile").first().boundingBox();
+      for (let t = 0; t < 40; t++) {
+        for (const c of await crossings()) seen.add(`${t * 100} ms: ${c}`);
+        const now = await page.locator(".er-hero-tile").first().boundingBox();
+        if (first && now && (now.x !== first.x || now.y !== first.y)) moves.add(`${t * 100} ms`);
+        await page.waitForTimeout(100);
+      }
+      for (let y = 0; y <= 600; y += 40) {
+        await page.evaluate((top) => window.scrollTo(0, top), y);
+        for (const c of await crossings()) seen.add(`scroll ${y}: ${c}`);
+      }
+      expect([...seen]).toEqual([]);
+      expect([...moves], "the tiles light up in place; they never move").toEqual([]);
       await context.close();
-    }
-  });
+    });
+  }
 });
 
 test.describe("owner 3: the request page (RequestForm board)", () => {
@@ -198,7 +248,7 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     );
     await page.getByRole("button", { name: "Tenant deposit rules" }).click();
     await expect(page.getByTestId("check-line")).toHaveText(askNoun.form.check.clean);
-    await page.getByLabel("Your organization's name").fill("Riverside Tenant Clinic");
+    await page.getByLabel(/Your organization[’']s name/).fill("Riverside Tenant Clinic");
     await page.getByLabel("Type of organization").fill("Tenant legal-aid clinic");
     await expect(send).toHaveAttribute("aria-disabled", "true");
     await page.getByRole("checkbox", { name: /private information/ }).check();
@@ -226,9 +276,7 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     await expect(page.locator("details.er-more-details")).not.toHaveAttribute("open", "");
   });
 
-  test("Advanced settings: 'Improve an earlier request' asks for the link and what should be better, and lists this browser's requests", async ({ page }) => {
-    const id = `rq-r_${"ab".repeat(16)}-${(Date.UTC(2026, 9, 12, 15) ).toString(36)}`;
-    await page.addInitScript((saved) => window.localStorage.setItem(`eranos.requester.${saved}`, `tsk_${"cd".repeat(32)}`), id);
+  test("Advanced settings: 'Improve an earlier request' asks for the link and what should be better, and offers recent public requests", async ({ page }) => {
     await page.goto("/nonprofits");
     const advanced = page.getByTestId("advanced-settings");
     await expect(page.getByTestId("advanced-count")).toHaveText("none chosen");
@@ -241,16 +289,28 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
     const improve = page.getByTestId("improve-panel");
     await expect(improve.getByLabel("Link to the earlier request or result")).toBeVisible();
     await expect(improve.getByLabel("What should be better?")).toBeVisible();
-    await improve.getByRole("button", { name: /^R-/ }).click();
-    await expect(improve.getByLabel("Link to the earlier request or result")).toHaveValue(new RegExp(`/requests/${id}$`));
+    // Requests are public, so the recent ones come from their public records, never from this browser.
+    await expect(improve).toContainText("Or pick a recent public request:");
+    await expect(improve).toContainText("No public requests to pick from right now.");
     await advanced.getByRole("checkbox", { name: "Spreadsheets" }).check();
     await expect(page.getByTestId("advanced-count")).toHaveText("2 chosen");
+  });
+
+  test("a flagged request that isn't a reusable process offers to switch to one", async ({ page }) => {
+    await page.goto("/nonprofits");
+    await page.getByRole("checkbox", { name: /Information/ }).check();
+    await page.locator("#need").fill("Write to dana@clinic-mail.org about the forms.");
+    const banner = page.getByTestId("switch-to-process");
+    await expect(banner).toContainText("Need to work with private files? Ask for a reusable process instead.");
+    await banner.getByRole("button", { name: "Switch to a reusable process" }).click();
+    await expect(page.getByRole("checkbox", { name: /A reusable process/ })).toBeChecked();
+    await expect(page.getByTestId("switch-to-process")).toHaveCount(0);
   });
 
   test("the offline copy of the site says it does not send", async ({ page }) => {
     await page.goto("/nonprofits");
     await page.getByRole("button", { name: "New grants every month" }).click();
-    await page.getByLabel("Your organization's name").fill("Riverside Pantry");
+    await page.getByLabel(/Your organization[’']s name/).fill("Riverside Pantry");
     await page.getByLabel("Type of organization").fill("Food pantry");
     await page.getByRole("checkbox", { name: /private information/ }).check();
     await page.getByRole("button", { name: "Send request", exact: true }).click();
@@ -267,6 +327,17 @@ test.describe("owner 3: the request page (RequestForm board)", () => {
 
 test.describe("on the hosted build", () => {
   test.use({ baseURL: LIVE });
+
+  test("the live bundle carries none of the owner's forbidden words", async ({ page, request }) => {
+    await mockSite(page);
+    await page.goto("/");
+    const scripts = await page.$$eval("script[src]", (nodes) => nodes.map((n) => (n as HTMLScriptElement).src));
+    const html = await (await request.get("/")).text();
+    let text = html;
+    for (const src of scripts) text += await (await request.get(src)).text();
+    expect(scripts.length).toBeGreaterThan(0);
+    expect(text).not.toMatch(/synthetic|\bo?l{2}ama\b|kothar|kinema|shamash/i);
+  });
 
   test("B2: /help lists the live open tasks, and a task copies as a claim for your agent", async ({ page }) => {
     await stubClipboard(page);
@@ -285,7 +356,7 @@ test.describe("on the hosted build", () => {
     await expect(list.locator("li").first()).toContainText("Practice case: an example, not a real person or case. Summarize tenant deposit rules");
     await expect(list.locator("li").nth(1)).toContainText("needs a volunteer key");
     await list.locator("li").first().getByRole("button", { name: "Copy for my agent" }).click();
-    expect((await copied(page)).at(-1)).toContain("Claim the open task t-research-1 on Eranos's queue eq02");
+    expect((await copied(page)).at(-1)).toMatch(/Claim the open task t-research-1 on Eranos[’']s queue eq02/);
   });
 
 
@@ -294,8 +365,8 @@ test.describe("on the hosted build", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByTestId("right-now")).toHaveCount(0);
-    await expect(page.locator(".er-safety-grid")).toContainText("never call a model inline during a request");
-    await expect(page.locator(".er-safety-grid")).toContainText("always-on dedicated baseline workers");
+    await expect(page.locator(".er-safety-grid")).toContainText("the site calls no AI model");
+    await expect(page.locator(".er-safety-grid")).toContainText("a dedicated worker run by ta-amps picks it up, at any hour");
     await page.unroute(`${LIVE}/api/**`);
     await mockSite(page, {
       fabric: {
@@ -331,9 +402,9 @@ test.describe("on the hosted build", () => {
     await page.reload();
     await expect(page.getByTestId("right-now")).toContainText("1 request in progress");
     await expect(page.getByTestId("right-now")).toContainText("1 open task");
-    await expect(page.getByTestId("right-now-swarm")).toContainText("18 NGO and public-good tasks open across the shared worker queue");
-    await expect(page.getByTestId("right-now-swarm")).toContainText("51 registered volunteer and dedicated workers");
-    await expect(page.getByTestId("right-now-swarm")).toContainText("375 tasks completed");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("18 tasks open for nonprofits and public-good groups across the shared work queue");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("51 volunteer and dedicated workers");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("375 finished");
   });
 
 
@@ -385,7 +456,7 @@ test.describe("E09: I want to help", () => {
 
   test("without a volunteer key, what your tokens did is the empty state", async ({ page }) => {
     await page.goto("/help");
-    await expect(page.getByTestId("tokens-empty")).toContainText("After your agent finishes a task, its receipts show up here");
+    await expect(page.getByTestId("tokens-empty")).toContainText("After your agent finishes a task, what it did shows up here");
     await expect(page.getByTestId("your-agent")).toContainText("No agent connected in this browser.");
   });
 });
@@ -425,7 +496,7 @@ test.describe("wording and accessibility", () => {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       const links = await page.$$eval('a[href*="/decks/"]', (as) => as.map((a) => a.textContent ?? ""));
-      expect(links.length, route).toBeGreaterThan(0);
+      // The header's "How it works ↗" now opens Agora's How it works page; any link that does open a deck says so.
       for (const label of links) expect(label, route).toMatch(/deck/i);
     }
   });
@@ -494,7 +565,7 @@ test.describe("wording and accessibility", () => {
     expect(errors).toEqual([]);
   });
 
-  test("/connect is a page of the site, with its layout, title and strict light-only Paper & Ink palette under OS dark mode", async ({ page }) => {
+  test("/connect is a page of the site, with its layout and title, light only", async ({ page }) => {
     await page.goto("/connect");
     await expect(page).toHaveTitle("Connect to Eranos");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(connectNoun.title);
@@ -507,21 +578,26 @@ test.describe("wording and accessibility", () => {
     expect(light.background).toBe("rgb(245, 242, 234)");
     await page.emulateMedia({ colorScheme: "dark" });
     const dark = await colours();
+    // Light only (owner, Nov 1): the dark scheme changes nothing, and the page stays on paper.
+    expect(dark.background).toBe(light.background);
     expect(dark.background).toBe("rgb(245, 242, 234)");
     expect(dark.text).toBe(light.text);
   });
 
-  test("the footer says what the site loads and keeps, from the site noun, and links to trust and Agora pages", async ({ page }) => {
+  test("the footer is the standard one: one row of links and one short line (ta-amps.footer/1, rule 13)", async ({ page }) => {
     for (const path of ["/", "/help", "/nonprofits", "/connect"]) {
       await page.goto(path);
-      await expect(page.getByTestId("privacy-line")).toHaveText(siteNoun.privacy);
+      await expect(page.getByTestId("footer-line")).toHaveText("We don’t accept private information at this stage.");
     }
     const footer = page.locator("footer.er-footer");
+    const links = footer.getByRole("navigation", { name: "Site information" }).getByRole("link");
+    await expect(links).toHaveText(["Agora ↗", "Teleion Labs ↗", "Library", "Requests", "Network ↗", "Models used ↗", "Status ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
     await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-    await expect(footer.getByRole("link", { name: "Terms" })).toHaveAttribute("href", "/terms");
-    await expect(footer.getByRole("link", { name: "Report a problem" })).toHaveAttribute("href", "/report");
-    await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/status/");
-    await expect(footer.getByRole("link", { name: "Agora ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/");
+    await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/status/");
+    // One row: at desktop width every link sits on the same line.
+    await page.setViewportSize({ width: 1440, height: 900 });
+    const tops = await links.evaluateAll((els) => [...new Set(els.map((el) => Math.round(el.getBoundingClientRect().top)))]);
+    expect(tops).toHaveLength(1);
   });
 
   test("trust pages (/privacy, /terms, /report) and 404 render plain-language guidance without status stamps", async ({ page }) => {
@@ -529,9 +605,9 @@ test.describe("wording and accessibility", () => {
     await expect(page.getByRole("heading", { level: 1, name: "Privacy, in plain words" })).toBeVisible();
     await expect(page.locator("main")).toContainText("#k=");
     await expect(page.locator("main")).toContainText("history.replaceState");
-    await expect(page.locator("main")).toContainText("one of Eranos's own workers");
+    await expect(page.locator("main")).toContainText("one of Eranos’s own workers");
     await expect(page.locator("main")).toContainText("tasks (things to do)");
-    await expect(page.locator("main")).toContainText("task objects");
+    await expect(page.locator("main")).toContainText("Task Objects");
 
     await page.goto("/terms");
     await expect(page.getByRole("heading", { level: 1, name: "Terms of use" })).toBeVisible();
@@ -564,13 +640,13 @@ test.describe("wording and accessibility", () => {
     const mainBox = await page.locator("main#main").boundingBox();
     expect(headerBox && tourBox && mainBox && tourBox.y >= headerBox.y + headerBox.height - 1 && mainBox.y >= tourBox.y + tourBox.height - 1).toBe(true);
 
-    await expect(tour.getByRole("link", { name: /Agora/ }).first()).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/?tour=judge");
+    await expect(tour.getByRole("link", { name: /Agora/ }).first()).toHaveAttribute("href", "https://agora.eranosforgood.org/?tour=judge");
     const askStep = tour.locator("ol a", { hasText: "Ask" });
     await expect(askStep).toHaveAttribute("aria-current", "step");
     await expect(askStep).toHaveAttribute("href", "/nonprofits?tour=judge");
     await expect(tour.locator("ol a", { hasText: "Watch a request" })).toHaveAttribute("href", "/requests/REQ-INTAKE-07?tour=judge");
     await expect(tour.locator("ol a", { hasText: "The result" })).toHaveAttribute("href", "/requests/REQ-INTAKE-07?tour=judge#step-ready");
-    await expect(tour.locator("ol a", { hasText: "Live queue" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/studio/?tour=judge");
+    await expect(tour.locator("ol a", { hasText: "Live queue" })).toHaveAttribute("href", "https://agora.eranosforgood.org/studio/?tour=judge");
 
     await tour.locator("ol a", { hasText: "Watch a request" }).click();
     await expect(page).toHaveURL(/\/requests\/REQ-INTAKE-07\?tour=judge$/);

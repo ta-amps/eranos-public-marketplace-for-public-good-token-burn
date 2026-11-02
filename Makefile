@@ -10,7 +10,7 @@ SUITE ?= $(TESSERA_DIR)/conformance-draft
 FACTORY_local := eranos.adapter.local:conformance_factory
 FACTORY_tessera := tessera.testing:create_http_backend
 
-.PHONY: help setup check lint types test public suite verify-examples record-runs donor-demo seed-requests e2e e2e-live web web-check snapshot api index index-check architecture
+.PHONY: light-check live-smoke help setup check lint types test public suite verify-examples record-runs donor-demo seed-requests e2e e2e-live web web-check snapshot api index index-check architecture
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -29,6 +29,8 @@ types: ## mypy strict on eranos/
 	uv run mypy
 
 test: ## Unit and integration tests
+	node scripts/banned_list.mjs --ensure
+	node --test tests/request_submit_guard.test.mjs
 	uv run pytest -q
 
 # The index links to the repository's public home. Pinned here so every checkout, whatever its git remote,
@@ -72,6 +74,13 @@ snapshot: ## Export the static snapshot data for the web app
 web: ## API on :7720 and the web app on :5174
 	@test -f .eranos/local.db || uv run eranos verify-examples
 	uv run uvicorn eranos.api.app:app --port $(API_PORT) & pnpm --dir web dev --port $(WEB_PORT)
+
+light-check: ## Light only (rule 13), after check_surface_release.py --prepare: web/dist, every route, both OS schemes
+	rm -rf web/dist-light web/test-results-light
+	pnpm --dir web exec playwright test --config playwright.light.config.ts
+
+live-smoke: ## Before a deploy: web/dist renders home, /library, /requests/example and /help on live data without errors
+	pnpm --dir web exec playwright test --config playwright.smoke.config.ts
 
 web-check: ## Type-check and build the web app
 	pnpm --dir web exec tsc --noEmit

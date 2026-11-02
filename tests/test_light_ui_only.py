@@ -56,15 +56,15 @@ def test_index_html_pins_light_only_theme_and_color_scheme() -> None:
 
 
 def test_tokens_css_sets_light_only_color_scheme_and_paper_palette() -> None:
-    tokens_css = (ROOT / "web" / "src" / "styles" / "tokens-v2.css").read_text(encoding="utf-8")
-    assert re.search(r"color-scheme\s*:\s*light\s*;", tokens_css), (
-        "tokens-v2.css must declare color-scheme: light;"
+    tokens_css = (ROOT / "web" / "src" / "styles" / "tokens-v4.css").read_text(encoding="utf-8")
+    assert re.search(r"color-scheme\s*:\s*only light\s*;", tokens_css), (
+        "tokens-v4.css must declare color-scheme: only light;"
     )
     assert re.search(r"--bg\s*:\s*#f5f2ea\s*;", tokens_css, re.I), (
-        "tokens-v2.css must keep --bg: #f5f2ea;"
+        "tokens-v4.css must keep --bg: #f5f2ea;"
     )
     assert re.search(r"--surface\s*:\s*#fffdf8\s*;", tokens_css, re.I), (
-        "tokens-v2.css must keep --surface: #fffdf8;"
+        "tokens-v4.css must keep --surface: #fffdf8;"
     )
 
 

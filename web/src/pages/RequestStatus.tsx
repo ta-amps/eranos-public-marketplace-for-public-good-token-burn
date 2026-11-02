@@ -5,6 +5,7 @@ import { SNAPSHOT } from "../config";
 import { PlainStatus, plainSummary } from "../components/status/PlainStatus";
 import { QueuePanel, StateNotice, StatusDiagram, StatusList, StatusLog } from "../components/status/StatusParts";
 import { getJson } from "../lib/api";
+import { modelName, useModels } from "../lib/models";
 import { fill, type RequestStatusNoun } from "../lib/nouns";
 import { deriveView, type StatusView } from "../lib/status/derive";
 import { exampleNow, exampleRecord, MOMENTS, type RequestExampleNoun } from "../lib/status/example";
@@ -12,7 +13,7 @@ import { sentRequest } from "../lib/status/handoff";
 import { dropKeyFromAddress, privateLink, requesterKeyFor } from "../lib/status/keys";
 import { firstSentence, queueFromFabric, readKeyed, readLive, type KeyedData, type LiveSnapshot } from "../lib/status/live";
 import { useStatusMotion } from "../lib/status/motion";
-import { REQUEST_ID_RE } from "../lib/status/receipts";
+import { REQUEST_ID_RE } from "../lib/status/ids";
 import { TesseraError } from "../lib/status/tessera";
 import type { QueueSnapshot, StatusRecord } from "../lib/status/types";
 import type { FabricResponse } from "../lib/types";
@@ -77,6 +78,13 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
     // The private key never goes back into the address (see dropKeyFromAddress).
     window.history.replaceState(window.history.state, "", url.pathname + url.search);
   }
+  // Every recorded step links to the public record that holds it (never to a hash): the example's own noun, or the
+  // request's version history in Tessera's public mirror.
+  const recordHref = example
+    ? `/api/nouns/eranos.instructions/${EXAMPLES[routeId] ?? "request-example"}`
+    : `/api/nouns/eranos.requests/${encodeURIComponent(routeId)}/history`;
+  // Model names in the details come from the models.meta Task Object, read through the Worker from Tessera.
+  const catalog = useModels();
   const derived: StatusView = useMemo(
     () =>
       deriveView(record, words, {
@@ -84,11 +92,13 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
         formatTime,
         formatClock,
         resultHref: (part) => resultPath(routeId, part),
+        modelName: (id, dedicated) => (words.model_names ? modelName(catalog, id, words.model_names, dedicated) : null),
       }),
-    [record, words, now, routeId],
+    [record, words, now, routeId, catalog],
   );
   const every = record.request.frequency === "recurring" ? (words.plain.every[record.request.cadence ?? ""] ?? "") : "";
-  const plain = useMemo(() => plainSummary(derived.facts, words.plain, formatClock, every), [derived.facts, words.plain, every]);
+  const requester = Boolean(live?.key) || Boolean(example);
+  const plain = useMemo(() => plainSummary(derived.facts, words.plain, every, requester), [derived.facts, words.plain, every, requester]);
   const showDiagram = wide && view === "diagram";
   useStatusMotion(showDiagram ? host : listHost, record.events, derived, {
     reduced,
@@ -103,6 +113,17 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
   const choices = choiceLine(words, record);
   const sent = record.request.sent_at ? fill(words.meta.sent ?? "", { time: formatClock(record.request.sent_at) }) : null;
   const queue = example ? derived.queue : (live?.queue ?? null);
+
+  const [publicCopied, setPublicCopied] = useState(false);
+  async function copyPublicLink() {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/requests/${encodeURIComponent(routeId)}`);
+      setPublicCopied(true);
+      window.setTimeout(() => setPublicCopied(false), 2400);
+    } catch {
+      setPublicCopied(false);
+    }
+  }
 
   async function copyLink() {
     if (!live?.key) return;
@@ -147,19 +168,30 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           <button type="button" className="er-btn-secondary er-btn-small" aria-pressed={technical} onClick={toggleView} data-testid="view-switch">
             {technical ? words.plain.show_simple : words.plain.show_technical}
           </button>
+          <button type="button" className="er-btn-secondary" data-testid="copy-public-link" onClick={() => void copyPublicLink()}>
+            {publicCopied ? words.plain.copied_link : words.plain.copy_link}
+          </button>
           {live?.key && (
-            <button type="button" className="er-btn-secondary" onClick={() => void copyLink()}>
+            <button type="button" className="er-btn-secondary" data-testid="copy-private-link" onClick={() => void copyLink()}>
               <Icon name="link" size={18} />
               {words.actions.copy_link}
             </button>
           )}
         </div>
       </div>
-      {copied && (
-        <p className="er-small" role="status">
-          {copied}
-        </p>
-      )}
+      {/* The private link's card: stable for the film's recorder, which masks it (the link itself is never shown). */}
+      <div data-testid="private-link-card">
+        {copied && (
+          <p className="er-small" role="status">
+            {copied}
+          </p>
+        )}
+        {!technical && live?.key && (
+          <p className="er-small" data-testid="private-line">
+            {words.plain.private_line}
+          </p>
+        )}
+      </div>
 
       {!technical && (
         <PlainStatus
@@ -169,6 +201,9 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           words={words.plain}
           clock={formatClock}
           shareUrl={`${window.location.origin}/requests/${encodeURIComponent(routeId)}`}
+          routeId={routeId}
+          requester={requester}
+          settled={record.mode !== "live" || Boolean(live?.updated)}
         />
       )}
 
@@ -212,7 +247,7 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           <StatusDiagram view={derived} words={words} now={now} host={host} />
         ) : (
           <div ref={listHost}>
-            <StatusList view={derived} words={words} />
+            <StatusList view={derived} words={words} recordHref={recordHref} />
           </div>
         )}
         <p className="er-visually-hidden" aria-live="polite" data-testid="live-summary">
@@ -238,7 +273,7 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
       {technical && <AddedPanel view={derived} words={words} routeId={routeId} example={Boolean(example)} />}
 
       <div className={technical ? "er-status-lower" : "er-status-lower er-status-lower-plain"}>
-        {technical && <StatusLog rows={derived.log} words={words} formatTime={formatTime} />}
+        {technical && <StatusLog rows={derived.log} words={words} formatTime={formatTime} recordHref={recordHref} />}
         <aside className="er-status-side">
           {technical && queue && <QueuePanel queue={queue} words={words} showAgents={Boolean(example)} />}
           <section className="er-panel">
@@ -337,6 +372,8 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
   const moment = params.get("moment") ?? (hash === "#step-ready" ? "your-turn" : null);
   const speed = Math.min(4, Math.max(0.1, Number(params.get("speed")) || 1));
   const replayable = params.get("replay") !== "0";
+  // A moment page opens on that moment's facts from its first render, so the track shows only the last hop.
+  const momentCount = noun && moment && (MOMENTS as readonly string[]).includes(moment) ? (noun.moments[moment] ?? noun.events.length) : null;
   const [count, setCount] = useState(1);
   const [run, setRun] = useState(0);
   const timers = useRef<number[]>([]);
@@ -357,13 +394,13 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
     return () => timers.current.forEach((t) => window.clearTimeout(t));
   }, [noun, moment, speed, run]);
 
-  const record = useMemo(() => (noun ? exampleRecord(noun, count) : null), [noun, count]);
+  const record = useMemo(() => (noun ? exampleRecord(noun, momentCount ?? count) : null), [noun, count, momentCount]);
   if (!noun || !record) return null;
   return (
     <StatusFrame
       words={words}
       record={record}
-      now={exampleNow(noun, count)}
+      now={exampleNow(noun, momentCount ?? count)}
       routeId={routeId}
       example={{ mark: noun.mark, onReplay: replayable && !moment ? () => setRun((n) => n + 1) : undefined }}
       notices={
@@ -377,8 +414,17 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
   );
 }
 
-const VISIBLE_MS = 5_000;
-const HIDDEN_MS = 30_000;
+// A Worker run per read counts toward the Free plan's 100,000 a day, shared by every surface (Nov 2): one read of the
+// request noun every 15 s while the tab is visible (its plan and history only when it changed), every 2 min hidden;
+// a closed or withdrawn request every 60 s while visible (a reopen shows within a minute) and every 5 min hidden;
+// 5 s after a failed read, paused after 3 failures; at once when the tab comes back to the front. The queue line
+// (/api/fabric) is read at most once a minute, and only while the request is open.
+const VISIBLE_MS = 15_000;
+const HIDDEN_MS = 120_000;
+const SETTLED_VISIBLE_MS = 60_000;
+const SETTLED_MS = 300_000;
+const RETRY_MS = 5_000;
+const FABRIC_MS = 60_000;
 // The requester key's claim events: at most one long poll every 15 s, only while the tab is visible; the task and
 // the key's own nouns every 5 minutes.
 const EVENTS_MS = 15_000;
@@ -400,6 +446,8 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
   const lastFull = useRef(0);
   const failures = useRef(0);
   const notBefore = useRef(0);
+  const settled = useRef(false);
+  const lastFabric = useRef(0);
 
   const poll = useCallback(async () => {
     if (Date.now() < notBefore.current) return;
@@ -416,11 +464,17 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
       setUpdated(Date.now() / 1000);
       failures.current = 0;
       setPausedAt(null);
-      try {
-        const fabric = await getJson<FabricResponse>("/api/fabric");
-        setQueue(queueFromFabric(fabric.queues));
-      } catch {
-        setQueue(null);
+      // Settled: its last close, withdrawal or reopen is a close or a withdrawal.
+      const last = [...snap.record.events].reverse().find((e) => e.type === "closed" || e.type === "withdrawn" || e.type === "reopened");
+      settled.current = last?.type === "closed" || last?.type === "withdrawn";
+      if (!settled.current && Date.now() - lastFabric.current >= FABRIC_MS) {
+        lastFabric.current = Date.now();
+        try {
+          const fabric = await getJson<FabricResponse>("/api/fabric");
+          setQueue(queueFromFabric(fabric.queues));
+        } catch {
+          setQueue(null);
+        }
       }
     } catch (error) {
       if (error instanceof TesseraError && error.retryAfter) notBefore.current = Date.now() + error.retryAfter * 1000;
@@ -432,16 +486,40 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
   useEffect(() => {
     let timer = 0;
     let stopped = false;
+    let reading = false;
     const run = async () => {
+      if (reading) return;
+      reading = true;
       await poll();
+      reading = false;
       if (stopped) return;
-      const delay = failures.current >= 3 ? PAUSE_MS : document.visibilityState === "visible" ? VISIBLE_MS : HIDDEN_MS;
+      const visible = document.visibilityState === "visible";
+      const delay =
+        failures.current >= 3
+          ? PAUSE_MS
+          : failures.current > 0
+            ? RETRY_MS
+            : settled.current
+              ? visible
+                ? SETTLED_VISIBLE_MS
+                : SETTLED_MS
+              : visible
+                ? VISIBLE_MS
+                : HIDDEN_MS;
       timer = window.setTimeout(() => void run(), delay);
     };
     void run();
+    // Back to the front: read now, then go on at the visible rate.
+    const onVisible = () => {
+      if (document.visibilityState !== "visible" || stopped || reading) return;
+      window.clearTimeout(timer);
+      void run();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       stopped = true;
       window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [poll, tick]);
 

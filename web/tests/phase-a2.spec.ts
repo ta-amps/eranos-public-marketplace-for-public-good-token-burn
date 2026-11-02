@@ -1,0 +1,485 @@
+import fs from "node:fs";
+
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test, type Page } from "@playwright/test";
+
+import { LIVE, mockSite } from "./support/mocks";
+
+// Phase A part 2 (Nov 1, owner v2) and the fixes from the independent review of part 1 (B1 to B6).
+
+const PRINCIPAL = `r_${"cd".repeat(16)}`;
+const REQUEST_ID = `rq-${PRINCIPAL}-mvwv3xwe`;
+// A fixture copy of the models.meta Task Object, in tests only; the site reads the live one from Tessera.
+const MODELS = JSON.parse(fs.readFileSync(new URL("./fixtures/models.meta.json", import.meta.url), "utf8")) as unknown;
+const INK = /^rgb\((1[0-9]|2[0-9]|3[0-9]), (1[0-9]|2[0-9]|3[0-9]), (2[0-9]|3[0-9]|4[0-9])\)$/;
+
+const fact = (version: number, value: Record<string, unknown>, at = 1_790_000_000) => ({
+  version,
+  created_at: at + version,
+  value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: at + version, ...value } },
+});
+const PLAN = { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] };
+const TWO_PARTS = {
+  type: "planned",
+  receipt: "b".repeat(64),
+  parts: [
+    { part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" },
+    { part: 2, route: "public-only", text: "List the grants.", report_id: "RPT-RAAAAAAA-02" },
+  ],
+};
+
+/** Every value the token's data-pos takes from the first paint on, recorded by a MutationObserver. */
+async function recordPositions(page: Page) {
+  await page.addInitScript(() => {
+    const seen: string[] = [];
+    Object.defineProperty(window, "positions", { value: seen });
+    const note = () => {
+      const pos = document.querySelector("[data-testid='track-token']")?.getAttribute("data-pos");
+      if (pos !== undefined && pos !== null && seen[seen.length - 1] !== pos) seen.push(pos);
+    };
+    new MutationObserver(note).observe(document, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-pos"] });
+  });
+}
+const positions = (page: Page) => page.evaluate(() => (window as unknown as { positions: string[] }).positions);
+
+test.describe("B1: on load the track shows only the last hop", () => {
+  for (const [moment, from, to] of [
+    ["your-turn", "4", "5"],
+    ["review", "3", "4"],
+  ] as const) {
+    test(`/requests/example?moment=${moment}: the token starts at ${from} and moves once, to ${to}`, async ({ page }) => {
+      await recordPositions(page);
+      await page.goto(`/requests/example?moment=${moment}`);
+      await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", to);
+      await page.waitForTimeout(1200);
+      expect(await positions(page)).toEqual([from, to]);
+    });
+  }
+
+  test.describe("live pages", () => {
+    test.use({ baseURL: LIVE });
+    test("a request already at its decision opens one hop back, never at the start", async ({ page }) => {
+      await recordPositions(page);
+      const history = [
+        fact(1, { type: "received", receipt: "a".repeat(64) }),
+        fact(2, PLAN),
+        fact(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark-1.3" }),
+        fact(4, { type: "work_submitted", part: 1, receipt: "d".repeat(64) }),
+        fact(5, { type: "check_claimed", part: 1, receipt: "e".repeat(64), worker: "volunteer-9" }),
+        fact(6, { type: "check_approved", part: 1, receipt: "f".repeat(64) }),
+      ];
+      await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+      await page.goto(`/requests/${REQUEST_ID}`);
+      await expect(page.getByTestId("track-token")).toHaveAttribute("data-pos", "5");
+      await page.waitForTimeout(1200);
+      expect(await positions(page)).toEqual(["4", "5"]);
+    });
+
+    test("a sent-back request opens moving backwards, never forwards", async ({ page }) => {
+      await recordPositions(page);
+      const history = [
+        fact(1, { type: "received", receipt: "a".repeat(64) }),
+        fact(2, PLAN),
+        fact(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7" }),
+        fact(4, { type: "work_submitted", part: 1, receipt: "d".repeat(64) }),
+        fact(5, { type: "check_claimed", part: 1, receipt: "e".repeat(64), worker: "volunteer-9" }),
+        fact(6, { type: "check_sent_back", part: 1, receipt: "f".repeat(64), findings: ["two points had no source"] }),
+      ];
+      await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+      await page.goto(`/requests/${REQUEST_ID}`);
+      const token = page.getByTestId("track-token");
+      await expect(token).toHaveAttribute("data-pos", "2");
+      await expect(token).toHaveAttribute("data-back", "true");
+      await page.waitForTimeout(1200);
+      expect(await positions(page)).toEqual(["4", "2"]);
+    });
+  });
+});
+
+test.describe("B2: the token follows the request's state, the same source as aria-current", () => {
+  test.use({ baseURL: LIVE });
+  const open = async (page: Page, events: Record<string, unknown>[]) => {
+    await mockSite(page, {
+      history: events.map((value, i) => fact(i + 1, value)),
+      request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws. List the grants." },
+    });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    return { token: page.getByTestId("track-token"), track: page.getByTestId("request-track") };
+  };
+  const made = (part: number, n: number) => [
+    { type: "work_claimed", part, receipt: `${n}1`.padEnd(64, "a"), worker: "eranos-worker-pc01", dedicated: true, model: "muse-spark-1.3" },
+    { type: "work_submitted", part, receipt: `${n}2`.padEnd(64, "a") },
+    { type: "check_claimed", part, receipt: `${n}3`.padEnd(64, "a"), worker: "eranos-review-pc02", dedicated: true, model: "muse-spark-1.3" },
+  ];
+  // The live workers write check_approved, delivered and library_added together (worker_loop.py review_facts).
+  const delivered = (part: number, n: number) => [
+    { type: "check_approved", part, receipt: `${n}4`.padEnd(64, "a") },
+    { type: "delivered", part, receipt: `${n}5`.padEnd(64, "a") },
+    { type: "library_added", part, receipt: `${n}6`.padEnd(64, "a"), library_ref: "eranos.solutions/RPT-RAAAAAAA-01" },
+  ];
+
+  test("the workers' own order: delivered and in the library, then a later decision, never moves back", async ({ page }) => {
+    const { token, track } = await open(page, [{ type: "received", receipt: "a".repeat(64) }, PLAN, ...made(1, 1), ...delivered(1, 1), { type: "decided", part: 1, choice: "use", receipt: "9".repeat(64) }]);
+    await expect(token).toHaveAttribute("data-pos", "5");
+    await expect(token).toHaveAttribute("data-tone", "done");
+    await expect(token).toHaveAttribute("data-back", "false");
+    await expect(track.locator('li[data-step="5"]')).toHaveAttribute("data-state", "done");
+    await expect(track.locator('[aria-current="step"]')).toHaveCount(0);
+  });
+
+  test("two parts: the second part's check after the first part's library entry is the request's place, not a send-back", async ({ page }) => {
+    const { token, track } = await open(page, [{ type: "received", receipt: "a".repeat(64) }, TWO_PARTS, ...made(1, 1), ...made(2, 2).slice(0, 2), ...delivered(1, 1), made(2, 2)[2] as Record<string, unknown>]);
+    await expect(token).toHaveAttribute("data-pos", "4");
+    await expect(token).toHaveAttribute("data-back", "false");
+    await expect(track.locator('[aria-current="step"]')).toHaveCount(1);
+    await expect(track.locator('[aria-current="step"]')).toContainText("Being checked");
+    await expect(track.locator('li[data-state="now"]')).toHaveCount(1);
+  });
+
+  test("B5: dedicated planners, makers and checkers are named as ta-amps' own, in the plain view and the details", async ({ page }) => {
+    await open(page, [
+      { type: "received", receipt: "a".repeat(64) },
+      { type: "plan_claimed", receipt: "1".repeat(64), worker: "eranos-plan-pc03", dedicated: true },
+      PLAN,
+      ...made(1, 1),
+    ]);
+    const happened = page.getByTestId("plain-happened");
+    const more = page.getByRole("button", { name: /Show everything/ });
+    if (await more.count()) await more.click();
+    await expect(happened).toContainText("A dedicated worker run by ta-amps started checking it.");
+    await expect(happened).toContainText("A dedicated worker run by ta-amps started planning your request.");
+    await expect(page.locator('[data-band="3"]')).toContainText("A dedicated worker run by ta-amps is checking it");
+    const plainText = await page.getByTestId("plain-status").innerText();
+    expect(plainText).not.toMatch(/second volunteer|different volunteer/i);
+    await page.getByTestId("view-switch").click();
+    const details = await page.locator("main").innerText();
+    expect(details).not.toMatch(/eranos-(plan|worker|review)-pc0|different volunteer|\b(Green|Orange|Blue|Amber):/i);
+    expect(details).toContain("dedicated worker 2 (run by ta-amps)");
+  });
+});
+
+test.describe("the model in the details comes from the models.meta Task Object", () => {
+  test.use({ baseURL: LIVE });
+  const events = [
+    { type: "received", receipt: "a".repeat(64) },
+    PLAN,
+    { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "eranos-worker-pc01", dedicated: true, model: "muse-spark-1.3" },
+  ];
+  for (const [label, models, name] of [
+    ["with the catalog in Tessera", MODELS, "Muse Spark 1.3"],
+    ["before it is written there", null, "Meta’s latest Muse model"],
+  ] as const) {
+    test(label, async ({ page }) => {
+      await mockSite(page, { history: events.map((value, i) => fact(i + 1, value)), models, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+      await page.goto(`/requests/${REQUEST_ID}?view=technical`);
+      await expect(page.locator("main")).toContainText(`dedicated worker 1 (run by ta-amps) · model and persona that ran: ${name}`);
+      expect(await page.locator("main").innerText()).not.toContain("muse-spark-1.3");
+    });
+  }
+});
+
+test.describe("part 2 pages", () => {
+  test("the home: the doors, the four process tiles beside them, and 'What you can ask for' on paper", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
+    const doors = page.getByRole("group", { name: "Choose your side" }).getByRole("link");
+    await expect(doors).toHaveText([/^My NGO needs help/, /^I want to help/]);
+    const tiles = page.getByRole("list", { name: "How a request becomes public good" }).locator(".er-hero-tile-title");
+    await expect(tiles).toHaveText(["A request", "Picked up", "Checked", "Public good"]);
+    const [words, column] = [await page.locator(".er-landing-words").boundingBox(), await page.locator(".er-hero-tiles").boundingBox()];
+    if (!words || !column) throw new Error("no layout box");
+    expect(column.x).toBeGreaterThanOrEqual(words.x + words.width);
+    const asks = page.locator("section.er-asks");
+    expect(await asks.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(237, 232, 220)");
+    for (const card of await asks.locator(".er-ask-card").all()) expect(await card.evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(255, 253, 248)");
+    await page.setViewportSize({ width: 390, height: 844 });
+    const [stack, below] = [await page.locator(".er-landing-words").boundingBox(), await page.locator(".er-hero-tiles").boundingBox()];
+    if (!stack || !below) throw new Error("no layout box");
+    expect(below.y).toBeGreaterThanOrEqual(stack.y + stack.height);
+  });
+
+  test("/library searches solutions, filters them, and offers 'Ask for this' when nothing fits", async ({ page }) => {
+    await page.goto("/library");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find a solution");
+    await page.getByLabel("What do you need help with?").fill("volunteer shift");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    const results = page.getByTestId("solutions").locator("li");
+    await expect(results.first()).toBeVisible();
+    await expect(page.getByTestId("find-count")).toContainText("for “volunteer shift”");
+    await expect(results.first()).toContainText("A process you run");
+    expect(await page.locator("main").innerText()).not.toMatch(/receipt|sha-?256|\b[0-9a-f]{12,}\b/i);
+    await page.getByRole("button", { name: "Answers", exact: true }).click();
+    await expect(page.getByTestId("find-empty")).toBeVisible();
+    await page.getByRole("button", { name: "Any", exact: true }).click();
+    await page.getByLabel("What do you need help with?").fill("zebra giraffe telescope");
+    await page.getByRole("button", { name: "Search", exact: true }).click();
+    const empty = page.getByTestId("find-empty");
+    await expect(empty).toContainText("No solution for “zebra giraffe telescope” yet");
+    await empty.getByRole("link", { name: "Ask for this →" }).click();
+    await expect(page).toHaveURL(/\/nonprofits\?q=zebra/);
+    await expect(page.locator("#need")).toHaveValue("zebra giraffe telescope");
+  });
+
+  test("'Adapt it for my group' opens the ask form as an improvement of that solution", async ({ page }) => {
+    await page.goto("/library?q=volunteer%20shift");
+    const first = page.getByTestId("solutions").locator("li").first();
+    await first.getByRole("link", { name: /^Adapt it for my group/ }).click();
+    await expect(page).toHaveURL(/\/nonprofits\?improve=/);
+    await expect(page.getByTestId("advanced-settings")).toHaveAttribute("open", "");
+    await expect(page.locator("#improve-link")).toHaveValue(/\/catalog\/KIT-/);
+  });
+
+  test("the build band links 'Which model does what ↗' after 'One helper at a time. Every step is recorded.'", async ({ page }) => {
+    await page.goto("/requests/example?moment=review");
+    const band = page.locator("#step-build");
+    // The build step is done and folded at this moment: open it.
+    await page.getByTestId("band-toggle-2").click();
+    await expect(band).toContainText("One helper at a time. Every step is recorded.");
+    await expect(band.getByRole("link", { name: "Which model does what ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/models/");
+  });
+});
+
+test("B4: no hash in any title or aria attribute, and Record is a real link", async ({ page }) => {
+  for (const route of ["/requests/example?moment=your-turn&view=technical", "/requests/example/result?part=1", "/catalog/KIT-HOTLINE-02"]) {
+    await page.goto(route);
+    await expect(page.locator("main h1").first()).toBeVisible();
+    const attributes = await page.evaluate(() =>
+      [...document.querySelectorAll("*")].flatMap((el) => [...el.attributes].filter((a) => a.name === "title" || a.name.startsWith("aria-")).map((a) => a.value)),
+    );
+    expect(attributes.filter((v) => /\b[0-9a-f]{12,}\b|receipt/i.test(v)), route).toEqual([]);
+    const records = page.locator("main").getByText(/^Record( ↗)?$/);
+    for (const record of await records.all()) expect(await record.evaluate((el) => el.tagName), route).toBe("A");
+  }
+});
+
+test("B6: no ink panels: no large element on the touched pages has an ink background, with either scheme", async ({ browser }) => {
+  for (const colorScheme of ["light", "dark"] as const) {
+    const context = await browser.newContext({ colorScheme });
+    const page = await context.newPage();
+    for (const route of ["/", "/nonprofits", "/help", "/library", "/requests", "/requests/example?moment=your-turn", "/requests/example/result?part=1", "/catalog/KIT-HOTLINE-02", "/privacy"]) {
+      await page.goto(route);
+      await expect(page.locator("main h1").first()).toBeVisible();
+      const panels = await page.evaluate((ink) => {
+        const pattern = new RegExp(ink);
+        const out: string[] = [];
+        for (const el of document.querySelectorAll("body *")) {
+          // Ink is for text, primary buttons and the logo (the skip link is a button while focused).
+          if (el.closest("a, button, summary, [role=button], [role=radio], input, svg, .er-skip-link")) continue;
+          const box = el.getBoundingClientRect();
+          if (box.width * box.height < 2000) continue;
+          const bg = getComputedStyle(el).backgroundColor;
+          if (pattern.test(bg)) out.push(`${el.tagName.toLowerCase()}.${(el.getAttribute("class") ?? "").split(" ")[0]} ${bg}`);
+        }
+        return out;
+      }, INK.source);
+      expect(panels, `${colorScheme} ${route}`).toEqual([]);
+    }
+    await context.close();
+  }
+});
+
+test("no horizontal scroll at 390 px, or at 640 px (a 1280 px window at 200% zoom), on any page", async ({ page }) => {
+  test.setTimeout(120_000);
+  const routes = ["/", "/nonprofits", "/help", "/library", "/requests", "/requests/example?moment=your-turn", "/requests/example/result?part=1", "/catalog", "/catalog/KIT-HOTLINE-02", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/privacy", "/terms", "/report"];
+  const wide: string[] = [];
+  for (const width of [390, 640]) {
+    await page.setViewportSize({ width, height: 800 });
+    for (const route of routes) {
+      await page.goto(route);
+      await expect(page.locator("main h1").first()).toBeVisible();
+      const over = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      if (over > 0) wide.push(`${width} ${route}: ${over}px`);
+    }
+  }
+  expect(wide).toEqual([]);
+});
+
+test("the header's How it works ↗ opens Agora's How it works page", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://agora.eranosforgood.org/how-it-works/");
+});
+
+for (const [width, height] of [
+  [1280, 613],
+  [390, 844],
+] as const) {
+  for (const moment of ["your-turn", "decided"]) {
+    test(`C1: at ${width} × ${height} on ${moment}, Shift+Tab never leaves focus under the sticky track`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.goto(`/requests/example?moment=${moment}`);
+      await expect(page.getByTestId("track-token")).toBeVisible();
+      await page.locator("footer").getByRole("link").last().focus();
+      const hidden: string[] = [];
+      for (let i = 0; i < 45; i += 1) {
+        await page.keyboard.press("Shift+Tab");
+        const covered = await page.evaluate(() => {
+          const el = document.activeElement as HTMLElement | null;
+          const track = document.querySelector("[data-testid='request-track']");
+          if (!el || !track || track.contains(el) || el.closest("header, ta-agent-banner")) return null;
+          const r = el.getBoundingClientRect();
+          const t = track.getBoundingClientRect();
+          // Hidden: any part of the focused control is under the stuck track.
+          return t.top <= 0.5 && r.top < t.bottom && r.bottom > t.top ? (el.textContent ?? el.tagName).trim().slice(0, 40) : null;
+        });
+        if (covered) hidden.push(covered);
+      }
+      expect(hidden).toEqual([]);
+    });
+  }
+}
+
+test("C2: an ⓘ tip shown by hover hides on Escape, wherever focus is", async ({ page }) => {
+  await page.goto("/nonprofits");
+  const tip = page.locator(".er-tip").first();
+  await tip.hover();
+  await expect(tip.locator(".er-tip-text")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(tip.locator(".er-tip-text")).toBeHidden();
+});
+
+test.describe("the request page's bands are an accordion (owner, Nov 1)", () => {
+  const toggle = (page: Page, n: number) => page.getByTestId(`band-toggle-${n}`);
+
+  test("on load only the current step is open, and every header keeps its one-line status", async ({ page }) => {
+    await page.goto("/requests/example?moment=your-turn");
+    await expect(toggle(page, 4)).toHaveAttribute("aria-expanded", "true");
+    for (const n of [1, 2, 3]) await expect(toggle(page, n)).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByTestId("band-status-1")).toHaveText(/^Done · /);
+    await expect(page.getByTestId("band-status-4")).toHaveText("Your turn to decide");
+    await expect(page.locator("#band-1-body")).toBeHidden();
+    await expect(page.locator("#band-4-body")).toBeVisible();
+  });
+
+  // A new recorded fact, deterministically: the example moves to its next moment in place (no reload), as when a
+  // live poll brings a new fact.
+  const moveTo = (page: Page, moment: string) =>
+    page.evaluate((m) => {
+      window.history.pushState(null, "", `/requests/example?moment=${m}`);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    }, moment);
+
+  test("a recorded fact folds the finished step and opens the next; a section opened by hand stays open", async ({ page }) => {
+    await page.goto("/requests/example?moment=working");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true");
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "false");
+    await toggle(page, 1).click();
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+    await moveTo(page, "review");
+    await expect(toggle(page, 3)).toHaveAttribute("aria-expanded", "true");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+  });
+
+  test("an anchor or a station opens its section and scrolls it clear of the track", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 613 });
+    await page.goto("/requests/example?moment=your-turn#step-build");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true");
+    await expect(toggle(page, 4)).toHaveAttribute("aria-expanded", "true");
+    const clear = async (n: number) =>
+      page.evaluate((id) => {
+        const band = document.getElementById(id)?.getBoundingClientRect();
+        const track = document.querySelector("[data-testid='request-track']")?.getBoundingClientRect();
+        return Boolean(band && track && band.top >= track.bottom - 1 && band.top < window.innerHeight);
+      }, ["step-split", "step-build", "step-review", "step-ready"][n - 1] ?? "step-split");
+    await expect.poll(() => clear(2)).toBe(true);
+    await page.getByTestId("request-track").locator('li[data-step="0"] a').click();
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+    await expect.poll(() => clear(1)).toBe(true);
+  });
+
+  test("keyboard: Enter and Space open and close a section", async ({ page }) => {
+    await page.goto("/requests/example?moment=your-turn");
+    await toggle(page, 1).focus();
+    await page.keyboard.press("Enter");
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
+    await page.keyboard.press("Space");
+    await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "false");
+  });
+
+  test("reduced motion: a section a fact opens appears at once, with no animation; axe finds nothing serious", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.goto("/requests/example?moment=planned");
+    await moveTo(page, "working");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true");
+    expect(await page.locator("#band-2-body").evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
+    await toggle(page, 1).click();
+    const scan = await new AxeBuilder({ page }).analyze();
+    expect(scan.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
+    await context.close();
+  });
+});
+
+test.describe("a checked part waiting for a person's sign-off", () => {
+  test.use({ baseURL: LIVE });
+  test("opens the ready step with a present-tense sign-off status, never the finished first step", async ({ page }) => {
+    const events = [
+      { type: "received", receipt: "a".repeat(64) },
+      PLAN,
+      { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", model: "muse-spark-1.3" },
+      { type: "work_submitted", part: 1, receipt: "d".repeat(64) },
+      { type: "check_claimed", part: 1, receipt: "e".repeat(64), worker: "volunteer-9" },
+      { type: "check_approved", part: 1, receipt: "f".repeat(64) },
+      { type: "signoff_required", part: 1, receipt: "1".repeat(64) },
+    ];
+    await mockSite(page, { history: events.map((value, i) => fact(i + 1, value)), request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(page.getByTestId("band-toggle-4")).toHaveAttribute("aria-expanded", "true");
+    for (const n of [1, 2, 3]) await expect(page.getByTestId(`band-toggle-${n}`)).toHaveAttribute("aria-expanded", "false");
+    await expect(page.getByTestId("band-status-4")).toHaveText("Waiting for a person to sign off");
+  });
+});
+
+test("at 1280 × 613, with the track stuck, all four step headers and the open step fit without scrolling", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 613 });
+  for (const moment of ["planned", "working", "review", "your-turn"]) {
+    await page.goto(`/requests/example?moment=${moment}`);
+    await expect(page.getByTestId("track-token")).toBeVisible();
+    await page.evaluate(() => {
+      const track = document.querySelector("[data-testid='request-track']") as HTMLElement;
+      window.scrollTo(0, track.getBoundingClientRect().top + window.scrollY - 1);
+    });
+    const fit = await page.evaluate(() => {
+      const bottom = (el: Element | null) => (el ? el.getBoundingClientRect().bottom : Infinity);
+      const heads = [1, 2, 3, 4].map((n) => bottom(document.querySelector(`[data-testid='band-toggle-${n}']`)));
+      const open = [...document.querySelectorAll(".er-band-body:not([hidden])")].map((el) => bottom(el));
+      return { heads, open, height: window.innerHeight };
+    });
+    for (const b of [...fit.heads, ...fit.open]) expect(b, moment).toBeLessThanOrEqual(fit.height);
+  }
+});
+
+test("the hero's four tiles carry the flow's steps, lit once after load, and simply lit with reduced motion", async ({ browser }) => {
+  for (const reducedMotion of ["no-preference", "reduce"] as const) {
+    const context = await browser.newContext({ reducedMotion, viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
+    await page.goto("/");
+    await expect(page.locator(".er-hero-tile-title")).toHaveText(["A request", "Picked up", "Checked", "Public good"]);
+    const lit = page.locator(".er-hero-tile-lit");
+    const look = await lit.evaluateAll((els) => els.map((el) => ({ name: getComputedStyle(el).animationName, count: getComputedStyle(el).animationIterationCount, delay: getComputedStyle(el).animationDelay })));
+    for (const l of look) {
+      if (reducedMotion === "reduce") expect(l.name).toBe("none");
+      else expect(l.count).toBe("1");
+    }
+    if (reducedMotion === "no-preference") expect(look.map((l) => l.delay)).toEqual(["0.4s", "1.2s", "2s", "2.8s"]);
+    await page.waitForTimeout(3600);
+    for (const o of await lit.evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity))) expect(o).toBe("1");
+    await context.close();
+  }
+});
+
+test("the canonical address of every page is eranosforgood.org, and the agent banner points there", async ({ page }) => {
+  for (const [route, canonical] of [
+    ["/", "https://eranosforgood.org/"],
+    ["/library?q=grants", "https://eranosforgood.org/library"],
+    ["/requests/example", "https://eranosforgood.org/requests/example"],
+  ] as const) {
+    await page.goto(route);
+    await expect(page.locator("main h1").first()).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", canonical);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", canonical);
+  }
+  await expect(page.locator("ta-agent-banner")).toHaveAttribute("data-ready", "true");
+  expect(await page.evaluate(() => document.querySelector("ta-agent-banner")?.shadowRoot?.textContent ?? "")).toContain("eranosforgood.org/llms.txt");
+});

@@ -1,285 +1,285 @@
 {
-  "schema_version": 1,
-  "kind": "example",
-  "key": "request-example-process",
-  "title": "The practice-case example request the status page replays: a reusable process",
-  "is_example": true,
-  "mark": "practice-case",
-  "about": "Nothing here was sent. Ids and claim receipts use Tessera's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in hashes of example payloads. Volunteer names and models are examples of what volunteers' agents report.",
-  "request": {
-    "id": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
-    "title": "A weekly process for our handwritten case notes",
-    "text": "Give us a process our own agent can run each week to read, summarize and sort our handwritten case notes so each family gets the right referral. The notes stay on our computers.",
-    "organization_type": "Family shelter",
-    "output_type": "process",
-    "frequency": "recurring",
-    "sent_at": 1793451730
-  },
-  "queue_estimate": {
-    "claim_delays_s": [
-      310,
-      420,
-      380,
-      640,
-      900,
-      1200,
-      300,
-      560,
-      760,
-      1100,
-      480,
-      950,
-      690,
-      820,
-      350,
-      1180
-    ],
-    "claim_times": [
-      1793444530,
-      1793440930,
-      1793437330,
-      1793433730,
-      1793430130,
-      1793426530,
-      1793422930,
-      1793419330,
-      1793415730,
-      1793412130,
-      1793408530,
-      1793404930,
-      1793401330,
-      1793397730,
-      1793394130,
-      1793390530
-    ],
-    "as_of": 1793451730
-  },
-  "moments": {
-    "received": 1,
-    "planned": 3,
-    "working": 4,
-    "review": 6,
-    "your-turn": 8,
-    "decided": 9
-  },
-  "events": [
-    {
-      "type": "received",
-      "at": 1793451730,
-      "replay_ms": 0,
-      "ref": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
-      "place": 1,
-      "queue": {
-        "waiting": 1,
-        "working": 0,
-        "checking": 0,
-        "agents": []
-      }
-    },
-    {
-      "type": "plan_claimed",
-      "at": 1793451810,
-      "replay_ms": 1600,
-      "receipt": "ade7274ed4e8ff2cdeceb0465459649309d3cb62bf43661121fd1c8d459ea003",
-      "worker": "wren-33",
-      "model": "Muse Spark",
-      "lease_ends": 1793452410,
-      "queue": {
-        "waiting": 0,
-        "working": 1,
-        "checking": 0,
-        "agents": [
-          "wren-33"
-        ]
-      }
-    },
-    {
-      "type": "planned",
-      "at": 1793451900,
-      "replay_ms": 3400,
-      "receipt": "ade7274ed4e8ff2cdeceb0465459649309d3cb62bf43661121fd1c8d459ea003",
-      "worker": "wren-33",
-      "parts": [
-        {
-          "part": 1,
-          "route": "private-files",
-          "text": "Give us a process our own agent can run each week to read, summarize and sort our handwritten case notes so each family gets the right referral. The notes stay on our computers.",
-          "legal": false,
-          "output_type": "process",
-          "frequency": "recurring",
-          "kit_id": "KIT-RBD99AE2-01",
-          "track_id": "intake-and-referral-triage",
-          "needs_person_signoff": false,
-          "work_task_id": "t_afff71b684dac2baf1de5496adb8321c",
-          "review_task_id": "t_4ffa885888853c46bbf91bcfec13fca2"
-        }
-      ],
-      "places": {
-        "1": 1
-      },
-      "queue": {
-        "waiting": 1,
-        "working": 0,
-        "checking": 0,
-        "agents": []
-      }
-    },
-    {
-      "type": "work_claimed",
-      "part": 1,
-      "at": 1793452065,
-      "replay_ms": 5200,
-      "receipt": "491deb2a9095f608981f08ac2b5160d2c4a0ca67fa8bbf1ca2584cbdb73113c2",
-      "worker": "osprey-12",
-      "model": "Muse Code",
-      "lease_ends": 1793453865,
-      "queue": {
-        "waiting": 0,
-        "working": 1,
-        "checking": 0,
-        "agents": [
-          "osprey-12"
-        ]
-      }
-    },
-    {
-      "type": "work_submitted",
-      "part": 1,
-      "at": 1793453345,
-      "replay_ms": 7300,
-      "receipt": "c7211baf14a8b7e9d9b750fc10aef034805ca051bc69c7923cef55e01b4e8f0e",
-      "worker": "osprey-12",
-      "queue": {
-        "waiting": 1,
-        "working": 0,
-        "checking": 0,
-        "agents": []
-      }
-    },
-    {
-      "type": "check_claimed",
-      "part": 1,
-      "at": 1793453480,
-      "replay_ms": 8900,
-      "receipt": "9a5ea136ab41cbf3303fa469386f820760e5fbdc3a3284e337e092348f225fa2",
-      "worker": "heron-07",
-      "model": "nanoMuse",
-      "lease_ends": 1793455280,
-      "queue": {
-        "waiting": 0,
-        "working": 0,
-        "checking": 1,
-        "agents": [
-          "heron-07"
-        ]
-      }
-    },
-    {
-      "type": "check_approved",
-      "part": 1,
-      "at": 1793454252,
-      "replay_ms": 10800,
-      "receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
-      "worker": "heron-07",
-      "queue": {
-        "waiting": 0,
-        "working": 0,
-        "checking": 0,
-        "agents": []
-      }
-    },
-    {
-      "type": "published",
-      "part": 1,
-      "at": 1793454252,
-      "replay_ms": 11900,
-      "receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
-      "result_id": "KIT-RBD99AE2-01"
-    },
-    {
-      "type": "decided",
-      "part": 1,
-      "at": 1793455360,
-      "replay_ms": 13800,
-      "choice": "use",
-      "ref": "decision record version 1"
-    }
+ "schema_version": 1,
+ "kind": "example",
+ "key": "request-example-process",
+ "title": "The practice-case example request the status page replays: a reusable process",
+ "is_example": true,
+ "mark": "practice-case",
+ "about": "Nothing here was sent. Ids and claim receipts use Teleion Fabric's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in hashes of example payloads. Worker names and models are examples of what workers report.",
+ "request": {
+  "id": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
+  "title": "A weekly process for our handwritten case notes",
+  "text": "Give us a process our own agent can run each week to read, summarize and sort our handwritten case notes so each family gets the right referral. The notes stay on our computers.",
+  "organization_type": "Family shelter",
+  "output_type": "process",
+  "frequency": "recurring",
+  "sent_at": 1793451730
+ },
+ "queue_estimate": {
+  "claim_delays_s": [
+   310,
+   420,
+   380,
+   640,
+   900,
+   1200,
+   300,
+   560,
+   760,
+   1100,
+   480,
+   950,
+   690,
+   820,
+   350,
+   1180
   ],
-  "solution": {
-    "schema_version": 1,
-    "request_id": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
-    "process": {
-      "task_object": {
-        "id": "KIT-RBD99AE2-01",
-        "title": "Read, summarize and sort handwritten case notes",
-        "description": "A process your own agent runs on your own computers. It reads scanned handwritten case notes, writes a short plain-language summary of each and suggests a referral partner from your own published list. A person checks every summary and makes every referral.",
-        "how_to": [
-          "Scan or photograph this week's notes into one folder on your own computer.",
-          "Start the task below with your own agent. It reads only that folder.",
-          "Check each summary and suggested referral. A person decides every referral."
-        ],
-        "install": [
-          "Use an agent you already trust, such as a coding agent on your computer or a container your IT team runs.",
-          "Copy the process folder: its instructions, skills, tests and example cases.",
-          "Run the tests once on the example cases before you use real notes."
-        ],
-        "holds": [
-          "Instructions: what the agent does, step by step, and what it must refuse",
-          "Skills: read handwriting, summarize a note, suggest a referral partner",
-          "Tests and example cases that show it works",
-          "Person-only steps"
-        ],
-        "person_only": [
-          "Talking with the family.",
-          "Choosing and making the referral.",
-          "Anything sent outside your organization."
-        ]
-      },
-      "task": {
-        "id": "t_dadbf32897107669842a3519bc49cb2d",
-        "title": "Run: summarize and sort this week's case notes",
-        "input": "A folder of scanned notes on your own computer",
-        "output": "One short summary and one suggested referral per note, for a person to check",
-        "schedule": "Recurring: once a week, when you start it. It never starts by itself.",
-        "embodiments": [
-          {
-            "id": "agent",
-            "name": "Your own agent, on your computer",
-            "how": "Paste the task's instructions into the agent you already use and point it at the folder.",
-            "container": null
-          },
-          {
-            "id": "container",
-            "name": "A container on your computer",
-            "how": "Build the process's container once, then run it on the folder.",
-            "container": "docker build -t case-notes . && docker run --rm -v \"$PWD/notes:/notes\" case-notes"
-          },
-          {
-            "id": "cloud",
-            "name": "Your organization's own cloud",
-            "how": "Run the same container as a job your IT team schedules, with the notes in your own storage.",
-            "container": "The same container image, run as a scheduled job in your own account"
-          }
-        ]
-      },
-      "practice": [
-        {
-          "input": "Practice case: an example, not a real person or case. Scanned note, Tuesday. A family of four is two months behind on rent after a job loss and asks about help with rent and groceries.",
-          "expect": "A two-sentence summary in plain words, and one suggested referral from the organization's own list, such as emergency rental help. A person decides the referral."
-        },
-        {
-          "input": "Practice case: an example, not a real person or case. Scanned note, Thursday. An older man needs rides to weekly medical appointments; the handwriting is hard to read in one line.",
-          "expect": "A short summary that marks the unreadable line instead of guessing, and a suggested transport partner from the organization's own list."
-        },
-        {
-          "input": "Practice case: an example, not a real person or case. Scanned note, Friday. A young woman asks for help applying to a job-training program and for childcare during classes.",
-          "expect": "A summary with both needs, and two suggested partners from the organization's own list, one for training and one for childcare."
-        }
-      ]
-    },
-    "review_receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
-    "build_receipt": "c7211baf14a8b7e9d9b750fc10aef034805ca051bc69c7923cef55e01b4e8f0e",
-    "next_step": "A person at the nonprofit decides whether to use this process.",
-    "is_example": true
+  "claim_times": [
+   1793444530,
+   1793440930,
+   1793437330,
+   1793433730,
+   1793430130,
+   1793426530,
+   1793422930,
+   1793419330,
+   1793415730,
+   1793412130,
+   1793408530,
+   1793404930,
+   1793401330,
+   1793397730,
+   1793394130,
+   1793390530
+  ],
+  "as_of": 1793451730
+ },
+ "moments": {
+  "received": 1,
+  "planned": 3,
+  "working": 4,
+  "review": 6,
+  "your-turn": 8,
+  "decided": 9
+ },
+ "events": [
+  {
+   "type": "received",
+   "at": 1793451730,
+   "replay_ms": 0,
+   "ref": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
+   "place": 1,
+   "queue": {
+    "waiting": 1,
+    "working": 0,
+    "checking": 0,
+    "agents": []
+   }
+  },
+  {
+   "type": "plan_claimed",
+   "at": 1793451810,
+   "replay_ms": 1600,
+   "receipt": "ade7274ed4e8ff2cdeceb0465459649309d3cb62bf43661121fd1c8d459ea003",
+   "worker": "wren-33",
+   "model": "muse-spark-1.3",
+   "lease_ends": 1793452410,
+   "queue": {
+    "waiting": 0,
+    "working": 1,
+    "checking": 0,
+    "agents": [
+     "wren-33"
+    ]
+   }
+  },
+  {
+   "type": "planned",
+   "at": 1793451900,
+   "replay_ms": 3400,
+   "receipt": "ade7274ed4e8ff2cdeceb0465459649309d3cb62bf43661121fd1c8d459ea003",
+   "worker": "wren-33",
+   "parts": [
+    {
+     "part": 1,
+     "route": "private-files",
+     "text": "Give us a process our own agent can run each week to read, summarize and sort our handwritten case notes so each family gets the right referral. The notes stay on our computers.",
+     "legal": false,
+     "output_type": "process",
+     "frequency": "recurring",
+     "kit_id": "KIT-RBD99AE2-01",
+     "track_id": "intake-and-referral-triage",
+     "needs_person_signoff": false,
+     "work_task_id": "t_afff71b684dac2baf1de5496adb8321c",
+     "review_task_id": "t_4ffa885888853c46bbf91bcfec13fca2"
+    }
+   ],
+   "places": {
+    "1": 1
+   },
+   "queue": {
+    "waiting": 1,
+    "working": 0,
+    "checking": 0,
+    "agents": []
+   }
+  },
+  {
+   "type": "work_claimed",
+   "part": 1,
+   "at": 1793452065,
+   "replay_ms": 5200,
+   "receipt": "491deb2a9095f608981f08ac2b5160d2c4a0ca67fa8bbf1ca2584cbdb73113c2",
+   "worker": "osprey-12",
+   "model": "muse-spark-1.3",
+   "lease_ends": 1793453865,
+   "queue": {
+    "waiting": 0,
+    "working": 1,
+    "checking": 0,
+    "agents": [
+     "osprey-12"
+    ]
+   }
+  },
+  {
+   "type": "work_submitted",
+   "part": 1,
+   "at": 1793453345,
+   "replay_ms": 7300,
+   "receipt": "c7211baf14a8b7e9d9b750fc10aef034805ca051bc69c7923cef55e01b4e8f0e",
+   "worker": "osprey-12",
+   "queue": {
+    "waiting": 1,
+    "working": 0,
+    "checking": 0,
+    "agents": []
+   }
+  },
+  {
+   "type": "check_claimed",
+   "part": 1,
+   "at": 1793453480,
+   "replay_ms": 8900,
+   "receipt": "9a5ea136ab41cbf3303fa469386f820760e5fbdc3a3284e337e092348f225fa2",
+   "worker": "heron-07",
+   "model": "muse-spark-1.3",
+   "lease_ends": 1793455280,
+   "queue": {
+    "waiting": 0,
+    "working": 0,
+    "checking": 1,
+    "agents": [
+     "heron-07"
+    ]
+   }
+  },
+  {
+   "type": "check_approved",
+   "part": 1,
+   "at": 1793454252,
+   "replay_ms": 10800,
+   "receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
+   "worker": "heron-07",
+   "queue": {
+    "waiting": 0,
+    "working": 0,
+    "checking": 0,
+    "agents": []
+   }
+  },
+  {
+   "type": "published",
+   "part": 1,
+   "at": 1793454252,
+   "replay_ms": 11900,
+   "receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
+   "result_id": "KIT-RBD99AE2-01"
+  },
+  {
+   "type": "decided",
+   "part": 1,
+   "at": 1793455360,
+   "replay_ms": 13800,
+   "choice": "use",
+   "ref": "decision record version 1"
   }
+ ],
+ "solution": {
+  "schema_version": 1,
+  "request_id": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
+  "process": {
+   "task_object": {
+    "id": "KIT-RBD99AE2-01",
+    "title": "Read, summarize and sort handwritten case notes",
+    "description": "A process your own agent runs on your own computers. It reads scanned handwritten case notes, writes a short plain-language summary of each and suggests a referral partner from your own published list. A person checks every summary and makes every referral.",
+    "how_to": [
+     "Scan or photograph this week's notes into one folder on your own computer.",
+     "Start the task below with your own agent. It reads only that folder.",
+     "Check each summary and suggested referral. A person decides every referral."
+    ],
+    "install": [
+     "Use an agent you already trust, such as a coding agent on your computer or a container your IT team runs.",
+     "Copy the process folder: its instructions, skills, tests and example cases.",
+     "Run the tests once on the example cases before you use real notes."
+    ],
+    "holds": [
+     "Instructions: what the agent does, step by step, and what it must refuse",
+     "Skills: read handwriting, summarize a note, suggest a referral partner",
+     "Tests and example cases that show it works",
+     "Person-only steps"
+    ],
+    "person_only": [
+     "Talking with the family.",
+     "Choosing and making the referral.",
+     "Anything sent outside your organization."
+    ]
+   },
+   "task": {
+    "id": "t_dadbf32897107669842a3519bc49cb2d",
+    "title": "Run: summarize and sort this week's case notes",
+    "input": "A folder of scanned notes on your own computer",
+    "output": "One short summary and one suggested referral per note, for a person to check",
+    "schedule": "Recurring: once a week, when you start it. It never starts by itself.",
+    "embodiments": [
+     {
+      "id": "agent",
+      "name": "Your own agent, on your computer",
+      "how": "Paste the task's instructions into the agent you already use and point it at the folder.",
+      "container": null
+     },
+     {
+      "id": "container",
+      "name": "A container on your computer",
+      "how": "Build the process's container once, then run it on the folder.",
+      "container": "docker build -t case-notes . && docker run --rm -v \"$PWD/notes:/notes\" case-notes"
+     },
+     {
+      "id": "cloud",
+      "name": "Your organization's own cloud",
+      "how": "Run the same container as a job your IT team schedules, with the notes in your own storage.",
+      "container": "The same container image, run as a scheduled job in your own account"
+     }
+    ]
+   },
+   "practice": [
+    {
+     "input": "Practice case: an example, not a real person or case. Scanned note, Tuesday. A family of four is two months behind on rent after a job loss and asks about help with rent and groceries.",
+     "expect": "A two-sentence summary in plain words, and one suggested referral from the organization's own list, such as emergency rental help. A person decides the referral."
+    },
+    {
+     "input": "Practice case: an example, not a real person or case. Scanned note, Thursday. An older man needs rides to weekly medical appointments; the handwriting is hard to read in one line.",
+     "expect": "A short summary that marks the unreadable line instead of guessing, and a suggested transport partner from the organization's own list."
+    },
+    {
+     "input": "Practice case: an example, not a real person or case. Scanned note, Friday. A young woman asks for help applying to a job-training program and for childcare during classes.",
+     "expect": "A summary with both needs, and two suggested partners from the organization's own list, one for training and one for childcare."
+    }
+   ]
+  },
+  "review_receipt": "cf2b91a4278c7d6e392d7d0cf0f44b392338ae82d931f16a6a2ae5964d823e01",
+  "build_receipt": "c7211baf14a8b7e9d9b750fc10aef034805ca051bc69c7923cef55e01b4e8f0e",
+  "next_step": "A person at the nonprofit decides whether to use this process.",
+  "is_example": true
+ }
 }

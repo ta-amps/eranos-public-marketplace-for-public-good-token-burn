@@ -2,14 +2,16 @@
 
 import hashlib
 import os
+import subprocess
 from pathlib import Path
 
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 BANNER = ROOT / "web" / "public" / "agent-banner.js"
-# Agora's site/assets/agent-banner.js at commit e29f515 (branch claude/agora-design-20261031).
-SHARED_SHA256 = "5616c09ee423eea8e05bb95cee93e3765194c17f8c7c1bd76fbb2eeae934226f"
+# Agora's site/assets/agent-banner.js, banner v2 (light Paper & Ink defaults, Nov 2), as committed at 477e04f and
+# unchanged through 3efe7fc, the Agora commit live since 15:30 UTC on Nov 2.
+SHARED_SHA256 = "1a9e22452b4667d8601584c29ec3d3475c92c70d8954910336cb455eb1b21d9a"
 
 
 def _sha(path: Path) -> str:
@@ -22,6 +24,16 @@ def test_banner_is_the_shared_file() -> None:
     )
 
 
+def _committed(path: Path) -> bytes:
+    """The file as Agora last committed it, so Agora's unfinished edits don't break this repo's checks."""
+    run = subprocess.run(
+        ["git", "-C", str(path.parent), "show", f"HEAD:./{path.name}"],
+        capture_output=True,
+        check=False,
+    )
+    return run.stdout if run.returncode == 0 else path.read_bytes()
+
+
 def test_banner_matches_the_agora_worktree_when_it_is_beside_this_checkout() -> None:
     candidates = [
         os.environ.get("AGORA_BANNER_PATH", ""),
@@ -30,8 +42,9 @@ def test_banner_matches_the_agora_worktree_when_it_is_beside_this_checkout() -> 
     for candidate in filter(None, candidates):
         path = Path(candidate)
         if path.is_file():
-            assert _sha(path) == _sha(BANNER), (
-                f"{path} and web/public/agent-banner.js have drifted apart"
+            agora = hashlib.sha256(_committed(path)).hexdigest()
+            assert agora == _sha(BANNER), (
+                f"{path} (as committed) and web/public/agent-banner.js have drifted apart"
             )
             return
     pytest.skip("no Agora worktree beside this checkout; the pinned hash above still applies")

@@ -19,17 +19,22 @@
       "match": "help"
     },
     {
+      "to": "/requests",
+      "label": "Requests",
+      "match": "yours"
+    },
+    {
       "to": "/library",
       "label": "Library",
       "match": "library"
     },
     {
-      "href": "https://agora.ta-amps.workers.dev/decks/overview-and-architecture/#nouns-and-verbs",
-      "label": "How it works",
-      "external": true
+      "to": "/video",
+      "label": "Video",
+      "match": "video"
     }
   ],
-  "external_note": "opens the overview deck on Agora",
+  "external_note": "opens on Agora",
   "menu": {
     "button": "Menu",
     "open_label": "Open menu",
@@ -38,9 +43,42 @@
     "sheet_label": "Menu"
   },
   "footer": {
-    "line": "Eranos is the marketplace. Agora explains how it works. Text and code under the MIT license.",
-    "links_label": "Footer and agent discovery links",
+    "brand": "Eranos",
+    "spec": "ta-amps.footer/2 (notes/coordination-2026-10-31/claude-design-components.v2.json, SiteFooter, Eranos)",
+    "links_label": "Site information",
     "links": [
+      {
+        "label": "Agora ↗",
+        "href": "https://agora.eranosforgood.org/"
+      },
+      {
+        "label": "Teleion Labs ↗",
+        "href": "https://teleionlabs.com/"
+      },
+      {
+        "label": "Library",
+        "to": "/library"
+      },
+      {
+        "label": "Requests",
+        "to": "/requests"
+      },
+      {
+        "label": "Network ↗",
+        "href": "https://agora.eranosforgood.org/network/"
+      },
+      {
+        "label": "Models used ↗",
+        "href": "https://agora.eranosforgood.org/models/"
+      },
+      {
+        "label": "Status ↗",
+        "href": "https://agora.eranosforgood.org/status/"
+      },
+      {
+        "label": "Source ↗",
+        "href": "https://agora.eranosforgood.org/source/"
+      },
       {
         "label": "Privacy",
         "to": "/privacy"
@@ -52,60 +90,19 @@
       {
         "label": "Report a problem",
         "to": "/report"
-      },
-      {
-        "label": "Status ↗",
-        "href": "https://agora.ta-amps.workers.dev/status/"
-      },
-      {
-        "label": "Agora ↗",
-        "href": "https://agora.ta-amps.workers.dev/"
-      },
-      {
-        "label": "Library",
-        "to": "/library"
-      },
-      {
-        "label": "Your requests",
-        "to": "/requests"
-      },
-      {
-        "label": "Work queues",
-        "to": "/fabric"
-      },
-      {
-        "label": "Source ↗",
-        "href": "https://agora.ta-amps.workers.dev/source/"
-      },
-      {
-        "label": "Run your own ↗",
-        "href": "https://agora.ta-amps.workers.dev/deploy/"
-      },
-      {
-        "label": "About and safety",
-        "to": "/about"
-      },
-      {
-        "label": "Agent setup",
-        "to": "/contribute"
-      },
-      {
-        "label": "Connect",
-        "href": "/connect"
-      },
-      {
-        "label": "llms.txt",
-        "href": "/llms.txt"
-      },
-      {
-        "label": "Agent card",
-        "href": "/.well-known/agent-card.json"
       }
     ],
-    "storage": "This browser keeps two things for you: your requests' private links and any request text you haven't sent. Nothing else is stored."
+    "line": "We don’t accept private information at this stage."
   },
-  "yours": {
-    "label": "Your requests",
-    "to": "/requests"
+  "right": {
+    "href": "https://agora.eranosforgood.org/how-it-works/",
+    "label": "How it works",
+    "external": true
+  },
+  "page_error": {
+    "title": "This page couldn’t be shown",
+    "body": "Part of it didn’t load as expected. Reload the page, or start again from the home page.",
+    "reload": "Reload the page",
+    "home": "Go to the home page"
   }
 }

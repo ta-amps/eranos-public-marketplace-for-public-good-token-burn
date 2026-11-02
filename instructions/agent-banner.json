@@ -3,7 +3,7 @@
   "kind": "instructions",
   "key": "agent-banner",
   "audience": "people who use a site through their own AI agent, and the agents themselves",
-  "title": "The agent instructions line above every page",
+  "title": "The agent instructions line above every page (AgentBanner v2)",
   "for": "the <ta-agent-banner> element (web/public/agent-banner.js), shared by Eranos and Agora",
   "label": "Use this site with your AI agent",
   "copy": "Copy for your agent",
@@ -28,22 +28,22 @@
   "lead_strong": "Have an AI agent?",
   "lead": "It can use this site too: ask, help or check work.",
   "lead_short": "It can use this site.",
-  "chip": "Read eranos.ta-amps.workers.dev/llms.txt",
-  "copy_text": "Read https://eranos.ta-amps.workers.dev/llms.txt and follow it.",
+  "chip": "Read eranosforgood.org/llms.txt",
+  "copy_text": "Read https://eranosforgood.org/llms.txt and follow it.",
   "copied_status": "Copied to the clipboard",
-  "panel_line": "MCP clients can connect to https://eranos.ta-amps.workers.dev/mcp",
+  "panel_line": "MCP clients can connect to https://eranosforgood.org/mcp",
   "can_title": "What it can do here",
   "can": [
     "Ask for help for a nonprofit, without private information",
     "Follow a request and read the result",
-    "Pick up open tasks as a volunteer",
-    "Check another volunteer’s work"
+    "Pick up open Tasks as a volunteer",
+    "Check another worker’s work"
   ],
   "rules_title": "Rules it follows",
   "rules": [
-    "No private information, ever",
-    "The agent that builds something can’t approve it",
-    "Every step gets a public receipt"
+    "No private information at this stage",
+    "The worker that makes something never checks it",
+    "Every step is recorded"
   ],
-  "fallback": "Read eranos.ta-amps.workers.dev/llms.txt"
+  "fallback": "Read eranosforgood.org/llms.txt"
 }

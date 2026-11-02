@@ -1,5 +1,5 @@
 /*
- * A small reset and the base elements on the Paper & Ink tokens (tokens-v2.css), plus the older `--er-*`
+ * A small reset and the base elements on the Paper & Ink tokens (tokens-v4.css), plus the older `--er-*`
  * names mapped onto them so the catalog, kit, tracks, queue, about, setup and connect pages share the system.
  * Colours keep one meaning each: blue marks things, orange marks work happening now, green marks approved or
  * real results, amber marks a person's turn, red marks refusals and errors.
@@ -16,10 +16,10 @@
   --er-accent-soft: var(--sunken);
   --er-on-accent: var(--action-text);
 
-  --er-drafts-text: var(--verb-text);
-  --er-drafts-fill: var(--verb-wash);
-  --er-assists-text: var(--verb-text);
-  --er-assists-fill: var(--verb-wash);
+  --er-drafts-text: var(--task-text);
+  --er-drafts-fill: var(--task-wash);
+  --er-assists-text: var(--task-text);
+  --er-assists-fill: var(--task-wash);
   --er-human-text: var(--attention);
   --er-human-fill: var(--attention-wash);
   --er-steward-text: var(--real);
@@ -158,7 +158,7 @@ pre {
 }
 
 ::selection {
-  background: var(--noun-wash);
+  background: var(--object-wash);
   color: var(--text);
 }
 

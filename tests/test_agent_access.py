@@ -75,11 +75,11 @@ put('main',store,'KIT-ALLOW-97',{...privateValue,visibility_scope:'allowlist_sur
 const env={FABRIC_DB:{prepare(sql){const stmt=db.prepare(sql);return {bind(...args){return {async first(){return stmt.get(...args)||null},async all(){return {results:stmt.all(...args)}}}}}}}};
 const results={};
 for(const [key,path,method] of [['private',route+privateId,'GET'],['public',route+publicId,'GET'],['connect','/connect.json','GET'],['cors','/mcp','OPTIONS']]){
- const r=await worker.fetch(new Request('https://example.com'+path,{method,headers:{Origin:'https://assistant.example.com','Access-Control-Request-Method':'POST'}}),env);results[key]={status:r.status,headers:Object.fromEntries(r.headers),body:r.status===204?null:await r.json()};
+ const r=await worker.fetch(new Request('https://eranosforgood.org'+path,{method,headers:{Origin:'https://assistant.example.com','Access-Control-Request-Method':'POST'}}),env);results[key]={status:r.status,headers:Object.fromEntries(r.headers),body:r.status===204?null:await r.json()};
 }
-if(surface==='eranos'){const r=await worker.fetch(new Request('https://example.com/api/catalog/KIT-ALLOW-97'),env);results.allowlist=r.status;}
-const card = await (await worker.fetch(new Request('https://example.com/.well-known/agent-card.json'),env)).json();
-const tools = await (await worker.fetch(new Request('https://example.com/mcp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list'})}),env)).json();
+if(surface==='eranos'){const r=await worker.fetch(new Request('https://eranosforgood.org/api/catalog/KIT-ALLOW-97'),env);results.allowlist=r.status;}
+const card = await (await worker.fetch(new Request('https://eranosforgood.org/.well-known/agent-card.json'),env)).json();
+const tools = await (await worker.fetch(new Request('https://eranosforgood.org/mcp',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'tools/list'})}),env)).json();
 results.cardTools = card.skills.map((s)=>s.id).sort(); results.liveTools = tools.result.tools.map((t)=>t.name).sort();
 console.log(JSON.stringify(results));
 """

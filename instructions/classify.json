@@ -94,7 +94,7 @@
     ]
   },
   "plain_words": {
-    "public-only": "We'll do this part from public information. Volunteers' agents research it, a different volunteer checks every source, and a person on your team decides what to do with it.",
+    "public-only": "We'll do this part from public information. An AI worker researches it, a different worker checks every source, and a person on your team decides what to do with it.",
     "private-files": "This part touches your files, so we'll build a kit your own agent runs. Your data stays with you.",
     "held": "A person needs to look at this part before work starts.",
     "blocked": "We couldn't take this request because it seems to include personal information. Please describe the job without details about people."

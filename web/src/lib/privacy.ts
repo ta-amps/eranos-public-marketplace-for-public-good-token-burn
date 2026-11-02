@@ -47,3 +47,23 @@ export function personalDataKinds(raw: string): PersonalKind[] {
 export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
+
+export type CaseHint = "named" | "birth" | "health";
+
+const PERSON_WORD = String.raw`\b(?:client|patient|survivor|victim|resident|tenant|participant|child|youth|mother|father|caller)s?\b`;
+const NAMED = new RegExp(`${PERSON_WORD}[^.!?\\n]{0,40}\\b[A-Z][a-z]+(?: [A-Z][a-z]+)?\\b|\\b[A-Z][a-z]+ [A-Z][a-z]+\\b[^.!?\\n]{0,30}${PERSON_WORD}`);
+const BIRTH = /\b(?:DOB|d\.o\.b\.|date of birth|born (?:on|in) )|\b(?:0?[1-9]|[12]\d|3[01])[/.-](?:0?[1-9]|1[0-2])[/.-](?:19|20)\d{2}\b/i;
+const HEALTH = /\b(?:diagnos\w*|HIV|AIDS|cancer|depress\w*|PTSD|schizophren\w*|bipolar|pregnan\w*|overdose|suicid\w*|disabilit\w*)\b/i;
+
+/**
+ * Likely case details: a client, patient or survivor word near a capitalised name, a date of birth, or a diagnosis.
+ * It only warns. Names and case details are exactly what an automatic check can't recognise for sure, so it never
+ * says a text is free of them.
+ */
+export function caseDetailHints(raw: string): CaseHint[] {
+  const hints: CaseHint[] = [];
+  if (NAMED.test(raw)) hints.push("named");
+  if (BIRTH.test(raw)) hints.push("birth");
+  if (HEALTH.test(raw)) hints.push("health");
+  return hints;
+}

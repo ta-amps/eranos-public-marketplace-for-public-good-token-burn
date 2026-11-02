@@ -27,7 +27,7 @@ export function Catalog() {
   const [spdx, setSpdx] = useState<string>("");
   const [q, setQ] = useState<string>("");
 
-  const baseCatalog = useResource<CatalogResponse>("/api/catalog");
+  const baseCatalog = useResource<CatalogResponse>("/api/catalog?view=page");
   const tracksRes = useResource<TracksResponse>("/api/tracks");
 
   const catalogPath: ApiPath = useMemo<ApiPath>(() => {
@@ -39,14 +39,14 @@ export function Catalog() {
     if (spdx) params.set("spdx", spdx);
     if (q.trim()) params.set("q", q.trim());
     const qs = params.toString();
-    return qs ? (`/api/catalog?${qs}` as const) : "/api/catalog";
+    return qs ? (`/api/catalog?${qs}&view=page` as const) : "/api/catalog?view=page";
   }, [domain, track, tag, cohort, spdx, q]);
 
   const filteredCatalog = useResource<CatalogResponse>(catalogPath);
-  const activeState = catalogPath === "/api/catalog" ? baseCatalog.state : filteredCatalog.state;
+  const activeState = catalogPath === "/api/catalog?view=page" ? baseCatalog.state : filteredCatalog.state;
   const activeReload = () => {
     baseCatalog.reload();
-    if (catalogPath !== "/api/catalog") {
+    if (catalogPath !== "/api/catalog?view=page") {
       filteredCatalog.reload();
     }
   };
@@ -105,7 +105,7 @@ export function Catalog() {
       <section className="er-section">
         <h1>Kit catalog: reviewed agent kits</h1>
         <p className="er-lede">
-          Every kit here passed its checks and tests on <code>eq02</code>, then a review by a different volunteer
+          Every kit here passed its checks and tests on <code>eq02</code>, then a review by a different worker
           on <code>eq03</code> (<code>drafter != reviewer</code>), before it was published to{" "}
           <code>eranos.catalog</code>. All of them use example data. A reviewed kit is not certified for your
           organization.
@@ -284,7 +284,7 @@ export function Catalog() {
                   <h2>
                     <AppLink to={`/catalog/${entry.kit.kit_id}`}>{entry.kit.title}</AppLink>
                   </h2>
-                  <p className="er-muted">{entry.kit.summary}</p>
+                  <p className="er-muted" data-source-text>{entry.kit.summary}</p>
                   <p className="er-muted">
                     <strong>Organization:</strong> {entry.kit.target_org} · <strong>Kind:</strong>{" "}
                     <code>{entry.kit.deliverable_kind}</code>

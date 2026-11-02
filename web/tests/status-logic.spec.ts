@@ -7,7 +7,7 @@ import { plainHappened, plainSummary } from "../src/components/status/PlainStatu
 import { applyEvents, deriveView } from "../src/lib/status/derive";
 import { ordinal, pickupEstimate, placeLine } from "../src/lib/status/estimate";
 import type { RequestExampleNoun } from "../src/lib/status/example";
-import { canonicalJson } from "../src/lib/status/receipts";
+import { canonicalJson } from "../src/lib/status/ids";
 import type { StatusEvent, StatusRecord } from "../src/lib/status/types";
 import { noun } from "./support/mocks";
 
@@ -148,7 +148,7 @@ test.describe("E04 no step shows a state without its record", () => {
     expect(view.log.some((row) => row.text.includes("let part 1 go when its lease ended"))).toBe(false);
     expect(view.log[0]?.text).toBe("Closed before any part was approved.");
 
-    const summary = plainSummary(view.facts, words.plain, options.formatClock, "");
+    const summary = plainSummary(view.facts, words.plain, "");
     expect(summary.chip).toBe("Closed without a finished result");
     expect(summary.waiting).toBe(false);
     const plainRows = plainHappened(events, view.facts, words.plain);

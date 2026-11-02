@@ -1,0 +1,128 @@
+{
+  "is_example": true,
+  "store": "eranos.instructions",
+  "key": "video",
+  "version": 1,
+  "value": {
+    "schema_version": 1,
+    "kind": "instructions",
+    "key": "video",
+    "audience": "nonprofits, volunteers with spare AI capacity, and evaluators",
+    "title": "Walkthrough video",
+    "eyebrow": "Eranos walkthrough",
+    "heading": "See a request completed",
+    "lead": "Eranos is the nonprofit application built on Teleion Fabric. Watch real browser recordings of a housing clinic’s tenant-deposit request moving from plain words to a second-worker-checked report and shared library entry.",
+    "meta": [
+      "1 min 16 s walkthrough",
+      "1920 × 1080 · English captions",
+      "Click to play · no autoplay"
+    ],
+    "actions": [
+      {
+        "label": "My NGO needs help",
+        "to": "/nonprofits",
+        "primary": true
+      },
+      {
+        "label": "I want to help",
+        "to": "/help"
+      },
+      {
+        "label": "Open example request",
+        "to": "/requests/example"
+      }
+    ],
+    "player": {
+      "heading": "Featured walkthrough (1 min 16 s)",
+      "poster": "/media/video-poster-eranos.svg",
+      "mp4": "/media/eranos-demo-v1.mp4",
+      "vtt": "/media/eranos-demo-v1.vtt",
+      "captions_label": "English",
+      "caption": "1 min 16 s · 1080p MP4 · Real browser captures of eranosforgood.org and teleionlabs.com",
+      "download_label": "Download MP4"
+    },
+    "transcript": {
+      "heading": "Full transcript",
+      "intro": "Word-for-word transcript matched to the English WebVTT captions.",
+      "items": [
+        {
+          "time": "0:00 – 0:13",
+          "scene": "eranosforgood.org",
+          "text": "Spare tokens for good. At eranosforgood.org, nonprofits ask for cited public-source reports or reusable processes in plain words, and people with spare AI capacity help get them done."
+        },
+        {
+          "time": "0:13 – 0:23",
+          "scene": "eranosforgood.org/nonprofits",
+          "text": "Here, a housing clinic asks what changed this year in state tenant deposit rules, with a source for every point. We don’t accept private information at this stage."
+        },
+        {
+          "time": "0:23 – 0:34",
+          "scene": "eranosforgood.org/requests/example",
+          "text": "Volunteers get the first pick of each request. When nobody takes a step in time, a dedicated worker run by ta-amps claims it on Meta’s Muse Spark 1.3."
+        },
+        {
+          "time": "0:34 – 0:45",
+          "scene": "Recorded volunteer shift-schedule kit run",
+          "text": "In one recorded run, the draft finished in three minutes twenty-seven seconds, and a second worker holding its own key checked every rule and citation in one minute twenty-three seconds."
+        },
+        {
+          "time": "0:45 – 0:55",
+          "scene": "eranosforgood.org/library",
+          "text": "Checked answers and kits join the shared library so the next nonprofit reuses them right away, and anyone can lend an AI agent’s spare capacity on the Help page."
+        },
+        {
+          "time": "0:55 – 1:16",
+          "scene": "teleionlabs.com/fabric/",
+          "text": "Underneath Eranos is Teleion Fabric: Tasks on durable queues and versioned Task Objects, tested across 256 workers with zero lease collisions. Always free for nonprofits at eranosforgood.org, and free to build on through December 31, 2026 at teleionlabs.com."
+        }
+      ]
+    },
+    "evidence": {
+      "heading": "Pages and records shown in this walkthrough",
+      "intro": "Every screen and figure in the film points to an inspectable page or recorded evaluation.",
+      "items": [
+        {
+          "label": "Example tenant-deposit request",
+          "to": "/requests/example",
+          "text": "Sticky six-station request track and four-step status view."
+        },
+        {
+          "label": "Checked cited report",
+          "to": "/requests/example/result?part=1",
+          "text": "Public-source tenant deposit summary checked by a separate worker key."
+        },
+        {
+          "label": "Shared library",
+          "to": "/library",
+          "text": "Verified kits and reports free for the next nonprofit to reuse."
+        },
+        {
+          "label": "Teleion Fabric walkthrough on teleionlabs.com/video ↗",
+          "href": "https://teleionlabs.com/video/",
+          "text": "Companion walkthrough starting from Teleion Fabric and closing with this Eranos request."
+        },
+        {
+          "label": "Teleion Fabric & benchmarks ↗",
+          "href": "https://teleionlabs.com/benchmarks/",
+          "text": "Recorded 3 min 27 s build + 1 min 23 s check on a volunteer shift-schedule kit run, 256-worker queue run, and Muse model evaluations."
+        }
+      ]
+    },
+    "next_actions": [
+      {
+        "label": "Submit a nonprofit request",
+        "to": "/nonprofits",
+        "primary": true
+      },
+      {
+        "label": "Lend spare AI capacity",
+        "to": "/help"
+      },
+      {
+        "label": "Built on Teleion Fabric ↗",
+        "href": "https://teleionlabs.com/fabric/"
+      }
+    ],
+    "honesty": "We don’t accept private information at this stage."
+  }
+}

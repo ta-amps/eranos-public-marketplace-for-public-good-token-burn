@@ -2,8 +2,9 @@ import { lazy, Suspense, useEffect } from "react";
 
 import { Footer } from "./components/Footer";
 import { JudgeTour } from "./components/JudgeTour";
+import { PageErrorBoundary } from "./components/PageErrorBoundary";
 import { TopBar } from "./components/TopBar";
-import { SURFACE_DISPLAY_NAME } from "./config";
+import { SURFACE_DISPLAY_NAME, SURFACE_PUBLIC_URL } from "./config";
 import type { ShellNoun, SiteNoun } from "./lib/nouns";
 import { useNoun } from "./lib/useNoun";
 import { CONNECT_TITLE, Connect } from "./pages/Connect";
@@ -25,6 +26,7 @@ const Library = lazy(() => import("./pages/Library").then((page) => ({ default: 
 const RequestResult = lazy(() => import("./pages/RequestResult").then((page) => ({ default: page.RequestResult })));
 const Tracks = lazy(() => import("./pages/Tracks").then((page) => ({ default: page.Tracks })));
 const TrustPage = lazy(() => import("./pages/TrustPage").then((page) => ({ default: page.TrustPage })));
+const Video = lazy(() => import("./pages/Video").then((page) => ({ default: page.Video })));
 
 function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
   switch (route.name) {
@@ -58,6 +60,8 @@ function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
       return <TrustPage kind="terms" />;
     case "reportProblem":
       return <TrustPage kind="report" />;
+    case "video":
+      return <Video />;
     case "request":
       return <RequestStatus id={route.id} />;
     case "report":
@@ -93,13 +97,15 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string | null {
     case "library":
       return `Shared library · ${SURFACE_DISPLAY_NAME}`;
     case "yours":
-      return `Your requests · ${SURFACE_DISPLAY_NAME}`;
+      return `Requests · ${SURFACE_DISPLAY_NAME}`;
     case "privacy":
       return `Privacy · ${SURFACE_DISPLAY_NAME}`;
     case "terms":
       return `Terms · ${SURFACE_DISPLAY_NAME}`;
     case "reportProblem":
       return `Report a problem · ${SURFACE_DISPLAY_NAME}`;
+    case "video":
+      return `See a request completed · ${SURFACE_DISPLAY_NAME}`;
     case "request":
     case "report":
       return null;
@@ -116,6 +122,13 @@ export function App() {
   useEffect(() => {
     if (title) document.title = title;
   }, [title]);
+  // The canonical address for every page is eranosforgood.org, whichever host served it.
+  const path = usePath();
+  useEffect(() => {
+    const href = `${SURFACE_PUBLIC_URL}${path === "/" ? "/" : path.replace(/\/+$/, "")}`;
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", href);
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", href);
+  }, [path]);
   const compact = route.name === "request" || route.name === "report";
   const mainClass = route.name === "overview" ? "er-main er-main-home" : compact ? "er-main er-main-wide" : "er-main";
 
@@ -124,9 +137,11 @@ export function App() {
       <TopBar route={route} shell={shell} compact={compact} />
       <JudgeTour route={route} />
       <main id="main" className={mainClass} tabIndex={-1}>
-        <Suspense fallback={null}>
-          <Page route={route} site={site} />
-        </Suspense>
+        <PageErrorBoundary key={path} words={shell?.page_error}>
+          <Suspense fallback={null}>
+            <Page route={route} site={site} />
+          </Suspense>
+        </PageErrorBoundary>
       </main>
       <Footer shell={shell} site={site} />
     </>

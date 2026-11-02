@@ -1,8 +1,9 @@
-import "./styles/tokens-v2.css";
+import "./styles/tokens-v4.css";
 import "./styles/fonts.css";
 import "./styles/base.css";
 import "./styles/app.css";
 import "./styles/eranos.css";
+import "./styles/boards-nov1.css";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -11,7 +12,7 @@ import { App } from "./App";
 import { preloadNouns } from "./lib/useNoun";
 
 document.documentElement.dataset.theme = "light";
-document.documentElement.style.colorScheme = "light";
+document.documentElement.style.colorScheme = "only light";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("index.html is missing #root");

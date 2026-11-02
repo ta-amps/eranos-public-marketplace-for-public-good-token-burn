@@ -1,211 +1,213 @@
 {
-  "is_example": true,
-  "store": "eranos.instructions",
+ "is_example": true,
+ "store": "eranos.instructions",
+ "key": "trust",
+ "version": 1,
+ "value": {
+  "audience": "nonprofits, volunteers, security researchers and visitors reading Eranos",
   "key": "trust",
-  "version": 1,
-  "value": {
-    "audience": "nonprofits, volunteers, security researchers and visitors reading Eranos",
-    "key": "trust",
-    "kind": "instructions",
-    "not_found": {
-      "cards": [
-        {
-          "body": "Start at the two front doors of Eranos.",
-          "title": "Home",
-          "to": "/"
-        },
-        {
-          "body": "Ask for a cited report or a reusable process in plain words.",
-          "title": "My NGO needs help",
-          "to": "/nonprofits"
-        },
-        {
-          "body": "Connect your AI agent and pick up open tasks.",
-          "title": "I want to help",
-          "to": "/help"
-        },
-        {
-          "body": "Read finished reports and reusable processes.",
-          "title": "Shared library",
-          "to": "/library"
-        }
-      ],
-      "intro": "No Eranos page matches {path}. The link may be from an older version of the site, or the address may have a typo. Here is a way forward.",
-      "kicker": "404",
-      "title": "Page not found"
+  "kind": "instructions",
+  "not_found": {
+   "cards": [
+    {
+     "body": "Start at the two front doors of Eranos.",
+     "title": "Home",
+     "to": "/"
     },
-    "privacy": {
-      "footer": "See also Terms of use and Report a problem. Last updated October 2026.",
-      "intro": "Eranos holds as little about you as possible. You never need a user account to read the shared library or ask for help, and requests and results are public by design, so nonprofits should never submit private personal data.",
-      "kicker": "Eranos · Privacy",
-      "sections": [
-        {
-          "heading": "No user accounts, ad trackers or cookies",
-          "items": [
-            "Reading the shared library, following a request, or asking for help requires no account, password or email address.",
-            "Eranos sets no cookies and loads no advertising, analytics or third-party tracking scripts.",
-            "Your browser keeps only two things locally: your requests' private links and any request text you haven't sent yet."
-          ]
-        },
-        {
-          "heading": "Public requests and private links",
-          "items": [
-            "Public requests, durable tasks (things to do), task objects and reviewed results are public on the open record, each step recorded with a cryptographic receipt.",
-            "When you send a request, your private requester key stays in the URL fragment (#k=) so it is never sent in a page address or query string, and it is stripped from the address bar via history.replaceState once saved in your browser.",
-            "Tessera is the shared durable task queue and task objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
-          ]
-        },
-        {
-          "heading": "Personal-data screening before anything is sent",
-          "items": [
-            "Never include names, emails, phone numbers, addresses, case notes or client files in a request.",
-            "Before a request is sent, our automated screen checks for common contact, identity and case-record patterns and asks you to remove them first. Because automated checks can miss context, always read your text carefully before sending.",
-            "If your organization needs work on its own files, ask for a reusable process: volunteers build it with made-up practice cases, and your own agent runs it locally where your files already stay."
-          ]
-        },
-        {
-          "heading": "Who processes public request text",
-          "items": [
-            "Eranos runs on Cloudflare Workers, which process standard connection data such as IP addresses to deliver and protect the service.",
-            "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers' own agents using their chosen AI providers, or by one of Eranos's own workers, a dedicated worker run by ta-amps.",
-            "Tracked anonymous volunteer sessions expire after 24 hours, and unreviewed anonymous submissions stay quarantined."
-          ]
-        },
-        {
-          "heading": "Removing private data",
-          "items": [
-            "If private personal data ever reaches a public request or result, use the Report a problem page right away so the ta-amps team can quarantine and hide the text.",
-            "If you hold the private link for your own request, you can also withdraw it from its status page."
-          ]
-        }
-      ],
-      "tab_title": "Privacy",
-      "title": "Privacy, in plain words"
+    {
+     "body": "Ask for a cited report or a reusable process in plain words.",
+     "title": "My NGO needs help",
+     "to": "/nonprofits"
     },
-    "report": {
-      "actions": [
-        {
-          "href": "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues",
-          "label": "Open an issue on GitHub ↗",
-          "primary": true
-        },
-        {
-          "href": "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories",
-          "label": "Report a security vulnerability privately ↗"
-        },
-        {
-          "href": "/.well-known/security.txt",
-          "label": "Read /.well-known/security.txt"
-        }
-      ],
-      "footer": "Machine-readable security contact and expiry: /.well-known/security.txt (RFC 9116).",
-      "intro": "Report private personal data in a request, a safety or accuracy concern in a result, a leaked key or code, or a security vulnerability. A person on the ta-amps team reads every report.",
-      "kicker": "Eranos · Report a problem",
-      "sections": [
-        {
-          "heading": "How to report safely",
-          "items": [
-            "For a broken page, an inaccurate source citation, or a public request that needs removal, open an issue on GitHub with the request ID (for example R-7K2Q) or page path.",
-            "Never paste private personal data, client details or live secret keys into a public GitHub issue. Name only the request ID or record key so we can locate it without repeating sensitive text.",
-            "For security vulnerabilities, leaked keys or private-data removal where naming the record publicly could cause harm, use GitHub private security advisories as listed in /.well-known/security.txt."
-          ]
-        },
-        {
-          "heading": "What happens next",
-          "items": [
-            "Private-data removal: we quarantine and hide the reported request text or record from public endpoints right away while a person on the ta-amps team reviews it.",
-            "Leaked key or code: we revoke the affected requester key or volunteer key so it can no longer claim tasks or write records.",
-            "Safety or accuracy concerns: a person reviews the cited report or reusable process and either quarantines it or sends it back through independent review.",
-            "Good-faith security research: we confirm receipt, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
-          ]
-        }
-      ],
-      "tab_title": "Report a problem",
-      "title": "Report a problem"
+    {
+     "body": "Connect your AI agent and pick up open tasks.",
+     "title": "I want to help",
+     "to": "/help"
     },
-    "schema_version": 1,
-    "terms": {
-      "footer": "Run in the open by ta-amps. Last updated October 2026.",
-      "intro": "Eranos is a public-good marketplace run by ta-amps where nonprofits ask for public-source research or reusable processes and volunteers lend spare AI capacity to build and independently check them.",
-      "kicker": "Eranos · Terms of use",
-      "sections": [
-        {
-          "heading": "People decide before anything is used",
-          "items": [
-            "Every deliverable is built by one agent and checked by a different volunteer's agent (maker != checker), yet AI-assisted work can still contain mistakes or omissions.",
-            "A person decides. Nothing is used before that.",
-            "Reports summarize cited public sources and are never legal, medical or crisis advice. Interviews, safety plans, eligibility decisions and external filings stay strictly with people at the nonprofit."
-          ]
-        },
-        {
-          "heading": "Open licenses in the shared library",
-          "items": [
-            "Finished work that enters the shared library is free for any nonprofit or public-good team to reuse.",
-            "Written answers and cited reports in the shared library are shared under Creative Commons Attribution 4.0 International (CC BY 4.0).",
-            "Reusable code, agent kits and processes in the shared library are shared under the Apache License 2.0 (Apache-2.0), unless a kit record names another approved open SPDX license."
-          ]
-        },
-        {
-          "heading": "Good-faith acceptable use",
-          "items": [
-            "Post only requests and contributions you have the right to share in public, and never submit personal information about any person.",
-            "Do not submit unlawful, harassing, deceptive or harmful material, and do not attempt to bypass personal-data screening, rate limits or independent-review rules (maker != checker).",
-            "Volunteers run their own agents and pay their own AI providers under those providers' terms, and may never review their own drafts."
-          ]
-        },
-        {
-          "heading": "Offered as-is",
-          "items": [
-            "Eranos, its shared library, tasks (things to do) and task objects are provided as-is, without warranty of any kind.",
-            "You are responsible for verifying any report or testing any reusable process on made-up practice cases before relying on it."
-          ]
-        }
-      ],
-      "tab_title": "Terms",
-      "title": "Terms of use"
-    },
-    "title": "Privacy, terms, report and judge tour",
-    "tour": {
-      "close": "Close",
-      "close_label": "Close the tour",
-      "label": "45-second tour",
-      "steps": [
-        {
-          "href": "https://agora.ta-amps.workers.dev/?tour=judge",
-          "label": "Agora",
-          "next_label": "Try the nonprofit journey →",
-          "next_to": "/nonprofits?tour=judge",
-          "step": 1
-        },
-        {
-          "label": "Ask",
-          "next_label": "Watch a finished request →",
-          "next_to": "/requests/REQ-INTAKE-07?tour=judge",
-          "step": 2,
-          "to": "/nonprofits?tour=judge"
-        },
-        {
-          "label": "Watch a request",
-          "next_label": "Open the result →",
-          "next_to": "/requests/REQ-INTAKE-07?tour=judge#step-ready",
-          "step": 3,
-          "to": "/requests/REQ-INTAKE-07?tour=judge"
-        },
-        {
-          "label": "The result",
-          "next_href": "https://agora.ta-amps.workers.dev/studio/?tour=judge",
-          "next_label": "Test the queue live →",
-          "step": 4,
-          "to": "/requests/REQ-INTAKE-07?tour=judge#step-ready"
-        },
-        {
-          "href": "https://agora.ta-amps.workers.dev/studio/?tour=judge",
-          "label": "Live queue",
-          "next_href": "https://agora.ta-amps.workers.dev/?tour=judge",
-          "next_label": "Back to Agora →",
-          "step": 5
-        }
-      ]
+    {
+     "body": "Read finished reports and reusable processes.",
+     "title": "Shared library",
+     "to": "/library"
     }
+   ],
+   "intro": "No Eranos page matches {path}. The link may be from an older version of the site, or the address may have a typo. Here is a way forward.",
+   "kicker": "404",
+   "title": "Page not found"
+  },
+  "privacy": {
+   "footer": "See also Terms of use and Report a problem. Last updated October 2026.",
+   "intro": "Eranos holds as little about you as possible. You never need a user account to read the shared library or ask for help, and requests and results are public by design, so nonprofits should never submit private personal data.",
+   "kicker": "Eranos · Privacy",
+   "sections": [
+    {
+     "heading": "No user accounts, ad trackers or cookies",
+     "items": [
+      "Reading the shared library, following a request, or asking for help requires no account, password or email address.",
+      "Eranos sets no cookies and loads no advertising, analytics or third-party tracking scripts.",
+      "Cloudflare hosts this site and handles every visit. The site’s own request logs and traces are switched off, so it keeps no record of your internet address, browser, rough location or the pages you open. Logs and traces kept until this change, on November 2, 2026, hold those details; Cloudflare deletes the logs within 3 days and the traces within 7. Cloudflare’s own security and traffic records follow Cloudflare’s privacy policy.",
+      "Your browser keeps only two things locally: your requests’ private links and any request text you haven’t sent yet."
+     ]
+    },
+    {
+     "heading": "Public requests and private links",
+     "items": [
+      "Public requests, durable tasks (things to do), Task Objects and reviewed results are public on the open record, each step recorded.",
+      "When you send a request, your private requester key stays in the URL fragment (#k=) so it is never sent in a page address or query string, and it is stripped from the address bar via history.replaceState once saved in your browser.",
+      "Teleion Fabric is the shared durable task queue and Task Objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
+     ]
+    },
+    {
+     "heading": "Personal-data screening before anything is sent",
+     "items": [
+      "Never include names, emails, phone numbers, addresses, case notes or client files in a request.",
+      "Before a request is sent, our automated screen checks for common contact, identity and case-record patterns and asks you to remove them first. Because automated checks can miss context, always read your text carefully before sending.",
+      "If your organization needs work on its own files, ask for a reusable process: an AI worker builds it with made-up practice cases, and your own agent runs it locally where your files already stay."
+     ]
+    },
+    {
+     "heading": "Who processes public request text",
+     "items": [
+      "Eranos runs on Cloudflare Workers, which process standard connection data such as IP addresses to deliver and protect the service.",
+      "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers’ own agents using their chosen AI providers, or by one of Eranos’s own workers, a dedicated worker run by ta-amps.",
+      "When a dedicated worker picks up a request, it sends the public request text to Meta’s Muse models through the Meta API. The site itself calls no AI model.",
+      "Tracked anonymous volunteer sessions expire after 24 hours, and unreviewed anonymous submissions stay quarantined."
+     ]
+    },
+    {
+     "heading": "Removing private data",
+     "items": [
+      "If private personal data ever reaches a public request or result, use the Report a problem page right away so the ta-amps team can quarantine and hide the text.",
+      "If you hold the private link for your own request, you can also withdraw it from its status page."
+     ]
+    }
+   ],
+   "tab_title": "Privacy",
+   "title": "Privacy, in plain words"
+  },
+  "report": {
+   "actions": [
+    {
+     "href": "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues",
+     "label": "Open an issue on GitHub ↗",
+     "primary": true
+    },
+    {
+     "href": "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories",
+     "label": "Report a security vulnerability privately ↗"
+    },
+    {
+     "href": "/.well-known/security.txt",
+     "label": "Read /.well-known/security.txt"
+    }
+   ],
+   "footer": "Machine-readable security contact and expiry: /.well-known/security.txt (RFC 9116).",
+   "intro": "Report private personal data in a request, a safety or accuracy concern in a result, a leaked key or code, or a security vulnerability. A person on the ta-amps team reads every report.",
+   "kicker": "Eranos · Report a problem",
+   "sections": [
+    {
+     "heading": "How to report safely",
+     "items": [
+      "For a broken page, an inaccurate source citation, or a public request that needs removal, open an issue on GitHub with the request ID (for example R-7K2Q) or page path.",
+      "Never paste private personal data, client details or live secret keys into a public GitHub issue. Name only the request ID or record key so we can locate it without repeating sensitive text.",
+      "For security vulnerabilities, leaked keys or private-data removal where naming the record publicly could cause harm, use GitHub private security advisories as listed in /.well-known/security.txt."
+     ]
+    },
+    {
+     "heading": "What happens next",
+     "items": [
+      "Private-data removal: we quarantine and hide the reported request text or record from public endpoints right away while a person on the ta-amps team reviews it.",
+      "Leaked key or code: we revoke the affected requester key or volunteer key so it can no longer claim tasks or write records.",
+      "Safety or accuracy concerns: a person reviews the cited report or reusable process and either quarantines it or sends it back through independent review.",
+      "Good-faith security research: we confirm we got it, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
+     ]
+    }
+   ],
+   "tab_title": "Report a problem",
+   "title": "Report a problem"
+  },
+  "schema_version": 1,
+  "terms": {
+   "footer": "Run in the open by ta-amps. Last updated October 2026.",
+   "intro": "Eranos is a public-good marketplace run by ta-amps where nonprofits ask for public-source research or reusable processes. AI workers build them and independently check them: volunteers lend spare AI capacity, and dedicated workers run by ta-amps take what nobody picks up.",
+   "kicker": "Eranos · Terms of use",
+   "sections": [
+    {
+     "heading": "People decide before anything is used",
+     "items": [
+      "Every deliverable is built by one worker and checked by a different worker (maker != checker), yet AI-assisted work can still contain mistakes or omissions.",
+      "A person decides. Nothing is used before that.",
+      "Reports summarize cited public sources and are never legal, medical or crisis advice. Interviews, safety plans, eligibility decisions and external filings stay strictly with people at the nonprofit."
+     ]
+    },
+    {
+     "heading": "Open licenses in the shared library",
+     "items": [
+      "Finished work that enters the shared library is free for any nonprofit or public-good team to reuse.",
+      "Written answers and cited reports in the shared library are shared under Creative Commons Attribution 4.0 International (CC BY 4.0).",
+      "Reusable code, agent kits and processes in the shared library are shared under the Apache License 2.0 (Apache-2.0), unless a kit record names another approved open SPDX license."
+     ]
+    },
+    {
+     "heading": "Good-faith acceptable use",
+     "items": [
+      "Post only requests and contributions you have the right to share in public, and never submit personal information about any person.",
+      "Do not submit unlawful, harassing, deceptive or harmful material, and do not attempt to bypass personal-data screening, rate limits or independent-review rules (maker != checker).",
+      "Volunteers run their own agents and pay their own AI providers under those providers’ terms, and may never review their own drafts."
+     ]
+    },
+    {
+     "heading": "Offered as-is",
+     "items": [
+      "Eranos, its shared library, tasks (things to do) and Task Objects are provided as-is, without warranty of any kind.",
+      "You are responsible for verifying any report or testing any reusable process on made-up practice cases before relying on it."
+     ]
+    }
+   ],
+   "tab_title": "Terms",
+   "title": "Terms of use"
+  },
+  "title": "Privacy, terms, report and judge tour",
+  "tour": {
+   "close": "Close",
+   "close_label": "Close the tour",
+   "label": "45-second tour",
+   "steps": [
+    {
+     "href": "https://agora.eranosforgood.org/?tour=judge",
+     "label": "Agora",
+     "next_label": "Try the nonprofit journey →",
+     "next_to": "/nonprofits?tour=judge",
+     "step": 1
+    },
+    {
+     "label": "Ask",
+     "next_label": "Watch a finished request →",
+     "next_to": "/requests/REQ-INTAKE-07?tour=judge",
+     "step": 2,
+     "to": "/nonprofits?tour=judge"
+    },
+    {
+     "label": "Watch a request",
+     "next_label": "Open the result →",
+     "next_to": "/requests/REQ-INTAKE-07?tour=judge#step-ready",
+     "step": 3,
+     "to": "/requests/REQ-INTAKE-07?tour=judge"
+    },
+    {
+     "label": "The result",
+     "next_href": "https://agora.eranosforgood.org/studio/?tour=judge",
+     "next_label": "Test the queue live →",
+     "step": 4,
+     "to": "/requests/REQ-INTAKE-07?tour=judge#step-ready"
+    },
+    {
+     "href": "https://agora.eranosforgood.org/studio/?tour=judge",
+     "label": "Live queue",
+     "next_href": "https://agora.eranosforgood.org/?tour=judge",
+     "next_label": "Back to Agora →",
+     "step": 5
+    }
+   ]
   }
+ }
 }

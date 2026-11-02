@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://eranos.ta-amps.workers.dev/docs/status-events.schema.json",
+  "$id": "https://eranosforgood.org/docs/status-events.schema.json",
   "title": "One state change of a nonprofit's request: one version of eranos.requests/<request_id>",
   "description": "The volunteer worker writes every state change of a request as a new version of the public noun eranos.requests/<request_id>, keeping the request's fields and adding `event`, which cites the receipt (or, where Tessera writes no hash, a record reference). The status page reads GET /api/nouns/eranos.requests/<request_id>/history (Eranos, D1, 10 s edge cache) and draws every node, chip and log line from these events only; an event without `receipt` or `ref` changes nothing. Times are Unix seconds. Field names match web/src/lib/status/types.ts (StatusEvent).",
   "type": "object",
@@ -95,6 +95,7 @@
             "in_review",
             "check_approved",
             "check_sent_back",
+            "check_refused",
             "signoff_required",
             "signed_off",
             "delivered",
@@ -103,9 +104,11 @@
             "decided",
             "heartbeat",
             "closed",
+            "reopened",
+            "reuse_checked",
             "withdrawn"
           ],
-          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; withdrawn."
+          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; reopened (a closed request open again, for example after a wrong library reuse; the earlier facts stay in the history); withdrawn. A delivered or published fact with summary.reused true before any plan means the request was answered from the library with no new work. reuse_checked (F-REUSE-001): a different key's check of whether that similar answer fits this request, with verdict ('fits' or 'does_not_fit'), checker_role, model, similarity and a ref to the matched answer; the page shows the reuse as checked only after a 'fits' verdict, which may come before or after the reused delivery. A planned part with route 'reuse_check' is that check of a similar answer; on 'does_not_fit' a new plan follows. check_refused: Tessera refused a check because the maker tried to approve its own work (the board's 'refused'; cite the refusal's record)."
         },
         "at": {
           "type": [
@@ -194,6 +197,39 @@
         "library_ref": {
           "type": "string",
           "description": "library_added: the public URL of the library entry."
+        },
+        "dedicated": {
+          "type": "boolean",
+          "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker run by the ta-amps team on Meta's latest Muse model through the Meta API (standard tier), under the same claim and report rules. Without this field the page treats worker_kind 'dedicated', or a worker label starting with 'eranos', as dedicated."
+        },
+        "worker_kind": {
+          "type": "string",
+          "enum": [
+            "volunteer",
+            "dedicated"
+          ],
+          "description": "Who claimed it, as the claim records it: 'dedicated' for one of Eranos's own workers, 'volunteer' for an outside volunteer's agent. The page credits a volunteer's AI with a step only when its claim is marked 'volunteer' (or dedicated is false); an unmarked claim reads as an AI worker, so Eranos never credits volunteers with its own workers' work."
+        },
+        "method": {
+          "type": "string",
+          "description": "How a step ran when it runs no model, for example 'deterministic planner (no model)'. A step with a method and no model is never credited with a model."
+        },
+        "verdict": {
+          "enum": [
+            "fits",
+            "does_not_fit"
+          ],
+          "description": "reuse_checked: whether the similar library answer fits this request, as a different key checked it."
+        },
+        "checker_role": {
+          "type": "string",
+          "description": "reuse_checked: the checker's role, for example 'dedicated worker 3 (run by ta-amps)'; never the maker's key."
+        },
+        "similarity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "reuse_checked: the similarity score of the match that was checked."
         }
       }
     },
@@ -212,8 +248,10 @@
           "enum": [
             "public-only",
             "private-files",
-            "held"
-          ]
+            "held",
+            "reuse_check"
+          ],
+          "description": "reuse_check (F-REUSE-001): the part that checks whether a similar library answer fits this request; nothing is made for it."
         },
         "text": {
           "type": "string"
@@ -244,6 +282,10 @@
         },
         "review_task_id": {
           "type": "string"
+        },
+        "reused_from": {
+          "type": "object",
+          "description": "reuse_check: the similar library answer being checked (for example its report_id)."
         }
       }
     },
@@ -404,6 +446,25 @@
           "$ref": "#/$defs/decision_task_brief/properties/decision"
         }
       }
+    },
+    "caption_names": {
+      "description": "The film's caption names (RequestStatusPage onEvent, Claude Design 20:15) for these event types. The page dispatches window CustomEvent 'eranos:status-event' with detail {n, type, band, text} for each new fact.",
+      "const": {
+        "received": "received",
+        "planned": "split",
+        "queued": "queued",
+        "work_claimed": "claimed",
+        "work_submitted": "submitted",
+        "check_refused": "refused",
+        "check_claimed": "rclaimed",
+        "check_approved": "approved",
+        "check_sent_back": "sentback",
+        "signoff_required": "signoff",
+        "delivered": "ready",
+        "published": "ready",
+        "decided": "decision",
+        "library_added": "library"
+      }
     }
   },
   "examples": [
@@ -526,7 +587,7 @@
           "at": 1793471582,
           "receipt": "2c1000dd265ee5e4bc49791756a6fbd58db9fb9c788919f76426bb93fae220ae",
           "worker": "heron-07",
-          "model": "nanoMuse",
+          "model": "muse-spark-1.3",
           "lease_ends": 1793473382
         }
       }

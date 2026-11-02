@@ -105,8 +105,8 @@ Allow: /.well-known/security.txt
 SECURITY_TXT = """Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
 Expires: 2027-10-31T23:59:59.000Z
 Preferred-Languages: en
-Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
-Policy: https://eranos.ta-amps.workers.dev/report
+Canonical: https://eranosforgood.org/.well-known/security.txt
+Policy: https://eranosforgood.org/report
 """
 
 SUPPORTED_MCP_PROTOCOLS = frozenset({"2024-11-05", "2025-03-26", "2025-06-18"})
@@ -609,39 +609,6 @@ def tasks_alias() -> dict[str, Any]:
     finally:
         backend.close()
     return {"synthetic": True, "tasks": rows}
-
-
-@app.get("/api/feedback")
-def get_feedback_alias() -> dict[str, Any]:
-    return {
-        "ok": True,
-        "synthetic": True,
-        "surface": "eranos",
-        "upstream": "https://herma.ta-amps.workers.dev/q/feedback",
-        "proposals_url": "https://herma.ta-amps.workers.dev/q/proposals",
-        "items": [],
-    }
-
-
-@app.post("/api/feedback")
-async def post_feedback_alias(request: Request) -> dict[str, Any]:
-    try:
-        body = await request.json()
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=f"invalid JSON payload: {exc}") from exc
-    if not isinstance(body, dict):
-        raise HTTPException(status_code=400, detail="feedback payload must be a JSON object")
-    summary = str(
-        body.get("summary") or body.get("title") or body.get("message") or "worker feedback"
-    )[:280]
-    return {
-        "ok": True,
-        "synthetic": True,
-        "accepted": True,
-        "surface": "eranos",
-        "upstream": "https://herma.ta-amps.workers.dev/q/feedback",
-        "item": {"kind": "worker_feedback", "surface": "eranos", "summary": summary},
-    }
 
 
 @app.get("/api/fabric")

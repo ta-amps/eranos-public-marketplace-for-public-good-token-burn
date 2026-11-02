@@ -22,6 +22,8 @@
  * | delivered / published  | Result: your turn                                                         |
  * | decided                | Result: decided ("You used it"), with its record                          |
  * | closed                 | the request is finished                                                   |
+ * | reopened               | a closed request is open again (a wrong reuse stays in the history)        |
+ * | reuse_checked          | a different key checked whether a similar library answer fits this request |
  * | withdrawn              | open steps stop; finished parts stay                                      |
  *
  * In live mode a part's queue step starts as "open": Tessera doesn't yet share a part's claim with the requester's
@@ -29,7 +31,7 @@
  */
 import { fill, type RequestStatusNoun } from "../nouns";
 import { ordinal, placeLine, pickupEstimate, type PickupEstimate } from "./estimate";
-import { shortReceipt, shortRequestId } from "./receipts";
+import { shortReceipt, shortRequestId } from "./ids";
 import type { DecisionChoice, PartPlan, QueueSnapshot, StatusEvent, StatusRecord } from "./types";
 
 export type NodeState =
@@ -49,7 +51,15 @@ export type NodeState =
 
 interface Agent {
   who?: string;
+  /** One of Eranos's own workers (the fallback when no volunteer is free), not a volunteer's agent. */
+  dedicated?: boolean;
+  /** An outside volunteer's agent, only when its claim says so (worker_kind "volunteer" or dedicated false). */
+  volunteer?: boolean;
   model?: string;
+  /** How the step ran when it runs no model ("deterministic planner (no model)"): no model is credited then. */
+  method?: string;
+  /** A dedicated worker's persona that ran, from its claim record. */
+  persona?: string;
   claimedAt?: number | null;
   leaseEnds?: number;
   receipt?: string;
@@ -87,6 +97,17 @@ export interface Facts {
   planPlace?: number;
   blocked?: Evidence & { findings: string[] };
   parts: PartFacts[];
+  /** Answered from the library with no new work: a reused delivery that came before (or without) any plan. */
+  reused?: Evidence & { id?: string; reason?: string; part?: number };
+  /** A different key's check that the similar answer fits this request (F-REUSE-001); absent until one is recorded. */
+  reuseCheck?: Evidence & { verdict: "fits" | "does_not_fit"; who?: string; model?: string };
+  /** The plan's reuse_check part: a similar library answer whose fit a different helper checks before anything else. */
+  reuseCandidate?: Evidence & { part: number };
+  /** The check found the similar answer did not fit, so new work was planned (kept for the page's note). */
+  reuseRejected?: Evidence & { id?: string };
+  /** A reuse that a recorded reopen undid; it stays in the history as a failed attempt. */
+  reuseUndone?: Evidence & { id?: string };
+  reopened?: Evidence & { reason?: string };
   closed?: Evidence;
   withdrawn?: Evidence;
   queue?: QueueSnapshot;
@@ -97,8 +118,33 @@ function evidence(event: StatusEvent): Evidence {
   return { receipt: event.receipt, ref: event.ref, at: event.at ?? null };
 }
 
+/** True when one of Eranos's own (dedicated) workers recorded the fact: its flag or kind, or else its label. */
+export function ownWorker(event: StatusEvent): boolean {
+  if (typeof event.dedicated === "boolean") return event.dedicated;
+  return event.worker_kind === "dedicated" || /^eranos[-_.\s]/i.test(event.worker ?? "");
+}
+
+/**
+ * True only when the claim marks an outside volunteer: worker_kind "volunteer", or dedicated set to false. A claim
+ * that says neither is an AI worker, never "a volunteer's AI" (Eranos never credits volunteers with its own work).
+ */
+export function outsideVolunteer(event: StatusEvent): boolean {
+  return !ownWorker(event) && (event.worker_kind === "volunteer" || event.dedicated === false);
+}
+
 function agent(event: StatusEvent): Agent {
-  return { who: event.worker, model: event.model, claimedAt: event.at ?? null, leaseEnds: event.lease_ends, receipt: event.receipt };
+  return {
+    who: event.worker,
+    dedicated: ownWorker(event),
+    volunteer: outsideVolunteer(event),
+    // The model id the fact declares; its display name comes from the models.meta Task Object (lib/models.ts).
+    model: event.model,
+    persona: typeof event.persona === "string" && event.persona.trim() ? event.persona.trim() : undefined,
+    method: typeof event.method === "string" && event.method.trim() ? event.method.trim() : undefined,
+    claimedAt: event.at ?? null,
+    leaseEnds: event.lease_ends,
+    receipt: event.receipt,
+  };
 }
 
 function hasEvidence(event: StatusEvent): boolean {
@@ -159,6 +205,12 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
           decide: "idle",
           result: "idle",
         }));
+        {
+          // A reuse_check part (F-REUSE-001): a similar library answer waits for a different helper's check of its fit.
+          // A later plan without one (new work after a "does not fit") ends it.
+          const candidate = (event.parts ?? []).find((plan) => plan.route === "reuse_check");
+          facts.reuseCandidate = candidate ? { ...evidence(event), part: candidate.part } : undefined;
+        }
         if (event.places) {
           for (const [n, place] of Object.entries(event.places)) {
             const p = part(Number(n));
@@ -248,6 +300,20 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
       case "delivered":
       case "published": {
         const p = part(event.part);
+        // Answered from the library (F-UI-STALE-001, F-REUSE-001): a reused delivery is never new work, whether it comes
+        // before any plan or on the plan's reuse_check part. Its check is the reuse_checked fact, in either order. When the
+        // plan also has parts that need new work, the reused part is one delivered part among them (shown as reused).
+        const wholeRequest = !p || facts.parts.every((x) => x.plan.route === "reuse_check" || x.plan.route === "reused");
+        if (event.summary?.reused && wholeRequest) {
+          facts.reused = { ...evidence(event), id: event.result_id, reason: event.reason, part: event.part };
+          facts.plan = "done";
+          facts.planAgent = undefined;
+          if (p) {
+            p.result = "noun";
+            p.resultEvidence = { ...evidence(event), id: event.result_id };
+          }
+          break;
+        }
         if (!p) break;
         if (p.work !== "done") p.work = "done";
         if (p.check !== "approved") p.check = "approved";
@@ -267,9 +333,38 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         break;
       }
       case "closed":
+        // A close settles the plan: nothing is "being worked on" or "in line" after it.
         facts.closed = evidence(event);
-        if (facts.parts.length > 0) {
-          facts.plan = "done";
+        facts.reopened = undefined;
+        if (facts.plan !== "stopped") facts.plan = "done";
+        facts.planAgent = undefined;
+        break;
+      case "reuse_checked": {
+        // The check of the fit counts whether it comes before or after the reused delivery.
+        if (event.verdict !== "fits" && event.verdict !== "does_not_fit") break;
+        facts.reuseCheck = { ...evidence(event), verdict: event.verdict, who: event.checker_role ?? event.worker, model: event.model_name ?? event.model };
+        if (event.verdict === "does_not_fit") facts.reuseRejected = { ...evidence(event), id: event.result_id };
+        const p = part(event.part ?? facts.reuseCandidate?.part);
+        if (p && p.plan.route === "reuse_check") {
+          p.check = event.verdict === "fits" ? "approved" : "sent_back";
+          p.checkEvidence = { ...evidence(event), who: event.checker_role ?? event.worker ?? p.checkAgent?.who };
+          p.checkAgent = undefined;
+        }
+        break;
+      }
+      case "reopened":
+        // Open again: the close and any library answer it rested on are undone (the history keeps both); a request
+        // that had no plan of its own goes back in line.
+        facts.closed = undefined;
+        facts.reopened = { ...evidence(event), reason: event.reason };
+        if (facts.reused) {
+          facts.reuseUndone = { ...facts.reused };
+          facts.reused = undefined;
+        }
+        facts.reuseCheck = undefined;
+        facts.reuseCandidate = undefined;
+        if (facts.parts.length === 0) {
+          facts.plan = "waiting";
           facts.planAgent = undefined;
         }
         break;
@@ -382,6 +477,8 @@ export interface DeriveOptions {
   formatClock: (at: number) => string;
   /** The page that shows a part's result: its cited report or its reusable process. */
   resultHref: (part: number) => string;
+  /** The display name of a declared model, from the models.meta Task Object; without it no model is named. */
+  modelName?: (id: string | undefined, dedicated: boolean) => string | null;
 }
 
 const COL = {
@@ -404,18 +501,37 @@ function evidenceOf(e: { receipt?: string; ref?: string } | undefined): string |
   return e?.receipt ?? e?.ref;
 }
 
-function agentChipText(words: RequestStatusNoun, a: Agent): string {
-  if (a.who && a.model) return fill(words.chips.worker_model ?? "", { who: a.who, model: a.model });
-  return a.who ?? words.chips.agent ?? "";
+/** How the details name a worker: "dedicated worker N (run by ta-amps)" for Eranos's own, else the label it reports. */
+export function workerLabel(words: RequestStatusNoun, who: string | undefined, dedicated?: boolean): string | undefined {
+  if (!who) return who;
+  const own = dedicated ?? /^eranos[-_.\s]/i.test(who);
+  // N is the worker's own number, without a host's leading zeros ("eranos-review-pc02" is worker 2).
+  const digits = /(\d+)/.exec(who)?.[1];
+  return own ? fill(words.chips.dedicated ?? "", { n: digits ? String(Number(digits)) : "1" }) : who;
 }
 
-function doneChipText(words: RequestStatusNoun, name: string | undefined, receipt: string | undefined): string | null {
-  if (receipt && /^[0-9a-f]{8,}$/i.test(receipt)) {
-    return name
-      ? fill(words.chips.worker_receipt ?? "", { who: name, r: shortReceipt(receipt) })
-      : fill(words.chips.receipt ?? "", { r: shortReceipt(receipt) });
+function agentChipText(words: RequestStatusNoun, a: Agent, options: DeriveOptions): string {
+  // Details name models, never agent apps (rule 9): a dedicated worker shows the model and persona that ran, from its
+  // claim record; a volunteer's AI shows the model it declared, or "No model declared". Names come from models.meta.
+  const who = workerLabel(words, a.who, a.dedicated) ?? (a.dedicated ? fill(words.chips.dedicated ?? "", { n: "1" }) : undefined);
+  // A step that runs no model (the planner) is never credited with one, not even the dedicated workers' default.
+  if (a.method && !a.model) return who && words.chips.no_model ? fill(words.chips.no_model, { who, method: a.method }) : (who ?? a.method);
+  const model = options.modelName ? options.modelName(a.model, Boolean(a.dedicated)) : null;
+  if (a.dedicated) {
+    if (!who) return "";
+    if (!model) return who;
+    const ran = a.persona && words.chips.dedicated_persona ? fill(words.chips.dedicated_persona, { model, persona: a.persona }) : model;
+    return words.chips.dedicated_model ? fill(words.chips.dedicated_model, { who, model: ran }) : who;
   }
-  return name ?? null;
+  const name = who ?? a.who ?? words.chips.agent ?? "";
+  if (!name) return "";
+  if (!model) return words.chips.worker_undeclared ? fill(words.chips.worker_undeclared, { who: name }) : name;
+  return words.chips.worker_model ? fill(words.chips.worker_model, { who: name, model }) : name;
+}
+
+/** A finished step's chip names who did it; the record itself is a "Record" link in the list, never a hash. */
+function doneChipText(words: RequestStatusNoun, raw: string | undefined, _receipt: string | undefined): string | null {
+  return workerLabel(words, raw) ?? null;
 }
 
 function decisionLabel(words: RequestStatusNoun, choice: DecisionChoice): string {
@@ -433,10 +549,12 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
   const parts = new Map<number, PartPlan>();
   const approvedParts = new Set<number>();
   const plannedBy = new Map<string, string>();
+  // A library answer since the last reopen: its close and reopen rows say so.
+  let reusedSeen = false;
   for (const [index, event] of record.events.entries()) {
     if (event.type === "heartbeat" || !(event.receipt || event.ref)) continue;
     const n = event.part ?? 0;
-    const w = event.worker;
+    const w = workerLabel(words, event.worker, event.dedicated);
     const lease = event.lease_ends && event.at ? Math.round((event.lease_ends - event.at) / 60) : null;
     let text = "";
     switch (event.type) {
@@ -449,6 +567,10 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         break;
       case "planned": {
         for (const p of event.parts ?? []) parts.set(p.part, p);
+        if ((event.parts ?? []).some((p) => p.route === "reuse_check")) {
+          text = words.log.planned_reuse_check ?? "";
+          break;
+        }
         const count = (event.parts ?? []).length;
         const by = w ?? plannedBy.get("plan");
         const key = count === 1 ? (by ? "planned_one" : "planned_one_anon") : by ? "planned" : "planned_anon";
@@ -506,12 +628,25 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         text = fill(words.log.signed_off ?? "", { n });
         break;
       case "delivered":
+        if (event.summary?.reused) {
+          reusedSeen = true;
+          text = words.log.reused ?? "";
+          break;
+        }
         if (n) approvedParts.add(n);
         text = fill(words.log.delivered ?? "", { n });
         break;
       case "published":
+        if (event.summary?.reused) {
+          reusedSeen = true;
+          text = words.log.reused ?? "";
+          break;
+        }
         if (n) approvedParts.add(n);
         text = fill(words.log.published ?? "", { n });
+        break;
+      case "reuse_checked":
+        text = event.verdict === "fits" ? (words.log.reuse_fits ?? "") : (words.log.reuse_does_not_fit ?? "");
         break;
       case "queued":
         text = event.part
@@ -528,7 +663,15 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         );
         break;
       case "closed":
-        text = parts.size > 0 && approvedParts.size === 0 ? (words.log.closed_unfinished ?? words.log.closed ?? "") : (words.log.closed ?? "");
+        text = reusedSeen
+          ? (words.log.closed_reused ?? words.log.closed ?? "")
+          : approvedParts.size === 0
+            ? (words.log.closed_unfinished ?? words.log.closed ?? "")
+            : (words.log.closed ?? "");
+        break;
+      case "reopened":
+        text = reusedSeen ? (words.log.reopened ?? "") : event.reason ? fill(words.log.reopened_reason ?? "", { reason: event.reason }) : (words.log.reopened_plain ?? "");
+        reusedSeen = false;
         break;
       case "withdrawn":
         text = words.log.withdrawn ?? "";
@@ -574,8 +717,11 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
   });
 
   const planState: NodeState = facts.plan === "stopped" ? "stopped" : facts.plan;
-  const planLabel =
-    facts.plan === "done"
+  const planLabel = facts.reused
+    ? (words.nodes.reused ?? words.nodes.planned)
+    : facts.closed && facts.parts.length === 0 && facts.plan === "done"
+      ? (words.nodes.closed ?? words.nodes.planned)
+      : facts.plan === "done"
       ? words.nodes.planned
       : facts.plan === "working"
         ? words.nodes.planning
@@ -609,7 +755,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
       node: "plan",
       x: COL.plan.x,
       y: planChipY,
-      text: agentChipText(words, facts.planAgent),
+      text: agentChipText(words, facts.planAgent, options),
       kind: "agent",
       lease:
         facts.planAgent.claimedAt && facts.planAgent.leaseEnds
@@ -632,7 +778,14 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
     const processPart = p.plan.route === "private-files" || p.plan.route === "process" || p.plan.output_type === "process";
     const held = p.plan.route === "held";
     const rc = rowCenter(index);
-    const rowLabel = held ? words.diagram.row_held : processPart ? words.diagram.row_process : words.diagram.row_report;
+    const reuseCheck = p.plan.route === "reuse_check";
+    const rowLabel = reuseCheck
+      ? (words.diagram.row_reuse_check ?? words.diagram.row_report)
+      : held
+        ? words.diagram.row_held
+        : processPart
+          ? words.diagram.row_process
+          : words.diagram.row_report;
     labels.push({ id: `row-${n}`, x: COL.queue.x, y: rc - 58, text: fill(rowLabel ?? "", { n }) });
 
     if (count === 1) {
@@ -695,7 +848,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         node: `worker-${n}`,
         x: COL.worker.x,
         y: rc + 40,
-        text: agentChipText(words, p.workAgent),
+        text: agentChipText(words, p.workAgent, options),
         kind: "agent",
         lease: p.workAgent.claimedAt && p.workAgent.leaseEnds ? { start: p.workAgent.claimedAt, end: p.workAgent.leaseEnds } : undefined,
       });
@@ -734,7 +887,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         node: `review-${n}`,
         x: COL.review.x,
         y: chipY,
-        text: agentChipText(words, p.checkAgent),
+        text: agentChipText(words, p.checkAgent, options),
         kind: "agent",
         lease: p.checkAgent.claimedAt && p.checkAgent.leaseEnds ? { start: p.checkAgent.claimedAt, end: p.checkAgent.leaseEnds } : undefined,
       });
@@ -814,7 +967,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         word: (p.work === "working" ? words.nodes.working : p.work === "done" ? words.nodes.draft_ready : stateWord(words, "idle")) ?? "",
         detail:
           p.work === "working" && p.workAgent
-            ? [agentChipText(words, p.workAgent), p.workAgent.leaseEnds ? fill(words.chips.lease ?? "", { time: options.formatClock(p.workAgent.leaseEnds) }) : null]
+            ? [agentChipText(words, p.workAgent, options), p.workAgent.leaseEnds ? fill(words.chips.lease ?? "", { time: options.formatClock(p.workAgent.leaseEnds) }) : null]
                 .filter(Boolean)
                 .join(" · ")
             : p.work === "done"
@@ -829,7 +982,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
         word: rv?.label && rv.state !== "idle" ? rv.label : stateWord(words, "idle"),
         detail:
           p.check === "working" && p.checkAgent
-            ? agentChipText(words, p.checkAgent)
+            ? agentChipText(words, p.checkAgent, options)
             : p.check === "approved"
               ? p.checkEvidence?.who
               : p.check === "sent_back"
@@ -851,7 +1004,16 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
     parts.push({
       part: n,
       route: p.plan.route,
-      title: fill((held ? words.list.held_title : processPart ? words.list.process_title : words.list.report_title) ?? "", { n }),
+      title: fill(
+        (p.plan.route === "reuse_check"
+          ? (words.list.reuse_check_title ?? words.list.report_title)
+          : held
+            ? words.list.held_title
+            : processPart
+              ? words.list.process_title
+              : words.list.report_title) ?? "",
+        { n },
+      ),
       subtitle: (held ? words.list.held_sub : processPart ? words.list.process_sub : words.list.report_sub) ?? "",
       steps: held ? steps.slice(0, 1) : steps,
       note: processPart ? (p.plan.needs_person_signoff ? words.list.signoff_note : words.list.process_note) : undefined,
@@ -865,7 +1027,7 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
     word: (planLabel ?? "") + (planned ? ` · ${count === 1 ? words.nodes.one_part : fill(words.nodes.parts ?? "", { n: count })}` : ""),
     detail:
       facts.plan === "working" && facts.planAgent
-        ? agentChipText(words, facts.planAgent)
+        ? agentChipText(words, facts.planAgent, options)
         : facts.plan === "waiting"
           ? (inLine(facts.planPlace) ?? undefined)
           : facts.plan === "done"
@@ -881,7 +1043,16 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
   let overall: StatusView["overall"];
   if (facts.withdrawn) overall = { label: words.overall.withdrawn ?? "", tone: "waiting" };
   else if (facts.plan === "stopped") overall = { label: words.overall.blocked ?? "", tone: "caution" };
-  else if (facts.closed && facts.parts.length > 0 && !anyApproved)
+  else if (facts.reused)
+    overall =
+      facts.reuseCheck?.verdict === "fits"
+        ? { label: words.overall.reused ?? words.overall.finished ?? "", tone: "real" }
+        : facts.reuseCheck?.verdict === "does_not_fit"
+          ? { label: words.overall.reuse_does_not_fit ?? words.overall.reused ?? "", tone: "caution" }
+          : { label: words.overall.reused_unchecked ?? words.overall.reused ?? "", tone: "attention" };
+  else if (facts.reuseCandidate && !facts.closed && facts.reuseCheck?.verdict !== "does_not_fit")
+    overall = { label: words.overall.reuse_checking ?? words.overall.progress ?? "", tone: "verb" };
+  else if (facts.closed && !anyApproved)
     overall = { label: words.overall.unfinished ?? words.overall.finished ?? "", tone: "caution" };
   else if (facts.closed) overall = { label: words.overall.finished ?? "", tone: "real" };
   else if (yourTurnPart !== undefined) overall = { label: fill(words.overall.your_turn ?? "", { n: yourTurnPart }), tone: "attention" };
@@ -930,7 +1101,10 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
 }
 
 /** The sentence a screen reader hears after a change: the last fact, plus "Your turn." when it is. */
-export function summaryLine(events: StatusEvent[], words: RequestStatusNoun): string {
+export function summaryLine(allEvents: StatusEvent[], words: RequestStatusNoun): string {
+  // Only what happened since the last reopen counts; an undone library answer or close is history, not the state.
+  const reopen = allEvents.map((event) => event.type).lastIndexOf("reopened");
+  const events = reopen >= 0 ? allEvents.slice(reopen) : allEvents;
   const last = [...events].reverse().find((event) => event.type !== "heartbeat" && (event.receipt || event.ref));
   if (!last) return words.summary.waiting ?? "";
   const n = last.part ?? 0;
@@ -941,6 +1115,7 @@ export function summaryLine(events: StatusEvent[], words: RequestStatusNoun): st
     case "plan_claimed":
       return words.summary.planning ?? "";
     case "planned":
+      if ((last.parts ?? []).some((part) => part.route === "reuse_check")) return words.summary.reuse_checking ?? "";
       return fill(words.summary.planned ?? "", { n: (last.parts ?? []).length });
     case "blocked":
       return words.summary.blocked ?? "";
@@ -964,14 +1139,20 @@ export function summaryLine(events: StatusEvent[], words: RequestStatusNoun): st
       return fill(words.summary.signoff ?? "", { n });
     case "delivered":
     case "published":
+      if (last.summary?.reused) return words.summary.reused ?? "";
       return `${fill(words.summary.part_approved ?? "", { n })} ${words.summary.your_turn ?? ""}`.trim();
+    case "reuse_checked":
+      return (last.verdict === "fits" ? words.summary.reuse_fits : words.summary.reuse_does_not_fit) ?? "";
     case "decided":
       return fill(words.summary.decided ?? "", { n });
     case "closed": {
-      const hadParts = events.some((e) => e.type === "planned" && (e.parts ?? []).length > 0);
       const hadApproved = events.some((e) => e.type === "check_approved" || e.type === "delivered" || e.type === "published");
-      return hadParts && !hadApproved ? (words.summary.closed_unfinished ?? words.summary.closed ?? "") : (words.summary.closed ?? "");
+      const reused = events.some((e) => (e.type === "delivered" || e.type === "published") && e.summary?.reused);
+      if (reused) return words.summary.reused ?? words.summary.closed ?? "";
+      return !hadApproved ? (words.summary.closed_unfinished ?? words.summary.closed ?? "") : (words.summary.closed ?? "");
     }
+    case "reopened":
+      return words.summary.reopened ?? "";
     case "withdrawn":
       return words.log.withdrawn ?? "";
     default:

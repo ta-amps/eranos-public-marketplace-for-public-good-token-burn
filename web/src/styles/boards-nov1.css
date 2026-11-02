@@ -1,0 +1,872 @@
+/*
+ * Claude Design's Nov 1 boards, as classes on the tokens: SiteFooter, the EranosHome hero (centered, the two doors,
+ * the mini request track) and its light "What you can ask for" section, and SearchSolutions on /library.
+ * Light only: dark ink is text, primary buttons and the logo, never a panel. Colors use the tokens v4 names
+ * (--task and --object) directly.
+ */
+:root {
+  --door-ink-sub: color-mix(in srgb, var(--action-text) 82%, var(--action));
+}
+
+/* ---------------------------------------------------------------- the standard footer (ta-amps.footer/2) */
+.er-site-footer {
+  background: var(--sunken);
+  border-top: 1px solid var(--line);
+  color: var(--text);
+}
+.er-site-footer-row {
+  max-width: 1248px;
+  margin: 0 auto;
+  padding: 18px 24px 6px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px 28px;
+  flex-wrap: wrap;
+}
+.er-site-footer-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+}
+/* One row of links: they wrap only when the screen is too narrow for them. */
+.er-site-footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  font-size: var(--fs-ui);
+}
+.er-site-footer-links a {
+  display: inline-block;
+  padding: 3px 0;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.er-site-footer-links a:hover {
+  color: var(--link-hover);
+}
+.er-site-footer-line {
+  max-width: 1248px;
+  margin: 0 auto;
+  padding: 0 24px 22px;
+  box-sizing: border-box;
+  font-size: var(--fs-small);
+  line-height: var(--lh-small);
+  color: var(--text-2);
+}
+@media (max-width: 599px) {
+  .er-site-footer-row,
+  .er-site-footer-line {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .er-site-footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 16px;
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------------- EranosHome hero */
+.er-landing-pill {
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: 1rem;
+  font-weight: 600;
+}
+/* The two doors: "My NGO needs help" in ink, first and left; "I want to help" outlined in ink on paper. */
+.er-landing-buttons .er-door {
+  min-height: 132px;
+  padding: 24px 28px;
+  box-sizing: border-box;
+  border-radius: 22px;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+}
+.er-landing-buttons .er-door-label {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+.er-landing-buttons .er-door-sub {
+  font-size: 1rem;
+  line-height: 1.45;
+}
+.er-landing-buttons .er-door-ink {
+  background: var(--action);
+  border: 2px solid var(--action);
+  color: var(--action-text);
+  box-shadow: 0 18px 40px rgb(17 22 31 / 0.18);
+}
+.er-landing-buttons .er-door-ink:hover {
+  background: var(--action-hover);
+  border-color: var(--action-hover);
+  color: var(--action-text);
+}
+.er-landing-buttons .er-door-ink .er-door-sub {
+  color: var(--door-ink-sub);
+}
+.er-landing-buttons .er-door-paper {
+  background: var(--surface);
+  border: 2px solid var(--text);
+  color: var(--text);
+}
+.er-landing-buttons .er-door-paper:hover {
+  background: var(--sunken);
+}
+.er-landing-buttons .er-door-paper .er-door-sub {
+  color: var(--text-2);
+}
+
+@media (max-width: 599px) {
+  .er-landing-buttons .er-door {
+    min-height: 96px;
+    padding: 18px 20px;
+  }
+  .er-landing-buttons .er-door-label {
+    font-size: 1.5rem;
+  }
+}
+
+/* ---------------------------------------------------------------- What you can ask for (light) */
+.er-asks {
+  background: var(--sunken);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 72px 0;
+}
+.er-asks h2 {
+  margin: 0 0 28px;
+  font-size: clamp(2rem, 1.6rem + 1.4vw, 3rem);
+  letter-spacing: -0.025em;
+}
+.er-asks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.er-ask-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+}
+.er-ask-card h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+  font-weight: 600;
+  line-height: 1.15;
+}
+.er-ask-card p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+.er-ask-examples {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 1rem;
+}
+.er-ask-examples li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.er-ask-examples svg {
+  flex-shrink: 0;
+  color: var(--text-3);
+  transform: translateY(2px);
+}
+.er-kind-tag {
+  align-self: flex-start;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  line-height: 1.35;
+}
+.er-kind-tag-object {
+  background: var(--object-wash);
+  color: var(--object-text);
+}
+.er-kind-tag-task {
+  background: var(--task-wash);
+  color: var(--task-text);
+}
+@media (max-width: 719px) {
+  .er-asks {
+    padding: 48px 0;
+  }
+  .er-asks-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .er-ask-card {
+    padding: 22px;
+  }
+}
+
+/* ---------------------------------------------------------------- SearchSolutions (/library) */
+.er-find {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.er-find-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 900px;
+}
+.er-find-head h1 {
+  margin: 0;
+  font-size: clamp(2.25rem, 1.8rem + 1.6vw, 2.875rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.er-find-head .er-lede {
+  margin: 0;
+  font-size: 1.1875rem;
+  line-height: 1.5;
+  color: var(--text-2);
+}
+.er-find-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 980px;
+}
+.er-find-form label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.er-find-row {
+  display: flex;
+  gap: 10px;
+}
+.er-find-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 56px;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  border: 2px solid var(--text);
+  background: var(--surface);
+  font-size: 1.1875rem;
+}
+.er-find-button {
+  min-height: 56px;
+  padding: 0 24px;
+  border-radius: 14px;
+  font-size: 1.0625rem;
+}
+.er-find-tries,
+.er-find-filters,
+.er-find-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: var(--fs-ui);
+}
+.er-find-tries > span,
+.er-find-filter > span {
+  color: var(--text-2);
+  margin-right: 2px;
+}
+.er-find-filters {
+  gap: 12px 18px;
+}
+.er-find-chip {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-ui);
+  cursor: pointer;
+}
+.er-find-chip:hover {
+  background: var(--sunken);
+}
+.er-find-option {
+  font-weight: 600;
+}
+.er-find-option[aria-pressed="true"] {
+  background: var(--action);
+  border-color: var(--action);
+  color: var(--action-text);
+}
+.er-find-count {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-2);
+}
+.er-solutions {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.er-solution {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 6px solid var(--object);
+  border-radius: 18px;
+}
+.er-solution[data-kind="process"] {
+  border-left-color: var(--task);
+}
+.er-solution > p {
+  margin: 0;
+}
+.er-solution-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.er-example-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: var(--radius-pill);
+  background: var(--sunken);
+  color: var(--text-2);
+  font-size: var(--fs-small);
+  font-weight: 600;
+}
+.er-solution h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.4375rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.er-solution h3 a {
+  color: var(--text);
+  text-decoration: none;
+}
+.er-solution h3 a:hover,
+.er-solution h3 a:focus-visible {
+  text-decoration: underline;
+}
+.er-solution-what {
+  color: var(--text-2);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.er-solution .er-small {
+  color: var(--text-2);
+}
+.er-solution-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+.er-find-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px 24px;
+  padding: 26px 28px;
+  background: var(--surface);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 18px;
+}
+.er-find-empty > div {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.er-find-empty h2 {
+  margin: 0;
+  font-size: 1.625rem;
+}
+.er-find-empty p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+.er-find-note {
+  margin: 0;
+  max-width: 900px;
+  color: var(--text-2);
+  font-size: var(--fs-ui);
+}
+@media (max-width: 759px) {
+  .er-solutions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 479px) {
+  .er-find-row {
+    flex-direction: column;
+  }
+  .er-find-empty {
+    padding: 20px;
+  }
+}
+
+/* ---------------------------------------------------------------- the request page's bands as an accordion */
+.er-band-head {
+  margin: 0;
+}
+.er-band-toggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  grid-template-areas: "n title status chevron";
+  align-items: center;
+  gap: 8px 14px;
+  width: 100%;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.er-band-toggle .er-band-n {
+  grid-area: n;
+}
+.er-band-title {
+  grid-area: title;
+}
+.er-band-status {
+  grid-area: status;
+  font-family: var(--font-text);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-2);
+  text-align: right;
+}
+.er-rq-band-now .er-band-status {
+  color: var(--text);
+  font-weight: 600;
+}
+.er-band-chevron {
+  grid-area: chevron;
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid var(--text-2);
+  border-bottom: 2px solid var(--text-2);
+  transform: rotate(45deg) translate(-2px, -2px);
+}
+.er-band-toggle[aria-expanded="true"] .er-band-chevron {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+.er-band-body {
+  margin-top: 16px;
+}
+/* A section that a recorded fact just opened fades in once; nothing moves otherwise, and never with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .er-band-body[data-by-event="true"] {
+    animation: er-band-in var(--dur-base) var(--ease-standard) both;
+  }
+}
+@keyframes er-band-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 599px) {
+  .er-band-toggle {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "n title chevron"
+      ". status status";
+  }
+  .er-band-status {
+    text-align: left;
+  }
+}
+
+/* Owner, Nov 1 evening: every step header and the open step fit one wide screen (1280 x 613) once the track is stuck.
+   Folded steps are one dense line; the open step keeps its own scroll when it is long. */
+.er-plain .er-rq-band {
+  margin-top: 6px;
+  padding: 8px 18px;
+}
+.er-plain .er-rq-band[data-open="true"] {
+  padding-bottom: 14px;
+}
+.er-band-head,
+.er-band-toggle {
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+.er-band-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.er-band-body {
+  margin-top: 10px;
+  max-height: max(150px, calc(100vh - var(--er-track-h, 80px) - 325px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.er-band-body:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.er-plain .er-track {
+  padding: 8px 0 8px;
+}
+@media (max-width: 599px) {
+  .er-band-title {
+    white-space: normal;
+  }
+}
+
+/* ---------------------------------------------------------------- EranosHome split hero (Nov 2) */
+/* Words and the two doors on the left, the four process tiles on the right, in their own grid column: nothing in a
+   tile can ever cross the hero's text. Each tile starts as a dashed paper outline and its tinted layer fades in once
+   after load (600 ms at 0.4, 1.2, 2.0 and 2.8 s, all lit by 3.4 s), then stays lit; nothing moves. With reduced motion
+   they are simply lit. */
+.er-landing-split {
+  max-width: 1248px;
+  padding: 24px 24px 36px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 48px;
+  align-items: center;
+}
+/* Sized so the two doors and the privacy line sit above the fold of a 1280 x 613 window (the film's). */
+.er-landing-words {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.er-landing-split .er-landing-pill {
+  align-self: flex-start;
+}
+.er-landing-split .er-display {
+  max-width: none;
+  margin: 0;
+  font-size: clamp(2.5rem, 1.2rem + 3vw, 4.5rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+.er-landing-split .er-landing-lead {
+  max-width: 600px;
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+.er-landing-split .er-landing-buttons {
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 4px;
+}
+.er-landing-split .er-landing-buttons .er-door {
+  min-height: 104px;
+  padding: 18px 22px;
+}
+.er-landing-split .er-landing-buttons .er-door-label {
+  font-size: 1.5rem;
+}
+.er-landing-split .er-honesty {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--fs-ui);
+}
+.er-hero-tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  min-width: 0;
+}
+.er-hero-tile {
+  position: relative;
+  min-height: 214px;
+  box-sizing: border-box;
+  border-radius: 24px;
+  border: 2px dashed #c9c1b1;
+  background: var(--surface);
+  padding: 22px 22px 20px;
+  text-align: left;
+}
+.er-hero-tile-0 {
+  --tile-bg: var(--object-wash);
+  --tile-edge: var(--object);
+  --tile-icon: var(--object-text);
+}
+.er-hero-tile-1 {
+  --tile-bg: var(--task-wash);
+  --tile-edge: var(--task);
+  --tile-icon: var(--task-text);
+}
+.er-hero-tile-2 {
+  --tile-bg: var(--real-wash);
+  --tile-edge: var(--real);
+  --tile-icon: var(--real);
+}
+.er-hero-tile-3 {
+  --tile-bg: var(--sunken);
+  --tile-edge: var(--text-2);
+  --tile-icon: var(--text);
+}
+.er-hero-tile-lit {
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  border: 2px solid var(--tile-edge);
+  background: var(--tile-bg);
+}
+.er-hero-tile-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.er-hero-tile-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.er-hero-tile-n {
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+.er-hero-tile-icon {
+  stroke: var(--tile-icon);
+}
+.er-hero-tile-title {
+  font-family: var(--font-display);
+  font-size: 1.625rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  color: var(--text);
+}
+.er-hero-tile-text {
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .er-hero-tile-lit {
+    animation: er-tile-on 600ms var(--ease-standard) both;
+  }
+  .er-hero-tile-0 .er-hero-tile-lit {
+    animation-delay: 0.4s;
+  }
+  .er-hero-tile-1 .er-hero-tile-lit {
+    animation-delay: 1.2s;
+  }
+  .er-hero-tile-2 .er-hero-tile-lit {
+    animation-delay: 2s;
+  }
+  .er-hero-tile-3 .er-hero-tile-lit {
+    animation-delay: 2.8s;
+  }
+}
+@keyframes er-tile-on {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 1023px) {
+  .er-landing-split {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
+  }
+  .er-hero-tile {
+    min-height: 170px;
+  }
+}
+@media (max-width: 719px) {
+  .er-landing-split .er-landing-buttons {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 599px) {
+  .er-landing-split {
+    padding: 28px 16px 32px;
+    gap: 24px;
+  }
+  .er-landing-split .er-landing-buttons .er-door {
+    min-height: 96px;
+    padding: 18px 20px;
+  }
+  .er-landing-split .er-landing-buttons .er-door-label {
+    font-size: 1.5rem;
+  }
+  .er-landing-split .er-landing-lead {
+    font-size: 1.125rem;
+  }
+  .er-hero-tiles {
+    gap: 12px;
+  }
+  .er-hero-tile {
+    min-height: 0;
+    padding: 16px 14px 14px;
+    border-radius: 18px;
+  }
+  .er-hero-tile-lit {
+    border-radius: 18px;
+  }
+  .er-hero-tile-title {
+    font-size: 1.25rem;
+  }
+  .er-hero-tile-text {
+    font-size: 0.875rem;
+  }
+}
+
+/* ---------------------------------------------------------------- the calm request page (Nov 2, RequestStatusPage) */
+/* Owner, Nov 2: on one wide screen every step shows without scrolling, the open step expanded and the finished ones
+   folded. The board's budget for a 1280 x 613 window: banner 36, header 64, title block 76, track 92, three folded
+   steps of 45 (a 44 px header button and a 1 px rule, joined in one list) and the open step at most 209 (header 44,
+   body at most 148, padding 12, rule 1). Phones keep the roomier layout above. */
+@media (min-width: 900px) {
+  .er-main-wide {
+    padding-top: 8px;
+  }
+  .er-status-page {
+    gap: 6px;
+  }
+  .er-status-head {
+    align-items: center;
+  }
+  .er-status-titles h1 {
+    font-size: 1.375rem;
+  }
+  .er-plain {
+    gap: 0;
+    margin-top: 0;
+  }
+  .er-plain > * + * {
+    margin-top: 16px;
+  }
+  .er-plain > .er-rq-band {
+    margin-top: -1px;
+    padding: 0 18px;
+    border-radius: 0;
+  }
+  .er-plain > .er-visually-hidden + .er-rq-band {
+    margin-top: 8px;
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+  .er-plain > .er-rq-band[data-band="4"] {
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
+  }
+  /* The current step's ink outline sits above its neighbours' rules. */
+  .er-plain > .er-rq-band-now {
+    z-index: 1;
+  }
+  .er-plain .er-rq-band[data-open="true"] {
+    padding-bottom: 12px;
+  }
+  .er-band-toggle {
+    min-height: 44px;
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+  .er-rq-band[data-open="true"] .er-band-toggle {
+    font-size: 1.375rem;
+  }
+  .er-band-n {
+    width: 30px;
+    height: 30px;
+    flex: none;
+  }
+  .er-band-status {
+    font-size: 0.9375rem;
+  }
+  .er-band-body {
+    margin-top: 0;
+    max-height: max(148px, calc(100vh - 465px));
+  }
+  /* Compact step bodies: one helper line, the list in tight rows, one note. */
+  .er-plain .er-helper {
+    margin: 0 0 4px;
+  }
+  .er-plain .er-making,
+  .er-plain .er-band-list {
+    margin-top: 4px;
+    gap: 2px;
+  }
+  .er-plain .er-band-ok {
+    margin-top: 2px;
+  }
+  .er-plain .er-ready-cards {
+    margin: 4px 0 6px;
+    gap: 8px;
+  }
+  .er-plain .er-ready-card {
+    min-height: 52px;
+    box-sizing: border-box;
+    padding: 6px 14px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+  .er-plain .er-band-body > p {
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+}

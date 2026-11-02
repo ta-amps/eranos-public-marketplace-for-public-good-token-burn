@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import hashlib
 import html
 import json
 import re
 import subprocess
 from pathlib import Path
 from typing import Any
+
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "deploy" / "cloudflare" / "worker.js"
@@ -47,7 +50,7 @@ for (const [name, method, pathname, body] of requests) {
     init.body = JSON.stringify(body);
     init.headers = { "content-type": "application/json" };
   }
-  const response = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev" + pathname, init), env);
+  const response = await worker.fetch(new Request("https://eranosforgood.org" + pathname, init), env);
   const bytes = method === "HEAD" ? new Uint8Array() : new Uint8Array(await response.arrayBuffer());
   const digest = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
   const binary = (response.headers.get("content-type") || "").includes("gzip");
@@ -67,6 +70,24 @@ for (const [name, method, pathname, body] of requests) {
 }
 console.log(JSON.stringify(out));
 """
+
+
+# What machines read and write on the workers.dev alias: published agent pointers, MCP clients, service bindings and
+# older CLIs use these, so they answer in place instead of redirecting (alias audit, Nov 2).
+ALIAS_MACHINE_PATHS = [
+    "/api/health",
+    "/api/catalog",
+    "/api/tracks",
+    "/connect.json",
+    "/llms.txt",
+    "/llms-full.txt",
+    "/agent.md",
+    "/.well-known/agent-card.json",
+    "/.well-known/agent.json",
+    "/.well-known/security.txt",
+    "/healthz",
+    "/robots.txt",
+]
 
 
 def _worker(
@@ -89,7 +110,12 @@ def _worker(
 def test_marketplace_pages_load_directly_and_on_refresh() -> None:
     wrangler = (ROOT / "deploy" / "cloudflare" / "wrangler.jsonc").read_text(encoding="utf-8")
     assert '"not_found_handling": "single-page-application"' in wrangler
-    assert '"run_worker_first": true' in wrangler
+    # Pages, /api and the agent files run the Worker; the build's static files never do (Free plan request budget).
+    routing = re.search(r'"run_worker_first": (\[[^\]]*\])', wrangler)
+    assert routing
+    patterns = json.loads(routing.group(1))
+    assert patterns[0] == "/*"
+    assert {"!/assets/*", "!/fonts/*", "!/snapshot/*", "!/agent-banner.js"} <= set(patterns)
     out = _worker(
         [
             ("home", "GET", "/", None),
@@ -144,7 +170,7 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
     start = json.loads(out["start_json"]["body"])
     assert start["version"] == "agent.onboarding.v1"
     assert start["activates_work"] is False
-    assert "https://eranos.ta-amps.workers.dev/connect.json" in start["modes"]["any"]
+    assert "https://eranosforgood.org/connect.json" in start["modes"]["any"]
     assert out["start_js"]["status"] == 200 and "javascript" in out["start_js"]["type"]
     card = json.loads(out["card"]["body"])
     assert "agent kits" in card["description"]
@@ -155,8 +181,8 @@ def test_connect_agent_mcp_and_api_routes_still_answer() -> None:
     assert noun["text"].strip().splitlines()[0] in llms
     for line in (
         "Ask for help for a nonprofit, without private information",
-        "Pick up open tasks as a volunteer",
-        "The agent that builds something can't approve it",
+        "Pick up open Tasks as a volunteer",
+        "The worker that makes something never checks it",
         "/connect.json",
     ):
         assert line in llms, line
@@ -197,7 +223,7 @@ def test_request_form_warns_first_and_asks_the_four_questions() -> None:
         ("checkboxes", "Before you submit"),
     ]
     assert len({field_id for _, field_id, _ in fields}) == len(fields)
-    assert "A volunteer will check your request before it becomes work." in text
+    assert "A worker will check your request before it becomes work." in text
     assert "Kits are reviewed, not certified." in text
     assert "required: true" in text
     assert not re.search(r"\btools?\b", text, re.IGNORECASE)
@@ -229,11 +255,15 @@ def test_data_the_site_shows_never_names_a_retired_pack() -> None:
 
 
 def test_the_worker_code_never_names_a_retired_surface() -> None:
-    """Hunt, October 30: access.js still branched on an archived surface's name (MUST-FOLLOW item 9)."""
+    """Hunt, October 30: access.js still branched on an archived surface's name (MUST-FOLLOW item 9).
+
+    The gitignored word-list module is skipped: it is the shared list itself, built outside the repo's files.
+    """
     named = [
         path.name
         for path in sorted((ROOT / "deploy" / "cloudflare").glob("*.js"))
-        if OLD_NAMES.search(path.read_text(encoding="utf-8"))
+        if path.name != "banned_words.generated.js"
+        and OLD_NAMES.search(path.read_text(encoding="utf-8"))
     ]
     assert named == []
 
@@ -275,7 +305,7 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     practice = json.loads(out["practice"]["body"])
     expected = hashlib.sha256(canonical_json(draft).encode("utf-8")).hexdigest()
     assert practice["draft_sha256"] == expected
-    assert "connect-src 'self' https://tessera.ta-amps.workers.dev" in out["help"]["csp"]
+    assert "connect-src 'self' https://fabric.teleionlabs.com" in out["help"]["csp"]
 
 
 def test_static_page_and_readme_match_the_site_noun() -> None:
@@ -292,20 +322,45 @@ def test_static_page_and_readme_match_the_site_noun() -> None:
     assert f"<p>{site['privacy']}</p>" in html
 
 
-def test_starting_brief_noun_is_the_canonical_brief() -> None:
-    """The help noun's brief is the onboarding module's text for the home origin, which is also
-    Agora's site/agent-brief.txt without its final newline."""
-    script = (
-        "import { buildAgentPrompt } from "
-        + json.dumps((ROOT / "deploy" / "cloudflare" / "agent_start.js").as_uri())
-        + "; console.log(JSON.stringify(buildAgentPrompt('https://home.ta-amps.workers.dev', 'any')));"
-    )
-    run = subprocess.run(
-        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
-    )
+BRIEF = ROOT / "instructions" / "agent-brief.v3.txt"
+# Words a visitor or an agent never reads in the brief or the access sentence (owner, Nov 1).
+BRIEF_BANNED = re.compile(
+    r"\b(nouns?|verbs?|receipts?|prove[sdn]?)\b|synthetic|l{2}ama|cloud", re.IGNORECASE
+)
+
+
+def test_starting_brief_noun_is_the_shared_brief() -> None:
+    """The help noun's brief is the one shared agent brief, instructions/agent-brief.v3.txt (Agora copies the same
+    file byte for byte), without its final newline: Tasks and Task Objects, claim · do · report, a record."""
+    text = BRIEF.read_text(encoding="utf-8")
+    assert text.endswith(".\n") and "\r" not in text
     noun = json.loads((ROOT / "instructions" / "help.json").read_text(encoding="utf-8"))
-    assert noun["brief"] == json.loads(run.stdout)
+    assert noun["brief"] == text[:-1]
+    assert noun["brief_source"]["sha256"] == hashlib.sha256(BRIEF.read_bytes()).hexdigest()
+    assert "claim · do · report" in text and "Task Objects" in text
+    # API paths stay exactly as they are, shown as code.
+    assert "`https://eranosforgood.org/connect.json`" in text
+    connect = json.loads((ROOT / "instructions" / "connect.json").read_text(encoding="utf-8"))
+    for words in (
+        text,
+        noun["brief_interests_goal"],
+        connect["authentication"],
+        connect["restrictions"],
+    ):
+        assert not BRIEF_BANNED.search(words), words
     assert not re.search(r"\btools?\b", " ".join(s["title"] + s["detail"] for s in noun["steps"]))
+
+
+def test_shared_brief_matches_the_notes_copy_when_it_is_beside_this_checkout() -> None:
+    """The canonical file lives in the workspace's shared folder; this repo's copy must stay byte for byte equal."""
+    for parent in ROOT.parents:
+        shared = parent / "shared" / "agent-brief.v3.txt"
+        if shared.is_file():
+            assert shared.read_bytes() == BRIEF.read_bytes(), (
+                f"{shared} and {BRIEF} have drifted apart"
+            )
+            return
+    pytest.skip("the shared agent brief is not beside this checkout")
 
 
 # Acceptance and accessibility fixes, October 30 ------------------------------------------------------------
@@ -465,11 +520,11 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
     noun = json.loads((ROOT / "instructions" / "nonprofits.json").read_text(encoding="utf-8"))
     opening = f"{noun['lede']} {noun['no_agent']}"
     assert not re.search(r"\b(nouns?|verbs?|seed packs?)\b", opening, re.IGNORECASE)
-    assert "You don't need your own AI agent for research requests." in noun["no_agent"]
+    assert "You don\u2019t need your own AI agent for research requests." in noun["no_agent"]
     assert noun["form"]["label"] == noun["title"] == "Tell us what you need"
     plan = next(step for step in noun["steps"] if step["id"] == "plan")
     assert (
-        plan["detail"].startswith("A volunteer's agent") and "sorts it into parts" in plan["detail"]
+        plan["detail"].startswith("A worker reads it") and "sorts it into parts" in plan["detail"]
     )
     # The redesigned page (the nonprofits-page noun) states its bounds before the box, in plain words.
     redesign = json.loads(
@@ -477,7 +532,7 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
     )
     opening = f"{redesign['heading']} {redesign['lead']} {redesign['bounds']['head']} {redesign['bounds']['body']}"
     assert not re.search(r"\b(nouns?|verbs?|seed packs?)\b", opening, re.IGNORECASE)
-    assert redesign["bounds"]["head"] == "We don't accept private information at this stage."
+    assert redesign["bounds"]["head"] == "We don\u2019t accept private information at this stage."
     page = (ROOT / "web" / "src" / "pages" / "Nonprofits.tsx").read_text(encoding="utf-8")
     assert page.index("page.bounds.head") < page.index("<RequestBox")
 
@@ -485,7 +540,7 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
 def test_the_privacy_line_matches_what_the_site_loads() -> None:
     site = json.loads((ROOT / "instructions" / "site.json").read_text(encoding="utf-8"))
     assert (
-        site["privacy"].startswith("No analytics, ads or cookies.") and "Tessera" in site["privacy"]
+        site["privacy"].startswith("No analytics, ads or cookies.") and "Teleion Fabric" in site["privacy"]
     )
     # "Every page, script and style comes from this site": the policy the Worker sends allows nothing else,
     # except the request box's calls to Tessera.
@@ -498,20 +553,25 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
     for name in ("default-src", "script-src", "style-src", "font-src"):
         assert directives[name] == "'self'", name
     assert directives["img-src"] == "'self' data:"
-    assert directives["connect-src"] == "'self' https://tessera.ta-amps.workers.dev"
-    # No cookies and no stored data, except the two things the footer names: a request's private link
-    # (lib/status/keys.ts) and request text not yet sent (components/RequestBox.tsx).
-    allowed = {"keys.ts", "RequestBox.tsx"}
+    assert directives["connect-src"] == "'self' https://fabric.teleionlabs.com"
+    # Zero browser storage (owner, Nov 1), except, until request codes replace them (Phase C), a request's private
+    # link (lib/status/keys.ts), which the footer names.
+    allowed = {"keys.ts"}
     for path in sorted((ROOT / "web" / "src").rglob("*.ts*")):
         text = path.read_text(encoding="utf-8")
         assert not re.search(r"document\.cookie|sessionStorage|indexedDB", text), path.name
         if path.name not in allowed:
             assert "localStorage" not in text, path.name
     shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
-    assert (
-        "private links" in shell["footer"]["storage"]
-        and "haven't sent" in shell["footer"]["storage"]
-    )
+    assert shell["footer"]["line"] == "We don\u2019t accept private information at this stage."
+    trust = json.loads((ROOT / "instructions" / "trust.json").read_text(encoding="utf-8"))
+    privacy = " ".join(" ".join(s["items"]) for s in trust["privacy"]["sections"])
+    assert "private links" in privacy
+    # F-PRIV-LOGS-001: what Cloudflare keeps is said in the page's own words, and matches wrangler.jsonc.
+    assert "request logs and traces are switched off" in privacy
+    wrangler = (ROOT / "deploy" / "cloudflare" / "wrangler.jsonc").read_text(encoding="utf-8")
+    assert '"invocation_logs": false' in wrangler
+    assert re.search(r'"traces":\s*\{\s*"enabled": false', wrangler)
     assert "set-cookie" not in worker.lower()
 
 
@@ -614,10 +674,10 @@ def test_open_tasks_are_read_with_the_surface_key_and_show_only_the_brief_title(
 def test_the_agent_banner_copies_the_llms_line_and_pages_link_no_dead_github_address() -> None:
     banner = json.loads((ROOT / "instructions" / "agent-banner.json").read_text(encoding="utf-8"))
     # AgentBanner board: Copy puts exactly this line on the clipboard, and /llms.txt answers it.
-    assert banner["copy_text"] == "Read https://eranos.ta-amps.workers.dev/llms.txt and follow it."
-    assert banner["chip"] == "Read eranos.ta-amps.workers.dev/llms.txt"
+    assert banner["copy_text"] == "Read https://eranosforgood.org/llms.txt and follow it."
+    assert banner["chip"] == "Read eranosforgood.org/llms.txt"
     assert all(
-        link["href"].startswith(("/", "https://agora.ta-amps.workers.dev/"))
+        link["href"].startswith(("/", "https://agora.eranosforgood.org/"))
         for link in banner["links"]
     )
     dead = re.compile(r"github\.com/ta-amps")
@@ -802,7 +862,7 @@ def test_nothing_the_site_serves_says_synthetic() -> None:
     out = _worker(calls)
 
     def own_words(body: str) -> str:
-        # Records bound by a digest and verbatim quotes, source text and request text are served exactly as
+        # Records bound by a digest and verbatim quotes and source text are served exactly as
         # stored (eranos/visible.py); everything else is the site's own words.
         try:
             return json.dumps(shown_parts(json.loads(body)))
@@ -819,6 +879,20 @@ def test_nothing_the_site_serves_says_synthetic() -> None:
         for p in files
         if word.search(own_words(p.read_text(encoding="utf-8")))
     ] == []
+
+
+def test_a_requests_own_words_pass_the_display_filter_but_quotes_do_not() -> None:
+    """A request's text is contributed data, shown through the word filter; stored records and a source's own quote
+    stay as they are. The Worker and the page hold the same rule."""
+    from eranos.visible import visible
+
+    word = "syn" + "thetic"
+    shown = visible({"text": f"a {word} case", "quote": f"a {word} case"})
+    assert word not in shown["text"]
+    assert word in shown["quote"]
+    for path in ("deploy/cloudflare/worker.js", "web/src/lib/shown.ts"):
+        line = next(x for x in (ROOT / path).read_text(encoding="utf-8").splitlines() if "VERBATIM_KEYS = new Set" in x)
+        assert '"text"' not in line, path
 
 
 def test_a_kit_draft_marked_as_practice_cases_passes_the_practice_check() -> None:
@@ -917,7 +991,7 @@ def test_a_published_process_package_downloads_from_the_local_tessera_and_nothin
         with _serve(create_app(store, settings), port, "/v1/health") as url:
             env = (
                 "({ TESSERA_SURFACE_KEY: " + json.dumps(reader) + ", "
-                "TESSERA: { fetch: (target, init) => fetch(String(target).replace('https://tessera.ta-amps.workers.dev', "
+                "TESSERA: { fetch: (target, init) => fetch(String(target).replace('https://fabric.teleionlabs.com', "
                 + json.dumps(url)
                 + "), init) }, "
                 "FABRIC_DB: { prepare() { return { bind(store, key) { return { async first() { "
@@ -982,7 +1056,7 @@ def test_trust_routes_security_txt_and_owner_wording() -> None:
         "Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories",
         "Expires: 2027-10-31T23:59:59.000Z",
         "Preferred-Languages: en",
-        "Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt",
+        "Canonical: https://eranosforgood.org/.well-known/security.txt",
     ):
         assert line in sec["body"], line
     assert out["sec_head"]["status"] == 200 and out["sec_head"]["body"] == ""
@@ -993,19 +1067,545 @@ def test_trust_routes_security_txt_and_owner_wording() -> None:
         api_sec = client.get("/.well-known/security.txt")
         assert api_sec.status_code == 200
         assert api_sec.headers["content-type"] == "text/plain; charset=utf-8"
-        assert (
-            "Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt" in api_sec.text
-        )
+        assert "Canonical: https://eranosforgood.org/.well-known/security.txt" in api_sec.text
 
-    # Urgent owner wording rule: lowercase `task objects` and `tasks (things to do)`, never capitalized `Task Objects`
-    # or `tasks (verbs)`.
-    bad_terms = re.compile(r"Task Objects?|\b[Tt]asks \([Vv]erbs\)")
+    # Owner, Nov 1: the visible words are "Tasks" and "Task Objects" (this supersedes the earlier lowercase rule),
+    # never "tasks (verbs)".
+    bad_terms = re.compile(r"\b[Tt]asks \([Vv]erbs\)")
     for path in [ROOT / "README.md", *sorted((ROOT / "instructions").glob("*.json"))]:
         text = path.read_text(encoding="utf-8")
         assert not bad_terms.search(text), path.name
         assert "cloud workers" not in text.lower(), path.name
     trust_text = (ROOT / "instructions" / "trust.json").read_text(encoding="utf-8")
-    assert "task objects" in trust_text and "tasks (things to do)" in trust_text
+    assert "Task Objects" in trust_text and "tasks (things to do)" in trust_text
     assert "A person decides. Nothing is used before that." in trust_text
     assert "CC BY 4.0" in trust_text and "Apache-2.0" in trust_text
     assert "history.replaceState" in trust_text and "#k=" in trust_text
+
+
+def test_footer_is_the_shared_standard_footer() -> None:
+    """MUST-FOLLOW rule 13 and footer v2 (ta-amps.footer/2, components contract v2): one row of links in the canonical
+    order (a link to another host is absolute and carries ↗) plus one short line, the privacy line."""
+    shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
+    links = shell["footer"]["links"]
+    labels = [link["label"] for link in links]
+    assert labels == [
+        "Agora ↗",
+        "Teleion Labs ↗",
+        "Library",
+        "Requests",
+        "Network ↗",
+        "Models used ↗",
+        "Status ↗",
+        "Source ↗",
+        "Privacy",
+        "Terms",
+        "Report a problem",
+    ]
+    for link in links:
+        external = link["label"].endswith(" ↗")
+        assert external == ("href" in link) and external != ("to" in link), link
+        if external:
+            assert link["href"].startswith("https://"), link
+    assert shell["footer"]["line"] == "We don\u2019t accept private information at this stage."
+    for parent in ROOT.parents:
+        spec_path = parent / "coordination-2026-10-31" / "claude-design-components.v2.json"
+        if spec_path.is_file():
+            spec = json.loads(spec_path.read_text(encoding="utf-8"))["components"]["SiteFooter"]
+            eranos = spec["surfaces"]["eranos"]
+            assert [link["label"] for link in eranos["links"]] == labels
+            assert [link["href"] for link in eranos["links"]] == [
+                link.get("href") or link["to"] for link in links
+            ]
+            assert shell["footer"]["line"] == eranos["line"]
+            break
+    page = (ROOT / "web" / "src" / "pages" / "Nonprofits.tsx").read_text(encoding="utf-8")
+    assert page.index("page.bounds.head") < page.index("<RequestBox")
+
+
+def test_the_alias_redirects_page_navigations_and_serves_machine_paths_in_place() -> None:
+    """One canonical address for people (Nov 2 design §0.15; alias audit, Nov 2): on the workers.dev alias an HTML page
+    navigation answers 301 (GET, HEAD) or 308 (other methods) to eranosforgood.org, keeping path and query, while
+    /mcp, /api/*, /connect.json, /llms.txt, /.well-known/* and /healthz answer in place with the apex's own body, so MCP
+    clients, service bindings with redirect: "manual" and older CLIs keep working. www redirects everything; a CORS
+    preflight, local hosts and version previews are served in place; every page names its own canonical address."""
+    script = (
+        WORKER_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
+        .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
+        .replace("INDEX_HTML", json.dumps((ROOT / "web" / "index.html").as_posix()))
+        .replace("EXTRA_ENV", "({})")
+        .replace("REQUESTS", "[]")
+        + """
+const res = {};
+const at = async (name, url, init = {}) => {
+  const r = await worker.fetch(new Request(url, init), env);
+  res[name] = { status: r.status, location: r.headers.get("location"), cors: r.headers.get("access-control-allow-origin"), body: init.method === "HEAD" ? "" : await r.text() };
+};
+const ALIAS = "https://eranos.ta-amps.workers.dev";
+const APEX = "https://eranosforgood.org";
+const json = (body) => ({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+for (const path of MACHINE_PATHS) {
+  await at(`alias ${path}`, ALIAS + path);
+  await at(`apex ${path}`, APEX + path);
+}
+await at("alias GET /mcp", ALIAS + "/mcp");
+await at("apex GET /mcp", APEX + "/mcp");
+await at("alias POST /mcp", ALIAS + "/mcp", json({ jsonrpc: "2.0", id: 1, method: "tools/list" }));
+await at("apex POST /mcp", APEX + "/mcp", json({ jsonrpc: "2.0", id: 1, method: "tools/list" }));
+await at("alias POST /api/practice", ALIAS + "/api/practice", json({ draft: {} }));
+await at("apex POST /api/practice", APEX + "/api/practice", json({ draft: {} }));
+await at("apex", APEX + "/nonprofits", { headers: { accept: "text/html" } });
+await at("apexHome", APEX + "/", { headers: { accept: "text/html" } });
+await at("page", ALIAS + "/library?q=grants");
+await at("pageHome", ALIAS + "/");
+await at("pageSlash", ALIAS + "/help/");
+await at("pageHead", ALIAS + "/help", { method: "HEAD" });
+await at("pagePost", ALIAS + "/help", { method: "POST", body: "{}" });
+await at("pageKit", ALIAS + "/catalog/example-kit");
+await at("pageRequest", ALIAS + "/requests/example?moment=decided");
+await at("www", "https://www.eranosforgood.org/requests/example?moment=decided");
+await at("wwwApi", "https://www.eranosforgood.org/api/health");
+await at("preflight", ALIAS + "/mcp", { method: "OPTIONS", headers: { origin: "https://example.org", "access-control-request-method": "POST" } });
+await at("local", "http://localhost:8787/help", { headers: { accept: "text/html" } });
+await at("preview", "https://6d7470f5-eranos.ta-amps.workers.dev/help", { headers: { accept: "text/html" } });
+const card = await (await worker.fetch(new Request(ALIAS + "/.well-known/agent-card.json"), env)).json();
+res.card = card.url;
+console.log(JSON.stringify(res));
+""".replace("MACHINE_PATHS", json.dumps(ALIAS_MACHINE_PATHS))
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+    out = json.loads(run.stdout.strip().splitlines()[-1])
+    # Machine paths on the alias: served in place, the same status and body as the apex.
+    for path in [*ALIAS_MACHINE_PATHS, "POST /mcp", "POST /api/practice"]:
+        alias, apex = out[f"alias {path}"], out[f"apex {path}"]
+        assert alias["status"] == apex["status"] == 200, (path, alias["status"], apex["status"])
+        assert alias["location"] is None, path
+        assert alias["body"] == apex["body"], path
+    assert '"tools"' in out["alias POST /mcp"]["body"]
+    # GET /mcp answers the same as on the apex (MCP takes POST), never a redirect.
+    assert out["alias GET /mcp"]["status"] == out["apex GET /mcp"]["status"] != 308
+    assert out["alias GET /mcp"]["location"] is None
+    assert out["card"] == "https://eranosforgood.org"
+    # HTML page navigations on the alias: 301 for GET and HEAD, 308 otherwise, keeping path and query.
+    for name, location in [
+        ("page", "https://eranosforgood.org/library?q=grants"),
+        ("pageHome", "https://eranosforgood.org/"),
+        ("pageSlash", "https://eranosforgood.org/help/"),
+        ("pageHead", "https://eranosforgood.org/help"),
+        ("pageKit", "https://eranosforgood.org/catalog/example-kit"),
+        ("pageRequest", "https://eranosforgood.org/requests/example?moment=decided"),
+    ]:
+        assert (out[name]["status"], out[name]["location"]) == (301, location), name
+    assert (out["pagePost"]["status"], out["pagePost"]["location"]) == (
+        308,
+        "https://eranosforgood.org/help",
+    )
+    assert out["page"]["cors"] == "*"
+    # www redirects everything; apex pages name their own canonical address.
+    assert (out["www"]["status"], out["www"]["location"]) == (
+        301,
+        "https://eranosforgood.org/requests/example?moment=decided",
+    )
+    assert (out["wwwApi"]["status"], out["wwwApi"]["location"]) == (
+        301,
+        "https://eranosforgood.org/api/health",
+    )
+    assert out["apex"]["status"] == 200
+    assert (
+        '<link rel="canonical" href="https://eranosforgood.org/nonprofits"' in out["apex"]["body"]
+    )
+    assert (
+        '<meta property="og:url" content="https://eranosforgood.org/nonprofits"'
+        in out["apex"]["body"]
+    )
+    assert '<link rel="canonical" href="https://eranosforgood.org/"' in out["apexHome"]["body"]
+    assert out["preflight"]["status"] != 308 and out["preflight"]["location"] is None
+    assert out["local"]["status"] == 200 and out["preview"]["status"] == 200
+
+
+def test_the_right_now_strip_data_is_kept_at_the_edge_for_a_minute() -> None:
+    """The Right now strip's /api/network answer is one edge entry per minute (Herma's summary updates at most once a
+    minute): page views in that minute share one Herma read, whatever their query string; an off answer is kept 10 s;
+    browsers still ask each time; with no edge cache every read goes to Herma."""
+    herma = """({ HERMA: { calls: 0, mode: "ok", async fetch() {
+      this.calls += 1;
+      if (this.mode === "fail") return new Response("unavailable", { status: 503, headers: { "content-type": "text/plain" } });
+      return Response.json({ generated_at: "2026-11-02T15:00:00Z", recent_minutes: 10,
+        totals: { workers: 2, continents: 1, claims: 5, nonprofit_claims: 1 },
+        recent_claims: [{ at: "2026-11-02T14:58:00Z", kind_label: "Check", model: { name: "Muse Spark", declared: false }, via: { type: "data_centre", city: "Frankfurt", continent: "Europe" } }] });
+    } } })"""
+    script = (
+        WORKER_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
+        .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
+        .replace("INDEX_HTML", json.dumps((ROOT / "web" / "index.html").as_posix()))
+        .replace("EXTRA_ENV", herma)
+        .replace("REQUESTS", "[]")
+        + """
+const store = new Map();
+const edge = {
+  async match(req) { const hit = store.get(new URL(req.url).toString()); return hit ? new Response(hit.text, { headers: hit.headers }) : undefined; },
+  async put(req, res) { store.set(new URL(req.url).toString(), { text: await res.text(), headers: Object.fromEntries(res.headers) }); },
+};
+const get = async (url) => {
+  const r = await worker.fetch(new Request(url), env);
+  return { status: r.status, cache: r.headers.get("cache-control"), body: await r.text() };
+};
+const res = {};
+globalThis.caches = { default: edge };
+res.first = await get("https://eranosforgood.org/api/network");
+res.second = await get("https://eranosforgood.org/api/network");
+res.query = await get("https://eranosforgood.org/api/network?t=1");
+res.callsCached = env.HERMA.calls;
+res.stored = [...store.entries()].map(([key, v]) => [key, v.headers["cache-control"]]);
+store.clear();
+env.HERMA.mode = "fail";
+res.off = await get("https://eranosforgood.org/api/network");
+res.offAgain = await get("https://eranosforgood.org/api/network");
+res.callsOff = env.HERMA.calls;
+res.storedOff = [...store.values()].map((v) => v.headers["cache-control"]);
+delete globalThis.caches;
+env.HERMA.mode = "ok";
+await get("https://eranosforgood.org/api/network");
+await get("https://eranosforgood.org/api/network");
+res.callsUncached = env.HERMA.calls;
+console.log(JSON.stringify(res));
+"""
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+    out = json.loads(run.stdout.strip().splitlines()[-1])
+    first = json.loads(out["first"]["body"])
+    assert out["first"]["status"] == 200 and first["available"] is True
+    assert first["totals"] == {"workers": 2, "continents": 1, "claims": 5, "nonprofit_claims": 1}
+    assert out["second"]["body"] == out["first"]["body"] == out["query"]["body"]
+    assert out["callsCached"] == 1
+    assert out["stored"] == [["https://eranosforgood.org/api/network", "public, max-age=60"]]
+    assert {out[name]["cache"] for name in ("first", "second", "query")} == {"private, no-store"}
+    assert json.loads(out["off"]["body"]) == {"available": False}
+    assert out["offAgain"]["body"] == out["off"]["body"]
+    assert out["callsOff"] == 2 and out["storedOff"] == ["public, max-age=10"]
+    assert out["callsUncached"] == 4
+
+
+def test_the_workers_model_shares_are_read_from_their_noun_for_agora() -> None:
+    """GET /api/shares answers the workers' live model shares (eranos.instructions/worker.shares, written by their
+    hourly tune) for Agora's Models used page, the way /api/models answers models.meta: the noun's value, or null until
+    it is written, with the same open CORS as every /api route."""
+    shares = json.loads(
+        (ROOT / "tests" / "fixtures" / "made-up-worker-shares.json").read_text(encoding="utf-8")
+    )
+    db = (
+        "({ FABRIC_DB: { prepare() { return { bind(store, key) { return { async first() { "
+        "return store === 'eranos.instructions' && key === 'worker.shares' ? { value: "
+        + json.dumps(json.dumps(shares))
+        + " } : null; } }; } }; } } })"
+    )
+    written = _worker([("shares", "GET", "/api/shares", None)], db)["shares"]
+    assert written["status"] == 200 and written["type"].startswith("application/json")
+    assert written["cors"] == "*"
+    assert json.loads(written["body"]) == {
+        "store": "eranos.instructions",
+        "key": "worker.shares",
+        "shares": shares,
+    }
+    empty_db = "({ FABRIC_DB: { prepare() { return { bind() { return { async first() { return null; } }; } }; } } })"
+    for env in (empty_db, "({})"):
+        unwritten = _worker([("shares", "GET", "/api/shares", None)], env)["shares"]
+        assert unwritten["status"] == 200
+        assert json.loads(unwritten["body"]) == {
+            "store": "eranos.instructions",
+            "key": "worker.shares",
+            "shares": None,
+        }
+    card = json.loads(
+        _worker([("card", "GET", "/.well-known/agent-card.json", None)])["card"]["body"]
+    )
+    assert card["endpoints"]["shares"] == "/api/shares"
+
+
+def test_page_text_comes_from_the_deploy_not_an_older_copy_in_tessera() -> None:
+    """The 9fd6e09 rollback (Nov 2): Tessera's mirror held older page-text nouns, so new pages met old words and
+    /library crashed. Page text (eranos.instructions) now ships with the deploy and wins over the mirror."""
+    old_library = json.dumps({"heading": "Shared library", "tabs": {"all": "All"}})
+    fake_db = (
+        "({ FABRIC_DB: { prepare() { return { bind() { return { first: async () => ({ value: "
+        + json.dumps(old_library)
+        + " }), all: async () => ({ results: [] }) }; } }; } } })"
+    )
+    out = _worker(
+        [("library", "GET", "/api/nouns/eranos.instructions/library", None)],
+        extra_env=fake_db,
+    )
+    body = json.loads(out["library"]["body"])
+    assert body["value"]["heading"] == "Find a solution" and "tries" in body["value"]
+
+
+DISPLAY_SCRIPT = r"""
+import { makeNeutral } from DISPLAY;
+import { displayRules } from LISTER;
+import fs from "node:fs";
+
+const list = JSON.parse(fs.readFileSync(FIXTURE_LIST, "utf8"));
+const neutral = JSON.parse(fs.readFileSync(FIXTURE_NEUTRAL, "utf8"));
+const show = makeNeutral({ displayRules: displayRules(list, neutral) });
+const cases = ["a quibbit and two Quibbits", "Zorblat rows go here", "the flumox step", "quibbit", "no listed word here"];
+const once = cases.map(show);
+console.log(JSON.stringify({ once, twice: once.map(show) }));
+"""
+
+
+def test_the_page_word_filter_shows_plain_words_in_prose_and_leaves_ids_alone() -> None:
+    """Rule 16 at display time, with made-up words (the real list lives outside this repo)."""
+    fixtures = ROOT / "tests" / "fixtures"
+    script = (
+        DISPLAY_SCRIPT.replace(
+            "DISPLAY", json.dumps((ROOT / "deploy" / "cloudflare" / "display_words.js").as_uri())
+        )
+        .replace("LISTER", json.dumps((ROOT / "scripts" / "banned_list.mjs").as_uri()))
+        .replace("FIXTURE_LIST", json.dumps((fixtures / "made-up-banned-words.json").as_posix()))
+        .replace(
+            "FIXTURE_NEUTRAL", json.dumps((fixtures / "made-up-neutral-words.json").as_posix())
+        )
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    out = json.loads(run.stdout)
+    assert out["once"] == [
+        "a record and two Records",
+        "Example rows go here",
+        "the … step",
+        "quibbit",
+        "no listed word here",
+    ]
+    assert out["twice"] == out["once"]
+
+
+PAGE_VIEW_SCRIPT = r"""
+import fs from "node:fs";
+import path from "node:path";
+import worker from WORKER;
+import list from GENERATED;
+import { makeNeutral } from DISPLAY;
+
+const publicDir = PUBLIC_DIR;
+const env = {
+  ASSETS: {
+    async fetch(req) {
+      const url = new URL(typeof req === "string" ? req : req.url);
+      const target = path.join(publicDir, url.pathname.replace(/^\//, ""));
+      if (fs.existsSync(target) && fs.statSync(target).isFile()) {
+        return new Response(fs.readFileSync(target), { status: 200, headers: { "content-type": "application/json" } });
+      }
+      return new Response("<!doctype html><title>Eranos</title>", { status: 200, headers: { "content-type": "text/html; charset=utf-8" } });
+    },
+  },
+};
+const read = async (pathname, headers = {}) => {
+  const response = await worker.fetch(new Request("https://eranosforgood.org" + pathname, { headers }), env);
+  return { status: response.status, cache: response.headers.get("cache-control") || "", body: await response.text() };
+};
+const rules = (list.displayRules || []).map((rule) => new RegExp(rule.re, rule.flags.includes("g") ? rule.flags : rule.flags + "g"));
+const hits = (text) => rules.reduce((n, re) => n + (String(text).match(re) || []).length, 0);
+const raw = await read("/api/catalog/KIT-GRANT-04");
+const byQuery = await read("/api/catalog/KIT-GRANT-04?view=page");
+const byHeader = await read("/api/catalog/KIT-GRANT-04", { "x-eranos-view": "page" });
+const summary = (r) => { const d = JSON.parse(r.body); return (d.kit || d.value?.kit || {}).summary; };
+const page = await read("/library", { accept: "text/html" });
+console.log(JSON.stringify({
+  statuses: [raw.status, byQuery.status, byHeader.status],
+  raw: summary(raw), query: summary(byQuery), header: summary(byHeader),
+  hits: { raw: hits(summary(raw)), query: hits(summary(byQuery)), header: hits(summary(byHeader)) },
+  html_cache: page.cache, api_cache: raw.cache,
+}));
+"""
+
+
+def test_pages_read_stored_records_in_plain_words_and_the_records_stay_as_stored() -> None:
+    """A page's read passes the shared list (rule 16); the record itself, read without it, is exactly as stored."""
+    generated = ROOT / "deploy" / "cloudflare" / "banned_words.generated.js"
+    assert generated.is_file(), "run node scripts/banned_list.mjs --ensure (make test does)"
+    script = (
+        PAGE_VIEW_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
+        .replace("GENERATED", json.dumps(generated.as_uri()))
+        .replace(
+            "DISPLAY", json.dumps((ROOT / "deploy" / "cloudflare" / "display_words.js").as_uri())
+        )
+        .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    out = json.loads(run.stdout.strip().splitlines()[-1])
+    stored = json.loads(
+        (ROOT / "web" / "public" / "snapshot" / "catalog" / "KIT-GRANT-04.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert out["statuses"] == [200, 200, 200]
+    assert out["raw"] == stored["kit"]["summary"]
+    assert out["hits"]["query"] == out["hits"]["header"] == 0
+    assert out["query"] == out["header"]
+    if out["hits"]["raw"]:
+        assert out["query"] != out["raw"]
+    # Cloudflare's zone adds nothing to an HTML page that says no-transform (its analytics script would hit the CSP).
+    assert "no-transform" in out["html_cache"]
+    assert "no-transform" not in out["api_cache"]
+
+
+PAGE_TEXT_SCAN = r"""
+import fs from "node:fs";
+const loaded = await import(__GENERATED__);
+const config = Array.isArray(loaded.default?.checks) ? loaded.default : loaded.default?.default;
+const checks = (config?.checks ?? []).map((c, i) => ({ ...c, i, rx: new RegExp(c.re, c.flags.includes("m") ? c.flags : c.flags + "m") }));
+const CODE_KEYS = new Set(__CODE__);
+const out = [];
+for (const file of __FILES__) {
+  const walk = (value, path) => {
+    if (typeof value === "string") {
+      for (const c of checks) if (c.rx.test(value)) out.push(`${file}${path}: ${c.group} #${c.i}`);
+    } else if (Array.isArray(value)) value.forEach((v, i) => walk(v, `${path}[${i}]`));
+    else if (value && typeof value === "object") {
+      for (const [k, v] of Object.entries(value)) {
+        if (CODE_KEYS.has(k) || /_(href|url|to|id|sha256)$/.test(k)) continue;
+        walk(v, `${path}.${k}`);
+      }
+    }
+  };
+  walk(JSON.parse(fs.readFileSync(file, "utf8")), "");
+}
+console.log(JSON.stringify({ checks: checks.length, out }));
+"""
+
+
+def test_the_page_text_passes_the_shared_word_list() -> None:
+    """Rule 16 at the source: every visible string of the page text the site ships passes the ONE shared list (read from
+    outside the repo through the generated module; code fields such as API examples are allowed by the list)."""
+    generated = ROOT / "deploy" / "cloudflare" / "banned_words.generated.js"
+    assert generated.is_file(), "run node scripts/banned_list.mjs --ensure (make test does)"
+    nouns = [
+        "agent-banner",
+        "connect",
+        "help-page",
+        "home",
+        "library",
+        "llms",
+        "nonprofits-page",
+        "nonprofits",
+    ]
+    nouns += ["request-status", "shell", "site", "trust"]
+    files = [(ROOT / "instructions" / f"{name}.json").as_posix() for name in nouns]
+    code = [
+        "example",
+        "command",
+        "state",
+        "type",
+        "href",
+        "to",
+        "url",
+        "match",
+        "key",
+        "kind",
+        "store",
+        "schema",
+    ]
+    code += ["receipt", "ref", "id", "spec", "path"]
+    script = (
+        PAGE_TEXT_SCAN.replace("__GENERATED__", json.dumps(generated.as_uri()))
+        .replace("__FILES__", json.dumps(files))
+        .replace("__CODE__", json.dumps(code))
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    out = json.loads(run.stdout)
+    assert out["checks"] > 0, "the word list module has no checks"
+    assert out["out"] == []
+
+
+def test_the_worker_checked_reuse_facts_pass_the_status_schema() -> None:
+    """F-REUSE-001 (worker-loop-next 6684c6c): the worker writes a checked reuse as planned (part 1, route reuse_check),
+    check_claimed, reuse_checked, a reused delivered and closed; every fact, as a version of the request noun, must pass
+    docs/status-events.schema.json, which the worker validates against before writing."""
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads((ROOT / "docs" / "status-events.schema.json").read_text(encoding="utf-8"))
+    validator = jsonschema.Draft202012Validator(schema)
+    request_id = "rq-r_" + "ef" * 16 + "-mvywfy1j"
+    report = "RPT-RC676414-01"
+    worker = {"worker": "dedicated worker 1 (run by ta-amps)", "dedicated": True}
+    checker = {"worker": "dedicated worker 3 (run by ta-amps)", "dedicated": True}
+    facts: list[dict[str, Any]] = [
+        {
+            "type": "planned",
+            "receipt": "b" * 64,
+            **worker,
+            "parts": [
+                {
+                    "part": 1,
+                    "route": "reuse_check",
+                    "text": "What are the key food-safety rules for a community food pantry?",
+                    "reused_from": {"report_id": report},
+                    "review_task_id": "t-reuse-review-1",
+                }
+            ],
+        },
+        {
+            "type": "check_claimed",
+            "part": 1,
+            "receipt": "1" * 64,
+            **checker,
+            "model": "muse-spark-1.3",
+        },
+        {
+            "type": "reuse_checked",
+            "part": 1,
+            "receipt": "2" * 64,
+            "verdict": "fits",
+            "checker_role": "dedicated worker 3 (run by ta-amps)",
+            "model": "muse-spark-1.3",
+            "model_name": "Muse Spark 1.3",
+            "similarity": 0.83,
+            "ref": f"eranos.solutions/{report}",
+        },
+        {
+            "type": "delivered",
+            "part": 1,
+            "ref": f"eranos.solutions/{report}",
+            "result_id": report,
+            "summary": {"reused": True, "score": 0.83},
+            **worker,
+        },
+        {
+            "type": "plan_claimed",
+            "receipt": "3" * 64,
+            **worker,
+            "method": "deterministic planner (no model)",
+        },
+        {"type": "closed", "receipt": "4" * 64, **worker},
+    ]
+    for index, event in enumerate(facts):
+        value = {
+            "schema_version": 1,
+            "request_id": request_id,
+            "status": "closed" if event["type"] == "closed" else "open_for_build",
+            "event": {"at": 1_793_602_200 + index, **event},
+        }
+        errors = [error.message for error in validator.iter_errors(value)]
+        assert errors == [], (event["type"], errors)
+    # A does-not-fit verdict passes too, and a wrong verdict does not.
+    rejected = {**facts[2], "verdict": "does_not_fit"}
+    wrong = {**facts[2], "verdict": "maybe"}
+    base = {"schema_version": 1, "request_id": request_id, "status": "open_for_build"}
+    assert not list(validator.iter_errors({**base, "event": {"at": 1, **rejected}}))
+    assert list(validator.iter_errors({**base, "event": {"at": 1, **wrong}}))

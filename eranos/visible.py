@@ -46,10 +46,10 @@ def visible_key(key: str) -> str:
     return "is_example" if key.lower() == "synthetic" else visible_text(key)
 
 
-# Never rewritten: a quote, a source's own text or a request's own words stay verbatim, and a record bound by a
+# Never rewritten: a quote or a source's own text stays verbatim, and a record bound by a
 # digest (any ``*_sha256`` field) is served exactly as stored so the digest still verifies. Records like these
 # carry the word only until their producers stop writing it (the B1 workers drop such claims and record why).
-VERBATIM_KEYS = frozenset({"quote", "quotes", "excerpt", "source_text", "text"})
+VERBATIM_KEYS = frozenset({"quote", "quotes", "excerpt", "source_text"})
 
 
 def digest_bound(value: dict[str, Any]) -> bool:

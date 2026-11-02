@@ -512,11 +512,11 @@ const env = {{
   }},
 }};
 
-const fab = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/fabric"), env)).json();
-const hs = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/handshake"), env)).json();
-const feed = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/feed?after=4&limit=12"), env)).json();
-const fallbackHs = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/handshake"), {{}})).json();
-const fallbackFeed = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/feed?after=9"), {{}})).json();
+const fab = await (await worker.fetch(new Request("https://eranosforgood.org/api/fabric"), env)).json();
+const hs = await (await worker.fetch(new Request("https://eranosforgood.org/api/handshake"), env)).json();
+const feed = await (await worker.fetch(new Request("https://eranosforgood.org/api/feed?after=4&limit=12"), env)).json();
+const fallbackHs = await (await worker.fetch(new Request("https://eranosforgood.org/api/handshake"), {{}})).json();
+const fallbackFeed = await (await worker.fetch(new Request("https://eranosforgood.org/api/feed?after=9"), {{}})).json();
 
 console.log(JSON.stringify({{ fab, hs, feed, fallbackHs, fallbackFeed, calls }}));
 """
@@ -591,23 +591,23 @@ const env = {{
   }},
 }};
 
-const fav = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/favicon.svg"), env);
-const hz = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/healthz"), env);
-const rob = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/robots.txt"), env);
-const llms = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms.txt"), env);
-const llmsFull = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms-full.txt"), env);
-const card = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/.well-known/agent-card.json"), env);
+const fav = await worker.fetch(new Request("https://eranosforgood.org/favicon.svg"), env);
+const hz = await worker.fetch(new Request("https://eranosforgood.org/healthz"), env);
+const rob = await worker.fetch(new Request("https://eranosforgood.org/robots.txt"), env);
+const llms = await worker.fetch(new Request("https://eranosforgood.org/llms.txt"), env);
+const llmsFull = await worker.fetch(new Request("https://eranosforgood.org/llms-full.txt"), env);
+const card = await worker.fetch(new Request("https://eranosforgood.org/.well-known/agent-card.json"), env);
 
 const catFiltered = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/api/catalog?domain=nonprofit_ops&spdx=BSD-3-Clause"),
+  new Request("https://eranosforgood.org/api/catalog?domain=nonprofit_ops&spdx=BSD-3-Clause"),
   env,
 );
 const missingKit = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/api/catalog/KIT-MISSING-99"),
+  new Request("https://eranosforgood.org/api/catalog/KIT-MISSING-99"),
   env,
 );
 const practiceOk = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/api/practice", {{
+  new Request("https://eranosforgood.org/api/practice", {{
     method: "POST",
     headers: {{ "content-type": "application/json" }},
     body: JSON.stringify({{ draft }}),
@@ -615,7 +615,7 @@ const practiceOk = await worker.fetch(
   env,
 );
 const mcpInit = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/mcp", {{
+  new Request("https://eranosforgood.org/mcp", {{
     method: "POST",
     headers: {{ "content-type": "application/json" }},
     body: JSON.stringify({{ jsonrpc: "2.0", id: 1, method: "initialize", params: {{}} }}),
@@ -623,7 +623,7 @@ const mcpInit = await worker.fetch(
   env,
 );
 const mcpSearch = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/mcp", {{
+  new Request("https://eranosforgood.org/mcp", {{
     method: "POST",
     headers: {{ "content-type": "application/json" }},
     body: JSON.stringify({{
@@ -714,7 +714,7 @@ def test_edge_lockdown_blocks_direct_origin_requests(
     assert allowed.status_code == 200
 
 
-def test_cloudflare_worker_swarm_fabric_aliases_feedback_and_rich_llms() -> None:
+def test_cloudflare_worker_swarm_fabric_aliases_and_rich_llms() -> None:
     worker_path = (REPO_ROOT / "deploy" / "cloudflare" / "worker.js").as_posix()
     dist_dir = (REPO_ROOT / "web" / "public").as_posix()
     script = f"""
@@ -788,35 +788,16 @@ const env = {{
   }},
 }};
 
-const fab = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/fabric"), env)).json();
-const fabOffline = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/fabric"), {{}})).json();
-const healthAlias = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/health"), env);
+const fab = await (await worker.fetch(new Request("https://eranosforgood.org/api/fabric"), env)).json();
+const fabOffline = await (await worker.fetch(new Request("https://eranosforgood.org/api/fabric"), {{}})).json();
+const healthAlias = await worker.fetch(new Request("https://eranosforgood.org/health"), env);
 const healthJson = await healthAlias.clone().json();
-const tasksAlias = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/tasks"), env)).json();
-const tasksOfflineResp = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/tasks"), {{}});
-const dashRedirect = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/dashboard", {{ headers: {{ accept: "text/html" }} }}), env);
-const dashJson = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/dashboard", {{ headers: {{ accept: "application/json" }} }}), env)).json();
-const fbGet = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/feedback?limit=5"), env)).json();
-const fbPostResp = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/api/feedback", {{
-    method: "POST",
-    headers: {{ "content-type": "application/json", "x-agent-label": "test-worker" }},
-    body: JSON.stringify({{ summary: "Schema clarity looks great" }}),
-  }}),
-  env,
-);
-const fbPost = await fbPostResp.json();
-const fbOfflinePostResp = await worker.fetch(
-  new Request("https://eranos.ta-amps.workers.dev/api/feedback", {{
-    method: "POST",
-    headers: {{ "content-type": "application/json" }},
-    body: JSON.stringify({{ summary: "Offline fallback check" }}),
-  }}),
-  {{}},
-);
-const fbOfflinePost = await fbOfflinePostResp.json();
-const llms = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms.txt"), env)).text();
-const llmsFull = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms-full.txt"), env)).text();
+const tasksAlias = await (await worker.fetch(new Request("https://eranosforgood.org/api/tasks"), env)).json();
+const tasksOfflineResp = await worker.fetch(new Request("https://eranosforgood.org/api/tasks"), {{}});
+const dashRedirect = await worker.fetch(new Request("https://eranosforgood.org/dashboard", {{ headers: {{ accept: "text/html" }} }}), env);
+const dashJson = await (await worker.fetch(new Request("https://eranosforgood.org/dashboard", {{ headers: {{ accept: "application/json" }} }}), env)).json();
+const llms = await (await worker.fetch(new Request("https://eranosforgood.org/llms.txt"), env)).text();
+const llmsFull = await (await worker.fetch(new Request("https://eranosforgood.org/llms-full.txt"), env)).text();
 
 console.log(JSON.stringify({{
   fab,
@@ -828,11 +809,6 @@ console.log(JSON.stringify({{
   dashRedirectStatus: dashRedirect.status,
   dashLocation: dashRedirect.headers.get("location"),
   dashJson,
-  fbGet,
-  fbPostStatus: fbPostResp.status,
-  fbPost,
-  fbOfflineStatus: fbOfflinePostResp.status,
-  fbOfflinePost,
   llmsLen: llms.length,
   llmsFullLen: llmsFull.length,
   llms,
@@ -864,28 +840,56 @@ console.log(JSON.stringify({{
     assert out["tasksAlias"]["tasks"][0]["task_id"] == "t-eq02-1"
     assert out["tasksOfflineStatus"] == 200
     assert out["dashRedirectStatus"] == 307
-    assert out["dashLocation"] == "https://herma.ta-amps.workers.dev/dashboard"
-    assert out["dashJson"]["dashboard_url"] == "https://herma.ta-amps.workers.dev/dashboard"
+    assert out["dashLocation"] == "https://shim.teleionlabs.com/dashboard"
+    assert out["dashJson"]["dashboard_url"] == "https://shim.teleionlabs.com/dashboard"
     assert out["dashJson"]["swarm"]["registered_workers"] == 51
-    assert out["fbGet"]["proxied"] is True
-    assert out["fbPostStatus"] == 201
-    assert out["fbPost"]["proxied"] is True
-    assert out["fbPost"]["summary"] == "Schema clarity looks great"
-    assert out["fbOfflineStatus"] == 200
-    assert out["fbOfflinePost"]["accepted"] is True
-    assert out["llmsLen"] > 20000
+    # Eranos's own llms.txt (Nov 2): plain words, the new hosts, the rules every agent follows.
+    assert out["llmsLen"] > 2000
     assert out["llmsFullLen"] > out["llmsLen"]
     for expected in (
-        "https://eranos.ta-amps.workers.dev",
-        "https://agora.ta-amps.workers.dev",
-        "https://herma.ta-amps.workers.dev",
-        "https://tessera.ta-amps.workers.dev",
-        "/api/feedback",
-        "/q/feedback",
-        "/q/upload",
-        "16 MiB",
-        "step_mode",
-        "atomic_cognitive_step",
-        "atomic_build_step",
+        "https://eranosforgood.org",
+        "https://agora.eranosforgood.org",
+        "https://shim.teleionlabs.com/llms.txt",
+        "https://fabric.teleionlabs.com/connect",
+        "The worker that makes something never checks it.",
+        "No private information at this stage",
+        "show_on_map",
     ):
         assert expected in out["llms"], expected
+    assert "ta-amps.workers.dev" not in out["llms"]
+
+
+def test_every_eranos_api_route_refuses_writes() -> None:
+    """Owner rule: Eranos /api/* is GET/HEAD only; writes go to Tessera directly (no proxy, no Herma key here).
+    POST /api/practice and POST /api/handshake predate the rule and are the two listed exceptions."""
+    routes = [
+        "/api/catalog",
+        "/api/catalog/KIT-HOTLINE-02",
+        "/api/tracks",
+        "/api/examples",
+        "/api/requests",
+        "/api/fabric",
+        "/api/open-tasks",
+        "/api/models",
+        "/api/nouns/eranos.instructions/home",
+        "/api/feed",
+        "/api/health",
+        "/api/tasks",
+        "/api/feedback",
+    ]
+    script = f"""
+import worker from {json.dumps((REPO_ROOT / "deploy" / "cloudflare" / "worker.js").as_uri())};
+const out = [];
+for (const path of {json.dumps(routes)}) {{
+  for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {{
+    const r = await worker.fetch(new Request("https://eranosforgood.org" + path, {{ method, headers: {{ "content-type": "application/json" }}, body: "{{}}" }}), {{}});
+    out.push([path, method, r.status]);
+  }}
+}}
+console.log(JSON.stringify(out));
+"""
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    for path, method, status in json.loads(run.stdout):
+        assert status in (404, 405), (path, method, status)

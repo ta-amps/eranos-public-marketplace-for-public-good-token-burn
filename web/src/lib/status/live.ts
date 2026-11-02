@@ -11,7 +11,7 @@
  */
 import { ApiError, getJson } from "../api";
 import type { NounResponse } from "../nouns";
-import { claimReceipt } from "./receipts";
+import { claimReceipt } from "./ids";
 import { getClaimEvents, getOwnRecord, getResults, getTask, type ClaimEvent, type ResultView, type TaskView } from "./tessera";
 import type { DecisionChoice, Frequency, OutputType, PartPlan, QueueSnapshot, StatusEvent, StatusRecord } from "./types";
 
@@ -144,6 +144,33 @@ export async function readKeyed(id: string, key: string, previous: KeyedData | n
   };
 }
 
+/**
+ * The live workers' other names for facts the page already knows (both are accepted): `added` is `library_added`;
+ * `reused` is a part delivered or published from the library with no new work; `scheduled` is a recurring
+ * request's next run (`queued` with `summary.next_at`); `work_failed` is a failed try that went back in line
+ * (`work_released` with its reason); `reopen` is `reopened`, a closed request open again.
+ */
+export function canonicalEvent(event: StatusEvent): StatusEvent {
+  const raw = event as Omit<StatusEvent, "type"> & { type: string; next_at?: number };
+  switch (raw.type as string) {
+    case "added":
+      return { ...event, type: "library_added" };
+    case "reused": {
+      const kit = /^(KIT|PRC)-/.test(event.result_id ?? "");
+      return { ...event, type: kit ? "published" : "delivered", summary: { ...event.summary, reused: true } };
+    }
+    case "scheduled":
+      return { ...event, type: "queued", summary: { ...event.summary, next_at: event.summary?.next_at ?? raw.next_at } };
+    case "work_failed":
+      return { ...event, type: "work_released", reason: event.reason || "the try failed" };
+    case "reopen":
+    case "re_opened":
+      return { ...event, type: "reopened" };
+    default:
+      return event;
+  }
+}
+
 interface HistoryVersion {
   version: number;
   created_at: number;
@@ -151,9 +178,11 @@ interface HistoryVersion {
 }
 
 /** The request record's public versions, each a state change the worker wrote with its receipt, or null. */
-async function requestHistory(id: string): Promise<HistoryVersion[] | null> {
+async function requestHistory(id: string, version: number | null = null): Promise<HistoryVersion[] | null> {
   try {
-    const found = await getJson<{ versions: HistoryVersion[] }>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}/history`);
+    // Keyed by the request noun's version, so the 10 s edge cache can never answer an older history for a newer noun.
+    const query = version !== null ? `?v=${version}` : "";
+    const found = await getJson<{ versions: HistoryVersion[] }>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}/history${query}`);
     return found.versions ?? null;
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 502)) return null;
@@ -162,12 +191,38 @@ async function requestHistory(id: string): Promise<HistoryVersion[] | null> {
 }
 
 /** Everything this page may see about a request: the public nouns, plus the keyed read when there is one. */
+/**
+ * The plan and history last read for each request, with the request noun they went with. Every fact is a new version
+ * of the request noun, so while that noun is unchanged its plan and history are too, and a refresh costs one read.
+ */
+const lastRead = new Map<string, { request: string; plan: PlanNounValue | null; history: HistoryVersion[] | null }>();
+
+/** The request noun with its version, when the API names one. */
+async function requestNoun(id: string): Promise<{ value: RequestNounValue | null; version: number | null }> {
+  try {
+    const found = await getJson<NounResponse<RequestNounValue>>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}`);
+    return { value: found.value, version: typeof found.version === "number" ? found.version : null };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return { value: null, version: null };
+    throw error;
+  }
+}
+
 export async function readLive(id: string, keyed: KeyedData | null): Promise<LiveSnapshot> {
-  const [plan, request, history] = await Promise.all([
-    publicNoun<PlanNounValue>("eranos.plans", id),
-    publicNoun<RequestNounValue>("eranos.requests", id),
-    requestHistory(id),
-  ]);
+  const { value: request, version } = await requestNoun(id);
+  const seen = lastRead.get(id);
+  const stamp = version !== null ? `v${version}` : JSON.stringify(request);
+  let plan: PlanNounValue | null;
+  let history: HistoryVersion[] | null;
+  if (seen && seen.request === stamp && request !== null) {
+    ({ plan, history } = seen);
+  } else {
+    [plan, history] = await Promise.all([publicNoun<PlanNounValue>("eranos.plans", id), requestHistory(id, version)]);
+    // Kept only when the history reaches the noun's version: an older history is read again next time, never pinned.
+    const newest = Math.max(0, ...(history ?? []).map((entry) => entry.version));
+    if (version === null || newest >= version) lastRead.set(id, { request: stamp, plan, history });
+    else lastRead.delete(id);
+  }
   const task = keyed?.task ?? null;
   const claimEvents = keyed?.events ?? [];
   const results = keyed?.results ?? [];
@@ -292,10 +347,10 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
     const own = events.filter((e) => e.type === "received" || e.type === "plan_claimed" || e.type === "decided");
     events.length = 0;
     const historyVersions = new Set(written.map((v) => v.version));
-    const fromHistory = written.map((v) => ({ ...(v.value.event as StatusEvent), record: `${base}#v${v.version}` }));
+    const fromHistory = written.map((v) => ({ ...canonicalEvent(v.value.event as StatusEvent), record: `${base}#v${v.version}` }));
     const preHistory = recordedEvents
       .filter((e) => e.version === undefined || !historyVersions.has(e.version))
-      .map((e) => ({ ...e, record: e.record ?? reqRecord }));
+      .map((e) => ({ ...canonicalEvent(e), record: e.record ?? reqRecord }));
     const combined = [...preHistory, ...fromHistory];
     if (!combined.some((e) => e.type === "received")) events.push(...own.filter((e) => e.type === "received"));
     events.push(...combined);

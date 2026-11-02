@@ -167,6 +167,7 @@ export function cueFor(
     case "work_released":
       return fade(node(`queue-${n}`), reduced);
     case "in_review":
+    case "check_refused":
     case "check_sent_back":
       return fade(node(`review-${n}`), reduced);
     case "signoff_required":
@@ -182,6 +183,8 @@ export function cueFor(
     case "library_added":
       return fade(node(`result-${n}`), reduced);
     case "closed":
+    case "reopened":
+    case "reuse_checked":
     case "withdrawn":
       return fade(target(host, "[data-motion=overall]"), reduced);
   }

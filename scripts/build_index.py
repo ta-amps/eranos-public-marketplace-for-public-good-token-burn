@@ -147,7 +147,7 @@ def describe(path: Path) -> str:
                 if isinstance(data.get(key), str):
                     prefix = f"{data['task_id']}: " if isinstance(data.get("task_id"), str) else ""
                     return first_sentence(prefix + data[key])
-            return "JSON object: " + ", ".join(list(data)[:6])
+            return "JSON object: " + ", ".join(f"`{key}`" for key in list(data)[:6])
         if isinstance(data, list):
             return f"JSON list of {len(data)} items"
     markers = ("//", "#", "--", "/*", "*")
@@ -207,7 +207,7 @@ def build_index(root: Path, paths: list[Path]) -> str:
         ]
         for p in members:
             rel = p.relative_to(root).as_posix()
-            out.append(f"| [{rel}]({rel}) | {describe(p).replace('|', '/')} |")
+            out.append(f"| [`{rel}`]({rel}) | {describe(p).replace('|', '/')} |")
         out.append("")
     return "\n".join(out)
 
@@ -253,7 +253,7 @@ def build_keywords(root: Path, paths: list[Path]) -> str:
             if count:
                 hits.append((count, rel))
         hits.sort(key=lambda h: (-h[0], h[1]))
-        cell = ", ".join(f"[{rel}]({rel})" for _, rel in hits[:MAX_FILES_PER_TERM]) or "none yet"
+        cell = ", ".join(f"[`{rel}`]({rel})" for _, rel in hits[:MAX_FILES_PER_TERM]) or "none"
         label = term + (f" ({', '.join(aliases)})" if aliases else "")
         out.append(f"| {label} | {cell} |")
     return "\n".join(out) + "\n"
@@ -286,12 +286,12 @@ def build_llms(root: Path, paths: list[Path]) -> str:
         "KEYWORDS.md": "where each term appears",
         "llms-full.txt": "the main documents in full, in reading order",
     }
-    out += [f"- [{p}]({base}{p}): {names[p]}" for p in start]
+    out += [f"- [`{p}`]({base}{p}): {names[p]}" for p in start]
     if docs:
         out += ["", "## Documents"]
         for p in docs:
             rel = p.relative_to(root).as_posix()
-            out.append(f"- [{rel}]({base}{rel}): {describe(p)}")
+            out.append(f"- [`{rel}`]({base}{rel}): {describe(p)}")
     return "\n".join(out) + "\n"
 
 

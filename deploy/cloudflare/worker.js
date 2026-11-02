@@ -3,6 +3,8 @@ import kitSchema from "./kit-draft.schema.json" with { type: "json" };
 import llmsFallbackNoun from "../../instructions/llms.json" with { type: "json" };
 import { schemaIssues } from "./schema.js";
 import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
+import WORD_LIST from "./banned_words.generated.js";
+import { makeNeutral } from "./display_words.js";
 // Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback), intercepts
 // AI-agent discovery endpoints (/favicon.svg, /healthz, /robots.txt, /llms.txt, /llms-full.txt,
 // /.well-known/agent-card.json, POST /mcp) before SPA fallback, and serves /api/* natively 24/7 from
@@ -58,6 +60,10 @@ const ZERO_QUEUE_COUNTS = {
 // The tile mark (Paper & Ink, light-only).
 const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.i{fill:#11161F}</style><rect x="0" y="0" width="44" height="44" rx="10" fill="#2A5DB0"/><rect x="56" y="0" width="44" height="44" rx="10" fill="#B8541F"/><rect class="i" x="0" y="56" width="44" height="44" rx="10"/><rect x="56" y="56" width="44" height="44" rx="10" fill="#2A5DB0"/></svg>`;
 
+// The canonical address (owner, Nov 1; design §0.15, Nov 2): every other host answers with a permanent redirect here
+// (canonicalRedirect below), and every absolute URL and canonical points here.
+const CANONICAL_ORIGIN = "https://eranosforgood.org";
+
 const ROBOTS_TXT = `User-agent: *
 Allow: /
 Allow: /api/catalog
@@ -73,8 +79,8 @@ Allow: /.well-known/security.txt
 const SECURITY_TXT = `Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
 Expires: 2027-10-31T23:59:59.000Z
 Preferred-Languages: en
-Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
-Policy: https://eranos.ta-amps.workers.dev/report
+Canonical: https://eranosforgood.org/.well-known/security.txt
+Policy: https://eranosforgood.org/report
 `;
 
 const FALLBACK_LLMS_TXT = llmsFallbackNoun.text;
@@ -209,9 +215,9 @@ const FALLBACK_STAGES = [
   {
     queue: "eq02",
     node: "draft",
-    title: "Volunteer agent draft & deterministic checks",
+    title: "Agent draft & deterministic checks",
     effect_class: "write-internal",
-    purpose: "One volunteer agent builds the kit, fixtures, skill, and MCP tool spec; verifier runs.",
+    purpose: "One agent builds the kit, fixtures, skill, and MCP tool spec; verifier runs.",
   },
   {
     queue: "eq03",
@@ -294,7 +300,8 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self' https://tessera.ta-amps.workers.dev",
+  "media-src 'self'",
+  "connect-src 'self' https://fabric.teleionlabs.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -320,11 +327,20 @@ function stripHopByHop(headers) {
 }
 
 function finish(response, method) {
-  const out = new Response(method === "HEAD" ? null : response.body, response);
+  const init = response.status === 206
+    ? { status: response.status, statusText: response.statusText, headers: response.headers, encodeBody: "manual" }
+    : response;
+  const out = new Response(method === "HEAD" ? null : response.body, init);
   stripHopByHop(out.headers);
   for (const [name, value] of Object.entries({...SECURITY_HEADERS, ...CORS_HEADERS})) out.headers.set(name, value);
   out.headers.set("x-request-id", crypto.randomUUID());
   if (method !== "GET" && method !== "HEAD") out.headers.set("cache-control", "no-store");
+  // no-transform on every HTML page: the zone would otherwise add an analytics script, which the CSP blocks.
+  if ((out.headers.get("content-type") || "").toLowerCase().includes("text/html")) {
+    const cc = out.headers.get("cache-control");
+    if (!cc) out.headers.set("cache-control", "no-transform");
+    else if (!/no-transform/i.test(cc)) out.headers.set("cache-control", `${cc}, no-transform`);
+  }
   return out;
 }
 
@@ -350,10 +366,10 @@ function visibleText(text) {
   for (const [pattern, replacement] of VISIBLE_RULES) out = out.replace(pattern, replacement);
   return out;
 }
-// Never rewritten: a quote, a source's own text or a request's own words stay verbatim, and a record bound by a
+// Never rewritten: a quote or a source's own text stays verbatim, and a record bound by a
 // digest (any *_sha256 field) is served exactly as stored, so quotes are never misquoted and digests still verify.
 // Such records carry the word only until their producers stop writing it (the B1 workers drop those claims).
-const VERBATIM_KEYS = new Set(["quote", "quotes", "excerpt", "source_text", "text"]);
+const VERBATIM_KEYS = new Set(["quote", "quotes", "excerpt", "source_text"]);
 function visibleWords(value) {
   if (typeof value === "string") return visibleText(value);
   if (Array.isArray(value)) return value.map(visibleWords);
@@ -382,6 +398,44 @@ function internalWords(value) {
     return out;
   }
   return value;
+}
+
+// Stored record text a page shows passes the shared word list (rule 16), in plain words; the records never change.
+const neutralText = makeNeutral(WORD_LIST);
+
+/** The site's words everywhere, for a page to show (never served as the record itself). */
+function pageWords(value) {
+  if (typeof value === "string") return neutralText(visibleText(value));
+  if (Array.isArray(value)) return value.map(pageWords);
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, item] of Object.entries(value)) out[key.toLowerCase() === "synthetic" ? "is_example" : key] = VERBATIM_KEYS.has(key) ? item : pageWords(item);
+    return out;
+  }
+  return value;
+}
+
+function isPageRead(request) {
+  return new URL(request.url).searchParams.get("view") === "page" || request.headers.get("x-eranos-view") === "page";
+}
+
+function forPage(request, data) {
+  return isPageRead(request) ? pageWords(data) : data;
+}
+
+/** A page's read of any API answer (the app sends x-eranos-view: page): its JSON in the site's words. */
+async function inPageWords(response) {
+  if (!response || !(response.headers.get("content-type") || "").toLowerCase().includes("json")) return response;
+  let data;
+  try {
+    data = await response.clone().json();
+  } catch {
+    return response;
+  }
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  headers.append("vary", "x-eranos-view");
+  return new Response(JSON.stringify(pageWords(data)), { status: response.status, statusText: response.statusText, headers });
 }
 
 function jsonResp(data, status = 200) {
@@ -693,7 +747,7 @@ async function withDraftDigest(result, body) {
 // The web app's pages, as web/src/router.tsx lists them (tests/test_marketplace_site.py keeps the two equal).
 // Any other page address gets the app shell, whose router shows "Page not found", with status 404, so agents
 // and link checkers can tell a missing page from a real one.
-const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library", "/requests", "/privacy", "/terms", "/report"];
+const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library", "/requests", "/privacy", "/terms", "/report", "/video"];
 const APP_KIT_PAGE_RE = /^\/catalog\/[^/]+$/;
 // A request's status page and its result page (the private link's key stays in the #k= fragment, which never
 // reaches this Worker).
@@ -701,6 +755,20 @@ const APP_REQUEST_PAGE_RE = /^\/requests\/[^/]+(?:\/result)?$/;
 // Example request addresses: these show the example request (instructions/request-example), never a real record.
 // REQ-INTAKE-07 is the address an earlier film used; it now opens the same example, and the page says so.
 const EXAMPLE_REQUEST_ALIASES = { example: "request-example", "example-process": "request-example-process", "REQ-INTAKE-07": "request-example" };
+
+/** The app shell with this page's own canonical address and og:url (the app keeps them current after it runs). */
+async function withCanonical(response, pathname) {
+  const path = pathname === "/" ? "/" : pathname.replace(/\/+$/, "") || "/";
+  if (path === "/") return response;
+  const href = escapeHtml(`${CANONICAL_ORIGIN}${path}`);
+  const html = (await response.text())
+    .replace(/<link rel="canonical" href="[^"]*"/, `<link rel="canonical" href="${href}"`)
+    .replace(/<meta property="og:url" content="[^"]*"/, `<meta property="og:url" content="${href}"`);
+  const headers = new Headers(response.headers);
+  headers.delete("content-length");
+  headers.delete("etag");
+  return new Response(html, { status: response.status, statusText: response.statusText, headers });
+}
 
 function isAppPage(pathname) {
   const path = pathname.replace(/\/+$/, "") || "/";
@@ -877,6 +945,13 @@ function openTaskView(verb, queue) {
 // Public Eranos nouns (page text, plans, requests, delivered reports, sources, verb templates):
 // Tessera's mirror first, live Coordinator fallback for dynamic request/plan/solution stores when the D1 mirror lags,
 // then the snapshot exported from Tessera with this deploy.
+// Worker-declared model catalog for the current surface.
+const MODELS_STORE = "eranos.instructions";
+const MODELS_KEY = "models.meta";
+// The workers' live model shares (per-step shares, as_of, outcomes and a line; no keys or personas), written by the
+// workers' hourly tune. Agora's Models used page reads them here: Tessera's own public read needs a key.
+const SHARES_STORE = "eranos.instructions";
+const SHARES_KEY = "worker.shares";
 const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
 const LIVE_COORDINATOR_STORES = new Set(["eranos.requests", "eranos.plans", "eranos.solutions"]);
 const NOUN_KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/;
@@ -887,7 +962,7 @@ async function fetchCoordinatorPublicRecord(env, store, key) {
   if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_COORDINATOR_STORES.has(store)) return null;
   try {
     const resp = await env.TESSERA.fetch(
-      `https://tessera.ta-amps.workers.dev/ns/main/v1/stores/${encodeURIComponent(store)}/records/${encodeURIComponent(key)}`,
+      `https://fabric.teleionlabs.com/ns/main/v1/stores/${encodeURIComponent(store)}/records/${encodeURIComponent(key)}`,
       { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
     );
     if (!resp.ok) {
@@ -910,7 +985,7 @@ async function fetchPendingRequestVerb(env, reqId) {
   if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_REQUEST_ID_RE.test(reqId)) return null;
   try {
     const resp = await env.TESSERA.fetch(
-      `https://tessera.ta-amps.workers.dev/ns/main/v1/tasks/${encodeURIComponent(reqId)}`,
+      `https://fabric.teleionlabs.com/ns/main/v1/tasks/${encodeURIComponent(reqId)}`,
       { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
     );
     if (!resp.ok) {
@@ -935,7 +1010,16 @@ async function fetchPendingRequestVerb(env, reqId) {
   }
 }
 
+// Page text (eranos.instructions) ships with the code that renders it: the deploy's own export comes first, so an
+// older copy in Tessera's mirror can never pair old words with new pages (the 9fd6e09 rollback, Nov 2). Live data
+// (requests, plans, solutions, sources, Task templates) still reads Tessera first.
+const PAGE_TEXT_STORE = "eranos.instructions";
+
 async function loadNoun(request, env, store, key) {
+  if (store === PAGE_TEXT_STORE) {
+    const shipped = await fetchAssetJson(request, env, `/snapshot/nouns/${store}/${key}.json`);
+    if (shipped && shipped.store === store && shipped.key === key) return shipped;
+  }
   const stored = await getHeadRecord(env.FABRIC_DB, store, key);
   if (stored !== null && stored !== undefined) return { synthetic: true, store, key, value: stored };
   const live = await fetchCoordinatorPublicRecord(env, store, key);
@@ -945,11 +1029,15 @@ async function loadNoun(request, env, store, key) {
 }
 
 async function loadNounList(request, env, store) {
+  if (store === PAGE_TEXT_STORE) {
+    const shipped = await fetchAssetJson(request, env, `/snapshot/nouns/${store}.json`);
+    if (shipped && shipped.store === store && Array.isArray(shipped.records)) return shipped;
+  }
   if (env && env.FABRIC_DB) {
     let res = { results: [] };
     try {
       res = await env.FABRIC_DB.prepare(
-      "SELECT h.key AS key, h.version AS version, r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') ORDER BY h.key LIMIT 100"
+      "SELECT h.key AS key, h.version AS version, r.value AS value FROM record_heads h JOIN records r ON r.store = h.store AND r.key = h.key AND r.version = h.version WHERE h.store = ? AND h.namespace = 'main' AND r.namespace = h.namespace AND h.producer_surface = 'surface:eranos' AND r.producer_surface = h.producer_surface AND h.visibility_scope = 'public_commons' AND r.visibility_scope = 'public_commons' AND NOT EXISTS (SELECT 1 FROM json_each(h.tags) WHERE value = 'status:quarantined') AND NOT EXISTS (SELECT 1 FROM json_each(r.tags) WHERE value = 'status:quarantined') " + (store === "eranos.requests" ? "ORDER BY r.created_at DESC, h.key" : "ORDER BY h.key") + " LIMIT 100"
     ).bind(store).all();
     } catch {
       res = { results: [] };
@@ -1088,7 +1176,7 @@ async function servePackage(request, env, id) {
     "x-content-type-options": "nosniff",
   });
   const edge = typeof caches !== "undefined" ? caches.default : null;
-  const cacheKey = new Request(`https://eranos.ta-amps.workers.dev/p/package/${sha}`);
+  const cacheKey = new Request(`https://eranosforgood.org/p/package/${sha}`);
   const hit = edge ? await edge.match(cacheKey) : null;
   if (hit) {
     const bytes = new Uint8Array(await hit.arrayBuffer());
@@ -1097,7 +1185,7 @@ async function servePackage(request, env, id) {
   let upstream = null;
   for (const path of [`/v1/blobs/${sha}`, `/ns/main/v1/blobs/${sha}`]) {
     try {
-      upstream = await env.TESSERA.fetch(`https://tessera.ta-amps.workers.dev${path}`, {
+      upstream = await env.TESSERA.fetch(`https://fabric.teleionlabs.com${path}`, {
         headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
       });
     } catch {
@@ -1179,8 +1267,8 @@ async function cachedNegotiation(env) {
       return null;
     }
   };
-  const tessera = await ask(env.TESSERA, "https://tessera.ta-amps.workers.dev/v1/handshake", env.TESSERA_SURFACE_KEY);
-  const herma = env.HERMA_SURFACE_KEY ? await ask(env.HERMA, "https://herma.ta-amps.workers.dev/v1/handshake", env.HERMA_SURFACE_KEY) : null;
+  const tessera = await ask(env.TESSERA, "https://fabric.teleionlabs.com/v1/handshake", env.TESSERA_SURFACE_KEY);
+  const herma = env.HERMA_SURFACE_KEY ? await ask(env.HERMA, "https://shim.teleionlabs.com/v1/handshake", env.HERMA_SURFACE_KEY) : null;
   const value = { ...fallback, ...(tessera || {}), ...(tessera ? { tessera } : {}), ...(herma ? { herma } : {}) };
   if (tessera || herma) negotiationCache = { at: Date.now(), value };
   return value;
@@ -1206,7 +1294,7 @@ function processAgentMarkdown(origin, id, found) {
     mdList(o.person_only, false),
     "## Rules",
     `- Work only on the folder the person chooses. Nothing leaves their computer.\n- Never send anything outside their organization.\n- Before real files, try the made-up examples: ${origin}/p/${id}/practice.md`,
-    found.review_receipt ? `Checked by a second volunteer. Review receipt: ${found.review_receipt}` : "",
+    found.review_receipt ? `Checked by a different worker. Review receipt: ${found.review_receipt}` : "",
   ].filter(Boolean).join("\n\n") + "\n";
 }
 
@@ -1423,7 +1511,7 @@ function buildStaticAgentCard(request) {
     description:
       "Two-sided marketplace where people donate spare AI capacity and their agents build, deterministically check, and independently review (drafter != reviewer) agent kits for nonprofits, NGOs and public-good groups. A kit bundles instructions, skills, knowledge, read-only service connections, a step map with person-only steps, and synthetic checks and tests.",
     version: ERANOS_VERSION,
-    url: origin,
+    url: CANONICAL_ORIGIN,
     spdx_allowlist: Array.from(OPEN_SPDX_ALLOWLIST).sort(),
     headers: { surface: "X-Surface-Id" },
     endpoints: {
@@ -1443,9 +1531,10 @@ function buildStaticAgentCard(request) {
       request: "/api/requests/{request_id}",
       request_history: "/api/nouns/eranos.requests/{request_id}/history",
       open_tasks: "/api/open-tasks",
+      models: "/api/models",
+      shares: "/api/shares",
       tasks: "/api/tasks",
       fabric: "/api/fabric",
-      feedback: "/api/feedback",
       dashboard: "/dashboard",
       process_markdown: "/p/{request_id}/agent.md",
       practice_cases: "/p/{request_id}/practice.md",
@@ -1664,7 +1753,7 @@ async function fetchFabricPayload(env) {
     (async () => {
       if (!env.TESSERA) return [];
       try {
-        const resp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/health", {
+        const resp = await env.TESSERA.fetch("https://fabric.teleionlabs.com/v1/health", {
           headers: { "X-Surface-Id": "eranos" },
           ...timeoutInit(),
         });
@@ -1687,7 +1776,7 @@ async function fetchFabricPayload(env) {
     (async () => {
       if (!env.HERMA) return null;
       try {
-        const resp = await env.HERMA.fetch("https://herma.internal/q/pulse", {
+        const resp = await env.HERMA.fetch("https://shim.teleionlabs.com/q/pulse", {
           headers: { "X-Surface-Id": "eranos" },
           ...timeoutInit(),
         });
@@ -1702,12 +1791,115 @@ async function fetchFabricPayload(env) {
     })(),
   ]);
   return {
-    display_name: "Tessera Cloud",
+    display_name: "Teleion Fabric Cloud",
     plan: "tessera-cloud",
     synthetic: true,
     queues,
     ...(swarm ? { swarm } : {}),
   };
+}
+
+// The home page's "Right now" strip (LiveMapStrip, site eranos): Herma's public network summary (GET /q/network), read
+// over the service binding, cut to what the strip shows. Never an IP, a home or anything that identifies a person: the
+// summary only counts Cloudflare data centers and continents. When Herma has no such summary yet, or it does not
+// answer, the strip says so with { available: false } and shows its quiet state; it never makes a number up.
+function networkStrip(raw) {
+  const totals = raw && typeof raw.totals === "object" && raw.totals ? raw.totals : null;
+  // A count only when Herma sent a number: null, "", true and the like stay unknown, never a made-up 0.
+  const count = (value) => (typeof value === "number" && Number.isFinite(value) && value >= 0 ? Math.floor(value) : null);
+  if (!totals || count(totals.workers) === null) return { available: false };
+  const last = Array.isArray(raw.recent_claims) && raw.recent_claims[0] && typeof raw.recent_claims[0] === "object" ? raw.recent_claims[0] : null;
+  const via = last && last.via && typeof last.via === "object" ? last.via : {};
+  return {
+    available: true,
+    generated_at: typeof raw.generated_at === "string" ? raw.generated_at : null,
+    recent_minutes: count(raw.recent_minutes) ?? 10,
+    totals: {
+      workers: count(totals.workers),
+      continents: count(totals.continents),
+      claims: count(totals.claims),
+      nonprofit_claims: count(totals.nonprofit_claims),
+    },
+    last: last
+      ? {
+          at: typeof last.at === "string" ? last.at : null,
+          kind_label: typeof last.kind_label === "string" ? last.kind_label : null,
+          model: last.model && typeof last.model.name === "string" ? { name: last.model.name, declared: Boolean(last.model.declared) } : null,
+          via: { type: via.type === "data_centre" ? "data_centre" : "continent", city: typeof via.city === "string" ? via.city : null, continent: typeof via.continent === "string" ? via.continent : null },
+        }
+      : null,
+  };
+}
+
+// The open Tasks on the shared queue (Herma's public GET /q/tasks), for the volunteer page's list: title, tier and
+// age only, never an id or a key. Titles are workers' own words, so the route answers them in the site's plain words.
+async function fetchSharedTasks(env) {
+  if (!env.HERMA) return { available: false, tasks: [] };
+  try {
+    const resp = await env.HERMA.fetch("https://shim.teleionlabs.com/q/tasks?limit=12", {
+      headers: { "X-Surface-Id": "eranos", accept: "application/json" },
+      ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
+    });
+    if (!resp.ok || !(resp.headers.get("content-type") || "").includes("json")) {
+      await resp.body?.cancel();
+      return { available: false, tasks: [] };
+    }
+    const raw = await resp.json();
+    const rows = Array.isArray(raw && raw.tasks) ? raw.tasks : [];
+    const tasks = rows
+      .filter((t) => t && typeof t.title === "string" && t.title.trim())
+      .slice(0, 12)
+      .map((t) => ({
+        title: t.title.trim().replace(/\s+/g, " ").slice(0, 160),
+        tier: t.tier === "ngo_priority" ? "ngo_priority" : "public_general",
+        created_at: typeof t.created_at === "string" ? t.created_at : null,
+      }));
+    const total = Number.isFinite(Number(raw && raw.total_matching)) ? Number(raw.total_matching) : tasks.length;
+    return { available: true, total, tasks };
+  } catch {
+    return { available: false, tasks: [] };
+  }
+}
+
+async function fetchNetworkStrip(env) {
+  if (!env.HERMA) return { available: false };
+  try {
+    const resp = await env.HERMA.fetch("https://shim.teleionlabs.com/q/network", {
+      headers: { "X-Surface-Id": "eranos", accept: "application/json" },
+      ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
+    });
+    if (!resp.ok || !(resp.headers.get("content-type") || "").includes("json")) {
+      await resp.body?.cancel();
+      return { available: false };
+    }
+    return networkStrip(await resp.json());
+  } catch {
+    return { available: false };
+  }
+}
+
+// The Right now strip's data (Herma's network summary) is kept at the edge for a minute, the summary's own pace (its
+// totals update at most once a minute), so every home page shown in that minute shares one Herma read. An answer that
+// the summary is off is kept 10 s, so a recovery shows soon. One entry whatever the query string; browsers still ask
+// each time (the strip polls once a minute). Outside a Cloudflare runtime, and on workers.dev, the read runs each time.
+const NETWORK_CACHE_SECONDS = 60;
+const NETWORK_OFF_CACHE_SECONDS = 10;
+
+async function cachedNetworkStrip(request, env) {
+  const cache = request.method === "GET" && typeof caches !== "undefined" && caches.default ? caches.default : null;
+  const key = new Request(`${CANONICAL_ORIGIN}/api/network`, { method: "GET" });
+  const answer = (text) =>
+    new Response(text, { status: 200, headers: { "content-type": "application/json", "cache-control": "private, no-store" } });
+  const hit = cache ? await cache.match(key).catch(() => undefined) : undefined;
+  if (hit) return answer(await hit.text());
+  const body = await fetchNetworkStrip(env);
+  const text = JSON.stringify(visibleWords(body));
+  if (cache) {
+    const seconds = body.available ? NETWORK_CACHE_SECONDS : NETWORK_OFF_CACHE_SECONDS;
+    const stored = new Response(text, { headers: { "content-type": "application/json", "cache-control": `public, max-age=${seconds}` } });
+    await cache.put(key, stored).catch(() => undefined);
+  }
+  return answer(text);
 }
 
 async function loadOpenTasksFromTessera(env) {
@@ -1717,7 +1909,7 @@ async function loadOpenTasksFromTessera(env) {
     for (const queue of OPEN_TASK_QUEUES) {
       try {
         const resp = await env.TESSERA.fetch(
-          `https://tessera.ta-amps.workers.dev/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
+          `https://fabric.teleionlabs.com/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
           {
             headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
           }
@@ -1737,104 +1929,7 @@ async function loadOpenTasksFromTessera(env) {
   return { reachable, tasks };
 }
 
-const FEEDBACK_FORWARD_HEADERS = [
-  "content-type",
-  "authorization",
-  "accept",
-  "x-agent-label",
-  "x-herma-key",
-  "x-herma-harness",
-  "x-herma-project",
-  "x-herma-cohort",
-  "x-request-id",
-  "cf-connecting-ip",
-];
-
-async function handleFeedbackProxy(request, env) {
-  if (request.method !== "GET" && request.method !== "HEAD" && request.method !== "POST") {
-    return problem(405, "Method Not Allowed", "Use GET or POST on /api/feedback.", "method_not_allowed", {
-      allow: "GET, HEAD, POST",
-    });
-  }
-  const hasBody = request.method === "POST";
-  const rawBody = hasBody ? await request.text() : "";
-  let parsedBody = null;
-  if (hasBody) {
-    try {
-      parsedBody = rawBody ? JSON.parse(rawBody) : {};
-    } catch {
-      return problem(400, "Bad Request", "invalid JSON payload", "invalid_request");
-    }
-    if (!parsedBody || typeof parsedBody !== "object" || Array.isArray(parsedBody)) {
-      return problem(400, "Bad Request", "feedback payload must be a JSON object", "invalid_request");
-    }
-  }
-  if (env.HERMA) {
-    try {
-      const incoming = new URL(request.url);
-      const headers = { "X-Surface-Id": "eranos" };
-      for (const name of FEEDBACK_FORWARD_HEADERS) {
-        const val = request.headers.get(name);
-        if (val) headers[name] = val;
-      }
-      if (hasBody && !headers["content-type"]) headers["content-type"] = "application/json";
-      const timeoutInit =
-        typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function"
-          ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) }
-          : {};
-      const resp = await env.HERMA.fetch(`https://herma.internal/q/feedback${incoming.search}`, {
-        method: request.method,
-        headers,
-        body: hasBody ? rawBody : undefined,
-        ...timeoutInit,
-      });
-      if (resp.status !== 404) {
-        const contentType = resp.headers.get("content-type") || "application/json";
-        if (contentType.includes("json")) {
-          const data = await resp.json().catch(() => null);
-          if (data !== null) return jsonResp(data, resp.status);
-        }
-        const text = await resp.text();
-        return new Response(visibleText(text), {
-          status: resp.status,
-          headers: { "content-type": contentType, "cache-control": "private, no-store" },
-        });
-      }
-      await resp.body?.cancel();
-    } catch {
-      // fall through to safe JSON fallback when HERMA is offline in local unit tests or unreachable
-    }
-  }
-  if (hasBody) {
-    return jsonResp({
-      ok: true,
-      synthetic: true,
-      accepted: true,
-      surface: "eranos",
-      upstream: "https://herma.ta-amps.workers.dev/q/feedback",
-      item: {
-        kind: "worker_feedback",
-        surface: "eranos",
-        received_at: Math.floor(Date.now() / 1000),
-        summary: String(parsedBody.summary || parsedBody.title || parsedBody.message || "worker feedback").slice(0, 280),
-      },
-    });
-  }
-  return jsonResp({
-    ok: true,
-    synthetic: true,
-    surface: "eranos",
-    upstream: "https://herma.ta-amps.workers.dev/q/feedback",
-    proposals_url: "https://herma.ta-amps.workers.dev/q/proposals",
-    items: [],
-    note: "Submit or query structured worker feedback as a task object via POST /api/feedback or https://herma.ta-amps.workers.dev/q/feedback.",
-  });
-}
-
 async function handleCloudApi(request, env, pathname) {
-  if (pathname === "/api/feedback") {
-    return handleFeedbackProxy(request, env);
-  }
   if (pathname === "/api/practice") {
     if (request.method !== "POST") {
       return problem(405, "Method Not Allowed", "POST JSON draft payload to /api/practice.", "method_not_allowed", {
@@ -1900,7 +1995,7 @@ async function handleCloudApi(request, env, pathname) {
         const sHeaders = { "Content-Type": "application/json" };
         const clientIp = request.headers.get("CF-Connecting-IP");
         if (clientIp) sHeaders["CF-Connecting-IP"] = clientIp;
-        const sResp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/session/anonymous", {
+        const sResp = await env.TESSERA.fetch("https://fabric.teleionlabs.com/v1/session/anonymous", {
           method: "POST",
           headers: sHeaders,
           body: JSON.stringify({ agent_label: agentLabel }),
@@ -1967,7 +2062,7 @@ async function handleCloudApi(request, env, pathname) {
           synthetic: true,
           tasks: [],
           open_tasks_url: "/api/open-tasks",
-          shared_queue_url: "https://herma.ta-amps.workers.dev/q/pulse",
+          shared_queue_url: "https://shim.teleionlabs.com/q/pulse",
         });
       }
       return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
@@ -2003,7 +2098,7 @@ async function handleCloudApi(request, env, pathname) {
           return problem(
             404,
             "Not Found",
-            `request ${key} is queued on eq01 (${pending.state}) awaiting volunteer scope planning; no public eranos.requests noun exists until screened; poll /api/requests/${key} for immediate read-after-write status.`,
+            `request ${key} is queued on eq01 (${pending.state}) awaiting scope planning; no public eranos.requests noun exists until screened; poll /api/requests/${key} for immediate read-after-write status.`,
             "pending_scope_plan"
           );
         }
@@ -2086,11 +2181,11 @@ async function handleCloudApi(request, env, pathname) {
     const reqUrl = new URL(request.url);
     const rawKits = await loadRawCatalogList(request, env);
     const kits = filterCatalogKits(rawKits, reqUrl.searchParams);
-    return jsonResp({
+    return jsonResp(forPage(request, {
       synthetic: true,
       two_step_verified: true,
       kits,
-    });
+    }));
   }
 
   const kitMatch = /^\/api\/catalog\/([^/]+)$/.exec(pathname);
@@ -2103,11 +2198,36 @@ async function handleCloudApi(request, env, pathname) {
     if (!found) {
       return problem(404, "Not Found", `kit ${kitId} is not in the catalog`, "not_found");
     }
-    return jsonResp({ synthetic: true, ...found });
+    return jsonResp(forPage(request, { synthetic: true, ...found }));
+  }
+
+  // The one list of the models ta-amps uses (the models.meta Task Object). Pages take every model's display name
+  // from it, so a name never drifts from what runs. It is read from Tessera only, never from a copy in this deploy;
+  // until it is written there, the answer says so (catalog: null) and pages name no model.
+  if (pathname === "/api/models") {
+    return edgeCached(request, async () => {
+      const catalog = await getHeadRecord(env.FABRIC_DB, MODELS_STORE, MODELS_KEY);
+      return jsonResp({ synthetic: false, store: MODELS_STORE, key: MODELS_KEY, catalog: catalog && typeof catalog === "object" ? catalog : null });
+    });
+  }
+
+  if (pathname === "/api/shares") {
+    return edgeCached(request, async () => {
+      const shares = await getHeadRecord(env.FABRIC_DB, SHARES_STORE, SHARES_KEY);
+      return jsonResp({ store: SHARES_STORE, key: SHARES_KEY, shares: shares && typeof shares === "object" ? shares : null });
+    });
   }
 
   if (pathname === "/api/fabric") {
     return jsonResp(await fetchFabricPayload(env));
+  }
+
+  if (pathname === "/api/network") {
+    return cachedNetworkStrip(request, env);
+  }
+
+  if (pathname === "/api/shared-tasks") {
+    return jsonResp(pageWords(await fetchSharedTasks(env)));
   }
 
   if (pathname === "/api/feed") {
@@ -2129,7 +2249,7 @@ async function handleCloudApi(request, env, pathname) {
           headers["Authorization"] = `Bearer ${env.TESSERA_SURFACE_KEY}`;
         }
         const resp = await env.TESSERA.fetch(
-          `https://tessera.ta-amps.workers.dev/v1/feeds/noun.promotions?after=${after}&limit=${limit}`,
+          `https://fabric.teleionlabs.com/v1/feeds/noun.promotions?after=${after}&limit=${limit}`,
           { headers }
         );
         if (resp.ok) {
@@ -2232,7 +2352,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
           ok: true,
           synthetic: true,
           surface: "eranos",
-          dashboard_url: "https://herma.ta-amps.workers.dev/dashboard",
+          dashboard_url: "https://shim.teleionlabs.com/dashboard",
           fabric_page: "/fabric",
           fabric_api: "/api/fabric",
           ...(await fetchFabricPayload(env)),
@@ -2241,7 +2361,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       return new Response(null, {
         status: 307,
         headers: {
-          location: "https://herma.ta-amps.workers.dev/dashboard",
+          location: "https://shim.teleionlabs.com/dashboard",
           "cache-control": "no-store",
         },
       });
@@ -2262,7 +2382,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const origin = new URL(request.url).origin;
       const pkg = processDoc[2] === "agent" ? await publishedPackage(request, env, id) : null;
       const download = pkg
-        ? `\n## Download the process\n${origin}/p/${id}/download${part > 1 ? `?part=${part}` : ""}\nSHA-256: ${pkg.value.blob_sha256}. A different volunteer's key reviewed it; check the hash before you run it.\n`
+        ? `\n## Download the process\n${origin}/p/${id}/download${part > 1 ? `?part=${part}` : ""}\nSHA-256: ${pkg.value.blob_sha256}. A different worker's key reviewed it; check the hash before you run it.\n`
         : "";
       let text = found ? (processDoc[2] === "agent" ? processAgentMarkdown(origin, id, found) + download : processPracticeMarkdown(origin, id, found)) : null;
       if (!text && pkg) {
@@ -2275,7 +2395,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
       const fromNoun = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : null;
       const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms.txt");
-      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.ta-amps.workers.dev/connect.\n", "text/plain; charset=utf-8");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://fabric.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
@@ -2292,7 +2412,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
       const guide = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : FALLBACK_LLMS_TXT;
       return textResp(
-        `${guide}\n## Agent access\n- Discovery: /connect.json, /.well-known/agent.json (also /.well-known/agent-card.json).\n- A tracked anonymous session: POST /api/handshake; Eranos asks Tessera to mint it and returns what Tessera answers.\n- One request: /api/requests/<request id> returns its public record and recorded versions.\n`,
+        `${guide}\n## Agent access\n- Discovery: /connect.json, /.well-known/agent.json (also /.well-known/agent-card.json).\n- A tracked anonymous session: POST /api/handshake; Eranos asks Teleion Fabric to mint it and returns what Teleion Fabric answers.\n- One request: /api/requests/<request id> returns its public record and recorded versions.\n`,
         "text/markdown; charset=utf-8",
       );
     }
@@ -2303,10 +2423,122 @@ async function handleDiscoveryRoute(request, env, pathname) {
   return null;
 }
 
+const MEDIA_BYTES = {
+  "/media/eranos-demo-v1.mp4": 9050361,
+  "/media/teleion-fabric-preview-20261102.mp4": 6600196,
+};
+const MEDIA_MAX_BYTES = 32 * 1024 * 1024;
+const MEDIA_WRITE_CHUNK = 64 * 1024;
+
+function parseSingleRange(value, size) {
+  const match = /^bytes=(\d*)-(\d*)$/i.exec(value.trim());
+  if (!match || (!match[1] && !match[2])) return null;
+  const first = match[1] ? Number(match[1]) : null;
+  const last = match[2] ? Number(match[2]) : null;
+  if ((first !== null && !Number.isSafeInteger(first)) || (last !== null && !Number.isSafeInteger(last))) return null;
+  if (first === null) {
+    return last === 0 ? { unsatisfiable: true } : { start: Math.max(0, size - last), end: size - 1 };
+  }
+  if (first >= size || (last !== null && last < first)) return { unsatisfiable: true };
+  return { start: first, end: last === null ? size - 1 : Math.min(last, size - 1) };
+}
+
+function ifRangeOk(value, asset) {
+  if (!value) return true;
+  const tag = asset.headers.get("ETag");
+  return Boolean(tag && !tag.startsWith("W/") && value.trim() === tag);
+}
+
+async function maybeMediaRange(request, asset, ctx) {
+  const pathname = new URL(request.url).pathname;
+  if (pathname.startsWith("/media/") && pathname.endsWith(".vtt") && asset.status === 200) {
+    const h = new Headers(asset.headers);
+    h.set("Content-Type", "text/vtt; charset=utf-8");
+    h.set("Cache-Control", "public, max-age=31536000, immutable");
+    return new Response(asset.body, { status: 200, headers: h });
+  }
+  const knownBytes = MEDIA_BYTES[pathname];
+  if (!knownBytes || asset.status !== 200) return asset;
+  const method = request.method.toUpperCase();
+  if (method !== "GET" && method !== "HEAD") return asset;
+  const encoding = asset.headers.get("Content-Encoding");
+  const length = asset.headers.get("Content-Length");
+  if ((encoding && encoding.toLowerCase() !== "identity") || (length !== null && !/^\d+$/.test(length))) return asset;
+  const size = length === null ? knownBytes : Number(length);
+  if (!Number.isSafeInteger(size) || size !== knownBytes || size <= 0 || size > MEDIA_MAX_BYTES) return asset;
+
+  const baseHeaders = new Headers(asset.headers);
+  for (const name of ["Content-Length", "Transfer-Encoding", "Content-Digest", "Content-MD5"]) baseHeaders.delete(name);
+  baseHeaders.set("Content-Type", "video/mp4");
+  baseHeaders.set("Cache-Control", "public, max-age=31536000, immutable");
+  baseHeaders.set("Accept-Ranges", "bytes");
+
+  const range = request.headers.get("Range");
+  const selected = range && ifRangeOk(request.headers.get("If-Range"), asset) ? parseSingleRange(range, size) : null;
+
+  if (method === "HEAD") {
+    if (selected && selected.unsatisfiable) {
+      baseHeaders.set("Content-Range", `bytes */${size}`);
+      return new Response(null, { status: 416, headers: baseHeaders });
+    }
+    if (selected) {
+      baseHeaders.set("Content-Length", String(selected.end - selected.start + 1));
+      baseHeaders.set("Content-Range", `bytes ${selected.start}-${selected.end}/${size}`);
+      return new Response(null, { status: 206, headers: baseHeaders });
+    }
+    baseHeaders.set("Content-Length", String(size));
+    return new Response(null, { status: 200, headers: baseHeaders });
+  }
+
+  if (!asset.body) return asset;
+  if (!selected) return new Response(asset.body, { status: 200, headers: baseHeaders });
+  if (selected.unsatisfiable) {
+    await asset.body.cancel();
+    baseHeaders.set("Content-Range", `bytes */${size}`);
+    return new Response(null, { status: 416, headers: baseHeaders });
+  }
+
+  const len = selected.end - selected.start + 1;
+  const hasFixed = typeof globalThis.FixedLengthStream === "function";
+  const stream = hasFixed ? new globalThis.FixedLengthStream(len) : new TransformStream();
+  const reader = asset.body.getReader();
+  const writer = stream.writable.getWriter();
+  const transfer = (async () => {
+    let position = 0;
+    try {
+      while (position <= selected.end) {
+        const { value, done } = await reader.read();
+        if (done) throw new Error("Media asset ended before requested byte interval");
+        const lower = Math.max(0, selected.start - position);
+        const upper = Math.min(value.byteLength, selected.end + 1 - position);
+        for (let offset = lower; offset < upper; offset += MEDIA_WRITE_CHUNK) {
+          await writer.write(value.subarray(offset, Math.min(offset + MEDIA_WRITE_CHUNK, upper)));
+        }
+        position += value.byteLength;
+      }
+      await writer.close();
+    } catch (error) {
+      await writer.abort(error).catch(() => {});
+      throw error;
+    } finally {
+      await reader.cancel().catch(() => {});
+    }
+  })();
+  if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(transfer);
+  else transfer.catch(() => {});
+  baseHeaders.set("Content-Range", `bytes ${selected.start}-${selected.end}/${size}`);
+  if (!hasFixed) baseHeaders.set("Content-Length", String(len));
+  return new Response(stream.readable, { status: 206, headers: baseHeaders, encodeBody: "manual" });
+}
+
 const onboardingApplication = {
-  async fetch(request, env = {}) {
+  async fetch(request, env = {}, ctx) {
     const { pathname } = new URL(request.url);
-    if (pathname.replace(/\/+$/, "") === "/connect" && (request.method === "GET" || request.method === "HEAD")) {
+    const trimmed = pathname.replace(/\/+$/, "");
+    if ((trimmed === "/film" || pathname.startsWith("/film/")) && (request.method === "GET" || request.method === "HEAD")) {
+      return finish(new Response(null, { status: 301, headers: { location: "/video", "cache-control": "public, max-age=3600" } }), request.method);
+    }
+    if (trimmed === "/connect" && (request.method === "GET" || request.method === "HEAD")) {
       return finish(await connectPage(request, env), request.method);
     }
     const access = accessResponse(request, "eranos");
@@ -2319,9 +2551,10 @@ const onboardingApplication = {
         } else {
           response = await handleCloudApi(request, env, pathname);
         }
+        if (request.method === "GET" && isPageRead(request)) response = await inPageWords(response);
       } else if (request.method === "GET" || request.method === "HEAD") {
         response = env.ASSETS
-          ? await env.ASSETS.fetch(request)
+          ? await maybeMediaRange(request, await env.ASSETS.fetch(request), ctx)
           : new Response("Not Found", { status: 404 });
         const html = (response.headers.get("content-type") || "").includes("text/html");
         if (
@@ -2331,6 +2564,8 @@ const onboardingApplication = {
             (await isMissingKitPage(request, env, pathname)))
         ) {
           response = new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers });
+        } else if (response.status === 200 && html && request.method === "GET") {
+          response = await withCanonical(response, pathname);
         }
       } else {
         response = new Response("Method Not Allowed", { status: 405, headers: { allow: "GET, HEAD" } });
@@ -2343,9 +2578,30 @@ const onboardingApplication = {
 // The vendored onboarding module still serves /agent-start.{js,css,json}. Its landing banner is not
 // injected here: the home page opens on the marketplace's two front doors, and the /help page copies the
 // same starting brief, built in the browser with this same module.
+// One canonical address for people (Nov 2 design §0.15): on any other host that reaches this Worker, a page navigation
+// (an app page) answers with a permanent redirect to eranosforgood.org, keeping the path and query: 301 for GET and
+// HEAD, 308 for any other method. What machines read and write (/mcp, /api/*, /connect.json, the llms and agent files,
+// /.well-known/*, /healthz, process files) answers in place: MCP clients do not follow a cross-origin redirect, service
+// bindings check with redirect: "manual", and published agent pointers and older CLIs use the alias (alias audit,
+// Nov 2). Every page served names eranosforgood.org as its canonical. The www alias redirects everything. A CORS
+// preflight is answered where it arrives, and local hosts and version previews serve as they are.
+const CANONICAL_HOST = new URL(CANONICAL_ORIGIN).hostname;
+function canonicalRedirect(request) {
+  const url = new URL(request.url);
+  const host = url.hostname.toLowerCase();
+  if (host === CANONICAL_HOST || request.method === "OPTIONS") return null;
+  if (host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host.endsWith(".localhost")) return null;
+  if (/^[0-9a-f]{8}-/.test(host) && host.endsWith(".workers.dev")) return null;
+  if (host !== `www.${CANONICAL_HOST}` && !isAppPage(url.pathname)) return null;
+  return new Response(null, {
+    status: request.method === "GET" || request.method === "HEAD" ? 301 : 308,
+    headers: { location: `${CANONICAL_ORIGIN}${url.pathname}${url.search}`, "cache-control": "public, max-age=3600", ...CORS_HEADERS },
+  });
+}
+
 export default {
   ...onboardingApplication,
   async fetch(request, env, ctx) {
-    return agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
+    return canonicalRedirect(request) || agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
   },
 };

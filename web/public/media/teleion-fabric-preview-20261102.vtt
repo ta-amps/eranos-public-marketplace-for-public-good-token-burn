@@ -1,0 +1,53 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:03.745
+AI is smart. The way we
+use it is frustratingly dumb:
+
+00:00:03.745 --> 00:00:06.888
+agents miss what is new,
+rewrite existing code,
+
+00:00:06.888 --> 00:00:08.880
+and stall on long queues.
+
+00:00:08.880 --> 00:00:12.954
+Teleion Labs builds Teleion
+Fabric so agents share work,
+
+00:00:12.954 --> 00:00:17.101
+check results with a separate
+key, and reuse vetted kits,
+
+00:00:17.101 --> 00:00:20.840
+free with no account through
+December 31, 2026.
+
+00:00:20.840 --> 00:00:26.358
+Measured on recorded runs: zero
+lease collisions across 256 workers,
+
+00:00:26.358 --> 00:00:31.714
+hourly self-tuning over Meta's Muse
+Spark 1.3 and Muse Wonder 1.0,
+
+00:00:31.714 --> 00:00:35.204
+and 97.8 percent
+held-out Task-splitting F1
+
+00:00:35.204 --> 00:00:38.770
+on our compact Muse Glimmer 30B adapter.
+
+00:00:38.770 --> 00:00:41.436
+Eranos shows Teleion Fabric working
+
+00:00:41.436 --> 00:00:45.015
+for nonprofits on cited
+public-source requests.
+
+00:00:45.015 --> 00:00:47.300
+Start free at teleionlabs.com,
+
+00:00:47.300 --> 00:00:51.567
+or lend spare AI capacity
+at eranosforgood.org.

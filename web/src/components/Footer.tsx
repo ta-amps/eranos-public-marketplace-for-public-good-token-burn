@@ -1,40 +1,38 @@
 import type { ShellNoun, SiteNoun } from "../lib/nouns";
 import { AppLink } from "../router";
+import { Mark } from "./Mark";
 
-/** One line about the two surfaces, the links agents and people look for, and what the site loads and keeps. */
-export function Footer({ shell, site }: { shell: ShellNoun | null; site: SiteNoun | null }) {
+/**
+ * The standard footer (ta-amps.footer/2, MUST-FOLLOW rule 13): the tile mark and the name, ONE row of links in the
+ * canonical order (a link to another host is absolute and carries ↗), and one short line: the privacy line. Every
+ * word is the `shell` noun's footer. The agent links live in the banner above every page.
+ */
+export function Footer({ shell }: { shell: ShellNoun | null; site: SiteNoun | null }) {
+  if (!shell) return <footer className="er-footer er-site-footer" />;
   return (
-    <footer className="er-footer">
-      <div className="er-footer-inner">
-        {shell && (
-          <div className="er-footer-row">
-            <p>{shell.footer.line}</p>
-            <nav className="er-footer-links" aria-label={shell.footer.links_label}>
-              {shell.footer.links.map((link) =>
-                link.to ? (
-                  <AppLink key={link.label} to={link.to}>
-                    {link.label}
-                  </AppLink>
-                ) : (
-                  <a key={link.label} href={link.href}>
-                    {link.label}
-                  </a>
-                ),
-              )}
-            </nav>
-          </div>
-        )}
-        {site && (
-          <p className="er-footer-privacy" data-testid="privacy-line">
-            {site.privacy}
-          </p>
-        )}
-        {shell && (
-          <p className="er-footer-privacy" data-testid="storage-line">
-            {shell.footer.storage}
-          </p>
-        )}
+    <footer className="er-footer er-site-footer">
+      <div className="er-site-footer-row">
+        <span className="er-site-footer-name">
+          <Mark size={20} />
+          <strong>{shell.footer.brand ?? "Eranos"}</strong>
+        </span>
+        <nav className="er-site-footer-links" aria-label={shell.footer.links_label}>
+          {shell.footer.links.map((link) =>
+            link.to ? (
+              <AppLink key={link.label} to={link.to}>
+                {link.label}
+              </AppLink>
+            ) : (
+              <a key={link.label} href={link.href}>
+                {link.label}
+              </a>
+            ),
+          )}
+        </nav>
       </div>
+      <p className="er-site-footer-line" data-testid="footer-line">
+        {shell.footer.line}
+      </p>
     </footer>
   );
 }
