@@ -300,7 +300,7 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self'",
   "img-src 'self' data:",
   "font-src 'self'",
-  "connect-src 'self' https://tessera.teleionlabs.com https://tessera.ta-amps.workers.dev",
+  "connect-src 'self' https://tessera.teleionlabs.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -954,7 +954,7 @@ async function fetchCoordinatorPublicRecord(env, store, key) {
   if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_COORDINATOR_STORES.has(store)) return null;
   try {
     const resp = await env.TESSERA.fetch(
-      `https://tessera.ta-amps.workers.dev/ns/main/v1/stores/${encodeURIComponent(store)}/records/${encodeURIComponent(key)}`,
+      `https://tessera.teleionlabs.com/ns/main/v1/stores/${encodeURIComponent(store)}/records/${encodeURIComponent(key)}`,
       { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
     );
     if (!resp.ok) {
@@ -977,7 +977,7 @@ async function fetchPendingRequestVerb(env, reqId) {
   if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_REQUEST_ID_RE.test(reqId)) return null;
   try {
     const resp = await env.TESSERA.fetch(
-      `https://tessera.ta-amps.workers.dev/ns/main/v1/tasks/${encodeURIComponent(reqId)}`,
+      `https://tessera.teleionlabs.com/ns/main/v1/tasks/${encodeURIComponent(reqId)}`,
       { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
     );
     if (!resp.ok) {
@@ -1168,7 +1168,7 @@ async function servePackage(request, env, id) {
     "x-content-type-options": "nosniff",
   });
   const edge = typeof caches !== "undefined" ? caches.default : null;
-  const cacheKey = new Request(`https://eranos.ta-amps.workers.dev/p/package/${sha}`);
+  const cacheKey = new Request(`https://eranosforgood.org/p/package/${sha}`);
   const hit = edge ? await edge.match(cacheKey) : null;
   if (hit) {
     const bytes = new Uint8Array(await hit.arrayBuffer());
@@ -1177,7 +1177,7 @@ async function servePackage(request, env, id) {
   let upstream = null;
   for (const path of [`/v1/blobs/${sha}`, `/ns/main/v1/blobs/${sha}`]) {
     try {
-      upstream = await env.TESSERA.fetch(`https://tessera.ta-amps.workers.dev${path}`, {
+      upstream = await env.TESSERA.fetch(`https://tessera.teleionlabs.com${path}`, {
         headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
       });
     } catch {
@@ -1259,8 +1259,8 @@ async function cachedNegotiation(env) {
       return null;
     }
   };
-  const tessera = await ask(env.TESSERA, "https://tessera.ta-amps.workers.dev/v1/handshake", env.TESSERA_SURFACE_KEY);
-  const herma = env.HERMA_SURFACE_KEY ? await ask(env.HERMA, "https://herma.ta-amps.workers.dev/v1/handshake", env.HERMA_SURFACE_KEY) : null;
+  const tessera = await ask(env.TESSERA, "https://tessera.teleionlabs.com/v1/handshake", env.TESSERA_SURFACE_KEY);
+  const herma = env.HERMA_SURFACE_KEY ? await ask(env.HERMA, "https://herma.teleionlabs.com/v1/handshake", env.HERMA_SURFACE_KEY) : null;
   const value = { ...fallback, ...(tessera || {}), ...(tessera ? { tessera } : {}), ...(herma ? { herma } : {}) };
   if (tessera || herma) negotiationCache = { at: Date.now(), value };
   return value;
@@ -1744,7 +1744,7 @@ async function fetchFabricPayload(env) {
     (async () => {
       if (!env.TESSERA) return [];
       try {
-        const resp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/health", {
+        const resp = await env.TESSERA.fetch("https://tessera.teleionlabs.com/v1/health", {
           headers: { "X-Surface-Id": "eranos" },
           ...timeoutInit(),
         });
@@ -1767,7 +1767,7 @@ async function fetchFabricPayload(env) {
     (async () => {
       if (!env.HERMA) return null;
       try {
-        const resp = await env.HERMA.fetch("https://herma.internal/q/pulse", {
+        const resp = await env.HERMA.fetch("https://herma.teleionlabs.com/q/pulse", {
           headers: { "X-Surface-Id": "eranos" },
           ...timeoutInit(),
         });
@@ -1796,7 +1796,8 @@ async function fetchFabricPayload(env) {
 // answer, the strip says so with { available: false } and shows its quiet state; it never makes a number up.
 function networkStrip(raw) {
   const totals = raw && typeof raw.totals === "object" && raw.totals ? raw.totals : null;
-  const count = (value) => (Number.isFinite(Number(value)) && Number(value) >= 0 ? Math.floor(Number(value)) : null);
+  // A count only when Herma sent a number: null, "", true and the like stay unknown, never a made-up 0.
+  const count = (value) => (typeof value === "number" && Number.isFinite(value) && value >= 0 ? Math.floor(value) : null);
   if (!totals || count(totals.workers) === null) return { available: false };
   const last = Array.isArray(raw.recent_claims) && raw.recent_claims[0] && typeof raw.recent_claims[0] === "object" ? raw.recent_claims[0] : null;
   const via = last && last.via && typeof last.via === "object" ? last.via : {};
@@ -1826,7 +1827,7 @@ function networkStrip(raw) {
 async function fetchSharedTasks(env) {
   if (!env.HERMA) return { available: false, tasks: [] };
   try {
-    const resp = await env.HERMA.fetch("https://herma.internal/q/tasks?limit=12", {
+    const resp = await env.HERMA.fetch("https://herma.teleionlabs.com/q/tasks?limit=12", {
       headers: { "X-Surface-Id": "eranos", accept: "application/json" },
       ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
     });
@@ -1854,7 +1855,7 @@ async function fetchSharedTasks(env) {
 async function fetchNetworkStrip(env) {
   if (!env.HERMA) return { available: false };
   try {
-    const resp = await env.HERMA.fetch("https://herma.internal/q/network", {
+    const resp = await env.HERMA.fetch("https://herma.teleionlabs.com/q/network", {
       headers: { "X-Surface-Id": "eranos", accept: "application/json" },
       ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
     });
@@ -1875,7 +1876,7 @@ async function loadOpenTasksFromTessera(env) {
     for (const queue of OPEN_TASK_QUEUES) {
       try {
         const resp = await env.TESSERA.fetch(
-          `https://tessera.ta-amps.workers.dev/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
+          `https://tessera.teleionlabs.com/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
           {
             headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
           }
@@ -1961,7 +1962,7 @@ async function handleCloudApi(request, env, pathname) {
         const sHeaders = { "Content-Type": "application/json" };
         const clientIp = request.headers.get("CF-Connecting-IP");
         if (clientIp) sHeaders["CF-Connecting-IP"] = clientIp;
-        const sResp = await env.TESSERA.fetch("https://tessera.ta-amps.workers.dev/v1/session/anonymous", {
+        const sResp = await env.TESSERA.fetch("https://tessera.teleionlabs.com/v1/session/anonymous", {
           method: "POST",
           headers: sHeaders,
           body: JSON.stringify({ agent_label: agentLabel }),
@@ -2208,7 +2209,7 @@ async function handleCloudApi(request, env, pathname) {
           headers["Authorization"] = `Bearer ${env.TESSERA_SURFACE_KEY}`;
         }
         const resp = await env.TESSERA.fetch(
-          `https://tessera.ta-amps.workers.dev/v1/feeds/noun.promotions?after=${after}&limit=${limit}`,
+          `https://tessera.teleionlabs.com/v1/feeds/noun.promotions?after=${after}&limit=${limit}`,
           { headers }
         );
         if (resp.ok) {

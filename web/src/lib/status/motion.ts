@@ -184,6 +184,7 @@ export function cueFor(
       return fade(node(`result-${n}`), reduced);
     case "closed":
     case "reopened":
+    case "reuse_checked":
     case "withdrawn":
       return fade(target(host, "[data-motion=overall]"), reduced);
   }

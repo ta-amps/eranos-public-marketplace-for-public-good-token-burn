@@ -415,11 +415,13 @@ function ExampleStatus({ words, routeId }: { words: RequestStatusNoun; routeId: 
 }
 
 // A Worker run per read counts toward the Free plan's 100,000 a day, shared by every surface (Nov 2): one read of the
-// request noun every 15 s while the tab is visible (its plan and history only when it changed), every 2 min hidden,
-// every 5 min once the request is closed or withdrawn, 5 s after a failed read, paused after 3 failures. The queue
-// line (/api/fabric) is read at most once a minute, and only while the request is open.
+// request noun every 15 s while the tab is visible (its plan and history only when it changed), every 2 min hidden;
+// a closed or withdrawn request every 60 s while visible (a reopen shows within a minute) and every 5 min hidden;
+// 5 s after a failed read, paused after 3 failures; at once when the tab comes back to the front. The queue line
+// (/api/fabric) is read at most once a minute, and only while the request is open.
 const VISIBLE_MS = 15_000;
 const HIDDEN_MS = 120_000;
+const SETTLED_VISIBLE_MS = 60_000;
 const SETTLED_MS = 300_000;
 const RETRY_MS = 5_000;
 const FABRIC_MS = 60_000;
@@ -484,25 +486,40 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
   useEffect(() => {
     let timer = 0;
     let stopped = false;
+    let reading = false;
     const run = async () => {
+      if (reading) return;
+      reading = true;
       await poll();
+      reading = false;
       if (stopped) return;
+      const visible = document.visibilityState === "visible";
       const delay =
         failures.current >= 3
           ? PAUSE_MS
           : failures.current > 0
             ? RETRY_MS
             : settled.current
-              ? SETTLED_MS
-              : document.visibilityState === "visible"
+              ? visible
+                ? SETTLED_VISIBLE_MS
+                : SETTLED_MS
+              : visible
                 ? VISIBLE_MS
                 : HIDDEN_MS;
       timer = window.setTimeout(() => void run(), delay);
     };
     void run();
+    // Back to the front: read now, then go on at the visible rate.
+    const onVisible = () => {
+      if (document.visibilityState !== "visible" || stopped || reading) return;
+      window.clearTimeout(timer);
+      void run();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       stopped = true;
       window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [poll, tick]);
 

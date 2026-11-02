@@ -23,6 +23,7 @@
  * | decided                | Result: decided ("You used it"), with its record                          |
  * | closed                 | the request is finished                                                   |
  * | reopened               | a closed request is open again (a wrong reuse stays in the history)        |
+ * | reuse_checked          | a different key checked whether a similar library answer fits this request |
  * | withdrawn              | open steps stop; finished parts stay                                      |
  *
  * In live mode a part's queue step starts as "open": Tessera doesn't yet share a part's claim with the requester's
@@ -53,6 +54,8 @@ interface Agent {
   /** One of Eranos's own workers (the fallback when no volunteer is free), not a volunteer's agent. */
   dedicated?: boolean;
   model?: string;
+  /** How the step ran when it runs no model ("deterministic planner (no model)"): no model is credited then. */
+  method?: string;
   /** A dedicated worker's persona that ran, from its claim record. */
   persona?: string;
   claimedAt?: number | null;
@@ -94,6 +97,8 @@ export interface Facts {
   parts: PartFacts[];
   /** Answered from the library with no new work: a reused delivery that came before (or without) any plan. */
   reused?: Evidence & { id?: string; reason?: string; part?: number };
+  /** A different key's check that the similar answer fits this request (F-REUSE-001); absent until one is recorded. */
+  reuseCheck?: Evidence & { verdict: "fits" | "does_not_fit"; who?: string; model?: string };
   /** A reuse that a recorded reopen undid; it stays in the history as a failed attempt. */
   reuseUndone?: Evidence & { id?: string };
   reopened?: Evidence & { reason?: string };
@@ -114,6 +119,7 @@ function agent(event: StatusEvent): Agent {
     // The model id the fact declares; its display name comes from the models.meta Task Object (lib/models.ts).
     model: event.model,
     persona: typeof event.persona === "string" && event.persona.trim() ? event.persona.trim() : undefined,
+    method: typeof event.method === "string" && event.method.trim() ? event.method.trim() : undefined,
     claimedAt: event.at ?? null,
     leaseEnds: event.lease_ends,
     receipt: event.receipt,
@@ -293,11 +299,15 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         break;
       }
       case "closed":
+        // A close settles the plan: nothing is "being worked on" or "in line" after it.
         facts.closed = evidence(event);
         facts.reopened = undefined;
-        if (facts.parts.length > 0 || facts.reused) {
-          facts.plan = "done";
-          facts.planAgent = undefined;
+        if (facts.plan !== "stopped") facts.plan = "done";
+        facts.planAgent = undefined;
+        break;
+      case "reuse_checked":
+        if (facts.reused && (event.verdict === "fits" || event.verdict === "does_not_fit")) {
+          facts.reuseCheck = { ...evidence(event), verdict: event.verdict, who: event.checker_role ?? event.worker, model: event.model_name ?? event.model };
         }
         break;
       case "reopened":
@@ -308,6 +318,7 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         if (facts.reused) {
           facts.reuseUndone = { ...facts.reused };
           facts.reused = undefined;
+          facts.reuseCheck = undefined;
         }
         if (facts.parts.length === 0) {
           facts.plan = "waiting";
@@ -460,6 +471,8 @@ function agentChipText(words: RequestStatusNoun, a: Agent, options: DeriveOption
   // Details name models, never agent apps (rule 9): a dedicated worker shows the model and persona that ran, from its
   // claim record; a volunteer's AI shows the model it declared, or "Not declared". Names come from models.meta.
   const who = workerLabel(words, a.who, a.dedicated) ?? (a.dedicated ? fill(words.chips.dedicated ?? "", { n: "1" }) : undefined);
+  // A step that runs no model (the planner) is never credited with one, not even the dedicated workers' default.
+  if (a.method && !a.model) return who && words.chips.no_model ? fill(words.chips.no_model, { who, method: a.method }) : (who ?? a.method);
   const model = options.modelName ? options.modelName(a.model, Boolean(a.dedicated)) : null;
   if (a.dedicated) {
     if (!who) return "";
@@ -493,6 +506,8 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
   const parts = new Map<number, PartPlan>();
   const approvedParts = new Set<number>();
   const plannedBy = new Map<string, string>();
+  // A library answer since the last reopen: its close and reopen rows say so.
+  let reusedSeen = false;
   for (const [index, event] of record.events.entries()) {
     if (event.type === "heartbeat" || !(event.receipt || event.ref)) continue;
     const n = event.part ?? 0;
@@ -566,12 +581,25 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         text = fill(words.log.signed_off ?? "", { n });
         break;
       case "delivered":
+        if (event.summary?.reused) {
+          reusedSeen = true;
+          text = words.log.reused ?? "";
+          break;
+        }
         if (n) approvedParts.add(n);
         text = fill(words.log.delivered ?? "", { n });
         break;
       case "published":
+        if (event.summary?.reused) {
+          reusedSeen = true;
+          text = words.log.reused ?? "";
+          break;
+        }
         if (n) approvedParts.add(n);
         text = fill(words.log.published ?? "", { n });
+        break;
+      case "reuse_checked":
+        text = event.verdict === "fits" ? (words.log.reuse_fits ?? "") : (words.log.reuse_does_not_fit ?? "");
         break;
       case "queued":
         text = event.part
@@ -588,10 +616,15 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         );
         break;
       case "closed":
-        text = parts.size > 0 && approvedParts.size === 0 ? (words.log.closed_unfinished ?? words.log.closed ?? "") : (words.log.closed ?? "");
+        text = reusedSeen
+          ? (words.log.closed_reused ?? words.log.closed ?? "")
+          : approvedParts.size === 0
+            ? (words.log.closed_unfinished ?? words.log.closed ?? "")
+            : (words.log.closed ?? "");
         break;
       case "reopened":
-        text = words.log.reopened ?? "";
+        text = reusedSeen ? (words.log.reopened ?? "") : event.reason ? fill(words.log.reopened_reason ?? "", { reason: event.reason }) : (words.log.reopened_plain ?? "");
+        reusedSeen = false;
         break;
       case "withdrawn":
         text = words.log.withdrawn ?? "";
@@ -637,8 +670,11 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
   });
 
   const planState: NodeState = facts.plan === "stopped" ? "stopped" : facts.plan;
-  const planLabel =
-    facts.plan === "done"
+  const planLabel = facts.reused
+    ? (words.nodes.reused ?? words.nodes.planned)
+    : facts.closed && facts.parts.length === 0 && facts.plan === "done"
+      ? (words.nodes.closed ?? words.nodes.planned)
+      : facts.plan === "done"
       ? words.nodes.planned
       : facts.plan === "working"
         ? words.nodes.planning
@@ -994,7 +1030,10 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
 }
 
 /** The sentence a screen reader hears after a change: the last fact, plus "Your turn." when it is. */
-export function summaryLine(events: StatusEvent[], words: RequestStatusNoun): string {
+export function summaryLine(allEvents: StatusEvent[], words: RequestStatusNoun): string {
+  // Only what happened since the last reopen counts; an undone library answer or close is history, not the state.
+  const reopen = allEvents.map((event) => event.type).lastIndexOf("reopened");
+  const events = reopen >= 0 ? allEvents.slice(reopen) : allEvents;
   const last = [...events].reverse().find((event) => event.type !== "heartbeat" && (event.receipt || event.ref));
   if (!last) return words.summary.waiting ?? "";
   const n = last.part ?? 0;

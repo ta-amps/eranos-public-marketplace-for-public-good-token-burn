@@ -13,8 +13,11 @@ import { AppLink, useHash } from "../../router";
  * same recorded facts as the diagram, so the two views never disagree.
  */
 
-/** A step's state; "closed" is a step the request closed before reaching. */
-type StageState = "done" | "now" | "upcoming" | "closed";
+/**
+ * A step's state; "closed" is a step the request closed before reaching, and "skipped" one it never needed (a library
+ * answer made nothing new).
+ */
+type StageState = "done" | "now" | "upcoming" | "closed" | "skipped";
 type Kind = "process" | "information";
 type Part = Facts["parts"][number];
 
@@ -88,6 +91,8 @@ export interface TrackState {
   tone: TrackTone;
   /** True when the request is back at "Being made": a check sent it back, or the team asked for changes. */
   back: boolean;
+  /** Stations the request passed without doing them (a library answer: nothing made, maybe nothing checked). */
+  skipped?: number[];
 }
 
 /** Where one part stands on the six stations (CLAUDE-CODE-PROMPT §4.2 and the RequestStatusPage board's rule). */
@@ -113,10 +118,20 @@ export function trackState(facts: Facts): TrackState {
 
 export function plainSummary(facts: Facts, words: PlainWords, every: string, requester = true): PlainSummary {
   const c = words.chip;
-  // Answered from the library (F-UI-STALE-001): the request's own state decides the steps. Every step is settled, and
-  // the top of the page says how, instead of an "In line" that no event will ever move.
+  // Answered from the library (F-UI-STALE-001): the request's own state decides the steps, and the top says how.
+  // Nothing new was made, and it shows as checked only once a different key checked the fit for this request
+  // (reuse_checked, F-REUSE-001); until then the Made and Checked stations are passed, not done.
   if (facts.reused) {
-    return { bands: ["done", "done", "done", "done"], track: { at: 5, tone: "done", back: false }, chip: c.reused ?? c.in_use, waiting: false, yourTurn: false };
+    const verdict = facts.reuseCheck?.verdict;
+    const fits = verdict === "fits";
+    const check: StageState = fits ? "done" : verdict === "does_not_fit" || facts.closed ? "closed" : "now";
+    return {
+      bands: ["done", "skipped", check, fits || facts.closed ? "done" : "upcoming"],
+      track: { at: 5, tone: "done", back: false, skipped: fits ? [2] : [2, 3, 4] },
+      chip: fits ? (c.reused ?? c.in_use) : verdict === "does_not_fit" ? (c.reuse_does_not_fit ?? c.reused ?? c.in_use) : (c.reused_unchecked ?? c.reused ?? c.in_use),
+      waiting: false,
+      yourTurn: false,
+    };
   }
   const parts = facts.parts;
   const planned = facts.plan === "done" && parts.length > 0;
@@ -266,17 +281,19 @@ function RequestTrack({
     <nav ref={nav} className="er-track" aria-label={label} data-testid="request-track">
       <ol>
         {words.stations.map((station, i) => {
-          const done = i < track.at || (i === 5 && delivered);
+          const passed = track.skipped?.includes(i) ?? false;
+          const done = (i < track.at || (i === 5 && delivered)) && !passed;
           const stopped = i === track.at && track.tone === "closed";
-          const now = i === track.at && !done && !stopped;
+          const now = i === track.at && !done && !stopped && !passed;
           const name = now ? (i === 5 && !requester ? (station.now_public ?? station.now) : station.now) : station.other;
           return (
-            <li key={i} data-step={i} data-state={done ? "done" : now ? "now" : stopped ? "closed" : "upcoming"} data-tone={now ? track.tone : undefined}>
+            <li key={i} data-step={i} data-state={done ? "done" : now ? "now" : stopped ? "closed" : passed ? "skipped" : "upcoming"} data-tone={now ? track.tone : undefined}>
               <a href={`#${BAND_IDS[STATION_BAND[i] ?? 0]}`} aria-current={now ? "step" : undefined} onClick={() => onStation?.((STATION_BAND[i] ?? 0) + 1)}>
                 <span className="er-track-dot" aria-hidden="true" />
                 <span className="er-track-name">{name}</span>
                 {done && words.done && <span className="er-visually-hidden"> ({words.done})</span>}
-                {!done && !now && words.next && <span className="er-visually-hidden"> ({words.next})</span>}
+                {passed && words.skipped && <span className="er-visually-hidden"> ({words.skipped})</span>}
+                {!done && !now && !passed && words.next && <span className="er-visually-hidden"> ({words.next})</span>}
                 {i === 0 && now && ahead > 0 && (
                   <span className="er-ghosts" aria-hidden="true" data-testid="ghost-pills">
                     {Array.from({ length: Math.min(ahead, 4) }, (_, k) => (
@@ -321,6 +338,8 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
   };
   const remade = new Set<number>();
   const readied = new Set<string>();
+  // A library answer since the last reopen: a reopen then says the answer didn't fit.
+  let reusedSince = false;
   const rows: { at: number | null; text: string; type: StatusEvent["type"] }[] = [];
   for (const event of events) {
     if (!(event.receipt || event.ref)) continue;
@@ -377,6 +396,7 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
       case "delivered":
       case "published": {
         if (event.summary?.reused) {
+          reusedSince = true;
           push(h.reused);
           break;
         }
@@ -390,7 +410,11 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         push(h.signoff_required);
         break;
       case "reopened":
-        push(h.reopened);
+        push(reusedSince ? h.reopened : event.reason && h.reopened_reason ? fill(h.reopened_reason, { reason: event.reason }) : h.reopened_plain);
+        reusedSince = false;
+        break;
+      case "reuse_checked":
+        push(event.verdict === "fits" ? h.reuse_fits : h.reuse_does_not_fit);
         break;
       case "decided":
         if (event.choice === "changes") remade.add(n);
@@ -589,7 +613,8 @@ export function PlainStatus({
   // The current step: the first band in progress, else the first one not done, or the last once everything is.
   const nowBand = summary.bands.findIndex((state) => state === "now");
   const openBand = summary.bands.findIndex((state) => state !== "done");
-  const current = nowBand >= 0 ? nowBand + 1 : openBand >= 0 ? openBand + 1 : 4;
+  // A library answer opens on its answer (step 4), or on step 3 while the check of its fit is still to come.
+  const current = reuse ? (summary.bands[2] === "now" ? 3 : 4) : nowBand >= 0 ? nowBand + 1 : openBand >= 0 ? openBand + 1 : 4;
   const signoff = parts.some((p) => p.decide === "person") && !parts.some((p) => p.decide === "yourturn");
   const bands = useBands(current);
   // Each band's one-line, present-tense status, shown in its header whether it is open or folded.
@@ -626,11 +651,20 @@ export function PlainStatus({
             : st.their_turn
           : st.upcoming,
   ];
+  const fitCheck = facts.reuseCheck;
   const bandStatus = reuse
     ? [
         st.reused_sorted ?? st.done_untimed,
         st.reused_made ?? st.done_untimed,
-        st.reused_checked ?? st.done_untimed,
+        fitCheck?.verdict === "fits"
+          ? fitCheck.at
+            ? fill(st.reuse_fits ?? st.done, { time: clock(fitCheck.at) })
+            : (st.reuse_fits_untimed ?? st.done_untimed)
+          : fitCheck?.verdict === "does_not_fit"
+            ? (st.reuse_does_not_fit ?? st.closed ?? "")
+            : facts.closed
+              ? (st.reuse_unchecked ?? st.closed ?? "")
+              : (st.reuse_waiting_check ?? st.waiting_check),
         reuse.at ? fill(st.reused_ready ?? st.done, { time: clock(reuse.at) }) : (st.reused_ready ?? st.done_untimed),
       ]
     : openStatus.map((line, i) => (stripState(i + 1) === "closed" ? (st.closed ?? line) : line));
@@ -656,9 +690,13 @@ export function PlainStatus({
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
         {happened[0]?.text ?? ""}
       </p>
-      {facts.reopened && words.reopened_note && (
+      {facts.reopened && (
         <p className="er-small er-reopened" data-testid="reopened-note">
-          {words.reopened_note}
+          {facts.reuseUndone
+            ? words.reopened_note
+            : facts.reopened.reason && words.reopened_note_reason
+              ? fill(words.reopened_note_reason, { reason: facts.reopened.reason })
+              : words.reopened_note_plain}
         </p>
       )}
 
@@ -686,7 +724,7 @@ export function PlainStatus({
         )}
       </Band>
 
-      <Band n={2} title={stripState(2) === "done" ? b.made.title_done : b.made.title_now} state={stripState(2)} {...bandProps(2)}>
+      <Band n={2} title={reuse ? (b.made.title_reused ?? b.made.title_done) : stripState(2) === "done" ? b.made.title_done : b.made.title_now} state={stripState(2)} {...bandProps(2)}>
         {reuse ? (
           <p className="er-band-line" data-testid="reused-made">
             {b.reused?.made}
@@ -752,10 +790,14 @@ export function PlainStatus({
         )}
       </Band>
 
-      <Band n={3} title={parts.some((p) => p.checkAgent?.dedicated) && b.checked.title_eranos ? b.checked.title_eranos : b.checked.title} state={stripState(3)} {...bandProps(3)}>
+      <Band n={3} title={reuse ? (b.checked.title_reused ?? b.checked.title) : parts.some((p) => p.checkAgent?.dedicated) && b.checked.title_eranos ? b.checked.title_eranos : b.checked.title} state={stripState(3)} {...bandProps(3)}>
         {reuse ? (
           <p className="er-band-line" data-testid="reused-checked">
-            {b.reused?.checked}
+            {fitCheck?.verdict === "fits"
+              ? [b.reused?.fits, fitCheck.who && b.reused?.fits_by ? fill(b.reused.fits_by, { who: fitCheck.who, model: fitCheck.model ?? b.reused.no_model ?? "" }) : ""].filter(Boolean).join(" ")
+              : fitCheck?.verdict === "does_not_fit"
+                ? b.reused?.does_not_fit
+                : b.reused?.unchecked}
           </p>
         ) : (
           <>

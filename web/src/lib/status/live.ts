@@ -178,9 +178,11 @@ interface HistoryVersion {
 }
 
 /** The request record's public versions, each a state change the worker wrote with its receipt, or null. */
-async function requestHistory(id: string): Promise<HistoryVersion[] | null> {
+async function requestHistory(id: string, version: number | null = null): Promise<HistoryVersion[] | null> {
   try {
-    const found = await getJson<{ versions: HistoryVersion[] }>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}/history`);
+    // Keyed by the request noun's version, so the 10 s edge cache can never answer an older history for a newer noun.
+    const query = version !== null ? `?v=${version}` : "";
+    const found = await getJson<{ versions: HistoryVersion[] }>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}/history${query}`);
     return found.versions ?? null;
   } catch (error) {
     if (error instanceof ApiError && (error.status === 404 || error.status === 502)) return null;
@@ -195,17 +197,31 @@ async function requestHistory(id: string): Promise<HistoryVersion[] | null> {
  */
 const lastRead = new Map<string, { request: string; plan: PlanNounValue | null; history: HistoryVersion[] | null }>();
 
+/** The request noun with its version, when the API names one. */
+async function requestNoun(id: string): Promise<{ value: RequestNounValue | null; version: number | null }> {
+  try {
+    const found = await getJson<NounResponse<RequestNounValue>>(`/api/nouns/eranos.requests/${encodeURIComponent(id)}`);
+    return { value: found.value, version: typeof found.version === "number" ? found.version : null };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) return { value: null, version: null };
+    throw error;
+  }
+}
+
 export async function readLive(id: string, keyed: KeyedData | null): Promise<LiveSnapshot> {
-  const request = await publicNoun<RequestNounValue>("eranos.requests", id);
+  const { value: request, version } = await requestNoun(id);
   const seen = lastRead.get(id);
-  const stamp = JSON.stringify(request);
+  const stamp = version !== null ? `v${version}` : JSON.stringify(request);
   let plan: PlanNounValue | null;
   let history: HistoryVersion[] | null;
   if (seen && seen.request === stamp && request !== null) {
     ({ plan, history } = seen);
   } else {
-    [plan, history] = await Promise.all([publicNoun<PlanNounValue>("eranos.plans", id), requestHistory(id)]);
-    lastRead.set(id, { request: stamp, plan, history });
+    [plan, history] = await Promise.all([publicNoun<PlanNounValue>("eranos.plans", id), requestHistory(id, version)]);
+    // Kept only when the history reaches the noun's version: an older history is read again next time, never pinned.
+    const newest = Math.max(0, ...(history ?? []).map((entry) => entry.version));
+    if (version === null || newest >= version) lastRead.set(id, { request: stamp, plan, history });
+    else lastRead.delete(id);
   }
   const task = keyed?.task ?? null;
   const claimEvents = keyed?.events ?? [];

@@ -70,13 +70,15 @@
     "used": "You used it",
     "changes": "Changes asked",
     "not_used": "Not used",
-    "in_library": "In the library"
+    "in_library": "In the library",
+    "reused": "Similar answer found",
+    "closed": "Closed"
   },
   "states": {
     "noun": "Recorded",
     "idle": "Waiting to start",
     "waiting": "Waiting in line",
-    "open": "Open to volunteers' agents",
+    "open": "Open to volunteers’ agents",
     "working": "Being worked on",
     "done": "Done",
     "approved": "Approved",
@@ -104,7 +106,8 @@
     "dedicated_model": "{who} · model and persona that ran: {model}",
     "record": "Record ↗",
     "dedicated_persona": "{model} · {persona}",
-    "not_declared": "Not declared"
+    "not_declared": "Not declared",
+    "no_model": "{who} · {method}"
   },
   "overall": {
     "waiting": "Waiting for a volunteer’s agent",
@@ -180,7 +183,13 @@
     "released_reason": "{who} released part {n}: {reason}. It’s back in line.",
     "closed_unfinished": "Closed before any part was approved.",
     "plan_released_reason": "{who} released the request: {reason}. It’s back in line.",
-    "reopened": "Opened again. The earlier answer stays on the record as a failed attempt."
+    "reopened": "Opened again. The similar library answer stays on the record as a failed attempt.",
+    "reused": "Answered from the library with no new work.",
+    "closed_reused": "Closed with an answer from the library.",
+    "reopened_reason": "Opened again: {reason}",
+    "reopened_plain": "Opened again.",
+    "reuse_fits": "A different helper checked the library answer: it fits.",
+    "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit."
   },
   "queue": {
     "title": "Eranos queue right now",
@@ -207,7 +216,7 @@
     "public_note": "Requests are public. The sender confirmed this one contains no one’s personal information.",
     "removed": "The text was removed from the public record.",
     "how_title": "How this works",
-    "how_body": "Volunteers' agents pick up parts when they have spare capacity, so a part can wait. The agent that does a part can never approve it. A person on your team decides what to use.",
+    "how_body": "Volunteers’ agents pick up parts when they have spare capacity, so a part can wait. The agent that does a part can never approve it. A person on your team decides what to use.",
     "unseen": "This page shows a part’s work once it is recorded. Until a part’s check is recorded, it shows as open to volunteers.",
     "hosted": "Your request is in line for a volunteer’s agent. Its place and any pick-up time show here once the queue reports them.",
     "agora": "The overview deck, on Agora",
@@ -295,7 +304,7 @@
     "back": "← Request {short}",
     "part_badge": "Part {n} · cited report",
     "approved_badge": "A different volunteer reviewed this",
-    "meta_anon": "Researched and checked by two different volunteers' agents",
+    "meta_anon": "Researched and checked by two different volunteers’ agents",
     "meta_named": "Made by {builder} (it declared {builder_model}) · checked by {checker}, a different helper (it declared {checker_model})",
     "sources_count": "{n} sources",
     "receipts": "",
@@ -307,7 +316,7 @@
     "unclear": "The reviewer flagged one point as unclear in the sources. It is marked “unclear” in the text, not guessed.",
     "show_all": "Show all {n} sources",
     "bridge_title": "How did this get made?",
-    "bridge_body": "Volunteers' agents, tasks and records, explained in the overview deck.",
+    "bridge_body": "Volunteers’ agents, tasks and records, explained in the overview deck.",
     "bridge_link": "The overview deck, on Agora",
     "decision_label": "Your decision",
     "your_turn": "Your turn to decide",
@@ -370,7 +379,7 @@
     "copy_task": "Copy the task for my agent",
     "copied": "Copied. Paste it into your agent.",
     "example_note": "This is an example: nothing here was built or run.",
-    "meta_anon": "Built and checked by two different volunteers' agents",
+    "meta_anon": "Built and checked by two different volunteers’ agents",
     "use": "Use this process",
     "not_ready": "This process appears here once a different volunteer has checked it.",
     "kit_link": "Open the published process",
@@ -472,7 +481,9 @@
       "sent_back": "Sent back for fixes",
       "ready_public": "Ready for the nonprofit",
       "unfinished": "Closed without a finished result",
-      "reused": "Answered from the library"
+      "reused": "Answered from the library",
+      "reused_unchecked": "Answered from the library · not checked for this request",
+      "reuse_does_not_fit": "The library answer didn’t fit"
     },
     "stages_label": "Where your request is",
     "stages": {
@@ -580,7 +591,11 @@
       "check_claimed_changes_eranos": "A dedicated worker run by ta-amps started checking them.",
       "work_released_reason": "The volunteer couldn’t finish it ({reason}). It’s back in line.",
       "closed_unfinished": "This request closed before a checked result was ready.",
-      "reopened": "Opened again: the library answer didn’t fit, so it went back in line."
+      "reopened": "Opened again: the similar library answer didn’t fit, so it went back in line.",
+      "reopened_reason": "Opened again: {reason}",
+      "reopened_plain": "This request was opened again.",
+      "reuse_fits": "A different helper checked the library answer: it fits this request.",
+      "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit this request."
     },
     "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
     "share": "Share this request",
@@ -629,7 +644,8 @@
       "token_public": "This request",
       "token_done": "Delivered",
       "done": "done",
-      "next": "still to come"
+      "next": "still to come",
+      "skipped": "not needed"
     },
     "bands": {
       "sorted": {
@@ -653,7 +669,8 @@
         "retry": "It is back in line.",
         "retry_count": "It is back in line (try {n} of {m}).",
         "models_link": "Which model does what ↗",
-        "models_href": "https://agora.eranosforgood.org/models/"
+        "models_href": "https://agora.eranosforgood.org/models/",
+        "title_reused": "Nothing new made"
       },
       "checked": {
         "title": "Checked by a second volunteer",
@@ -666,7 +683,8 @@
         "done": "Checked ✓",
         "upcoming": "By a different helper",
         "title_eranos": "Checked by a dedicated worker run by ta-amps",
-        "checking_eranos": "A dedicated worker run by ta-amps is checking it"
+        "checking_eranos": "A dedicated worker run by ta-amps is checking it",
+        "title_reused": "Checked for this request"
       },
       "ready": {
         "title": "Ready for you",
@@ -701,18 +719,28 @@
         "upcoming": "Waiting to start",
         "signoff": "Waiting for a person to sign off",
         "closed": "Closed before this step",
-        "reused_sorted": "Matched in the library",
+        "reused_sorted": "Similar answer found",
         "reused_made": "No new work",
-        "reused_checked": "Checked when first made",
-        "reused_ready": "Answered from the library · {time}"
+        "reused_ready": "Answered from the library · {time}",
+        "reuse_fits": "It fits · {time}",
+        "reuse_fits_untimed": "It fits",
+        "reuse_does_not_fit": "Didn’t fit this request",
+        "reuse_unchecked": "Not checked for this request",
+        "reuse_waiting_check": "Waiting for a check of the fit"
       },
       "reused": {
-        "sorted": "An answer already in the shared library matched this request, so it was answered from there.",
-        "made": "Nothing new was made and no new tokens were spent: the answer already existed.",
-        "checked": "A different helper checked that answer when it was first made."
+        "sorted": "A similar answer was found in the shared library.",
+        "made": "Nothing new was made and no new tokens were spent.",
+        "fits": "A different helper checked that this answer fits this request.",
+        "fits_by": "Checked by {who} · model: {model}.",
+        "no_model": "no model",
+        "does_not_fit": "A different helper checked it: this answer doesn’t fit this request.",
+        "unchecked": "That answer was checked when it was first made, for an earlier request. No one has checked that it answers this one."
       }
     },
-    "reopened_note": "Opened again: the library answer didn’t fit this request, so it’s back in line. The first answer stays in its history."
+    "reopened_note": "Opened again: the similar library answer didn’t fit this request, so it’s back in line. That answer stays in its history.",
+    "reopened_note_reason": "Opened again: {reason}",
+    "reopened_note_plain": "This request was opened again."
   },
   "steps": {
     "tag_process": "A reusable process",

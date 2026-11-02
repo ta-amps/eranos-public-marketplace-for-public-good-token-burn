@@ -105,9 +105,10 @@
             "heartbeat",
             "closed",
             "reopened",
+            "reuse_checked",
             "withdrawn"
           ],
-          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; reopened (a closed request open again, for example after a wrong library reuse; the earlier facts stay in the history); withdrawn. A delivered or published fact with summary.reused true before any plan means the request was answered from the library with no new work. check_refused: Tessera refused a check because the maker tried to approve its own work (the board's 'refused'; cite the refusal's record)."
+          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; reopened (a closed request open again, for example after a wrong library reuse; the earlier facts stay in the history); withdrawn. A delivered or published fact with summary.reused true before any plan means the request was answered from the library with no new work. reuse_checked (F-REUSE-001): a different key's check of whether that similar answer fits this request, with verdict ('fits' or 'does_not_fit'), checker_role, model, similarity and a ref to the matched answer; the page shows the reuse as checked only after a 'fits' verdict. check_refused: Tessera refused a check because the maker tried to approve its own work (the board's 'refused'; cite the refusal's record)."
         },
         "at": {
           "type": [
@@ -200,6 +201,27 @@
         "dedicated": {
           "type": "boolean",
           "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker run by the ta-amps team on Meta's latest Muse model through the Meta API (standard tier), under the same claim and report rules. Without this field the page treats a worker label starting with 'eranos' as dedicated."
+        },
+        "method": {
+          "type": "string",
+          "description": "How a step ran when it runs no model, for example 'deterministic planner (no model)'. A step with a method and no model is never credited with a model."
+        },
+        "verdict": {
+          "enum": [
+            "fits",
+            "does_not_fit"
+          ],
+          "description": "reuse_checked: whether the similar library answer fits this request, as a different key checked it."
+        },
+        "checker_role": {
+          "type": "string",
+          "description": "reuse_checked: the checker's role, for example 'dedicated worker 3 (run by ta-amps)'; never the maker's key."
+        },
+        "similarity": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "reuse_checked: the similarity score of the match that was checked."
         }
       }
     },

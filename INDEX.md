@@ -247,7 +247,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (185)
+## web/ (187)
 
 | File | What it is |
 |---|---|
@@ -434,5 +434,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/tests/status.spec.ts`](web/tests/status.spec.ts) |  |
 | [`web/tests/support/light.ts`](web/tests/support/light.ts) |  |
 | [`web/tests/support/mocks.ts`](web/tests/support/mocks.ts) |  |
+| [`web/tests/support/word-gate.ts`](web/tests/support/word-gate.ts) |  |
+| [`web/tests/word-gate.spec.ts`](web/tests/word-gate.spec.ts) |  |
 | [`web/tsconfig.json`](web/tsconfig.json) | JSON object: `compilerOptions`, `include` |
 | [`web/vite.config.ts`](web/vite.config.ts) |  |

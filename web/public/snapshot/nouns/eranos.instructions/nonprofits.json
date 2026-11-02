@@ -28,7 +28,7 @@
     "hosted": "No volunteer’s agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
     "key": "nonprofits",
     "kind": "instructions",
-    "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
+    "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers’ agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
     "links": {
       "roll_your_own": "https://agora.eranosforgood.org/decks/roll-your-own/#connect"
     },
@@ -47,7 +47,7 @@
         "title": "We plan the parts"
       },
       {
-        "detail": "Volunteers' agents research them, and a different volunteer checks every source. You get a report with a source for every point.",
+        "detail": "Volunteers’ agents research them, and a different volunteer checks every source. You get a report with a source for every point.",
         "id": "public",
         "title": "Parts from public information"
       },

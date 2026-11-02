@@ -451,10 +451,12 @@ export interface PlainWords {
     | "unfinished",
     T
   > &
-    /** reused: a request answered from the library with no new work (F-UI-STALE-001). */
-    Partial<Record<"reused", T>>;
-  /** Over the steps when a closed request was opened again. */
+    /** reused: a request answered from the library with no new work (F-UI-STALE-001); the fit check's states. */
+    Partial<Record<"reused" | "reused_unchecked" | "reuse_does_not_fit", T>>;
+  /** Over the steps when a closed request was opened again: after an undone library answer, with a reason, or plain. */
   reopened_note?: T;
+  reopened_note_reason?: T;
+  reopened_note_plain?: T;
   stages_label: T;
   stages: {
     sent: { title: T; done: T };
@@ -471,7 +473,7 @@ export interface PlainWords {
   happened_title: T;
   happened_more: T;
   happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_released_reason" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "closed_unfinished" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T> &
-    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened", T>>;
+    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened" | "reopened_reason" | "reopened_plain" | "reuse_fits" | "reuse_does_not_fit", T>>;
   share_lead: T;
   share: T;
   shared: T;
@@ -483,16 +485,17 @@ export interface PlainWords {
   copy_link: T;
   copied_link: T;
   /** The request track's six stations (owner v2, Nov 1): the name while the request is there, and otherwise. */
-  track: { stations: { now: T; now_public?: T; other: T }[]; token: T; token_public: T; token_done: T; done?: T; next?: T };
+  track: { stations: { now: T; now_public?: T; other: T }[]; token: T; token_public: T; token_done: T; done?: T; next?: T; skipped?: T };
   bands: {
     sorted: Record<"title" | "process" | "information" | "checked" | "waiting", T>;
     made: Record<
       | "title_now" | "title_done" | "helper_volunteer" | "helper_eranos" | "picked" | "picked_eranos" | "waiting" | "fallback" | "recorded"
       | "models_link" | "models_href" | "failed" | "retry" | "retry_count",
       T
-    >;
+    > &
+      Partial<Record<"title_reused", T>>;
     checked: Record<"title" | "rule" | "blocked" | "sent_back_one" | "sent_back_many" | "waiting" | "checking" | "done" | "upcoming", T> &
-      Partial<Record<"title_eranos" | "checking_eranos", T>>;
+      Partial<Record<"title_eranos" | "checking_eranos" | "title_reused", T>>;
     ready: Record<
       | "title" | "title_public" | "process" | "information" | "open_process" | "open_information" | "decide" | "decide_link"
       | "library_title" | "library_added" | "library_link" | "library_how" | "upcoming" | "reused" | "reused_link" | "next_run",
@@ -505,9 +508,15 @@ export interface PlainWords {
       T
     > &
       /** closed: a step the request closed before reaching; reused_*: each step of a request answered from the library. */
-      Partial<Record<"closed" | "reused_sorted" | "reused_made" | "reused_checked" | "reused_ready", T>>;
-    /** What each step says for a request answered from the library. */
-    reused?: Record<"sorted" | "made" | "checked", T>;
+      Partial<
+        Record<
+          | "closed" | "reused_sorted" | "reused_made" | "reused_ready" | "reuse_fits" | "reuse_fits_untimed" | "reuse_does_not_fit"
+          | "reuse_unchecked" | "reuse_waiting_check",
+          T
+        >
+      >;
+    /** What each step says for a request answered from the library, and of the check that it fits (F-REUSE-001). */
+    reused?: Partial<Record<"sorted" | "made" | "fits" | "fits_by" | "no_model" | "does_not_fit" | "unchecked", T>>;
   };
 }
 

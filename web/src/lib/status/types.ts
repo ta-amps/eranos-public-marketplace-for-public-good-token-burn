@@ -55,6 +55,7 @@ export type StatusEventType =
   | "heartbeat"
   | "closed"
   | "reopened"
+  | "reuse_checked"
   | "withdrawn";
 
 export type DecisionChoice = "use" | "changes" | "dont";
@@ -70,6 +71,16 @@ export interface StatusEvent {
   ref?: string;
   worker?: string;
   model?: string;
+  /** How a step ran when it runs no model, as the claim records it (for example "deterministic planner (no model)"). */
+  method?: string;
+  /**
+   * reuse_checked (F-REUSE-001): a different key's check of whether a similar library answer fits this request.
+   * `verdict` is "fits" or "does_not_fit"; `checker_role` names the checker's role; `model` the model it ran;
+   * `similarity` the match score; `ref` the matched answer.
+   */
+  verdict?: "fits" | "does_not_fit";
+  checker_role?: string;
+  similarity?: number;
   /** A dedicated worker's persona that ran, from its claim record (owner decision D8). */
   persona?: string;
   lease_ends?: number;
@@ -88,7 +99,7 @@ export interface StatusEvent {
    * published part answered from the library, `next_at` (Unix seconds) and `occurrence` on a recurring request's
    * next run, and `attempt` / `max_attempts` / `retry_at` on a failed try when the worker knows them.
    */
-  summary?: { sources?: number; reused?: boolean; next_at?: number; occurrence?: number; attempt?: number; max_attempts?: number; retry_at?: number };
+  summary?: { sources?: number; reused?: boolean; score?: number; next_at?: number; occurrence?: number; attempt?: number; max_attempts?: number; retry_at?: number };
   reason?: string;
   findings?: string[];
   choice?: DecisionChoice;

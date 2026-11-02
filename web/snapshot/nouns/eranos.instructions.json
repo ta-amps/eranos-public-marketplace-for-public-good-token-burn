@@ -445,7 +445,7 @@
             {
               "detail": "They pick up parts when they have spare capacity, so a part can wait.",
               "short": "do the parts.",
-              "title": "Volunteers' agents do the work"
+              "title": "Volunteers’ agents do the work"
             },
             {
               "detail": "The agent that did the work can never approve it.",
@@ -714,7 +714,7 @@
         "hosted": "No volunteer’s agent sorts requests on the hosted queues yet, so for now a new request waits until one claims it.",
         "key": "nonprofits",
         "kind": "instructions",
-        "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
+        "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers’ agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
         "links": {
           "roll_your_own": "https://agora.eranosforgood.org/decks/roll-your-own/#connect"
         },
@@ -733,7 +733,7 @@
             "title": "We plan the parts"
           },
           {
-            "detail": "Volunteers' agents research them, and a different volunteer checks every source. You get a report with a source for every point.",
+            "detail": "Volunteers’ agents research them, and a different volunteer checks every source. You get a report with a source for every point.",
             "id": "public",
             "title": "Parts from public information"
           },
@@ -884,7 +884,7 @@
             },
             {
               "detail": "A part can wait until an agent has spare capacity.",
-              "title": "Volunteers' agents do each part."
+              "title": "Volunteers’ agents do each part."
             },
             {
               "detail": "Sensitive processes also wait for a person’s sign-off.",
@@ -1753,7 +1753,7 @@
           "agora": "The overview deck, on Agora",
           "as_sent": "Your request, as sent",
           "hosted": "Your request is in line for a volunteer’s agent. Its place and any pick-up time show here once the queue reports them.",
-          "how_body": "Volunteers' agents pick up parts when they have spare capacity, so a part can wait. The agent that does a part can never approve it. A person on your team decides what to use.",
+          "how_body": "Volunteers’ agents pick up parts when they have spare capacity, so a part can wait. The agent that does a part can never approve it. A person on your team decides what to use.",
           "how_title": "How this works",
           "legal": "Reports are not legal advice.",
           "live_line": "Right now: {waiting} waiting in Eranos’s queue, {working} being worked on.",
@@ -1792,6 +1792,7 @@
           "estimate": "usually {a}–{b} min",
           "in_line": "{nth} in line",
           "lease": "lease until {time}",
+          "no_model": "{who} · {method}",
           "not_declared": "Not declared",
           "one_source": "1 source",
           "read_report": "Read the report",
@@ -1901,6 +1902,7 @@
           "blocked": "Not taken: {reason}",
           "check_claimed": "Part {n} claimed for checking by {who}, a different helper from its maker.",
           "closed": "All parts finished. The request is closed.",
+          "closed_reused": "Closed with an answer from the library.",
           "closed_unfinished": "Closed before any part was approved.",
           "count_many": "What happened ({n} records)",
           "count_one": "What happened (1 record)",
@@ -1929,7 +1931,12 @@
           "record_note": "Lines without a time come from public records, which don’t carry their write time.",
           "released": "{who} let part {n} go when its lease ended. It’s back in line.",
           "released_reason": "{who} released part {n}: {reason}. It’s back in line.",
-          "reopened": "Opened again. The earlier answer stays on the record as a failed attempt.",
+          "reopened": "Opened again. The similar library answer stays on the record as a failed attempt.",
+          "reopened_plain": "Opened again.",
+          "reopened_reason": "Opened again: {reason}",
+          "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit.",
+          "reuse_fits": "A different helper checked the library answer: it fits.",
+          "reused": "Answered from the library with no new work.",
           "sent_back": "Part {n} sent back: {reason}",
           "signed_off": "A person signed off part {n}.",
           "signoff_required": "Part {n} waits for a person’s sign-off.",
@@ -1961,6 +1968,7 @@
           "approved": "Approved",
           "changes": "Changes asked",
           "checking": "Checking",
+          "closed": "Closed",
           "draft_ready": "Draft ready",
           "held": "A person looks first",
           "in_library": "In the library",
@@ -1976,6 +1984,7 @@
           "queue": "In the queue",
           "report": "Cited report",
           "request": "Your request",
+          "reused": "Similar answer found",
           "review": "Review",
           "sent_back": "Sent back",
           "signoff": "A person signs off",
@@ -2069,6 +2078,7 @@
               "sent_back_one": "↩ Sent back with 1 note",
               "title": "Checked by a second volunteer",
               "title_eranos": "Checked by a dedicated worker run by ta-amps",
+              "title_reused": "Checked for this request",
               "upcoming": "By a different helper",
               "waiting": "Waiting for a different helper"
             },
@@ -2086,6 +2096,7 @@
               "retry_count": "It is back in line (try {n} of {m}).",
               "title_done": "Made",
               "title_now": "Being made",
+              "title_reused": "Nothing new made",
               "waiting": "Waiting for a volunteer · {nth} in line."
             },
             "ready": {
@@ -2108,9 +2119,13 @@
               "upcoming": "Your team decides once a different helper has checked it."
             },
             "reused": {
-              "checked": "A different helper checked that answer when it was first made.",
-              "made": "Nothing new was made and no new tokens were spent: the answer already existed.",
-              "sorted": "An answer already in the shared library matched this request, so it was answered from there."
+              "does_not_fit": "A different helper checked it: this answer doesn’t fit this request.",
+              "fits": "A different helper checked that this answer fits this request.",
+              "fits_by": "Checked by {who} · model: {model}.",
+              "made": "Nothing new was made and no new tokens were spent.",
+              "no_model": "no model",
+              "sorted": "A similar answer was found in the shared library.",
+              "unchecked": "That answer was checked when it was first made, for an earlier request. No one has checked that it answers this one."
             },
             "sorted": {
               "checked": "✓ Automatic check: no emails or ID numbers found · {time}",
@@ -2124,10 +2139,14 @@
               "closed": "Closed before this step",
               "done": "Done · {time}",
               "done_untimed": "Done",
-              "reused_checked": "Checked when first made",
+              "reuse_does_not_fit": "Didn’t fit this request",
+              "reuse_fits": "It fits · {time}",
+              "reuse_fits_untimed": "It fits",
+              "reuse_unchecked": "Not checked for this request",
+              "reuse_waiting_check": "Waiting for a check of the fit",
               "reused_made": "No new work",
               "reused_ready": "Answered from the library · {time}",
-              "reused_sorted": "Matched in the library",
+              "reused_sorted": "Similar answer found",
               "sent_back": "Sent back for fixes",
               "signoff": "Waiting for a person to sign off",
               "sorting": "Being sorted",
@@ -2153,7 +2172,9 @@
             "planning": "Being sorted",
             "ready": "Ready for your team",
             "ready_public": "Ready for the nonprofit",
+            "reuse_does_not_fit": "The library answer didn’t fit",
             "reused": "Answered from the library",
+            "reused_unchecked": "Answered from the library · not checked for this request",
             "sent_back": "Sent back for fixes",
             "unfinished": "Closed without a finished result",
             "waiting_check": "Made · waiting for a check",
@@ -2190,7 +2211,11 @@
             "ready": "Checked. It’s ready for your team to review.",
             "ready_changes": "Checked again. It’s ready for your team to review.",
             "received": "You sent your request. The automatic check found no emails or ID numbers in it.",
-            "reopened": "Opened again: the library answer didn’t fit, so it went back in line.",
+            "reopened": "Opened again: the similar library answer didn’t fit, so it went back in line.",
+            "reopened_plain": "This request was opened again.",
+            "reopened_reason": "Opened again: {reason}",
+            "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit this request.",
+            "reuse_fits": "A different helper checked the library answer: it fits this request.",
             "reused": "Answered from the library with no new work.",
             "scheduled": "The next run starts {time}.",
             "signoff_required": "Some steps are for a person only. Someone on your team signs off before it’s used.",
@@ -2228,7 +2253,9 @@
           "making_title": "What we’re making for you",
           "private_line": "Your private link lets your team decide on the result: use Copy private link and keep it. To share the request, use Copy link.",
           "ready_title": "Ready for you",
-          "reopened_note": "Opened again: the library answer didn’t fit this request, so it’s back in line. The first answer stays in its history.",
+          "reopened_note": "Opened again: the similar library answer didn’t fit this request, so it’s back in line. That answer stays in its history.",
+          "reopened_note_plain": "This request was opened again.",
+          "reopened_note_reason": "Opened again: {reason}",
           "sent_line": "Sent {time} · Automatic check: no emails or ID numbers found",
           "sent_line_key": "Sent {time} · Automatic check: no emails or ID numbers found",
           "share": "Share this request",
@@ -2292,6 +2319,7 @@
           "track": {
             "done": "done",
             "next": "still to come",
+            "skipped": "not needed",
             "stations": [
               {
                 "now": "In line",
@@ -2339,7 +2367,7 @@
         "report": {
           "approved_badge": "A different volunteer reviewed this",
           "back": "← Request {short}",
-          "bridge_body": "Volunteers' agents, tasks and records, explained in the overview deck.",
+          "bridge_body": "Volunteers’ agents, tasks and records, explained in the overview deck.",
           "bridge_link": "The overview deck, on Agora",
           "bridge_title": "How did this get made?",
           "cancel": "Cancel",
@@ -2362,7 +2390,7 @@
           "findings": "What it found",
           "follow_link": "Follow the new request",
           "in_short": "In short",
-          "meta_anon": "Researched and checked by two different volunteers' agents",
+          "meta_anon": "Researched and checked by two different volunteers’ agents",
           "meta_named": "Made by {builder} (it declared {builder_model}) · checked by {checker}, a different helper (it declared {checker_model})",
           "missing": "This request has no cited report for part {n}.",
           "not_ready": "This report appears here once a different volunteer has checked it.",
@@ -2407,7 +2435,7 @@
           "input": "Input",
           "install": "How to install it",
           "kit_link": "Open the published process",
-          "meta_anon": "Built and checked by two different volunteers' agents",
+          "meta_anon": "Built and checked by two different volunteers’ agents",
           "not_ready": "This process appears here once a different volunteer has checked it.",
           "output": "Output",
           "person_only": "Steps only a person does",
@@ -2430,7 +2458,7 @@
           "held": "A person looks first",
           "idle": "Waiting to start",
           "noun": "Recorded",
-          "open": "Open to volunteers' agents",
+          "open": "Open to volunteers’ agents",
           "person": "Waiting for a person’s sign-off",
           "sent_back": "Sent back",
           "stopped": "Stopped",
@@ -2683,8 +2711,8 @@
               "items": [
                 "Reading the shared library, following a request, or asking for help requires no account, password or email address.",
                 "Eranos sets no cookies and loads no advertising, analytics or third-party tracking scripts.",
-                "Cloudflare hosts this site and handles every visit. The site’s own request logs and traces are switched off, so it keeps no record of your internet address, browser, rough location or the pages you open. Logs and traces kept before November 2, 2026 hold those details; Cloudflare deletes the logs within 3 days and the traces within 7. Cloudflare’s own security and traffic records follow Cloudflare’s privacy policy.",
-                "Your browser keeps only two things locally: your requests' private links and any request text you haven’t sent yet."
+                "Cloudflare hosts this site and handles every visit. The site’s own request logs and traces are switched off, so it keeps no record of your internet address, browser, rough location or the pages you open. Logs and traces kept until this change, on November 2, 2026, hold those details; Cloudflare deletes the logs within 3 days and the traces within 7. Cloudflare’s own security and traffic records follow Cloudflare’s privacy policy.",
+                "Your browser keeps only two things locally: your requests’ private links and any request text you haven’t sent yet."
               ]
             },
             {
@@ -2707,7 +2735,7 @@
               "heading": "Who processes public request text",
               "items": [
                 "Eranos runs on Cloudflare Workers, which process standard connection data such as IP addresses to deliver and protect the service.",
-                "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers' own agents using their chosen AI providers, or by one of Eranos’s own workers, a dedicated worker run by ta-amps.",
+                "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers’ own agents using their chosen AI providers, or by one of Eranos’s own workers, a dedicated worker run by ta-amps.",
                 "When a dedicated worker picks up a request, it sends the public request text to Meta’s Muse models through the Meta API. The site itself calls no AI model.",
                 "Tracked anonymous volunteer sessions expire after 24 hours, and unreviewed anonymous submissions stay quarantined."
               ]
@@ -2791,7 +2819,7 @@
               "items": [
                 "Post only requests and contributions you have the right to share in public, and never submit personal information about any person.",
                 "Do not submit unlawful, harassing, deceptive or harmful material, and do not attempt to bypass personal-data screening, rate limits or independent-review rules (maker != checker).",
-                "Volunteers run their own agents and pay their own AI providers under those providers' terms, and may never review their own drafts."
+                "Volunteers run their own agents and pay their own AI providers under those providers’ terms, and may never review their own drafts."
               ]
             },
             {

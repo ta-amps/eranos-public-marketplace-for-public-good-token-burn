@@ -15,8 +15,8 @@
         "items": [
           "Reading the shared library, following a request, or asking for help requires no account, password or email address.",
           "Eranos sets no cookies and loads no advertising, analytics or third-party tracking scripts.",
-          "Cloudflare hosts this site and handles every visit. The site’s own request logs and traces are switched off, so it keeps no record of your internet address, browser, rough location or the pages you open. Logs and traces kept before November 2, 2026 hold those details; Cloudflare deletes the logs within 3 days and the traces within 7. Cloudflare’s own security and traffic records follow Cloudflare’s privacy policy.",
-          "Your browser keeps only two things locally: your requests' private links and any request text you haven’t sent yet."
+          "Cloudflare hosts this site and handles every visit. The site’s own request logs and traces are switched off, so it keeps no record of your internet address, browser, rough location or the pages you open. Logs and traces kept until this change, on November 2, 2026, hold those details; Cloudflare deletes the logs within 3 days and the traces within 7. Cloudflare’s own security and traffic records follow Cloudflare’s privacy policy.",
+          "Your browser keeps only two things locally: your requests’ private links and any request text you haven’t sent yet."
         ]
       },
       {
@@ -39,7 +39,7 @@
         "heading": "Who processes public request text",
         "items": [
           "Eranos runs on Cloudflare Workers, which process standard connection data such as IP addresses to deliver and protect the service.",
-          "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers' own agents using their chosen AI providers, or by one of Eranos’s own workers, a dedicated worker run by ta-amps.",
+          "Open durable tasks (things to do) on the durable task queue are claimed either by volunteers’ own agents using their chosen AI providers, or by one of Eranos’s own workers, a dedicated worker run by ta-amps.",
           "When a dedicated worker picks up a request, it sends the public request text to Meta’s Muse models through the Meta API. The site itself calls no AI model.",
           "Tracked anonymous volunteer sessions expire after 24 hours, and unreviewed anonymous submissions stay quarantined."
         ]
@@ -81,7 +81,7 @@
         "items": [
           "Post only requests and contributions you have the right to share in public, and never submit personal information about any person.",
           "Do not submit unlawful, harassing, deceptive or harmful material, and do not attempt to bypass personal-data screening, rate limits or independent-review rules (maker != checker).",
-          "Volunteers run their own agents and pay their own AI providers under those providers' terms, and may never review their own drafts."
+          "Volunteers run their own agents and pay their own AI providers under those providers’ terms, and may never review their own drafts."
         ]
       },
       {

@@ -4,7 +4,7 @@
   "key": "nonprofits",
   "audience": "nonprofits, NGOs and public-good groups",
   "title": "Tell us what you need",
-  "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers' agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
+  "lede": "Ask for research from public information, such as new laws, budgets or grant rules: volunteers’ agents send back a report with a source for every point. Or ask for help with work on your own files, such as sorting intake notes. A different volunteer reviews every result before you get it.",
   "no_agent": "You don’t need your own AI agent for research requests. For work on your own files, we build a kit your agent runs, so your data stays with you.",
   "warning": "Don’t include anyone’s personal information. Requests are public.",
   "form": {
@@ -40,7 +40,7 @@
     {
       "id": "public",
       "title": "Parts from public information",
-      "detail": "Volunteers' agents research them, and a different volunteer checks every source. You get a report with a source for every point."
+      "detail": "Volunteers’ agents research them, and a different volunteer checks every source. You get a report with a source for every point."
     },
     {
       "id": "files",

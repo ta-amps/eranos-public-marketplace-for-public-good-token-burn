@@ -287,10 +287,7 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     practice = json.loads(out["practice"]["body"])
     expected = hashlib.sha256(canonical_json(draft).encode("utf-8")).hexdigest()
     assert practice["draft_sha256"] == expected
-    assert (
-        "connect-src 'self' https://tessera.teleionlabs.com https://tessera.ta-amps.workers.dev"
-        in out["help"]["csp"]
-    )
+    assert "connect-src 'self' https://tessera.teleionlabs.com" in out["help"]["csp"]
 
 
 def test_static_page_and_readme_match_the_site_noun() -> None:
@@ -539,10 +536,7 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
     for name in ("default-src", "script-src", "style-src", "font-src"):
         assert directives[name] == "'self'", name
     assert directives["img-src"] == "'self' data:"
-    assert (
-        directives["connect-src"]
-        == "'self' https://tessera.teleionlabs.com https://tessera.ta-amps.workers.dev"
-    )
+    assert directives["connect-src"] == "'self' https://tessera.teleionlabs.com"
     # Zero browser storage (owner, Nov 1), except, until request codes replace them (Phase C), a request's private
     # link (lib/status/keys.ts), which the footer names.
     allowed = {"keys.ts"}
@@ -966,7 +960,7 @@ def test_a_published_process_package_downloads_from_the_local_tessera_and_nothin
         with _serve(create_app(store, settings), port, "/v1/health") as url:
             env = (
                 "({ TESSERA_SURFACE_KEY: " + json.dumps(reader) + ", "
-                "TESSERA: { fetch: (target, init) => fetch(String(target).replace('https://tessera.ta-amps.workers.dev', "
+                "TESSERA: { fetch: (target, init) => fetch(String(target).replace('https://tessera.teleionlabs.com', "
                 + json.dumps(url)
                 + "), init) }, "
                 "FABRIC_DB: { prepare() { return { bind(store, key) { return { async first() { "
@@ -1297,3 +1291,73 @@ def test_pages_read_stored_records_in_plain_words_and_the_records_stay_as_stored
     # Cloudflare's zone adds nothing to an HTML page that says no-transform (its analytics script would hit the CSP).
     assert "no-transform" in out["html_cache"]
     assert "no-transform" not in out["api_cache"]
+
+
+PAGE_TEXT_SCAN = r"""
+import fs from "node:fs";
+const loaded = await import(__GENERATED__);
+const config = Array.isArray(loaded.default?.checks) ? loaded.default : loaded.default?.default;
+const checks = (config?.checks ?? []).map((c, i) => ({ ...c, i, rx: new RegExp(c.re, c.flags.includes("m") ? c.flags : c.flags + "m") }));
+const CODE_KEYS = new Set(__CODE__);
+const out = [];
+for (const file of __FILES__) {
+  const walk = (value, path) => {
+    if (typeof value === "string") {
+      for (const c of checks) if (c.rx.test(value)) out.push(`${file}${path}: ${c.group} #${c.i}`);
+    } else if (Array.isArray(value)) value.forEach((v, i) => walk(v, `${path}[${i}]`));
+    else if (value && typeof value === "object") {
+      for (const [k, v] of Object.entries(value)) {
+        if (CODE_KEYS.has(k) || /_(href|url|to|id|sha256)$/.test(k)) continue;
+        walk(v, `${path}.${k}`);
+      }
+    }
+  };
+  walk(JSON.parse(fs.readFileSync(file, "utf8")), "");
+}
+console.log(JSON.stringify({ checks: checks.length, out }));
+"""
+
+
+def test_the_page_text_passes_the_shared_word_list() -> None:
+    """Rule 16 at the source: every visible string of the page text the site ships passes the ONE shared list (read from
+    outside the repo through the generated module; code fields such as API examples are allowed by the list)."""
+    generated = ROOT / "deploy" / "cloudflare" / "banned_words.generated.js"
+    assert generated.is_file(), "run node scripts/banned_list.mjs --ensure (make test does)"
+    nouns = [
+        "agent-banner",
+        "connect",
+        "help-page",
+        "home",
+        "library",
+        "llms",
+        "nonprofits-page",
+        "nonprofits",
+    ]
+    nouns += ["request-status", "shell", "site", "trust"]
+    files = [(ROOT / "instructions" / f"{name}.json").as_posix() for name in nouns]
+    code = [
+        "example",
+        "command",
+        "state",
+        "type",
+        "href",
+        "to",
+        "url",
+        "match",
+        "key",
+        "kind",
+        "store",
+        "schema",
+    ]
+    code += ["receipt", "ref", "id", "spec", "path"]
+    script = (
+        PAGE_TEXT_SCAN.replace("__GENERATED__", json.dumps(generated.as_uri()))
+        .replace("__FILES__", json.dumps(files))
+        .replace("__CODE__", json.dumps(code))
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script], check=True, capture_output=True, text=True
+    )
+    out = json.loads(run.stdout)
+    assert out["checks"] > 0, "the word list module has no checks"
+    assert out["out"] == []
