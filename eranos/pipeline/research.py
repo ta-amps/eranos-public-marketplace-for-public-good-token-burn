@@ -283,7 +283,8 @@ def gather(brief: dict[str, Any], fetcher: Fetcher) -> tuple[list[dict[str, Any]
 def candidate_sentences(
     sources: list[dict[str, Any]], question: str, limit: int
 ) -> list[dict[str, Any]]:
-    """Numbered sentences that share words with the question, best first, at most 12 per source."""
+    """Numbered sentences that share words with the question, at most 12 per source, taken from
+    every source in turn (each one's best first)."""
     wanted = words(question)
     picked: list[tuple[int, int, int, dict[str, Any]]] = []
     for s_index, source in enumerate(sources, start=1):
@@ -312,7 +313,10 @@ def candidate_sentences(
                     {"source": source["id"], "s": s_index, "text": sentence, "rank": rank},
                 )
             )
-    picked.sort(key=lambda item: (-item[0], item[1], item[2]))
+    # Every source gets its turn: each source's best sentence first, then each one's second best,
+    # and so on, so one long page cannot crowd the others out of the model's view (the review's S2:
+    # the film's question once gave the model sentences from three of its five sources).
+    picked.sort(key=lambda item: (item[3]["rank"], -item[0], item[1], item[2]))
     chosen = sorted(picked[:limit], key=lambda item: (item[1], item[2]))
     counters: dict[int, int] = {}
     out = []
@@ -457,7 +461,8 @@ def build_report(
         "question": brief["question"],
         "sources": [{k: s.get(k) for k in SOURCE_FIELDS} | {"published": None} for s in used],
         "claims": claims,
-        "summary": f"{len(claims)} cited points from {len(used)} public sources. "
+        "summary": f"{len(claims)} cited point{'' if len(claims) == 1 else 's'} from {len(used)}"
+        f" public source{'' if len(used) == 1 else 's'}. "
         + " ".join(c["text"] for c in claims[:3])
         + ("".join(" " + c for c in caveats) if caveats else ""),
         "decision": str(rules.get("decision", "")),
