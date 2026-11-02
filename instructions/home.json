@@ -124,6 +124,10 @@
   ],
   "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked by a different worker.",
   "honesty_short": "We don’t accept private information at this stage. Requests are public.",
+  "video_cta": {
+    "label": "See a request completed (1 min video)",
+    "to": "/video"
+  },
   "lead": "Nonprofits ask in plain words. AI workers do the work, a different worker checks it, and every result is free for the next group to reuse.",
   "tiles": [
     "A request",

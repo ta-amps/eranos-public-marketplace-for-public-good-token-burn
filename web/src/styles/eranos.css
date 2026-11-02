@@ -2640,9 +2640,11 @@ button.er-choice-pill {
 
 /* ---------------------------------------------------------------- Right now, under the doors (LiveMapStrip) */
 .er-now-strip {
-  margin-top: 20px;
-  max-width: 640px;
-  padding: 14px 18px;
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: none;
+  margin-top: 8px;
+  padding: 18px 24px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -2653,26 +2655,27 @@ button.er-choice-pill {
 /* Every state (loading, off, empty, quiet, live) keeps the live card's height at each width, measured with long
    live words, so the hero never grows or shrinks when /api/network answers or the state changes (E01, CLS < 0.1). */
 .er-now-strip {
-  min-height: 184px;
+  min-height: 168px;
+  align-content: center;
 }
 @media (min-width: 1024px) and (max-width: 1099px) {
   .er-now-strip {
-    min-height: 204px;
+    min-height: 180px;
   }
 }
 @media (max-width: 599px) {
   .er-now-strip {
-    min-height: 228px;
+    min-height: 236px;
   }
 }
 @media (max-width: 440px) {
   .er-now-strip {
-    min-height: 248px;
+    min-height: 256px;
   }
 }
 @media (max-width: 374px) {
   .er-now-strip {
-    min-height: 268px;
+    min-height: 276px;
   }
 }
 .er-now-strip-pending {
@@ -2760,4 +2763,110 @@ button.er-choice-pill {
   border-radius: var(--radius-md);
   background: var(--sunken);
   color: var(--text-2);
+}
+
+/* ---------------------------------------------------------------- walkthrough video (/video) */
+.er-home-video-cta {
+  margin: 10px 0 0;
+  font-size: var(--fs-ui);
+}
+.er-video-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: none;
+}
+.er-video-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.er-video-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.er-video-meta li {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+.er-video-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.er-video-player-card,
+.er-video-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.er-video-player-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+.er-video-player-head h2 {
+  margin: 0;
+}
+.er-video-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.er-video-element {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+}
+.er-video-transcript,
+.er-video-evidence {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.er-video-transcript-row,
+.er-video-evidence-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  border: 1px solid var(--line);
+}
+.er-video-transcript-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  color: var(--text-2);
+  font-size: var(--fs-small);
+}
+.er-video-transcript-row p {
+  margin: 0;
+}
+.er-video-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
 }

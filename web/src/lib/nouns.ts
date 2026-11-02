@@ -151,6 +151,7 @@ export interface HomeNoun {
   buttons: { id: string; label: string; to: string; sub?: string; sub_short?: string }[];
   honesty: string;
   honesty_short?: string;
+  video_cta?: { label: string; to: string };
   /** The hero's line under the headline (EranosHome); the site noun's subline when absent. */
   lead?: string;
   /** The hero's four tiles: the request flow's steps, lit once after load (owner, Nov 1 evening). */
@@ -587,4 +588,34 @@ export interface TrustNoun {
   report: TrustPageContent;
   not_found: NotFoundNoun;
   tour: JudgeTourNoun;
+}
+
+/** Walkthrough video page: `eranos.instructions/video`. */
+export interface VideoNoun {
+  eyebrow: string;
+  heading: string;
+  lead: string;
+  meta: string[];
+  actions: { label: string; to: string; primary?: boolean }[];
+  player: {
+    heading: string;
+    poster: string;
+    mp4: string;
+    vtt: string;
+    captions_label: string;
+    caption: string;
+    download_label: string;
+  };
+  transcript: {
+    heading: string;
+    intro: string;
+    items: { time: string; scene: string; text: string }[];
+  };
+  evidence: {
+    heading: string;
+    intro: string;
+    items: { label: string; to?: string; href?: string; text: string }[];
+  };
+  next_actions: { label: string; to?: string; href?: string; primary?: boolean }[];
+  honesty: string;
 }

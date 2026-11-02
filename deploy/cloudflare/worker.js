@@ -300,6 +300,7 @@ const CONTENT_SECURITY_POLICY = [
   "style-src 'self'",
   "img-src 'self' data:",
   "font-src 'self'",
+  "media-src 'self'",
   "connect-src 'self' https://tessera.teleionlabs.com",
   "object-src 'none'",
   "base-uri 'self'",
@@ -743,7 +744,7 @@ async function withDraftDigest(result, body) {
 // The web app's pages, as web/src/router.tsx lists them (tests/test_marketplace_site.py keeps the two equal).
 // Any other page address gets the app shell, whose router shows "Page not found", with status 404, so agents
 // and link checkers can tell a missing page from a real one.
-const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library", "/requests", "/privacy", "/terms", "/report"];
+const APP_PAGES = ["/", "/help", "/nonprofits", "/catalog", "/contribute", "/tracks", "/fabric", "/about", "/connect", "/library", "/requests", "/privacy", "/terms", "/report", "/video"];
 const APP_KIT_PAGE_RE = /^\/catalog\/[^/]+$/;
 // A request's status page and its result page (the private link's key stays in the #k= fragment, which never
 // reaches this Worker).
@@ -2422,7 +2423,11 @@ async function handleDiscoveryRoute(request, env, pathname) {
 const onboardingApplication = {
   async fetch(request, env = {}) {
     const { pathname } = new URL(request.url);
-    if (pathname.replace(/\/+$/, "") === "/connect" && (request.method === "GET" || request.method === "HEAD")) {
+    const trimmed = pathname.replace(/\/+$/, "");
+    if ((trimmed === "/film" || pathname.startsWith("/film/")) && (request.method === "GET" || request.method === "HEAD")) {
+      return finish(new Response(null, { status: 301, headers: { location: "/video", "cache-control": "public, max-age=3600" } }), request.method);
+    }
+    if (trimmed === "/connect" && (request.method === "GET" || request.method === "HEAD")) {
       return finish(await connectPage(request, env), request.method);
     }
     const access = accessResponse(request, "eranos");

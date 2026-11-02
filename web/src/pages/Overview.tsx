@@ -109,6 +109,13 @@ export function Overview({ site }: { site: SiteNoun | null }) {
                 <span className="er-short">{home.honesty_short ?? home.honesty}</span>
               </p>
             )}
+            {home?.video_cta && (
+              <p className="er-home-video-cta">
+                <AppLink to={home.video_cta.to} className="er-text-link">
+                  {home.video_cta.label} →
+                </AppLink>
+              </p>
+            )}
           </div>
           {home?.process && (
             <ol className="er-hero-tiles" aria-label={home.process.label}>

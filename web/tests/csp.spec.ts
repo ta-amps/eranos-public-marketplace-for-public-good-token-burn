@@ -31,6 +31,7 @@ const routes = [
   "/privacy",
   "/terms",
   "/report",
+  "/video",
   "/?tour=judge",
   "/requests/REQ-INTAKE-07?tour=judge#step-ready",
 ];

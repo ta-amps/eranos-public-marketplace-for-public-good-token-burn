@@ -182,6 +182,10 @@
       "Checked",
       "Public good"
     ],
-    "title": "Home page"
+    "title": "Home page",
+    "video_cta": {
+      "label": "See a request completed (1 min video)",
+      "to": "/video"
+    }
   }
 }

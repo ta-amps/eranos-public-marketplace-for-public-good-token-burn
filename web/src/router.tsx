@@ -16,6 +16,7 @@ export type RouteMatch =
   | { name: "privacy" }
   | { name: "terms" }
   | { name: "reportProblem" }
+  | { name: "video" }
   | { name: "request"; id: string }
   | { name: "report"; id: string }
   | { name: "notFound"; path: string };
@@ -35,6 +36,7 @@ const STATIC_ROUTES: Record<string, RouteMatch> = {
   "/privacy": { name: "privacy" },
   "/terms": { name: "terms" },
   "/report": { name: "reportProblem" },
+  "/video": { name: "video" },
 };
 
 export function matchPath(rawPath: string): RouteMatch {

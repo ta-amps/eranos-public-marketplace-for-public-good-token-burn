@@ -26,6 +26,7 @@ const Library = lazy(() => import("./pages/Library").then((page) => ({ default: 
 const RequestResult = lazy(() => import("./pages/RequestResult").then((page) => ({ default: page.RequestResult })));
 const Tracks = lazy(() => import("./pages/Tracks").then((page) => ({ default: page.Tracks })));
 const TrustPage = lazy(() => import("./pages/TrustPage").then((page) => ({ default: page.TrustPage })));
+const Video = lazy(() => import("./pages/Video").then((page) => ({ default: page.Video })));
 
 function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
   switch (route.name) {
@@ -59,6 +60,8 @@ function Page({ route, site }: { route: RouteMatch; site: SiteNoun | null }) {
       return <TrustPage kind="terms" />;
     case "reportProblem":
       return <TrustPage kind="report" />;
+    case "video":
+      return <Video />;
     case "request":
       return <RequestStatus id={route.id} />;
     case "report":
@@ -101,6 +104,8 @@ function pageTitle(route: RouteMatch, site: SiteNoun | null): string | null {
       return `Terms · ${SURFACE_DISPLAY_NAME}`;
     case "reportProblem":
       return `Report a problem · ${SURFACE_DISPLAY_NAME}`;
+    case "video":
+      return `See a request completed · ${SURFACE_DISPLAY_NAME}`;
     case "request":
     case "report":
       return null;
