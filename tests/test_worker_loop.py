@@ -348,9 +348,10 @@ def fabric(tmp_path_factory: pytest.TempPathFactory) -> Any:
 
 
 # The request-status page's event types (docs/status-events.schema.json at the redesign's 2a1510b,
-# plus `reopened` from the Eranos web commit 59c932c).
+# plus `reopened` from the Eranos web commit 59c932c and `reuse_checked` from 2dce2dd).
 SCHEMA_TYPES = {
     "reopened",
+    "reuse_checked",
     "received",
     "plan_claimed",
     "plan_released",
@@ -592,11 +593,11 @@ def test_reworded_repeat_is_answered_from_the_library_only_after_another_keys_ch
     assert record["status"] == "closed" and record["parts"]["1"]["status"] == "delivered"
     assert record["parts"]["1"]["reused_from"]["store"] == "eranos.solutions"
     types = _types(record)
-    assert types[-5:] == ["check_claimed", "check_approved", "delivered", "plan_claimed", "closed"]
+    assert types[-5:] == ["check_claimed", "reuse_checked", "delivered", "plan_claimed", "closed"]
     assert set(_types(record)) <= SCHEMA_TYPES
-    approved = next(e for e in record["events"] if e["type"] == "check_approved")
-    assert approved["summary"]["reuse_check"]["answers"] == "yes"
-    assert approved["summary"]["reuse_check"]["model"] == "muse-spark-1.3"
+    checked = next(e for e in record["events"] if e["type"] == "reuse_checked")
+    assert checked["verdict"] == "fits" and checked["model"] == "muse-spark-1.3"
+    assert checked["ref"].startswith("eranos.solutions/") and checked["similarity"] >= 0.8
     delivered = next(e for e in record["events"] if e["type"] == "delivered")
     assert delivered["summary"]["reused"] is True
     check = [r for r in fabric.get(f"/v1/tasks/{check_id}/results")["results"] if r["ok"]][-1]

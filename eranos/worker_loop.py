@@ -1489,49 +1489,45 @@ class Worker:
         return out
 
     def reuse_facts(self, lease: Lease, out: dict[str, Any], part: Any) -> list[dict[str, Any]]:
-        """The check's facts: its model, verdict and reason, then the answer from the library."""
+        """The fit check's own fact, the page's `reuse_checked` (Eranos 2dce2dd): `fits` only when
+        the model said yes, `does_not_fit` for a no or an unsure answer; the checker's role (its
+        label, never a key), the model, the similarity and a ref to the matched answer. A fit is then
+        answered from the library; otherwise the planner plans new work."""
         who, receipt = self.who()["worker"], out.get("receipt")
         pointer, check = dict(out.get("reused") or {}), dict(out.get("check") or {})
-        summary = {
-            "reuse_check": {
-                k: check.get(k)
-                for k in (
-                    "answers",
-                    "why",
-                    "model",
-                    "model_display",
-                    "similarity",
-                    "cost_usd",
-                    "seconds",
-                )
-            },
-            "candidate": {k: pointer.get(k) for k in ("store", "key", "version", "score", "kind")},
-        }
-        if out.get("status") == "delivered":
+        answer_ref = f"{pointer.get('store')}/{pointer.get('key')}"
+        fits = out.get("status") == "delivered"
+        facts = [
+            fact(
+                "reuse_checked",
+                part=part,
+                receipt=receipt,
+                ref=answer_ref,
+                worker=who,
+                verdict="fits" if fits else "does_not_fit",
+                checker_role=who,
+                model=check.get("model"),
+                model_name=check.get("model_display"),
+                model_display=check.get("model_display"),
+                similarity=pointer.get("score"),
+                reason=check.get("why") or None,
+                summary={"answers": check.get("answers"), "cost_usd": check.get("cost_usd")},
+            )
+        ]
+        if fits:
             kind = "delivered" if pointer.get("kind") == "report" else "published"
-            return [
-                fact("check_approved", part=part, receipt=receipt, worker=who, summary=summary),
+            facts.append(
                 fact(
                     kind,
                     part=part,
                     receipt=receipt,
-                    ref=f"{pointer.get('store')}/{pointer.get('key')}",
+                    ref=answer_ref,
                     result_id=pointer.get("key"),
                     reason=f"Answered from the library after another worker checked that it fits: {check.get('why') or 'it answers this request'}",
                     summary={"reused": True, "score": pointer.get("score"), "new_verbs": 1},
-                ),
-            ]
-        return [
-            fact(
-                "check_sent_back",
-                part=part,
-                receipt=receipt,
-                worker=who,
-                reason=f"The library answer does not fit this request, so new work is planned: {check.get('why') or check.get('answers')}",
-                findings=[f"reuse check: {check.get('answers')}"],
-                summary=summary,
+                )
             )
-        ]
+        return facts
 
     # example kits (spec on eq01, draft on eq02, review on eq03) ----------------------------------
     def _bundles(self) -> dict[str, dict[str, Any]]:

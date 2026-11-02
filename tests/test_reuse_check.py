@@ -319,8 +319,13 @@ def test_a_check_that_never_finished_is_recorded_and_new_work_is_planned() -> No
         fabric, _lease(rid, "request", "eq01", _request_brief(NEAR_REQUEST), [dead])
     ).run()
     assert woke["status"] == "split" and _kinds(fabric)[-1] == ["research", "report_review"]
-    sent_back = [e for e in fabric.history(rid) if e.get("type") == "check_sent_back"]
-    assert sent_back and "did not finish" in sent_back[-1]["reason"]
+    verdicts = [e for e in fabric.history(rid) if e.get("type") == "reuse_checked"]
+    assert verdicts and verdicts[-1]["verdict"] == "does_not_fit"
+    assert (
+        "did not finish" in verdicts[-1]["reason"]
+        and verdicts[-1]["ref"] == "eranos.solutions/RPT-NEAR-01"
+    )
+    jsonschema.validate(verdicts[-1], EVENT_SCHEMA)
 
 
 def test_the_key_that_proposed_a_reuse_may_not_check_it() -> None:
@@ -492,3 +497,43 @@ def test_a_request_whose_research_never_finished_can_be_reopened_as_new_work() -
     out = _planner(fabric, _lease(task_id, "request", "eq01", brief)).run()
     assert out["status"] == "split" and _kinds(fabric) == [["research", "report_review"]]
     assert fabric.request(rid)["status"] == "open_for_build"
+
+
+@pytest.mark.parametrize(
+    ("answers", "verdict"), [("yes", "fits"), ("no", "does_not_fit"), ("unsure", "does_not_fit")]
+)
+def test_the_checker_writes_the_pages_reuse_checked_fact(
+    tmp_path: Path, answers: str, verdict: str
+) -> None:
+    from eranos.pipeline import process as process_part
+    from eranos.worker_loop import Worker, WorkerConfig
+
+    fabric = Fabric()
+    _near_duplicate(fabric)
+    _, children, ids = fabric.splits[-1]
+    lease = _lease(ids[0], reuse_check.REUSE_KIND, "eq03", children[0].brief)
+    out = reuse_check.review_reuse(fabric, lease, key_id=REVIEWER_KEY, judge=_judge(answers))
+    config = WorkerConfig(
+        role="reviewer",
+        label="dedicated-worker-3",
+        tessera_url="http://127.0.0.1:9",
+        key="x",
+        key_id=REVIEWER_KEY,
+        trace_path=str(tmp_path / "trace.jsonl"),
+        dedicated=True,
+        display_name="dedicated worker 3 (run by ta-amps)",
+    )
+    worker = Worker(
+        config, backend=fabric, heartbeat_backend=object(), handler=process_part.StubHandler()
+    )
+    facts = worker.reuse_facts(lease, out, 1)
+    checked = facts[0]
+    jsonschema.validate(checked, EVENT_SCHEMA)
+    assert checked["type"] == "reuse_checked" and checked["verdict"] == verdict
+    assert checked["checker_role"] == "dedicated worker 3 (run by ta-amps)"
+    assert checked["model"] == "muse-spark-1.3" and checked["similarity"] >= reuse.MIN_THRESHOLD
+    assert checked["ref"] == "eranos.solutions/RPT-NEAR-01" and len(checked["receipt"]) == 64
+    assert REVIEWER_KEY not in json.dumps(facts) and PLANNER_KEY not in json.dumps(facts)
+    assert [f["type"] for f in facts] == (
+        ["reuse_checked", "delivered"] if verdict == "fits" else ["reuse_checked"]
+    )

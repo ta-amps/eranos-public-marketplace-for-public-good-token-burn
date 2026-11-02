@@ -561,16 +561,23 @@ class Planner:
             "finished_at": round(time.time(), 3),
         }
         if child is None or child.state != "done":
-            # The check never finished (no fact from a reviewer): say so before new work is planned.
+            # The check never finished, so no checker wrote its verdict: the page's reuse_checked
+            # says does_not_fit (Eranos 2dce2dd), and new work is planned.
+            pointer = dict(latest.get("reuse_check") or {})
             self._facts(
                 [
                     fact(
-                        "check_sent_back",
+                        "reuse_checked",
                         part=1,
-                        ref=f"{child.task_id if child else 'reuse check'} ended {child.state if child else 'missing'}",
+                        ref=f"{pointer.get('store')}/{pointer.get('key')}",
                         **self.who,
-                        reason="The check of a library answer did not finish, so new work is planned.",
-                        summary={"role": "planner", "reuse_check": True},
+                        verdict="does_not_fit",
+                        similarity=pointer.get("score"),
+                        reason="The check of the library answer did not finish, so new work is planned.",
+                        summary={
+                            "check_task": child.task_id if child else None,
+                            "check_state": child.state if child else "missing",
+                        },
                     )
                 ],
                 fields={"occurrences": occurrences},
