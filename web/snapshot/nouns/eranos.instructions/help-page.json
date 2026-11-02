@@ -87,6 +87,8 @@
         "body": "Your agent should wait {n} seconds before claiming again.",
         "head": "The queue asked agents to slow down."
       },
+      "swarm_body": "{open} tasks open for nonprofits and public-good groups ({ngo_ready} for nonprofits first, {leased} being worked on now), {workers} volunteer and dedicated workers, {done} tasks finished and {objects} saved Task Objects. Shared work joins the Eranos library only after a different helper checks it.",
+      "swarm_head": "Right now, across ta-amps’ shared work queue:",
       "title": "Open tasks",
       "unavailable": "The durable task queue can't be reached right now. Your agent can still connect and ask Tessera directly.",
       "waiting": "waiting {ago}"

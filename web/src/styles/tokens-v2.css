@@ -56,8 +56,6 @@
   --header-h: 64px; --notice-h: 32px; --container: 1200px;
 }
 @media (max-width: 767px) { :root { --header-h: 56px; } }
-
-
 @media (prefers-reduced-motion: reduce) {
   :root { --dur-base: 120ms; --dur-slow: 120ms; --dur-deliberate: 120ms; }
   *, *::before, *::after { animation-duration: 120ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }

@@ -712,3 +712,180 @@ def test_edge_lockdown_blocks_direct_origin_requests(
     assert SECRET not in denied.text
     allowed = client.get("/api/catalog", headers={"x-edge-auth": SECRET})
     assert allowed.status_code == 200
+
+
+def test_cloudflare_worker_swarm_fabric_aliases_feedback_and_rich_llms() -> None:
+    worker_path = (REPO_ROOT / "deploy" / "cloudflare" / "worker.js").as_posix()
+    dist_dir = (REPO_ROOT / "web" / "public").as_posix()
+    script = f"""
+import fs from "node:fs";
+import path from "node:path";
+import worker from {json.dumps(worker_path)};
+
+const distDir = {json.dumps(dist_dir)};
+const calls = [];
+const env = {{
+  TESSERA_SURFACE_KEY: "test-surface-key",
+  ASSETS: {{
+    async fetch(req) {{
+      const u = new URL(typeof req === "string" ? req : req.url);
+      const p = path.join(distDir, u.pathname.replace(/^\\//, ""));
+      if (u.pathname !== "/" && fs.existsSync(p) && fs.statSync(p).isFile()) {{
+        return new Response(fs.readFileSync(p), {{
+          status: 200,
+          headers: {{ "content-type": p.endsWith(".json") ? "application/json" : "text/plain" }},
+        }});
+      }}
+      return new Response("not found", {{ status: 404 }});
+    }},
+  }},
+  TESSERA: {{
+    async fetch(url) {{
+      const u = new URL(url);
+      if (u.pathname === "/v1/health") {{
+        return Response.json({{
+          queues: [
+            {{ name: "eq01", counts: {{ ready: 0, leased: 0, waiting: 0, done: 8, dead: 0, cancelled: 0 }} }},
+            {{ name: "eq02", counts: {{ ready: 1, leased: 0, waiting: 0, done: 5, dead: 0, cancelled: 0 }} }},
+            {{ name: "eq03", counts: {{ ready: 0, leased: 0, waiting: 0, done: 4, dead: 0, cancelled: 0 }} }},
+          ],
+        }});
+      }}
+      if (u.pathname === "/ns/main/v1/verbs") {{
+        const q = u.searchParams.get("queue");
+        return Response.json({{
+          verbs: q === "eq02"
+            ? [{{ task_id: "t-eq02-1", kind: "build", created_at: 1793500000, tags: ["open:anonymous"], brief: {{ title: "Build grant tracker kit", request_id: "rq-1", part: 1 }} }}]
+            : [],
+        }});
+      }}
+      return new Response("not found", {{ status: 404 }});
+    }},
+  }},
+  HERMA: {{
+    async fetch(url, init = {{}}) {{
+      const u = new URL(url);
+      calls.push({{ url: String(url), method: init.method || "GET", headers: init.headers || {{}} }});
+      if (u.pathname === "/q/pulse") {{
+        return Response.json({{
+          queue_counts_by_tier: {{
+            ngo_priority: {{ ready: 7, leased: 2, done: 112 }},
+            public_general: {{ ready: 11, leased: 3, done: 263 }},
+          }},
+          worker_fleet: {{ registered_workers: 51 }},
+          queue_embodiments: {{ hybrid_search_sidecar: {{ indexed_unique_contents: 1103 }} }},
+        }});
+      }}
+      if (u.pathname === "/q/feedback") {{
+        if ((init.method || "GET") === "POST") {{
+          const body = JSON.parse(init.body || "{{}}");
+          return Response.json({{ ok: true, accepted: true, proxied: true, summary: body.summary || "" }}, {{ status: 201 }});
+        }}
+        return Response.json({{ ok: true, proxied: true, items: [{{ id: "fb-1", summary: "live herma feedback" }}] }});
+      }}
+      return new Response("not found", {{ status: 404 }});
+    }},
+  }},
+}};
+
+const fab = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/fabric"), env)).json();
+const fabOffline = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/fabric"), {{}})).json();
+const healthAlias = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/health"), env);
+const healthJson = await healthAlias.clone().json();
+const tasksAlias = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/tasks"), env)).json();
+const tasksOfflineResp = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/tasks"), {{}});
+const dashRedirect = await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/dashboard", {{ headers: {{ accept: "text/html" }} }}), env);
+const dashJson = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/dashboard", {{ headers: {{ accept: "application/json" }} }}), env)).json();
+const fbGet = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/api/feedback?limit=5"), env)).json();
+const fbPostResp = await worker.fetch(
+  new Request("https://eranos.ta-amps.workers.dev/api/feedback", {{
+    method: "POST",
+    headers: {{ "content-type": "application/json", "x-agent-label": "test-worker" }},
+    body: JSON.stringify({{ summary: "Schema clarity looks great" }}),
+  }}),
+  env,
+);
+const fbPost = await fbPostResp.json();
+const fbOfflinePostResp = await worker.fetch(
+  new Request("https://eranos.ta-amps.workers.dev/api/feedback", {{
+    method: "POST",
+    headers: {{ "content-type": "application/json" }},
+    body: JSON.stringify({{ summary: "Offline fallback check" }}),
+  }}),
+  {{}},
+);
+const fbOfflinePost = await fbOfflinePostResp.json();
+const llms = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms.txt"), env)).text();
+const llmsFull = await (await worker.fetch(new Request("https://eranos.ta-amps.workers.dev/llms-full.txt"), env)).text();
+
+console.log(JSON.stringify({{
+  fab,
+  fabOffline,
+  healthStatus: healthAlias.status,
+  healthJson,
+  tasksAlias,
+  tasksOfflineStatus: tasksOfflineResp.status,
+  dashRedirectStatus: dashRedirect.status,
+  dashLocation: dashRedirect.headers.get("location"),
+  dashJson,
+  fbGet,
+  fbPostStatus: fbPostResp.status,
+  fbPost,
+  fbOfflineStatus: fbOfflinePostResp.status,
+  fbOfflinePost,
+  llmsLen: llms.length,
+  llmsFullLen: llmsFull.length,
+  llms,
+  calls,
+}}));
+"""
+    res = subprocess.run(
+        ["node", "--input-type=module", "-e", script],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    out = json.loads(res.stdout)
+    assert out["fab"]["swarm"] == {
+        "ngo_ready": 7,
+        "ngo_leased": 2,
+        "ngo_done": 112,
+        "general_ready": 11,
+        "general_leased": 3,
+        "general_done": 263,
+        "registered_workers": 51,
+        "stored_task_objects": 1103,
+    }
+    assert "swarm" not in out["fabOffline"]
+    assert out["healthStatus"] == 200
+    assert out["healthJson"]["ok"] is True
+    assert out["healthJson"]["surface"] == "eranos"
+    assert len(out["tasksAlias"]["tasks"]) == 1
+    assert out["tasksAlias"]["tasks"][0]["task_id"] == "t-eq02-1"
+    assert out["tasksOfflineStatus"] == 200
+    assert out["dashRedirectStatus"] == 307
+    assert out["dashLocation"] == "https://herma.ta-amps.workers.dev/dashboard"
+    assert out["dashJson"]["dashboard_url"] == "https://herma.ta-amps.workers.dev/dashboard"
+    assert out["dashJson"]["swarm"]["registered_workers"] == 51
+    assert out["fbGet"]["proxied"] is True
+    assert out["fbPostStatus"] == 201
+    assert out["fbPost"]["proxied"] is True
+    assert out["fbPost"]["summary"] == "Schema clarity looks great"
+    assert out["fbOfflineStatus"] == 200
+    assert out["fbOfflinePost"]["accepted"] is True
+    assert out["llmsLen"] > 20000
+    assert out["llmsFullLen"] > out["llmsLen"]
+    for expected in (
+        "https://eranos.ta-amps.workers.dev",
+        "https://agora.ta-amps.workers.dev",
+        "https://herma.ta-amps.workers.dev",
+        "https://tessera.ta-amps.workers.dev",
+        "/api/feedback",
+        "/q/feedback",
+        "/q/upload",
+        "16 MiB",
+        "step_mode",
+        "atomic_cognitive_step",
+        "atomic_build_step",
+    ):
+        assert expected in out["llms"], expected

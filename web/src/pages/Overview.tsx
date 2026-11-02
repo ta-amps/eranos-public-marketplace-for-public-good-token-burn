@@ -1,4 +1,4 @@
-import { SNAPSHOT } from "../config";
+import { LIVE_QUEUE_POLL_MS, SNAPSHOT } from "../config";
 import { countWords, fill, type HomeNoun, type SiteNoun } from "../lib/nouns";
 import type { CatalogResponse, FabricResponse } from "../lib/types";
 import { useNoun } from "../lib/useNoun";
@@ -16,21 +16,26 @@ const LAYERS = [
   { id: "f", depth: "near" },
 ] as const;
 
+const PIPELINE_QUEUES = ["eq01", "eq02", "eq03"] as const;
+
 function clock(at: number): string {
   return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" }).format(new Date(at));
 }
 
 /** Live counts from the queue. Absent, not zeros, when the queue can't be reached or this copy is offline. */
 function RightNow({ home }: { home: HomeNoun }) {
-  const fabric = useResource<FabricResponse>("/api/fabric");
-  const catalog = useResource<CatalogResponse>("/api/catalog?view=page");
+  const fabric = useResource<FabricResponse>("/api/fabric", { pollMs: LIVE_QUEUE_POLL_MS });
+  const catalog = useResource<CatalogResponse>("/api/catalog?view=page", { pollMs: LIVE_QUEUE_POLL_MS });
   if (SNAPSHOT || fabric.state.status !== "ready" || fabric.state.data.queues.length === 0) return null;
   const queues = new Map(fabric.state.data.queues.map((q) => [q.name, q]));
-  const intake = queues.get("eq01");
-  const requests = (intake?.ready ?? 0) + (intake?.leased ?? 0) + (intake?.waiting ?? 0);
-  const open = ["eq01", "eq02", "eq03"].reduce((sum, name) => sum + (queues.get(name)?.ready ?? 0), 0);
-  const working = ["eq01", "eq02", "eq03"].reduce((sum, name) => sum + (queues.get(name)?.leased ?? 0), 0);
+  const requests = PIPELINE_QUEUES.reduce((sum, name) => {
+    const q = queues.get(name);
+    return sum + (q?.ready ?? 0) + (q?.leased ?? 0) + (q?.waiting ?? 0);
+  }, 0);
+  const open = PIPELINE_QUEUES.reduce((sum, name) => sum + (queues.get(name)?.ready ?? 0), 0);
+  const working = PIPELINE_QUEUES.reduce((sum, name) => sum + (queues.get(name)?.leased ?? 0), 0);
   const kits = catalog.state.status === "ready" ? catalog.state.data.kits.length : null;
+  const swarm = fabric.state.data.swarm;
   return (
     <section className="er-container er-now" aria-labelledby="now-title" data-testid="right-now">
       <h2 id="now-title" className="er-now-title">
@@ -41,8 +46,19 @@ function RightNow({ home }: { home: HomeNoun }) {
         <li>{countWords(home.now.open, open)}</li>
         <li>{countWords(home.now.working, working)}</li>
         {kits !== null && <li>{countWords(home.now.kits, kits)}</li>}
+        {swarm && home.now.swarm && (
+          <li data-testid="right-now-swarm">
+            {fill(home.now.swarm, {
+              open: swarm.ngo_ready + swarm.general_ready,
+              ngo_ready: swarm.ngo_ready,
+              leased: swarm.ngo_leased + swarm.general_leased,
+              workers: swarm.registered_workers,
+              done: swarm.ngo_done + swarm.general_done,
+            })}
+          </li>
+        )}
       </ul>
-      <p className="er-small">{fill(home.now.note, { time: clock(Date.now()) })}</p>
+      <p className="er-small">{fill(home.now.note, { time: clock(fabric.updatedAt) })}</p>
     </section>
   );
 }

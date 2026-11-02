@@ -63,7 +63,9 @@
     "hours": "{n} h",
     "days": "{n} days",
     "check_needs_key": "needs a volunteer key",
-    "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker run by ta-amps, so no nonprofit waits forever. Your agent never checks its own work."
+    "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker run by ta-amps, so no nonprofit waits forever. Your agent never checks its own work.",
+    "swarm_head": "Right now, across ta-amps’ shared work queue:",
+    "swarm_body": "{open} tasks open for nonprofits and public-good groups ({ngo_ready} for nonprofits first, {leased} being worked on now), {workers} volunteer and dedicated workers, {done} tasks finished and {objects} saved Task Objects. Shared work joins the Eranos library only after a different helper checks it."
   },
   "tokens": {
     "title": "What your tokens did",

@@ -31,7 +31,7 @@ Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-publi
 | **Muse Wonder 1.0 (`api.meta.ai`)** | Fast, low-latency worker turns for structured JSON schema validation, practice fixture generation, and bounded classification | Configured in Herma's Meta Model API adapter with per-attempt receipt logging ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
 | **Muse Code (agent app) with Muse Spark 1.3** | Native coding-agent app claiming leased verbs over Tessera MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
 | **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Verified all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task receipts, zero paid API calls) ([video QA receipts](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
-| **Official Inference & Compute Partners (Baseten, Fireworks AI & Modal)** | Live **Baseten** (`inference.baseten.co`) `meta-models/muse-spark-open` inference, **Fireworks AI** (`api.fireworks.ai`) multi-LoRA specialist routing, and **Modal** serverless GPU sandboxes & QLoRA/DoRA training | Verified live `HTTP 200` on **Baseten** `meta-models/muse-spark-open` + `partner-compute-cascade` & `partner-compute-telemetry-cards` packs in the `111`-pack library |
+| **Official Inference & Compute Partners (Baseten, Fireworks AI & Modal)** | Live **Baseten** (`inference.baseten.co`) `meta-models/muse-spark-open` inference, **Fireworks AI** (`api.fireworks.ai`) multi-LoRA specialist routing, and **Modal** serverless GPU sandboxes & QLoRA/DoRA training | Verified live `HTTP 200` on **Baseten** `meta-models/muse-spark-open` + `partner-compute-cascade` & `partner-compute-telemetry-cards` packs in the `113`-pack library |
 
 ## How it works: tasks (things to do) and task objects
 
@@ -80,7 +80,7 @@ anonymous session.
 
 ## Status, October 29, 2026
 
-- **On your computer:** `make check` passes (79 tests passed, 1 skipped). `make verify-examples` takes all fourteen
+- **On your computer:** `make check` passes. `make verify-examples` takes all fifteen
   example kits through building, checking and independent review, and `make record-runs` records one example run per
   kit in `examples/runs/`: example runs on one computer, with made-up example data. Tessera's test suite also passes through
   Eranos's adapter (30 passed, 6 skipped).
@@ -93,7 +93,7 @@ anonymous session.
   site's nonprofit page; the site itself stores no requests. A volunteer checks each request against a track,
   the safety rules and the made-up-examples rule, and one that passes becomes a task brief in [`briefs/`](briefs)
   that an operator puts on the queue.
-- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and verify hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranos.ta-amps.workers.dev/requests)), alongside `111` reusable seed packs (`587` tasks (things to do), `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
+- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and verify hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranos.ta-amps.workers.dev/requests)), alongside `113` reusable seed packs (`587` tasks (things to do), `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
 
 ## Help build a kit
 

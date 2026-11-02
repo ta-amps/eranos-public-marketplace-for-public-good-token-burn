@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 
 import { Icon } from "../components/Icon";
-import { SNAPSHOT } from "../config";
+import { LIVE_QUEUE_POLL_MS, SNAPSHOT } from "../config";
 import { briefWithInterests, fill, type HelpNoun, type HelpPageNoun } from "../lib/nouns";
 import type { RequestExampleNoun } from "../lib/status/example";
 import { shortReceipt } from "../lib/status/ids";
@@ -33,8 +33,8 @@ export function Help() {
   const page = useNoun<HelpPageNoun>("help-page").value;
   const help = useNoun<HelpNoun>("help").value;
   const example = useNoun<RequestExampleNoun>("request-example").value;
-  const fabric = useResource<FabricResponse>("/api/fabric");
-  const open = useResource<{ tasks: OpenTask[] }>("/api/open-tasks");
+  const fabric = useResource<FabricResponse>("/api/fabric", { pollMs: LIVE_QUEUE_POLL_MS });
+  const open = useResource<{ tasks: OpenTask[] }>("/api/open-tasks", { pollMs: LIVE_QUEUE_POLL_MS });
   const [copiedTask, setCopiedTask] = useState("");
   const [mode, setMode] = useState<Mode>("any");
   const [interests, setInterests] = useState("");
@@ -79,6 +79,7 @@ export function Help() {
   }
 
   const queues = fabric.state.status === "ready" ? fabric.state.data.queues : [];
+  const swarm = fabric.state.status === "ready" ? fabric.state.data.swarm : undefined;
   const fabricLive = !SNAPSHOT && fabric.state.status === "ready" && queues.length > 0;
   const total = queues.reduce((sum, q) => sum + (q.ready ?? 0), 0);
   const submitted = example?.events.find((e) => e.type === "work_submitted");
@@ -231,6 +232,19 @@ export function Help() {
                   ))}
                 </ul>
               )
+            )}
+            {fabricLive && swarm && tasks.swarm_head && tasks.swarm_body && (
+              <p className="er-small" data-testid="shared-swarm-summary">
+                <strong>{tasks.swarm_head}</strong>{" "}
+                {fill(tasks.swarm_body, {
+                  open: swarm.ngo_ready + swarm.general_ready,
+                  ngo_ready: swarm.ngo_ready,
+                  leased: swarm.ngo_leased + swarm.general_leased,
+                  workers: swarm.registered_workers,
+                  done: swarm.ngo_done + swarm.general_done,
+                  objects: swarm.stored_task_objects,
+                })}
+              </p>
             )}
             <p className="er-small">{tasks.guard_note}</p>
             <p className="er-small">{tasks.list_note}</p>

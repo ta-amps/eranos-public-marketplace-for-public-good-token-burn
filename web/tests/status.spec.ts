@@ -69,6 +69,27 @@ test.describe("on the hosted build", () => {
     expect(tessera.calls.filter((c) => c.method === "GET").every((c) => c.auth === `Bearer ${KEY}`)).toBe(true);
   });
 
+  test("library suggestions stay visible across a 429 rate-limit response and succeed on retry", async ({ page }) => {
+    await mockSite(page);
+    const tessera = new FakeTessera();
+    tessera.signupFailure = { status: 429, code: "rate_limited", detail: "too many requests", retryAfter: 1 };
+    await tessera.install(page);
+    await page.goto("/nonprofits");
+    await fillRequest(page);
+    await page.getByRole("button", { name: "Send request", exact: true }).click();
+    const libraryCheck = page.getByTestId("library-check");
+    await expect(libraryCheck).toBeVisible();
+    await libraryCheck.getByRole("button", { name: "Send as a new request" }).click();
+    await expect(page.getByTestId("request-problem")).toBeVisible();
+    // Shared-library suggestions remain visible while rate-limited so the requester can read matching kits or retry cleanly.
+    await expect(libraryCheck).toBeVisible();
+    tessera.signupFailure = null;
+    await expect(page.getByTestId("request-problem")).toHaveCount(0, { timeout: 4000 });
+    await libraryCheck.getByRole("button", { name: "Send as a new request" }).click();
+    await page.waitForFunction(() => location.pathname.startsWith("/requests/rq-"));
+    await expect(page.getByTestId("request-status")).toBeVisible();
+  });
+
   test("E03: without the private link the page is read-only, or says this browser lacks the link", async ({ page }) => {
     const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", legal: true, report_id: "RPT-RAAAAAAA-01" }] };
     await mockSite(page, { plan, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws.", parts: { "1": { status: "open" } } } });

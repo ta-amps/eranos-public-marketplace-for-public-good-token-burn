@@ -82,14 +82,15 @@
       "one": "1 verified kit in the catalog",
       "many": "{n} verified kits in the catalog"
     },
-    "note": "Live from the queue at {time}. Requests in progress are being planned, built or independently reviewed; verified kits are already published in the catalog."
+    "swarm": "{open} tasks open for nonprofits and public-good groups across the shared work queue ({ngo_ready} for nonprofits first, {leased} being worked on now, {workers} volunteer and dedicated workers, {done} finished)",
+    "note": "Live from the queue at {time} (refreshes every 15s). Requests in progress are being planned, built or independently reviewed across eq01–eq03; verified kits are already two-step reviewed in eranos.catalog, distinct from unreviewed task objects on the shared worker queue."
   },
   "safety": {
     "title": "Questions people ask",
     "items": [
       {
         "q": "Does the Eranos website call an AI model?",
-        "a": "No, the site calls no AI model. Volunteers’ own agents do the work, with their own keys and budgets. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different volunteer checks it like any other work.",
+        "a": "No, the site calls no AI model. Volunteers’ own agents do the work, with their own keys and budgets. When no volunteer takes a task in time, a dedicated worker run by ta-amps picks it up, at any hour, using Meta’s Muse models through the Meta API under the same claim rules. A different helper checks every result before a person on your team decides what to use.",
         "a_short": "No. Volunteers’ agents do the work; a dedicated worker run by ta-amps, using Meta’s Muse models through the Meta API, takes what nobody picks up."
       },
       {

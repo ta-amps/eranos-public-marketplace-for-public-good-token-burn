@@ -182,7 +182,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [instructions/help.json](instructions/help.json) | Help in six steps |
 | [instructions/home.json](instructions/home.json) | Home page |
 | [instructions/library.json](instructions/library.json) | Find a solution |
-| [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos |
+| [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos and the shared ta-amps queue |
 | [instructions/nonprofits-page.json](instructions/nonprofits-page.json) | Tell us what you need |
 | [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
 | [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
@@ -203,7 +203,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_surface_release.py](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (15)
+## tests/ (16)
 
 | File | What it is |
 |---|---|
@@ -213,6 +213,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
 | [tests/test_example_runs.py](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
 | [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
+| [tests/test_light_ui_only.py](tests/test_light_ui_only.py) | Mechanical light-UI-only conformance gate for Eranos. |
 | [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [tests/test_open_contribution.py](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |

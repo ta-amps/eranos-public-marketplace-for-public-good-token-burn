@@ -315,11 +315,46 @@ test.describe("on the hosted build", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByTestId("right-now")).toHaveCount(0);
+    await expect(page.locator(".er-safety-grid")).toContainText("never call a model inline during a request");
+    await expect(page.locator(".er-safety-grid")).toContainText("always-on dedicated baseline workers");
     await page.unroute(`${LIVE}/api/**`);
-    await mockSite(page, { fabric: { queues: [{ name: "eq01", ready: 2, leased: 1, waiting: 0, done: 0, dead: 0, cancelled: 0 }, { name: "eq02", ready: 1, leased: 0, waiting: 0, done: 0, dead: 0, cancelled: 0 }] } });
+    await mockSite(page, {
+      fabric: {
+        queues: [
+          { name: "eq01", ready: 2, leased: 1, waiting: 0, done: 0, dead: 0, cancelled: 0 },
+          { name: "eq02", ready: 1, leased: 0, waiting: 0, done: 0, dead: 0, cancelled: 0 },
+        ],
+      },
+    });
     await page.reload();
-    await expect(page.getByTestId("right-now")).toContainText("3 requests in progress");
+    await expect(page.getByTestId("right-now")).toContainText("4 requests in progress");
     await expect(page.getByTestId("right-now")).toContainText("3 open tasks");
+    await page.unroute(`${LIVE}/api/**`);
+    await mockSite(page, {
+      fabric: {
+        queues: [
+          { name: "eq01", ready: 0, leased: 0, waiting: 0, done: 8, dead: 0, cancelled: 0 },
+          { name: "eq02", ready: 1, leased: 0, waiting: 0, done: 5, dead: 0, cancelled: 0 },
+          { name: "eq03", ready: 0, leased: 0, waiting: 0, done: 4, dead: 0, cancelled: 0 },
+        ],
+        swarm: {
+          ngo_ready: 7,
+          ngo_leased: 2,
+          ngo_done: 112,
+          general_ready: 11,
+          general_leased: 3,
+          general_done: 263,
+          registered_workers: 51,
+          stored_task_objects: 1103,
+        },
+      },
+    });
+    await page.reload();
+    await expect(page.getByTestId("right-now")).toContainText("1 request in progress");
+    await expect(page.getByTestId("right-now")).toContainText("1 open task");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("18 NGO and public-good tasks open across the shared worker queue");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("51 registered volunteer and dedicated workers");
+    await expect(page.getByTestId("right-now-swarm")).toContainText("375 tasks completed");
   });
 
 
@@ -490,10 +525,12 @@ test.describe("wording and accessibility", () => {
     const colours = () =>
       page.evaluate(() => ({ text: getComputedStyle(document.querySelector("main") as Element).color, background: getComputedStyle(document.body).backgroundColor }));
     const light = await colours();
+    expect(light.background).toBe("rgb(245, 242, 234)");
     await page.emulateMedia({ colorScheme: "dark" });
     const dark = await colours();
-    // Light only (owner, Nov 1): the dark scheme changes nothing.
+    // Light only (owner, Nov 1): the dark scheme changes nothing, and the page stays on paper.
     expect(dark.background).toBe(light.background);
+    expect(dark.background).toBe("rgb(245, 242, 234)");
     expect(dark.text).toBe(light.text);
   });
 

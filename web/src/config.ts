@@ -16,3 +16,7 @@ export const SURFACE_DISPLAY_NAME = import.meta.env.VITE_SURFACE_NAME || "Eranos
 export const SURFACE_PUBLIC_URL = resolvePublicUrl(import.meta.env.VITE_SURFACE_URL, "eranos");
 export const FABRIC_DISPLAY_NAME = import.meta.env.VITE_FABRIC_DISPLAY_NAME || "Tessera";
 export const FABRIC_PUBLIC_URL = resolvePublicUrl(import.meta.env.VITE_TESSERA_URL, "tessera");
+export const LIVE_QUEUE_POLL_MS =
+  Number.parseInt(String(import.meta.env.VITE_LIVE_QUEUE_POLL_MS || ""), 10) > 0
+    ? Number.parseInt(String(import.meta.env.VITE_LIVE_QUEUE_POLL_MS), 10)
+    : 15_000;

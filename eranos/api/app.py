@@ -15,7 +15,7 @@ from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException, Query, Request, Response
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.middleware.cors import CORSMiddleware
 from tessera import NotFound
@@ -61,6 +61,10 @@ EDGE_EXEMPT = frozenset(
         ("HEAD", "/connect.json"),
         ("GET", "/api/health"),
         ("HEAD", "/api/health"),
+        ("GET", "/health"),
+        ("HEAD", "/health"),
+        ("GET", "/dashboard"),
+        ("HEAD", "/dashboard"),
         ("GET", "/favicon.svg"),
         ("HEAD", "/favicon.svg"),
         ("GET", "/healthz"),
@@ -285,6 +289,7 @@ def agent_card(request: Request) -> dict[str, Any]:
 
 
 @app.get("/api/health")
+@app.get("/health")
 def health() -> dict[str, Any]:
     return {
         "ok": True,
@@ -293,6 +298,24 @@ def health() -> dict[str, Any]:
         "version": __version__,
         "backend": config.backend_name(),
     }
+
+
+@app.get("/dashboard", response_model=None)
+def dashboard_route(request: Request) -> Response:
+    accept = (request.headers.get("accept") or "").lower()
+    if "application/json" in accept and "text/html" not in accept:
+        return JSONResponse(
+            content={
+                "ok": True,
+                "synthetic": True,
+                "surface": "eranos",
+                "dashboard_url": "https://herma.ta-amps.workers.dev/dashboard",
+                "fabric_page": "/fabric",
+                "fabric_api": "/api/fabric",
+                **fabric(),
+            }
+        )
+    return RedirectResponse(url="https://herma.ta-amps.workers.dev/dashboard", status_code=307)
 
 
 @app.get("/api/handshake")
@@ -509,6 +532,26 @@ def open_requests() -> dict[str, Any]:
     }
 
 
+def _annotate_request_events(value: Any) -> Any:
+    if not isinstance(value, dict) or not isinstance(value.get("events"), list):
+        return value
+    prev_ver = 0
+    annotated: list[Any] = []
+    for idx, ev in enumerate(value["events"], start=1):
+        if not isinstance(ev, dict):
+            annotated.append(ev)
+            continue
+        ver = ev.get("version")
+        skipped = ver - prev_ver - 1 if isinstance(ver, int) and ver > prev_ver + 1 else 0
+        if isinstance(ver, int) and ver > prev_ver:
+            prev_ver = ver
+        row = {**ev, "step_index": idx}
+        if skipped > 0:
+            row["skipped_internal_versions"] = skipped
+        annotated.append(row)
+    return {**value, "events": annotated}
+
+
 @app.get("/api/requests/{request_id}")
 def request_status(request_id: str) -> dict[str, Any]:
     """One request as its public record holds it, or the example request for the example addresses."""
@@ -526,8 +569,78 @@ def request_status(request_id: str) -> dict[str, Any]:
         "example": False,
         "request_id": request_id,
         "page": page,
-        "value": found["value"],
+        "history_note": (
+            "Public history lists public_commons checkpoints with contiguous step_index 1..N; "
+            "skipped storage version numbers reflect pre-screening surface_only writes or internal occurrence checkpoints."
+        ),
+        "value": _annotate_request_events(found["value"]),
         "versions": [],
+    }
+
+
+@app.get("/api/tasks")
+def tasks_alias() -> dict[str, Any]:
+    backend = get_adapter()
+    try:
+        ensure_queues(backend)
+        rows: list[dict[str, Any]] = []
+        if hasattr(backend, "list_verbs"):
+            for queue in ("eq02", "eq03"):
+                for verb in backend.list_verbs(queue=queue, status="ready", limit=20):
+                    raw = (
+                        verb.model_dump(mode="json") if hasattr(verb, "model_dump") else dict(verb)
+                    )
+                    raw_brief = raw.get("brief")
+                    brief: dict[str, Any] = raw_brief if isinstance(raw_brief, dict) else {}
+                    raw_tags = raw.get("tags")
+                    tags: list[Any] = raw_tags if isinstance(raw_tags, list) else []
+                    rows.append(
+                        {
+                            "task_id": raw.get("task_id") or raw.get("id") or "",
+                            "queue": queue,
+                            "kind": str(raw.get("kind") or ""),
+                            "title": str(brief.get("title") or ""),
+                            "request_id": brief.get("request_id"),
+                            "part": brief.get("part"),
+                            "created_at": raw.get("created_at"),
+                            "open_to_anonymous": "open:anonymous" in tags,
+                        }
+                    )
+    finally:
+        backend.close()
+    return {"synthetic": True, "tasks": rows}
+
+
+@app.get("/api/feedback")
+def get_feedback_alias() -> dict[str, Any]:
+    return {
+        "ok": True,
+        "synthetic": True,
+        "surface": "eranos",
+        "upstream": "https://herma.ta-amps.workers.dev/q/feedback",
+        "proposals_url": "https://herma.ta-amps.workers.dev/q/proposals",
+        "items": [],
+    }
+
+
+@app.post("/api/feedback")
+async def post_feedback_alias(request: Request) -> dict[str, Any]:
+    try:
+        body = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=f"invalid JSON payload: {exc}") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="feedback payload must be a JSON object")
+    summary = str(
+        body.get("summary") or body.get("title") or body.get("message") or "worker feedback"
+    )[:280]
+    return {
+        "ok": True,
+        "synthetic": True,
+        "accepted": True,
+        "surface": "eranos",
+        "upstream": "https://herma.ta-amps.workers.dev/q/feedback",
+        "item": {"kind": "worker_feedback", "surface": "eranos", "summary": summary},
     }
 
 

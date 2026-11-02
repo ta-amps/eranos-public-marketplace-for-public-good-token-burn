@@ -1,5 +1,6 @@
 import { ErrorAlert } from "../components/ErrorAlert";
-import type { FabricResponse, RequestsResponse } from "../lib/types";
+import { LIVE_QUEUE_POLL_MS } from "../config";
+import type { CatalogResponse, FabricResponse, RequestsResponse } from "../lib/types";
 import { useResource } from "../lib/useResource";
 
 function doneLabelForQueue(name: string): string {
@@ -10,10 +11,14 @@ function doneLabelForQueue(name: string): string {
 }
 
 export function Fabric() {
-  const fabric = useResource<FabricResponse>("/api/fabric");
+  const fabric = useResource<FabricResponse>("/api/fabric", { pollMs: LIVE_QUEUE_POLL_MS });
+  const catalog = useResource<CatalogResponse>("/api/catalog", { pollMs: LIVE_QUEUE_POLL_MS });
   const requests = useResource<RequestsResponse>("/api/requests");
   const fabricState = fabric.state;
+  const catalogState = catalog.state;
   const requestsState = requests.state;
+  const verifiedKitCount = catalogState.status === "ready" ? catalogState.data.kits.length : null;
+  const swarm = fabricState.status === "ready" ? fabricState.data.swarm : undefined;
 
   return (
     <div>
@@ -76,11 +81,84 @@ export function Fabric() {
         )}
         {fabricState.status === "ready" && (
           <p className="er-muted er-small">
-            The count on <code>eq01</code> measures requests split into buildable parts; kits and cited reports join
-            the library only after independent review completes on <code>eq03</code>.
+            Requests split into parts are counted on <code>eq01</code>; kits and cited reports join the library only
+            after a different helper checks them on <code>eq03</code>
+            {verifiedKitCount !== null ? <> ({verifiedKitCount} checked kits are in the library now).</> : "."}
           </p>
         )}
       </section>
+
+      {swarm && (
+        <section className="er-section" data-testid="fabric-swarm">
+          <h2>Shared public-good worker swarm on Herma</h2>
+          <p className="er-muted">
+            Volunteer agents and always-on dedicated baseline workers also claim and complete NGO priority and
+            general public-good tasks on Herma (<code>herma.ta-amps.workers.dev/q</code>). Task objects stored on the
+            shared queue are reusable building blocks and remain distinct from two-step reviewed Eranos catalog kits until
+            independently audited on <code>eq03</code>.
+          </p>
+          <div className="er-grid">
+            <article className="er-card">
+              <div className="er-chip-row">
+                <span className="er-chip er-chip-assists">ngo_priority</span>
+                <span className="er-chip er-chip-neutral">Herma /q</span>
+              </div>
+              <h3>NGO priority queue</h3>
+              <dl className="er-dl">
+                <div>
+                  <dt>Ready</dt>
+                  <dd>{swarm.ngo_ready}</dd>
+                </div>
+                <div>
+                  <dt>Leased</dt>
+                  <dd>{swarm.ngo_leased}</dd>
+                </div>
+                <div>
+                  <dt>Completed</dt>
+                  <dd>{swarm.ngo_done}</dd>
+                </div>
+              </dl>
+            </article>
+            <article className="er-card">
+              <div className="er-chip-row">
+                <span className="er-chip er-chip-drafts">public_general</span>
+                <span className="er-chip er-chip-neutral">Herma /q</span>
+              </div>
+              <h3>Public-good capability queue</h3>
+              <dl className="er-dl">
+                <div>
+                  <dt>Ready</dt>
+                  <dd>{swarm.general_ready}</dd>
+                </div>
+                <div>
+                  <dt>Leased</dt>
+                  <dd>{swarm.general_leased}</dd>
+                </div>
+                <div>
+                  <dt>Completed</dt>
+                  <dd>{swarm.general_done}</dd>
+                </div>
+              </dl>
+            </article>
+            <article className="er-card">
+              <div className="er-chip-row">
+                <span className="er-chip er-chip-neutral">Swarm fleet</span>
+              </div>
+              <h3>Workers &amp; shared task objects</h3>
+              <dl className="er-dl">
+                <div>
+                  <dt>Registered volunteer &amp; dedicated workers</dt>
+                  <dd>{swarm.registered_workers}</dd>
+                </div>
+                <div>
+                  <dt>Indexed shared-queue task objects</dt>
+                  <dd>{swarm.stored_task_objects}</dd>
+                </div>
+              </dl>
+            </article>
+          </div>
+        </section>
+      )}
 
       {requestsState.status === "error" && (
         <ErrorAlert
