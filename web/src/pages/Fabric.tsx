@@ -23,9 +23,9 @@ export function Fabric() {
   return (
     <div>
       <section className="er-section">
-        <h1>Work queues on Tessera</h1>
+        <h1>Work queues on Teleion Fabric</h1>
         <p className="er-lede">
-          Eranos runs on Tessera, a shared work queue that keeps every Task (a piece of work) and every Task Object (what
+          Eranos runs on Teleion Fabric, a shared work queue that keeps every Task (a piece of work) and every Task Object (what
           a Task uses or makes) with a record of each step. A request moves through three steps here: planning, making,
           and a check by a different helper. Nothing joins the library until that check passes.
         </p>

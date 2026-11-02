@@ -305,7 +305,7 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
     practice = json.loads(out["practice"]["body"])
     expected = hashlib.sha256(canonical_json(draft).encode("utf-8")).hexdigest()
     assert practice["draft_sha256"] == expected
-    assert "connect-src 'self' https://tessera.teleionlabs.com" in out["help"]["csp"]
+    assert "connect-src 'self' https://fabric.teleionlabs.com" in out["help"]["csp"]
 
 
 def test_static_page_and_readme_match_the_site_noun() -> None:
@@ -540,7 +540,7 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
 def test_the_privacy_line_matches_what_the_site_loads() -> None:
     site = json.loads((ROOT / "instructions" / "site.json").read_text(encoding="utf-8"))
     assert (
-        site["privacy"].startswith("No analytics, ads or cookies.") and "Tessera" in site["privacy"]
+        site["privacy"].startswith("No analytics, ads or cookies.") and "Teleion Fabric" in site["privacy"]
     )
     # "Every page, script and style comes from this site": the policy the Worker sends allows nothing else,
     # except the request box's calls to Tessera.
@@ -553,7 +553,7 @@ def test_the_privacy_line_matches_what_the_site_loads() -> None:
     for name in ("default-src", "script-src", "style-src", "font-src"):
         assert directives[name] == "'self'", name
     assert directives["img-src"] == "'self' data:"
-    assert directives["connect-src"] == "'self' https://tessera.teleionlabs.com"
+    assert directives["connect-src"] == "'self' https://fabric.teleionlabs.com"
     # Zero browser storage (owner, Nov 1), except, until request codes replace them (Phase C), a request's private
     # link (lib/status/keys.ts), which the footer names.
     allowed = {"keys.ts"}
@@ -977,7 +977,7 @@ def test_a_published_process_package_downloads_from_the_local_tessera_and_nothin
         with _serve(create_app(store, settings), port, "/v1/health") as url:
             env = (
                 "({ TESSERA_SURFACE_KEY: " + json.dumps(reader) + ", "
-                "TESSERA: { fetch: (target, init) => fetch(String(target).replace('https://tessera.teleionlabs.com', "
+                "TESSERA: { fetch: (target, init) => fetch(String(target).replace('https://fabric.teleionlabs.com', "
                 + json.dumps(url)
                 + "), init) }, "
                 "FABRIC_DB: { prepare() { return { bind(store, key) { return { async first() { "

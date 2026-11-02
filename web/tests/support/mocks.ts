@@ -8,7 +8,7 @@ import type { Page, Route } from "@playwright/test";
  * keeps requester keys, requests and records in memory, the way the real one answers them.
  */
 export const LIVE = `http://localhost:${Number(process.env.ERANOS_TEST_PORT ?? 4174) + 1}`;
-export const TESSERA = "https://tessera.teleionlabs.com";
+export const TESSERA = "https://fabric.teleionlabs.com";
 
 const SNAPSHOT = new URL("../../snapshot/", import.meta.url);
 

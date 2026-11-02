@@ -840,8 +840,8 @@ console.log(JSON.stringify({{
     assert out["tasksAlias"]["tasks"][0]["task_id"] == "t-eq02-1"
     assert out["tasksOfflineStatus"] == 200
     assert out["dashRedirectStatus"] == 307
-    assert out["dashLocation"] == "https://herma.teleionlabs.com/dashboard"
-    assert out["dashJson"]["dashboard_url"] == "https://herma.teleionlabs.com/dashboard"
+    assert out["dashLocation"] == "https://shim.teleionlabs.com/dashboard"
+    assert out["dashJson"]["dashboard_url"] == "https://shim.teleionlabs.com/dashboard"
     assert out["dashJson"]["swarm"]["registered_workers"] == 51
     # Eranos's own llms.txt (Nov 2): plain words, the new hosts, the rules every agent follows.
     assert out["llmsLen"] > 2000
@@ -849,8 +849,8 @@ console.log(JSON.stringify({{
     for expected in (
         "https://eranosforgood.org",
         "https://agora.eranosforgood.org",
-        "https://herma.teleionlabs.com/llms.txt",
-        "https://tessera.teleionlabs.com/connect",
+        "https://shim.teleionlabs.com/llms.txt",
+        "https://fabric.teleionlabs.com/connect",
         "The worker that makes something never checks it.",
         "No private information at this stage",
         "show_on_map",

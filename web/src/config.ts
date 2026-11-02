@@ -8,14 +8,14 @@ export function resolvePublicUrl(explicit: string | undefined, target: PublicSur
       return `${window.location.protocol}//${target}.${rest}`;
     }
   }
-  return target === "eranos" ? "https://eranosforgood.org" : "https://tessera.teleionlabs.com";
+  return target === "eranos" ? "https://eranosforgood.org" : "https://fabric.teleionlabs.com";
 }
 
 export const SNAPSHOT = import.meta.env.VITE_SNAPSHOT === "1";
 export const SURFACE_DISPLAY_NAME = import.meta.env.VITE_SURFACE_NAME || "Eranos";
 /** The canonical address: eranosforgood.org (the workers.dev host still serves the same pages). */
 export const SURFACE_PUBLIC_URL = import.meta.env.VITE_SURFACE_URL || "https://eranosforgood.org";
-export const FABRIC_DISPLAY_NAME = import.meta.env.VITE_FABRIC_DISPLAY_NAME || "Tessera";
+export const FABRIC_DISPLAY_NAME = import.meta.env.VITE_FABRIC_DISPLAY_NAME || "Teleion Fabric";
 export const FABRIC_PUBLIC_URL = resolvePublicUrl(import.meta.env.VITE_TESSERA_URL, "tessera");
 export const LIVE_QUEUE_POLL_MS =
   Number.parseInt(String(import.meta.env.VITE_LIVE_QUEUE_POLL_MS || ""), 10) > 0

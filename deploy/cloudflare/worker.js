@@ -301,7 +301,7 @@ const CONTENT_SECURITY_POLICY = [
   "img-src 'self' data:",
   "font-src 'self'",
   "media-src 'self'",
-  "connect-src 'self' https://tessera.teleionlabs.com",
+  "connect-src 'self' https://fabric.teleionlabs.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
@@ -962,7 +962,7 @@ async function fetchCoordinatorPublicRecord(env, store, key) {
   if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_COORDINATOR_STORES.has(store)) return null;
   try {
     const resp = await env.TESSERA.fetch(
-      `https://tessera.teleionlabs.com/ns/main/v1/stores/${encodeURIComponent(store)}/records/${encodeURIComponent(key)}`,
+      `https://fabric.teleionlabs.com/ns/main/v1/stores/${encodeURIComponent(store)}/records/${encodeURIComponent(key)}`,
       { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
     );
     if (!resp.ok) {
@@ -985,7 +985,7 @@ async function fetchPendingRequestVerb(env, reqId) {
   if (!env || !env.TESSERA || !env.TESSERA_SURFACE_KEY || !LIVE_REQUEST_ID_RE.test(reqId)) return null;
   try {
     const resp = await env.TESSERA.fetch(
-      `https://tessera.teleionlabs.com/ns/main/v1/tasks/${encodeURIComponent(reqId)}`,
+      `https://fabric.teleionlabs.com/ns/main/v1/tasks/${encodeURIComponent(reqId)}`,
       { headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" } }
     );
     if (!resp.ok) {
@@ -1185,7 +1185,7 @@ async function servePackage(request, env, id) {
   let upstream = null;
   for (const path of [`/v1/blobs/${sha}`, `/ns/main/v1/blobs/${sha}`]) {
     try {
-      upstream = await env.TESSERA.fetch(`https://tessera.teleionlabs.com${path}`, {
+      upstream = await env.TESSERA.fetch(`https://fabric.teleionlabs.com${path}`, {
         headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
       });
     } catch {
@@ -1267,8 +1267,8 @@ async function cachedNegotiation(env) {
       return null;
     }
   };
-  const tessera = await ask(env.TESSERA, "https://tessera.teleionlabs.com/v1/handshake", env.TESSERA_SURFACE_KEY);
-  const herma = env.HERMA_SURFACE_KEY ? await ask(env.HERMA, "https://herma.teleionlabs.com/v1/handshake", env.HERMA_SURFACE_KEY) : null;
+  const tessera = await ask(env.TESSERA, "https://fabric.teleionlabs.com/v1/handshake", env.TESSERA_SURFACE_KEY);
+  const herma = env.HERMA_SURFACE_KEY ? await ask(env.HERMA, "https://shim.teleionlabs.com/v1/handshake", env.HERMA_SURFACE_KEY) : null;
   const value = { ...fallback, ...(tessera || {}), ...(tessera ? { tessera } : {}), ...(herma ? { herma } : {}) };
   if (tessera || herma) negotiationCache = { at: Date.now(), value };
   return value;
@@ -1753,7 +1753,7 @@ async function fetchFabricPayload(env) {
     (async () => {
       if (!env.TESSERA) return [];
       try {
-        const resp = await env.TESSERA.fetch("https://tessera.teleionlabs.com/v1/health", {
+        const resp = await env.TESSERA.fetch("https://fabric.teleionlabs.com/v1/health", {
           headers: { "X-Surface-Id": "eranos" },
           ...timeoutInit(),
         });
@@ -1776,7 +1776,7 @@ async function fetchFabricPayload(env) {
     (async () => {
       if (!env.HERMA) return null;
       try {
-        const resp = await env.HERMA.fetch("https://herma.teleionlabs.com/q/pulse", {
+        const resp = await env.HERMA.fetch("https://shim.teleionlabs.com/q/pulse", {
           headers: { "X-Surface-Id": "eranos" },
           ...timeoutInit(),
         });
@@ -1791,7 +1791,7 @@ async function fetchFabricPayload(env) {
     })(),
   ]);
   return {
-    display_name: "Tessera Cloud",
+    display_name: "Teleion Fabric Cloud",
     plan: "tessera-cloud",
     synthetic: true,
     queues,
@@ -1836,7 +1836,7 @@ function networkStrip(raw) {
 async function fetchSharedTasks(env) {
   if (!env.HERMA) return { available: false, tasks: [] };
   try {
-    const resp = await env.HERMA.fetch("https://herma.teleionlabs.com/q/tasks?limit=12", {
+    const resp = await env.HERMA.fetch("https://shim.teleionlabs.com/q/tasks?limit=12", {
       headers: { "X-Surface-Id": "eranos", accept: "application/json" },
       ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
     });
@@ -1864,7 +1864,7 @@ async function fetchSharedTasks(env) {
 async function fetchNetworkStrip(env) {
   if (!env.HERMA) return { available: false };
   try {
-    const resp = await env.HERMA.fetch("https://herma.teleionlabs.com/q/network", {
+    const resp = await env.HERMA.fetch("https://shim.teleionlabs.com/q/network", {
       headers: { "X-Surface-Id": "eranos", accept: "application/json" },
       ...(typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function" ? { signal: AbortSignal.timeout(FABRIC_UPSTREAM_TIMEOUT_MS) } : {}),
     });
@@ -1909,7 +1909,7 @@ async function loadOpenTasksFromTessera(env) {
     for (const queue of OPEN_TASK_QUEUES) {
       try {
         const resp = await env.TESSERA.fetch(
-          `https://tessera.teleionlabs.com/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
+          `https://fabric.teleionlabs.com/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
           {
             headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
           }
@@ -1995,7 +1995,7 @@ async function handleCloudApi(request, env, pathname) {
         const sHeaders = { "Content-Type": "application/json" };
         const clientIp = request.headers.get("CF-Connecting-IP");
         if (clientIp) sHeaders["CF-Connecting-IP"] = clientIp;
-        const sResp = await env.TESSERA.fetch("https://tessera.teleionlabs.com/v1/session/anonymous", {
+        const sResp = await env.TESSERA.fetch("https://fabric.teleionlabs.com/v1/session/anonymous", {
           method: "POST",
           headers: sHeaders,
           body: JSON.stringify({ agent_label: agentLabel }),
@@ -2062,7 +2062,7 @@ async function handleCloudApi(request, env, pathname) {
           synthetic: true,
           tasks: [],
           open_tasks_url: "/api/open-tasks",
-          shared_queue_url: "https://herma.teleionlabs.com/q/pulse",
+          shared_queue_url: "https://shim.teleionlabs.com/q/pulse",
         });
       }
       return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
@@ -2249,7 +2249,7 @@ async function handleCloudApi(request, env, pathname) {
           headers["Authorization"] = `Bearer ${env.TESSERA_SURFACE_KEY}`;
         }
         const resp = await env.TESSERA.fetch(
-          `https://tessera.teleionlabs.com/v1/feeds/noun.promotions?after=${after}&limit=${limit}`,
+          `https://fabric.teleionlabs.com/v1/feeds/noun.promotions?after=${after}&limit=${limit}`,
           { headers }
         );
         if (resp.ok) {
@@ -2352,7 +2352,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
           ok: true,
           synthetic: true,
           surface: "eranos",
-          dashboard_url: "https://herma.teleionlabs.com/dashboard",
+          dashboard_url: "https://shim.teleionlabs.com/dashboard",
           fabric_page: "/fabric",
           fabric_api: "/api/fabric",
           ...(await fetchFabricPayload(env)),
@@ -2361,7 +2361,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       return new Response(null, {
         status: 307,
         headers: {
-          location: "https://herma.teleionlabs.com/dashboard",
+          location: "https://shim.teleionlabs.com/dashboard",
           "cache-control": "no-store",
         },
       });
@@ -2395,7 +2395,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
       const fromNoun = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : null;
       const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms.txt");
-      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://tessera.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://fabric.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
@@ -2412,7 +2412,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
       const guide = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : FALLBACK_LLMS_TXT;
       return textResp(
-        `${guide}\n## Agent access\n- Discovery: /connect.json, /.well-known/agent.json (also /.well-known/agent-card.json).\n- A tracked anonymous session: POST /api/handshake; Eranos asks Tessera to mint it and returns what Tessera answers.\n- One request: /api/requests/<request id> returns its public record and recorded versions.\n`,
+        `${guide}\n## Agent access\n- Discovery: /connect.json, /.well-known/agent.json (also /.well-known/agent-card.json).\n- A tracked anonymous session: POST /api/handshake; Eranos asks Teleion Fabric to mint it and returns what Teleion Fabric answers.\n- One request: /api/requests/<request id> returns its public record and recorded versions.\n`,
         "text/markdown; charset=utf-8",
       );
     }
