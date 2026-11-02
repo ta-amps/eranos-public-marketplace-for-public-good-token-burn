@@ -46,6 +46,23 @@ VOLUNTEER_KEY: dict[str, Any] = {
     "role": "volunteer",
     "account_id": "eranos-volunteer",
 }
+# A volunteer's key for a harness that is not our worker program (review of 6e86d28): no cas:write,
+# so it writes no record, and one queue only, so a maker cannot also create the check of its own work.
+NARROW_SCOPES = ["nouns:read", "verbs:claim", "verbs:submit", "namespace:main", "surface:eranos"]
+NARROW_VOLUNTEER_KEYS: dict[str, dict[str, Any]] = {
+    "research": {
+        "queues": ["eq02"],
+        "kinds": ["research"],
+        "role": "volunteer",
+        "scopes": NARROW_SCOPES,
+    },
+    "check": {
+        "queues": ["eq03"],
+        "kinds": ["report_review"],
+        "role": "volunteer",
+        "scopes": NARROW_SCOPES,
+    },
+}
 INTAKE_KEY: dict[str, Any] = {
     "queues": ["eq01", "eq02", "eq03"],
     "kinds": ["spec", "draft", "review"],
@@ -63,10 +80,13 @@ def issue_key(
     account_prefix: str = "eranos-worker",
     account_id: str | None = None,
     label: str | None = None,
+    narrow: str | None = None,
 ) -> dict[str, Any]:
     """Issue one role's key; the returned dict holds the secret, so callers must not print it."""
     spec = (
-        INTAKE_KEY
+        NARROW_VOLUNTEER_KEYS[narrow]
+        if narrow
+        else INTAKE_KEY
         if name == "kit-intake"
         else VOLUNTEER_KEY
         if name.startswith("volunteer")

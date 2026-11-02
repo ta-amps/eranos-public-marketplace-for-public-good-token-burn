@@ -199,7 +199,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (20)
+## tests/ (21)
 
 | File | What it is |
 |---|---|
@@ -214,6 +214,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [tests/test_model_client.py](tests/test_model_client.py) | The workers' Meta client: standard tier only, the key from its file, caps before any call, no fallback. |
 | [tests/test_open_contribution.py](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
 | [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
+| [tests/test_plain_log.py](tests/test_plain_log.py) | The plain log the film's C2 shot records: only plain words, short numbers and the log's separators. |
 | [tests/test_public_feed.py](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
 | [tests/test_review_contract.py](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
 | [tests/test_schemas_and_copy.py](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |

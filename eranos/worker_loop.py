@@ -102,9 +102,15 @@ EXIT_STORAGE_ALLOWANCE = (
 )
 
 
-# What the plain log never shows: hashes, Task and request ids, key ids and keys, links.
-_UNPLAIN = re.compile(
-    r"\b[0-9a-f]{12,}\b|\bt_[0-9a-f]+\b|\brq-[\w.-]+|\b(?:k|tsk)_[\w-]+|https?://\S+|\b[A-Z]{3}-[\w-]*\d[\w-]*\b"
+# The plain log shows a token only if it is a plain word, a short number or version, or one of the
+# log's own separators; anything else becomes an ellipsis (an allowlist, review B1 of 6e86d28).
+_OK = re.compile(
+    r"""
+      \(?[A-Za-z][A-Za-z'-]{0,23}[.,;:!?)]*          # a word, maybe in a bracket, maybe with closing punctuation
+    | \$?\d{1,4}(?:\.\d{1,2})?[%A-Za-z]?[.,;:!?)]*   # a short number, a version such as 1.3, a price, 30B
+    | [·…-]                                           # the separators the log itself writes
+    """,
+    re.X,
 )
 STEP_WORDS = {
     "research": "a research Task",
@@ -120,8 +126,8 @@ STEP_WORDS = {
 
 
 def plain_words_only(text: str) -> str:
-    """A log line with ids, keys, hashes and links taken out."""
-    return " ".join(_UNPLAIN.sub("…", text).split())
+    """A log line with anything that is not a plain word or a short number taken out."""
+    return " ".join(t if _OK.fullmatch(t) else "…" for t in text.split())
 
 
 class ExampleOnlyRefused(InvalidRequest):

@@ -398,3 +398,33 @@ def test_each_named_volunteer_is_its_own_principal() -> None:
     assert [b["account_id"] for b in seen] == ["eranos-volunteer-ag1", "eranos-volunteer-ag2"]
     for body in seen:  # research and its checks only: no planner, builder or kit kinds
         assert body["queues"] == ["eq02", "eq03"] and body["kinds"] == ["research", "report_review"]
+
+
+def test_a_narrow_volunteer_key_writes_no_record_and_holds_one_queue() -> None:
+    import httpx
+
+    from eranos.worker_keys import issue_key
+
+    seen: list[dict[str, Any]] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        seen.append(json.loads(request.content))
+        return httpx.Response(201, json={"key": "tsk_" + "y" * 32, "key_id": f"k_n{len(seen)}"})
+
+    with httpx.Client(
+        base_url="https://tessera.example", transport=httpx.MockTransport(handle)
+    ) as http:
+        for queue in ("research", "check"):
+            issue_key(
+                http,
+                "admin-placeholder",
+                "volunteer",
+                days=8,
+                narrow=queue,
+                account_id=f"eranos-volunteer-ext-{queue}",
+            )
+    research, check = seen
+    assert (research["queues"], research["kinds"]) == (["eq02"], ["research"])
+    assert (check["queues"], check["kinds"]) == (["eq03"], ["report_review"])
+    for body in seen:
+        assert "cas:write" not in body["scopes"] and "verbs:claim" in body["scopes"]
