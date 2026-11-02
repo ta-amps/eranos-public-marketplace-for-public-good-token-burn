@@ -72,6 +72,24 @@ console.log(JSON.stringify(out));
 """
 
 
+# What machines read and write on the workers.dev alias: published agent pointers, MCP clients, service bindings and
+# older CLIs use these, so they answer in place instead of redirecting (alias audit, Nov 2).
+ALIAS_MACHINE_PATHS = [
+    "/api/health",
+    "/api/catalog",
+    "/api/tracks",
+    "/connect.json",
+    "/llms.txt",
+    "/llms-full.txt",
+    "/agent.md",
+    "/.well-known/agent-card.json",
+    "/.well-known/agent.json",
+    "/.well-known/security.txt",
+    "/healthz",
+    "/robots.txt",
+]
+
+
 def _worker(
     requests: list[tuple[str, str, str, Any]], extra_env: str = "({})"
 ) -> dict[str, dict[str, Any]]:
@@ -1092,12 +1110,12 @@ def test_footer_is_the_shared_standard_footer() -> None:
     assert page.index("page.bounds.head") < page.index("<RequestBox")
 
 
-def test_every_other_host_redirects_to_the_canonical_apex_and_pages_name_their_own_canonical() -> (
-    None
-):
-    """One canonical address (Nov 2 design §0.15): eranosforgood.org serves; the www and workers.dev aliases answer
-    301 for GET and HEAD and 308 for other methods, keeping path and query; a CORS preflight and local hosts are
-    answered where they arrive; every page's first HTML names its own canonical address."""
+def test_the_alias_redirects_page_navigations_and_serves_machine_paths_in_place() -> None:
+    """One canonical address for people (Nov 2 design §0.15; alias audit, Nov 2): on the workers.dev alias an HTML page
+    navigation answers 301 (GET, HEAD) or 308 (other methods) to eranosforgood.org, keeping path and query, while
+    /mcp, /api/*, /connect.json, /llms.txt, /.well-known/* and /healthz answer in place with the apex's own body, so MCP
+    clients, service bindings with redirect: "manual" and older CLIs keep working. www redirects everything; a CORS
+    preflight, local hosts and version previews are served in place; every page names its own canonical address."""
     script = (
         WORKER_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
         .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
@@ -1110,19 +1128,37 @@ const at = async (name, url, init = {}) => {
   const r = await worker.fetch(new Request(url, init), env);
   res[name] = { status: r.status, location: r.headers.get("location"), cors: r.headers.get("access-control-allow-origin"), body: init.method === "HEAD" ? "" : await r.text() };
 };
-await at("apex", "https://eranosforgood.org/nonprofits", { headers: { accept: "text/html" } });
-await at("apexHome", "https://eranosforgood.org/", { headers: { accept: "text/html" } });
+const ALIAS = "https://eranos.ta-amps.workers.dev";
+const APEX = "https://eranosforgood.org";
+const json = (body) => ({ method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+for (const path of MACHINE_PATHS) {
+  await at(`alias ${path}`, ALIAS + path);
+  await at(`apex ${path}`, APEX + path);
+}
+await at("alias GET /mcp", ALIAS + "/mcp");
+await at("apex GET /mcp", APEX + "/mcp");
+await at("alias POST /mcp", ALIAS + "/mcp", json({ jsonrpc: "2.0", id: 1, method: "tools/list" }));
+await at("apex POST /mcp", APEX + "/mcp", json({ jsonrpc: "2.0", id: 1, method: "tools/list" }));
+await at("alias POST /api/practice", ALIAS + "/api/practice", json({ draft: {} }));
+await at("apex POST /api/practice", APEX + "/api/practice", json({ draft: {} }));
+await at("apex", APEX + "/nonprofits", { headers: { accept: "text/html" } });
+await at("apexHome", APEX + "/", { headers: { accept: "text/html" } });
+await at("page", ALIAS + "/library?q=grants");
+await at("pageHome", ALIAS + "/");
+await at("pageSlash", ALIAS + "/help/");
+await at("pageHead", ALIAS + "/help", { method: "HEAD" });
+await at("pagePost", ALIAS + "/help", { method: "POST", body: "{}" });
+await at("pageKit", ALIAS + "/catalog/example-kit");
+await at("pageRequest", ALIAS + "/requests/example?moment=decided");
 await at("www", "https://www.eranosforgood.org/requests/example?moment=decided");
-await at("dev", "https://eranos.ta-amps.workers.dev/library?q=grants");
-await at("devHead", "https://eranos.ta-amps.workers.dev/help", { method: "HEAD" });
-await at("devPost", "https://eranos.ta-amps.workers.dev/mcp", { method: "POST", body: "{}", headers: { "content-type": "application/json" } });
-await at("devPreflight", "https://eranos.ta-amps.workers.dev/mcp", { method: "OPTIONS", headers: { origin: "https://example.org", "access-control-request-method": "POST" } });
+await at("wwwApi", "https://www.eranosforgood.org/api/health");
+await at("preflight", ALIAS + "/mcp", { method: "OPTIONS", headers: { origin: "https://example.org", "access-control-request-method": "POST" } });
 await at("local", "http://localhost:8787/help", { headers: { accept: "text/html" } });
 await at("preview", "https://6d7470f5-eranos.ta-amps.workers.dev/help", { headers: { accept: "text/html" } });
-const card = await (await worker.fetch(new Request("https://eranosforgood.org/.well-known/agent-card.json"), env)).json();
+const card = await (await worker.fetch(new Request(ALIAS + "/.well-known/agent-card.json"), env)).json();
 res.card = card.url;
 console.log(JSON.stringify(res));
-"""
+""".replace("MACHINE_PATHS", json.dumps(ALIAS_MACHINE_PATHS))
     )
     run = subprocess.run(
         ["node", "--input-type=module", "-e", script],
@@ -1132,6 +1168,41 @@ console.log(JSON.stringify(res));
         cwd=ROOT,
     )
     out = json.loads(run.stdout.strip().splitlines()[-1])
+    # Machine paths on the alias: served in place, the same status and body as the apex.
+    for path in [*ALIAS_MACHINE_PATHS, "POST /mcp", "POST /api/practice"]:
+        alias, apex = out[f"alias {path}"], out[f"apex {path}"]
+        assert alias["status"] == apex["status"] == 200, (path, alias["status"], apex["status"])
+        assert alias["location"] is None, path
+        assert alias["body"] == apex["body"], path
+    assert '"tools"' in out["alias POST /mcp"]["body"]
+    # GET /mcp answers the same as on the apex (MCP takes POST), never a redirect.
+    assert out["alias GET /mcp"]["status"] == out["apex GET /mcp"]["status"] != 308
+    assert out["alias GET /mcp"]["location"] is None
+    assert out["card"] == "https://eranosforgood.org"
+    # HTML page navigations on the alias: 301 for GET and HEAD, 308 otherwise, keeping path and query.
+    for name, location in [
+        ("page", "https://eranosforgood.org/library?q=grants"),
+        ("pageHome", "https://eranosforgood.org/"),
+        ("pageSlash", "https://eranosforgood.org/help/"),
+        ("pageHead", "https://eranosforgood.org/help"),
+        ("pageKit", "https://eranosforgood.org/catalog/example-kit"),
+        ("pageRequest", "https://eranosforgood.org/requests/example?moment=decided"),
+    ]:
+        assert (out[name]["status"], out[name]["location"]) == (301, location), name
+    assert (out["pagePost"]["status"], out["pagePost"]["location"]) == (
+        308,
+        "https://eranosforgood.org/help",
+    )
+    assert out["page"]["cors"] == "*"
+    # www redirects everything; apex pages name their own canonical address.
+    assert (out["www"]["status"], out["www"]["location"]) == (
+        301,
+        "https://eranosforgood.org/requests/example?moment=decided",
+    )
+    assert (out["wwwApi"]["status"], out["wwwApi"]["location"]) == (
+        301,
+        "https://eranosforgood.org/api/health",
+    )
     assert out["apex"]["status"] == 200
     assert (
         '<link rel="canonical" href="https://eranosforgood.org/nonprofits"' in out["apex"]["body"]
@@ -1141,26 +1212,8 @@ console.log(JSON.stringify(res));
         in out["apex"]["body"]
     )
     assert '<link rel="canonical" href="https://eranosforgood.org/"' in out["apexHome"]["body"]
-    assert (out["www"]["status"], out["www"]["location"]) == (
-        301,
-        "https://eranosforgood.org/requests/example?moment=decided",
-    )
-    assert (out["dev"]["status"], out["dev"]["location"]) == (
-        301,
-        "https://eranosforgood.org/library?q=grants",
-    )
-    assert (out["devHead"]["status"], out["devHead"]["location"]) == (
-        301,
-        "https://eranosforgood.org/help",
-    )
-    assert (out["devPost"]["status"], out["devPost"]["location"]) == (
-        308,
-        "https://eranosforgood.org/mcp",
-    )
-    assert out["dev"]["cors"] == "*"
-    assert out["devPreflight"]["status"] != 308 and out["devPreflight"]["location"] is None
+    assert out["preflight"]["status"] != 308 and out["preflight"]["location"] is None
     assert out["local"]["status"] == 200 and out["preview"]["status"] == 200
-    assert out["card"] == "https://eranosforgood.org"
 
 
 def test_page_text_comes_from_the_deploy_not_an_older_copy_in_tessera() -> None:

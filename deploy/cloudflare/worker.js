@@ -2426,10 +2426,13 @@ const onboardingApplication = {
 // The vendored onboarding module still serves /agent-start.{js,css,json}. Its landing banner is not
 // injected here: the home page opens on the marketplace's two front doors, and the /help page copies the
 // same starting brief, built in the browser with this same module.
-// One canonical address (Nov 2 design §0.15): every other host that reaches this Worker (the www alias, the
-// workers.dev alias, any other attached name) answers with a permanent redirect to eranosforgood.org, keeping the path
-// and query: 301 for GET and HEAD, 308 for any other method, so a client keeps its method and body. A CORS preflight is
-// answered where it arrives (a preflight may not be redirected), and local hosts and version previews serve as they are.
+// One canonical address for people (Nov 2 design §0.15): on any other host that reaches this Worker, a page navigation
+// (an app page) answers with a permanent redirect to eranosforgood.org, keeping the path and query: 301 for GET and
+// HEAD, 308 for any other method. What machines read and write (/mcp, /api/*, /connect.json, the llms and agent files,
+// /.well-known/*, /healthz, process files) answers in place: MCP clients do not follow a cross-origin redirect, service
+// bindings check with redirect: "manual", and published agent pointers and older CLIs use the alias (alias audit,
+// Nov 2). Every page served names eranosforgood.org as its canonical. The www alias redirects everything. A CORS
+// preflight is answered where it arrives, and local hosts and version previews serve as they are.
 const CANONICAL_HOST = new URL(CANONICAL_ORIGIN).hostname;
 function canonicalRedirect(request) {
   const url = new URL(request.url);
@@ -2437,6 +2440,7 @@ function canonicalRedirect(request) {
   if (host === CANONICAL_HOST || request.method === "OPTIONS") return null;
   if (host === "localhost" || host === "127.0.0.1" || host === "[::1]" || host.endsWith(".localhost")) return null;
   if (/^[0-9a-f]{8}-/.test(host) && host.endsWith(".workers.dev")) return null;
+  if (host !== `www.${CANONICAL_HOST}` && !isAppPage(url.pathname)) return null;
   return new Response(null, {
     status: request.method === "GET" || request.method === "HEAD" ? 301 : 308,
     headers: { location: `${CANONICAL_ORIGIN}${url.pathname}${url.search}`, "cache-control": "public, max-age=3600", ...CORS_HEADERS },
