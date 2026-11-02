@@ -184,6 +184,8 @@ export interface RightNowWords {
   sub: string;
   last: string;
   last_continent: string;
+  /** A claim whose data centre and continent are both unknown. */
+  last_unplaced?: string;
   declared: string;
   not_declared: string;
   cta: string;
@@ -409,10 +411,19 @@ export interface HelpTasksWords {
   swarm_body?: string;
 }
 
-/** Fills `{name}` holes in noun text. A hole without a value stays visible, so a gap is never hidden. */
+/**
+ * Fills `{name}` holes in noun text. `{name:one:many}` picks a word by the count, in the same form as Agora's network
+ * page: "{workers} {workers:worker:workers} {workers:is:are}" is "1 worker is", "2 workers are" and
+ * "0 workers are". A hole without a value stays visible, so a gap is never hidden.
+ */
 export function fill(template: string, values: Record<string, string | number> = {}): string {
-  return template.replace(/\{(\w+)\}/g, (hole, name: string) =>
-    Object.hasOwn(values, name) ? String(values[name]) : hole,
+  return template.replace(
+    /\{(\w+)(?::([^:{}]*):([^:{}]*))?\}/g,
+    (hole: string, name: string, one: string | undefined, many: string | undefined) => {
+      if (!Object.hasOwn(values, name)) return hole;
+      if (one !== undefined) return Number(values[name]) === 1 ? one : (many ?? "");
+      return String(values[name]);
+    },
   );
 }
 

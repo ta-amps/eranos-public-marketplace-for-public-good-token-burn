@@ -1216,6 +1216,75 @@ console.log(JSON.stringify(res));
     assert out["local"]["status"] == 200 and out["preview"]["status"] == 200
 
 
+def test_the_right_now_strip_data_is_kept_at_the_edge_for_a_minute() -> None:
+    """The Right now strip's /api/network answer is one edge entry per minute (Herma's summary updates at most once a
+    minute): page views in that minute share one Herma read, whatever their query string; an off answer is kept 10 s;
+    browsers still ask each time; with no edge cache every read goes to Herma."""
+    herma = """({ HERMA: { calls: 0, mode: "ok", async fetch() {
+      this.calls += 1;
+      if (this.mode === "fail") return new Response("unavailable", { status: 503, headers: { "content-type": "text/plain" } });
+      return Response.json({ generated_at: "2026-11-02T15:00:00Z", recent_minutes: 10,
+        totals: { workers: 2, continents: 1, claims: 5, nonprofit_claims: 1 },
+        recent_claims: [{ at: "2026-11-02T14:58:00Z", kind_label: "Check", model: { name: "Muse Spark", declared: false }, via: { type: "data_centre", city: "Frankfurt", continent: "Europe" } }] });
+    } } })"""
+    script = (
+        WORKER_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
+        .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
+        .replace("INDEX_HTML", json.dumps((ROOT / "web" / "index.html").as_posix()))
+        .replace("EXTRA_ENV", herma)
+        .replace("REQUESTS", "[]")
+        + """
+const store = new Map();
+const edge = {
+  async match(req) { const hit = store.get(new URL(req.url).toString()); return hit ? new Response(hit.text, { headers: hit.headers }) : undefined; },
+  async put(req, res) { store.set(new URL(req.url).toString(), { text: await res.text(), headers: Object.fromEntries(res.headers) }); },
+};
+const get = async (url) => {
+  const r = await worker.fetch(new Request(url), env);
+  return { status: r.status, cache: r.headers.get("cache-control"), body: await r.text() };
+};
+const res = {};
+globalThis.caches = { default: edge };
+res.first = await get("https://eranosforgood.org/api/network");
+res.second = await get("https://eranosforgood.org/api/network");
+res.query = await get("https://eranosforgood.org/api/network?t=1");
+res.callsCached = env.HERMA.calls;
+res.stored = [...store.entries()].map(([key, v]) => [key, v.headers["cache-control"]]);
+store.clear();
+env.HERMA.mode = "fail";
+res.off = await get("https://eranosforgood.org/api/network");
+res.offAgain = await get("https://eranosforgood.org/api/network");
+res.callsOff = env.HERMA.calls;
+res.storedOff = [...store.values()].map((v) => v.headers["cache-control"]);
+delete globalThis.caches;
+env.HERMA.mode = "ok";
+await get("https://eranosforgood.org/api/network");
+await get("https://eranosforgood.org/api/network");
+res.callsUncached = env.HERMA.calls;
+console.log(JSON.stringify(res));
+"""
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+    out = json.loads(run.stdout.strip().splitlines()[-1])
+    first = json.loads(out["first"]["body"])
+    assert out["first"]["status"] == 200 and first["available"] is True
+    assert first["totals"] == {"workers": 2, "continents": 1, "claims": 5, "nonprofit_claims": 1}
+    assert out["second"]["body"] == out["first"]["body"] == out["query"]["body"]
+    assert out["callsCached"] == 1
+    assert out["stored"] == [["https://eranosforgood.org/api/network", "public, max-age=60"]]
+    assert {out[name]["cache"] for name in ("first", "second", "query")} == {"private, no-store"}
+    assert json.loads(out["off"]["body"]) == {"available": False}
+    assert out["offAgain"]["body"] == out["off"]["body"]
+    assert out["callsOff"] == 2 and out["storedOff"] == ["public, max-age=10"]
+    assert out["callsUncached"] == 4
+
+
 def test_page_text_comes_from_the_deploy_not_an_older_copy_in_tessera() -> None:
     """The 9fd6e09 rollback (Nov 2): Tessera's mirror held older page-text nouns, so new pages met old words and
     /library crashed. Page text (eranos.instructions) now ships with the deploy and wins over the mirror."""

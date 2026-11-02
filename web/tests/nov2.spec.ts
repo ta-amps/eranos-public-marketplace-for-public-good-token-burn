@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { LIVE, mockSite, noun, snapshot } from "./support/mocks";
+import { fill, type RightNowWords } from "../src/lib/nouns";
 
 // Claude Design's Nov 2 items for Eranos (CLAUDE-CODE-PROMPT-NOV2 §1.1–1.3, §1.9): the "Right now" strip under the
 // doors, the open Tasks on /help, the calm request page at 1280 × 613 and a page that fails to draw.
@@ -12,6 +13,31 @@ interface HelpWords {
   tasks: Record<string, unknown>;
   map_notice: string;
 }
+
+// Counts read right at 0, 1 and 2 (Agora review, Nov 2): the strip's count wording uses "{n:one:many}" forms, the
+// same as Agora's network page, and the formatter picks the word by the count, so no brace ever shows.
+test("the strip's count wording reads right at 0, 1 and 2 of each count", () => {
+  const words = noun<{ right_now: RightNowWords }>("home").right_now;
+  const headline = (workers: number, continents: number) => fill(words.headline, { workers, continents });
+  expect(headline(1, 1)).toBe("1 worker on 1 continent is picking up Tasks");
+  expect(headline(2, 1)).toBe("2 workers on 1 continent are picking up Tasks");
+  expect(headline(1, 2)).toBe("1 worker on 2 continents is picking up Tasks");
+  expect(headline(2, 2)).toBe("2 workers on 2 continents are picking up Tasks");
+  expect(headline(0, 0)).toBe("0 workers on 0 continents are picking up Tasks");
+  expect(fill(words.headline_short, { workers: 0 })).toBe("0 workers are picking up Tasks");
+  expect(fill(words.headline_short, { workers: 1 })).toBe("1 worker is picking up Tasks");
+  expect(fill(words.headline_short, { workers: 2 })).toBe("2 workers are picking up Tasks");
+  for (const n of [0, 1, 2]) expect(fill(words.sub, { nonprofit_claims: n })).toMatch(new RegExp(`^${n} for nonprofits today\\.`));
+  // Every template in the strip, at every count, leaves no hole or form behind.
+  const values = (n: number) => ({ workers: n, continents: n, nonprofit_claims: n, kind: "Check", model: "Muse Spark", city: "Frankfurt", continent: "Europe", ago: "now" });
+  for (const [key, template] of Object.entries(words) as [string, string][]) {
+    for (const n of [0, 1, 2]) expect(fill(template, values(n)), `${key} at ${n}`).not.toMatch(/[{}]/);
+  }
+  // The formatter: a form without a value stays visible, so a gap is never hidden.
+  expect(fill("{n} {n:Task:Tasks}", { n: 1 })).toBe("1 Task");
+  expect(fill("{n} {n:Task:Tasks}", { n: 0 })).toBe("0 Tasks");
+  expect(fill("{n} {n:Task:Tasks}", {})).toBe("{n} {n:Task:Tasks}");
+});
 
 test.describe("on the hosted build", () => {
   test.use({ baseURL: LIVE });
@@ -47,6 +73,39 @@ test.describe("on the hosted build", () => {
     await expect(strip).toContainText("9 for nonprofits today.");
     await expect(strip).toContainText("Last claim: Nonprofit Task claimed · Muse Spark 1.3 (declared) · via Frankfurt data centre · 2 minutes ago");
     await expect(strip.getByRole("link", { name: "See the network ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/network/");
+  });
+
+  test("live, the strip's counts read right at 0, 1 and 2 workers, continents and nonprofit claims", async ({ page }) => {
+    const at = new Date(Date.now() - 2 * 60_000).toISOString();
+    const last = { at, kind_label: "Check", model: null, via: { type: "data_centre", city: "Frankfurt", continent: "Europe" } };
+    const mocks: { network: Record<string, unknown> } = { network: { available: false } };
+    await mockSite(page, mocks);
+    const strip = page.getByTestId("right-now-strip");
+    for (const [workers, continents, nonprofit, headline] of [
+      [1, 1, 0, "1 worker on 1 continent is picking up Tasks"],
+      [2, 1, 1, "2 workers on 1 continent are picking up Tasks"],
+      [1, 2, 2, "1 worker on 2 continents is picking up Tasks"],
+      [2, 2, 0, "2 workers on 2 continents are picking up Tasks"],
+      [1, 0, 1, "1 worker is picking up Tasks"],
+      [2, 0, 2, "2 workers are picking up Tasks"],
+    ] as const) {
+      mocks.network = { available: true, recent_minutes: 10, totals: { workers, continents, claims: 3, nonprofit_claims: nonprofit }, last };
+      await page.goto("/");
+      await expect(strip).toHaveAttribute("data-state", "live");
+      await expect(strip.locator(".er-now-strip-headline")).toHaveText(headline);
+      await expect(strip.locator(".er-now-strip-sub")).toContainText(`${nonprofit} for nonprofits today.`);
+      expect(await strip.innerText()).not.toMatch(/[{}]/);
+    }
+    mocks.network = { available: true, recent_minutes: 10, totals: { workers: 0, continents: 0, claims: 0, nonprofit_claims: 0 }, last: null };
+    await page.goto("/");
+    await expect(strip).toHaveAttribute("data-state", "empty");
+    expect(await strip.innerText()).not.toMatch(/\d|[{}]/);
+    // A live claim with no known data centre or continent says where it can, never that the network is quiet.
+    mocks.network = { available: true, recent_minutes: 10, totals: { workers: 1, continents: 0, claims: 1, nonprofit_claims: 0 }, last: { ...last, via: { type: "continent", city: null, continent: null } } };
+    await page.goto("/");
+    await expect(strip).toHaveAttribute("data-state", "live");
+    await expect(strip).toContainText("Last claim: Check claimed · Model not declared · via a data centre · 2 minutes ago");
+    await expect(strip).not.toContainText("Quiet on the network");
   });
 
   test("quiet: no claim in the last 10 minutes says so, with the counts the summary gave", async ({ page }) => {

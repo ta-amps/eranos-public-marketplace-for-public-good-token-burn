@@ -75,7 +75,9 @@ export function RightNowStrip({ words }: { words: RightNowWords }) {
         ? fill(words.last, { kind: last.kind_label, model, city: last.via.city, ago: ago(last.at) })
         : last.via.continent
           ? fill(words.last_continent, { kind: last.kind_label, model, continent: last.via.continent, ago: ago(last.at) })
-          : null
+          : words.last_unplaced
+            ? fill(words.last_unplaced, { kind: last.kind_label, model, ago: ago(last.at) })
+            : null
       : null;
   const headline =
     totals.continents && totals.continents > 0

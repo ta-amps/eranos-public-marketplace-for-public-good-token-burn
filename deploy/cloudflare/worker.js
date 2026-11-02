@@ -1869,6 +1869,30 @@ async function fetchNetworkStrip(env) {
   }
 }
 
+// The Right now strip's data (Herma's network summary) is kept at the edge for a minute, the summary's own pace (its
+// totals update at most once a minute), so every home page shown in that minute shares one Herma read. An answer that
+// the summary is off is kept 10 s, so a recovery shows soon. One entry whatever the query string; browsers still ask
+// each time (the strip polls once a minute). Outside a Cloudflare runtime, and on workers.dev, the read runs each time.
+const NETWORK_CACHE_SECONDS = 60;
+const NETWORK_OFF_CACHE_SECONDS = 10;
+
+async function cachedNetworkStrip(request, env) {
+  const cache = request.method === "GET" && typeof caches !== "undefined" && caches.default ? caches.default : null;
+  const key = new Request(`${CANONICAL_ORIGIN}/api/network`, { method: "GET" });
+  const answer = (text) =>
+    new Response(text, { status: 200, headers: { "content-type": "application/json", "cache-control": "private, no-store" } });
+  const hit = cache ? await cache.match(key).catch(() => undefined) : undefined;
+  if (hit) return answer(await hit.text());
+  const body = await fetchNetworkStrip(env);
+  const text = JSON.stringify(visibleWords(body));
+  if (cache) {
+    const seconds = body.available ? NETWORK_CACHE_SECONDS : NETWORK_OFF_CACHE_SECONDS;
+    const stored = new Response(text, { headers: { "content-type": "application/json", "cache-control": `public, max-age=${seconds}` } });
+    await cache.put(key, stored).catch(() => undefined);
+  }
+  return answer(text);
+}
+
 async function loadOpenTasksFromTessera(env) {
   let reachable = false;
   const tasks = [];
@@ -2183,7 +2207,7 @@ async function handleCloudApi(request, env, pathname) {
   }
 
   if (pathname === "/api/network") {
-    return jsonResp(await fetchNetworkStrip(env));
+    return cachedNetworkStrip(request, env);
   }
 
   if (pathname === "/api/shared-tasks") {
