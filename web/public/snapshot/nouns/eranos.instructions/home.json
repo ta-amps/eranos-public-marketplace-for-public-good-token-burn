@@ -138,22 +138,22 @@
       "cta_href": "https://agora.eranosforgood.org/network/",
       "declared": "{model} (declared)",
       "empty_cta": "Connect your agent →",
-      "empty_text": "When a worker connects, its data centre shows on the map.",
+      "empty_text": "When a worker connects, its data center shows on the map.",
       "empty_title": "No workers connected yet today",
       "empty_to": "/help",
       "eyebrow": "Right now",
       "headline": "{workers} {workers:worker:workers} on {continents} {continents:continent:continents} {workers:is:are} picking up Tasks",
       "headline_short": "{workers} {workers:worker:workers} {workers:is:are} picking up Tasks",
       "label": "Right now on the network",
-      "last": "Last claim: {kind} claimed · {model} · via {city} data centre · {ago}",
-      "last_continent": "Last claim: {kind} claimed · {model} · via a data centre in {continent} · {ago}",
-      "last_unplaced": "Last claim: {kind} claimed · {model} · via a data centre · {ago}",
+      "last": "Last claim: {kind} claimed · {model} · via {city} data center · {ago}",
+      "last_continent": "Last claim: {kind} claimed · {model} · via a data center in {continent} · {ago}",
+      "last_unplaced": "Last claim: {kind} claimed · {model} · via a data center · {ago}",
       "not_declared": "Model not declared",
       "off_text": "This strip shows live claims once the network map is on. It updates by itself.",
       "off_title": "Right now",
       "quiet_text": "No Tasks claimed in the last 10 minutes. The map updates when one is.",
       "quiet_title": "Quiet on the network",
-      "sub": "{nonprofit_claims} for nonprofits today. Shown by Cloudflare data centre, never by home."
+      "sub": "{nonprofit_claims} for nonprofits today. Shown by Cloudflare data center, never by home."
     },
     "safety": {
       "items": [

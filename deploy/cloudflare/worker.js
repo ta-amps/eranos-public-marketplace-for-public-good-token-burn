@@ -1792,7 +1792,7 @@ async function fetchFabricPayload(env) {
 
 // The home page's "Right now" strip (LiveMapStrip, site eranos): Herma's public network summary (GET /q/network), read
 // over the service binding, cut to what the strip shows. Never an IP, a home or anything that identifies a person: the
-// summary only counts Cloudflare data centres and continents. When Herma has no such summary yet, or it does not
+// summary only counts Cloudflare data centers and continents. When Herma has no such summary yet, or it does not
 // answer, the strip says so with { available: false } and shows its quiet state; it never makes a number up.
 function networkStrip(raw) {
   const totals = raw && typeof raw.totals === "object" && raw.totals ? raw.totals : null;

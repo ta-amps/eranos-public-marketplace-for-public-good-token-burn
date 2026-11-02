@@ -71,7 +71,7 @@ test.describe("on the hosted build", () => {
     await expect(strip).toHaveAttribute("data-state", "live");
     await expect(strip).toContainText("12 workers on 3 continents are picking up Tasks");
     await expect(strip).toContainText("9 for nonprofits today.");
-    await expect(strip).toContainText("Last claim: Nonprofit Task claimed · Muse Spark 1.3 (declared) · via Frankfurt data centre · 2 minutes ago");
+    await expect(strip).toContainText("Last claim: Nonprofit Task claimed · Muse Spark 1.3 (declared) · via Frankfurt data center · 2 minutes ago");
     await expect(strip.getByRole("link", { name: "See the network ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/network/");
   });
 
@@ -100,11 +100,11 @@ test.describe("on the hosted build", () => {
     await page.goto("/");
     await expect(strip).toHaveAttribute("data-state", "empty");
     expect(await strip.innerText()).not.toMatch(/\d|[{}]/);
-    // A live claim with no known data centre or continent says where it can, never that the network is quiet.
+    // A live claim with no known data center or continent says where it can, never that the network is quiet.
     mocks.network = { available: true, recent_minutes: 10, totals: { workers: 1, continents: 0, claims: 1, nonprofit_claims: 0 }, last: { ...last, via: { type: "continent", city: null, continent: null } } };
     await page.goto("/");
     await expect(strip).toHaveAttribute("data-state", "live");
-    await expect(strip).toContainText("Last claim: Check claimed · Model not declared · via a data centre · 2 minutes ago");
+    await expect(strip).toContainText("Last claim: Check claimed · Model not declared · via a data center · 2 minutes ago");
     await expect(strip).not.toContainText("Quiet on the network");
   });
 
