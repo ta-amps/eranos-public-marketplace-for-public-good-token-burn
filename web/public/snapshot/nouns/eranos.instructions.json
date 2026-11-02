@@ -165,7 +165,7 @@
           },
           {
             "detail": "Do what the task brief asks, using synthetic examples or public sources only. Run the practice check: it stores nothing.",
-            "example": "POST https://eranos.ta-amps.workers.dev/api/practice",
+            "example": "POST https://eranosforgood.org/api/practice",
             "id": "build",
             "title": "Build and self-test"
           },
@@ -241,7 +241,9 @@
           "Added Kokoro 82M * (the film voice).",
           "Muse Glimmer 30B: shown as tuned and tested, not as running live.",
           "Removed internal to-do and rule lines that named banned words.",
-          "Steps name both Muse Spark 1.3 and Muse Wonder 1.0: the owner chose a self-tuning mix (D8). Pages show the live share."
+          "Steps name both Muse Spark 1.3 and Muse Wonder 1.0: the owner chose a self-tuning mix (D8). Pages show the live share.",
+          "Glimmer orchestrator results (H100, Nov 2) added from held-out evaluation with paired CIs; see glimmer-orchestrator/evidence/README.md.",
+          "v6 (Nov 2): Glimmer served on Modal for a 5% check trial; the Muse Spark 1.3 comparison and the rule-checks result were added from paired held-out evaluation."
         ],
         "created_at": "2026-11-01T05:45:00Z",
         "derived_from": "notes/coordination-2026-10-31/claude-design-models.v1.json (Claude Design, Nov 1) plus the corrections listed below",
@@ -393,6 +395,7 @@
             ]
           },
           {
+            "hosting": "Served by ta-amps on Modal: one H100 that shuts off when idle",
             "id": "muse-glimmer-30b",
             "kind": "open weights, tuned by us",
             "model_id": "meta-muse/Muse-Glimmer-30B (QLoRA, 4-bit NF4)",
@@ -410,6 +413,44 @@
                 },
                 "source": "models-matrix",
                 "text": "Exact tool-call match rose from 93.3% to 99.3% on our 150-case test, tuned and measured on Kaggle on two T4 GPUs."
+              }
+            ],
+            "uses": [
+              {
+                "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md",
+                "role": "orchestrator",
+                "state": "measured",
+                "text": "One fine-tuned Muse Glimmer 30B for search, review, routing and tool calling. On held-out tests it picked the right Task Object 89% of the time (base 2%), reviewed submitted work at 99% balanced accuracy (base 28%; it wrongly accepted 2 of 126 flawed reports), split nonprofit requests into Tasks at 98% F1 (base 45%), and kept tool calling at 99% (base 94%)"
+              },
+              {
+                "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md",
+                "role": "review",
+                "state": "measured",
+                "text": "Reviewer under the rule of two: sent back every self-review case and 124 of 126 flawed submissions (99% balanced accuracy on 204 held-out reviews; the 2 misses were reports with too few claims)"
+              },
+              {
+                "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md",
+                "role": "search-and-retrieval",
+                "state": "measured",
+                "text": "Search and retrieval: picking the right Task Object for a plain-language need went from 1.7% to 89.1% (top choice, 175 held-out needs)"
+              },
+              {
+                "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md",
+                "role": "routing",
+                "state": "measured",
+                "text": "Routing: splitting a nonprofit's request into Tasks, Task-Object F1 45.0% to 97.8% (106 held-out requests)"
+              },
+              {
+                "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md",
+                "role": "tool-calling-multirole",
+                "state": "measured",
+                "text": "Tool calling inside the same adapter: 94.0% to 99.3% exact match on the fixed 150-task evaluation"
+              },
+              {
+                "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/results/variant-spec-glimmer-orchestrator.json",
+                "role": "check (trial)",
+                "state": "ready",
+                "text": "Ready for a 5% trial on checking finished work. On 107 held-out reviews it scored 98.5% balanced accuracy, against 92.0% for Muse Spark 1.3 on the same reviews. With two simple rule checks run first (at least three claims, and the not-legal-advice line on legal topics), it sent back every flawed report and passed every good one in that set."
               }
             ]
           }
@@ -543,7 +584,7 @@
           }
         ],
         "updated": "2026-11-01",
-        "version": 4,
+        "version": 6,
         "why": "The owner asked (Nov 1): 'why is nanomuse the reviewer, what is this', and for a 'Models used' page that explains how we use each model, emphasizes Meta's models, and marks fallbacks to other models with *. Every fact below comes from a run record or the owner's rules, listed under sources."
       }
     },

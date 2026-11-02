@@ -31,7 +31,7 @@ from typing import Any
 from urllib.parse import quote_plus, urljoin, urlsplit
 
 EXTRACTOR = "eranos-text-v1"
-USER_AGENT = "eranos-volunteer-worker/0.1 (+https://eranos.ta-amps.workers.dev)"
+USER_AGENT = "eranos-volunteer-worker/0.1 (+https://eranosforgood.org)"
 TEXT_TYPES = ("text/html", "application/xhtml+xml", "text/plain", "application/json")
 BLOCK_TAGS = frozenset(
     [

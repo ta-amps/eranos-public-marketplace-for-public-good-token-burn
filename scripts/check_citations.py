@@ -3,7 +3,7 @@
 
 Standard library only, and it imports nothing from Eranos, so it does not share the worker's code.
 Give it a report as a file (the delivered noun, its `value`, or the bare report) or as an address
-(for example https://eranos.ta-amps.workers.dev/api/nouns/eranos.solutions/<report_id>):
+(for example https://eranosforgood.org/api/nouns/eranos.solutions/<report_id>):
 
     python3 scripts/check_citations.py <file-or-url> [--min-claims 3]
 

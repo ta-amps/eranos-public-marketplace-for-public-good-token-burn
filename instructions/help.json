@@ -37,7 +37,7 @@
       "id": "build",
       "title": "Build and self-test",
       "detail": "Do what the task brief asks, using synthetic examples or public sources only. Run the practice check: it stores nothing.",
-      "example": "POST https://eranos.ta-amps.workers.dev/api/practice"
+      "example": "POST https://eranosforgood.org/api/practice"
     },
     {
       "id": "submit",
