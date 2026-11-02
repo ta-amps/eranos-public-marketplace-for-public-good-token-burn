@@ -529,13 +529,22 @@ class Planner:
         ids = set(latest.get("children") or [])
         child = next((c for c in self.lease.children if c.task_id in ids), None)
         out = child.output if child is not None and isinstance(child.output, dict) else {}
+        mine = dict(latest.get("reuse_check") or {})
+        theirs = dict(out.get("reused") or {})
+        checker = str(getattr(child, "completed_by_key", "") or "") if child is not None else ""
         if (
             child is not None
             and child.state == "done"
             and out.get("node") == REUSE_KIND
             and out.get("accepted") is True
             and out.get("request_id") == self.request_id
+            # the answer the planner asked about, checked by a key that is neither the planner's
+            # nor the one that proposed it (the review's F3)
+            and all(theirs.get(k) == mine.get(k) for k in ("store", "key", "version"))
+            and bool(checker)
+            and checker not in {self.key_id, out.get("proposed_by_key")}
         ):
+            out = {**out, "reused": {**theirs, **mine}}
             ensure_reuse_delivered(
                 self.b, self.request_id, out, child.task_id, str(child.receipt_hash)
             )

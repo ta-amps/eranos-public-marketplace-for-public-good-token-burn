@@ -201,10 +201,11 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
 | [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (24)
+## tests/ (25)
 
 | File | What it is |
 |---|---|
+| [tests/conftest.py](tests/conftest.py) | Every test's wake files live in its own folder (the review's F5): a test run never touches the live workers'… |
 | [tests/support/local_tessera.mjs](tests/support/local_tessera.mjs) | A local Tessera for the worker tests: Tessera's own Cloudflare Worker on actual workerd (Miniflare), |
 | [tests/support/status-event.schema.json](tests/support/status-event.schema.json) | JSON object: $schema, $comment, $ref, $defs |
 | [tests/support/workerd_fabric.py](tests/support/workerd_fabric.py) | A local Tessera on workerd for the worker-loop tests, with locally generated keys only. |

@@ -188,7 +188,7 @@ def research_brief(
                 for api in apis
             ],
             "pages": [
-                {k: page[k] for k in ("id", "publisher", "url", "access")}
+                {k: page[k] for k in ("id", "publisher", "url", "access", "caveat") if k in page}
                 for page in pages
                 if str(page.get("url") or "").startswith("https://")
             ],
@@ -422,6 +422,20 @@ def build_report(
     rules = guardrails if guardrails is not None else (brief.get("guardrails") or {})
     cited = {c["citations"][0]["source"] for c in claims}
     used = [s for s in sources if s["id"] in cited]
+    # A caveat the worker noun gives an official page (for example that food rules vary by state
+    # and county) goes with every report that cites the page; it is never the researcher's text.
+    pages = {
+        str(p.get("url")): p
+        for p in ((brief.get("fetch") or {}).get("pages") or [])
+        if isinstance(p, dict)
+    }
+    caveats = list(
+        dict.fromkeys(
+            str((pages.get(str(s.get("url"))) or {}).get("caveat") or "")
+            for s in used
+            if (pages.get(str(s.get("url"))) or {}).get("caveat")
+        )
+    )
     report: dict[str, Any] = {
         "report_id": brief["report_id"],
         "request_id": brief["request_id"],
@@ -430,7 +444,8 @@ def build_report(
         "sources": [{k: s.get(k) for k in SOURCE_FIELDS} | {"published": None} for s in used],
         "claims": claims,
         "summary": f"{len(claims)} cited points from {len(used)} public sources. "
-        + " ".join(c["text"] for c in claims[:3]),
+        + " ".join(c["text"] for c in claims[:3])
+        + ("".join(" " + c for c in caveats) if caveats else ""),
         "decision": str(rules.get("decision", "")),
         "content_notice": CONTENT_NOTICE,
         "stages": stages,
@@ -810,7 +825,7 @@ def review_research(
         kept = [c for c in kept if c["id"] not in unsupported]
     basis = {
         k: brief.get(k)
-        for k in ("report_id", "request_id", "title", "question", "legal", "occurrence")
+        for k in ("report_id", "request_id", "title", "question", "legal", "occurrence", "fetch")
     }
     stages = {
         "reviewed": {

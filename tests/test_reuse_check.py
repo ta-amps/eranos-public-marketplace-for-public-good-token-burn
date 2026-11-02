@@ -620,3 +620,74 @@ def test_a_storage_error_after_the_split_never_closes_a_request_with_nothing(
             assert verdicts and verdicts[-1]["verdict"] == "does_not_fit"
             assert verdicts[-1]["ref"] == "eranos.solutions/RPT-NEAR-01"
             jsonschema.validate(verdicts[-1], EVENT_SCHEMA)
+
+
+# the review's F2, F3 and F4 ---------------------------------------------------------------------------
+@pytest.mark.parametrize("who", ["planner", "proposer", "nobody"])
+def test_an_accepted_check_counts_only_from_another_key(who: str) -> None:
+    fabric = Fabric()
+    rid, _ = _near_duplicate(fabric)
+    _, children, ids = fabric.splits[-1]
+    lease = _lease(ids[0], reuse_check.REUSE_KIND, "eq03", children[0].brief)
+    checked = reuse_check.review_reuse(fabric, lease, key_id=REVIEWER_KEY, judge=_judge("yes"))
+    key = {"planner": PLANNER_KEY, "proposer": PLANNER_KEY, "nobody": None}[who]
+    done = ChildResult(
+        task_id=ids[0],
+        state="done",
+        ok=True,
+        output=fabric.submits[-1]["output"],
+        receipt_hash=checked["receipt"],
+        completed_by_key=key,
+    )
+    woke = _planner(
+        fabric, _lease(rid, "request", "eq01", _request_brief(NEAR_REQUEST), [done])
+    ).run()
+    assert woke["status"] == "split" and _kinds(fabric)[-1] == ["research", "report_review"]
+
+
+def test_an_accepted_check_about_another_answer_is_not_used() -> None:
+    fabric = Fabric()
+    rid, _ = _near_duplicate(fabric)
+    _, children, ids = fabric.splits[-1]
+    lease = _lease(ids[0], reuse_check.REUSE_KIND, "eq03", children[0].brief)
+    checked = reuse_check.review_reuse(fabric, lease, key_id=REVIEWER_KEY, judge=_judge("yes"))
+    output = {**fabric.submits[-1]["output"]}
+    output["reused"] = {**output["reused"], "key": "RPT-SOMETHING-ELSE"}
+    done = ChildResult(
+        task_id=ids[0],
+        state="done",
+        ok=True,
+        output=output,
+        receipt_hash=checked["receipt"],
+        completed_by_key=REVIEWER_KEY,
+    )
+    woke = _planner(
+        fabric, _lease(rid, "request", "eq01", _request_brief(NEAR_REQUEST), [done])
+    ).run()
+    assert woke["status"] == "split"
+
+
+def test_the_checks_reason_is_published_without_links_or_retired_words() -> None:
+    from eranos.pipeline.plain_words import forbidden
+
+    why = reuse_check.read_judgment(
+        {
+            "answers": "no",
+            "why": "See https://example.org/x and www.example.com; the "
+            + "synth"
+            + "etic case differs.",
+        }
+    )["why"]
+    assert "http" not in why and "www." not in why and not forbidden(why)
+    assert (
+        reuse_check.read_judgment({"answers": "yes", "why": "It names " + "Lla" + "ma."})["why"]
+        == ""
+    )
+
+
+def test_a_part_level_reuse_is_found_for_a_reopen() -> None:
+    pointer = {"store": "eranos.solutions", "key": "RPT-X-01", "version": 2}
+    value = {"parts": {"1": {"route": "reused", "status": "delivered", "reused_from": pointer}}}
+    assert reuse_check.reused_pointer(value) == pointer
+    assert reuse_check.reused_pointer({"reused_from": pointer, "parts": {}}) == pointer
+    assert reuse_check.reused_pointer({"parts": {"1": {"route": "public-only"}}}) == {}

@@ -1311,3 +1311,121 @@ def test_an_example_kit_is_rebuilt_in_plain_words_through_the_queues(fabric: Any
         )  # the intake key queues; it never claims
     client.close()
     nobody.close()
+
+
+# The film's food-safety request (lead, Nov 2): official food-safety pages, not the Federal Register alone.
+FOOD_REQUEST = (
+    "What are the key food-safety rules for a community food pantry, with a source for every point?"
+)
+
+
+def _food_page(title: str, sentences: list[str]) -> str:
+    body = "".join(f"<p>{s}</p>" for s in sentences)
+    return f"<!doctype html><html><head><title>{title}</title></head><body><h1>Made-up page used only in tests</h1>{body}</body></html>"
+
+
+FOOD_PAGES = {
+    "https://www.fda.gov/food/buy-store-serve-safe-food/safe-food-handling": _food_page(
+        "Made-up safe food handling page",
+        [
+            "Under these made-up food safety rules, a food pantry keeps cold food at or below 40 degrees.",
+            "A food pantry washes hands and surfaces before it handles food, under these made-up rules.",
+            "These made-up food safety rules say a pantry keeps raw meat apart from ready-to-eat food.",
+        ],
+    ),
+    "https://www.epa.gov/sustainable-management-food/food-donation-basics": _food_page(
+        "Made-up food donation page",
+        [
+            "Under these made-up rules, a food pantry that takes donated food in good faith is protected from liability.",
+            "These made-up rules were updated in 2022 so a food pantry may give donated food at a small cost.",
+            "A food pantry that follows these made-up food safety rules keeps a record of donated food.",
+        ],
+    ),
+    "https://www.fda.gov/food/retail-food-protection/fda-food-code": _food_page(
+        "Made-up food code page",
+        [
+            "This made-up food code is a model, and each state writes its own food safety rules from it.",
+            "Under this made-up food code, a food pantry checks the dates on food before it hands food out.",
+            "Local health departments inspect a food pantry under these made-up food safety rules.",
+        ],
+    ),
+    "https://www.fda.gov/consumers/consumer-updates/are-you-storing-food-safely": _food_page(
+        "Made-up food storage page",
+        [
+            "These made-up food safety rules say a pantry freezer keeps food at 0 degrees.",
+            "A food pantry throws out food that has been left out for more than two hours, under these made-up rules.",
+            "Under these made-up rules, a food pantry stores dry food off the floor.",
+        ],
+    ),
+    "https://www.cdc.gov/food-safety/prevention/index.html": _food_page(
+        "Made-up food poisoning page",
+        [
+            "Under these made-up food safety rules, a food pantry cleans, separates, cooks and chills food.",
+            "A food pantry asks sick volunteers not to handle food, under these made-up rules.",
+            "These made-up food safety rules say a pantry cooks food to a safe temperature.",
+        ],
+    ),
+}
+
+
+def test_food_safety_requests_use_the_official_food_pages_and_cite_every_point() -> None:
+    from eranos.pipeline import research
+
+    brief = research.research_brief(
+        "rq-food",
+        {"part": 1, "route": "public-only", "legal": False, "text": FOOD_REQUEST},
+        "Nonprofit",
+        load_json(ROOT / "instructions" / "public-research.json"),
+        RULES,
+        [],
+    )
+    ids = [p["id"] for p in brief["fetch"]["pages"]]
+    assert set(ids) >= {
+        "food-fda-safe-handling",
+        "food-epa-donation-basics",
+        "food-fda-food-code",
+        "food-fda-storing",
+        "food-cdc-prevention",
+    }
+    assert not any(i.startswith("irs-") for i in ids)
+    assert all(
+        p["access"] == "public_web_page" and p["url"].startswith("https://www.")
+        for p in brief["fetch"]["pages"]
+    )
+    first_five = [u for u, _, _ in research.permitted_urls(brief)][: brief["fetch"]["max_sources"]]
+    assert "https://www.epa.gov/sustainable-management-food/food-donation-basics" in first_five
+    assert all(p.get("caveat") for p in brief["fetch"]["pages"])
+
+
+@needs_workerd
+def test_a_food_safety_information_request_is_delivered_with_a_source_for_every_claim(
+    fabric: Any,
+) -> None:
+    requester = fabric.requester()
+    rid = fabric.file_request(
+        requester,
+        {"text": FOOD_REQUEST, "links": [], "output_type": "information", "frequency": "one-off"},
+        "food1",
+    )
+    fetcher = fixture_fetcher(FOOD_PAGES)
+    w = {
+        "planner": fabric.worker("planner"),
+        "builder": fabric.worker("builder", model=FakeModel(bad=False), fetcher=fetcher),
+        "reviewer": _reviewer(fabric, fetcher=fetcher),
+    }
+    for role in ("planner", "builder", "reviewer", "planner"):
+        assert w[role].run_once() == "worked", role
+    record = _record(fabric, rid)
+    assert record["status"] == "closed" and record["parts"]["1"]["status"] == "delivered"
+    plan = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]
+    report_id = plan["parts"][0]["report_id"]
+    report = fabric.get(f"/v1/stores/eranos.solutions/records/{report_id}")["value"]["report"]
+    urls = {s["url"] for s in report["sources"]}
+    assert urls and urls <= set(FOOD_PAGES), urls
+    sources = {s["id"]: s for s in report["sources"]}
+    assert len(report["claims"]) >= 3
+    for claim in report["claims"]:
+        citation = claim["citations"][0]
+        assert citation["source"] in sources and citation["quote"]
+        assert citation["quote"] in FOOD_PAGES[sources[citation["source"]]["url"]]
+    assert "state and local health departments" in report["summary"]

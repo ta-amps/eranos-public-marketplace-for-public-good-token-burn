@@ -18,6 +18,7 @@ only when the record names it, so a forged reopen of another request is refused.
 from __future__ import annotations
 
 import json
+import re
 import time
 from collections.abc import Callable
 from typing import Any
@@ -25,6 +26,7 @@ from typing import Any
 from tessera import NotFound
 
 from eranos.pipeline import reuse
+from eranos.pipeline.plain_words import plain_text
 from eranos.pipeline.request_noun import read_request, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
 
@@ -86,11 +88,26 @@ def library_view(kind: str, value: dict[str, Any], max_points: int = 6) -> dict[
     }
 
 
+_LINKISH = re.compile(
+    r"https?://\S+|www\.\S+|\b[\w-]+\.(?:gov|org|com|net|edu|io|ai|us|uk)\b\S*", re.I
+)
+_RETIRED = re.compile(
+    r"l+ama", re.I
+)  # the shared list's always-banned family (rules/banned-words.json)
+
+
+def clean_why(text: str) -> str:
+    """The model's one-sentence reason as it may be published: no links or addresses, the owner's
+    plain words, nothing from the always-banned list (then no reason at all), at most MAX_WHY."""
+    why = " ".join(_LINKISH.sub("", plain_text(str(text or ""))).split())[:MAX_WHY]
+    return "" if _RETIRED.search(why) else why
+
+
 def read_judgment(answer: Any) -> dict[str, str]:
     """A model's answer as {answers, why}; anything that is not a clear yes counts as unsure."""
     found = answer if isinstance(answer, dict) else {}
     said = str(found.get("answers") or "").strip().lower()
-    why = " ".join(str(found.get("why") or "").split())[:MAX_WHY]
+    why = clean_why(str(found.get("why") or ""))
     if said not in VERDICTS:
         return {"answers": "unsure", "why": why or "the model's answer named no verdict"}
     return {"answers": said, "why": why}
@@ -246,12 +263,27 @@ def reopen_fact(
     }
 
 
+def reused_pointer(value: dict[str, Any]) -> dict[str, Any]:
+    """The library answer a request was closed with: at the request level (before F-REUSE-001) or
+    on a part whose route is `reused` (after an accepted check); empty when there is none."""
+    if isinstance(value.get("reused_from"), dict):
+        return dict(value["reused_from"])
+    for part in (value.get("parts") or {}).values():
+        if (
+            isinstance(part, dict)
+            and part.get("route") == "reused"
+            and isinstance(part.get("reused_from"), dict)
+        ):
+            return dict(part["reused_from"])
+    return {}
+
+
 def reopened_value(
     value: dict[str, Any], *, reason: str, n: int, task_id: str, finding: str, at: float
 ) -> dict[str, Any]:
     """The request record opened again: back to received, the wrong reuse moved to `reuse_withdrawn`,
     its parts cleared for the new plan, and this reopen named in `reopens` for the planner."""
-    wrong = dict(value.get("reused_from") or {})
+    wrong = reused_pointer(value)
     fact = reopen_fact(reason=reason, task_id=task_id, n=n, wrong=wrong, finding=finding, at=at)
     out = {
         k: v

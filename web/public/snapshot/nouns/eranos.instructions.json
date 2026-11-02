@@ -1148,9 +1148,131 @@
                 "revoked"
               ],
               "url": "https://www.irs.gov/charities-non-profits/automatic-revocation-of-exemption"
+            },
+            {
+              "access": "public_web_page",
+              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+              "id": "food-fda-safe-handling",
+              "publisher": "U.S. Food and Drug Administration",
+              "topics": [
+                "food-safety",
+                "safety",
+                "foodborne",
+                "poisoning",
+                "handling",
+                "temperature",
+                "cook",
+                "chill",
+                "perishable",
+                "clean",
+                "separate",
+                "kitchen"
+              ],
+              "url": "https://www.fda.gov/food/buy-store-serve-safe-food/safe-food-handling"
+            },
+            {
+              "access": "public_web_page",
+              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+              "id": "food-epa-donation-basics",
+              "publisher": "U.S. Environmental Protection Agency",
+              "topics": [
+                "pantry",
+                "donation",
+                "donate",
+                "donated",
+                "liability",
+                "samaritan",
+                "emerson",
+                "surplus",
+                "rescue",
+                "food-bank"
+              ],
+              "url": "https://www.epa.gov/sustainable-management-food/food-donation-basics"
+            },
+            {
+              "access": "public_web_page",
+              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+              "id": "food-fda-food-code",
+              "publisher": "U.S. Food and Drug Administration",
+              "topics": [
+                "food-safety",
+                "food-code",
+                "code",
+                "retail",
+                "inspection",
+                "inspector",
+                "permit",
+                "foodborne"
+              ],
+              "url": "https://www.fda.gov/food/retail-food-protection/fda-food-code"
+            },
+            {
+              "access": "public_web_page",
+              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+              "id": "food-fda-storing",
+              "publisher": "U.S. Food and Drug Administration",
+              "topics": [
+                "food-safety",
+                "safety",
+                "foodborne",
+                "poisoning",
+                "handling",
+                "temperature",
+                "cook",
+                "chill",
+                "perishable",
+                "storage",
+                "store",
+                "storing",
+                "refrigerator",
+                "fridge",
+                "freezer",
+                "spoil",
+                "leftover"
+              ],
+              "url": "https://www.fda.gov/consumers/consumer-updates/are-you-storing-food-safely"
+            },
+            {
+              "access": "public_web_page",
+              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+              "id": "food-cdc-prevention",
+              "publisher": "U.S. Centers for Disease Control and Prevention",
+              "topics": [
+                "food-safety",
+                "safety",
+                "foodborne",
+                "poisoning",
+                "handling",
+                "temperature",
+                "cook",
+                "chill",
+                "perishable",
+                "clean",
+                "separate",
+                "illness",
+                "sick"
+              ],
+              "url": "https://www.cdc.gov/food-safety/prevention/index.html"
+            },
+            {
+              "access": "public_web_page",
+              "caveat": "Food safety rules for a food pantry are set by state and local health departments and vary from place to place; check with yours before you change how you store or hand out food.",
+              "id": "food-usc-good-samaritan",
+              "publisher": "U.S. Government Publishing Office (42 U.S.C. 1791, as amended in 2022)",
+              "topics": [
+                "pantry",
+                "donation",
+                "donate",
+                "donated",
+                "liability",
+                "samaritan",
+                "emerson",
+                "food-bank"
+              ],
+              "url": "https://www.govinfo.gov/content/pkg/USCODE-2022-title42/html/USCODE-2022-title42-chap13A-sec1791.htm"
             }
           ],
-          "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2).",
+          "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it.",
           "timeout_seconds": 10
         },
         "title": "Rules for Eranos's volunteer workers"
