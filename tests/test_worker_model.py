@@ -516,3 +516,84 @@ def test_a_topic_whose_own_page_is_short_gets_more_official_pages() -> None:
     ]["pages"]
     federal = next(a for a in RULES["sources"]["official_apis"] if a["id"] == "federal-register")
     assert "fields%5B%5D=dates" in federal["query"]  # a notice's dates (deadlines) are in the text
+
+
+THANKS = (
+    "Example request: what must a nonprofit's donor thank-you letter say so the donor can deduct the gift, "
+    "including gifts where the donor gets something back?"
+)
+PRIVACY = (
+    "Example request: in plain language, how should a small nonprofit protect the personal information it keeps "
+    "about donors and clients, following the FTC's guide?"
+)
+
+
+def test_a_question_about_donors_or_privacy_law_is_researched() -> None:
+    """FB1-025: routing follows what a request holds, not words such as donors or personal information."""
+    from eranos.pipeline.planner import _parts
+    from eranos.pipeline.requests import check_findings
+
+    classify = load_json(ROOT / "instructions" / "classify.json")
+    law = "What does the law say about how a charity may share its donors' personal information?"
+    for text, chosen in (
+        (THANKS, "information"),
+        (PRIVACY, "information"),
+        (law, "information"),
+        (law, None),
+    ):
+        assert {p["route"] for p in _parts(text, classify, chosen)} == {"public-only"}, (
+            text,
+            chosen,
+        )
+        assert (
+            check_findings({"text": text, "links": ""}) == []
+        )  # nothing personal is held, nothing is refused
+    assert {p["route"] for p in _parts("Clean our donor records spreadsheet.", classify, None)} == {
+        "private-files"
+    }
+
+
+def test_pasted_records_are_refused_and_never_researched() -> None:
+    from eranos.pipeline.requests import check_findings
+
+    pasted = "Please summarize our intake. Name: Jane Roe\nPhone: 555-867-5309\nEmail: jane.roe@example.org"
+    assert check_findings({"text": pasted, "links": ""})  # the planner blocks it before any routing
+
+
+def test_a_task_that_names_no_request_is_refused_and_a_refusal_writes_no_fact(
+    tmp_path: Path,
+) -> None:
+    from eranos.worker_loop import NotInPlan
+
+    worker = make(tmp_path, model=Declared("muse-spark-1.3"))
+    worker.sleep = lambda seconds: None
+    with pytest.raises(NotInPlan, match="names no request"):
+        worker.planned_task(
+            SimpleNamespace(), SimpleNamespace(task_id="t_x", kind="research"), None
+        )
+
+    class Records:
+        def __init__(self) -> None:
+            self.puts: list[tuple[str, str]] = []
+
+        def put_record(self, store: str, key: str, *args: Any, **kw: Any) -> Any:
+            self.puts.append((store, key))
+            return SimpleNamespace(version=1)
+
+        def get_record(self, store: str, key: str) -> Any:
+            raise LookupError(key)
+
+    worker.backend = Records()
+    lease = SimpleNamespace(
+        task_id="t_f", kind="research", fencing_token=1, attempt=1, queue="eq02", brief={}
+    )
+    gate = SimpleNamespace(ended="failed", receipt=None)
+    worker.fail(
+        gate,
+        lease,
+        NotInPlan("the request's plan does not name this Task"),
+        1,
+        "rq-victim",
+        SimpleNamespace(lost=None),
+    )  # type: ignore[arg-type]
+    assert worker.backend.puts == []  # nothing is written onto the request the forged brief names

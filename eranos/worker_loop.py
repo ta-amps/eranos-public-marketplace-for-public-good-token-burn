@@ -1129,7 +1129,8 @@ class Worker:
                 receipt=receipt,
                 lease_lost=beat.lost is not None or gate.ended == "lost",
             )
-            if request_id and not self.stop.is_set():
+            if request_id and not self.stop.is_set() and not isinstance(exc, NotInPlan):
+                # G2: a Task its request's plan does not list writes nothing onto that request.
                 # A self-approval that was refused is the page's check_refused; any other failure
                 # puts the verb back in line (work_released), citing its ok=false receipt if any.
                 kind = "check_refused" if isinstance(exc, SelfReviewRefused) else "work_released"
@@ -1197,8 +1198,10 @@ class Worker:
         """Refuse a request's research, build or check Task unless the request's plan names it, so a
         Task someone else queued with a brief of their own is never worked or published. The planner
         writes the plan just after it creates the Tasks, so a missing name is read again shortly."""
-        if not request_id or lease.kind in KIT_KINDS:
+        if lease.kind in KIT_KINDS:
             return
+        if not request_id:  # G1: a research, build or check Task always belongs to a request
+            raise NotInPlan("the Task names no request")
         for wait in (0.0, 2.0, 5.0):
             if wait:
                 self.sleep(wait)

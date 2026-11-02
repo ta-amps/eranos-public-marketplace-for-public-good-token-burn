@@ -22,16 +22,11 @@
   ],
   "markers": {
     "private_files": [
-      "client",
-      "clients",
       "client statements",
       "case file",
       "case files",
       "case notes",
-      "cases",
       "caseload",
-      "donor",
-      "donors",
       "donor records",
       "intake notes",
       "bank statements",
@@ -41,9 +36,6 @@
       "signups",
       "member list",
       "contact list",
-      "beneficiary",
-      "beneficiaries",
-      "patients",
       "our files",
       "our records",
       "personnel files"
@@ -89,7 +81,8 @@
       "rulings",
       "legal",
       "court"
-    ]
+    ],
+    "private_files_about": "Phrases that name the organization's own records route a part to a kit its agent runs. A bare mention of donors, clients or cases does not (FB1-025); personal data pasted into a request (record lines, emails, phone numbers) is refused by the privacy check before any routing."
   },
   "plain_words": {
     "public-only": "We'll do this part from public information. Volunteers' agents research it, a different volunteer checks every source, and a person on your team decides what to do with it.",
