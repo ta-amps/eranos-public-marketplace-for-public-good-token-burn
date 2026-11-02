@@ -205,12 +205,13 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (19)
+## tests/ (20)
 
 | File | What it is |
 |---|---|
 | [`tests/fixtures/made-up-banned-words.json`](tests/fixtures/made-up-banned-words.json) | JSON object: `note`, `version`, `updated`, `case_insensitive`, `always`, `visible_text` |
 | [`tests/fixtures/made-up-neutral-words.json`](tests/fixtures/made-up-neutral-words.json) | JSON object: `note`, `rules` |
+| [`tests/fixtures/made-up-worker-shares.json`](tests/fixtures/made-up-worker-shares.json) | JSON object: `as_of`, `line`, `steps`, `outcomes` |
 | [`tests/test_agent_access.py`](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
 | [`tests/test_agent_banner_shared.py`](tests/test_agent_banner_shared.py) | The agent banner is one shared file: Agora and Eranos serve the same bytes, so the two sites never drift. |
 | [`tests/test_api_and_edge.py`](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |

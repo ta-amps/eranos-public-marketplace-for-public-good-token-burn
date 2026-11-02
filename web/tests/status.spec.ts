@@ -252,6 +252,8 @@ test.describe("on the hosted build", () => {
     await page.goto(`/requests/${REQUEST_ID}`);
     await expect(latest).toContainText(words.happened.work_claimed);
     await expect(page.getByTestId("helper-1")).toContainText(words.bands.made.helper_worker);
+    // One sentence: "An AI worker picked it up at 10:02 AM." (review of 2396c1c: never "worker Picked").
+    await expect(page.getByTestId("helper-1")).toContainText(`${words.bands.made.helper_worker} picked it up at `);
     expect(await plain.innerText()).not.toMatch(/volunteer[’']s (AI|agent)/i);
 
     // A claim marked as an outside volunteer, as the worker's volunteer mode records it: a volunteer's AI.
@@ -271,6 +273,24 @@ test.describe("on the hosted build", () => {
     await page.goto(`/requests/${REQUEST_ID}`);
     await expect(latest).toContainText(words.happened.check_claimed_volunteer ?? "");
     await expect(page.getByTestId("check-1")).toHaveText(words.bands.checked.checking_volunteer ?? "");
+  });
+
+  test("details: a claim with no declared model says No model declared, never model (declared): Not declared", async ({ page }) => {
+    const now = Math.floor(Date.now() / 1000);
+    const event = (version: number, value: Record<string, unknown>) => ({
+      version,
+      created_at: now - 300 + version,
+      value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 300 + version, ...value } },
+    });
+    const history = [
+      event(1, { type: "received", receipt: "a".repeat(64) }),
+      event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "volunteer-7", lease_ends: now + 600 }),
+    ];
+    await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}?view=technical`);
+    await expect(page.getByText("volunteer-7 · No model declared").first()).toBeVisible();
+    expect(await page.locator("body").innerText()).not.toMatch(/model \(declared\): Not declared/);
   });
 
   for (const names of ["the live workers' names", "the page's own names"] as const) {

@@ -30,7 +30,16 @@ function recent(data: NetworkStripResponse): boolean {
  */
 export function RightNowStrip({ words }: { words: RightNowWords }) {
   const network = useResource<NetworkStripResponse>("/api/network", { pollMs: NETWORK_POLL_MS });
-  if (SNAPSHOT || network.state.status === "loading") return null;
+  if (SNAPSHOT) return null;
+  if (network.state.status === "loading") {
+    // The card holds its place while /api/network answers, at the one height every state shares (eranos.css), so the
+    // hero never grows when the answer comes (E01: a cold load shifts nothing).
+    return (
+      <section className="er-now-strip er-now-strip-pending" aria-label={words.label} aria-busy="true" data-testid="right-now-strip" data-state="loading">
+        <p className="er-now-strip-eyebrow">{words.eyebrow}</p>
+      </section>
+    );
+  }
   const data = network.state.status === "ready" ? network.state.data : null;
   const totals = data?.available ? data.totals : undefined;
   const workers = totals?.workers ?? null;

@@ -2650,6 +2650,34 @@ button.er-choice-pill {
   gap: 4px;
   text-align: left;
 }
+/* Every state (loading, off, empty, quiet, live) keeps the live card's height at each width, measured with long
+   live words, so the hero never grows or shrinks when /api/network answers or the state changes (E01, CLS < 0.1). */
+.er-now-strip {
+  min-height: 184px;
+}
+@media (min-width: 1024px) and (max-width: 1099px) {
+  .er-now-strip {
+    min-height: 204px;
+  }
+}
+@media (max-width: 599px) {
+  .er-now-strip {
+    min-height: 228px;
+  }
+}
+@media (max-width: 440px) {
+  .er-now-strip {
+    min-height: 248px;
+  }
+}
+@media (max-width: 374px) {
+  .er-now-strip {
+    min-height: 268px;
+  }
+}
+.er-now-strip-pending {
+  align-content: start;
+}
 .er-now-strip p {
   margin: 0;
 }

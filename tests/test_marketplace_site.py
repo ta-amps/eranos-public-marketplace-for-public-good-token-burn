@@ -1284,6 +1284,42 @@ console.log(JSON.stringify(res));
     assert out["callsUncached"] == 4
 
 
+def test_the_workers_model_shares_are_read_from_their_noun_for_agora() -> None:
+    """GET /api/shares answers the workers' live model shares (eranos.instructions/worker.shares, written by their
+    hourly tune) for Agora's Models used page, the way /api/models answers models.meta: the noun's value, or null until
+    it is written, with the same open CORS as every /api route."""
+    shares = json.loads(
+        (ROOT / "tests" / "fixtures" / "made-up-worker-shares.json").read_text(encoding="utf-8")
+    )
+    db = (
+        "({ FABRIC_DB: { prepare() { return { bind(store, key) { return { async first() { "
+        "return store === 'eranos.instructions' && key === 'worker.shares' ? { value: "
+        + json.dumps(json.dumps(shares))
+        + " } : null; } }; } }; } } })"
+    )
+    written = _worker([("shares", "GET", "/api/shares", None)], db)["shares"]
+    assert written["status"] == 200 and written["type"].startswith("application/json")
+    assert written["cors"] == "*"
+    assert json.loads(written["body"]) == {
+        "store": "eranos.instructions",
+        "key": "worker.shares",
+        "shares": shares,
+    }
+    empty_db = "({ FABRIC_DB: { prepare() { return { bind() { return { async first() { return null; } }; } }; } } })"
+    for env in (empty_db, "({})"):
+        unwritten = _worker([("shares", "GET", "/api/shares", None)], env)["shares"]
+        assert unwritten["status"] == 200
+        assert json.loads(unwritten["body"]) == {
+            "store": "eranos.instructions",
+            "key": "worker.shares",
+            "shares": None,
+        }
+    card = json.loads(
+        _worker([("card", "GET", "/.well-known/agent-card.json", None)])["card"]["body"]
+    )
+    assert card["endpoints"]["shares"] == "/api/shares"
+
+
 def test_page_text_comes_from_the_deploy_not_an_older_copy_in_tessera() -> None:
     """The 9fd6e09 rollback (Nov 2): Tessera's mirror held older page-text nouns, so new pages met old words and
     /library crashed. Page text (eranos.instructions) now ships with the deploy and wins over the mirror."""

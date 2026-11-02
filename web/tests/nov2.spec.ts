@@ -108,6 +108,41 @@ test.describe("on the hosted build", () => {
     await expect(strip).not.toContainText("Quiet on the network");
   });
 
+  test("the strip keeps one height in every state, loading included, so the hero never moves (E01)", async ({ page }) => {
+    test.setTimeout(120_000); // 15 page loads: five states at three widths
+    // Review of 2396c1c: a cold load grew the hero from 545 to 618 px when the strip appeared. Now the card holds its
+    // place while /api/network answers, and every state shares the live card's height at each width.
+    const ago = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
+    const states: (Record<string, unknown> | null)[] = [
+      null,
+      { available: false },
+      { available: true, recent_minutes: 10, totals: { workers: 0, continents: 0, claims: 0, nonprofit_claims: 0 }, last: null },
+      { available: true, recent_minutes: 10, totals: { workers: 4, continents: 1, claims: 6, nonprofit_claims: 2 }, last: { at: ago(45), kind_label: "Check", model: null, via: { type: "continent", city: null, continent: "Africa" } } },
+      { available: true, recent_minutes: 10, totals: { workers: 12, continents: 3, claims: 40, nonprofit_claims: 9 }, last: { at: ago(2), kind_label: "Nonprofit research Task", model: { name: "Muse Wonder 1.0", declared: true }, via: { type: "data_centre", city: "Rio de Janeiro", continent: "South America" } } },
+    ];
+    let current: Record<string, unknown> | null = null;
+    await mockSite(page);
+    await page.route(`${LIVE}/api/network`, async (route) => {
+      if (current) await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(current) });
+      // null: never answers, so the strip stays in its loading state
+    });
+    const strip = page.getByTestId("right-now-strip");
+    for (const width of [1280, 1024, 390]) {
+      await page.setViewportSize({ width, height: 900 });
+      const seen: string[] = [];
+      for (const state of states) {
+        current = state;
+        await page.goto("/");
+        await expect(strip).toHaveAttribute("data-state", state === null ? "loading" : /^(off|empty|quiet|live)$/);
+        const box = await strip.boundingBox();
+        const hero = await page.getByTestId("landing").boundingBox();
+        if (!box || !hero) throw new Error("no layout box");
+        seen.push(`${Math.round(box.height)}/${Math.round(hero.height)}`);
+      }
+      expect(new Set(seen).size, `${width}px: strip/hero heights ${seen.join(", ")}`).toBe(1);
+    }
+  });
+
   test("quiet: no claim in the last 10 minutes says so, with the counts the summary gave", async ({ page }) => {
     const at = new Date(Date.now() - 45 * 60_000).toISOString();
     await mockSite(page, {

@@ -944,6 +944,10 @@ function openTaskView(verb, queue) {
 // Worker-declared model catalog for the current surface.
 const MODELS_STORE = "eranos.instructions";
 const MODELS_KEY = "models.meta";
+// The workers' live model shares (per-step shares, as_of, outcomes and a line; no keys or personas), written by the
+// workers' hourly tune. Agora's Models used page reads them here: Tessera's own public read needs a key.
+const SHARES_STORE = "eranos.instructions";
+const SHARES_KEY = "worker.shares";
 const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
 const LIVE_COORDINATOR_STORES = new Set(["eranos.requests", "eranos.plans", "eranos.solutions"]);
 const NOUN_KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/;
@@ -1524,6 +1528,7 @@ function buildStaticAgentCard(request) {
       request_history: "/api/nouns/eranos.requests/{request_id}/history",
       open_tasks: "/api/open-tasks",
       models: "/api/models",
+      shares: "/api/shares",
       tasks: "/api/tasks",
       fabric: "/api/fabric",
       dashboard: "/dashboard",
@@ -2199,6 +2204,13 @@ async function handleCloudApi(request, env, pathname) {
     return edgeCached(request, async () => {
       const catalog = await getHeadRecord(env.FABRIC_DB, MODELS_STORE, MODELS_KEY);
       return jsonResp({ synthetic: false, store: MODELS_STORE, key: MODELS_KEY, catalog: catalog && typeof catalog === "object" ? catalog : null });
+    });
+  }
+
+  if (pathname === "/api/shares") {
+    return edgeCached(request, async () => {
+      const shares = await getHeadRecord(env.FABRIC_DB, SHARES_STORE, SHARES_KEY);
+      return jsonResp({ store: SHARES_STORE, key: SHARES_KEY, shares: shares && typeof shares === "object" ? shares : null });
     });
   }
 

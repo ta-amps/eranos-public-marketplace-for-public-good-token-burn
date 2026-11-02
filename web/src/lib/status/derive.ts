@@ -512,7 +512,7 @@ export function workerLabel(words: RequestStatusNoun, who: string | undefined, d
 
 function agentChipText(words: RequestStatusNoun, a: Agent, options: DeriveOptions): string {
   // Details name models, never agent apps (rule 9): a dedicated worker shows the model and persona that ran, from its
-  // claim record; a volunteer's AI shows the model it declared, or "Not declared". Names come from models.meta.
+  // claim record; a volunteer's AI shows the model it declared, or "No model declared". Names come from models.meta.
   const who = workerLabel(words, a.who, a.dedicated) ?? (a.dedicated ? fill(words.chips.dedicated ?? "", { n: "1" }) : undefined);
   // A step that runs no model (the planner) is never credited with one, not even the dedicated workers' default.
   if (a.method && !a.model) return who && words.chips.no_model ? fill(words.chips.no_model, { who, method: a.method }) : (who ?? a.method);
@@ -525,8 +525,8 @@ function agentChipText(words: RequestStatusNoun, a: Agent, options: DeriveOption
   }
   const name = who ?? a.who ?? words.chips.agent ?? "";
   if (!name) return "";
-  const declared = model ?? words.chips.not_declared;
-  return declared && words.chips.worker_model ? fill(words.chips.worker_model, { who: name, model: declared }) : name;
+  if (!model) return words.chips.worker_undeclared ? fill(words.chips.worker_undeclared, { who: name }) : name;
+  return words.chips.worker_model ? fill(words.chips.worker_model, { who: name, model }) : name;
 }
 
 /** A finished step's chip names who did it; the record itself is a "Record" link in the list, never a hash. */

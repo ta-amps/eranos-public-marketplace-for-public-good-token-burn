@@ -1802,7 +1802,8 @@
           "see_process": "See the process",
           "sources": "{n} sources",
           "worker_model": "{who} · model (declared): {model}",
-          "worker_receipt": "{who} · Record"
+          "worker_receipt": "{who} · Record",
+          "worker_undeclared": "{who} · No model declared"
         },
         "choices": {
           "cadence": {
@@ -2098,8 +2099,8 @@
               "helper_worker": "An AI worker",
               "models_href": "https://agora.eranosforgood.org/models/",
               "models_link": "Which model does what ↗",
-              "picked": "Picked it up at {time}.",
-              "picked_eranos": "Picked it up at {time}: no volunteer was free.",
+              "picked": "picked it up at {time}.",
+              "picked_eranos": "picked it up at {time}: no volunteer was free.",
               "recorded": "One helper at a time. Every step is recorded.",
               "retry": "It is back in line.",
               "retry_count": "It is back in line (try {n} of {m}).",
