@@ -26,10 +26,12 @@
 
   const CSS = `
 :host { display: block; position: relative; z-index: 40; font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
-  --bg: var(--agent-banner-bg, #11161F); --ink: var(--agent-banner-ink, #F5F2EA); --muted: var(--agent-banner-muted, #C8D0DC);
-  --raised: var(--agent-banner-raised, #222732); --line: var(--agent-banner-line, #2B313D); --edge: var(--agent-banner-edge, #3B4252);
-  --link: var(--agent-banner-link, #9DBBF0); --focus: var(--agent-banner-focus, #F0884F); --can: #6E9BE8; --rule: #7FC29B;
-  background: var(--bg); color: var(--ink); border-bottom: 1px solid var(--line); }
+  /* Banner v2 (Nov 2): light Paper & Ink by default, so a page that sets no theme still gets the light banner. */
+  --bg: var(--agent-banner-bg, #EDE8DC); --ink: var(--agent-banner-ink, #11161F); --muted: var(--agent-banner-muted, #3B4252);
+  --raised: var(--agent-banner-raised, #FFFDF8); --paper: var(--agent-banner-paper, #F5F2EA);
+  --line: var(--agent-banner-line, #E2DCCF); --edge: var(--agent-banner-edge, #8A8476);
+  --link: var(--agent-banner-link, #24519B); --focus: var(--agent-banner-focus, #2A5DB0);
+  color-scheme: only light; background: var(--bg); color: var(--ink); border-bottom: 1px solid var(--line); }
 :host([hidden]) { display: none; }
 * { box-sizing: border-box; }
 section { margin: 0; }
@@ -40,17 +42,17 @@ section { margin: 0; }
 .lead b { font-weight: 600; }
 .short { display: none; }
 .chip { font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 13px; font-weight: 500;
-  color: var(--muted); background: var(--raised); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
+  color: var(--muted); background: var(--paper); padding: 3px 8px; border-radius: 6px; white-space: nowrap; }
 .space { flex: 1 1 0; }
 button { font: inherit; font-weight: 600; color: var(--ink); cursor: pointer; white-space: nowrap; border-radius: 8px;
   min-height: 28px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; }
 .copy { background: transparent; border: 1px solid var(--edge); }
 .copy:hover { border-color: var(--muted); }
 .copy svg { width: 14px; height: 14px; flex: none; }
-.toggle { background: var(--raised); border: 1px solid transparent; }
+.toggle { background: var(--paper); border: 1px solid transparent; }
 .toggle:hover { border-color: var(--edge); }
 button:focus-visible, a:focus-visible, .line:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.panel { border-top: 1px solid var(--line); }
+.panel { border-top: 1px solid var(--line); background: var(--raised); }
 .panel[hidden] { display: none; }
 .grid { max-width: 1248px; margin: 0 auto; padding: 18px 24px 22px; display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 1fr); gap: 28px; }
@@ -58,17 +60,17 @@ button:focus-visible, a:focus-visible, .line:focus-visible { outline: 3px solid 
 .col + .col { gap: 8px; }
 .title { margin: 0; font-size: 16px; line-height: 22px; font-weight: 600; }
 .line { display: block; margin: 0; font-family: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace; font-size: 14px;
-  line-height: 22px; color: var(--ink); background: var(--raised); padding: 12px 14px; border-radius: 10px;
+  line-height: 22px; color: var(--ink); background: var(--paper); padding: 12px 14px; border-radius: 10px;
   white-space: pre-wrap; word-break: break-word; user-select: all; -webkit-user-select: all; }
 .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.big { font-size: 15px; min-height: 40px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--bg); }
+.big { font-size: 15px; min-height: 40px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--ink); color: var(--paper); }
 .big:hover { opacity: 0.92; }
 .note, .item { margin: 0; font-size: 14px; line-height: 20px; color: var(--muted); }
 ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
 .item { display: flex; gap: 8px; }
 .mark { flex: none; }
-.can .mark { color: var(--can); }
-.rules .mark { color: var(--rule); }
+.can .mark { color: var(--link); }
+.rules .mark { color: var(--muted); } /* green is kept for done or live */
 .links { display: flex; gap: 8px 16px; flex-wrap: wrap; margin-top: 4px; font-size: 14px; }
 a { color: var(--link); text-decoration: underline; text-underline-offset: 0.18em; }
 .sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
