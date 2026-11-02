@@ -206,13 +206,14 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (20)
+## tests/ (21)
 
 | File | What it is |
 |---|---|
 | [`tests/fixtures/made-up-banned-words.json`](tests/fixtures/made-up-banned-words.json) | JSON object: `note`, `version`, `updated`, `case_insensitive`, `always`, `visible_text` |
 | [`tests/fixtures/made-up-neutral-words.json`](tests/fixtures/made-up-neutral-words.json) | JSON object: `note`, `rules` |
 | [`tests/fixtures/made-up-worker-shares.json`](tests/fixtures/made-up-worker-shares.json) | JSON object: `as_of`, `line`, `steps`, `outcomes` |
+| [`tests/request_submit_guard.test.mjs`](tests/request_submit_guard.test.mjs) | Exercise the actual form submit handler with offline dependencies only. |
 | [`tests/test_agent_access.py`](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
 | [`tests/test_agent_banner_shared.py`](tests/test_agent_banner_shared.py) | The agent banner is one shared file: Agora and Eranos serve the same bytes, so the two sites never drift. |
 | [`tests/test_api_and_edge.py`](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
@@ -250,7 +251,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (190)
+## web/ (191)
 
 | File | What it is |
 |---|---|
@@ -435,6 +436,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/tests/phase-a2.spec.ts`](web/tests/phase-a2.spec.ts) |  |
 | [`web/tests/release-regression.spec.ts`](web/tests/release-regression.spec.ts) |  |
 | [`web/tests/request-state.spec.ts`](web/tests/request-state.spec.ts) |  |
+| [`web/tests/request-submit-guard.spec.ts`](web/tests/request-submit-guard.spec.ts) |  |
 | [`web/tests/shell.spec.ts`](web/tests/shell.spec.ts) |  |
 | [`web/tests/status-logic.spec.ts`](web/tests/status-logic.spec.ts) |  |
 | [`web/tests/status.spec.ts`](web/tests/status.spec.ts) |  |

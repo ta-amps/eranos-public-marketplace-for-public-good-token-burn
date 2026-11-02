@@ -133,6 +133,8 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
   const [consent, setConsent] = useState(false);
   const [tried, setTried] = useState(false);
   const [sending, setSending] = useState(false);
+  // React state updates are not a synchronous guard against another submit.
+  const submitting = useRef(false);
   const [problem, setProblem] = useState<Problem | null>(null);
   const [online, setOnline] = useState(() => navigator.onLine);
   const [copied, setCopied] = useState(false);
@@ -230,6 +232,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (submitting.current || waitingUntil > Date.now() / 1000) return;
     setTried(true);
     setProblem(null);
     const first = unmet[0];
@@ -248,18 +251,20 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
     }
     const text = draft.text.trim();
     const links = draft.links.split(/\s+/).filter((link) => link.startsWith("https://"));
-    // The shared library first: work already done needs no new agent work.
-    if (!newRequest.current) {
-      const found = searchLibrary(await fetchCachedLibrary(), text).slice(0, 3);
-      if (found.length) {
-        setHits(found);
-        return;
-      }
-      setHits(null);
-    }
+    // Own the attempt before the library lookup yields. Every exit releases it.
+    submitting.current = true;
     setSending(true);
     let filed = false;
     try {
+      // The shared library first: work already done needs no new agent work.
+      if (!newRequest.current) {
+        const found = searchLibrary(await fetchCachedLibrary(), text).slice(0, 3);
+        if (found.length) {
+          setHits(found);
+          return;
+        }
+        setHits(null);
+      }
       if (!minted.current) {
         const signup = await fetch(FABRIC_PUBLIC_URL + "/v1/session/requester", {
           method: "POST",
@@ -314,7 +319,6 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
       saveDraft(EMPTY);
       navigateWithTransition(`/requests/${encodeURIComponent(taskId)}#k=${token}`, (commit) => flushSync(commit));
     } catch (error) {
-      setSending(false);
       if (error instanceof SendError) {
         const now = Date.now() / 1000;
         if (error.status === 503 && error.code === "storage_quota_exhausted") {
@@ -331,6 +335,9 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
         setProblem({ kind: "refused", personal: false, reason: error instanceof Error ? error.message : String(error), filed });
       }
       return;
+    } finally {
+      submitting.current = false;
+      setSending(false);
     }
   }
 
@@ -667,7 +674,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
       )}
 
       <div className="er-send-row">
-        <button type="submit" className="er-btn-primary er-btn-large" aria-disabled={!canSend} disabled={sending}>
+        <button type="submit" className="er-btn-primary er-btn-large" aria-disabled={!canSend} disabled={sending || Boolean(waitingUntil)}>
           {sendLabel}
         </button>
         <p className="er-send-note" data-testid="send-note">
