@@ -537,3 +537,86 @@ def test_the_checker_writes_the_pages_reuse_checked_fact(
     assert [f["type"] for f in facts] == (
         ["reuse_checked", "delivered"] if verdict == "fits" else ["reuse_checked"]
     )
+
+
+# a storage error right after the split (the reviewer's R8) ---------------------------------------------
+@pytest.mark.parametrize("where", ["plan_write", "plan_facts"])
+@pytest.mark.parametrize("answers", ["yes", "no"])
+def test_a_storage_error_after_the_split_never_closes_a_request_with_nothing(
+    monkeypatch: pytest.MonkeyPatch, where: str, answers: str
+) -> None:
+    import eranos.pipeline.planner as planner_mod
+
+    fabric = Fabric()
+    fabric.library_report(
+        "RPT-NEAR-01",
+        {
+            "report_id": "RPT-NEAR-01",
+            "title": NEAR_QUESTION,
+            "question": NEAR_QUESTION,
+            "claims": IRS_REPORT["claims"],
+        },
+    )
+    rid = "rq-cut-short"
+    real_plan, real_facts = planner_mod._write_plan, Planner._facts
+    broke = {"done": False}
+
+    def flaky_plan(*a: Any, **k: Any) -> Any:
+        if where == "plan_write" and not broke["done"]:
+            broke["done"] = True
+            raise RuntimeError("a made-up storage error after the split")
+        return real_plan(*a, **k)
+
+    def flaky_facts(self: Any, events: list[dict[str, Any]], **k: Any) -> Any:
+        if (
+            where == "plan_facts"
+            and any(e.get("type") == "planned" for e in events)
+            and not broke["done"]
+        ):
+            broke["done"] = True
+            raise RuntimeError("a made-up storage error after the plan was written")
+        return real_facts(self, events, **k)
+
+    monkeypatch.setattr(planner_mod, "_write_plan", flaky_plan)
+    monkeypatch.setattr(Planner, "_facts", flaky_facts)
+    with pytest.raises(RuntimeError):
+        _planner(fabric, _lease(rid, "request", "eq01", _request_brief(NEAR_REQUEST))).run()
+    assert _kinds(fabric) == [[reuse_check.REUSE_KIND]]  # the split happened
+    _, children, ids = fabric.splits[-1]
+    if (
+        where == "plan_write"
+    ):  # the plan never named the check, so the reviewer refuses it (G1) and it dies
+        child = ChildResult(
+            task_id=ids[0],
+            state="dead",
+            ok=False,
+            output={"node": reuse_check.REUSE_KIND, "status": "failed", "error": "NotInPlan"},
+        )
+        fabric.task = lambda task_id: SimpleNamespace(created_at=0.0, brief=children[0].brief)  # type: ignore[method-assign]
+    else:  # the plan named it: the check runs
+        lease = _lease(ids[0], reuse_check.REUSE_KIND, "eq03", children[0].brief)
+        checked = reuse_check.review_reuse(
+            fabric, lease, key_id=REVIEWER_KEY, judge=_judge(answers)
+        )
+        child = ChildResult(
+            task_id=ids[0],
+            state="done",
+            ok=True,
+            output=fabric.submits[-1]["output"],
+            receipt_hash=checked["receipt"],
+            completed_by_key=REVIEWER_KEY,
+        )
+    woke = _planner(
+        fabric, _lease(rid, "request", "eq01", _request_brief(NEAR_REQUEST), [child])
+    ).run()
+    record = fabric.request(rid)
+    if where == "plan_facts" and answers == "yes":
+        assert woke["status"] == "closed" and record["parts"]["1"]["status"] == "delivered"
+    else:  # never closed with no answer and no new work
+        assert woke["status"] == "split" and _kinds(fabric)[-1] == ["research", "report_review"]
+        assert record["status"] == "open_for_build"
+        if where == "plan_write":  # no checker wrote a verdict, so the planner records does_not_fit
+            verdicts = [e for e in fabric.history(rid) if e.get("type") == "reuse_checked"]
+            assert verdicts and verdicts[-1]["verdict"] == "does_not_fit"
+            assert verdicts[-1]["ref"] == "eranos.solutions/RPT-NEAR-01"
+            jsonschema.validate(verdicts[-1], EVENT_SCHEMA)

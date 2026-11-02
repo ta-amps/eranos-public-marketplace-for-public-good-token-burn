@@ -193,7 +193,13 @@ class Planner:
         latest = (
             occurrences[-1]
             if occurrences
-            else {"n": 1, "status": "planned", "children": [c.task_id for c in self.lease.children]}
+            else {
+                "n": 1,
+                "status": "planned",
+                "children": [c.task_id for c in self.lease.children],
+                # The record never got this plan (a storage error after the split): see finish().
+                "unrecorded": True,
+            }
         )
         if latest.get("status") == "planned":
             return self.finish(latest)
@@ -564,12 +570,17 @@ class Planner:
             # The check never finished, so no checker wrote its verdict: the page's reuse_checked
             # says does_not_fit (Eranos 2dce2dd), and new work is planned.
             pointer = dict(latest.get("reuse_check") or {})
+            answer = (
+                f"{pointer.get('store')}/{pointer.get('key')}"
+                if pointer.get("store") and pointer.get("key")
+                else f"{child.task_id if child else 'the reuse check'} (a library answer)"
+            )
             self._facts(
                 [
                     fact(
                         "reuse_checked",
                         part=1,
-                        ref=f"{pointer.get('store')}/{pointer.get('key')}",
+                        ref=answer,
                         **self.who,
                         verdict="does_not_fit",
                         similarity=pointer.get("score"),
@@ -673,11 +684,44 @@ class Planner:
                 )
         return done
 
-    def finish(self, latest: dict[str, Any]) -> dict[str, Any]:
+    def reuse_check_of(self, latest: dict[str, Any]) -> dict[str, Any] | None:
+        """The library answer a reuse check among these children was asked about, even when the
+        request's record missed the plan (a storage error after the split): from the occurrence, the
+        plan record, or the check's own output."""
         if latest.get("reuse_check"):
-            replanned = self.after_reuse_check(latest)
+            return dict(latest["reuse_check"])
+        ids = set(latest.get("children") or [])
+        with contextlib.suppress(NotFound):
+            plan = self.b.get_record(PLANS_STORE, self.request_id).value or {}
+            for part in plan.get("parts") or []:
+                if part.get("route") == "reuse_check" and part.get("review_task_id") in ids:
+                    return dict(part.get("reused_from") or {})
+        for child in self.lease.children:
+            out = child.output if isinstance(child.output, dict) else {}
+            if child.task_id not in ids or out.get("node") != REUSE_KIND:
+                continue
+            if isinstance(out.get("reused"), dict):
+                return dict(out["reused"])
+            try:  # a failed check's output names no answer; its own brief does
+                brief = self.b.task(child.task_id).brief or {}
+            except Exception:
+                brief = {}
+            return dict(brief.get("candidate") or {})
+        return None
+
+    def finish(self, latest: dict[str, Any]) -> dict[str, Any]:
+        pointer = self.reuse_check_of(latest)
+        if pointer is not None:
+            replanned = self.after_reuse_check({**latest, "reuse_check": pointer})
             if replanned is not None:
                 return replanned
+        elif latest.get("unrecorded") and not any(
+            isinstance(c.output, dict) and c.output.get("approved") is True
+            for c in self.lease.children
+        ):
+            # The plan's record was cut short and nothing came of its parts: plan it again rather
+            # than close a request with no answer and no new work.
+            return self.plan(int(latest.get("n") or 1), reuse=False)
         noun = read_request(self.b, self.request_id)
         value = noun[0] if noun else {}
         occurrences = list(value.get("occurrences") or [latest])
