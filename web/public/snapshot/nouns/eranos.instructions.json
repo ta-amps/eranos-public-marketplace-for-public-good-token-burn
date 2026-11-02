@@ -696,13 +696,13 @@
           "status_heartbeat_seconds": 600
         },
         "dedicated": {
-          "about": "Up to three dedicated workers, run by ta-amps, pick up tasks that no volunteer has taken, so every request moves even when no volunteer is online.",
+          "about": "Up to five dedicated workers, run by ta-amps, pick up tasks that no volunteer has taken, so every request moves even when no volunteer is online: one planner, two makers and two checkers (owner D11).",
           "grace_seconds": 90,
           "labels": {
             "dedicated": "dedicated worker {n} (run by ta-amps)",
             "volunteer": "a volunteer's AI"
           },
-          "max_workers": 3,
+          "max_workers": 5,
           "queues": [
             "eq01",
             "eq02",
@@ -727,8 +727,8 @@
           "about": "The models these workers call: Meta's Muse models through the Meta API, at the standard tier only (a contributor-tier id is refused). Which model, persona and effort each step runs is tuned from recorded outcomes (eranos.instructions/worker.policy); id is the model a step uses when no tuned variant can run, and volunteer_id is the volunteer mode's fixed model. Display names and token rates come from the model catalog, eranos.instructions/models.meta; a model with no rates there is never called.",
           "base_url": "https://api.meta.ai/v1",
           "budget": {
-            "about": "The owner's caps: $5 a UTC day and $150 in all (the owner's Meta credit), shared by every worker on the machine. A call that could pass either cap is not sent; the verb records the failure and is retried later.",
-            "daily_usd": 5,
+            "about": "The owner's caps: $25 a UTC day (owner D11, Nov 1) and $150 in all (the owner's Meta credit), shared by every worker on the machine; the code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later.",
+            "daily_usd": 25,
             "total_usd": 150
           },
           "fallback": "none: when the Meta model cannot answer, the verb records the failure and is retried later",

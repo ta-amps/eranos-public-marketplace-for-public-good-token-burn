@@ -153,6 +153,8 @@ def outcomes_from_events(
     for event in events:
         kind, part, tune = event.get("type"), event.get("part"), event.get("tuning")
         ref = f"{request_id}#{part}@{event.get('at')}"
+        if kind == "planned":  # a new plan (a recurring request's next occurrence) starts afresh
+            quiet.clear()
         if isinstance(tune, dict) and tune.get("step") == "make":
             if kind == "work_submitted":
                 pending[part] = tune

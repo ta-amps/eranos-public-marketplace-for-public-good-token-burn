@@ -133,7 +133,7 @@ class ChatModel(Protocol):
 KEY_NAME = "META_API_KEY"
 # The owner's caps and Meta's list rates, as ceilings and floors in code: a Task Object can lower
 # the caps or raise the rates, never the other way (review M1). A model missing here is not called.
-MAX_DAILY_USD, MAX_TOTAL_USD = 5.0, 150.0
+MAX_DAILY_USD, MAX_TOTAL_USD = 25.0, 150.0  # owner D11: $25 a day; the $150 total needs the owner
 MIN_RATES_USD_PER_MILLION = {
     "muse-spark-1.3": {"input": 1.25, "output": 4.25},
     "muse-wonder-1.0": {"input": 4.0, "output": 20.0},
@@ -287,8 +287,6 @@ class MetaModel:
             raise ValueError("the catalog must give the model's positive input and output prices")
         # The catalog can only raise a rate above Meta's list rate, never lower it (review M1).
         self.prices = {k: max(_usd(given[k]), floor[k]) for k in ("input", "output")}
-        if _usd(given.get("cached_input")) > 0:
-            self.prices["cached_input"] = _usd(given["cached_input"])
         self.max_tokens = int(settings.get("max_tokens") or 1500)
         self.reasoning_effort = settings.get("reasoning_effort")
         self.key_file = key_file or os.environ.get(KEY_FILE_ENV, "")

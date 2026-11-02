@@ -1585,7 +1585,7 @@ class Worker:
         rules = nxt.get("propose") or {}
         model_id = str(rules.get("model") or self.model_id())
         shares = (nxt.get("mix") or {}).get(step) or {}
-        live = tuning_mod.live_variants(nxt, step)
+        live = [x for x in tuning_mod.live_variants(nxt, step) if self.usable(x)]  # review N3
         base = max(live, key=lambda v: shares.get(v["id"], 0.0)) if live else {}
         nxt.setdefault("proposed_at", {})[step] = now
         try:

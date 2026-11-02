@@ -90,8 +90,9 @@ def test_a_call_is_the_standard_tier_request_and_records_tokens_and_cost(tmp_pat
     assert request.headers["authorization"] == f"Bearer {PLACEHOLDER_CREDENTIAL}"
     assert body["model"] == "muse-wonder-1.0" and body["response_format"] == {"type": "json_object"}
     assert body["max_tokens"] == 1500 and body["reasoning_effort"] == "low" and body["seed"] == 7
-    # 800 fresh input tokens at $4, 200 cached at $0.20 and 500 output at $20, per million
-    expected = round((800 * 4.0 + 200 * 0.2 + 500 * 20.0) / 1e6, 6)
+    # 1,000 input tokens at $4 (cached ones too: the catalog's cached rate is not used, FB1-017)
+    # and 500 output tokens at $20, per million
+    expected = round((1000 * 4.0 + 500 * 20.0) / 1e6, 6)
     report = meter.model_report()
     assert report is not None
     assert (report["id"], report["model_display"], report["tier"]) == (
@@ -273,7 +274,10 @@ def test_a_contributor_id_is_refused_in_any_spelling(model_id: str) -> None:
 
 def test_the_owners_caps_and_metas_rates_hold_whatever_the_nouns_say(tmp_path: Path) -> None:
     ledger = Ledger(tmp_path / "spend.json", daily_usd=1_000_000, total_usd=1_000_000)
-    assert (ledger.daily_usd, ledger.total_usd) == (5.0, 150.0)  # the noun can only lower them
+    assert (ledger.daily_usd, ledger.total_usd) == (
+        25.0,
+        150.0,
+    )  # owner D11; the noun can only lower them
     assert Ledger(tmp_path / "s2.json", daily_usd=1, total_usd=20).daily_usd == 1.0
     cheap = MetaModel({**SETTINGS, "prices_usd_per_million": {"input": 0.01, "output": 0.01}})
     assert (

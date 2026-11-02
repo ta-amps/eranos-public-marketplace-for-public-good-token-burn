@@ -573,3 +573,22 @@ def test_an_empty_answer_counts_only_when_another_attempt_found_claims() -> None
     assert ("make-wonder-careful", 0.0) in out and any(
         v == "make-spark-quick" and s > 0 for v, s in out
     )
+
+
+def test_a_quiet_month_is_not_charged_when_a_later_month_finds_claims() -> None:
+    """A recurring request reuses its part number: an occurrence's empty answers belong to it alone."""
+    empty = made(1, "make-wonder-careful", 1, kind="work_released", no_claims=True) | {
+        "reason": "only 0 claims"
+    }
+    events = [
+        {"type": "planned", "at": 0},
+        empty,
+        empty,
+        empty,  # October: nothing new in the sources
+        {"type": "planned", "at": 10},
+        made(1, "make-spark-quick", 11),  # November: claims found
+        checked(1, 12, True, "check-spark-skeptical", "make-spark-quick"),
+    ]
+    out = tuning.outcomes_from_events("rq-r", events, REWARDS)
+    assert [o.variant for o in out if o.step == "make" and o.success == 0.0] == []
+    assert any(o.variant == "make-spark-quick" and o.success > 0 for o in out)

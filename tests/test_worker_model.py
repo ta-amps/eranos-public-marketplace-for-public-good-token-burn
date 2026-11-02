@@ -191,7 +191,7 @@ def test_a_spent_cap_stops_research_claims_and_says_so(tmp_path: Path, meta_env:
     import time
 
     today = time.strftime("%Y-%m-%d", time.gmtime())
-    meta_env.write_text(json.dumps({"days": {today: 5.0}, "total_usd": 5.0, "calls": 200}))
+    meta_env.write_text(json.dumps({"days": {today: 25.0}, "total_usd": 25.0, "calls": 200}))
     backend = Backend()
     worker = make(tmp_path, backend=backend)
     assert worker.run_once() == "empty"
@@ -334,3 +334,10 @@ def test_a_failed_research_says_whether_its_sources_or_its_answer_came_up_empty(
     assert failed(2, 0, "no_call").get("source_side") is True
     assert failed(2, 16, "no_claims").get("no_claims") is True
     assert not {"source_side", "no_claims"} & set(failed(2, 16, "unparsed"))  # the variant's answer
+
+
+def test_the_second_maker_has_its_own_key_shape_and_the_noun_allows_five_workers() -> None:
+    from eranos.worker_keys import ROLE_KEYS
+
+    assert ROLE_KEYS["builder2"] == ROLE_KEYS["builder"]  # the same scope, issued as its own key
+    assert RULES["dedicated"]["max_workers"] == 5 and RULES["model"]["budget"]["daily_usd"] == 25

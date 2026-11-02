@@ -284,14 +284,14 @@
     ]
   },
   "dedicated": {
-    "about": "Up to three dedicated workers, run by ta-amps, pick up tasks that no volunteer has taken, so every request moves even when no volunteer is online.",
+    "about": "Up to five dedicated workers, run by ta-amps, pick up tasks that no volunteer has taken, so every request moves even when no volunteer is online: one planner, two makers and two checkers (owner D11).",
     "grace_seconds": 90,
     "queues": [
       "eq01",
       "eq02",
       "eq03"
     ],
-    "max_workers": 3,
+    "max_workers": 5,
     "labels": {
       "dedicated": "dedicated worker {n} (run by ta-amps)",
       "volunteer": "a volunteer's AI"
@@ -307,9 +307,9 @@
     "max_tokens": 1500,
     "reasoning_effort": "low",
     "budget": {
-      "daily_usd": 5,
+      "daily_usd": 25,
       "total_usd": 150,
-      "about": "The owner's caps: $5 a UTC day and $150 in all (the owner's Meta credit), shared by every worker on the machine. A call that could pass either cap is not sent; the verb records the failure and is retried later."
+      "about": "The owner's caps: $25 a UTC day (owner D11, Nov 1) and $150 in all (the owner's Meta credit), shared by every worker on the machine; the code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later."
     },
     "fallback": "none: when the Meta model cannot answer, the verb records the failure and is retried later"
   },

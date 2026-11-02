@@ -34,6 +34,7 @@ ROLE_KEYS: dict[str, dict[str, Any]] = {
         "role": "planner",
     },
     "builder": {"queues": ["eq02"], "kinds": ["research", "process", "draft"], "role": "builder"},
+    "builder2": {"queues": ["eq02"], "kinds": ["research", "process", "draft"], "role": "builder"},
     "reviewer": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
     "reviewer2": {"queues": ["eq03"], "kinds": REVIEW_KINDS, "role": "reviewer"},
 }
