@@ -236,7 +236,7 @@ export function Library() {
         </div>
         <p className="er-find-tries">
           <span>{words.tries_label}</span>
-          {words.tries.map((label) => (
+          {(words.tries ?? []).map((label) => (
             <button key={label} type="button" className="er-find-chip" onClick={() => search(label.toLowerCase())}>
               {label}
             </button>
@@ -245,7 +245,7 @@ export function Library() {
       </form>
 
       <div className="er-find-filters" role="group" aria-label={words.filters_label}>
-        {words.filters.map((group) => (
+        {(words.filters ?? []).map((group) => (
           <div key={group.id} className="er-find-filter" role="group" aria-label={group.label}>
             <span aria-hidden="true">{group.label}</span>
             {group.options.map((option) => (

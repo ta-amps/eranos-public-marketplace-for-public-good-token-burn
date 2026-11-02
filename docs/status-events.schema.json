@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://eranos.ta-amps.workers.dev/docs/status-events.schema.json",
+  "$id": "https://eranosforgood.org/docs/status-events.schema.json",
   "title": "One state change of a nonprofit's request: one version of eranos.requests/<request_id>",
   "description": "The volunteer worker writes every state change of a request as a new version of the public noun eranos.requests/<request_id>, keeping the request's fields and adding `event`, which cites the receipt (or, where Tessera writes no hash, a record reference). The status page reads GET /api/nouns/eranos.requests/<request_id>/history (Eranos, D1, 10 s edge cache) and draws every node, chip and log line from these events only; an event without `receipt` or `ref` changes nothing. Times are Unix seconds. Field names match web/src/lib/status/types.ts (StatusEvent).",
   "type": "object",

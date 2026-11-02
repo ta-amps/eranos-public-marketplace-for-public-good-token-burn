@@ -70,6 +70,12 @@
     padding-left: 16px;
     padding-right: 16px;
   }
+  .er-site-footer-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 16px;
+    width: 100%;
+  }
 }
 
 /* ---------------------------------------------------------------- EranosHome hero */
@@ -652,7 +658,7 @@
 }
 .er-band-body {
   margin-top: 10px;
-  max-height: max(160px, calc(100vh - var(--er-track-h, 80px) - 310px));
+  max-height: max(150px, calc(100vh - var(--er-track-h, 80px) - 325px));
   overflow-y: auto;
   overscroll-behavior: contain;
 }

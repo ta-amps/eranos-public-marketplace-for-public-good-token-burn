@@ -846,7 +846,7 @@ console.log(JSON.stringify({{
     assert out["llmsLen"] > 20000
     assert out["llmsFullLen"] > out["llmsLen"]
     for expected in (
-        "https://eranos.ta-amps.workers.dev",
+        "https://eranosforgood.org",
         "https://agora.ta-amps.workers.dev",
         "https://herma.ta-amps.workers.dev",
         "https://tessera.ta-amps.workers.dev",

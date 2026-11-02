@@ -30,7 +30,7 @@ On branch `t/e2e-open-contribution-20261030`, not merged or deployed:
 
 ## Hosted site
 
-The hosted site at `https://eranos.ta-amps.workers.dev` needs Tessera for tasks, queue counts and publishing
+The hosted site at `https://eranosforgood.org` needs Tessera for tasks, queue counts and publishing
 kits.
 
 - On October 29, 2026, hosted Tessera reached Cloudflare's free daily limit on storage writes and stopped

@@ -66,6 +66,31 @@ def verify_manifest(dist: Path, head: str, policy_hash: str) -> dict:
     return manifest
 
 
+def live_commit_from_log() -> str | None:
+    """The commit live on Eranos, from the shared deploy log (deploy_lock.py) when this checkout sits beside it."""
+    configured = os.environ.get("ERANOS_DEPLOY_LOG")
+    candidates = (
+        [Path(configured)]
+        if configured
+        else [
+            p / "coordination-2026-10-31" / "deploy-locks" / "deploy-log.jsonl"
+            for p in ROOT.parents
+        ]
+    )
+    for path in candidates:
+        if path.is_file():
+            live = None
+            for line in path.read_text(encoding="utf-8").splitlines():
+                try:
+                    entry = json.loads(line)
+                except ValueError:
+                    continue
+                if entry.get("worker") == "eranos" and entry.get("commit"):
+                    live = str(entry["commit"])
+            return live
+    return None
+
+
 def source_head(policy: dict) -> str:
     def git(*args: str) -> subprocess.CompletedProcess[str]:
         return subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, check=False)
@@ -80,6 +105,13 @@ def source_head(policy: dict) -> str:
         require(
             git("merge-base", "--is-ancestor", commit, head).returncode == 0,
             "Required UI/backend release ancestry is missing: " + commit,
+        )
+    # Build on what's live (rule 13): the deploy must contain the commit the shared deploy log says is live.
+    live = live_commit_from_log()
+    if live:
+        require(
+            git("merge-base", "--is-ancestor", live, head).returncode == 0,
+            "The live Eranos commit is missing from this build; merge it first: " + live,
         )
     return head
 

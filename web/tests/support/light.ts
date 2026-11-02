@@ -1,7 +1,7 @@
 /**
  * The light check's detector (MUST-FOLLOW rule 13), run inside the page: every element larger than 5% of the
- * viewport whose own background is dark (relative luminance under 0.25). Ink is allowed for text, primary buttons
- * and the logo only, so links, buttons and the logo's SVG are not panels.
+ * viewport whose own background is dark (relative luminance under 0.25), inside links and buttons too. Ink is allowed
+ * for text, primary buttons and the logo only: those (and the skip link, a button while focused) are not panels.
  */
 export function darkPanels(): string[] {
   const viewport = window.innerWidth * window.innerHeight;
@@ -11,7 +11,7 @@ export function darkPanels(): string[] {
   };
   const out: string[] = [];
   for (const el of document.querySelectorAll("body, body *")) {
-    if (el.closest("a, button, summary, [role=button], [role=radio], input, svg, .er-skip-link")) continue;
+    if (el.closest(".er-btn-primary, svg, .er-skip-link")) continue;
     const box = el.getBoundingClientRect();
     if (box.width * box.height < viewport * 0.05) continue;
     const bg = getComputedStyle(el).backgroundColor;

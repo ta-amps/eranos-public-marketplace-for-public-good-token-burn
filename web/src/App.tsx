@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { Footer } from "./components/Footer";
 import { JudgeTour } from "./components/JudgeTour";
 import { TopBar } from "./components/TopBar";
-import { SURFACE_DISPLAY_NAME } from "./config";
+import { SURFACE_DISPLAY_NAME, SURFACE_PUBLIC_URL } from "./config";
 import type { ShellNoun, SiteNoun } from "./lib/nouns";
 import { useNoun } from "./lib/useNoun";
 import { CONNECT_TITLE, Connect } from "./pages/Connect";
@@ -116,6 +116,13 @@ export function App() {
   useEffect(() => {
     if (title) document.title = title;
   }, [title]);
+  // The canonical address for every page is eranosforgood.org, whichever host served it.
+  const path = usePath();
+  useEffect(() => {
+    const href = `${SURFACE_PUBLIC_URL}${path === "/" ? "/" : path.replace(/\/+$/, "")}`;
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", href);
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", href);
+  }, [path]);
   const compact = route.name === "request" || route.name === "report";
   const mainClass = route.name === "overview" ? "er-main er-main-home" : compact ? "er-main er-main-wide" : "er-main";
 

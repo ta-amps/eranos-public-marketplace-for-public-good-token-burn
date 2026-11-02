@@ -1,4 +1,7 @@
+import { createHash } from "node:crypto";
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
@@ -162,6 +165,36 @@ const FORBIDDEN = [
 // expense receipts), is data and keeps its words; the rules above still apply to it.
 const VOCABULARY = [/receipt/i, /sha-?256/i, /\bnouns?\b/i, /\bverbs?\b/i, /\bprove/i, /\bnot yet\b|\bPLANNED\b|layout preview|coming soon|not ready yet|\bIdea\b/i];
 
+// Rule 16: the one shared list (notes/coordination-2026-10-31/rules/banned-words.json), read from outside this repo
+// at test time. Its private names are sha256 hashes of lowercase word tokens, never plain text here.
+function sharedList(): { always: RegExp[]; visible: RegExp[]; hashes: Set<string> } | null {
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 10; i += 1) {
+    const file = path.join(dir, "coordination-2026-10-31", "rules", "banned-words.json");
+    if (fs.existsSync(file)) {
+      const list = JSON.parse(fs.readFileSync(file, "utf8")) as Record<string, { patterns?: string[]; sha256?: string[] }>;
+      const compile = (patterns: string[] = []) =>
+        patterns.map((p) => {
+          try {
+            return new RegExp(p, "i");
+          } catch {
+            return new RegExp(p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+          }
+        });
+      return {
+        always: compile(list.always?.patterns),
+        visible: [...compile(list.visible_text?.patterns), ...compile(list.agent_apps_outside_models_page?.patterns)],
+        hashes: new Set(list.private_names?.sha256 ?? []),
+      };
+    }
+    dir = path.dirname(dir);
+  }
+  return null;
+}
+const SHARED = sharedList();
+const privateNameIn = (text: string) =>
+  SHARED ? (text.toLowerCase().match(/[a-z0-9]+/g) ?? []).find((w) => SHARED.hashes.has(createHash("sha256").update(w).digest("hex"))) : undefined;
+
 test("no page shows a forbidden word, a receipt or a hash, anywhere a visitor or a screen reader can read", async ({ page }) => {
   test.setTimeout(180_000);
   const kits = fs
@@ -210,9 +243,10 @@ test("no page shows a forbidden word, a receipt or a hash, anywhere a visitor or
       return { all: `${document.title}\n${banner}\n${visible}\n${attributes}`, ours: `${document.title}\n${banner}\n${ours}\n${attributes}` };
     });
     // Every page, with no exemptions (owner, Nov 1).
+    if (privateNameIn(text.all)) said.push(`${route}: a private name (rule 16)`);
     for (const [rules, words] of [
-      [FORBIDDEN, text.all],
-      [VOCABULARY, text.ours],
+      [[...FORBIDDEN, ...(SHARED?.always ?? [])], text.all],
+      [[...VOCABULARY, ...(SHARED?.visible ?? [])], text.ours],
     ] as const) {
       for (const rule of rules) {
         const found = rule.exec(words);

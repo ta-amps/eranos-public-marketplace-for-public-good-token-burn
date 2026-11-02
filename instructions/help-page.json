@@ -57,7 +57,7 @@
     },
     "copy_for_agent": "Copy for my agent",
     "copied": "Copied.",
-    "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranos.ta-amps.workers.dev/connect.json, follow the connection it advertises, do the task, and report back.",
+    "claim_text": "Claim the open task {task} on Eranos's queue {queue}: start at https://eranosforgood.org/connect.json, follow the connection it advertises, do the task, and report back.",
     "waiting": "waiting {ago}",
     "minutes": "{n} min",
     "hours": "{n} h",

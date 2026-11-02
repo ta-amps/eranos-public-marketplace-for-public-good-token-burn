@@ -295,7 +295,7 @@ def test_static_page_and_readme_match_the_site_noun() -> None:
     assert f"<p>{site['privacy']}</p>" in html
 
 
-BRIEF = ROOT / "instructions" / "agent-brief.v2.txt"
+BRIEF = ROOT / "instructions" / "agent-brief.v3.txt"
 # Words a visitor or an agent never reads in the brief or the access sentence (owner, Nov 1).
 BRIEF_BANNED = re.compile(
     r"\b(nouns?|verbs?|receipts?|prove[sdn]?)\b|synthetic|l{2}ama|cloud", re.IGNORECASE
@@ -303,7 +303,7 @@ BRIEF_BANNED = re.compile(
 
 
 def test_starting_brief_noun_is_the_shared_brief() -> None:
-    """The help noun's brief is the one shared agent brief, instructions/agent-brief.v2.txt (Agora copies the same
+    """The help noun's brief is the one shared agent brief, instructions/agent-brief.v3.txt (Agora copies the same
     file byte for byte), without its final newline: Tasks and Task Objects, claim · do · report, a record."""
     text = BRIEF.read_text(encoding="utf-8")
     assert text.endswith(".\n") and "\r" not in text
@@ -312,7 +312,7 @@ def test_starting_brief_noun_is_the_shared_brief() -> None:
     assert noun["brief_source"]["sha256"] == hashlib.sha256(BRIEF.read_bytes()).hexdigest()
     assert "claim · do · report" in text and "Task Objects" in text
     # API paths stay exactly as they are, shown as code.
-    assert "`https://home.ta-amps.workers.dev/connect.json`" in text
+    assert "`https://eranosforgood.org/connect.json`" in text
     connect = json.loads((ROOT / "instructions" / "connect.json").read_text(encoding="utf-8"))
     for words in (
         text,
@@ -327,7 +327,7 @@ def test_starting_brief_noun_is_the_shared_brief() -> None:
 def test_shared_brief_matches_the_notes_copy_when_it_is_beside_this_checkout() -> None:
     """The canonical file lives in the workspace's shared folder; this repo's copy must stay byte for byte equal."""
     for parent in ROOT.parents:
-        shared = parent / "shared" / "agent-brief.v2.txt"
+        shared = parent / "shared" / "agent-brief.v3.txt"
         if shared.is_file():
             assert shared.read_bytes() == BRIEF.read_bytes(), (
                 f"{shared} and {BRIEF} have drifted apart"
@@ -642,8 +642,8 @@ def test_open_tasks_are_read_with_the_surface_key_and_show_only_the_brief_title(
 def test_the_agent_banner_copies_the_llms_line_and_pages_link_no_dead_github_address() -> None:
     banner = json.loads((ROOT / "instructions" / "agent-banner.json").read_text(encoding="utf-8"))
     # AgentBanner board: Copy puts exactly this line on the clipboard, and /llms.txt answers it.
-    assert banner["copy_text"] == "Read https://eranos.ta-amps.workers.dev/llms.txt and follow it."
-    assert banner["chip"] == "Read eranos.ta-amps.workers.dev/llms.txt"
+    assert banner["copy_text"] == "Read https://eranosforgood.org/llms.txt and follow it."
+    assert banner["chip"] == "Read eranosforgood.org/llms.txt"
     assert all(
         link["href"].startswith(("/", "https://agora.ta-amps.workers.dev/"))
         for link in banner["links"]
@@ -1010,7 +1010,7 @@ def test_trust_routes_security_txt_and_owner_wording() -> None:
         "Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories",
         "Expires: 2027-10-31T23:59:59.000Z",
         "Preferred-Languages: en",
-        "Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt",
+        "Canonical: https://eranosforgood.org/.well-known/security.txt",
     ):
         assert line in sec["body"], line
     assert out["sec_head"]["status"] == 200 and out["sec_head"]["body"] == ""
@@ -1021,9 +1021,7 @@ def test_trust_routes_security_txt_and_owner_wording() -> None:
         api_sec = client.get("/.well-known/security.txt")
         assert api_sec.status_code == 200
         assert api_sec.headers["content-type"] == "text/plain; charset=utf-8"
-        assert (
-            "Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt" in api_sec.text
-        )
+        assert "Canonical: https://eranosforgood.org/.well-known/security.txt" in api_sec.text
 
     # Owner, Nov 1: the visible words are "Tasks" and "Task Objects" (this supersedes the earlier lowercase rule),
     # never "tasks (verbs)".
@@ -1048,7 +1046,7 @@ def test_footer_is_the_shared_standard_footer() -> None:
         "Library",
         "Your requests",
         "Status ↗",
-        "Agora ↗",
+        "How it works ↗",
         "Source ↗",
         "Privacy",
         "Terms",
@@ -1063,3 +1061,58 @@ def test_footer_is_the_shared_standard_footer() -> None:
             ]
             assert shell["footer"]["storage"] == spec["line"]["eranos"]
             return
+
+
+def test_both_hosts_serve_the_same_pages_and_www_redirects_to_the_canonical_apex() -> None:
+    """eranosforgood.org is canonical (owner, Nov 1); eranos.ta-amps.workers.dev serves the same pages; www 301s."""
+    script = (
+        WORKER_SCRIPT.replace("WORKER", json.dumps(WORKER.as_uri()))
+        .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
+        .replace("INDEX_HTML", json.dumps((ROOT / "web" / "index.html").as_posix()))
+        .replace("EXTRA_ENV", "({})")
+        .replace("REQUESTS", "[]")
+        + """
+const hosts = {};
+for (const host of ["https://eranosforgood.org", "https://eranos.ta-amps.workers.dev"]) {
+  const page = await worker.fetch(new Request(host + "/nonprofits", { headers: { accept: "text/html" } }), env);
+  const card = await (await worker.fetch(new Request(host + "/.well-known/agent-card.json"), env)).json();
+  hosts[host] = { status: page.status, body: await page.text(), card: card.url };
+}
+const www = await worker.fetch(new Request("https://www.eranosforgood.org/requests/example?moment=decided"), env);
+hosts.www = { status: www.status, location: www.headers.get("location") };
+console.log(JSON.stringify(hosts));
+"""
+    )
+    run = subprocess.run(
+        ["node", "--input-type=module", "-e", script],
+        check=True,
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+    )
+    out = json.loads(run.stdout.strip().splitlines()[-1])
+    new, old = out["https://eranosforgood.org"], out["https://eranos.ta-amps.workers.dev"]
+    assert new["status"] == old["status"] == 200 and new["body"] == old["body"]
+    assert '<link rel="canonical" href="https://eranosforgood.org/" />' in new["body"]
+    assert new["card"] == old["card"] == "https://eranosforgood.org"
+    assert out["www"] == {
+        "status": 301,
+        "location": "https://eranosforgood.org/requests/example?moment=decided",
+    }
+
+
+def test_page_text_comes_from_the_deploy_not_an_older_copy_in_tessera() -> None:
+    """The 9fd6e09 rollback (Nov 2): Tessera's mirror held older page-text nouns, so new pages met old words and
+    /library crashed. Page text (eranos.instructions) now ships with the deploy and wins over the mirror."""
+    old_library = json.dumps({"heading": "Shared library", "tabs": {"all": "All"}})
+    fake_db = (
+        "({ FABRIC_DB: { prepare() { return { bind() { return { first: async () => ({ value: "
+        + json.dumps(old_library)
+        + " }), all: async () => ({ results: [] }) }; } }; } } })"
+    )
+    out = _worker(
+        [("library", "GET", "/api/nouns/eranos.instructions/library", None)],
+        extra_env=fake_db,
+    )
+    body = json.loads(out["library"]["body"])
+    assert body["value"]["heading"] == "Find a solution" and "tries" in body["value"]

@@ -105,8 +105,8 @@ Allow: /.well-known/security.txt
 SECURITY_TXT = """Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
 Expires: 2027-10-31T23:59:59.000Z
 Preferred-Languages: en
-Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
-Policy: https://eranos.ta-amps.workers.dev/report
+Canonical: https://eranosforgood.org/.well-known/security.txt
+Policy: https://eranosforgood.org/report
 """
 
 SUPPORTED_MCP_PROTOCOLS = frozenset({"2024-11-05", "2025-03-26", "2025-06-18"})

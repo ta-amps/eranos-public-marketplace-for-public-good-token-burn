@@ -8,3 +8,4 @@ playwright-report/
 .env*.local
 dist-light/
 test-results-light/
+test-results-smoke/

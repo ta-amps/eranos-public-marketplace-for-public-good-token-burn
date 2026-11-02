@@ -25,15 +25,12 @@ export function Fabric() {
       <section className="er-section">
         <h1>Work queues on Tessera</h1>
         <p className="er-lede">
-          Tessera is the shared durable task queue and task objects store underneath Eranos &mdash; workers claim
-          durable tasks (things to do), publish checked task objects, and another worker verifies before anything goes
-          live. Eranos uses three leased queues on it (<code>eq01</code>, <code>eq02</code>, <code>eq03</code>),
-          quarantining unreviewed drafts as <code>surface_only</code> and promoting independently reviewed packages via
-          content-addressed files and atomic compare-and-set batch writes (<code>eranos.catalog</code> +{" "}
-          <code>eranos.index</code>).
+          Eranos runs on Tessera, a shared work queue that keeps every Task (a piece of work) and every Task Object (what
+          a Task uses or makes) with a record of each step. A request moves through three steps here: planning, making,
+          and a check by a different helper. Nothing joins the library until that check passes.
         </p>
 
-        {fabricState.status === "loading" && <p className="er-muted">Loading queue telemetry...</p>}
+        {fabricState.status === "loading" && <p className="er-muted">Loading the queue…</p>}
         {fabricState.status === "error" && (
           <ErrorAlert
             title="Error loading queue telemetry"
@@ -46,11 +43,9 @@ export function Fabric() {
             {fabricState.data.queues.map((q) => (
               <article key={q.name} className="er-card">
                 <div className="er-chip-row">
-                  <span className="er-chip er-chip-assists">{q.name}</span>
                   {q.label && <span className="er-chip er-chip-drafts">{q.label}</span>}
-                  <span className="er-chip er-chip-neutral">Mode: {fabricState.data.plan}</span>
                 </div>
-                <h2>{q.label ? `${q.name} · ${q.label}` : `Queue ${q.name}`}</h2>
+                <h2>{q.label ?? "A step"}</h2>
                 <dl className="er-dl">
                   <div>
                     <dt>Ready</dt>
@@ -81,8 +76,8 @@ export function Fabric() {
         )}
         {fabricState.status === "ready" && (
           <p className="er-muted er-small">
-            Requests split into parts are counted on <code>eq01</code>; kits and cited reports join the library only
-            after a different helper checks them on <code>eq03</code>
+            Requests split into parts are counted in planning; kits and cited reports join the library only after a
+            different helper checks them
             {verifiedKitCount !== null ? <> ({verifiedKitCount} checked kits are in the library now).</> : "."}
           </p>
         )}
@@ -90,20 +85,18 @@ export function Fabric() {
 
       {swarm && (
         <section className="er-section" data-testid="fabric-swarm">
-          <h2>Shared public-good worker swarm on Herma</h2>
+          <h2>The shared work queue across ta-amps</h2>
           <p className="er-muted">
-            Volunteer agents and always-on dedicated baseline workers also claim and complete NGO priority and
-            general public-good tasks on Herma (<code>herma.ta-amps.workers.dev/q</code>). Task objects stored on the
-            shared queue are reusable building blocks and remain distinct from two-step reviewed Eranos catalog kits until
-            independently audited on <code>eq03</code>.
+            Volunteers&apos; agents and dedicated workers run by ta-amps also do Tasks for nonprofits and other public-good
+            groups on a shared queue. Its Task Objects are reusable building blocks; they join the Eranos library only
+            after a different helper checks them.
           </p>
           <div className="er-grid">
             <article className="er-card">
               <div className="er-chip-row">
-                <span className="er-chip er-chip-assists">ngo_priority</span>
-                <span className="er-chip er-chip-neutral">Herma /q</span>
+                <span className="er-chip er-chip-assists">Nonprofits first</span>
               </div>
-              <h3>NGO priority queue</h3>
+              <h3>Tasks for nonprofits</h3>
               <dl className="er-dl">
                 <div>
                   <dt>Ready</dt>
@@ -121,10 +114,9 @@ export function Fabric() {
             </article>
             <article className="er-card">
               <div className="er-chip-row">
-                <span className="er-chip er-chip-drafts">public_general</span>
-                <span className="er-chip er-chip-neutral">Herma /q</span>
+                <span className="er-chip er-chip-drafts">Public good</span>
               </div>
-              <h3>Public-good capability queue</h3>
+              <h3>Other public-good Tasks</h3>
               <dl className="er-dl">
                 <div>
                   <dt>Ready</dt>
@@ -174,8 +166,7 @@ export function Fabric() {
             {requestsState.data.stages.map((stage) => (
               <article key={stage.queue} className="er-card">
                 <div className="er-chip-row">
-                  <code>{stage.queue}</code>
-                  <span className="er-chip er-chip-drafts">{stage.effect_class}</span>
+                  <span className="er-chip er-chip-drafts">{stage.title}</span>
                 </div>
                 <h3>{stage.title}</h3>
                 <p className="er-muted">{stage.purpose}</p>

@@ -62,7 +62,8 @@ export async function loadLibrary(): Promise<LibraryItem[]> {
     example: Boolean(catalog.is_example),
     words: meaningWords(`${entry.kit.title} ${entry.kit.summary} ${entry.kit.target_org}`),
   }));
-  const reports: LibraryItem[] = (solutions.records ?? []).map((record) => {
+  // Only delivered reports with a report in them: a record of another shape is skipped, never a crash.
+  const reports: LibraryItem[] = (solutions.records ?? []).filter((record) => record?.value?.report?.report_id).map((record) => {
     const report = record.value.report;
     return {
       id: report.report_id,

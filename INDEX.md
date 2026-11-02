@@ -6,423 +6,425 @@ Every file in this repo with a one-line description taken from the file itself. 
 
 | File | What it is |
 |---|---|
-| [.editorconfig](.editorconfig) |  |
-| [.gitignore](.gitignore) | Secrets and private material never leave this machine |
-| [.python-version](.python-version) |  |
-| [AGENTS.md](AGENTS.md) | Eranos: instructions for every coding agent |
-| [CLAUDE.md](CLAUDE.md) | Claude Code instructions for Eranos |
-| [LICENSE](LICENSE) | MIT License |
-| [Makefile](Makefile) | Eranos. |
-| [README.md](README.md) | Eranos – the two-sided marketplace |
-| [architecture.json](architecture.json) | eranos |
-| [keywords.txt](keywords.txt) | Terms for KEYWORDS.md, one per line: "term" or "term: alias, alias". |
-| [pyproject.toml](pyproject.toml) |  |
+| [`.editorconfig`](.editorconfig) |  |
+| [`.gitignore`](.gitignore) | Secrets and private material never leave this machine |
+| [`.python-version`](.python-version) |  |
+| [`AGENTS.md`](AGENTS.md) | Eranos: instructions for every coding agent |
+| [`CLAUDE.md`](CLAUDE.md) | Claude Code instructions for Eranos |
+| [`LICENSE`](LICENSE) | MIT License |
+| [`Makefile`](Makefile) | Eranos. |
+| [`README.md`](README.md) | Eranos – the two-sided marketplace |
+| [`architecture.json`](architecture.json) | eranos |
+| [`keywords.txt`](keywords.txt) | Terms for KEYWORDS.md, one per line: "term" or "term: alias, alias". |
+| [`pyproject.toml`](pyproject.toml) |  |
 
 ## .claude/ (4)
 
 | File | What it is |
 |---|---|
-| [.claude/guard.json](.claude/guard.json) | JSON object: allow, deny_read, deny_write, deny_commands |
-| [.claude/hooks/format.py](.claude/hooks/format.py) | Claude Code PostToolUse hook: format the file that was just edited. |
-| [.claude/hooks/guard.py](.claude/hooks/guard.py) | Claude Code PreToolUse guard: enforces the hard rules in every permission mode. |
-| [.claude/settings.json](.claude/settings.json) | JSON object: $schema, permissions, hooks |
+| [`.claude/guard.json`](.claude/guard.json) | JSON object: `allow`, `deny_read`, `deny_write`, `deny_commands` |
+| [`.claude/hooks/format.py`](.claude/hooks/format.py) | Claude Code PostToolUse hook: format the file that was just edited. |
+| [`.claude/hooks/guard.py`](.claude/hooks/guard.py) | Claude Code PreToolUse guard: enforces the hard rules in every permission mode. |
+| [`.claude/settings.json`](.claude/settings.json) | JSON object: `$schema`, `permissions`, `hooks` |
 
 ## .github/ (3)
 
 | File | What it is |
 |---|---|
-| [.github/ISSUE_TEMPLATE/request-a-kit.yml](.github/ISSUE_TEMPLATE/request-a-kit.yml) |  |
-| [.github/workflows/ci.yml](.github/workflows/ci.yml) |  |
-| [.github/workflows/deploy.yml](.github/workflows/deploy.yml) |  |
+| [`.github/ISSUE_TEMPLATE/request-a-kit.yml`](.github/ISSUE_TEMPLATE/request-a-kit.yml) |  |
+| [`.github/workflows/ci.yml`](.github/workflows/ci.yml) |  |
+| [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) |  |
 
 ## briefs/ (4)
 
 | File | What it is |
 |---|---|
-| [briefs/E1.json](briefs/E1.json) | E1: Disaster charity registry & rental deposit escrow check kit |
-| [briefs/E2.json](briefs/E2.json) | E2: Field volunteer shift onboarding & incident escalation SOP kit |
-| [briefs/E3.json](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
-| [briefs/E4.json](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
+| [`briefs/E1.json`](briefs/E1.json) | E1: Disaster charity registry & rental deposit escrow check kit |
+| [`briefs/E2.json`](briefs/E2.json) | E2: Field volunteer shift onboarding & incident escalation SOP kit |
+| [`briefs/E3.json`](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
+| [`briefs/E4.json`](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
 ## deploy/ (13)
 
 | File | What it is |
 |---|---|
-| [deploy/README.md](deploy/README.md) | Hosting Eranos |
-| [deploy/bootstrap-hosting.sh](deploy/bootstrap-hosting.sh) | One-time hosting setup for one service on Fly.io behind a Cloudflare Worker: the Fly app and its |
-| [deploy/cloudflare/README.md](deploy/cloudflare/README.md) | Cloudflare: the Eranos edge |
-| [deploy/cloudflare/access.js](deploy/cloudflare/access.js) | Public browser-agent access uses bearer headers, never cookies. |
-| [deploy/cloudflare/agent_start.js](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
-| [deploy/cloudflare/kit-draft.schema.json](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
-| [deploy/cloudflare/schema.js](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
-| [deploy/cloudflare/surface-release-policy.json](deploy/cloudflare/surface-release-policy.json) | JSON object: schema, required_ancestors, rules |
-| [deploy/cloudflare/worker.js](deploy/cloudflare/worker.js) |  |
-| [deploy/cloudflare/wrangler.jsonc](deploy/cloudflare/wrangler.jsonc) | Eranos Cloud Worker: serves the React web app plus native 24/7 /api/ endpoints backed by |
-| [deploy/fly/Dockerfile](deploy/fly/Dockerfile) | Build from the workspace root so both tessera and eranos are in the build context. |
-| [deploy/fly/README.md](deploy/fly/README.md) | Fly.io: the Eranos API |
-| [deploy/fly/fly.toml](deploy/fly/fly.toml) |  |
+| [`deploy/README.md`](deploy/README.md) | Hosting Eranos |
+| [`deploy/bootstrap-hosting.sh`](deploy/bootstrap-hosting.sh) | One-time hosting setup for one service on Fly.io behind a Cloudflare Worker: the Fly app and its |
+| [`deploy/cloudflare/README.md`](deploy/cloudflare/README.md) | Cloudflare: the Eranos edge |
+| [`deploy/cloudflare/access.js`](deploy/cloudflare/access.js) | Public browser-agent access uses bearer headers, never cookies. |
+| [`deploy/cloudflare/agent_start.js`](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
+| [`deploy/cloudflare/kit-draft.schema.json`](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
+| [`deploy/cloudflare/schema.js`](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
+| [`deploy/cloudflare/surface-release-policy.json`](deploy/cloudflare/surface-release-policy.json) | JSON object: `schema`, `required_ancestors`, `rules` |
+| [`deploy/cloudflare/worker.js`](deploy/cloudflare/worker.js) |  |
+| [`deploy/cloudflare/wrangler.jsonc`](deploy/cloudflare/wrangler.jsonc) | Eranos Cloud Worker: serves the React web app plus native 24/7 /api/ endpoints backed by |
+| [`deploy/fly/Dockerfile`](deploy/fly/Dockerfile) | Build from the workspace root so both tessera and eranos are in the build context. |
+| [`deploy/fly/README.md`](deploy/fly/README.md) | Fly.io: the Eranos API |
+| [`deploy/fly/fly.toml`](deploy/fly/fly.toml) |  |
 
 ## docs/ (19)
 
 | File | What it is |
 |---|---|
-| [docs/SURFACE-RELEASE.md](docs/SURFACE-RELEASE.md) | Preserve the current surface on every release |
-| [docs/WORKER-FIRST-EXECUTION.md](docs/WORKER-FIRST-EXECUTION.md) | Worker-first execution and private work |
-| [docs/access-modes.md](docs/access-modes.md) | External agent access |
-| [docs/agent-workflow.md](docs/agent-workflow.md) | Agent workflow and verified boundaries |
-| [docs/architecture.md](docs/architecture.md) | Eranos: architecture |
-| [docs/comparison.md](docs/comparison.md) | Comparison |
-| [docs/decisions.md](docs/decisions.md) | Decisions and Glossary |
-| [docs/frontend.md](docs/frontend.md) | Eranos: frontend and API surface |
-| [docs/generalizing.md](docs/generalizing.md) | Generalizing: Adding Tracks and Kits Without Engine Code |
-| [docs/glossary.md](docs/glossary.md) | Glossary |
-| [docs/handoff.md](docs/handoff.md) | Handoff |
-| [docs/naming-and-extensions.md](docs/naming-and-extensions.md) | Naming, Mythology & Extending Eranos |
-| [docs/nouns-and-verbs.md](docs/nouns-and-verbs.md) | Nouns, verbs, surfaces and infrastructure |
-| [docs/opencode-donors.md](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode or Meta's Muse Models |
-| [docs/review.md](docs/review.md) | Review Guide & Cold-Start Handoff |
-| [docs/setup.md](docs/setup.md) | Setup and Single-Domain Hosting |
-| [docs/status-events.schema.json](docs/status-events.schema.json) | One state change of a nonprofit's request: one version of eranos.requests/<requestid> |
-| [docs/status.md](docs/status.md) | Status |
-| [docs/summary.md](docs/summary.md) | Summary |
+| [`docs/SURFACE-RELEASE.md`](docs/SURFACE-RELEASE.md) | Preserve the current surface on every release |
+| [`docs/WORKER-FIRST-EXECUTION.md`](docs/WORKER-FIRST-EXECUTION.md) | Worker-first execution and private work |
+| [`docs/access-modes.md`](docs/access-modes.md) | External agent access |
+| [`docs/agent-workflow.md`](docs/agent-workflow.md) | Agent workflow and verified boundaries |
+| [`docs/architecture.md`](docs/architecture.md) | Eranos: architecture |
+| [`docs/comparison.md`](docs/comparison.md) | Comparison |
+| [`docs/decisions.md`](docs/decisions.md) | Decisions and Glossary |
+| [`docs/frontend.md`](docs/frontend.md) | Eranos: frontend and API surface |
+| [`docs/generalizing.md`](docs/generalizing.md) | Generalizing: Adding Tracks and Kits Without Engine Code |
+| [`docs/glossary.md`](docs/glossary.md) | Glossary |
+| [`docs/handoff.md`](docs/handoff.md) | Handoff |
+| [`docs/naming-and-extensions.md`](docs/naming-and-extensions.md) | Naming, Mythology & Extending Eranos |
+| [`docs/nouns-and-verbs.md`](docs/nouns-and-verbs.md) | Nouns, verbs, surfaces and infrastructure |
+| [`docs/opencode-donors.md`](docs/opencode-donors.md) | Donating Unused Tokens with OpenCode or Meta's Muse Models |
+| [`docs/review.md`](docs/review.md) | Review Guide & Cold-Start Handoff |
+| [`docs/setup.md`](docs/setup.md) | Setup and Single-Domain Hosting |
+| [`docs/status-events.schema.json`](docs/status-events.schema.json) | One state change of a nonprofit's request: one version of eranos.requests/<requestid> |
+| [`docs/status.md`](docs/status.md) | Status |
+| [`docs/summary.md`](docs/summary.md) | Summary |
 
 ## eranos/ (36)
 
 | File | What it is |
 |---|---|
-| [eranos/__init__.py](eranos/__init__.py) | Eranos: mutual-aid AI agent workbench and verified catalog for NGO, nonprofit, and public-good tools. |
-| [eranos/adapter/__init__.py](eranos/adapter/__init__.py) | Fabric adapter: selects local (Tessera SQLite Store) or tessera (Tessera HTTP service). |
-| [eranos/adapter/local.py](eranos/adapter/local.py) | Local backend: Tessera's in-process SQLite store. |
-| [eranos/adapter/service.py](eranos/adapter/service.py) | Service backend: reaches the Tessera HTTP service with a scoped worker key. |
-| [eranos/adapter/traced.py](eranos/adapter/traced.py) | Traced Backend wrapper: logs every Tessera queue and store verb to JSON Lines. |
-| [eranos/api/__init__.py](eranos/api/__init__.py) | HTTP API for Eranos. |
-| [eranos/api/app.py](eranos/api/app.py) | FastAPI app for Eranos. |
-| [eranos/api/public_feed.py](eranos/api/public_feed.py) | Project a service-readable feed into an explicitly public response. |
-| [eranos/cli.py](eranos/cli.py) | Eranos CLI: inspect public-good tracks, run zero-storage practice verification, verify the two-step Tessera p… |
-| [eranos/config.py](eranos/config.py) | Runtime settings from environment variables. |
-| [eranos/contributor.py](eranos/contributor.py) | The reference volunteer: one tracked anonymous session that claims one open verb, does it, checks it and subm… |
-| [eranos/copy.py](eranos/copy.py) | Copy and topic guardrails: outputs use neutral operational indicators, never accusations, and never collect o… |
-| [eranos/donor_worker.py](eranos/donor_worker.py) | Live and offline donor-agent worker for Eranos (eq01 -> eq02 -> eq03 -> eranos.catalog). |
-| [eranos/e2e.py](eranos/e2e.py) | End-to-end check of the two-sided marketplace, printed as a short transcript. |
-| [eranos/intake.py](eranos/intake.py) | Read a request from the public GitHub issue form (.github/ISSUETEMPLATE/request-a-kit.yml). |
-| [eranos/jsonfile.py](eranos/jsonfile.py) | Strict JSON loader: rejects repeated object keys and NaN/Infinity so track and kit files stay unambiguous. |
-| [eranos/log.py](eranos/log.py) | Structured JSON Lines run logger (ts, level, event, taskid, kitid, queue, leaseid, costusd). |
-| [eranos/nouns.py](eranos/nouns.py) | Eranos's page text, onboarding steps, starting brief, research rules and stand-in sources are nouns. |
-| [eranos/pipeline/__init__.py](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
-| [eranos/pipeline/examples.py](eranos/pipeline/examples.py) | Example needs and recorded example runs: the nouns the marketplace shows about its example kits. |
-| [eranos/pipeline/publication.py](eranos/pipeline/publication.py) | Durable review intent, independent proof and retryable catalog publication. |
-| [eranos/pipeline/request_noun.py](eranos/pipeline/request_noun.py) | The nonprofit request noun (eranos.requests/<requestid>) and its recorded states. |
-| [eranos/pipeline/requests.py](eranos/pipeline/requests.py) | A nonprofit's request is one verb on eq01; the worker that claims it classifies it and splits it. |
-| [eranos/pipeline/run.py](eranos/pipeline/run.py) | Two-step volunteer agent pipeline on Tessera (eq01 spec -> eq02 draft -> eq03 review -> CAS catalog). |
-| [eranos/pipeline/seed_packs.py](eranos/pipeline/seed_packs.py) | Example kits whose nouns and verbs live in the seed-pack library. |
-| [eranos/pipeline/solutions.py](eranos/pipeline/solutions.py) | The solution path for public-only requests: an independent review that re-checks every citation of a research… |
-| [eranos/privacy.py](eranos/privacy.py) | Personal-data screen for public nonprofit requests (AGENTS.md hard rule 1). |
-| [eranos/queues/__init__.py](eranos/queues/__init__.py) | Queue specifications for Eranos. |
-| [eranos/queues/stages.py](eranos/queues/stages.py) | Queue definitions for Eranos's volunteer pipeline on Tessera (eq01, eq02, eq03). |
-| [eranos/requester.py](eranos/requester.py) | A nonprofit's side of the marketplace over plain HTTP, with no operator step. |
-| [eranos/schemas/__init__.py](eranos/schemas/__init__.py) | Domain records and track schemas for Eranos. |
-| [eranos/schemas/records.py](eranos/schemas/records.py) | Domain records for Eranos kits, agent skills, MCP tool specs, custom operational artifacts, review decisions,… |
-| [eranos/schemas/tracks.py](eranos/schemas/tracks.py) | Schema for public-good tracks (tracks/<id>/track.json). |
-| [eranos/tracks.py](eranos/tracks.py) | Load public-good build tracks (tracks/<id>/track.json). |
-| [eranos/verifier.py](eranos/verifier.py) | Deterministic verifier for volunteer-submitted kits: checks track fit, human-only lines, synthetic fixtures,… |
-| [eranos/visible.py](eranos/visible.py) | The words visitors and agents see: never "synthetic". |
+| [`eranos/__init__.py`](eranos/__init__.py) | Eranos: mutual-aid AI agent workbench and verified catalog for NGO, nonprofit, and public-good tools. |
+| [`eranos/adapter/__init__.py`](eranos/adapter/__init__.py) | Fabric adapter: selects local (Tessera SQLite Store) or tessera (Tessera HTTP service). |
+| [`eranos/adapter/local.py`](eranos/adapter/local.py) | Local backend: Tessera's in-process SQLite store. |
+| [`eranos/adapter/service.py`](eranos/adapter/service.py) | Service backend: reaches the Tessera HTTP service with a scoped worker key. |
+| [`eranos/adapter/traced.py`](eranos/adapter/traced.py) | Traced Backend wrapper: logs every Tessera queue and store verb to JSON Lines. |
+| [`eranos/api/__init__.py`](eranos/api/__init__.py) | HTTP API for Eranos. |
+| [`eranos/api/app.py`](eranos/api/app.py) | FastAPI app for Eranos. |
+| [`eranos/api/public_feed.py`](eranos/api/public_feed.py) | Project a service-readable feed into an explicitly public response. |
+| [`eranos/cli.py`](eranos/cli.py) | Eranos CLI: inspect public-good tracks, run zero-storage practice verification, verify the two-step Tessera p… |
+| [`eranos/config.py`](eranos/config.py) | Runtime settings from environment variables. |
+| [`eranos/contributor.py`](eranos/contributor.py) | The reference volunteer: one tracked anonymous session that claims one open verb, does it, checks it and subm… |
+| [`eranos/copy.py`](eranos/copy.py) | Copy and topic guardrails: outputs use neutral operational indicators, never accusations, and never collect o… |
+| [`eranos/donor_worker.py`](eranos/donor_worker.py) | Live and offline donor-agent worker for Eranos (eq01 -> eq02 -> eq03 -> eranos.catalog). |
+| [`eranos/e2e.py`](eranos/e2e.py) | End-to-end check of the two-sided marketplace, printed as a short transcript. |
+| [`eranos/intake.py`](eranos/intake.py) | Read a request from the public GitHub issue form (.github/ISSUETEMPLATE/request-a-kit.yml). |
+| [`eranos/jsonfile.py`](eranos/jsonfile.py) | Strict JSON loader: rejects repeated object keys and NaN/Infinity so track and kit files stay unambiguous. |
+| [`eranos/log.py`](eranos/log.py) | Structured JSON Lines run logger (ts, level, event, taskid, kitid, queue, leaseid, costusd). |
+| [`eranos/nouns.py`](eranos/nouns.py) | Eranos's page text, onboarding steps, starting brief, research rules and stand-in sources are nouns. |
+| [`eranos/pipeline/__init__.py`](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
+| [`eranos/pipeline/examples.py`](eranos/pipeline/examples.py) | Example needs and recorded example runs: the nouns the marketplace shows about its example kits. |
+| [`eranos/pipeline/publication.py`](eranos/pipeline/publication.py) | Durable review intent, independent proof and retryable catalog publication. |
+| [`eranos/pipeline/request_noun.py`](eranos/pipeline/request_noun.py) | The nonprofit request noun (eranos.requests/<requestid>) and its recorded states. |
+| [`eranos/pipeline/requests.py`](eranos/pipeline/requests.py) | A nonprofit's request is one verb on eq01; the worker that claims it classifies it and splits it. |
+| [`eranos/pipeline/run.py`](eranos/pipeline/run.py) | Two-step volunteer agent pipeline on Tessera (eq01 spec -> eq02 draft -> eq03 review -> CAS catalog). |
+| [`eranos/pipeline/seed_packs.py`](eranos/pipeline/seed_packs.py) | Example kits whose nouns and verbs live in the seed-pack library. |
+| [`eranos/pipeline/solutions.py`](eranos/pipeline/solutions.py) | The solution path for public-only requests: an independent review that re-checks every citation of a research… |
+| [`eranos/privacy.py`](eranos/privacy.py) | Personal-data screen for public nonprofit requests (AGENTS.md hard rule 1). |
+| [`eranos/queues/__init__.py`](eranos/queues/__init__.py) | Queue specifications for Eranos. |
+| [`eranos/queues/stages.py`](eranos/queues/stages.py) | Queue definitions for Eranos's volunteer pipeline on Tessera (eq01, eq02, eq03). |
+| [`eranos/requester.py`](eranos/requester.py) | A nonprofit's side of the marketplace over plain HTTP, with no operator step. |
+| [`eranos/schemas/__init__.py`](eranos/schemas/__init__.py) | Domain records and track schemas for Eranos. |
+| [`eranos/schemas/records.py`](eranos/schemas/records.py) | Domain records for Eranos kits, agent skills, MCP tool specs, custom operational artifacts, review decisions,… |
+| [`eranos/schemas/tracks.py`](eranos/schemas/tracks.py) | Schema for public-good tracks (tracks/<id>/track.json). |
+| [`eranos/tracks.py`](eranos/tracks.py) | Load public-good build tracks (tracks/<id>/track.json). |
+| [`eranos/verifier.py`](eranos/verifier.py) | Deterministic verifier for volunteer-submitted kits: checks track fit, human-only lines, synthetic fixtures,… |
+| [`eranos/visible.py`](eranos/visible.py) | The words visitors and agents see: never "synthetic". |
 
 ## examples/ (38)
 
 | File | What it is |
 |---|---|
-| [examples/kits/01-job-recruitment-triage.json](examples/kits/01-job-recruitment-triage.json) | JSON object: request, draft, review |
-| [examples/kits/02-coerced-work-hotline-routing.json](examples/kits/02-coerced-work-hotline-routing.json) | JSON object: request, draft, review, steward_signoff |
-| [examples/kits/03-intake-and-referral-triage.json](examples/kits/03-intake-and-referral-triage.json) | JSON object: request, draft, review |
-| [examples/kits/04-grant-and-compliance-ops.json](examples/kits/04-grant-and-compliance-ops.json) | JSON object: request, draft, review |
-| [examples/kits/05-volunteer-shift-sop-pack.json](examples/kits/05-volunteer-shift-sop-pack.json) | JSON object: request, draft, review |
-| [examples/kits/06-monthly-program-impact-report.json](examples/kits/06-monthly-program-impact-report.json) | JSON object: seed_pack, request, review |
-| [examples/kits/07-handwritten-statements-to-text.json](examples/kits/07-handwritten-statements-to-text.json) | JSON object: seed_pack, request, steward_signoff, review |
-| [examples/kits/08-victim-support-referrals.json](examples/kits/08-victim-support-referrals.json) | JSON object: seed_pack, request, steward_signoff, review |
-| [examples/kits/09-policy-research-brief.json](examples/kits/09-policy-research-brief.json) | JSON object: seed_pack, request, review |
-| [examples/kits/10-funding-impact-summary.json](examples/kits/10-funding-impact-summary.json) | JSON object: seed_pack, request, review |
-| [examples/kits/11-volunteer-shift-schedule.json](examples/kits/11-volunteer-shift-schedule.json) | JSON object: seed_pack, request, review |
-| [examples/kits/12-food-bank-pickup-scheduling.json](examples/kits/12-food-bank-pickup-scheduling.json) | JSON object: seed_pack, request, review |
-| [examples/kits/13-donor-thank-you-letters.json](examples/kits/13-donor-thank-you-letters.json) | JSON object: seed_pack, request, review |
-| [examples/kits/14-multilingual-flyer-translation-check.json](examples/kits/14-multilingual-flyer-translation-check.json) | JSON object: seed_pack, request, review |
-| [examples/kits/15-housing-and-charity-verification.json](examples/kits/15-housing-and-charity-verification.json) | JSON object: request, draft, review, steward_signoff |
-| [examples/kits/README.md](examples/kits/README.md) | Synthetic Example Kit Bundles |
-| [examples/requests/README.md](examples/requests/README.md) | Synthetic nonprofit requests |
-| [examples/requests/hotline-routing.md](examples/requests/hotline-routing.md) | Organization type |
-| [examples/requests/personal-data.md](examples/requests/personal-data.md) | Organization type |
-| [examples/requests/shift-reminders.md](examples/requests/shift-reminders.md) | Organization type |
-| [examples/requests/tenant-laws.md](examples/requests/tenant-laws.md) | Organization type |
-| [examples/runs/KIT-FLYER-14.json](examples/runs/KIT-FLYER-14.json) | Multilingual Service Flyer Translation Check Kit |
-| [examples/runs/KIT-GRANT-04.json](examples/runs/KIT-GRANT-04.json) | Small-Nonprofit Restricted Grant & Audit Readiness Kit |
-| [examples/runs/KIT-HOTLINE-02.json](examples/runs/KIT-HOTLINE-02.json) | Coerced Overseas Offer Helpline Directory & Safe Triage Kit |
-| [examples/runs/KIT-HOUSING-15.json](examples/runs/KIT-HOUSING-15.json) | Rental Deposit & Disaster-Relief Charity Registry Check Kit |
-| [examples/runs/KIT-IMPACT-06.json](examples/runs/KIT-IMPACT-06.json) | Monthly Program Impact Report Kit |
-| [examples/runs/KIT-INTAKE-03.json](examples/runs/KIT-INTAKE-03.json) | Community Services Warm-Referral & HSDS Triage Kit |
-| [examples/runs/KIT-PANTRY-12.json](examples/runs/KIT-PANTRY-12.json) | Food Bank Inventory and Pickup Scheduling Kit |
-| [examples/runs/KIT-POLICY-09.json](examples/runs/KIT-POLICY-09.json) | Policy Research Brief Kit |
-| [examples/runs/KIT-RECRUIT-01.json](examples/runs/KIT-RECRUIT-01.json) | Overseas Contract & Agency Fee Arithmetic Intake Kit |
-| [examples/runs/KIT-RELIEF-11.json](examples/runs/KIT-RELIEF-11.json) | Disaster Relief Volunteer Shift Schedule Kit |
-| [examples/runs/KIT-RENEWAL-10.json](examples/runs/KIT-RENEWAL-10.json) | Funding Impact Summary for Grant Renewal Kit |
-| [examples/runs/KIT-SHIFT-05.json](examples/runs/KIT-SHIFT-05.json) | Community Pantry Shift Onboarding & Incident Escalation SOP Pack |
-| [examples/runs/KIT-SUPPORT-08.json](examples/runs/KIT-SUPPORT-08.json) | Victim Support Referral Options Kit |
-| [examples/runs/KIT-THANKS-13.json](examples/runs/KIT-THANKS-13.json) | Donor Thank-You Letters with Privacy Checks Kit |
-| [examples/runs/KIT-TRANSCR-07.json](examples/runs/KIT-TRANSCR-07.json) | Handwritten Statements to Text Kit |
-| [examples/runs/README.md](examples/runs/README.md) | Recorded example runs |
-| [examples/sources/tenant-laws-2026.json](examples/sources/tenant-laws-2026.json) | JSON object: schema_version, kind, synthetic, note, sources |
+| [`examples/kits/01-job-recruitment-triage.json`](examples/kits/01-job-recruitment-triage.json) | JSON object: `request`, `draft`, `review` |
+| [`examples/kits/02-coerced-work-hotline-routing.json`](examples/kits/02-coerced-work-hotline-routing.json) | JSON object: `request`, `draft`, `review`, `steward_signoff` |
+| [`examples/kits/03-intake-and-referral-triage.json`](examples/kits/03-intake-and-referral-triage.json) | JSON object: `request`, `draft`, `review` |
+| [`examples/kits/04-grant-and-compliance-ops.json`](examples/kits/04-grant-and-compliance-ops.json) | JSON object: `request`, `draft`, `review` |
+| [`examples/kits/05-volunteer-shift-sop-pack.json`](examples/kits/05-volunteer-shift-sop-pack.json) | JSON object: `request`, `draft`, `review` |
+| [`examples/kits/06-monthly-program-impact-report.json`](examples/kits/06-monthly-program-impact-report.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/07-handwritten-statements-to-text.json`](examples/kits/07-handwritten-statements-to-text.json) | JSON object: `seed_pack`, `request`, `steward_signoff`, `review` |
+| [`examples/kits/08-victim-support-referrals.json`](examples/kits/08-victim-support-referrals.json) | JSON object: `seed_pack`, `request`, `steward_signoff`, `review` |
+| [`examples/kits/09-policy-research-brief.json`](examples/kits/09-policy-research-brief.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/10-funding-impact-summary.json`](examples/kits/10-funding-impact-summary.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/11-volunteer-shift-schedule.json`](examples/kits/11-volunteer-shift-schedule.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/12-food-bank-pickup-scheduling.json`](examples/kits/12-food-bank-pickup-scheduling.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/13-donor-thank-you-letters.json`](examples/kits/13-donor-thank-you-letters.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/14-multilingual-flyer-translation-check.json`](examples/kits/14-multilingual-flyer-translation-check.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/15-housing-and-charity-verification.json`](examples/kits/15-housing-and-charity-verification.json) | JSON object: `request`, `draft`, `review`, `steward_signoff` |
+| [`examples/kits/README.md`](examples/kits/README.md) | Synthetic Example Kit Bundles |
+| [`examples/requests/README.md`](examples/requests/README.md) | Synthetic nonprofit requests |
+| [`examples/requests/hotline-routing.md`](examples/requests/hotline-routing.md) | Organization type |
+| [`examples/requests/personal-data.md`](examples/requests/personal-data.md) | Organization type |
+| [`examples/requests/shift-reminders.md`](examples/requests/shift-reminders.md) | Organization type |
+| [`examples/requests/tenant-laws.md`](examples/requests/tenant-laws.md) | Organization type |
+| [`examples/runs/KIT-FLYER-14.json`](examples/runs/KIT-FLYER-14.json) | Multilingual Service Flyer Translation Check Kit |
+| [`examples/runs/KIT-GRANT-04.json`](examples/runs/KIT-GRANT-04.json) | Small-Nonprofit Restricted Grant & Audit Readiness Kit |
+| [`examples/runs/KIT-HOTLINE-02.json`](examples/runs/KIT-HOTLINE-02.json) | Coerced Overseas Offer Helpline Directory & Safe Triage Kit |
+| [`examples/runs/KIT-HOUSING-15.json`](examples/runs/KIT-HOUSING-15.json) | Rental Deposit & Disaster-Relief Charity Registry Check Kit |
+| [`examples/runs/KIT-IMPACT-06.json`](examples/runs/KIT-IMPACT-06.json) | Monthly Program Impact Report Kit |
+| [`examples/runs/KIT-INTAKE-03.json`](examples/runs/KIT-INTAKE-03.json) | Community Services Warm-Referral & HSDS Triage Kit |
+| [`examples/runs/KIT-PANTRY-12.json`](examples/runs/KIT-PANTRY-12.json) | Food Bank Inventory and Pickup Scheduling Kit |
+| [`examples/runs/KIT-POLICY-09.json`](examples/runs/KIT-POLICY-09.json) | Policy Research Brief Kit |
+| [`examples/runs/KIT-RECRUIT-01.json`](examples/runs/KIT-RECRUIT-01.json) | Overseas Contract & Agency Fee Arithmetic Intake Kit |
+| [`examples/runs/KIT-RELIEF-11.json`](examples/runs/KIT-RELIEF-11.json) | Disaster Relief Volunteer Shift Schedule Kit |
+| [`examples/runs/KIT-RENEWAL-10.json`](examples/runs/KIT-RENEWAL-10.json) | Funding Impact Summary for Grant Renewal Kit |
+| [`examples/runs/KIT-SHIFT-05.json`](examples/runs/KIT-SHIFT-05.json) | Community Pantry Shift Onboarding & Incident Escalation SOP Pack |
+| [`examples/runs/KIT-SUPPORT-08.json`](examples/runs/KIT-SUPPORT-08.json) | Victim Support Referral Options Kit |
+| [`examples/runs/KIT-THANKS-13.json`](examples/runs/KIT-THANKS-13.json) | Donor Thank-You Letters with Privacy Checks Kit |
+| [`examples/runs/KIT-TRANSCR-07.json`](examples/runs/KIT-TRANSCR-07.json) | Handwritten Statements to Text Kit |
+| [`examples/runs/README.md`](examples/runs/README.md) | Recorded example runs |
+| [`examples/sources/tenant-laws-2026.json`](examples/sources/tenant-laws-2026.json) | JSON object: `schema_version`, `kind`, `synthetic`, `note`, `sources` |
 
 ## instructions/ (18)
 
 | File | What it is |
 |---|---|
-| [instructions/agent-banner.json](instructions/agent-banner.json) | The agent instructions line above every page |
-| [instructions/agent-brief.v2.txt](instructions/agent-brief.v2.txt) |  |
-| [instructions/classify.json](instructions/classify.json) | Classify a request and break it into parts |
-| [instructions/connect.json](instructions/connect.json) | Connect to Eranos |
-| [instructions/help-page.json](instructions/help-page.json) | I want to help |
-| [instructions/help.json](instructions/help.json) | Help in six steps |
-| [instructions/home.json](instructions/home.json) | Home page |
-| [instructions/library.json](instructions/library.json) | Find a solution |
-| [instructions/llms.json](instructions/llms.json) | llms.txt: how an agent uses Eranos and the shared ta-amps queue |
-| [instructions/nonprofits-page.json](instructions/nonprofits-page.json) | Tell us what you need |
-| [instructions/nonprofits.json](instructions/nonprofits.json) | Tell us what you need |
-| [instructions/public-research.json](instructions/public-research.json) | Rules for public-only research |
-| [instructions/request-example-process.json](instructions/request-example-process.json) | The practice-case example request the status page replays: a reusable process |
-| [instructions/request-example.json](instructions/request-example.json) | The practice-case example request the status page replays: information, from public sources |
-| [instructions/request-status.json](instructions/request-status.json) | Request status and report pages |
-| [instructions/shell.json](instructions/shell.json) | Header, menu and footer |
-| [instructions/site.json](instructions/site.json) | Spare tokens for good |
-| [instructions/trust.json](instructions/trust.json) | Privacy, terms, report and judge tour |
+| [`instructions/agent-banner.json`](instructions/agent-banner.json) | The agent instructions line above every page |
+| [`instructions/agent-brief.v3.txt`](instructions/agent-brief.v3.txt) |  |
+| [`instructions/classify.json`](instructions/classify.json) | Classify a request and break it into parts |
+| [`instructions/connect.json`](instructions/connect.json) | Connect to Eranos |
+| [`instructions/help-page.json`](instructions/help-page.json) | I want to help |
+| [`instructions/help.json`](instructions/help.json) | Help in six steps |
+| [`instructions/home.json`](instructions/home.json) | Home page |
+| [`instructions/library.json`](instructions/library.json) | Find a solution |
+| [`instructions/llms.json`](instructions/llms.json) | llms.txt: how an agent uses Eranos and the shared ta-amps queue |
+| [`instructions/nonprofits-page.json`](instructions/nonprofits-page.json) | Tell us what you need |
+| [`instructions/nonprofits.json`](instructions/nonprofits.json) | Tell us what you need |
+| [`instructions/public-research.json`](instructions/public-research.json) | Rules for public-only research |
+| [`instructions/request-example-process.json`](instructions/request-example-process.json) | The practice-case example request the status page replays: a reusable process |
+| [`instructions/request-example.json`](instructions/request-example.json) | The practice-case example request the status page replays: information, from public sources |
+| [`instructions/request-status.json`](instructions/request-status.json) | Request status and report pages |
+| [`instructions/shell.json`](instructions/shell.json) | Header, menu and footer |
+| [`instructions/site.json`](instructions/site.json) | Spare tokens for good |
+| [`instructions/trust.json`](instructions/trust.json) | Privacy, terms, report and judge tour |
 
 ## scripts/ (5)
 
 | File | What it is |
 |---|---|
-| [scripts/build_index.py](scripts/build_index.py) | Build this repo's indexes from its own files. |
-| [scripts/check_architecture.py](scripts/check_architecture.py) | Check that architecture.json still describes this repo truthfully. |
-| [scripts/check_public.py](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
-| [scripts/check_surface_release.py](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
-| [scripts/export_practice_schema.py](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
+| [`scripts/build_index.py`](scripts/build_index.py) | Build this repo's indexes from its own files. |
+| [`scripts/check_architecture.py`](scripts/check_architecture.py) | Check that architecture.json still describes this repo truthfully. |
+| [`scripts/check_public.py`](scripts/check_public.py) | Fail if a file headed for a public repo holds a secret or a private name. |
+| [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
+| [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
 ## tests/ (16)
 
 | File | What it is |
 |---|---|
-| [tests/test_agent_access.py](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
-| [tests/test_agent_banner_shared.py](tests/test_agent_banner_shared.py) | The agent banner is one shared file: Agora and Eranos serve the same bytes, so the two sites never drift. |
-| [tests/test_api_and_edge.py](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
-| [tests/test_briefs_and_public.py](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
-| [tests/test_example_runs.py](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
-| [tests/test_guard_hook.py](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
-| [tests/test_light_ui_only.py](tests/test_light_ui_only.py) | Mechanical light-UI-only conformance gate for Eranos. |
-| [tests/test_marketplace_site.py](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
-| [tests/test_open_contribution.py](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
-| [tests/test_pipeline.py](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
-| [tests/test_public_feed.py](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
-| [tests/test_review_contract.py](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
-| [tests/test_schemas_and_copy.py](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
-| [tests/test_seed_packs.py](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
-| [tests/test_surface_release.py](tests/test_surface_release.py) | Release regression controls: reject stale modes/assets, retain safe dark ink. |
-| [tests/test_tracks_and_verifier.py](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
+| [`tests/test_agent_access.py`](tests/test_agent_access.py) | Public agent access never bypasses canonical fabric governance. |
+| [`tests/test_agent_banner_shared.py`](tests/test_agent_banner_shared.py) | The agent banner is one shared file: Agora and Eranos serve the same bytes, so the two sites never drift. |
+| [`tests/test_api_and_edge.py`](tests/test_api_and_edge.py) | Tests for Eranos FastAPI endpoints, catalog filters, practice gate, MCP/discovery, edge Worker, and lockdown. |
+| [`tests/test_briefs_and_public.py`](tests/test_briefs_and_public.py) | Tests for volunteer briefs, public-name/secret scan, and shared script byte-identity. |
+| [`tests/test_example_runs.py`](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
+| [`tests/test_guard_hook.py`](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
+| [`tests/test_light_ui_only.py`](tests/test_light_ui_only.py) | Mechanical light-UI-only conformance gate for Eranos. |
+| [`tests/test_marketplace_site.py`](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
+| [`tests/test_open_contribution.py`](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
+| [`tests/test_pipeline.py`](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
+| [`tests/test_public_feed.py`](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
+| [`tests/test_review_contract.py`](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
+| [`tests/test_schemas_and_copy.py`](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
+| [`tests/test_seed_packs.py`](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
+| [`tests/test_surface_release.py`](tests/test_surface_release.py) | Release regression controls: reject stale modes/assets, retain safe dark ink. |
+| [`tests/test_tracks_and_verifier.py`](tests/test_tracks_and_verifier.py) | Tests for public-good tracks, neutral engine code scan, deterministic verifier, and zero-storage practice gat… |
 
 ## tracks/ (14)
 
 | File | What it is |
 |---|---|
-| [tracks/README.md](tracks/README.md) | Eranos Tracks |
-| [tracks/accessible-and-multilingual-communications/track.json](tracks/accessible-and-multilingual-communications/track.json) | Accessible and Multilingual Communications |
-| [tracks/coerced-work-hotline-routing/track.json](tracks/coerced-work-hotline-routing/track.json) | Coerced Recruitment & Crisis Helpline Routing Kits |
-| [tracks/donor-stewardship-and-privacy/track.json](tracks/donor-stewardship-and-privacy/track.json) | Donor Stewardship and Privacy |
-| [tracks/food-and-essentials-distribution/track.json](tracks/food-and-essentials-distribution/track.json) | Food Bank and Pantry Distribution |
-| [tracks/grant-and-compliance-ops/track.json](tracks/grant-and-compliance-ops/track.json) | Small-Nonprofit Grant Reporting & Restricted-Fund Kits |
-| [tracks/housing-and-charity-verification/track.json](tracks/housing-and-charity-verification/track.json) | Rental Deposit & Disaster-Relief Charity Check Kits |
-| [tracks/intake-and-referral-triage/track.json](tracks/intake-and-referral-triage/track.json) | Multilingual Service-Finder & Warm-Referral Operations |
-| [tracks/job-recruitment-triage/track.json](tracks/job-recruitment-triage/track.json) | Cross-Border Job Offer & Fee-Shift Intake Kits |
-| [tracks/policy-and-public-rules/track.json](tracks/policy-and-public-rules/track.json) | Public Rules and Policy Briefs |
-| [tracks/program-impact-reporting/track.json](tracks/program-impact-reporting/track.json) | Program Impact and Funding Reports |
-| [tracks/statement-transcription/track.json](tracks/statement-transcription/track.json) | Handwritten Statements and Records |
-| [tracks/victim-support-referrals/track.json](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
-| [tracks/volunteer-shift-and-sop-builder/track.json](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
+| [`tracks/README.md`](tracks/README.md) | Eranos Tracks |
+| [`tracks/accessible-and-multilingual-communications/track.json`](tracks/accessible-and-multilingual-communications/track.json) | Accessible and Multilingual Communications |
+| [`tracks/coerced-work-hotline-routing/track.json`](tracks/coerced-work-hotline-routing/track.json) | Coerced Recruitment & Crisis Helpline Routing Kits |
+| [`tracks/donor-stewardship-and-privacy/track.json`](tracks/donor-stewardship-and-privacy/track.json) | Donor Stewardship and Privacy |
+| [`tracks/food-and-essentials-distribution/track.json`](tracks/food-and-essentials-distribution/track.json) | Food Bank and Pantry Distribution |
+| [`tracks/grant-and-compliance-ops/track.json`](tracks/grant-and-compliance-ops/track.json) | Small-Nonprofit Grant Reporting & Restricted-Fund Kits |
+| [`tracks/housing-and-charity-verification/track.json`](tracks/housing-and-charity-verification/track.json) | Rental Deposit & Disaster-Relief Charity Check Kits |
+| [`tracks/intake-and-referral-triage/track.json`](tracks/intake-and-referral-triage/track.json) | Multilingual Service-Finder & Warm-Referral Operations |
+| [`tracks/job-recruitment-triage/track.json`](tracks/job-recruitment-triage/track.json) | Cross-Border Job Offer & Fee-Shift Intake Kits |
+| [`tracks/policy-and-public-rules/track.json`](tracks/policy-and-public-rules/track.json) | Public Rules and Policy Briefs |
+| [`tracks/program-impact-reporting/track.json`](tracks/program-impact-reporting/track.json) | Program Impact and Funding Reports |
+| [`tracks/statement-transcription/track.json`](tracks/statement-transcription/track.json) | Handwritten Statements and Records |
+| [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
+| [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (179)
+## web/ (181)
 
 | File | What it is |
 |---|---|
-| [web/.gitignore](web/.gitignore) |  |
-| [web/README.md](web/README.md) | Eranos Web App (web/) |
-| [web/index.html](web/index.html) |  |
-| [web/package.json](web/package.json) | Eranos public-good & nonprofit volunteer agent tooling catalog. |
-| [web/playwright.config.ts](web/playwright.config.ts) |  |
-| [web/playwright.light.config.ts](web/playwright.light.config.ts) |  |
-| [web/pnpm-workspace.yaml](web/pnpm-workspace.yaml) | Astryx postinstall scripts only print a hint to run astryx init, which would |
-| [web/public/agent-banner.js](web/public/agent-banner.js) |  |
-| [web/public/fonts/OFL-IBMPlexSans.txt](web/public/fonts/OFL-IBMPlexSans.txt) |  |
-| [web/public/fonts/OFL-JetBrainsMono.txt](web/public/fonts/OFL-JetBrainsMono.txt) |  |
-| [web/public/fonts/OFL-SpaceGrotesk.txt](web/public/fonts/OFL-SpaceGrotesk.txt) |  |
-| [web/public/snapshot/catalog.json](web/public/snapshot/catalog.json) | JSON object: is_example, two_step_verified, kits |
-| [web/public/snapshot/catalog/KIT-FLYER-14.json](web/public/snapshot/catalog/KIT-FLYER-14.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-GRANT-04.json](web/public/snapshot/catalog/KIT-GRANT-04.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-HOTLINE-02.json](web/public/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-HOUSING-15.json](web/public/snapshot/catalog/KIT-HOUSING-15.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-IMPACT-06.json](web/public/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-INTAKE-03.json](web/public/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-PANTRY-12.json](web/public/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-POLICY-09.json](web/public/snapshot/catalog/KIT-POLICY-09.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-RECRUIT-01.json](web/public/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-RELIEF-11.json](web/public/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-RENEWAL-10.json](web/public/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-SHIFT-05.json](web/public/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-SUPPORT-08.json](web/public/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-THANKS-13.json](web/public/snapshot/catalog/KIT-THANKS-13.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/catalog/KIT-TRANSCR-07.json](web/public/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/public/snapshot/examples.json](web/public/snapshot/examples.json) | JSON object: is_example, needs, runs |
-| [web/public/snapshot/fabric.json](web/public/snapshot/fabric.json) | JSON object: display_name, plan, is_example, queues |
-| [web/public/snapshot/nouns/eranos.instructions.json](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: is_example, store, records |
-| [web/public/snapshot/nouns/eranos.instructions/agent-banner.json](web/public/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/classify.json](web/public/snapshot/nouns/eranos.instructions/classify.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/connect.json](web/public/snapshot/nouns/eranos.instructions/connect.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/help-page.json](web/public/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/help.json](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/home.json](web/public/snapshot/nouns/eranos.instructions/home.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/library.json](web/public/snapshot/nouns/eranos.instructions/library.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/llms.json](web/public/snapshot/nouns/eranos.instructions/llms.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json](web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/nonprofits.json](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/public-research.json](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/request-example-process.json](web/public/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/request-example.json](web/public/snapshot/nouns/eranos.instructions/request-example.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/request-status.json](web/public/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/shell.json](web/public/snapshot/nouns/eranos.instructions/shell.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/site.json](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.instructions/trust.json](web/public/snapshot/nouns/eranos.instructions/trust.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.sources.json](web/public/snapshot/nouns/eranos.sources.json) | JSON object: is_example, store, records |
-| [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.sources/SRC-TENANT-03.json](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-03.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.verb_templates.json](web/public/snapshot/nouns/eranos.verb_templates.json) | JSON object: is_example, store, records |
-| [web/public/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json](web/public/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/nouns/eranos.verb_templates/public-budget-report.json](web/public/snapshot/nouns/eranos.verb_templates/public-budget-report.json) | JSON object: is_example, store, key, version, value |
-| [web/public/snapshot/requests.json](web/public/snapshot/requests.json) | JSON object: is_example, stages, requests |
-| [web/public/snapshot/tracks.json](web/public/snapshot/tracks.json) | JSON object: is_example, tracks |
-| [web/snapshot/catalog.json](web/snapshot/catalog.json) | JSON object: is_example, two_step_verified, kits |
-| [web/snapshot/catalog/KIT-FLYER-14.json](web/snapshot/catalog/KIT-FLYER-14.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-GRANT-04.json](web/snapshot/catalog/KIT-GRANT-04.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-HOTLINE-02.json](web/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-HOUSING-15.json](web/snapshot/catalog/KIT-HOUSING-15.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-IMPACT-06.json](web/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-INTAKE-03.json](web/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-PANTRY-12.json](web/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-POLICY-09.json](web/snapshot/catalog/KIT-POLICY-09.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-RECRUIT-01.json](web/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-RELIEF-11.json](web/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-RENEWAL-10.json](web/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-SHIFT-05.json](web/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-SUPPORT-08.json](web/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-THANKS-13.json](web/snapshot/catalog/KIT-THANKS-13.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/catalog/KIT-TRANSCR-07.json](web/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: synthetic, spdx_license, tags, target_cohorts, producer_surface, visibility_scope |
-| [web/snapshot/examples.json](web/snapshot/examples.json) | JSON object: is_example, needs, runs |
-| [web/snapshot/fabric.json](web/snapshot/fabric.json) | JSON object: display_name, plan, is_example, queues |
-| [web/snapshot/nouns/eranos.instructions.json](web/snapshot/nouns/eranos.instructions.json) | JSON object: is_example, store, records |
-| [web/snapshot/nouns/eranos.instructions/agent-banner.json](web/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/classify.json](web/snapshot/nouns/eranos.instructions/classify.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/connect.json](web/snapshot/nouns/eranos.instructions/connect.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/help-page.json](web/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/help.json](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/home.json](web/snapshot/nouns/eranos.instructions/home.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/library.json](web/snapshot/nouns/eranos.instructions/library.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/llms.json](web/snapshot/nouns/eranos.instructions/llms.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/nonprofits-page.json](web/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/nonprofits.json](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/public-research.json](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/request-example-process.json](web/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/request-example.json](web/snapshot/nouns/eranos.instructions/request-example.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/request-status.json](web/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/shell.json](web/snapshot/nouns/eranos.instructions/shell.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/site.json](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.instructions/trust.json](web/snapshot/nouns/eranos.instructions/trust.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.sources.json](web/snapshot/nouns/eranos.sources.json) | JSON object: is_example, store, records |
-| [web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.sources/SRC-TENANT-03.json](web/snapshot/nouns/eranos.sources/SRC-TENANT-03.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.verb_templates.json](web/snapshot/nouns/eranos.verb_templates.json) | JSON object: is_example, store, records |
-| [web/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json](web/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/nouns/eranos.verb_templates/public-budget-report.json](web/snapshot/nouns/eranos.verb_templates/public-budget-report.json) | JSON object: is_example, store, key, version, value |
-| [web/snapshot/requests.json](web/snapshot/requests.json) | JSON object: is_example, stages, requests |
-| [web/snapshot/tracks.json](web/snapshot/tracks.json) | JSON object: is_example, tracks |
-| [web/src/App.tsx](web/src/App.tsx) |  |
-| [web/src/components/AdvancedSettings.tsx](web/src/components/AdvancedSettings.tsx) |  |
-| [web/src/components/BoundaryBadge.tsx](web/src/components/BoundaryBadge.tsx) |  |
-| [web/src/components/ErrorAlert.tsx](web/src/components/ErrorAlert.tsx) |  |
-| [web/src/components/Footer.tsx](web/src/components/Footer.tsx) |  |
-| [web/src/components/Icon.tsx](web/src/components/Icon.tsx) |  |
-| [web/src/components/JudgeTour.tsx](web/src/components/JudgeTour.tsx) |  |
-| [web/src/components/Mark.tsx](web/src/components/Mark.tsx) |  |
-| [web/src/components/OpenTasks.tsx](web/src/components/OpenTasks.tsx) |  |
-| [web/src/components/RequestBox.tsx](web/src/components/RequestBox.tsx) |  |
-| [web/src/components/TopBar.tsx](web/src/components/TopBar.tsx) |  |
-| [web/src/components/status/PlainStatus.tsx](web/src/components/status/PlainStatus.tsx) |  |
-| [web/src/components/status/StatusParts.tsx](web/src/components/status/StatusParts.tsx) |  |
-| [web/src/config.ts](web/src/config.ts) |  |
-| [web/src/lib/api.ts](web/src/lib/api.ts) |  |
-| [web/src/lib/copy.ts](web/src/lib/copy.ts) |  |
-| [web/src/lib/library.ts](web/src/lib/library.ts) |  |
-| [web/src/lib/marketplace.ts](web/src/lib/marketplace.ts) |  |
-| [web/src/lib/models.ts](web/src/lib/models.ts) |  |
-| [web/src/lib/nouns.ts](web/src/lib/nouns.ts) |  |
-| [web/src/lib/privacy.ts](web/src/lib/privacy.ts) |  |
-| [web/src/lib/shown.ts](web/src/lib/shown.ts) |  |
-| [web/src/lib/snapshot-data.live.ts](web/src/lib/snapshot-data.live.ts) |  |
-| [web/src/lib/snapshot-data.offline.ts](web/src/lib/snapshot-data.offline.ts) |  |
-| [web/src/lib/status/derive.ts](web/src/lib/status/derive.ts) |  |
-| [web/src/lib/status/estimate.ts](web/src/lib/status/estimate.ts) |  |
-| [web/src/lib/status/example.ts](web/src/lib/status/example.ts) |  |
-| [web/src/lib/status/handoff.ts](web/src/lib/status/handoff.ts) |  |
-| [web/src/lib/status/ids.ts](web/src/lib/status/ids.ts) |  |
-| [web/src/lib/status/keys.ts](web/src/lib/status/keys.ts) |  |
-| [web/src/lib/status/live.ts](web/src/lib/status/live.ts) |  |
-| [web/src/lib/status/motion.ts](web/src/lib/status/motion.ts) |  |
-| [web/src/lib/status/tessera.ts](web/src/lib/status/tessera.ts) |  |
-| [web/src/lib/status/types.ts](web/src/lib/status/types.ts) |  |
-| [web/src/lib/types.ts](web/src/lib/types.ts) |  |
-| [web/src/lib/useMediaQuery.ts](web/src/lib/useMediaQuery.ts) |  |
-| [web/src/lib/useNoun.ts](web/src/lib/useNoun.ts) |  |
-| [web/src/lib/useResource.ts](web/src/lib/useResource.ts) |  |
-| [web/src/lib/useSite.ts](web/src/lib/useSite.ts) |  |
-| [web/src/main.tsx](web/src/main.tsx) |  |
-| [web/src/pages/About.tsx](web/src/pages/About.tsx) |  |
-| [web/src/pages/Catalog.tsx](web/src/pages/Catalog.tsx) |  |
-| [web/src/pages/Connect.tsx](web/src/pages/Connect.tsx) |  |
-| [web/src/pages/Contribute.tsx](web/src/pages/Contribute.tsx) |  |
-| [web/src/pages/Fabric.tsx](web/src/pages/Fabric.tsx) |  |
-| [web/src/pages/Help.tsx](web/src/pages/Help.tsx) |  |
-| [web/src/pages/KitDetail.tsx](web/src/pages/KitDetail.tsx) |  |
-| [web/src/pages/Library.tsx](web/src/pages/Library.tsx) |  |
-| [web/src/pages/Nonprofits.tsx](web/src/pages/Nonprofits.tsx) |  |
-| [web/src/pages/NotFound.tsx](web/src/pages/NotFound.tsx) |  |
-| [web/src/pages/Overview.tsx](web/src/pages/Overview.tsx) |  |
-| [web/src/pages/RequestResult.tsx](web/src/pages/RequestResult.tsx) |  |
-| [web/src/pages/RequestStatus.tsx](web/src/pages/RequestStatus.tsx) |  |
-| [web/src/pages/Tracks.tsx](web/src/pages/Tracks.tsx) |  |
-| [web/src/pages/TrustPage.tsx](web/src/pages/TrustPage.tsx) |  |
-| [web/src/pages/YourRequests.tsx](web/src/pages/YourRequests.tsx) |  |
-| [web/src/router.tsx](web/src/router.tsx) |  |
-| [web/src/styles/app.css](web/src/styles/app.css) |  |
-| [web/src/styles/base.css](web/src/styles/base.css) |  |
-| [web/src/styles/boards-nov1.css](web/src/styles/boards-nov1.css) |  |
-| [web/src/styles/eranos.css](web/src/styles/eranos.css) |  |
-| [web/src/styles/fonts.css](web/src/styles/fonts.css) |  |
-| [web/src/styles/tokens-v2.css](web/src/styles/tokens-v2.css) | Paper & Ink tokens v3 (Claude Design, Nov 1). |
-| [web/src/vite-env.d.ts](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
-| [web/tests/csp.spec.ts](web/tests/csp.spec.ts) |  |
-| [web/tests/fixtures/models.meta.json](web/tests/fixtures/models.meta.json) | JSON object: kind, id, version, runtime, fixture_note |
-| [web/tests/light.spec.ts](web/tests/light.spec.ts) |  |
-| [web/tests/marketplace.spec.ts](web/tests/marketplace.spec.ts) |  |
-| [web/tests/perf.spec.ts](web/tests/perf.spec.ts) |  |
-| [web/tests/phase-a2.spec.ts](web/tests/phase-a2.spec.ts) |  |
-| [web/tests/release-regression.spec.ts](web/tests/release-regression.spec.ts) |  |
-| [web/tests/shell.spec.ts](web/tests/shell.spec.ts) |  |
-| [web/tests/status-logic.spec.ts](web/tests/status-logic.spec.ts) |  |
-| [web/tests/status.spec.ts](web/tests/status.spec.ts) |  |
-| [web/tests/support/light.ts](web/tests/support/light.ts) |  |
-| [web/tests/support/mocks.ts](web/tests/support/mocks.ts) |  |
-| [web/tsconfig.json](web/tsconfig.json) | JSON object: compilerOptions, include |
-| [web/vite.config.ts](web/vite.config.ts) |  |
+| [`web/.gitignore`](web/.gitignore) |  |
+| [`web/README.md`](web/README.md) | Eranos Web App (web/) |
+| [`web/index.html`](web/index.html) |  |
+| [`web/package.json`](web/package.json) | Eranos public-good & nonprofit volunteer agent tooling catalog. |
+| [`web/playwright.config.ts`](web/playwright.config.ts) |  |
+| [`web/playwright.light.config.ts`](web/playwright.light.config.ts) |  |
+| [`web/playwright.smoke.config.ts`](web/playwright.smoke.config.ts) |  |
+| [`web/pnpm-workspace.yaml`](web/pnpm-workspace.yaml) | Astryx postinstall scripts only print a hint to run astryx init, which would |
+| [`web/public/agent-banner.js`](web/public/agent-banner.js) |  |
+| [`web/public/fonts/OFL-IBMPlexSans.txt`](web/public/fonts/OFL-IBMPlexSans.txt) |  |
+| [`web/public/fonts/OFL-JetBrainsMono.txt`](web/public/fonts/OFL-JetBrainsMono.txt) |  |
+| [`web/public/fonts/OFL-SpaceGrotesk.txt`](web/public/fonts/OFL-SpaceGrotesk.txt) |  |
+| [`web/public/snapshot/catalog.json`](web/public/snapshot/catalog.json) | JSON object: `is_example`, `two_step_verified`, `kits` |
+| [`web/public/snapshot/catalog/KIT-FLYER-14.json`](web/public/snapshot/catalog/KIT-FLYER-14.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-GRANT-04.json`](web/public/snapshot/catalog/KIT-GRANT-04.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-HOTLINE-02.json`](web/public/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-HOUSING-15.json`](web/public/snapshot/catalog/KIT-HOUSING-15.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-IMPACT-06.json`](web/public/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-INTAKE-03.json`](web/public/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-PANTRY-12.json`](web/public/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-POLICY-09.json`](web/public/snapshot/catalog/KIT-POLICY-09.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-RECRUIT-01.json`](web/public/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-RELIEF-11.json`](web/public/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-RENEWAL-10.json`](web/public/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-SHIFT-05.json`](web/public/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-SUPPORT-08.json`](web/public/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-THANKS-13.json`](web/public/snapshot/catalog/KIT-THANKS-13.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/catalog/KIT-TRANSCR-07.json`](web/public/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/public/snapshot/examples.json`](web/public/snapshot/examples.json) | JSON object: `is_example`, `needs`, `runs` |
+| [`web/public/snapshot/fabric.json`](web/public/snapshot/fabric.json) | JSON object: `display_name`, `plan`, `is_example`, `queues` |
+| [`web/public/snapshot/nouns/eranos.instructions.json`](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/public/snapshot/nouns/eranos.instructions/agent-banner.json`](web/public/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/classify.json`](web/public/snapshot/nouns/eranos.instructions/classify.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/connect.json`](web/public/snapshot/nouns/eranos.instructions/connect.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/help-page.json`](web/public/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/help.json`](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/home.json`](web/public/snapshot/nouns/eranos.instructions/home.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/library.json`](web/public/snapshot/nouns/eranos.instructions/library.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/llms.json`](web/public/snapshot/nouns/eranos.instructions/llms.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json`](web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/nonprofits.json`](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/public-research.json`](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/request-example-process.json`](web/public/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/request-example.json`](web/public/snapshot/nouns/eranos.instructions/request-example.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/request-status.json`](web/public/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/shell.json`](web/public/snapshot/nouns/eranos.instructions/shell.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/site.json`](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/trust.json`](web/public/snapshot/nouns/eranos.instructions/trust.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.sources.json`](web/public/snapshot/nouns/eranos.sources.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json`](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json`](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.sources/SRC-TENANT-03.json`](web/public/snapshot/nouns/eranos.sources/SRC-TENANT-03.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.verb_templates.json`](web/public/snapshot/nouns/eranos.verb_templates.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/public/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json`](web/public/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.verb_templates/public-budget-report.json`](web/public/snapshot/nouns/eranos.verb_templates/public-budget-report.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/requests.json`](web/public/snapshot/requests.json) | JSON object: `is_example`, `stages`, `requests` |
+| [`web/public/snapshot/tracks.json`](web/public/snapshot/tracks.json) | JSON object: `is_example`, `tracks` |
+| [`web/snapshot/catalog.json`](web/snapshot/catalog.json) | JSON object: `is_example`, `two_step_verified`, `kits` |
+| [`web/snapshot/catalog/KIT-FLYER-14.json`](web/snapshot/catalog/KIT-FLYER-14.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-GRANT-04.json`](web/snapshot/catalog/KIT-GRANT-04.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-HOTLINE-02.json`](web/snapshot/catalog/KIT-HOTLINE-02.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-HOUSING-15.json`](web/snapshot/catalog/KIT-HOUSING-15.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-IMPACT-06.json`](web/snapshot/catalog/KIT-IMPACT-06.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-INTAKE-03.json`](web/snapshot/catalog/KIT-INTAKE-03.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-PANTRY-12.json`](web/snapshot/catalog/KIT-PANTRY-12.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-POLICY-09.json`](web/snapshot/catalog/KIT-POLICY-09.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-RECRUIT-01.json`](web/snapshot/catalog/KIT-RECRUIT-01.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-RELIEF-11.json`](web/snapshot/catalog/KIT-RELIEF-11.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-RENEWAL-10.json`](web/snapshot/catalog/KIT-RENEWAL-10.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-SHIFT-05.json`](web/snapshot/catalog/KIT-SHIFT-05.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-SUPPORT-08.json`](web/snapshot/catalog/KIT-SUPPORT-08.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-THANKS-13.json`](web/snapshot/catalog/KIT-THANKS-13.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/catalog/KIT-TRANSCR-07.json`](web/snapshot/catalog/KIT-TRANSCR-07.json) | JSON object: `synthetic`, `spdx_license`, `tags`, `target_cohorts`, `producer_surface`, `visibility_scope` |
+| [`web/snapshot/examples.json`](web/snapshot/examples.json) | JSON object: `is_example`, `needs`, `runs` |
+| [`web/snapshot/fabric.json`](web/snapshot/fabric.json) | JSON object: `display_name`, `plan`, `is_example`, `queues` |
+| [`web/snapshot/nouns/eranos.instructions.json`](web/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/snapshot/nouns/eranos.instructions/agent-banner.json`](web/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/classify.json`](web/snapshot/nouns/eranos.instructions/classify.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/connect.json`](web/snapshot/nouns/eranos.instructions/connect.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/help-page.json`](web/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/help.json`](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/home.json`](web/snapshot/nouns/eranos.instructions/home.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/library.json`](web/snapshot/nouns/eranos.instructions/library.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/llms.json`](web/snapshot/nouns/eranos.instructions/llms.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/nonprofits-page.json`](web/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/nonprofits.json`](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/public-research.json`](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/request-example-process.json`](web/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/request-example.json`](web/snapshot/nouns/eranos.instructions/request-example.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/request-status.json`](web/snapshot/nouns/eranos.instructions/request-status.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/shell.json`](web/snapshot/nouns/eranos.instructions/shell.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/site.json`](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/trust.json`](web/snapshot/nouns/eranos.instructions/trust.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.sources.json`](web/snapshot/nouns/eranos.sources.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json`](web/snapshot/nouns/eranos.sources/SRC-TENANT-01.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json`](web/snapshot/nouns/eranos.sources/SRC-TENANT-02.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.sources/SRC-TENANT-03.json`](web/snapshot/nouns/eranos.sources/SRC-TENANT-03.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.verb_templates.json`](web/snapshot/nouns/eranos.verb_templates.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json`](web/snapshot/nouns/eranos.verb_templates/policy-and-law-watch.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.verb_templates/public-budget-report.json`](web/snapshot/nouns/eranos.verb_templates/public-budget-report.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/requests.json`](web/snapshot/requests.json) | JSON object: `is_example`, `stages`, `requests` |
+| [`web/snapshot/tracks.json`](web/snapshot/tracks.json) | JSON object: `is_example`, `tracks` |
+| [`web/src/App.tsx`](web/src/App.tsx) |  |
+| [`web/src/components/AdvancedSettings.tsx`](web/src/components/AdvancedSettings.tsx) |  |
+| [`web/src/components/BoundaryBadge.tsx`](web/src/components/BoundaryBadge.tsx) |  |
+| [`web/src/components/ErrorAlert.tsx`](web/src/components/ErrorAlert.tsx) |  |
+| [`web/src/components/Footer.tsx`](web/src/components/Footer.tsx) |  |
+| [`web/src/components/Icon.tsx`](web/src/components/Icon.tsx) |  |
+| [`web/src/components/JudgeTour.tsx`](web/src/components/JudgeTour.tsx) |  |
+| [`web/src/components/Mark.tsx`](web/src/components/Mark.tsx) |  |
+| [`web/src/components/OpenTasks.tsx`](web/src/components/OpenTasks.tsx) |  |
+| [`web/src/components/RequestBox.tsx`](web/src/components/RequestBox.tsx) |  |
+| [`web/src/components/TopBar.tsx`](web/src/components/TopBar.tsx) |  |
+| [`web/src/components/status/PlainStatus.tsx`](web/src/components/status/PlainStatus.tsx) |  |
+| [`web/src/components/status/StatusParts.tsx`](web/src/components/status/StatusParts.tsx) |  |
+| [`web/src/config.ts`](web/src/config.ts) |  |
+| [`web/src/lib/api.ts`](web/src/lib/api.ts) |  |
+| [`web/src/lib/copy.ts`](web/src/lib/copy.ts) |  |
+| [`web/src/lib/library.ts`](web/src/lib/library.ts) |  |
+| [`web/src/lib/marketplace.ts`](web/src/lib/marketplace.ts) |  |
+| [`web/src/lib/models.ts`](web/src/lib/models.ts) |  |
+| [`web/src/lib/nouns.ts`](web/src/lib/nouns.ts) |  |
+| [`web/src/lib/privacy.ts`](web/src/lib/privacy.ts) |  |
+| [`web/src/lib/shown.ts`](web/src/lib/shown.ts) |  |
+| [`web/src/lib/snapshot-data.live.ts`](web/src/lib/snapshot-data.live.ts) |  |
+| [`web/src/lib/snapshot-data.offline.ts`](web/src/lib/snapshot-data.offline.ts) |  |
+| [`web/src/lib/status/derive.ts`](web/src/lib/status/derive.ts) |  |
+| [`web/src/lib/status/estimate.ts`](web/src/lib/status/estimate.ts) |  |
+| [`web/src/lib/status/example.ts`](web/src/lib/status/example.ts) |  |
+| [`web/src/lib/status/handoff.ts`](web/src/lib/status/handoff.ts) |  |
+| [`web/src/lib/status/ids.ts`](web/src/lib/status/ids.ts) |  |
+| [`web/src/lib/status/keys.ts`](web/src/lib/status/keys.ts) |  |
+| [`web/src/lib/status/live.ts`](web/src/lib/status/live.ts) |  |
+| [`web/src/lib/status/motion.ts`](web/src/lib/status/motion.ts) |  |
+| [`web/src/lib/status/tessera.ts`](web/src/lib/status/tessera.ts) |  |
+| [`web/src/lib/status/types.ts`](web/src/lib/status/types.ts) |  |
+| [`web/src/lib/types.ts`](web/src/lib/types.ts) |  |
+| [`web/src/lib/useMediaQuery.ts`](web/src/lib/useMediaQuery.ts) |  |
+| [`web/src/lib/useNoun.ts`](web/src/lib/useNoun.ts) |  |
+| [`web/src/lib/useResource.ts`](web/src/lib/useResource.ts) |  |
+| [`web/src/lib/useSite.ts`](web/src/lib/useSite.ts) |  |
+| [`web/src/main.tsx`](web/src/main.tsx) |  |
+| [`web/src/pages/About.tsx`](web/src/pages/About.tsx) |  |
+| [`web/src/pages/Catalog.tsx`](web/src/pages/Catalog.tsx) |  |
+| [`web/src/pages/Connect.tsx`](web/src/pages/Connect.tsx) |  |
+| [`web/src/pages/Contribute.tsx`](web/src/pages/Contribute.tsx) |  |
+| [`web/src/pages/Fabric.tsx`](web/src/pages/Fabric.tsx) |  |
+| [`web/src/pages/Help.tsx`](web/src/pages/Help.tsx) |  |
+| [`web/src/pages/KitDetail.tsx`](web/src/pages/KitDetail.tsx) |  |
+| [`web/src/pages/Library.tsx`](web/src/pages/Library.tsx) |  |
+| [`web/src/pages/Nonprofits.tsx`](web/src/pages/Nonprofits.tsx) |  |
+| [`web/src/pages/NotFound.tsx`](web/src/pages/NotFound.tsx) |  |
+| [`web/src/pages/Overview.tsx`](web/src/pages/Overview.tsx) |  |
+| [`web/src/pages/RequestResult.tsx`](web/src/pages/RequestResult.tsx) |  |
+| [`web/src/pages/RequestStatus.tsx`](web/src/pages/RequestStatus.tsx) |  |
+| [`web/src/pages/Tracks.tsx`](web/src/pages/Tracks.tsx) |  |
+| [`web/src/pages/TrustPage.tsx`](web/src/pages/TrustPage.tsx) |  |
+| [`web/src/pages/YourRequests.tsx`](web/src/pages/YourRequests.tsx) |  |
+| [`web/src/router.tsx`](web/src/router.tsx) |  |
+| [`web/src/styles/app.css`](web/src/styles/app.css) |  |
+| [`web/src/styles/base.css`](web/src/styles/base.css) |  |
+| [`web/src/styles/boards-nov1.css`](web/src/styles/boards-nov1.css) |  |
+| [`web/src/styles/eranos.css`](web/src/styles/eranos.css) |  |
+| [`web/src/styles/fonts.css`](web/src/styles/fonts.css) |  |
+| [`web/src/styles/tokens-v2.css`](web/src/styles/tokens-v2.css) | Paper & Ink tokens v3 (Claude Design, Nov 1). |
+| [`web/src/vite-env.d.ts`](web/src/vite-env.d.ts) | <reference types="vite/client" /> |
+| [`web/tests/csp.spec.ts`](web/tests/csp.spec.ts) |  |
+| [`web/tests/fixtures/models.meta.json`](web/tests/fixtures/models.meta.json) | JSON object: `kind`, `id`, `version`, `runtime`, `fixture_note` |
+| [`web/tests/light.spec.ts`](web/tests/light.spec.ts) |  |
+| [`web/tests/live-smoke.spec.ts`](web/tests/live-smoke.spec.ts) |  |
+| [`web/tests/marketplace.spec.ts`](web/tests/marketplace.spec.ts) |  |
+| [`web/tests/perf.spec.ts`](web/tests/perf.spec.ts) |  |
+| [`web/tests/phase-a2.spec.ts`](web/tests/phase-a2.spec.ts) |  |
+| [`web/tests/release-regression.spec.ts`](web/tests/release-regression.spec.ts) |  |
+| [`web/tests/shell.spec.ts`](web/tests/shell.spec.ts) |  |
+| [`web/tests/status-logic.spec.ts`](web/tests/status-logic.spec.ts) |  |
+| [`web/tests/status.spec.ts`](web/tests/status.spec.ts) |  |
+| [`web/tests/support/light.ts`](web/tests/support/light.ts) |  |
+| [`web/tests/support/mocks.ts`](web/tests/support/mocks.ts) |  |
+| [`web/tsconfig.json`](web/tsconfig.json) | JSON object: `compilerOptions`, `include` |
+| [`web/vite.config.ts`](web/vite.config.ts) |  |

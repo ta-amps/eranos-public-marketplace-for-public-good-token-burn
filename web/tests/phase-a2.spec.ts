@@ -345,13 +345,22 @@ test.describe("the request page's bands are an accordion (owner, Nov 1)", () => 
     await expect(page.locator("#band-4-body")).toBeVisible();
   });
 
+  // A new recorded fact, deterministically: the example moves to its next moment in place (no reload), as when a
+  // live poll brings a new fact.
+  const moveTo = (page: Page, moment: string) =>
+    page.evaluate((m) => {
+      window.history.pushState(null, "", `/requests/example?moment=${m}`);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    }, moment);
+
   test("a recorded fact folds the finished step and opens the next; a section opened by hand stays open", async ({ page }) => {
-    await page.goto("/requests/example?speed=4");
-    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true", { timeout: 15_000 });
+    await page.goto("/requests/example?moment=working");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true");
     await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "false");
     await toggle(page, 1).click();
     await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
-    await expect(toggle(page, 3)).toHaveAttribute("aria-expanded", "true", { timeout: 15_000 });
+    await moveTo(page, "review");
+    await expect(toggle(page, 3)).toHaveAttribute("aria-expanded", "true");
     await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "false");
     await expect(toggle(page, 1)).toHaveAttribute("aria-expanded", "true");
   });
@@ -385,8 +394,9 @@ test.describe("the request page's bands are an accordion (owner, Nov 1)", () => 
   test("reduced motion: a section a fact opens appears at once, with no animation; axe finds nothing serious", async ({ browser }) => {
     const context = await browser.newContext({ reducedMotion: "reduce" });
     const page = await context.newPage();
-    await page.goto("/requests/example?speed=4");
-    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true", { timeout: 15_000 });
+    await page.goto("/requests/example?moment=planned");
+    await moveTo(page, "working");
+    await expect(toggle(page, 2)).toHaveAttribute("aria-expanded", "true");
     expect(await page.locator("#band-2-body").evaluate((el) => getComputedStyle(el).animationName)).toBe("none");
     await toggle(page, 1).click();
     const scan = await new AxeBuilder({ page }).analyze();
@@ -417,7 +427,7 @@ test.describe("a checked part waiting for a person's sign-off", () => {
 
 test("at 1280 × 613, with the track stuck, all four step headers and the open step fit without scrolling", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 613 });
-  for (const moment of ["working", "review", "your-turn"]) {
+  for (const moment of ["planned", "working", "review", "your-turn"]) {
     await page.goto(`/requests/example?moment=${moment}`);
     await expect(page.getByTestId("track-token")).toBeVisible();
     await page.evaluate(() => {
@@ -450,4 +460,19 @@ test("the hero's four tiles carry the flow's steps, lit once after load, and sim
     for (const o of await labels.evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity))) expect(o).toBe("1");
     await context.close();
   }
+});
+
+test("the canonical address of every page is eranosforgood.org, and the agent banner points there", async ({ page }) => {
+  for (const [route, canonical] of [
+    ["/", "https://eranosforgood.org/"],
+    ["/library?q=grants", "https://eranosforgood.org/library"],
+    ["/requests/example", "https://eranosforgood.org/requests/example"],
+  ] as const) {
+    await page.goto(route);
+    await expect(page.locator("main h1").first()).toBeVisible();
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", canonical);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", canonical);
+  }
+  await expect(page.locator("ta-agent-banner")).toHaveAttribute("data-ready", "true");
+  expect(await page.evaluate(() => document.querySelector("ta-agent-banner")?.shadowRoot?.textContent ?? "")).toContain("eranosforgood.org/llms.txt");
 });

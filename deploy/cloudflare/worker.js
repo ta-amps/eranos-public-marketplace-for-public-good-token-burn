@@ -58,6 +58,10 @@ const ZERO_QUEUE_COUNTS = {
 // The tile mark (Paper & Ink, light-only).
 const FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><style>.i{fill:#11161F}</style><rect x="0" y="0" width="44" height="44" rx="10" fill="#2A5DB0"/><rect x="56" y="0" width="44" height="44" rx="10" fill="#B8541F"/><rect class="i" x="0" y="56" width="44" height="44" rx="10"/><rect x="56" y="56" width="44" height="44" rx="10" fill="#2A5DB0"/></svg>`;
 
+// The canonical address (owner, Nov 1): eranos.ta-amps.workers.dev keeps serving the same pages for agents that have
+// it cached, but every absolute URL and canonical points here.
+const CANONICAL_ORIGIN = "https://eranosforgood.org";
+
 const ROBOTS_TXT = `User-agent: *
 Allow: /
 Allow: /api/catalog
@@ -73,8 +77,8 @@ Allow: /.well-known/security.txt
 const SECURITY_TXT = `Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
 Expires: 2027-10-31T23:59:59.000Z
 Preferred-Languages: en
-Canonical: https://eranos.ta-amps.workers.dev/.well-known/security.txt
-Policy: https://eranos.ta-amps.workers.dev/report
+Canonical: https://eranosforgood.org/.well-known/security.txt
+Policy: https://eranosforgood.org/report
 `;
 
 const FALLBACK_LLMS_TXT = llmsFallbackNoun.text;
@@ -954,7 +958,16 @@ async function fetchPendingRequestVerb(env, reqId) {
   }
 }
 
+// Page text (eranos.instructions) ships with the code that renders it: the deploy's own export comes first, so an
+// older copy in Tessera's mirror can never pair old words with new pages (the 9fd6e09 rollback, Nov 2). Live data
+// (requests, plans, solutions, sources, Task templates) still reads Tessera first.
+const PAGE_TEXT_STORE = "eranos.instructions";
+
 async function loadNoun(request, env, store, key) {
+  if (store === PAGE_TEXT_STORE) {
+    const shipped = await fetchAssetJson(request, env, `/snapshot/nouns/${store}/${key}.json`);
+    if (shipped && shipped.store === store && shipped.key === key) return shipped;
+  }
   const stored = await getHeadRecord(env.FABRIC_DB, store, key);
   if (stored !== null && stored !== undefined) return { synthetic: true, store, key, value: stored };
   const live = await fetchCoordinatorPublicRecord(env, store, key);
@@ -964,6 +977,10 @@ async function loadNoun(request, env, store, key) {
 }
 
 async function loadNounList(request, env, store) {
+  if (store === PAGE_TEXT_STORE) {
+    const shipped = await fetchAssetJson(request, env, `/snapshot/nouns/${store}.json`);
+    if (shipped && shipped.store === store && Array.isArray(shipped.records)) return shipped;
+  }
   if (env && env.FABRIC_DB) {
     let res = { results: [] };
     try {
@@ -1442,7 +1459,7 @@ function buildStaticAgentCard(request) {
     description:
       "Two-sided marketplace where people donate spare AI capacity and their agents build, deterministically check, and independently review (drafter != reviewer) agent kits for nonprofits, NGOs and public-good groups. A kit bundles instructions, skills, knowledge, read-only service connections, a step map with person-only steps, and synthetic checks and tests.",
     version: ERANOS_VERSION,
-    url: origin,
+    url: CANONICAL_ORIGIN,
     spdx_allowlist: Array.from(OPEN_SPDX_ALLOWLIST).sort(),
     headers: { surface: "X-Surface-Id" },
     endpoints: {
@@ -2278,6 +2295,11 @@ const onboardingApplication = {
 export default {
   ...onboardingApplication,
   async fetch(request, env, ctx) {
+    // www.eranosforgood.org is an alias: one permanent redirect to the apex, keeping the path and query.
+    const url = new URL(request.url);
+    if (url.hostname === "www.eranosforgood.org") {
+      return Response.redirect(`${CANONICAL_ORIGIN}${url.pathname}${url.search}`, 301);
+    }
     return agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
   },
 };

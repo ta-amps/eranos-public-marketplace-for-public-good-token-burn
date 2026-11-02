@@ -3,29 +3,29 @@
 > Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
 ## Start here
-- [README.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/README.md): what this is and how to run it
-- [AGENTS.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/AGENTS.md): rules every agent follows here
-- [INDEX.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/INDEX.md): every file with a description
-- [KEYWORDS.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/KEYWORDS.md): where each term appears
-- [llms-full.txt](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/llms-full.txt): the main documents in full, in reading order
+- [`README.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/README.md): what this is and how to run it
+- [`AGENTS.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/AGENTS.md): rules every agent follows here
+- [`INDEX.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/INDEX.md): every file with a description
+- [`KEYWORDS.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/KEYWORDS.md): where each term appears
+- [`llms-full.txt`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/llms-full.txt): the main documents in full, in reading order
 
 ## Documents
-- [CLAUDE.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/CLAUDE.md): Claude Code instructions for Eranos
-- [docs/SURFACE-RELEASE.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/SURFACE-RELEASE.md): Preserve the current surface on every release
-- [docs/WORKER-FIRST-EXECUTION.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/WORKER-FIRST-EXECUTION.md): Worker-first execution and private work
-- [docs/access-modes.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/access-modes.md): External agent access
-- [docs/agent-workflow.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/agent-workflow.md): Agent workflow and verified boundaries
-- [docs/architecture.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/architecture.md): Eranos: architecture
-- [docs/comparison.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/comparison.md): Comparison
-- [docs/decisions.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/decisions.md): Decisions and Glossary
-- [docs/frontend.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/frontend.md): Eranos: frontend and API surface
-- [docs/generalizing.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/generalizing.md): Generalizing: Adding Tracks and Kits Without Engine Code
-- [docs/glossary.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/glossary.md): Glossary
-- [docs/handoff.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/handoff.md): Handoff
-- [docs/naming-and-extensions.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/naming-and-extensions.md): Naming, Mythology & Extending Eranos
-- [docs/nouns-and-verbs.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/nouns-and-verbs.md): Nouns, verbs, surfaces and infrastructure
-- [docs/opencode-donors.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/opencode-donors.md): Donating Unused Tokens with OpenCode or Meta's Muse Models
-- [docs/review.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/review.md): Review Guide & Cold-Start Handoff
-- [docs/setup.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/setup.md): Setup and Single-Domain Hosting
-- [docs/status.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/status.md): Status
-- [docs/summary.md](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/summary.md): Summary
+- [`CLAUDE.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/CLAUDE.md): Claude Code instructions for Eranos
+- [`docs/SURFACE-RELEASE.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/SURFACE-RELEASE.md): Preserve the current surface on every release
+- [`docs/WORKER-FIRST-EXECUTION.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/WORKER-FIRST-EXECUTION.md): Worker-first execution and private work
+- [`docs/access-modes.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/access-modes.md): External agent access
+- [`docs/agent-workflow.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/agent-workflow.md): Agent workflow and verified boundaries
+- [`docs/architecture.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/architecture.md): Eranos: architecture
+- [`docs/comparison.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/comparison.md): Comparison
+- [`docs/decisions.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/decisions.md): Decisions and Glossary
+- [`docs/frontend.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/frontend.md): Eranos: frontend and API surface
+- [`docs/generalizing.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/generalizing.md): Generalizing: Adding Tracks and Kits Without Engine Code
+- [`docs/glossary.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/glossary.md): Glossary
+- [`docs/handoff.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/handoff.md): Handoff
+- [`docs/naming-and-extensions.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/naming-and-extensions.md): Naming, Mythology & Extending Eranos
+- [`docs/nouns-and-verbs.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/nouns-and-verbs.md): Nouns, verbs, surfaces and infrastructure
+- [`docs/opencode-donors.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/opencode-donors.md): Donating Unused Tokens with OpenCode or Meta's Muse Models
+- [`docs/review.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/review.md): Review Guide & Cold-Start Handoff
+- [`docs/setup.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/setup.md): Setup and Single-Domain Hosting
+- [`docs/status.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/status.md): Status
+- [`docs/summary.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/summary.md): Summary

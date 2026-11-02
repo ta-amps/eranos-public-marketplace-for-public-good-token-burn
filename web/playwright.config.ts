@@ -21,7 +21,8 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: /perf\.spec\.ts/,
+      // light.spec.ts runs in make light-check (playwright.light.config.ts), against the folder wrangler uploads.
+      testIgnore: /perf\.spec\.ts|light\.spec\.ts|live-smoke\.spec\.ts/,
       use: {
         ...devices["Desktop Chrome"],
         ...(useSystemChrome ? { channel: "chrome" } : {}),

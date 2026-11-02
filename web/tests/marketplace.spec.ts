@@ -90,7 +90,7 @@ test.describe("owner 1: the agent instructions banner", () => {
     await expect(banner.locator(".bar")).toContainText("Have an AI agent?");
     await expect(banner.getByRole("region", { name: "Use this site with your AI agent" })).toBeVisible();
     await banner.locator(".bar button.copy").click();
-    expect(await copied(page)).toEqual(["Read https://eranos.ta-amps.workers.dev/llms.txt and follow it."]);
+    expect(await copied(page)).toEqual(["Read https://eranosforgood.org/llms.txt and follow it."]);
     const toggle = banner.locator("button.toggle");
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
     await toggle.click();
@@ -541,7 +541,7 @@ test.describe("wording and accessibility", () => {
     }
     const footer = page.locator("footer.er-footer");
     const links = footer.getByRole("navigation", { name: "Site information" }).getByRole("link");
-    await expect(links).toHaveText(["Library", "Your requests", "Status ↗", "Agora ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
+    await expect(links).toHaveText(["Library", "Your requests", "Status ↗", "How it works ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
     await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
     await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.ta-amps.workers.dev/status/");
     // One row: at desktop width every link sits on the same line.

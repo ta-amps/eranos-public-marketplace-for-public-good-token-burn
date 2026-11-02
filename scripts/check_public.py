@@ -5,7 +5,8 @@ Scans the files git tracks (or the working tree before `git init`) for:
   * credentials: GitHub, Meta Model API, Hugging Face, AWS, Slack and OpenAI-style keys, worker keys,
     private keys;
   * private names: products, accounts and domains this repo must not name. Only SHA-256 hashes of them
-    are stored, in `private-names.sha256` next to this script, so the list never leaks the names.
+    are stored, in `private-names.sha256` next to this script, so the list never leaks the names. A name
+    glued to a regex or string escape (`\\bname`, `\\nname`) is still found.
 
 Usage: python3 scripts/check_public.py [ROOT]
        python3 scripts/check_public.py --hash      (prompts for a name, prints the line to add)
@@ -42,6 +43,8 @@ HASH_FILE = Path(__file__).resolve().with_name("private-names.sha256")
 HEX64 = re.compile(r"[0-9a-f]{64}")
 WORD = re.compile(r"[a-z0-9]+")
 COMPOUND = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)+")
+# Escapes that glue their letter onto the next word: \b \w \s \d in regexes, \n \t \r in strings.
+ESCAPE_LETTERS = "bwsdntr"
 SKIP_DIRS = {
     ".git",
     "node_modules",
@@ -128,10 +131,27 @@ def mask(text: str) -> str:
     return text[:4] + "…" + f"({len(text)} chars)"
 
 
+def name_candidates(lowered: str) -> set[str]:
+    """Every word and hyphenated word of a lower-cased line, split on anything that is not a letter or digit.
+
+    A backslash escape glues its letter onto the next word: `\\bname` reads as `bname`. So a token that directly
+    follows a backslash and starts with an escape letter is also tried without that letter.
+    """
+    found: set[str] = set()
+    for pattern in (WORD, COMPOUND):
+        for match in pattern.finditer(lowered):
+            token = match.group(0)
+            found.add(token)
+            glued = match.start() > 0 and lowered[match.start() - 1] == "\\"
+            if glued and token[0] in ESCAPE_LETTERS and token[1:2].isalnum():
+                found.add(token[1:])
+    return found
+
+
 def private_names(line: str, hashes: frozenset[str] = PRIVATE_NAME_HASHES) -> bool:
-    lowered = line.lower()
-    tokens = set(WORD.findall(lowered)) | set(COMPOUND.findall(lowered))
-    return any(hashlib.sha256(t.encode()).hexdigest() in hashes for t in tokens)
+    return any(
+        hashlib.sha256(t.encode()).hexdigest() in hashes for t in name_candidates(line.lower())
+    )
 
 
 def scan(root: Path, hashes: frozenset[str] = PRIVATE_NAME_HASHES) -> list[str]:

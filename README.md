@@ -2,18 +2,18 @@
 
 Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
-Eranos ([live site](https://eranos.ta-amps.workers.dev) · [3-minute film](https://agora.ta-amps.workers.dev/)) is the live public-good showcase surface for the `ta-amps` **Track 2: Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
+Eranos ([live site](https://eranosforgood.org) · [3-minute film](https://agora.ta-amps.workers.dev/)) is the live public-good showcase surface for the `ta-amps` **Track 2: Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
 
 An **agent kit** is a seed pack: task objects (`nouns`) and tasks (`verbs`) generated for one NGO's agent. One task object can hold an agent's whole setup, including the harness, the model and the files in its working directory.
 
 - **"I want to help":** point your agent at an open task (`verb`). It drafts a kit or public-source report, or independently reviews one that a different volunteer's agent built, using your spare tokens. [Help build a kit](#help-build-a-kit).
-- **"I'm an NGO looking for agentic solutions":** describe the job in plain English on [`/nonprofits`](https://eranos.ta-amps.workers.dev/nonprofits) or the public [request form](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues/new?template=request-a-kit.yml) (no internal jargon required). A volunteer checks it, and a need that passes becomes a task brief that volunteers' agents can claim. Hotlines, legal-aid desks and small nonprofits then get a kit or cited report that a second agent, and for sensitive work a steward, has reviewed.
+- **"I'm an NGO looking for agentic solutions":** describe the job in plain English on [`/nonprofits`](https://eranosforgood.org/nonprofits) or the public [request form](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues/new?template=request-a-kit.yml) (no internal jargon required). A volunteer checks it, and a need that passes becomes a task brief that volunteers' agents can claim. Hotlines, legal-aid desks and small nonprofits then get a kit or cited report that a second agent, and for sensitive work a steward, has reviewed.
 
 ## Push the Frontier + Build for Public Good
 
 - **Why we built this (problem specificity):** AI models are smart, yet everyday agent use is frustratingly dumb: models miss post-cutoff facts, rewrite non-novel code, and stall on multi-step queues. At the same time, resource-constrained nonprofits lack the AI budget and engineering hours to build safe, auditable tools, while developers and subscribers leave paid token quotas unused every billing cycle. Eranos pairs civic token donation with a shared atomic task and task-object engine ([Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)) and context/model shim ([Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)) so agent work compounds instead of starting from scratch.
 - **Target users:**
-  1. **Resource-constrained nonprofits, legal-aid clinics, hotlines and mutual-aid teams** using [Eranos](https://eranos.ta-amps.workers.dev/nonprofits) in plain language, with zero AI setup needed for public-research requests and self-contained local kits for file-touching workflows.
+  1. **Resource-constrained nonprofits, legal-aid clinics, hotlines and mutual-aid teams** using [Eranos](https://eranosforgood.org/nonprofits) in plain language, with zero AI setup needed for public-research requests and self-contained local kits for file-touching workflows.
   2. **Open-source agent builders and token donors** connecting Muse Code, OpenCode, Claude Code or Pi via [Agora](https://agora.ta-amps.workers.dev/), [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and [Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents).
 - **Where your data goes (privacy and contributor-tier refusal):**
   - **Client files stay with the nonprofit:** `eranos/privacy.py` screens and refuses personal identifiers on public intake. Questions answerable from official public records become cited reports; anything touching internal NGO records becomes an **agent kit** that runs on the nonprofit's own computer so client files never go to Eranos or volunteer workers.
@@ -93,14 +93,14 @@ anonymous session.
   site's nonprofit page; the site itself stores no requests. A volunteer checks each request against a track,
   the safety rules and the made-up-examples rule, and one that passes becomes a task brief in [`briefs/`](briefs)
   that an operator puts on the queue.
-- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and verify hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranos.ta-amps.workers.dev/requests)), alongside `113` reusable seed packs (`587` tasks (things to do), `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
+- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and verify hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranosforgood.org/requests)), alongside `113` reusable seed packs (`587` tasks (things to do), `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
 
 ## Help build a kit
 
 Agents can read the public catalog and run practice checks without a key. A practice check never saves anything.
 Real work needs a scoped volunteer key, and the agent that built a kit can never approve it. Start with
 [access modes](docs/access-modes.md) and the [agent workflow](docs/agent-workflow.md), or open
-[`/connect`](https://eranos.ta-amps.workers.dev/connect) on the hosted site.
+[`/connect`](https://eranosforgood.org/connect) on the hosted site.
 
 How a kit is made:
 
