@@ -966,7 +966,7 @@
                 "/api/v1/documents"
               ],
               "publisher": "Office of the Federal Register, U.S. National Archives",
-              "query": "https://www.federalregister.gov/api/v1/documents.json?per_page=5&order=relevance&conditions%5Bterm%5D={terms}",
+              "query": "https://www.federalregister.gov/api/v1/documents.json?per_page=5&order=relevance&conditions%5Bterm%5D={terms}&fields%5B%5D=title&fields%5B%5D=abstract&fields%5B%5D=dates&fields%5B%5D=action&fields%5B%5D=agency_names&fields%5B%5D=publication_date&fields%5B%5D=html_url",
               "topics": [
                 "federal",
                 "rule",
@@ -1000,6 +1000,66 @@
               ]
             }
           ],
+          "official_pages": [
+            {
+              "access": "official_page",
+              "id": "irs-annual-filing",
+              "publisher": "Internal Revenue Service",
+              "topics": [
+                "annual",
+                "return",
+                "990",
+                "990-n",
+                "990-ez",
+                "postcard",
+                "filing",
+                "file",
+                "exempt",
+                "revocation",
+                "revoked"
+              ],
+              "url": "https://www.irs.gov/charities-non-profits/exempt-organization-annual-filing-requirements-overview"
+            },
+            {
+              "access": "official_page",
+              "id": "irs-990-n",
+              "publisher": "Internal Revenue Service",
+              "topics": [
+                "annual",
+                "return",
+                "990",
+                "990-n",
+                "990-ez",
+                "postcard",
+                "filing",
+                "file",
+                "exempt",
+                "revocation",
+                "revoked"
+              ],
+              "url": "https://www.irs.gov/charities-non-profits/annual-electronic-filing-requirement-for-small-exempt-organizations-form-990-n-e-postcard"
+            },
+            {
+              "access": "official_page",
+              "id": "irs-revocation",
+              "publisher": "Internal Revenue Service",
+              "topics": [
+                "annual",
+                "return",
+                "990",
+                "990-n",
+                "990-ez",
+                "postcard",
+                "filing",
+                "file",
+                "exempt",
+                "revocation",
+                "revoked"
+              ],
+              "url": "https://www.irs.gov/charities-non-profits/automatic-revocation-of-exemption"
+            }
+          ],
+          "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2).",
           "timeout_seconds": 10
         },
         "title": "Rules for Eranos's volunteer workers"

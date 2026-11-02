@@ -479,3 +479,40 @@ def test_a_failure_line_names_only_the_exceptions_class(tmp_path: Path) -> None:
         line.rstrip().endswith("could not finish a research Task · RuntimeError")
         and "evil" not in line
     )
+
+
+def test_an_information_request_that_mentions_donors_is_researched_not_built() -> None:
+    from eranos.pipeline.planner import _parts
+
+    classify = load_json(ROOT / "instructions" / "classify.json")
+    asked = (
+        "What must a nonprofit's donor thank-you letter say so the donor can deduct the gift? "
+        "How should we protect the personal information we keep about donors and clients?"
+    )
+    assert {p["route"] for p in _parts(asked, classify, "information")} == {"public-only"}
+    assert {p["route"] for p in _parts(asked, classify, "process")} == {"private-files"}
+
+
+def test_a_topic_whose_own_page_is_short_gets_more_official_pages() -> None:
+    from eranos.pipeline import research
+
+    part = {
+        "part": 1,
+        "route": "public-only",
+        "legal": False,
+        "text": "Which annual return must a small tax-exempt nonprofit file with the IRS (Form 990-N, 990-EZ or 990)?",
+    }
+    link = "https://www.irs.gov/charities-non-profits/exempt-organization-annual-filing-requirements-overview"
+    brief = research.research_brief("rq-a", part, "Small nonprofit", {}, RULES, [link])
+    urls = [(url, access) for url, access, _ in research.permitted_urls(brief)]
+    assert urls[0] == (link, "public_web_page")  # the request's own link first, once
+    assert {access for _, access in urls[1:]} == {"official_page"} and len(urls) == 3
+    unrelated = {
+        **part,
+        "text": "A checklist of quick accessibility checks for a small nonprofit's website.",
+    }
+    assert not research.research_brief("rq-b", unrelated, "Small nonprofit", {}, RULES, [])[
+        "fetch"
+    ]["pages"]
+    federal = next(a for a in RULES["sources"]["official_apis"] if a["id"] == "federal-register")
+    assert "fields%5B%5D=dates" in federal["query"]  # a notice's dates (deadlines) are in the text

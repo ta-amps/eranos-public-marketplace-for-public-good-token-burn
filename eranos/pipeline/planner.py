@@ -72,9 +72,11 @@ def _parts(text: str, rules: dict[str, Any], output_type: str | None) -> list[di
         return [{"route": "private-files", "text": whole, "part": 1, "legal": False}]
     parts = classify_parts(text, rules)
     if output_type == "information":
-        private = rules["markers"]["private_files"]
+        # The nonprofit chose Information: every part is researched from public sources, even one
+        # that mentions donors, clients or personal information (FB1-025). Personal data in the
+        # request itself is refused by the privacy check, never by sending the part elsewhere.
         for part in parts:
-            if not any(word.lower() in part["text"].lower() for word in private):
+            if part["route"] == "private-files":
                 part["route"] = "public-only"
     return parts
 

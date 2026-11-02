@@ -172,6 +172,7 @@ def research_brief(
     report_id = str(brief.pop("noun_id")) + (f"-O{occurrence}" if occurrence > 1 else "")
     rules = worker_rules.get("sources") or {}
     apis = select_apis(part["text"], list(rules.get("official_apis") or []))
+    pages = select_apis(part["text"], list(rules.get("official_pages") or []))
     return {
         **brief,
         "report_id": report_id,
@@ -185,6 +186,11 @@ def research_brief(
             "apis": [
                 {k: api[k] for k in ("id", "publisher", "host", "path_prefixes", "access", "query")}
                 for api in apis
+            ],
+            "pages": [
+                {k: page[k] for k in ("id", "publisher", "url", "access")}
+                for page in pages
+                if str(page.get("url") or "").startswith("https://")
             ],
             "query_terms": query_terms(part["text"]),
             "max_sources": int(rules.get("max_sources") or 5),
@@ -221,6 +227,10 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
     out: list[tuple[str, str, str | None]] = [
         (link, "public_web_page", None) for link in fetch.get("links") or []
     ]
+    for page in fetch.get("pages") or []:  # official pages chosen by topic (the worker noun)
+        out.append(
+            (str(page["url"]), str(page.get("access") or "official_page"), page.get("publisher"))
+        )
     for api in fetch.get("apis") or []:
         url = api_query_url(api, list(fetch.get("query_terms") or []))
         out.append((url, str(api.get("access") or "official_api"), api.get("publisher")))
