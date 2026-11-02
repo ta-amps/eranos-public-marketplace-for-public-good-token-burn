@@ -1066,6 +1066,11 @@ ta-agent-banner {
 .er-overall {
   padding: 7px 14px;
   font-size: var(--fs-ui);
+  /* A long state ("Answered from the library · not checked for this request") wraps inside the pill on a phone
+     instead of pushing the page sideways. */
+  max-width: 100%;
+  white-space: normal;
+  box-sizing: border-box;
 }
 .er-overall-waiting {
   background: var(--waiting-wash);

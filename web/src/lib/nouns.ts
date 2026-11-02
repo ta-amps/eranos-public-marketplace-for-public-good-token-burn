@@ -452,11 +452,13 @@ export interface PlainWords {
     T
   > &
     /** reused: a request answered from the library with no new work (F-UI-STALE-001); the fit check's states. */
-    Partial<Record<"reused" | "reused_unchecked" | "reuse_does_not_fit", T>>;
+    Partial<Record<"reused" | "reused_unchecked" | "reuse_does_not_fit" | "reuse_checking", T>>;
   /** Over the steps when a closed request was opened again: after an undone library answer, with a reason, or plain. */
   reopened_note?: T;
   reopened_note_reason?: T;
   reopened_note_plain?: T;
+  /** Over the steps when the check found a similar library answer didn't fit, so new work was planned. */
+  reuse_rejected_note?: T;
   stages_label: T;
   stages: {
     sent: { title: T; done: T };
@@ -473,7 +475,7 @@ export interface PlainWords {
   happened_title: T;
   happened_more: T;
   happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_released_reason" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "closed_unfinished" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T> &
-    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened" | "reopened_reason" | "reopened_plain" | "reuse_fits" | "reuse_does_not_fit", T>>;
+    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened" | "reopened_reason" | "reopened_plain" | "reuse_fits" | "reuse_does_not_fit" | "planned_reuse_check", T>>;
   share_lead: T;
   share: T;
   shared: T;
@@ -485,7 +487,7 @@ export interface PlainWords {
   copy_link: T;
   copied_link: T;
   /** The request track's six stations (owner v2, Nov 1): the name while the request is there, and otherwise. */
-  track: { stations: { now: T; now_public?: T; other: T }[]; token: T; token_public: T; token_done: T; done?: T; next?: T; skipped?: T };
+  track: { stations: { now: T; now_public?: T; other: T }[]; token: T; token_public: T; token_done: T; done?: T; next?: T; skipped?: T; not_done?: T };
   bands: {
     sorted: Record<"title" | "process" | "information" | "checked" | "waiting", T>;
     made: Record<
@@ -511,12 +513,12 @@ export interface PlainWords {
       Partial<
         Record<
           | "closed" | "reused_sorted" | "reused_made" | "reused_ready" | "reuse_fits" | "reuse_fits_untimed" | "reuse_does_not_fit"
-          | "reuse_unchecked" | "reuse_waiting_check",
+          | "reuse_unchecked" | "reuse_waiting_check" | "reuse_checking" | "reuse_made_pending",
           T
         >
       >;
     /** What each step says for a request answered from the library, and of the check that it fits (F-REUSE-001). */
-    reused?: Partial<Record<"sorted" | "made" | "fits" | "fits_by" | "no_model" | "does_not_fit" | "unchecked", T>>;
+    reused?: Partial<Record<"sorted" | "made" | "fits" | "fits_by" | "no_model" | "does_not_fit" | "unchecked" | "checking", T>>;
   };
 }
 

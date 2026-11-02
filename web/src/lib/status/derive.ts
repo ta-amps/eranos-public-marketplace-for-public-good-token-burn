@@ -99,6 +99,10 @@ export interface Facts {
   reused?: Evidence & { id?: string; reason?: string; part?: number };
   /** A different key's check that the similar answer fits this request (F-REUSE-001); absent until one is recorded. */
   reuseCheck?: Evidence & { verdict: "fits" | "does_not_fit"; who?: string; model?: string };
+  /** The plan's reuse_check part: a similar library answer whose fit a different helper checks before anything else. */
+  reuseCandidate?: Evidence & { part: number };
+  /** The check found the similar answer did not fit, so new work was planned (kept for the page's note). */
+  reuseRejected?: Evidence & { id?: string };
   /** A reuse that a recorded reopen undid; it stays in the history as a failed attempt. */
   reuseUndone?: Evidence & { id?: string };
   reopened?: Evidence & { reason?: string };
@@ -184,6 +188,12 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
           decide: "idle",
           result: "idle",
         }));
+        {
+          // A reuse_check part (F-REUSE-001): a similar library answer waits for a different helper's check of its fit.
+          // A later plan without one (new work after a "does not fit") ends it.
+          const candidate = (event.parts ?? []).find((plan) => plan.route === "reuse_check");
+          facts.reuseCandidate = candidate ? { ...evidence(event), part: candidate.part } : undefined;
+        }
         if (event.places) {
           for (const [n, place] of Object.entries(event.places)) {
             const p = part(Number(n));
@@ -273,11 +283,18 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
       case "delivered":
       case "published": {
         const p = part(event.part);
-        // Answered from the library before any plan (F-UI-STALE-001): the request's own state, not an ignored fact.
-        if (!p && event.summary?.reused) {
+        // Answered from the library (F-UI-STALE-001, F-REUSE-001): a reused delivery is never new work, whether it comes
+        // before any plan or on the plan's reuse_check part. Its check is the reuse_checked fact, in either order. When the
+        // plan also has parts that need new work, the reused part is one delivered part among them (shown as reused).
+        const wholeRequest = !p || facts.parts.every((x) => x.plan.route === "reuse_check" || x.plan.route === "reused");
+        if (event.summary?.reused && wholeRequest) {
           facts.reused = { ...evidence(event), id: event.result_id, reason: event.reason, part: event.part };
           facts.plan = "done";
           facts.planAgent = undefined;
+          if (p) {
+            p.result = "noun";
+            p.resultEvidence = { ...evidence(event), id: event.result_id };
+          }
           break;
         }
         if (!p) break;
@@ -305,11 +322,19 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         if (facts.plan !== "stopped") facts.plan = "done";
         facts.planAgent = undefined;
         break;
-      case "reuse_checked":
-        if (facts.reused && (event.verdict === "fits" || event.verdict === "does_not_fit")) {
-          facts.reuseCheck = { ...evidence(event), verdict: event.verdict, who: event.checker_role ?? event.worker, model: event.model_name ?? event.model };
+      case "reuse_checked": {
+        // The check of the fit counts whether it comes before or after the reused delivery.
+        if (event.verdict !== "fits" && event.verdict !== "does_not_fit") break;
+        facts.reuseCheck = { ...evidence(event), verdict: event.verdict, who: event.checker_role ?? event.worker, model: event.model_name ?? event.model };
+        if (event.verdict === "does_not_fit") facts.reuseRejected = { ...evidence(event), id: event.result_id };
+        const p = part(event.part ?? facts.reuseCandidate?.part);
+        if (p && p.plan.route === "reuse_check") {
+          p.check = event.verdict === "fits" ? "approved" : "sent_back";
+          p.checkEvidence = { ...evidence(event), who: event.checker_role ?? event.worker ?? p.checkAgent?.who };
+          p.checkAgent = undefined;
         }
         break;
+      }
       case "reopened":
         // Open again: the close and any library answer it rested on are undone (the history keeps both); a request
         // that had no plan of its own goes back in line.
@@ -318,8 +343,9 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         if (facts.reused) {
           facts.reuseUndone = { ...facts.reused };
           facts.reused = undefined;
-          facts.reuseCheck = undefined;
         }
+        facts.reuseCheck = undefined;
+        facts.reuseCandidate = undefined;
         if (facts.parts.length === 0) {
           facts.plan = "waiting";
           facts.planAgent = undefined;
@@ -524,6 +550,10 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         break;
       case "planned": {
         for (const p of event.parts ?? []) parts.set(p.part, p);
+        if ((event.parts ?? []).some((p) => p.route === "reuse_check")) {
+          text = words.log.planned_reuse_check ?? "";
+          break;
+        }
         const count = (event.parts ?? []).length;
         const by = w ?? plannedBy.get("plan");
         const key = count === 1 ? (by ? "planned_one" : "planned_one_anon") : by ? "planned" : "planned_anon";
@@ -731,7 +761,14 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
     const processPart = p.plan.route === "private-files" || p.plan.route === "process" || p.plan.output_type === "process";
     const held = p.plan.route === "held";
     const rc = rowCenter(index);
-    const rowLabel = held ? words.diagram.row_held : processPart ? words.diagram.row_process : words.diagram.row_report;
+    const reuseCheck = p.plan.route === "reuse_check";
+    const rowLabel = reuseCheck
+      ? (words.diagram.row_reuse_check ?? words.diagram.row_report)
+      : held
+        ? words.diagram.row_held
+        : processPart
+          ? words.diagram.row_process
+          : words.diagram.row_report;
     labels.push({ id: `row-${n}`, x: COL.queue.x, y: rc - 58, text: fill(rowLabel ?? "", { n }) });
 
     if (count === 1) {
@@ -950,7 +987,16 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
     parts.push({
       part: n,
       route: p.plan.route,
-      title: fill((held ? words.list.held_title : processPart ? words.list.process_title : words.list.report_title) ?? "", { n }),
+      title: fill(
+        (p.plan.route === "reuse_check"
+          ? (words.list.reuse_check_title ?? words.list.report_title)
+          : held
+            ? words.list.held_title
+            : processPart
+              ? words.list.process_title
+              : words.list.report_title) ?? "",
+        { n },
+      ),
       subtitle: (held ? words.list.held_sub : processPart ? words.list.process_sub : words.list.report_sub) ?? "",
       steps: held ? steps.slice(0, 1) : steps,
       note: processPart ? (p.plan.needs_person_signoff ? words.list.signoff_note : words.list.process_note) : undefined,
@@ -980,7 +1026,15 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
   let overall: StatusView["overall"];
   if (facts.withdrawn) overall = { label: words.overall.withdrawn ?? "", tone: "waiting" };
   else if (facts.plan === "stopped") overall = { label: words.overall.blocked ?? "", tone: "caution" };
-  else if (facts.reused) overall = { label: words.overall.reused ?? words.overall.finished ?? "", tone: "real" };
+  else if (facts.reused)
+    overall =
+      facts.reuseCheck?.verdict === "fits"
+        ? { label: words.overall.reused ?? words.overall.finished ?? "", tone: "real" }
+        : facts.reuseCheck?.verdict === "does_not_fit"
+          ? { label: words.overall.reuse_does_not_fit ?? words.overall.reused ?? "", tone: "caution" }
+          : { label: words.overall.reused_unchecked ?? words.overall.reused ?? "", tone: "attention" };
+  else if (facts.reuseCandidate && !facts.closed && facts.reuseCheck?.verdict !== "does_not_fit")
+    overall = { label: words.overall.reuse_checking ?? words.overall.progress ?? "", tone: "verb" };
   else if (facts.closed && !anyApproved)
     overall = { label: words.overall.unfinished ?? words.overall.finished ?? "", tone: "caution" };
   else if (facts.closed) overall = { label: words.overall.finished ?? "", tone: "real" };
@@ -1044,6 +1098,7 @@ export function summaryLine(allEvents: StatusEvent[], words: RequestStatusNoun):
     case "plan_claimed":
       return words.summary.planning ?? "";
     case "planned":
+      if ((last.parts ?? []).some((part) => part.route === "reuse_check")) return words.summary.reuse_checking ?? "";
       return fill(words.summary.planned ?? "", { n: (last.parts ?? []).length });
     case "blocked":
       return words.summary.blocked ?? "";
@@ -1067,7 +1122,10 @@ export function summaryLine(allEvents: StatusEvent[], words: RequestStatusNoun):
       return fill(words.summary.signoff ?? "", { n });
     case "delivered":
     case "published":
+      if (last.summary?.reused) return words.summary.reused ?? "";
       return `${fill(words.summary.part_approved ?? "", { n })} ${words.summary.your_turn ?? ""}`.trim();
+    case "reuse_checked":
+      return (last.verdict === "fits" ? words.summary.reuse_fits : words.summary.reuse_does_not_fit) ?? "";
     case "decided":
       return fill(words.summary.decided ?? "", { n });
     case "closed": {

@@ -108,7 +108,7 @@
             "reuse_checked",
             "withdrawn"
           ],
-          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; reopened (a closed request open again, for example after a wrong library reuse; the earlier facts stay in the history); withdrawn. A delivered or published fact with summary.reused true before any plan means the request was answered from the library with no new work. reuse_checked (F-REUSE-001): a different key's check of whether that similar answer fits this request, with verdict ('fits' or 'does_not_fit'), checker_role, model, similarity and a ref to the matched answer; the page shows the reuse as checked only after a 'fits' verdict. check_refused: Tessera refused a check because the maker tried to approve its own work (the board's 'refused'; cite the refusal's record)."
+          "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; reopened (a closed request open again, for example after a wrong library reuse; the earlier facts stay in the history); withdrawn. A delivered or published fact with summary.reused true before any plan means the request was answered from the library with no new work. reuse_checked (F-REUSE-001): a different key's check of whether that similar answer fits this request, with verdict ('fits' or 'does_not_fit'), checker_role, model, similarity and a ref to the matched answer; the page shows the reuse as checked only after a 'fits' verdict, which may come before or after the reused delivery. A planned part with route 'reuse_check' is that check of a similar answer; on 'does_not_fit' a new plan follows. check_refused: Tessera refused a check because the maker tried to approve its own work (the board's 'refused'; cite the refusal's record)."
         },
         "at": {
           "type": [
@@ -240,8 +240,10 @@
           "enum": [
             "public-only",
             "private-files",
-            "held"
-          ]
+            "held",
+            "reuse_check"
+          ],
+          "description": "reuse_check (F-REUSE-001): the part that checks whether a similar library answer fits this request; nothing is made for it."
         },
         "text": {
           "type": "string"
@@ -272,6 +274,10 @@
         },
         "review_task_id": {
           "type": "string"
+        },
+        "reused_from": {
+          "type": "object",
+          "description": "reuse_check: the similar library answer being checked (for example its report_id)."
         }
       }
     },

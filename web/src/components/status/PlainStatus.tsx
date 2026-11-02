@@ -93,6 +93,8 @@ export interface TrackState {
   back: boolean;
   /** Stations the request passed without doing them (a library answer: nothing made, maybe nothing checked). */
   skipped?: number[];
+  /** True when the passed stations were not done (no check of the fit), not merely not needed. */
+  skippedNotDone?: boolean;
 }
 
 /** Where one part stands on the six stations (CLAUDE-CODE-PROMPT §4.2 and the RequestStatusPage board's rule). */
@@ -121,13 +123,24 @@ export function plainSummary(facts: Facts, words: PlainWords, every: string, req
   // Answered from the library (F-UI-STALE-001): the request's own state decides the steps, and the top says how.
   // Nothing new was made, and it shows as checked only once a different key checked the fit for this request
   // (reuse_checked, F-REUSE-001); until then the Made and Checked stations are passed, not done.
+  if (!facts.reused && facts.reuseCandidate && facts.reuseCheck?.verdict !== "does_not_fit" && !facts.closed) {
+    // A similar library answer is being checked for this request: nothing is made; a different helper checks the fit.
+    const fits = facts.reuseCheck?.verdict === "fits";
+    return {
+      bands: ["done", "skipped", fits ? "done" : "now", fits ? "now" : "upcoming"],
+      track: { at: fits ? 5 : 4, tone: "work", back: false, skipped: fits ? [2] : [2, 3], skippedNotDone: !fits },
+      chip: fits ? (c.reused ?? c.in_use) : (c.reuse_checking ?? c.checking),
+      waiting: false,
+      yourTurn: false,
+    };
+  }
   if (facts.reused) {
     const verdict = facts.reuseCheck?.verdict;
     const fits = verdict === "fits";
     const check: StageState = fits ? "done" : verdict === "does_not_fit" || facts.closed ? "closed" : "now";
     return {
       bands: ["done", "skipped", check, fits || facts.closed ? "done" : "upcoming"],
-      track: { at: 5, tone: "done", back: false, skipped: fits ? [2] : [2, 3, 4] },
+      track: { at: 5, tone: "done", back: false, skipped: fits ? [2] : [2, 3, 4], skippedNotDone: !fits },
       chip: fits ? (c.reused ?? c.in_use) : verdict === "does_not_fit" ? (c.reuse_does_not_fit ?? c.reused ?? c.in_use) : (c.reused_unchecked ?? c.reused ?? c.in_use),
       waiting: false,
       yourTurn: false,
@@ -292,7 +305,9 @@ function RequestTrack({
                 <span className="er-track-dot" aria-hidden="true" />
                 <span className="er-track-name">{name}</span>
                 {done && words.done && <span className="er-visually-hidden"> ({words.done})</span>}
-                {passed && words.skipped && <span className="er-visually-hidden"> ({words.skipped})</span>}
+                {passed && (track.skippedNotDone ? words.not_done : words.skipped) && (
+                  <span className="er-visually-hidden"> ({track.skippedNotDone ? words.not_done : words.skipped})</span>
+                )}
                 {!done && !now && !passed && words.next && <span className="er-visually-hidden"> ({words.next})</span>}
                 {i === 0 && now && ahead > 0 && (
                   <span className="er-ghosts" aria-hidden="true" data-testid="ghost-pills">
@@ -363,7 +378,7 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         push(byEranos(event) && h.plan_claimed_eranos ? h.plan_claimed_eranos : h.plan_claimed);
         break;
       case "planned":
-        push(h.planned);
+        push((event.parts ?? []).some((part) => part.route === "reuse_check") ? (h.planned_reuse_check ?? h.planned) : h.planned);
         break;
       case "blocked":
         push(fill(h.blocked, { reason: event.reason ?? "" }));
@@ -574,8 +589,9 @@ export function PlainStatus({
   const b = words.bands;
   const planned = facts.plan === "done" && parts.length > 0;
   // Answered from the library (F-UI-STALE-001): each step says so, from the request's own record.
-  const reuse = facts.reused;
-  const reusedHref = reuse ? sourceHref({ type: "delivered", result_id: reuse.id, ref: reuse.ref }) : null;
+  const candidate = !facts.reused && facts.reuseCandidate && facts.reuseCheck?.verdict !== "does_not_fit" && !facts.closed ? facts.reuseCandidate : undefined;
+  const reuse = facts.reused ?? candidate;
+  const reusedHref = facts.reused ? sourceHref({ type: "delivered", result_id: facts.reused.id, ref: facts.reused.ref }) : null;
 
   // Each new recorded fact is announced once for the film frame (the board's onEvent): its caption name, band and line.
   const announced = useRef(happened.length);
@@ -655,7 +671,7 @@ export function PlainStatus({
   const bandStatus = reuse
     ? [
         st.reused_sorted ?? st.done_untimed,
-        st.reused_made ?? st.done_untimed,
+        candidate ? (st.reuse_made_pending ?? st.reused_made ?? st.done_untimed) : (st.reused_made ?? st.done_untimed),
         fitCheck?.verdict === "fits"
           ? fitCheck.at
             ? fill(st.reuse_fits ?? st.done, { time: clock(fitCheck.at) })
@@ -664,8 +680,14 @@ export function PlainStatus({
             ? (st.reuse_does_not_fit ?? st.closed ?? "")
             : facts.closed
               ? (st.reuse_unchecked ?? st.closed ?? "")
-              : (st.reuse_waiting_check ?? st.waiting_check),
-        reuse.at ? fill(st.reused_ready ?? st.done, { time: clock(reuse.at) }) : (st.reused_ready ?? st.done_untimed),
+              : candidate
+                ? (st.reuse_checking ?? st.checking)
+                : (st.reuse_waiting_check ?? st.waiting_check),
+        !facts.reused
+          ? st.upcoming
+          : reuse.at
+            ? fill(st.reused_ready ?? st.done, { time: clock(reuse.at) })
+            : (st.reused_ready ?? st.done_untimed),
       ]
     : openStatus.map((line, i) => (stripState(i + 1) === "closed" ? (st.closed ?? line) : line));
   const bandProps = (n: number) => ({
@@ -690,6 +712,11 @@ export function PlainStatus({
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
         {happened[0]?.text ?? ""}
       </p>
+      {facts.reuseRejected && !facts.reused && words.reuse_rejected_note && (
+        <p className="er-small er-reopened" data-testid="reuse-rejected-note">
+          {words.reuse_rejected_note}
+        </p>
+      )}
       {facts.reopened && (
         <p className="er-small er-reopened" data-testid="reopened-note">
           {facts.reuseUndone
@@ -797,7 +824,9 @@ export function PlainStatus({
               ? [b.reused?.fits, fitCheck.who && b.reused?.fits_by ? fill(b.reused.fits_by, { who: fitCheck.who, model: fitCheck.model ?? b.reused.no_model ?? "" }) : ""].filter(Boolean).join(" ")
               : fitCheck?.verdict === "does_not_fit"
                 ? b.reused?.does_not_fit
-                : b.reused?.unchecked}
+                : candidate
+                  ? b.reused?.checking
+                  : b.reused?.unchecked}
           </p>
         ) : (
           <>
@@ -836,7 +865,7 @@ export function PlainStatus({
       <Band n={4} title={stripState(4) === "done" && b.ready.title_done ? b.ready.title_done : requester ? b.ready.title : b.ready.title_public} state={stripState(4)} {...bandProps(4)}>
         {reuse ? (
           <p className="er-band-line" data-testid="reused-ready">
-            {b.ready.reused}{" "}
+            {facts.reused ? b.ready.reused : b.ready.upcoming}{" "}
             {reusedHref && (
               <a href={reusedHref} className="er-text-link">
                 {b.ready.reused_link}

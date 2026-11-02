@@ -5,7 +5,8 @@
  */
 
 /** Routes recorded by current workers, including reused library answers. */
-export type PartRoute = "public-only" | "private-files" | "process" | "report" | "held" | "reused";
+/** reuse_check (F-REUSE-001): the plan's part that checks whether a similar library answer fits; nothing is made. */
+export type PartRoute = "public-only" | "private-files" | "process" | "report" | "held" | "reused" | "reuse_check";
 
 /** One part of a plan, as the classify step records it in `eranos.plans/<request_id>`. */
 export interface PartPlan {

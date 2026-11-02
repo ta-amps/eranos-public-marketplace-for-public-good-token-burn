@@ -43,7 +43,8 @@
     "row_process": "Part {n} · a reusable process your own agent runs",
     "row_held": "Part {n} · a person looks at it first",
     "summary_label": "What’s happening now",
-    "packet": "Your request"
+    "packet": "Your request",
+    "row_reuse_check": "Checking whether an earlier answer fits"
   },
   "nodes": {
     "request": "Your request",
@@ -122,7 +123,10 @@
     "withdrawn": "Withdrawn",
     "read_only": "Public request",
     "unfinished": "Closed without a result",
-    "reused": "Answered from the library"
+    "reused": "Answered from the library",
+    "reused_unchecked": "Answered from the library · not checked for this request",
+    "reuse_does_not_fit": "The library answer didn’t fit",
+    "reuse_checking": "Checking whether an earlier answer fits"
   },
   "list": {
     "plan_title": "Plan",
@@ -139,7 +143,8 @@
     "process_note": "Your files never come here. The process runs on your own agent.",
     "signoff_note": "Sensitive processes also need a person’s sign-off.",
     "read_report": "Read the report",
-    "see_process": "See the process"
+    "see_process": "See the process",
+    "reuse_check_title": "Checking whether an earlier answer fits"
   },
   "log": {
     "title": "What happened",
@@ -189,7 +194,8 @@
     "reopened_reason": "Opened again: {reason}",
     "reopened_plain": "Opened again.",
     "reuse_fits": "A different helper checked the library answer: it fits.",
-    "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit."
+    "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit.",
+    "planned_reuse_check": "A similar answer is in the library; a different helper checks whether it fits."
   },
   "queue": {
     "title": "Eranos queue right now",
@@ -240,7 +246,10 @@
     "signoff": "Part {n} waits for a person’s sign-off.",
     "closed_unfinished": "Your request closed without a finished result.",
     "reused": "Answered from the library with no new work.",
-    "reopened": "Opened again: back in line."
+    "reopened": "Opened again: back in line.",
+    "reuse_checking": "A similar answer is in the library; a different helper is checking whether it fits.",
+    "reuse_fits": "A different helper checked the library answer: it fits this request.",
+    "reuse_does_not_fit": "The library answer didn’t fit this request; it will be made from scratch."
   },
   "notices": {
     "no_agents": {
@@ -483,7 +492,8 @@
       "unfinished": "Closed without a finished result",
       "reused": "Answered from the library",
       "reused_unchecked": "Answered from the library · not checked for this request",
-      "reuse_does_not_fit": "The library answer didn’t fit"
+      "reuse_does_not_fit": "The library answer didn’t fit",
+      "reuse_checking": "Checking whether an earlier answer fits"
     },
     "stages_label": "Where your request is",
     "stages": {
@@ -595,7 +605,8 @@
       "reopened_reason": "Opened again: {reason}",
       "reopened_plain": "This request was opened again.",
       "reuse_fits": "A different helper checked the library answer: it fits this request.",
-      "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit this request."
+      "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit this request.",
+      "planned_reuse_check": "A similar answer is in the library. A different helper is checking whether it fits this request."
     },
     "share_lead": "Waiting for a volunteer? Know someone with spare AI capacity?",
     "share": "Share this request",
@@ -645,7 +656,8 @@
       "token_done": "Delivered",
       "done": "done",
       "next": "still to come",
-      "skipped": "not needed"
+      "skipped": "not needed",
+      "not_done": "not done"
     },
     "bands": {
       "sorted": {
@@ -684,7 +696,7 @@
         "upcoming": "By a different helper",
         "title_eranos": "Checked by a dedicated worker run by ta-amps",
         "checking_eranos": "A dedicated worker run by ta-amps is checking it",
-        "title_reused": "Checked for this request"
+        "title_reused": "Check for this request"
       },
       "ready": {
         "title": "Ready for you",
@@ -726,7 +738,9 @@
         "reuse_fits_untimed": "It fits",
         "reuse_does_not_fit": "Didn’t fit this request",
         "reuse_unchecked": "Not checked for this request",
-        "reuse_waiting_check": "Waiting for a check of the fit"
+        "reuse_waiting_check": "Waiting for a check of the fit",
+        "reuse_checking": "Checking whether an earlier answer fits",
+        "reuse_made_pending": "No new work yet"
       },
       "reused": {
         "sorted": "A similar answer was found in the shared library.",
@@ -735,12 +749,14 @@
         "fits_by": "Checked by {who} · model: {model}.",
         "no_model": "no model",
         "does_not_fit": "A different helper checked it: this answer doesn’t fit this request.",
-        "unchecked": "That answer was checked when it was first made, for an earlier request. No one has checked that it answers this one."
+        "unchecked": "That answer was checked when it was first made, for an earlier request. No one has checked that it answers this one.",
+        "checking": "A different helper is checking whether this earlier answer fits this request. Nothing new is made unless it doesn’t."
       }
     },
     "reopened_note": "Opened again: the similar library answer didn’t fit this request, so it’s back in line. That answer stays in its history.",
     "reopened_note_reason": "Opened again: {reason}",
-    "reopened_note_plain": "This request was opened again."
+    "reopened_note_plain": "This request was opened again.",
+    "reuse_rejected_note": "A similar answer from the library didn’t fit this request, so it will be made from scratch."
   },
   "steps": {
     "tag_process": "A reusable process",

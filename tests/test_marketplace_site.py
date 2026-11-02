@@ -1361,3 +1361,80 @@ def test_the_page_text_passes_the_shared_word_list() -> None:
     out = json.loads(run.stdout)
     assert out["checks"] > 0, "the word list module has no checks"
     assert out["out"] == []
+
+
+def test_the_worker_checked_reuse_facts_pass_the_status_schema() -> None:
+    """F-REUSE-001 (worker-loop-next 6684c6c): the worker writes a checked reuse as planned (part 1, route reuse_check),
+    check_claimed, reuse_checked, a reused delivered and closed; every fact, as a version of the request noun, must pass
+    docs/status-events.schema.json, which the worker validates against before writing."""
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads((ROOT / "docs" / "status-events.schema.json").read_text(encoding="utf-8"))
+    validator = jsonschema.Draft202012Validator(schema)
+    request_id = "rq-r_" + "ef" * 16 + "-mvywfy1j"
+    report = "RPT-RC676414-01"
+    worker = {"worker": "dedicated worker 1 (run by ta-amps)", "dedicated": True}
+    checker = {"worker": "dedicated worker 3 (run by ta-amps)", "dedicated": True}
+    facts: list[dict[str, Any]] = [
+        {
+            "type": "planned",
+            "receipt": "b" * 64,
+            **worker,
+            "parts": [
+                {
+                    "part": 1,
+                    "route": "reuse_check",
+                    "text": "What are the key food-safety rules for a community food pantry?",
+                    "reused_from": {"report_id": report},
+                    "review_task_id": "t-reuse-review-1",
+                }
+            ],
+        },
+        {
+            "type": "check_claimed",
+            "part": 1,
+            "receipt": "1" * 64,
+            **checker,
+            "model": "muse-spark-1.3",
+        },
+        {
+            "type": "reuse_checked",
+            "part": 1,
+            "receipt": "2" * 64,
+            "verdict": "fits",
+            "checker_role": "dedicated worker 3 (run by ta-amps)",
+            "model": "muse-spark-1.3",
+            "model_name": "Muse Spark 1.3",
+            "similarity": 0.83,
+            "ref": f"eranos.solutions/{report}",
+        },
+        {
+            "type": "delivered",
+            "part": 1,
+            "ref": f"eranos.solutions/{report}",
+            "result_id": report,
+            "summary": {"reused": True, "score": 0.83},
+            **worker,
+        },
+        {
+            "type": "plan_claimed",
+            "receipt": "3" * 64,
+            **worker,
+            "method": "deterministic planner (no model)",
+        },
+        {"type": "closed", "receipt": "4" * 64, **worker},
+    ]
+    for index, event in enumerate(facts):
+        value = {
+            "schema_version": 1,
+            "request_id": request_id,
+            "status": "closed" if event["type"] == "closed" else "open_for_build",
+            "event": {"at": 1_793_602_200 + index, **event},
+        }
+        errors = [error.message for error in validator.iter_errors(value)]
+        assert errors == [], (event["type"], errors)
+    # A does-not-fit verdict passes too, and a wrong verdict does not.
+    rejected = {**facts[2], "verdict": "does_not_fit"}
+    wrong = {**facts[2], "verdict": "maybe"}
+    base = {"schema_version": 1, "request_id": request_id, "status": "open_for_build"}
+    assert not list(validator.iter_errors({**base, "event": {"at": 1, **rejected}}))
+    assert list(validator.iter_errors({**base, "event": {"at": 1, **wrong}}))
