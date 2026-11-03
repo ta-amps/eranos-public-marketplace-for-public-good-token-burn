@@ -272,6 +272,16 @@ def _first_sentence(text: str) -> str:
     return sentence.rstrip(".!?")
 
 
+def _short_title(text: str, limit: int = 140) -> str:
+    """A title that fits its limit, cut between words and marked with an ellipsis."""
+    if len(text) <= limit:
+        return text
+    head = text[: limit - 1]
+    if not text[limit - 1].isspace() and " " in head:
+        head = head.rsplit(" ", 1)[0]
+    return f"{head.rstrip(' ,;:')}…"
+
+
 def _common_brief(
     request_id: str,
     part: dict[str, Any],
@@ -280,7 +290,7 @@ def _common_brief(
     terms: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     digest = hashlib.sha256(f"{request_id}:{part['part']}".encode()).hexdigest()
-    title = f"{org}: {_first_sentence(part['text'])}"[:140]
+    title = _short_title(f"{org}: {_first_sentence(part['text'])}")
     return {
         **(terms or {}),
         "schema_version": 1,

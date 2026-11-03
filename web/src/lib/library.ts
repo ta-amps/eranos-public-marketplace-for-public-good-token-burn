@@ -1,3 +1,4 @@
+import { readableSummary, readableTitle } from "./reportWords";
 import { getJson } from "./api";
 import type { NounList } from "./nouns";
 import type { ExampleSolution } from "./status/example";
@@ -69,9 +70,9 @@ export async function loadLibrary(): Promise<LibraryItem[]> {
     return {
       id: report.report_id,
       kind: "report",
-      title: report.title,
+      title: readableTitle(report.title, report.question),
       forWho: "",
-      summary: Array.isArray(report.summary) ? report.summary.join(" ") : (report.summary ?? ""),
+      summary: readableSummary(Array.isArray(report.summary) ? report.summary.join(" ") : (report.summary ?? "")),
       href: `/requests/${encodeURIComponent(record.value.request_id)}/result`,
       checked: Boolean(record.value.review_task_id || record.value.review_receipt),
       example: Boolean(record.value.is_example),

@@ -206,7 +206,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (21)
+## tests/ (22)
 
 | File | What it is |
 |---|---|
@@ -225,6 +225,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tests/test_open_contribution.py`](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
 | [`tests/test_pipeline.py`](tests/test_pipeline.py) | Tests for the two-step Tessera pipeline: quarantine, drafter != reviewer, parker != resumer, and CAS store. |
 | [`tests/test_public_feed.py`](tests/test_public_feed.py) | Public clients never inherit the service reader's feed authority. |
+| [`tests/test_report_words.py`](tests/test_report_words.py) | Report titles end on a whole word, and counts of one read as singular. |
 | [`tests/test_review_contract.py`](tests/test_review_contract.py) | Review and practice use the candidate, schema and provider identity they advertise. |
 | [`tests/test_schemas_and_copy.py`](tests/test_schemas_and_copy.py) | Tests for Ring 0 copy rules, governance envelope, humanonly step invariants, synthetic marks, and strict JSON. |
 | [`tests/test_seed_packs.py`](tests/test_seed_packs.py) | Referenced example kits: composed from the seed-pack library, pinned by digest, and refused on drift. |
@@ -251,7 +252,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (192)
+## web/ (194)
 
 | File | What it is |
 |---|---|
@@ -382,6 +383,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/src/lib/models.ts`](web/src/lib/models.ts) |  |
 | [`web/src/lib/nouns.ts`](web/src/lib/nouns.ts) |  |
 | [`web/src/lib/privacy.ts`](web/src/lib/privacy.ts) |  |
+| [`web/src/lib/reportWords.ts`](web/src/lib/reportWords.ts) | The stored title limit: a title this long may have been cut by the old pipeline. |
 | [`web/src/lib/shown.ts`](web/src/lib/shown.ts) |  |
 | [`web/src/lib/snapshot-data.live.ts`](web/src/lib/snapshot-data.live.ts) |  |
 | [`web/src/lib/snapshot-data.offline.ts`](web/src/lib/snapshot-data.offline.ts) |  |
@@ -436,6 +438,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/tests/perf.spec.ts`](web/tests/perf.spec.ts) |  |
 | [`web/tests/phase-a2.spec.ts`](web/tests/phase-a2.spec.ts) |  |
 | [`web/tests/release-regression.spec.ts`](web/tests/release-regression.spec.ts) |  |
+| [`web/tests/report-words.spec.ts`](web/tests/report-words.spec.ts) |  |
 | [`web/tests/request-state.spec.ts`](web/tests/request-state.spec.ts) |  |
 | [`web/tests/request-submit-guard.spec.ts`](web/tests/request-submit-guard.spec.ts) |  |
 | [`web/tests/shell.spec.ts`](web/tests/shell.spec.ts) |  |

@@ -6,6 +6,7 @@ import { SNAPSHOT } from "../config";
 import { ApiError, getJson } from "../lib/api";
 import { AGORA_HOW_IT_WORKS_URL } from "../lib/marketplace";
 import { modelName, useModels } from "../lib/models";
+import { readableSummary, readableTitle } from "../lib/reportWords";
 import { fill, type NounResponse, type RequestStatusNoun } from "../lib/nouns";
 import type { ExampleSolution, Report, RequestExampleNoun } from "../lib/status/example";
 import { requesterKeyFor, dropKeyFromAddress } from "../lib/status/keys";
@@ -174,9 +175,9 @@ function download(name: string, type: string, text: string) {
 }
 
 function reportMarkdown(report: Report): string {
-  const lines = [`# ${report.title}`, ""];
+  const lines = [`# ${readableTitle(report.title, report.question)}`, ""];
   const summary = Array.isArray(report.summary) ? report.summary.join(" ") : report.summary;
-  if (summary) lines.push(summary, "");
+  if (summary) lines.push(readableSummary(summary), "");
   const index = new Map(report.sources.map((s, i) => [s.id, i + 1]));
   for (const claim of report.claims) {
     lines.push(`- ${claim.text ?? ""} ${claim.citations.map((c) => `[${index.get(c.source) ?? "?"}]`).join(" ")}`);
@@ -546,18 +547,18 @@ export function RequestResult({ id }: { id: string }) {
         {solution && view.part?.reused_from && <StateNotice tone="wait" head={words.result.reused_note ?? ""} testId="result-reused-note" />}
         {report && (
           <>
-            <h1>{report.title}</h1>
+            <h1>{readableTitle(report.title, report.question)}</h1>
             {report.summary && (
               <section className="er-panel" data-testid="in-short">
                 <h2 className="er-panel-title">{words.steps.in_short}</h2>
                 {Array.isArray(report.summary) ? (
                   <ol className="er-plain-steps">
                     {report.summary.map((point) => (
-                      <li key={point}>{point}</li>
+                      <li key={point}>{readableSummary(point)}</li>
                     ))}
                   </ol>
                 ) : (
-                  <p>{report.summary}</p>
+                  <p>{readableSummary(report.summary)}</p>
                 )}
                 <p className="er-small">{words.steps.in_short_note}</p>
               </section>
