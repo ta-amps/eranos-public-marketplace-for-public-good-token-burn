@@ -331,11 +331,11 @@ export function Help() {
               ))}
             </ul>
           </section>
-          <p className="er-small">
-            {page.safety} <AppLink to="/about">{page.safety_link}</AppLink>
-          </p>
         </aside>
       </div>
+      <p className="er-small er-mt-12">
+        {page.safety} <AppLink to="/about">{page.safety_link}</AppLink>
+      </p>
     </div>
   );
 }

@@ -540,7 +540,8 @@ def test_the_nonprofits_page_opens_in_plain_words() -> None:
 def test_the_privacy_line_matches_what_the_site_loads() -> None:
     site = json.loads((ROOT / "instructions" / "site.json").read_text(encoding="utf-8"))
     assert (
-        site["privacy"].startswith("No analytics, ads or cookies.") and "Teleion Fabric" in site["privacy"]
+        site["privacy"].startswith("No analytics, ads or cookies.")
+        and "Teleion Fabric" in site["privacy"]
     )
     # "Every page, script and style comes from this site": the policy the Worker sends allows nothing else,
     # except the request box's calls to Tessera.
@@ -891,7 +892,11 @@ def test_a_requests_own_words_pass_the_display_filter_but_quotes_do_not() -> Non
     assert word not in shown["text"]
     assert word in shown["quote"]
     for path in ("deploy/cloudflare/worker.js", "web/src/lib/shown.ts"):
-        line = next(x for x in (ROOT / path).read_text(encoding="utf-8").splitlines() if "VERBATIM_KEYS = new Set" in x)
+        line = next(
+            x
+            for x in (ROOT / path).read_text(encoding="utf-8").splitlines()
+            if "VERBATIM_KEYS = new Set" in x
+        )
         assert '"text"' not in line, path
 
 
