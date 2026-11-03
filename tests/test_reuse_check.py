@@ -747,9 +747,18 @@ def test_a_plan_whose_record_keeps_failing_is_planned_again_three_times_then_clo
     assert blocked and "could not be recorded" in blocked[-1]["findings"][0]
 
 
-def test_reuse_brief_and_review_preserve_decisive_requirements_past_1200_chars() -> None:
+def test_reuse_brief_and_review_preserve_decisive_requirements_past_1200_chars(
+    tmp_path: Path,
+) -> None:
+    from tessera import TesseraError
+
+    from eranos.model_client import UsageMeter
+    from eranos.pipeline import process as process_part
+    from eranos.worker_loop import LeaseGate, Worker, WorkerConfig
+
     requirement = (
-        "French labels are required for every equipment item; an English-only answer does not satisfy this request."
+        "French labels are required for every equipment item; "
+        "an English-only answer does not satisfy this request."
     )
     header = "Make an equipment-label checklist for an example workshop. "
     padding = "Use the same workshop equipment inventory and checklist context. "
@@ -783,8 +792,12 @@ def test_reuse_brief_and_review_preserve_decisive_requirements_past_1200_chars()
 
         seen_questions: list[str] = []
 
-        def capture_judge(question: str, library: dict[str, Any]) -> dict[str, Any]:
-            seen_questions.append(question)
+        def capture_judge(
+            question: str,
+            library: dict[str, Any],
+            bucket: list[str] = seen_questions,
+        ) -> dict[str, Any]:
+            bucket.append(question)
             return {"answers": "unsure", "why": "example judge abstains"}
 
         review_lease = _lease(ids[0], reuse_check.REUSE_KIND, "eq03", child_brief)
@@ -797,11 +810,97 @@ def test_reuse_brief_and_review_preserve_decisive_requirements_past_1200_chars()
         # Even if an older in-flight brief was truncated at 1,200 chars, review_reuse restores full stored text.
         legacy_brief = {**child_brief, "question": full_text[:1200]}
         seen_legacy: list[str] = []
+
+        def legacy_judge(
+            q: str,
+            lib: dict[str, Any],
+            bucket: list[str] = seen_legacy,
+        ) -> dict[str, Any]:
+            bucket.append(q)
+            return {"answers": "no", "why": "missing french"}
+
         reuse_check.review_reuse(
             fabric,
             _lease(f"{ids[0]}-legacy", reuse_check.REUSE_KIND, "eq03", legacy_brief),
             key_id=REVIEWER_KEY,
-            judge=lambda q, lib: (seen_legacy.append(q) or {"answers": "no", "why": "missing french"}),
+            judge=legacy_judge,
         )
         assert seen_legacy == [full_text]
 
+        # If max_question_chars is smaller than the full request, review_reuse refuses silent truncation.
+        if len(full_text) > 1200:
+            truncated_res = reuse_check.review_reuse(
+                fabric,
+                _lease(f"{ids[0]}-cap", reuse_check.REUSE_KIND, "eq03", child_brief),
+                key_id=REVIEWER_KEY,
+                judge=lambda q, lib: {"answers": "yes", "why": "would wrongly close"},
+                max_question_chars=1200,
+            )
+            assert truncated_res["status"] == "sent_back"
+            assert "incomplete" in truncated_res["check"]["why"]
+
+    # Volunteer reviewer hitting PermissionDenied on surface_only request record still gets full brief.question,
+    # and Worker.check_reuse -> judge_user retains requirements past char 1,200 even if remote noun omits max_question_chars.
+    after_text = cases[-1][1]
+    fabric = Fabric()
+    rid = "rq-worker-check-reuse"
+    fabric.records[(REQUESTS_STORE, rid)] = [
+        {"status": "received", "text": after_text, "parts": {}}
+    ]
+    fabric.library_report("RPT-EQUIP-01", IRS_REPORT)
+    actor = _planner(fabric, _lease(rid, "request", "eq01", _request_brief(after_text)))
+    match = SimpleNamespace(
+        store="eranos.solutions",
+        key="RPT-EQUIP-01",
+        version=1,
+        score=0.9,
+        kind="report",
+        review_receipt=hashlib.sha256(b"RPT-EQUIP-01").hexdigest(),
+        title="Example equipment report",
+    )
+    actor.check_reuse(match, {"best": {"score": 0.9}})
+    _, children, ids = fabric.splits[-1]
+    child_brief = children[0].brief
+
+    seen_prompts: list[str] = []
+
+    class FakeMeta:
+        def chat_json(self, system: str, user: str, **kwargs: Any) -> dict[str, Any]:
+            seen_prompts.append(user)
+            return {"answers": "unsure", "why": "abstain"}
+
+    config = WorkerConfig(
+        role="reviewer",
+        label="dedicated-worker-3",
+        tessera_url="http://127.0.0.1:9",
+        key="x",
+        key_id=REVIEWER_KEY,
+        trace_path=str(tmp_path / "trace-worker.jsonl"),
+        dedicated=True,
+        display_name="dedicated worker 3 (run by ta-amps)",
+    )
+    worker = Worker(
+        config, backend=fabric, heartbeat_backend=object(), handler=process_part.StubHandler()
+    )
+    remote_rules = dict(worker.rules())
+    ((remote_rules.get("reuse") or {}).get("check") or {}).pop("max_question_chars", None)
+    worker.rules = lambda: remote_rules  # type: ignore[method-assign]
+    worker.meta = lambda _mid: FakeMeta()  # type: ignore[method-assign]
+
+    rev_lease = _lease(ids[0], reuse_check.REUSE_KIND, "eq03", child_brief)
+    gate = LeaseGate(fabric, rev_lease, lambda _out, _ok, _err: {})
+    orig_read_req = reuse_check.read_request
+
+    def deny_read_request(_b: Any, _rid: str) -> Any:
+        raise TesseraError("surface_only")
+
+    reuse_check.read_request = deny_read_request  # type: ignore[assignment]
+    try:
+        out = worker.check_reuse(gate, rev_lease, UsageMeter(), 1, rid)
+    finally:
+        reuse_check.read_request = orig_read_req  # type: ignore[assignment]
+    assert out["status"] == "sent_back"
+    assert len(seen_prompts) == 1
+    parsed_user = json.loads(seen_prompts[0])
+    assert parsed_user["request"] == after_text
+    assert requirement in parsed_user["request"]

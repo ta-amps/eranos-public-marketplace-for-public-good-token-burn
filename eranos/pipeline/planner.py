@@ -42,6 +42,7 @@ from eranos.pipeline.reuse_check import (
     REUSE_KIND,
     ensure_reuse_delivered,
     reopen_target,
+    resolve_max_question_chars,
     reuse_brief,
 )
 from eranos.pipeline.status_events import fact, has_event, queue_snapshot, record_events
@@ -125,7 +126,8 @@ class Planner:
         brief = lease.brief if isinstance(lease.brief, dict) else {}
         self.brief = brief
         text = str(brief.get("text") or brief.get("description") or "")
-        self.text = _CONTROL.sub("", text).strip()[:4000]
+        self.max_question_chars = resolve_max_question_chars(self.rules)
+        self.text = _CONTROL.sub("", text).strip()[: self.max_question_chars]
         org = _CONTROL.sub("", str(brief.get("organization_type") or "")).strip()[:120]
         # The type of organization is published with the plan, so it passes the same screen.
         self.org = org if org and not check_findings({"organization_type": org}) else "Nonprofit"
@@ -451,8 +453,6 @@ class Planner:
             "review_receipt": match.review_receipt,
             "title": match.title,
         }
-        check_cfg = ((self.rules.get("reuse") or {}).get("check") or {})
-        max_question_chars = check_cfg.get("max_question_chars")
         brief = reuse_brief(
             self.request_id,
             self.text,
@@ -460,7 +460,7 @@ class Planner:
             pointer,
             proposed_by_key=self.key_id,
             considered=considered,
-            max_question_chars=int(max_question_chars) if max_question_chars else None,
+            max_question_chars=self.max_question_chars,
         )
         child = ChildSpec(
             queue="eq03",

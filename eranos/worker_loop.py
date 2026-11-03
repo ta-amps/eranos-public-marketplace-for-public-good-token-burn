@@ -76,6 +76,7 @@ from eranos.pipeline.reuse_check import (
     judge_user,
     read_judgment,
     reopen_target,
+    resolve_max_question_chars,
     review_reuse,
 )
 from eranos.pipeline.run import SelfReviewRefused, run_draft_step, run_review_step, run_spec_step
@@ -1492,14 +1493,14 @@ class Worker:
             }
 
         max_points = int(rules.get("max_points") or 6)
-        max_q_cfg = rules.get("max_question_chars")
+        max_q_cfg = resolve_max_question_chars(rules)
         out = review_reuse(
             gate,
             lease,
             key_id=self.config.key_id,
             judge=judge,
             max_points=max_points,
-            max_question_chars=int(max_q_cfg) if max_q_cfg else None,
+            max_question_chars=max_q_cfg,
         )
         self._facts(gate, request_id, self.reuse_facts(lease, out, part))
         check = out.get("check") or {}

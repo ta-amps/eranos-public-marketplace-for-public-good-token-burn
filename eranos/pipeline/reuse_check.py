@@ -21,9 +21,10 @@ import json
 import re
 import time
 from collections.abc import Callable
+from pathlib import Path
 from typing import Any
 
-from tessera import NotFound
+from tessera import NotFound, TesseraError
 
 from eranos.pipeline import reuse
 from eranos.pipeline.plain_words import forbidden, plain_text
@@ -34,8 +35,27 @@ REUSE_KIND = "reuse_review"
 VERDICTS = ("yes", "no", "unsure")
 MAX_WHY = 240
 REOPEN_SEP = "--reopen-"
+_WORKER_NOUN_PATH = Path(__file__).resolve().parents[2] / "instructions" / "worker.json"
+DEFAULT_MAX_QUESTION_CHARS = int(
+    (
+        (json.loads(_WORKER_NOUN_PATH.read_text(encoding="utf-8")).get("reuse") or {}).get("check")
+        or {}
+    )["max_question_chars"]
+)
 
 Judge = Callable[[str, dict[str, Any]], dict[str, Any]]
+
+
+def resolve_max_question_chars(rules: dict[str, Any] | None = None) -> int:
+    """Resolve the maximum request length for planning and reuse checks from the worker noun."""
+    if isinstance(rules, dict):
+        direct = rules.get("max_question_chars")
+        if direct:
+            return int(direct)
+        nested = ((rules.get("reuse") or {}).get("check") or {}).get("max_question_chars")
+        if nested:
+            return int(nested)
+    return DEFAULT_MAX_QUESTION_CHARS
 
 
 def reuse_brief(
@@ -49,7 +69,8 @@ def reuse_brief(
     max_question_chars: int | None = None,
 ) -> dict[str, Any]:
     """The reuse check's whole input: the request as written, the candidate and who proposed it."""
-    bounded_question = str(text)[:max_question_chars] if max_question_chars else str(text)
+    cap = int(max_question_chars) if max_question_chars else DEFAULT_MAX_QUESTION_CHARS
+    bounded_question = str(text)[:cap]
     return {
         "kind": "eranos.reuse_review",
         "request_id": request_id,
@@ -71,13 +92,14 @@ def library_view(
     max_question_chars: int | None = None,
 ) -> dict[str, Any]:
     """What the check reads of a library answer: the request it answered and its main points."""
+    cap = int(max_question_chars) if max_question_chars else DEFAULT_MAX_QUESTION_CHARS
     if kind == "report":
         found = value.get("report")
         report: dict[str, Any] = found if isinstance(found, dict) else {}
         report_q = str(report.get("question") or "")
         return {
             "kind": "a cited report",
-            "question_it_answered": report_q[:max_question_chars] if max_question_chars else report_q,
+            "question_it_answered": report_q[:cap],
             "title": reuse._untitled(str(report.get("title") or ""))[:300],
             "points": [
                 str(c.get("text") or "")[:400]
@@ -90,7 +112,7 @@ def library_view(
     kit_q = str(value.get("request_text") or kit.get("request_text") or "")
     return {
         "kind": "a reusable process package",
-        "question_it_answered": kit_q[:max_question_chars] if max_question_chars else kit_q,
+        "question_it_answered": kit_q[:cap],
         "title": str(kit.get("title") or value.get("title") or "")[:300],
         "points": [str(value.get("summary") or kit.get("summary") or "")[:800]],
     }
@@ -166,15 +188,19 @@ def review_reuse(
             problem = "the library answer's review cannot be confirmed"
     except NotFound:
         problem = "the library answer is no longer there"
-    question = str(brief.get("question") or "")
-    stored_req = read_request(backend, request_id)
+    cap = int(max_question_chars) if max_question_chars else DEFAULT_MAX_QUESTION_CHARS
+    raw_question = str(brief.get("question") or "")
+    try:
+        stored_req = read_request(backend, request_id)
+    except TesseraError:
+        stored_req = None
     stored_text = str((stored_req[0] if stored_req else {}).get("text") or "").strip()
-    if stored_text and len(stored_text) > len(question):
-        question = stored_text[:max_question_chars] if max_question_chars else stored_text
-    elif max_question_chars:
-        question = question[:max_question_chars]
-    if not question.strip():
+    full_question = (
+        stored_text if (stored_text and len(stored_text) > len(raw_question)) else raw_question
+    )
+    if len(full_question) > cap or not full_question.strip():
         problem = problem or "the request text for the reuse check was incomplete"
+    question = full_question[:cap]
     started = time.time()
     if problem is None:
         verdict = judge(
@@ -183,7 +209,7 @@ def review_reuse(
                 str(pointer.get("kind")),
                 value,
                 max_points=max_points,
-                max_question_chars=max_question_chars,
+                max_question_chars=cap,
             ),
         )
     else:
