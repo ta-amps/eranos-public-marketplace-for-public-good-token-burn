@@ -507,6 +507,29 @@ test.describe("on the hosted build", () => {
   });
 });
 
+test.describe("while a request loads", () => {
+  test.use({ baseURL: LIVE });
+
+  test("shows a neutral line until the record arrives, and only then a real removed-text message", async ({ page }) => {
+    const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [] };
+    await mockSite(page, { plan, request: { request_id: REQUEST_ID, status: "open_for_build" } });
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route(/\/api\/nouns\/eranos\.(plans|requests)\//, async (route) => {
+      await held;
+      await route.fallback();
+    });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    await expect(page.getByTestId("request-status-loading")).toContainText("Reading the request");
+    await expect(page.locator("main")).not.toContainText("Being sorted");
+    await expect(page.locator("main")).not.toContainText("removed from the public record");
+    release();
+    await expect(page.getByTestId("request-status")).toBeVisible();
+    await expect(page.getByTestId("request-status-loading")).toHaveCount(0);
+    await expect(page.locator("main")).toContainText("The text was removed from the public record.");
+  });
+});
+
 test.describe("E04 and E05: the example request", () => {
   test("RequestStatusPage v6: a progress strip and four bands in plain words; technical details switch on and off", async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });

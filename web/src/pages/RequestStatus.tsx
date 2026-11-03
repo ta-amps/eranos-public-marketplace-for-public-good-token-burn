@@ -556,6 +556,30 @@ function LiveStatus({ id, words }: { id: string; words: RequestStatusNoun }) {
   }
 
   const handoff = sentRequest(id);
+  // Nothing read yet and this browser didn't send it: say so. A placeholder record would read as a real status
+  // ("Being sorted") and as removed text. Text missing from a record that was read still shows as removed.
+  if (!snapshot && !handoff) {
+    return (
+      <div className="er-status-page" data-testid="request-status-loading">
+        {pausedAt ? (
+          <StateNotice
+            tone="info"
+            head={words.notices.paused?.head ?? ""}
+            action={
+              <button type="button" className="er-btn-secondary" onClick={tryNow}>
+                {words.notices.paused?.action}
+              </button>
+            }
+            testId="notice-paused"
+          />
+        ) : (
+          <p className="er-small" role="status">
+            {words.yours.loading}
+          </p>
+        )}
+      </div>
+    );
+  }
   const record: StatusRecord = snapshot?.record ?? {
     mode: "live",
     request: {
