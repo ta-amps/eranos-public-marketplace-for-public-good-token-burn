@@ -75,6 +75,26 @@ test.describe("on the hosted build", () => {
     await expect(strip.getByRole("link", { name: "See the network ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/network/");
   });
 
+  test("a solution record with no request or title of its own gets no library card and no undefined link", async ({ page }) => {
+    await mockSite(page, {});
+    const whole = { request_id: "rq-r_09efc75a7edb494684d80cfa195d3614-mvyalefo", report: { report_id: "RPT-WHOLE-01", title: "A whole report card", summary: "It has everything a card needs." } };
+    const otherShape = { report: { report_id: "RPT-OTHER-01", request_id: "rq-other", question: "A report of another shape" } };
+    await page.route("**/api/nouns/eranos.solutions", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ records: [{ key: "RPT-WHOLE-01", value: whole }, { key: "RPT-OTHER-01", value: otherShape }] }),
+      }),
+    );
+    await page.goto("/library");
+    await expect(page.getByRole("link", { name: "A whole report card" }).first()).toHaveAttribute("href", `/requests/${whole.request_id}/result`);
+    await expect(page.locator("main")).not.toContainText("A report of another shape");
+    const undefinedLinks = await page.locator("a").evaluateAll((links) =>
+      links.map((a) => `${decodeURIComponent(a.getAttribute("href") ?? "")} ${a.getAttribute("aria-label") ?? ""}`).filter((said) => said.includes("undefined")),
+    );
+    expect(undefinedLinks).toEqual([]);
+  });
+
   test("a request whose reused answer does not fit stays off the public list, and others still show", async ({ page }) => {
     await mockSite(page, {});
     const record = (key: string, text: string) => ({ key, value: { text } });
