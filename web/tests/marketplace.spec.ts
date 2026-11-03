@@ -366,7 +366,7 @@ test.describe("on the hosted build", () => {
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByTestId("right-now")).toHaveCount(0);
     await expect(page.locator(".er-safety-grid")).toContainText("the site calls no AI model");
-    await expect(page.locator(".er-safety-grid")).toContainText("a dedicated worker run by ta-amps picks it up, at any hour");
+    await expect(page.locator(".er-safety-grid")).toContainText("a dedicated worker picks it up, at any hour");
     await page.unroute(`${LIVE}/api/**`);
     await mockSite(page, {
       fabric: {

@@ -213,9 +213,9 @@ test.describe("on the hosted build", () => {
     ];
     await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
     await page.goto(`/requests/${REQUEST_ID}`);
-    await expect(page.getByTestId("helper-1")).toContainText("A dedicated worker run by ta-amps");
+    await expect(page.getByTestId("helper-1")).toContainText("A dedicated worker");
     await expect(page.getByTestId("helper-1")).toContainText("no volunteer was free");
-    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so a dedicated worker run by ta-amps started making it.");
+    await expect(page.getByTestId("plain-happened").locator("li").first()).toContainText("No volunteer was free, so a dedicated worker started making it.");
   });
 
   test("who did it: a volunteer is credited only when the claim says so; the split and an unmarked claim read as workers", async ({ page }) => {
@@ -542,7 +542,7 @@ test.describe("E04 and E05: the example request", () => {
     await page.goto("/requests/example?moment=planned");
     const waiting = page.getByTestId("waiting-1");
     await expect(waiting).toContainText("Waiting for a worker");
-    await expect(waiting).toContainText("a dedicated worker run by ta-amps will pick it up.");
+    await expect(waiting).toContainText("a dedicated worker will pick it up.");
   });
 
 

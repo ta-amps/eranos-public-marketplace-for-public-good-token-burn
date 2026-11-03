@@ -146,15 +146,15 @@ test.describe("B2: the token follows the request's state, the same source as ari
     const happened = page.getByTestId("plain-happened");
     const more = page.getByRole("button", { name: /Show everything/ });
     if (await more.count()) await more.click();
-    await expect(happened).toContainText("A dedicated worker run by ta-amps started checking it.");
-    await expect(happened).toContainText("A dedicated worker run by ta-amps started planning your request.");
-    await expect(page.locator('[data-band="3"]')).toContainText("A dedicated worker run by ta-amps is checking it");
+    await expect(happened).toContainText("A dedicated worker started checking it.");
+    await expect(happened).toContainText("A dedicated worker started planning your request.");
+    await expect(page.locator('[data-band="3"]')).toContainText("A dedicated worker is checking it");
     const plainText = await page.getByTestId("plain-status").innerText();
     expect(plainText).not.toMatch(/second volunteer|different volunteer/i);
     await page.getByTestId("view-switch").click();
     const details = await page.locator("main").innerText();
     expect(details).not.toMatch(/eranos-(plan|worker|review)-pc0|different volunteer|\b(Green|Orange|Blue|Amber):/i);
-    expect(details).toContain("dedicated worker 2 (run by ta-amps)");
+    expect(details).toContain("dedicated worker 2");
   });
 });
 
@@ -172,7 +172,7 @@ test.describe("the model in the details comes from the models.meta Task Object",
     test(label, async ({ page }) => {
       await mockSite(page, { history: events.map((value, i) => fact(i + 1, value)), models, request: { request_id: REQUEST_ID, status: "open_for_build", text: "Summarize the laws." } });
       await page.goto(`/requests/${REQUEST_ID}?view=technical`);
-      await expect(page.locator("main")).toContainText(`dedicated worker 1 (run by ta-amps) · model and persona that ran: ${name}`);
+      await expect(page.locator("main")).toContainText(`dedicated worker 1 · model and persona that ran: ${name}`);
       expect(await page.locator("main").innerText()).not.toContain("muse-spark-1.3");
     });
   }

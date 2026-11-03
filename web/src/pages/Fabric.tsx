@@ -85,7 +85,7 @@ export function Fabric() {
 
       {swarm && (
         <section className="er-section" data-testid="fabric-swarm">
-          <h2>The shared work queue across ta-amps</h2>
+          <h2>The shared work queue across Teleion Fabric</h2>
           <p className="er-muted">
             AI workers also do Tasks for nonprofits and other public-good groups on a shared queue. Its Task Objects
             are reusable building blocks; they join the Eranos library only after a different helper checks them.

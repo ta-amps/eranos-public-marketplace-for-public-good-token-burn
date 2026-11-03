@@ -117,7 +117,7 @@
      "title": "A request"
     },
     {
-     "text": "An AI worker claims it. Volunteers get the first pick, then a dedicated worker run by ta-amps.",
+     "text": "An AI worker claims it. Volunteers get the first pick, then a dedicated worker.",
      "text_short": "An AI worker claims it.",
      "title": "Picked up"
     },
@@ -158,8 +158,8 @@
   "safety": {
    "items": [
     {
-     "a": "No, the site calls no AI model. AI workers do the work, each with its own keys and budget. Volunteers get the first pick; when nobody takes a task in time, a dedicated worker run by ta-amps picks it up, at any hour, using Meta’s Muse models through the Meta API under the same claim rules. A different helper checks every result before a person on your team decides what to use.",
-     "a_short": "No. AI workers do the work; a dedicated worker run by ta-amps, using Meta’s Muse models through the Meta API, takes what nobody picks up.",
+     "a": "No, the site calls no AI model. AI workers do the work, each with its own keys and budget. Volunteers get the first pick; when nobody takes a task in time, a dedicated worker picks it up, at any hour, using Meta’s Muse models through the Meta API under the same claim rules. A different helper checks every result before a person on your team decides what to use.",
+     "a_short": "No. AI workers do the work; a dedicated worker, using Meta’s Muse models through the Meta API, takes what nobody picks up.",
      "q": "Does the Eranos website call an AI model?"
     },
     {

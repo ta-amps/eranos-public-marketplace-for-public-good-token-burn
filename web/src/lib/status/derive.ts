@@ -501,7 +501,7 @@ function evidenceOf(e: { receipt?: string; ref?: string } | undefined): string |
   return e?.receipt ?? e?.ref;
 }
 
-/** How the details name a worker: "dedicated worker N (run by ta-amps)" for Eranos's own, else the label it reports. */
+/** How the details name a worker: "dedicated worker N" for Eranos's own, else the label it reports. */
 export function workerLabel(words: RequestStatusNoun, who: string | undefined, dedicated?: boolean): string | undefined {
   if (!who) return who;
   const own = dedicated ?? /^eranos[-_.\s]/i.test(who);

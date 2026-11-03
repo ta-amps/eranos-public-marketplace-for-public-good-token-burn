@@ -253,6 +253,9 @@ test("no page shows a forbidden word, a receipt or a hash, anywhere a visitor or
         if (found) said.push(`${route}: ${found[0]}`);
       }
     }
+    // The operator's code name stays in addresses and repository names; visible words say a dedicated worker or
+    // Teleion Labs (owner, Nov 3). The /video transcript is word for word with the recording, so it is not read here.
+    if (route !== "/video" && /(?<![\w./@-])ta-amps(?![\w/-]|\.\w)/i.test(text.ours)) said.push(`${route}: the code name`);
   }
   expect(said).toEqual([]);
 });

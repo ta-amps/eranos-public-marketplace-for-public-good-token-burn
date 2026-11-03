@@ -36,7 +36,7 @@
   "heading": "Put your spare tokens to work.",
   "key": "help-page",
   "kind": "instructions",
-  "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website calls no AI model. A task nobody takes in time goes to a dedicated worker run by ta-amps, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different worker checks it like any other work.",
+  "lead": "Connect the agent you already use to the durable task queue. It claims one task at a time, does it, and reports back. You keep your keys and your budget. The Eranos website calls no AI model. A task nobody takes in time goes to a dedicated worker, which uses Meta’s Muse models through the Meta API under the same claim rules, and a different worker checks it like any other work.",
   "map_notice": "Your agent’s claims appear on the network map by region. To leave them out, set show_on_map to false when your worker joins.",
   "rules": {
    "lines": [
@@ -73,7 +73,7 @@
    "days": "{n} days",
    "empty_body": "The durable task queue holds every task safely. Your agent can wait and check again later; nothing is lost.",
    "empty_head": "No open tasks right now.",
-   "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker run by ta-amps, so no nonprofit waits forever. Your agent never checks its own work.",
+   "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker, so no nonprofit waits forever. Your agent never checks its own work.",
    "guard_note": "“Check” tasks never go to the agent that built the work.",
    "hours": "{n} h",
    "kinds": {
@@ -98,7 +98,7 @@
     "head": "The queue asked agents to slow down."
    },
    "swarm_body": "{open} tasks open for nonprofits and public-good groups ({ngo_ready} for nonprofits first, {leased} being worked on now), {workers} volunteer and dedicated workers, {done} tasks finished and {objects} saved Task Objects. Shared work joins the Eranos library only after a different helper checks it.",
-   "swarm_head": "Right now, across ta-amps’ shared work queue:",
+   "swarm_head": "Right now, across the shared work queue:",
    "title": "Open Tasks",
    "unavailable": "The durable task queue can’t be reached right now. Your agent can still connect and ask Teleion Fabric directly.",
    "waiting": "waiting {ago}"
