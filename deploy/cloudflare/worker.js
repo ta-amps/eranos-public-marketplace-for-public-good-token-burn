@@ -45,7 +45,7 @@ const SUPPORTED_MCP_PROTOCOLS = new Set(["2024-11-05", "2025-03-26", "2025-06-18
 
 const ERANOS_QUEUE_LABELS = [
   ["eq01", "Scope"],
-  ["eq02", "Draft + verify"],
+  ["eq02", "Draft + check"],
   ["eq03", "Independent review"],
 ];
 const ZERO_QUEUE_COUNTS = {
@@ -129,7 +129,7 @@ const FALLBACK_TRACKS = [
     title: "Coerced Recruitment & Crisis Helpline Routing Kits",
     domain: "anti_exploitation",
     summary:
-      "Builds verified multi-jurisdiction helpline directories and safe-intake triage scripts for NGOs, keeping all crisis planning strictly human-only.",
+      "Builds reviewed multi-jurisdiction helpline directories and safe-intake triage scripts for NGOs, keeping all crisis planning strictly human-only.",
     sister_area: "recruitment",
     organizations: [],
     allowed_artifacts: ["agent_skill", "mcp_tool_spec", "helpline_directory_schema", "synthetic_test_pack"],
@@ -238,7 +238,7 @@ const MCP_TOOLS = [
   {
     name: "search_catalog",
     description:
-      "Search and filter two-step verified NGO kits by domain, track, tag, cohort, open SPDX license, or free-text query.",
+      "Search and filter two-step reviewed NGO kits by domain, track, tag, cohort, open SPDX license, or free-text query.",
     inputSchema: {
       type: "object",
       properties: {
@@ -256,7 +256,7 @@ const MCP_TOOLS = [
   {
     name: "get_kit",
     description:
-      "Fetch a single verified PublishedKit bundle including skills, read-only MCP tool schemas, checklists, fixtures, and receipts.",
+      "Fetch a single reviewed PublishedKit bundle including skills, read-only MCP tool schemas, checklists, fixtures, and receipts.",
     inputSchema: {
       type: "object",
       required: ["kit_id"],
@@ -1555,18 +1555,18 @@ function buildStaticAgentCard(request) {
       },
       {
         id: "search_catalog",
-        name: "Search Verified Kit Catalog",
-        description: "Filter two-step verified NGO kits by domain, track, tag, cohort, SPDX license, or query.",
+        name: "Search Reviewed Kit Catalog",
+        description: "Filter two-step reviewed NGO kits by domain, track, tag, cohort, SPDX license, or query.",
       },
       {
         id: "get_kit",
-        name: "Get Verified Kit Bundle",
+        name: "Get Reviewed Kit Bundle",
         description: "Fetch a full PublishedKit including skills, read-only MCP schemas, checklists, fixtures, and receipts.",
       },
       {
         id: "practice_verify_kit",
-        name: "Zero-Storage Practice Verifier",
-        description: "Run deterministic boundary, copy, SPDX, and fixture verification in memory (persisted: false).",
+        name: "Zero-Storage Practice Checker",
+        description: "Run deterministic boundary, copy, SPDX, and fixture checks in memory (persisted: false).",
       },
     ],
   };
@@ -2382,7 +2382,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const origin = new URL(request.url).origin;
       const pkg = processDoc[2] === "agent" ? await publishedPackage(request, env, id) : null;
       const download = pkg
-        ? `\n## Download the process\n${origin}/p/${id}/download${part > 1 ? `?part=${part}` : ""}\nSHA-256: ${pkg.value.blob_sha256}. A different worker's key reviewed it; check the hash before you run it.\n`
+        ? `\n## Download the process\n${origin}/p/${id}/download${part > 1 ? `?part=${part}` : ""}\nSHA-256: ${pkg.value.blob_sha256}. A different worker's key reviewed it; check the checksum before you run it.\n`
         : "";
       let text = found ? (processDoc[2] === "agent" ? processAgentMarkdown(origin, id, found) + download : processPracticeMarkdown(origin, id, found)) : null;
       if (!text && pkg) {

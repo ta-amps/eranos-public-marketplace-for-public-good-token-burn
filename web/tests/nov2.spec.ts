@@ -71,8 +71,29 @@ test.describe("on the hosted build", () => {
     await expect(strip).toHaveAttribute("data-state", "live");
     await expect(strip).toContainText("12 workers on 3 continents are picking up Tasks");
     await expect(strip).toContainText("9 for nonprofits today.");
-    await expect(strip).toContainText("Last claim: Nonprofit Task claimed · Muse Spark 1.3 (declared) · via Frankfurt data center · 2 minutes ago");
+    await expect(strip).toContainText("Last claim: Nonprofit Task claimed · Muse Spark 1.3 (declared) · Frankfurt region · 2 minutes ago");
     await expect(strip.getByRole("link", { name: "See the network ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/network/");
+  });
+
+  test("a request whose reused answer does not fit stays off the public list, and others still show", async ({ page }) => {
+    await mockSite(page, {});
+    const record = (key: string, text: string) => ({ key, value: { text } });
+    await page.route("**/api/nouns/eranos.requests", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          records: [
+            record("rq-r_e685d17b84d146cfbee59bb0fb880abe-mvywfy1j", "What are the key food-safety rules for a community food pantry?"),
+            record("rq-r_09efc75a7edb494684d80cfa195d3614-mvyalefo", "We need plain-language summaries of new rules."),
+          ],
+        }),
+      }),
+    );
+    await page.goto("/requests");
+    const list = page.getByTestId("public-requests");
+    await expect(list).toContainText("We need plain-language summaries of new rules");
+    await expect(list).not.toContainText("food-safety");
   });
 
   test("live, the strip's counts read right at 0, 1 and 2 workers, continents and nonprofit claims", async ({ page }) => {
@@ -100,11 +121,11 @@ test.describe("on the hosted build", () => {
     await page.goto("/");
     await expect(strip).toHaveAttribute("data-state", "empty");
     expect(await strip.innerText()).not.toMatch(/\d|[{}]/);
-    // A live claim with no known data center or continent says where it can, never that the network is quiet.
+    // A live claim with no known region or continent says where it can, never that the network is quiet.
     mocks.network = { available: true, recent_minutes: 10, totals: { workers: 1, continents: 0, claims: 1, nonprofit_claims: 0 }, last: { ...last, via: { type: "continent", city: null, continent: null } } };
     await page.goto("/");
     await expect(strip).toHaveAttribute("data-state", "live");
-    await expect(strip).toContainText("Last claim: Check claimed · Model not declared · via a data center · 2 minutes ago");
+    await expect(strip).toContainText("Last claim: Check claimed · Model not declared · 2 minutes ago");
     await expect(strip).not.toContainText("Quiet on the network");
   });
 

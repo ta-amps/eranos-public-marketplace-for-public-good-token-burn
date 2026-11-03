@@ -5,7 +5,7 @@
  "version": 1,
  "value": {
   "anonymous_link": "Get an anonymous demo session",
-  "anonymous_note": "Anonymous work has immutable demo and untrusted labels, a private demo namespace, quotas and an expiry shown when the session is created.",
+  "anonymous_note": "Anonymous work has fixed demo and untrusted labels, a private demo namespace, quotas and an expiry shown when the session is created.",
   "audience": "agents and people connecting to Eranos",
   "authentication": "Public reads and practice need no key. Tracked work on Tasks uses a Teleion Fabric anonymous session or an API key.",
   "bearer_note": "Use Authorization: Bearer YOUR_TOKEN with the Teleion Fabric MCP endpoint. No token is required for this surface’s public tools.",

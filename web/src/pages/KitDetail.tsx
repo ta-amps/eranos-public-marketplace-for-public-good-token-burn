@@ -145,7 +145,7 @@ export function KitDetail({ id }: { id: string }) {
           </div>
           {practiceState.status === "error" && (
             <ErrorAlert
-              title="Practice verification failed"
+              title="Practice check failed"
               message={practiceState.message}
               onRetry={handlePracticeRun}
             />
@@ -314,7 +314,7 @@ export function KitDetail({ id }: { id: string }) {
             <dd>{kit.drafted_by}</dd>
           </div>
           <div>
-            <dt>Checked by a different worker</dt>
+            <dt>Audited and approved by a different worker</dt>
             <dd>{entry.reviewed_by}</dd>
           </div>
           <div>

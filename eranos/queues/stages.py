@@ -42,7 +42,7 @@ STAGES: tuple[StageSpec, ...] = (
 
 QUEUE_LABELS: tuple[tuple[str, str], ...] = (
     ("eq01", "Scope"),
-    ("eq02", "Draft + verify"),
+    ("eq02", "Draft + check"),
     ("eq03", "Independent review"),
 )
 

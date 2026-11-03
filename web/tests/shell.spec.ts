@@ -102,7 +102,7 @@ test("catalog filters narrow kits, show empty state, and reset cleanly", async (
   await page.getByLabel("Domain", { exact: true }).selectOption("nonprofit_ops");
   await expect(page.locator("article.er-card")).toHaveCount(0);
   const emptyState = page.getByTestId("catalog-empty-state");
-  await expect(emptyState).toContainText("No verified kits match the selected filters.");
+  await expect(emptyState).toContainText("No kits match the selected filters.");
 
   await emptyState.getByRole("button", { name: "Reset filters" }).click();
   await expect(page.locator("article.er-card")).toHaveCount(KIT_COUNT);

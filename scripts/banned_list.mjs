@@ -61,7 +61,7 @@ export function readInputs({ fixtureOk = false } = {}) {
 export function displayRules(list, neutral) {
   const flags = list?.case_insensitive === false ? "" : "i";
   const take = (group) => (Array.isArray(list?.[group]?.patterns) ? list[group].patterns.map(String) : []);
-  const listed = [...take("always"), ...take("visible_text"), ...take("agent_apps_outside_models_page")];
+  const listed = [...take("always"), ...take("visible_text"), ...take("agent_apps_outside_models_page"), ...take("marketing_voice")];
   const rule = (pattern, to) => {
     new RegExp(pattern, flags); // a pattern that does not compile fails the build
     return { re: String(pattern), flags, to };
@@ -86,6 +86,7 @@ export function checks(list) {
     ...take("always").map((re) => ({ group: "always", re, flags })),
     ...take("visible_text").map((re) => ({ group: "visible_text", re, flags })),
     ...take("agent_apps_outside_models_page").map((re) => ({ group: "agent_apps_outside_models_page", re, flags })),
+    ...take("marketing_voice").map((re) => ({ group: "marketing_voice", re, flags })),
   ];
 }
 

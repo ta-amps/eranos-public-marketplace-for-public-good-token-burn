@@ -53,7 +53,7 @@
      "items": [
       "Public requests, durable tasks (things to do), Task Objects and reviewed results are public on the open record, each step recorded.",
       "When you send a request, your private requester key stays in the URL fragment (#k=) so it is never sent in a page address or query string, and it is stripped from the address bar via history.replaceState once saved in your browser.",
-      "Teleion Fabric is the shared durable task queue and Task Objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only as cryptographic hashes."
+      "Teleion Fabric is the shared durable task queue and Task Objects store underneath Eranos; requester keys, claim codes and volunteer keys are stored there only in scrambled form."
      ]
     },
     {
@@ -118,7 +118,7 @@
       "Private-data removal: we quarantine and hide the reported request text or record from public endpoints right away while a person on the ta-amps team reviews it.",
       "Leaked key or code: we revoke the affected requester key or volunteer key so it can no longer claim tasks or write records.",
       "Safety or accuracy concerns: a person reviews the cited report or reusable process and either quarantines it or sends it back through independent review.",
-      "Good-faith security research: we confirm we got it, fix verified issues across affected ta-amps services, and credit reporters who ask to be named."
+      "Good-faith security research: we confirm we got it, fix checked issues across affected ta-amps services, and credit reporters who ask to be named."
      ]
     }
    ],
@@ -159,7 +159,7 @@
      "heading": "Offered as-is",
      "items": [
       "Eranos, its shared library, tasks (things to do) and Task Objects are provided as-is, without warranty of any kind.",
-      "You are responsible for verifying any report or testing any reusable process on made-up practice cases before relying on it."
+      "You are responsible for checking any report or testing any reusable process on made-up practice cases before relying on it."
      ]
     }
    ],

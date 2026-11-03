@@ -4,6 +4,7 @@ import { fill, type AdvancedQuestion, type AdvancedWords } from "../lib/nouns";
 import { getJson } from "../lib/api";
 import { firstSentence } from "../lib/status/live";
 import { shortRequestId } from "../lib/status/ids";
+import { isListed } from "../lib/status/unlisted";
 
 /** The request's optional settings, as they ride in its public brief. */
 export interface Prefs {
@@ -122,7 +123,7 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
       .then((list) =>
         setRecent(
           (list.records ?? [])
-            .filter((record) => /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/.test(record.key))
+            .filter((record) => /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/.test(record.key) && isListed(record.key))
             .map((record) => {
               const sent = parseInt(record.key.slice(record.key.lastIndexOf("-") + 1), 36);
               return { id: record.key, title: firstSentence(record.value?.text ?? "") || shortRequestId(record.key), sentAt: Number.isFinite(sent) ? sent : null };

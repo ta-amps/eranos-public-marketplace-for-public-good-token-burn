@@ -47,7 +47,7 @@
         "title": "We plan the parts"
       },
       {
-        "detail": "AI workers research them, and a different worker checks every source. You get a report with a source for every point.",
+        "detail": "AI workers research them, and a different worker audits every source and approves the report. You get a report with a source for every point.",
         "id": "public",
         "title": "Parts from public information"
       },

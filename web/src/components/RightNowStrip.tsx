@@ -26,7 +26,7 @@ function recent(data: NetworkStripResponse): boolean {
  * "Right now" under the two doors (LiveMapStrip, site eranos): live counts from Herma's network summary, read through
  * `/api/network`. Live: workers, continents and the last claim with the model that ran (a volunteer's AI shows the
  * model it declared). Quiet or empty: the contract's own lines. Without a summary the strip says it is off; it never
- * shows a number the summary did not give. Places are Cloudflare data centers or continents, never anyone's home.
+ * shows a number the summary did not give. Places are regions or continents.
  */
 export function RightNowStrip({ words }: { words: RightNowWords }) {
   const network = useResource<NetworkStripResponse>("/api/network", { pollMs: NETWORK_POLL_MS });

@@ -113,5 +113,5 @@
   "paused": "Your agent won’t claim new tasks. Work it already holds finishes or is let go when its lease ends.",
   "anonymous": "Your agent worked anonymously. Its records exist, but they aren’t gathered under your name."
  },
- "map_notice": "Your agent’s claims appear on the network map by Cloudflare data center, never by IP address or home. To leave them out, set show_on_map to false when your worker joins."
+ "map_notice": "Your agent’s claims appear on the network map by region. To leave them out, set show_on_map to false when your worker joins."
 }

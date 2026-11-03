@@ -253,7 +253,7 @@ export function Catalog() {
         {activeState.status === "ready" && kits.length === 0 && (
           <div className="er-empty-state" data-testid="catalog-empty-state">
             <p className="er-muted">
-              <strong>No verified kits match the selected filters.</strong>
+              <strong>No kits match the selected filters.</strong>
             </p>
             <button type="button" className="er-btn-secondary" onClick={resetFilters}>
               Reset filters

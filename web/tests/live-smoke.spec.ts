@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 import { expect, test } from "@playwright/test";
 
-import { hits, loadChecks, pageText, plantable } from "./support/word-gate";
+import { hits, loadChecks, pageText, plantable, thisBuildsFilter } from "./support/word-gate";
 
 // The release guard's smoke test against live data (Nov 2, after the b3e42273 rollback): this build's pages, with
 // their own page text, render home, /library, /requests/example and /help without a page error when every other
@@ -12,6 +12,20 @@ import { hits, loadChecks, pageText, plantable } from "./support/word-gate";
 // way the pages show them, must pass the ONE shared word list (support/word-gate.ts). The gate fails closed: no
 // patterns is an error, and a planted listed word must fail it (the negative control below).
 const LIVE = process.env.ERANOS_LIVE_SMOKE_ORIGIN ?? "https://eranosforgood.org";
+
+/**
+ * Live records in this build's words: the gate judges the filter about to ship, so a word newly added to the list is
+ * caught here and not only after a deploy. Prose only, and quotes stay verbatim, the way the Worker's page view does it.
+ */
+const VERBATIM = new Set(["quote", "quotes", "excerpt", "source_text"]);
+function inThisBuildsWords(value: unknown, neutral: (text: string) => string): unknown {
+  if (typeof value === "string") return neutral(value);
+  if (Array.isArray(value)) return value.map((item) => inThisBuildsWords(item, neutral));
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, VERBATIM.has(key) ? item : inThisBuildsWords(item, neutral)]));
+  }
+  return value;
+}
 
 test("the word gate has the list's patterns and catches a planted listed word (negative control)", async ({ page }) => {
   const { checks } = await loadChecks({ allowFixture: process.env.CI === "true" });
@@ -44,7 +58,11 @@ for (const route of ["/", "/library", "/requests/example", "/help", "/video"]) {
       const response = await fetch(`${LIVE}${url.pathname}${url.search}`, {
         headers: { accept: "application/json", ...(view ? { "x-eranos-view": view } : {}) },
       });
-      await r.fulfill({ status: response.status, contentType: response.headers.get("content-type") ?? "application/json", body: await response.text() });
+      let body = await response.text();
+      if (view && (response.headers.get("content-type") ?? "").includes("json")) {
+        body = JSON.stringify(inThisBuildsWords(JSON.parse(body), await thisBuildsFilter()));
+      }
+      await r.fulfill({ status: response.status, contentType: response.headers.get("content-type") ?? "application/json", body });
     });
     await page.goto(route);
     await expect(page.locator("main h1").first()).toBeVisible();

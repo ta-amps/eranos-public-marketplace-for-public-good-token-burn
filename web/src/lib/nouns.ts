@@ -185,7 +185,7 @@ export interface RightNowWords {
   sub: string;
   last: string;
   last_continent: string;
-  /** A claim whose data center and continent are both unknown. */
+  /** A claim whose region and continent are both unknown. */
   last_unplaced?: string;
   declared: string;
   not_declared: string;
@@ -374,7 +374,7 @@ export interface HelpPageNoun {
   safety: string;
   safety_link: string;
   states: Words;
-  /** The network map notice (network map contract v1): claims show by Cloudflare data center, never by home. */
+  /** The network map notice (network map contract v1): claims show by region. */
   map_notice?: string;
 }
 

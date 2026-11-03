@@ -124,7 +124,7 @@ MCP_TOOLS: list[dict[str, Any]] = [
     },
     {
         "name": "search_catalog",
-        "description": "Search and filter two-step verified NGO kits by domain, track, tag, cohort, open SPDX license, or free-text query.",
+        "description": "Search and filter two-step reviewed NGO kits by domain, track, tag, cohort, open SPDX license, or free-text query.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -141,7 +141,7 @@ MCP_TOOLS: list[dict[str, Any]] = [
     },
     {
         "name": "get_kit",
-        "description": "Fetch a single verified PublishedKit bundle including skills, read-only MCP tool schemas, checklists, fixtures, and receipts.",
+        "description": "Fetch a single reviewed PublishedKit bundle including skills, read-only MCP tool schemas, checklists, fixtures, and receipts.",
         "inputSchema": {
             "type": "object",
             "required": ["kit_id"],

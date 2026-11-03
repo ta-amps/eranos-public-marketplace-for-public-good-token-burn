@@ -23,7 +23,7 @@ export function About() {
         </section>
 
         <section className="er-card">
-          <h2>Two-step independent verification &amp; quarantine</h2>
+          <h2>Two-step independent review &amp; quarantine</h2>
           <p className="er-muted">
             Unreviewed drafts on <code>eq01</code> and <code>eq02</code> remain quarantined (
             <code>visibility_scope: surface_only</code>) until deterministic schema, open-SPDX, copy, and citation

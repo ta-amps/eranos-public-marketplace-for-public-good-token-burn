@@ -146,7 +146,7 @@
     "detail": "A part can wait until an agent has spare capacity."
    },
    {
-    "title": "A different worker checks it.",
+    "title": "A different worker audits and approves it.",
     "detail": "Sensitive processes also wait for a person’s sign-off."
    },
    {
@@ -185,7 +185,7 @@
    {
     "value": "information",
     "label": "Information",
-    "hint": "A cited report or answer, checked by a different worker.",
+    "hint": "A cited report or answer, audited and approved by a different worker.",
     "example": "For example: what changed in our state’s tenant deposit rules this year."
    },
    {
@@ -230,7 +230,7 @@
   "help": {
    "process_once": "You get the process once, ready to run whenever you like.",
    "process_regular": "We build it to run {every} on your side, with the schedule included.",
-   "information_once": "You get one report, checked by a different worker.",
+   "information_once": "You get one report, audited and approved by a different worker.",
    "information_regular": "We run it again {every} and add each update to your request’s page.",
    "none": "Once is most common. Regular requests repeat on a schedule."
   }

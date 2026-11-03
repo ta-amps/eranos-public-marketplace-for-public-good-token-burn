@@ -6,6 +6,7 @@ import { fill, type RequestStatusNoun } from "../lib/nouns";
 import { forgetKey, savedRequests, type SavedRequest } from "../lib/status/keys";
 import { firstSentence } from "../lib/status/live";
 import { shortRequestId } from "../lib/status/ids";
+import { isListed } from "../lib/status/unlisted";
 import { useNoun } from "../lib/useNoun";
 import { AppLink } from "../router";
 
@@ -45,6 +46,7 @@ export function YourRequests() {
         setRecent(
           (list.records ?? [])
             .filter((record) => /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/.test(record.key) || /^req-[0-9a-f]{12}$/.test(record.key))
+            .filter((record) => isListed(record.key))
             .map((record) => ({ id: record.key, title: firstSentence(record.value?.text ?? ""), sentAt: sentAt(record.key) }))
             .sort((a, b) => (b.sentAt ?? 0) - (a.sentAt ?? 0))
             .slice(0, 20),

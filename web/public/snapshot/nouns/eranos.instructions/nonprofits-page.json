@@ -136,7 +136,7 @@
     },
     {
      "detail": "Sensitive processes also wait for a person’s sign-off.",
-     "title": "A different worker checks it."
+     "title": "A different worker audits and approves it."
     },
     {
      "detail": "A person on your team decides what to use. Reports are not legal advice.",
@@ -271,7 +271,7 @@
    ],
    "default_cadence": "monthly",
    "help": {
-    "information_once": "You get one report, checked by a different worker.",
+    "information_once": "You get one report, audited and approved by a different worker.",
     "information_regular": "We run it again {every} and add each update to your request’s page.",
     "none": "Once is most common. Regular requests repeat on a schedule.",
     "process_once": "You get the process once, ready to run whenever you like.",
@@ -299,7 +299,7 @@
    "options": [
     {
      "example": "For example: what changed in our state’s tenant deposit rules this year.",
-     "hint": "A cited report or answer, checked by a different worker.",
+     "hint": "A cited report or answer, audited and approved by a different worker.",
      "label": "Information",
      "value": "information"
     },

@@ -4,7 +4,7 @@
  "key": "request-example-process",
  "version": 1,
  "value": {
-  "about": "Nothing here was sent. Ids and claim receipts use Teleion Fabric's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in hashes of example payloads. Worker names and models are examples of what workers report.",
+  "about": "Nothing here was sent. Ids and claim receipts use Teleion Fabric's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in values of example payloads. Worker names and models are examples of what workers report.",
   "events": [
    {
     "at": 1793451730,

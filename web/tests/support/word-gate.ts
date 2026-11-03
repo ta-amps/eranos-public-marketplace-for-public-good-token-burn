@@ -45,6 +45,14 @@ export function listConfig(loaded: unknown): { checks: Check[]; source: string }
   return { checks, source: config.source ?? "unknown" };
 }
 
+/** The display filter this build's Worker will run, from the same generated rules. */
+export async function thisBuildsFilter(): Promise<(text: string) => string> {
+  const words = await import(new URL("deploy/cloudflare/display_words.js", ROOT).href);
+  const makeNeutral = words.makeNeutral ?? words.default?.makeNeutral;
+  const outer = (await import(GENERATED.href)).default;
+  return makeNeutral(Array.isArray(outer?.displayRules) ? outer : outer?.default);
+}
+
 /** A page's text: visible prose (code excluded) for most groups, and all text, attributes included, for "always". */
 export function pageText(page: Page): Promise<{ prose: string; all: string }> {
   return page.evaluate(() => {

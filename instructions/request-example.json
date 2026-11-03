@@ -5,7 +5,7 @@
  "title": "The practice-case example request the status page replays: information, from public sources",
  "is_example": true,
  "mark": "practice-case",
- "about": "Nothing here was sent. Ids and claim receipts use Teleion Fabric's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in hashes of example payloads. Worker names and models are examples of what workers report.",
+ "about": "Nothing here was sent. Ids and claim receipts use Teleion Fabric's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in values of example payloads. Worker names and models are examples of what workers report.",
  "request": {
   "id": "rq-r_644f8167f93ae046f34821ade0b8a0fe-mvwpzw08",
   "title": "Tenant deposit laws: what changed this year",

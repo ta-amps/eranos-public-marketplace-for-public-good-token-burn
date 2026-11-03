@@ -74,7 +74,7 @@ def test_api_serves_tracks_catalog_requests_and_fabric(client: TestClient) -> No
     fab = client.get("/api/fabric").json()
     assert [(q["name"], q["label"]) for q in fab["queues"]] == [
         ("eq01", "Scope"),
-        ("eq02", "Draft + verify"),
+        ("eq02", "Draft + check"),
         ("eq03", "Independent review"),
     ]
 
@@ -330,7 +330,7 @@ def test_fabric_queues_have_deterministic_order_and_labels(
     queues = resp.json()["queues"]
     assert [(q["name"], q["label"], q["ready"], q["done"]) for q in queues] == [
         ("eq01", "Scope", 5, 6),
-        ("eq02", "Draft + verify", 7, 8),
+        ("eq02", "Draft + check", 7, 8),
         ("eq03", "Independent review", 1, 4),
     ]
 
@@ -529,7 +529,7 @@ console.log(JSON.stringify({{ fab, hs, feed, fallbackHs, fallbackFeed, calls }})
     out = json.loads(res.stdout)
     assert [(q["name"], q["label"], q["ready"]) for q in out["fab"]["queues"]] == [
         ("eq01", "Scope", 2),
-        ("eq02", "Draft + verify", 4),
+        ("eq02", "Draft + check", 4),
         ("eq03", "Independent review", 1),
     ]
     assert out["hs"]["surface_id"] == "eranos"

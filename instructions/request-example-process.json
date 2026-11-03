@@ -5,7 +5,7 @@
  "title": "The practice-case example request the status page replays: a reusable process",
  "is_example": true,
  "mark": "practice-case",
- "about": "Nothing here was sent. Ids and claim receipts use Teleion Fabric's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in hashes of example payloads. Worker names and models are examples of what workers report.",
+ "about": "Nothing here was sent. Ids and claim receipts use Teleion Fabric's and Eranos's own formulas on example inputs; the submit and review receipts are stand-in values of example payloads. Worker names and models are examples of what workers report.",
  "request": {
   "id": "rq-r_1d01846b6b15e5c8cd65c0ca6ed5818d-mvweurf4",
   "title": "A weekly process for our handwritten case notes",
