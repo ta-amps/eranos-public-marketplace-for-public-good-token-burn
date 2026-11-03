@@ -745,3 +745,63 @@ def test_a_plan_whose_record_keeps_failing_is_planned_again_three_times_then_clo
     assert outcomes[-1] == "closed" and len(fabric.splits) == 1 + planner_mod.MAX_UNRECORDED_REPLANS
     blocked = [e for e in fabric.history(rid) if e.get("type") == "blocked"]
     assert blocked and "could not be recorded" in blocked[-1]["findings"][0]
+
+
+def test_reuse_brief_and_review_preserve_decisive_requirements_past_1200_chars() -> None:
+    requirement = (
+        "French labels are required for every equipment item; an English-only answer does not satisfy this request."
+    )
+    header = "Make an equipment-label checklist for an example workshop. "
+    padding = "Use the same workshop equipment inventory and checklist context. "
+    cases = [
+        ("short_control", header + requirement),
+        ("before_boundary", (header + padding * 40)[:1080] + requirement),
+        ("after_boundary", (header + padding * 40)[:1210] + requirement),
+    ]
+    for name, full_text in cases:
+        fabric = Fabric()
+        rid = f"rq-reuse-boundary-{name}"
+        fabric.records[(REQUESTS_STORE, rid)] = [
+            {"status": "received", "text": full_text, "parts": {}}
+        ]
+        fabric.library_report("RPT-EQUIP-01", IRS_REPORT)
+        actor = _planner(fabric, _lease(rid, "request", "eq01", _request_brief(full_text)))
+        match = SimpleNamespace(
+            store="eranos.solutions",
+            key="RPT-EQUIP-01",
+            version=1,
+            score=0.9,
+            kind="report",
+            review_receipt=hashlib.sha256(b"RPT-EQUIP-01").hexdigest(),
+            title="Example equipment report",
+        )
+        actor.check_reuse(match, {"best": {"score": 0.9}})
+        _, children, ids = fabric.splits[-1]
+        child_brief = children[0].brief
+        assert requirement in child_brief["question"], name
+        assert child_brief["question"] == full_text, name
+
+        seen_questions: list[str] = []
+
+        def capture_judge(question: str, library: dict[str, Any]) -> dict[str, Any]:
+            seen_questions.append(question)
+            return {"answers": "unsure", "why": "example judge abstains"}
+
+        review_lease = _lease(ids[0], reuse_check.REUSE_KIND, "eq03", child_brief)
+        res = reuse_check.review_reuse(
+            fabric, review_lease, key_id=REVIEWER_KEY, judge=capture_judge
+        )
+        assert res["status"] == "sent_back"
+        assert seen_questions == [full_text]
+
+        # Even if an older in-flight brief was truncated at 1,200 chars, review_reuse restores full stored text.
+        legacy_brief = {**child_brief, "question": full_text[:1200]}
+        seen_legacy: list[str] = []
+        reuse_check.review_reuse(
+            fabric,
+            _lease(f"{ids[0]}-legacy", reuse_check.REUSE_KIND, "eq03", legacy_brief),
+            key_id=REVIEWER_KEY,
+            judge=lambda q, lib: (seen_legacy.append(q) or {"answers": "no", "why": "missing french"}),
+        )
+        assert seen_legacy == [full_text]
+

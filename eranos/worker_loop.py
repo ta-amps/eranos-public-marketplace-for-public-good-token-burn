@@ -1491,7 +1491,16 @@ class Worker:
                 "seconds": round(time.time() - started, 1),
             }
 
-        out = review_reuse(gate, lease, key_id=self.config.key_id, judge=judge)
+        max_points = int(rules.get("max_points") or 6)
+        max_q_cfg = rules.get("max_question_chars")
+        out = review_reuse(
+            gate,
+            lease,
+            key_id=self.config.key_id,
+            judge=judge,
+            max_points=max_points,
+            max_question_chars=int(max_q_cfg) if max_q_cfg else None,
+        )
         self._facts(gate, request_id, self.reuse_facts(lease, out, part))
         check = out.get("check") or {}
         self.say(

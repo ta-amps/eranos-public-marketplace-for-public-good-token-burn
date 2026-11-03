@@ -46,13 +46,15 @@ def reuse_brief(
     *,
     proposed_by_key: str | None,
     considered: dict[str, Any] | None = None,
+    max_question_chars: int | None = None,
 ) -> dict[str, Any]:
     """The reuse check's whole input: the request as written, the candidate and who proposed it."""
+    bounded_question = str(text)[:max_question_chars] if max_question_chars else str(text)
     return {
         "kind": "eranos.reuse_review",
         "request_id": request_id,
         "part": 1,
-        "question": text[:1200],
+        "question": bounded_question,
         "output_type": terms.get("output_type"),
         "candidate": dict(pointer),
         "proposed_by_key": proposed_by_key,
@@ -61,14 +63,21 @@ def reuse_brief(
     }
 
 
-def library_view(kind: str, value: dict[str, Any], max_points: int = 6) -> dict[str, Any]:
+def library_view(
+    kind: str,
+    value: dict[str, Any],
+    max_points: int = 6,
+    *,
+    max_question_chars: int | None = None,
+) -> dict[str, Any]:
     """What the check reads of a library answer: the request it answered and its main points."""
     if kind == "report":
         found = value.get("report")
         report: dict[str, Any] = found if isinstance(found, dict) else {}
+        report_q = str(report.get("question") or "")
         return {
             "kind": "a cited report",
-            "question_it_answered": str(report.get("question") or "")[:1200],
+            "question_it_answered": report_q[:max_question_chars] if max_question_chars else report_q,
             "title": reuse._untitled(str(report.get("title") or ""))[:300],
             "points": [
                 str(c.get("text") or "")[:400]
@@ -78,11 +87,10 @@ def library_view(kind: str, value: dict[str, Any], max_points: int = 6) -> dict[
         }
     held = value.get("kit")
     kit: dict[str, Any] = held if isinstance(held, dict) else {}
+    kit_q = str(value.get("request_text") or kit.get("request_text") or "")
     return {
         "kind": "a reusable process package",
-        "question_it_answered": str(value.get("request_text") or kit.get("request_text") or "")[
-            :1200
-        ],
+        "question_it_answered": kit_q[:max_question_chars] if max_question_chars else kit_q,
         "title": str(kit.get("title") or value.get("title") or "")[:300],
         "points": [str(value.get("summary") or kit.get("summary") or "")[:800]],
     }
@@ -123,7 +131,15 @@ def read_judgment(answer: Any) -> dict[str, str]:
     return {"answers": said, "why": why}
 
 
-def review_reuse(backend: Any, lease: Any, *, key_id: str, judge: Judge) -> dict[str, Any]:
+def review_reuse(
+    backend: Any,
+    lease: Any,
+    *,
+    key_id: str,
+    judge: Judge,
+    max_points: int = 6,
+    max_question_chars: int | None = None,
+) -> dict[str, Any]:
     """Check one reuse candidate, then answer the request from the library or send it back."""
     brief = dict(lease.brief)
     request_id, part = str(brief["request_id"]), brief.get("part") or 1
@@ -150,10 +166,25 @@ def review_reuse(backend: Any, lease: Any, *, key_id: str, judge: Judge) -> dict
             problem = "the library answer's review cannot be confirmed"
     except NotFound:
         problem = "the library answer is no longer there"
+    question = str(brief.get("question") or "")
+    stored_req = read_request(backend, request_id)
+    stored_text = str((stored_req[0] if stored_req else {}).get("text") or "").strip()
+    if stored_text and len(stored_text) > len(question):
+        question = stored_text[:max_question_chars] if max_question_chars else stored_text
+    elif max_question_chars:
+        question = question[:max_question_chars]
+    if not question.strip():
+        problem = problem or "the request text for the reuse check was incomplete"
     started = time.time()
     if problem is None:
         verdict = judge(
-            str(brief.get("question") or ""), library_view(str(pointer.get("kind")), value)
+            question,
+            library_view(
+                str(pointer.get("kind")),
+                value,
+                max_points=max_points,
+                max_question_chars=max_question_chars,
+            ),
         )
     else:
         verdict = {"answers": "no", "why": problem, "model": None}

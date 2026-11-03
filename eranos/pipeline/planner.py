@@ -451,6 +451,8 @@ class Planner:
             "review_receipt": match.review_receipt,
             "title": match.title,
         }
+        check_cfg = ((self.rules.get("reuse") or {}).get("check") or {})
+        max_question_chars = check_cfg.get("max_question_chars")
         brief = reuse_brief(
             self.request_id,
             self.text,
@@ -458,6 +460,7 @@ class Planner:
             pointer,
             proposed_by_key=self.key_id,
             considered=considered,
+            max_question_chars=int(max_question_chars) if max_question_chars else None,
         )
         child = ChildSpec(
             queue="eq03",
