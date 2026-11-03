@@ -133,6 +133,10 @@ def _words(text: str) -> set[str]:
     return {w.rstrip("s") for w in _WORD.findall(text.lower())}
 
 
+def _count(n: int, noun: str) -> str:
+    return f"{n} {noun}" if n == 1 else f"{n} {noun}s"
+
+
 def research_report(brief: dict[str, Any]) -> dict[str, Any]:
     """Scan the brief's public sources, extract quoted claims and summarize them (deterministic)."""
     rules = brief.get("guardrails") or {}
@@ -163,8 +167,8 @@ def research_report(brief: dict[str, Any]) -> dict[str, Any]:
             for s in scanned
         ],
         "claims": claims,
-        "summary": f"{len(claims)} cited points from {len(scanned)} public sources. "
-        + " ".join(c["text"] for c in claims[:3]),
+        "summary": f"{_count(len(claims), 'cited point')} from "
+        f"{_count(len(scanned), 'public source')}. " + " ".join(c["text"] for c in claims[:3]),
         "decision": str(rules.get("decision", "")),
         "stages": {
             "scan": {"considered": len(brief.get("sources") or []), "kept": len(scanned)},
