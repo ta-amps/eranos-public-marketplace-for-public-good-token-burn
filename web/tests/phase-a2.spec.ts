@@ -136,6 +136,22 @@ test.describe("B2: the token follows the request's state, the same source as ari
     await expect(track.locator('li[data-state="now"]')).toHaveCount(1);
   });
 
+  test("the claim that closes a request reads as closing, and the first claim still reads as planning", async ({ page }) => {
+    await open(page, [
+      { type: "received", receipt: "a".repeat(64) },
+      { type: "plan_claimed", receipt: "1".repeat(64), worker: "eranos-plan-pc03", dedicated: true },
+      PLAN,
+      ...made(1, 1),
+      { type: "plan_claimed", receipt: "2".repeat(64), worker: "eranos-plan-pc03", dedicated: true },
+      { type: "closed", receipt: "3".repeat(64), worker: "eranos-plan-pc03", dedicated: true },
+    ]);
+    const happened = page.getByTestId("plain-happened");
+    const more = page.getByRole("button", { name: /Show everything/ });
+    await expect(happened).toContainText("A dedicated worker came back to close your request.");
+    if (await more.count()) await more.click();
+    await expect(happened.getByText("A dedicated worker started planning your request.")).toHaveCount(1);
+  });
+
   test("B5: dedicated planners, makers and checkers are named as ta-amps' own, in the plain view and the details", async ({ page }) => {
     await open(page, [
       { type: "received", receipt: "a".repeat(64) },

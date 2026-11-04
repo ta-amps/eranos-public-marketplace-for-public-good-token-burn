@@ -58,9 +58,20 @@
   line-height: var(--lh-small);
   color: var(--text-2);
 }
+/* The small beta note under the footer: same background, so it reads as the page's last line. */
+.er-site-beta-note {
+  margin: 0;
+  padding: 0 max(24px, calc((100% - 1200px) / 2)) 14px;
+  box-sizing: border-box;
+  background: var(--sunken);
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--text-2);
+}
 @media (max-width: 599px) {
   .er-site-footer-row,
-  .er-site-footer-line {
+  .er-site-footer-line,
+  .er-site-beta-note {
     padding-left: 16px;
     padding-right: 16px;
   }

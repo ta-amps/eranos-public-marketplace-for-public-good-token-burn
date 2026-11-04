@@ -138,7 +138,7 @@ export interface ShellNoun {
   external_note: string;
   menu: { button: string; open_label: string; close: string; close_label: string; sheet_label: string };
   /** SiteFooter v2 (ta-amps.footer/2, Nov 2): the brand, ONE row of links in the canonical order, and one short line. */
-  footer: { brand?: string; line: string; links_label: string; links: NounLink[] };
+  footer: { brand?: string; line: string; beta_note?: string; links_label: string; links: NounLink[] };
   /** What a page that failed to draw says instead of going blank (the app's error boundary). */
   page_error?: { title: string; body: string; reload: string; home: string };
 }
@@ -488,7 +488,7 @@ export interface PlainWords {
   happened_title: T;
   happened_more: T;
   happened: Record<"received" | "queued" | "queued_next" | "plan_claimed" | "planned" | "blocked" | "work_claimed" | "work_claimed_changes" | "work_released" | "work_released_reason" | "work_submitted" | "work_submitted_changes" | "check_claimed" | "check_claimed_changes" | "check_sent_back" | "ready" | "ready_changes" | "signoff_required" | "decided_use" | "decided_changes" | "decided_dont" | "library_added" | "withdrawn" | "closed" | "closed_unfinished" | "check_refused" | "work_claimed_eranos" | "reused" | "scheduled" | "work_failed", T> &
-    Partial<Record<"plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened" | "reopened_reason" | "reopened_plain" | "reuse_fits" | "reuse_does_not_fit" | "planned_reuse_check", T>> &
+    Partial<Record<"plan_claimed_close" | "plan_claimed_close_eranos" | "plan_claimed_eranos" | "check_claimed_eranos" | "check_claimed_changes_eranos" | "reopened" | "reopened_reason" | "reopened_plain" | "reuse_fits" | "reuse_does_not_fit" | "planned_reuse_check", T>> &
     /** Shown only when the claim is marked as an outside volunteer (worker_kind "volunteer"); otherwise the neutral line. */
     Partial<Record<"work_claimed_volunteer" | "work_claimed_changes_volunteer" | "check_claimed_volunteer" | "check_claimed_changes_volunteer", T>>;
   share_lead: T;

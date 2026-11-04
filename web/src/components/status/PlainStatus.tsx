@@ -354,7 +354,7 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
   // A library answer since the last reopen: a reopen then says the answer didn't fit.
   let reusedSince = false;
   const rows: { at: number | null; text: string; type: StatusEvent["type"] }[] = [];
-  for (const event of events) {
+  for (const [index, event] of events.entries()) {
     if (!(event.receipt || event.ref)) continue;
     const n = event.part ?? 0;
     const again = remade.has(n);
@@ -373,6 +373,11 @@ export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainW
         break;
       }
       case "plan_claimed":
+        // The planner claims the request once more to close it: a true step, in the words for what it did.
+        if (events[index + 1]?.type === "closed") {
+          push((byEranos(event) && h.plan_claimed_close_eranos) || h.plan_claimed_close || h.plan_claimed);
+          break;
+        }
         push(byEranos(event) && h.plan_claimed_eranos ? h.plan_claimed_eranos : h.plan_claimed);
         break;
       case "planned":
