@@ -2315,6 +2315,19 @@ button.er-choice-pill {
   margin-top: 16px;
 }
 
+/* "Adapt it for my group": the earlier result, named above the form. */
+.er-adapt-from {
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffdf8;
+}
+
+.er-adapt-from p {
+  margin: 6px 0 0;
+}
+
 /* Home doors: the label with its arrow, then the sub-line (long on wide screens, short on phones). */
 .er-door {
   flex-direction: column;

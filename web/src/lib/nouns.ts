@@ -265,6 +265,7 @@ export interface NonprofitsPageNoun {
     hint: string;
     placeholder: string;
     examples_label: string;
+    adapt: { heading: string; lead: string; from_label: string; from_fallback: string; from_note: string; label: string; hint: string; placeholder: string };
     examples: { id: string; short: string; text: string; output_type: string; frequency: string; cadence?: string }[];
     privacy: string;
     check: {

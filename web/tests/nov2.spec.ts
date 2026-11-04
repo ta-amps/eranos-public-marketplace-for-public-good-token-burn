@@ -72,7 +72,7 @@ test.describe("on the hosted build", () => {
     await expect(strip).toContainText("12 workers on 3 continents claimed work in the last 24 hours");
     await expect(strip).toContainText("Claims for nonprofits in the last 24 hours: 9.");
     await expect(strip).toContainText("Last claim: Nonprofit Task claimed · Muse Spark 1.3 (declared) · Frankfurt region · 2 minutes ago");
-    await expect(strip.getByRole("link", { name: "See the network ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/network/");
+    await expect(strip.getByRole("link", { name: "See the network ↗" })).toHaveAttribute("href", "https://shim.teleionlabs.com/dashboard");
   });
 
   test("a solution record with no request or title of its own gets no library card and no undefined link", async ({ page }) => {

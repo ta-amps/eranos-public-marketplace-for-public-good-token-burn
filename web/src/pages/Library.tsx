@@ -107,7 +107,7 @@ function kindOf(item: LibraryItem): "process" | "answer" {
 function SolutionCard({ item, words }: { item: LibraryItem; words: LibraryNoun }) {
   const kind = kindOf(item);
   const meta = [item.forWho ? fill(words.meta_for, { who: item.forWho }) : "", item.checked ? words.meta_checked : ""].filter(Boolean).join(" · ");
-  const adapt = `/nonprofits?improve=${encodeURIComponent(`${window.location.origin}${item.href}`)}`;
+  const adapt = `/nonprofits?improve=${encodeURIComponent(`${window.location.origin}${item.href}`)}&output=${kind === "process" ? "process" : "information"}`;
   return (
     <li className="er-solution" data-kind={kind}>
       <p className="er-solution-tags">

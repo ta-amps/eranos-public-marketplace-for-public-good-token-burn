@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { AGORA_HOW_IT_WORKS_URL } from "../../lib/marketplace";
 import { fill, type PlainWords } from "../../lib/nouns";
-import { applyEvents, outsideVolunteer, ownWorker, type Facts } from "../../lib/status/derive";
+import { applyEvents, outsideVolunteer, ownWorker, plainEvent, type Facts } from "../../lib/status/derive";
 import { ordinal } from "../../lib/status/estimate";
 import type { StatusEvent } from "../../lib/status/types";
 import { AppLink, useHash } from "../../router";
@@ -342,7 +342,8 @@ const CAPTION: Partial<Record<StatusEvent["type"], { type: string; band: number 
 };
 
 /** "What has happened", newest first: one plain sentence per recorded fact, with its caption name for the film. */
-export function plainHappened(events: StatusEvent[], facts: Facts, words: PlainWords): { at: number | null; text: string; type: StatusEvent["type"] }[] {
+export function plainHappened(rawEvents: StatusEvent[], facts: Facts, words: PlainWords): { at: number | null; text: string; type: StatusEvent["type"] }[] {
+  const events = rawEvents.map(plainEvent);
   const h = words.happened;
   const many = facts.parts.length > 1;
   const label = (n: number | undefined) => {
@@ -724,7 +725,7 @@ export function PlainStatus({
         ahead={parts.some((p) => !p.workAgent && p.work !== "done") ? Math.max(0, (parts.find((p) => !p.workAgent && p.work !== "done")?.place ?? 1) - 1) : 0}
       />
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
-        {happened[0]?.text ?? ""}
+        {(happened.find((row) => row.type !== "signoff_required") ?? happened[0])?.text ?? ""}
       </p>
       {facts.reuseRejected && !facts.reused && words.reuse_rejected_note && (
         <p className="er-small er-reopened" data-testid="reuse-rejected-note">

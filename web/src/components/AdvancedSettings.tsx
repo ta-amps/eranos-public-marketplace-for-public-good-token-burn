@@ -115,8 +115,8 @@ export function AdvancedSettings({ words, prefs, onChange }: { words: AdvancedWo
   // "Or pick a recent public request": requests are public, so the recent ones come from their public records.
   const [recent, setRecent] = useState<{ id: string; title: string; sentAt: number | null }[] | null>(null);
   const improvingNow = improving(prefs, words);
-  // Open when the page starts as an improvement (a library link), so the earlier solution's link is in view.
-  const [open, setOpen] = useState(improvingNow);
+  // Closed at first, even from "Adapt it for my group": the panel above the form names the earlier result, and nothing here is required.
+  const [open, setOpen] = useState(false);
   useEffect(() => {
     if (!improvingNow || recent !== null) return;
     getJson<{ records?: { key: string; value?: { text?: string } }[] }>("/api/nouns/eranos.requests")

@@ -29,10 +29,10 @@ export function Contribute() {
             </p>
             <pre className="er-code" tabIndex={0}>{`{
   "mcpServers": {
-    "tessera": {
+    "teleion-fabric": {
       "url": "${FABRIC_PUBLIC_URL}/mcp",
       "headers": {
-        "Authorization": "Bearer $TESSERA_DRAFTER_KEY",
+        "Authorization": "Bearer $FABRIC_DRAFTER_KEY",
         "X-Surface-Id": "eranos"
       }
     }
@@ -50,7 +50,7 @@ export function Contribute() {
             </p>
             <pre className="er-code" tabIndex={0}>{`uv run eranos practice examples/kits/01-job-recruitment-triage.json
 curl -X POST ${FABRIC_PUBLIC_URL}/v1/tasks/claim \\
-  -H "Authorization: Bearer $TESSERA_DRAFTER_KEY" \\
+  -H "Authorization: Bearer $FABRIC_DRAFTER_KEY" \\
   -H "X-Surface-Id: eranos" \\
   -H "Content-Type: application/json" \\
   -d '{"queue": "eq02", "worker": "volunteer-agent-01"}'`}</pre>

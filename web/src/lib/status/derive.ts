@@ -152,7 +152,23 @@ function hasEvidence(event: StatusEvent): boolean {
 }
 
 /** Folds the facts, in order, into each step's state. A fact without a receipt or a record is ignored. */
-export function applyEvents(events: StatusEvent[], live = false): Facts {
+/** A worker's raw error is for its record, not for the people reading a request page. */
+const TECHNICAL_REASON = /\b[A-Z][a-z]+(?:Error|Exception)\b|Traceback|errors\.pydantic\.dev|\[type=|_forbidden|ended dead|\bstack trace\b/;
+export function plainReason(reason: string): string;
+export function plainReason(reason: string | undefined): string | undefined;
+export function plainReason(reason: string | undefined): string | undefined {
+  return reason && TECHNICAL_REASON.test(reason) ? "a technical problem" : reason;
+}
+export function plainEvent(event: StatusEvent): StatusEvent {
+  return {
+    ...event,
+    ...(event.reason ? { reason: plainReason(event.reason) } : {}),
+    ...(event.findings ? { findings: event.findings.map((finding) => plainReason(finding)) } : {}),
+  };
+}
+
+export function applyEvents(rawEvents: StatusEvent[], live = false): Facts {
+  const events = rawEvents.map(plainEvent);
   const facts: Facts = { plan: "waiting", parts: [], heartbeats: 0 };
   const part = (n: number | undefined) => facts.parts.find((p) => p.plan.part === n);
   for (const event of events) {
@@ -552,7 +568,8 @@ function sourcesText(words: RequestStatusNoun, n: number | undefined): string | 
 }
 
 /** One line per fact, newest first. Lines from public records without a write time keep their place. */
-function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
+function logRows(rawRecord: StatusRecord, words: RequestStatusNoun): LogRow[] {
+  const record = { ...rawRecord, events: rawRecord.events.map(plainEvent) };
   const rows: LogRow[] = [];
   const parts = new Map<number, PartPlan>();
   const approvedParts = new Set<number>();
@@ -1117,7 +1134,9 @@ export function deriveView(record: StatusRecord, words: RequestStatusNoun, optio
 }
 
 /** The sentence a screen reader hears after a change: the last fact, plus "Your turn." when it is. */
-export function summaryLine(allEvents: StatusEvent[], words: RequestStatusNoun): string {
+export function summaryLine(rawEvents: StatusEvent[], words: RequestStatusNoun): string {
+  // An older sign-off note added after a request closed is history in the log, not the headline of a finished request.
+  const allEvents = rawEvents.map(plainEvent).filter((event) => event.type !== "signoff_required");
   // Only what happened since the last reopen counts; an undone library answer or close is history, not the state.
   const reopen = allEvents.map((event) => event.type).lastIndexOf("reopened");
   const events = reopen >= 0 ? allEvents.slice(reopen) : allEvents;
