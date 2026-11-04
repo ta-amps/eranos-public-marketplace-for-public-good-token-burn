@@ -802,7 +802,7 @@ def test_a_process_kit_sends_all_it_publishes_to_the_reader(
     fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     reader = _KitReader("approved")
-    handler, rid, part = _process_run(fabric, tmp_path, monkeypatch, reader)
+    _, _, part = _process_run(fabric, tmp_path, monkeypatch, reader)
     sent = json.loads(reader.sent[0])
     assert (
         set(sent["kit"]) == {"catalog", "template"}
