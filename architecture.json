@@ -559,10 +559,11 @@
     },
     {
       "id": "E7",
-      "statement": "Sensitive kits park on Tessera for human nonprofit steward sign-off and publish atomically via CAS upon resume",
+      "statement": "A kit publishes atomically via CAS after a different worker's audit; a model other than the maker's reads it on live workers, with no person's step",
       "enforced_by": "pipeline",
       "checked_by": [
-        "tests/test_pipeline.py::test_steward_signoff_parks_and_resumes_on_tessera",
+        "tests/test_pipeline.py::test_a_kit_audited_by_a_different_worker_publishes_with_no_persons_step",
+        "tests/test_kit_model_review.py::test_a_clean_kit_publishes_after_the_model_read_it_and_the_record_says_so",
         "tests/test_pipeline.py::test_two_step_pipeline_publishes_verified_kit_to_cas_store"
       ]
     },
@@ -822,13 +823,13 @@
     },
     {
       "id": "EC2",
-      "claim": "Two-step Tessera verification guarantees drafter != reviewer across worker ID and key ID, with steward park/resume and atomic CAS publication",
+      "claim": "Two-step Tessera verification guarantees drafter != reviewer across worker ID and key ID, with atomic CAS publication",
       "status": "built",
       "evidence": [
         "eranos/pipeline/run.py",
         "tests/test_pipeline.py::test_two_step_pipeline_publishes_verified_kit_to_cas_store",
         "tests/test_pipeline.py::test_self_review_by_same_worker_or_key_is_refused",
-        "tests/test_pipeline.py::test_steward_signoff_parks_and_resumes_on_tessera"
+        "tests/test_pipeline.py::test_a_kit_audited_by_a_different_worker_publishes_with_no_persons_step"
       ],
       "verify": "make verify-examples"
     },

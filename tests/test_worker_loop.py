@@ -429,6 +429,7 @@ def _reviewer(fabric: Any, name: str = "reviewer", **kwargs: Any) -> Worker:
     """A reviewer with a process handler starts only with the builder keys it trusts."""
     from unittest import mock
 
+    kwargs.setdefault("model", FakeModel())  # it reads every kit before publishing
     keys = {process_part.BUILDER_KEYS_ENV: fabric.keys["builder"]["key_id"]}
     with mock.patch.dict(os.environ, keys):
         return fabric.worker(name, **kwargs)
