@@ -122,7 +122,7 @@
         }
       ],
       "kinds_title": "Two kinds of results",
-      "kits_link": "Browse reviewed example kits",
+      "kits_link": "Browse example kits",
       "kits_to": "/catalog",
       "next_title": "What happens after you send",
       "steps": [
@@ -135,7 +135,7 @@
           "title": "AI workers do each part."
         },
         {
-          "detail": "It is audited by a worker, not reviewed by a person, and checked on made-up practice data only. A person on your team decides whether to use it.",
+          "detail": "It is checked by a different worker, not reviewed by a person, and tested on made-up practice data only. A person on your team decides whether to use it.",
           "title": "A different worker audits and approves it."
         },
         {

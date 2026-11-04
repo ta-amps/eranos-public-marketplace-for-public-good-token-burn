@@ -254,14 +254,14 @@
   "reviewed_by_key": "key_reviewer_10",
   "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "3e76d48d500aaefa2dcfa44097d53fca9279b54a45f9647db934f07997354dbe",
-  "review_receipt": "4de678e486be7b067ecc7a9a74b1959e7703a825ffc0cfc09abf495d0e50caf3",
+  "draft_receipt": "6f29edf9597d7fa2d07af820b04a1d933e06d6d74d6665f1c8217c39ed8f91b4",
+  "review_receipt": "c4910dd0b220f0be14b613bf260423229ca752b32e1f60763cb3ce009e91f917",
   "blob_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
   "catalog_version": 1,
-  "review_task_id": "er_a2bf84c1bbad:KIT-RENEWAL-10:review",
-  "draft_task_id": "er_a2bf84c1bbad:KIT-RENEWAL-10:draft",
+  "review_task_id": "er_d00f9d8b1ef6:KIT-RENEWAL-10:review",
+  "draft_task_id": "er_d00f9d8b1ef6:KIT-RENEWAL-10:draft",
   "draft_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
   "drafter_key_id": "key_drafter_10",
   "reviewer_key_id": "key_reviewer_10",
-  "publication_sha256": "6436f71fde3b3cd33407494ba6b13507c50ec9951f922b6e9d9e9c5682ae3583"
+  "publication_sha256": "3d8793701d595c62410edbde1d0d4ac6244e58451fb5526c533de86add654528"
 }
