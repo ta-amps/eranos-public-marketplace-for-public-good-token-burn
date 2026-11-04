@@ -270,6 +270,7 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         if (!p) break;
         if (p.work === "open" || p.work === "waiting") p.work = "done";
         p.check = "approved";
+        p.released = undefined;
         p.checkEvidence = { ...evidence(event), who: event.worker ?? p.checkAgent?.who };
         p.checkAgent = undefined;
         break;
@@ -338,6 +339,12 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         facts.reopened = undefined;
         if (facts.plan !== "stopped") facts.plan = "done";
         facts.planAgent = undefined;
+        facts.planPlace = undefined;
+        // Nothing waits in line once the request is closed, and old retries aren't news.
+        for (const closedPart of facts.parts) {
+          closedPart.place = undefined;
+          closedPart.released = undefined;
+        }
         break;
       case "reuse_checked": {
         // The check of the fit counts whether it comes before or after the reused delivery.

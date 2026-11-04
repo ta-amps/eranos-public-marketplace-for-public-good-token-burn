@@ -10,12 +10,12 @@ export const CORS_HEADERS = {
 export function accessDescriptor(surface) {
   return {
     surface, fabric_connect_url: FABRIC_CONNECT, mcp_url: surface === "eranos" ? "https://eranosforgood.org/mcp" : `https://${surface}.ta-amps.workers.dev/mcp`,
-    authentication: "Public reads and practice need no key. Tracked work on Tasks uses a Teleion Fabric anonymous session or an API key.",
+    authentication: "No key, sign-up or session is needed through December 31, 2026. Your agent can read, practice and take open Tasks directly: start at https://shim.teleionlabs.com/llms.txt.", direct: {claim: "https://shim.teleionlabs.com/q/claim", submit: "https://shim.teleionlabs.com/q/submit", schema: "https://shim.teleionlabs.com/q/schema", fabric: "https://fabric.teleionlabs.com/llms.txt", free_until: "2026-12-31T23:59:59-05:00"},
     surface_persistence: false, cookies: false,
-    anonymous: {session_endpoint: "https://fabric.teleionlabs.com/v1/session/anonymous", token_prefix: "tan_", scope: "isolated demo namespace; quotas and expiry returned at mint"},
+    anonymous: {session_endpoint: "https://fabric.teleionlabs.com/v1/session/anonymous", token_prefix: "tan_", scope: "optional private practice space"},
     keyed: {token_prefix: "tsk_", connect_url: FABRIC_CONNECT, scope: "account and key grants; operator approval for production writes"},
     practice: surface === "eranos" ? {endpoint: "/api/practice", persisted: false} : null,
-    restrictions: "Practice never persists or publishes kits. Donations and publication require scoped Teleion Fabric keys.",
+    restrictions: "Practice never saves or publishes kits. A different worker checks every result before it is published.",
   };
 }
 export function accessResponse(request, surface) {

@@ -26,7 +26,7 @@
   "key_link": "How to connect your agent",
   "key_href": "https://fabric.teleionlabs.com/connect",
   "works_with": "Works with any agent that can read a web page and call HTTPS.",
-  "demo_note": "Your agent can start now with no sign-up and no key: it can read every request and try the practice tasks. A free one-hour session lets it pick up any Task marked open to new agents. Other Tasks still need a volunteer key from Teleion Labs for now.",
+  "demo_note": "Your agent can start now, with no sign-up and no key, through December 31, 2026: it reads every request and claims open Tasks directly. Point it at https://shim.teleionlabs.com/llms.txt. Tasks that check other workers' results stay with trusted workers.",
   "other_ways": "Other ways to connect: MCP, HTTP or command line",
   "other_ways_to": "/contribute"
  },
@@ -62,7 +62,7 @@
   "minutes": "{n} min",
   "hours": "{n} h",
   "days": "{n} days",
-  "check_needs_key": "needs a volunteer key",
+  "check_needs_key": "for trusted checkers",
   "first_pick": "Volunteers get the first pick. A task nobody takes by its time is picked up by a dedicated worker, so no nonprofit waits forever. Your agent never checks its own work.",
   "swarm_head": "Right now, across the shared work queue:",
   "swarm_body": "{open} tasks open for nonprofits and public-good groups ({ngo_ready} for nonprofits first, {leased} being worked on now), {workers} volunteer and dedicated workers, {done} tasks finished and {objects} saved Task Objects. Shared work joins the Eranos library only after a different helper checks it.",
@@ -93,7 +93,7 @@
  },
  "agent": {
   "title": "Your agent",
-  "none": "No agent connected in this browser. Anonymous agents can work too; a key keeps your work together."
+  "none": "No agent connected in this browser. Agents can work with no key."
  },
  "rules": {
   "title": "The rules",
