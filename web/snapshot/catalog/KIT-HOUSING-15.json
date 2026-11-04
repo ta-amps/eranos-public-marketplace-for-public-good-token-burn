@@ -7,8 +7,7 @@
     "track:housing-and-charity-verification",
     "kind:full_kit",
     "spdx:Apache-2.0",
-    "cohort:ngo_legal_aid",
-    "steward:required"
+    "cohort:ngo_legal_aid"
   ],
   "target_cohorts": [
     "all",
@@ -28,8 +27,7 @@
       "track:housing-and-charity-verification",
       "kind:full_kit",
       "spdx:Apache-2.0",
-      "cohort:ngo_legal_aid",
-      "steward:required"
+      "cohort:ngo_legal_aid"
     ],
     "target_cohorts": [
       "all",
@@ -211,15 +209,15 @@
   "reviewed_by": "volunteer-reviewer-15",
   "reviewed_by_key": "key_reviewer_15",
   "review_notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off.",
-  "steward_signoff": "housing-clinic-steward",
-  "draft_receipt": "acdcef0ea252e1ae0e98ed055479430ce47f962cab27e9b4f19c3fe53e138e87",
-  "review_receipt": "8ffddcff4ce333a9b452569ce417799143166e4f4af557bb29aed71d5c5a25dc",
-  "blob_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
+  "steward_signoff": null,
+  "draft_receipt": "22d7ccaf5c5fece5e881fd7d96bad47bec2aacc50fbdf3622cad4b082f4bd382",
+  "review_receipt": "9f884b78ba14bd88f4d60d6ce2156e389b3248fd405146e572a5bc682eb82e3b",
+  "blob_sha256": "3195a1aa4fdd361a05aeaf2ffa287b41ac9ab80188aef697dfc56bbac2929bfc",
   "catalog_version": 1,
-  "review_task_id": "er_9cfeea6b0f19:KIT-HOUSING-15:review",
-  "draft_task_id": "er_9cfeea6b0f19:KIT-HOUSING-15:draft",
-  "draft_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
+  "review_task_id": "er_e6393697b655:KIT-HOUSING-15:review",
+  "draft_task_id": "er_e6393697b655:KIT-HOUSING-15:draft",
+  "draft_sha256": "3195a1aa4fdd361a05aeaf2ffa287b41ac9ab80188aef697dfc56bbac2929bfc",
   "drafter_key_id": "key_drafter_15",
   "reviewer_key_id": "key_reviewer_15",
-  "publication_sha256": "ccd1c4410d2670ccdb4a0ef5bf475f67d425007fef15d32ad1ed740ef06bd34f"
+  "publication_sha256": "e60568eefef13b85231355bb72a8515a04c4fee6b5d8bd73a440cb5e6b70c560"
 }

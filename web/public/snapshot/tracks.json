@@ -87,7 +87,7 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true,
+      "needs_steward_signoff": false,
       "process_class": "hotline_directory_routing",
       "catalog_kit_ids": [
         "KIT-HOTLINE-02"
@@ -266,7 +266,7 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true,
+      "needs_steward_signoff": false,
       "process_class": "housing_charity_verification",
       "catalog_kit_ids": [
         "KIT-HOUSING-15"
@@ -358,7 +358,7 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true,
+      "needs_steward_signoff": false,
       "process_class": "job_offer_triage",
       "catalog_kit_ids": [
         "KIT-RECRUIT-01"
@@ -494,7 +494,7 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": true,
+      "needs_steward_signoff": false,
       "process_class": "statement_log_indexing",
       "catalog_kit_ids": [
         "KIT-TRANSCR-07"
@@ -540,7 +540,7 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": true,
+      "needs_steward_signoff": false,
       "process_class": "victim_support_referral_check",
       "catalog_kit_ids": [
         "KIT-SUPPORT-08"

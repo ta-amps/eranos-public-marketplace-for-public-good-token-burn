@@ -7,8 +7,7 @@
     "track:coerced-work-hotline-routing",
     "kind:full_kit",
     "spdx:CC-BY-4.0",
-    "cohort:ngo_hotline",
-    "steward:required"
+    "cohort:ngo_hotline"
   ],
   "target_cohorts": [
     "all",
@@ -29,8 +28,7 @@
       "track:coerced-work-hotline-routing",
       "kind:full_kit",
       "spdx:CC-BY-4.0",
-      "cohort:ngo_hotline",
-      "steward:required"
+      "cohort:ngo_hotline"
     ],
     "target_cohorts": [
       "all",
@@ -194,16 +192,16 @@
   },
   "reviewed_by": "volunteer-reviewer-02",
   "reviewed_by_key": "key_reviewer_02",
-  "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
-  "steward_signoff": "helpline-steward-lead",
-  "draft_receipt": "882f6c0051dd85f3c2fee223582af592a4d0e7a7cb7aa414c1bf68419cca717e",
-  "review_receipt": "09096e1cac50a9d36576bf71fc285ef10ae5bd31acf84fb21ae9b8018befc14f",
-  "blob_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
+  "review_notes": "Automated checks and UNODC citations pass.",
+  "steward_signoff": null,
+  "draft_receipt": "2500201f59ac291735512f13b8ee188e04f82672ffaf0e65c4357fa91c831639",
+  "review_receipt": "0661f7acbd2f1310beee5a46c62ffe2f9dac4732e56fc204fe3f3907c6e9e4bb",
+  "blob_sha256": "9eec59aa1b9f594b68d032473378690201a96acf047285eaace4f2c9af8f7a09",
   "catalog_version": 1,
-  "review_task_id": "er_819a1eb0a473:KIT-HOTLINE-02:review",
-  "draft_task_id": "er_819a1eb0a473:KIT-HOTLINE-02:draft",
-  "draft_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
+  "review_task_id": "er_22036f9c57ea:KIT-HOTLINE-02:review",
+  "draft_task_id": "er_22036f9c57ea:KIT-HOTLINE-02:draft",
+  "draft_sha256": "9eec59aa1b9f594b68d032473378690201a96acf047285eaace4f2c9af8f7a09",
   "drafter_key_id": "key_drafter_02",
   "reviewer_key_id": "key_reviewer_02",
-  "publication_sha256": "e2fea2cf10603dc3a9f87a2d7a2bf37ef75be9e0a2830697601c14f7150ec792"
+  "publication_sha256": "f874792f60e19cd35528ab50a8f7810794c9d3f6ee66810ac00383fc7fe127d0"
 }

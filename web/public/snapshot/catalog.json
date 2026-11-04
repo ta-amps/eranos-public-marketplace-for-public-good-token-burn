@@ -241,16 +241,16 @@
       "reviewed_by_key": "key_reviewer_14",
       "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
       "steward_signoff": null,
-      "draft_receipt": "0d3f88c078a2c2ce24f4b0833deea6c7c6ddafdc77462134d568cee06b8faa49",
-      "review_receipt": "bc43d356f23562becb568aa203f0c8ba8ddb25dfb25f80878481853bcdda376e",
+      "draft_receipt": "17ab36e79a73c9add34ebf7176392e11cdf4fab05ed82e82b39bbfefbaaf34b8",
+      "review_receipt": "e68e7bb08b0396b03f54132d9c1c6da225baa964094ced1c748769ed9fb8b886",
       "blob_sha256": "7d975c945728ae38e3231d31a410d3af71470272a78daf5d36a723f0b23cb7ff",
       "catalog_version": 1,
-      "review_task_id": "er_4e1b83b45629:KIT-FLYER-14:review",
-      "draft_task_id": "er_4e1b83b45629:KIT-FLYER-14:draft",
+      "review_task_id": "er_4d9e29f74f93:KIT-FLYER-14:review",
+      "draft_task_id": "er_4d9e29f74f93:KIT-FLYER-14:draft",
       "draft_sha256": "7d975c945728ae38e3231d31a410d3af71470272a78daf5d36a723f0b23cb7ff",
       "drafter_key_id": "key_drafter_14",
       "reviewer_key_id": "key_reviewer_14",
-      "publication_sha256": "207d6edcf778c09bacecb73709158054689abe23025bb925ae283c9ef1673355"
+      "publication_sha256": "e4c1ed9b7a5d6fd26079b7e2a6a9f9b2b62d16d56014dc5bf5470c2b17dad746"
     },
     {
       "spdx_license": "BSD-3-Clause",
@@ -450,16 +450,16 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "0426b58668fff950c9f4eb0c68c1c1984202c62be19df140cb12df58ac639170",
-      "review_receipt": "5fc78d53b189b5d64cc521b44431275720732198d235c1c9de670cd702483556",
+      "draft_receipt": "6cc62f5b15d19872967c1e480f5db27067cbb57554a584cd72e0a919d6958024",
+      "review_receipt": "9df1fc5216cd168d2126075b9c5e1dec7224b7f5bcac19d661edb9312f1e8eab",
       "blob_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
       "catalog_version": 1,
-      "review_task_id": "er_fa71b2eca2ce:KIT-GRANT-04:review",
-      "draft_task_id": "er_fa71b2eca2ce:KIT-GRANT-04:draft",
+      "review_task_id": "er_4b786270f29b:KIT-GRANT-04:review",
+      "draft_task_id": "er_4b786270f29b:KIT-GRANT-04:draft",
       "draft_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
       "drafter_key_id": "key_drafter_04",
       "reviewer_key_id": "key_reviewer_04",
-      "publication_sha256": "a4159d7486b79d548528fd6346424488f80641204e82cc3cd61d5e3227fb3a9a"
+      "publication_sha256": "05da9af370e5f3e699d4a531cc3b61082ec3f04cd1c8c82da51e3d08453a4212"
     },
     {
       "spdx_license": "CC-BY-4.0",
@@ -469,8 +469,7 @@
         "track:coerced-work-hotline-routing",
         "kind:full_kit",
         "spdx:CC-BY-4.0",
-        "cohort:ngo_hotline",
-        "steward:required"
+        "cohort:ngo_hotline"
       ],
       "target_cohorts": [
         "all",
@@ -491,8 +490,7 @@
           "track:coerced-work-hotline-routing",
           "kind:full_kit",
           "spdx:CC-BY-4.0",
-          "cohort:ngo_hotline",
-          "steward:required"
+          "cohort:ngo_hotline"
         ],
         "target_cohorts": [
           "all",
@@ -656,18 +654,18 @@
       },
       "reviewed_by": "volunteer-reviewer-02",
       "reviewed_by_key": "key_reviewer_02",
-      "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
-      "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "882f6c0051dd85f3c2fee223582af592a4d0e7a7cb7aa414c1bf68419cca717e",
-      "review_receipt": "09096e1cac50a9d36576bf71fc285ef10ae5bd31acf84fb21ae9b8018befc14f",
-      "blob_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
+      "review_notes": "Automated checks and UNODC citations pass.",
+      "steward_signoff": null,
+      "draft_receipt": "2500201f59ac291735512f13b8ee188e04f82672ffaf0e65c4357fa91c831639",
+      "review_receipt": "0661f7acbd2f1310beee5a46c62ffe2f9dac4732e56fc204fe3f3907c6e9e4bb",
+      "blob_sha256": "9eec59aa1b9f594b68d032473378690201a96acf047285eaace4f2c9af8f7a09",
       "catalog_version": 1,
-      "review_task_id": "er_819a1eb0a473:KIT-HOTLINE-02:review",
-      "draft_task_id": "er_819a1eb0a473:KIT-HOTLINE-02:draft",
-      "draft_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
+      "review_task_id": "er_22036f9c57ea:KIT-HOTLINE-02:review",
+      "draft_task_id": "er_22036f9c57ea:KIT-HOTLINE-02:draft",
+      "draft_sha256": "9eec59aa1b9f594b68d032473378690201a96acf047285eaace4f2c9af8f7a09",
       "drafter_key_id": "key_drafter_02",
       "reviewer_key_id": "key_reviewer_02",
-      "publication_sha256": "e2fea2cf10603dc3a9f87a2d7a2bf37ef75be9e0a2830697601c14f7150ec792"
+      "publication_sha256": "f874792f60e19cd35528ab50a8f7810794c9d3f6ee66810ac00383fc7fe127d0"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -677,8 +675,7 @@
         "track:housing-and-charity-verification",
         "kind:full_kit",
         "spdx:Apache-2.0",
-        "cohort:ngo_legal_aid",
-        "steward:required"
+        "cohort:ngo_legal_aid"
       ],
       "target_cohorts": [
         "all",
@@ -698,8 +695,7 @@
           "track:housing-and-charity-verification",
           "kind:full_kit",
           "spdx:Apache-2.0",
-          "cohort:ngo_legal_aid",
-          "steward:required"
+          "cohort:ngo_legal_aid"
         ],
         "target_cohorts": [
           "all",
@@ -881,17 +877,17 @@
       "reviewed_by": "volunteer-reviewer-15",
       "reviewed_by_key": "key_reviewer_15",
       "review_notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off.",
-      "steward_signoff": "housing-clinic-steward",
-      "draft_receipt": "acdcef0ea252e1ae0e98ed055479430ce47f962cab27e9b4f19c3fe53e138e87",
-      "review_receipt": "8ffddcff4ce333a9b452569ce417799143166e4f4af557bb29aed71d5c5a25dc",
-      "blob_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
+      "steward_signoff": null,
+      "draft_receipt": "22d7ccaf5c5fece5e881fd7d96bad47bec2aacc50fbdf3622cad4b082f4bd382",
+      "review_receipt": "9f884b78ba14bd88f4d60d6ce2156e389b3248fd405146e572a5bc682eb82e3b",
+      "blob_sha256": "3195a1aa4fdd361a05aeaf2ffa287b41ac9ab80188aef697dfc56bbac2929bfc",
       "catalog_version": 1,
-      "review_task_id": "er_9cfeea6b0f19:KIT-HOUSING-15:review",
-      "draft_task_id": "er_9cfeea6b0f19:KIT-HOUSING-15:draft",
-      "draft_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
+      "review_task_id": "er_e6393697b655:KIT-HOUSING-15:review",
+      "draft_task_id": "er_e6393697b655:KIT-HOUSING-15:draft",
+      "draft_sha256": "3195a1aa4fdd361a05aeaf2ffa287b41ac9ab80188aef697dfc56bbac2929bfc",
       "drafter_key_id": "key_drafter_15",
       "reviewer_key_id": "key_reviewer_15",
-      "publication_sha256": "ccd1c4410d2670ccdb4a0ef5bf475f67d425007fef15d32ad1ed740ef06bd34f"
+      "publication_sha256": "e60568eefef13b85231355bb72a8515a04c4fee6b5d8bd73a440cb5e6b70c560"
     },
     {
       "spdx_license": "MIT",
@@ -1163,16 +1159,16 @@
       "reviewed_by_key": "key_reviewer_06",
       "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "10e0e98c2943c7088a59aa52695ec941d0d33c58e9bfc0fc23f89d2b5644f86e",
-      "review_receipt": "630d0b19d38faf81c60f6578a465c4ead03e9c1e9caddfabdfa57d1352452735",
+      "draft_receipt": "266fb0130aa3205145fa6dc71784975c3a084d6c2e0c53b25c940ff486e9630d",
+      "review_receipt": "5a16c80e150f362e97a9d5b1ffec2995208eb4e866a759280d21e625cf8c1527",
       "blob_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
       "catalog_version": 1,
-      "review_task_id": "er_9205c096ca9f:KIT-IMPACT-06:review",
-      "draft_task_id": "er_9205c096ca9f:KIT-IMPACT-06:draft",
+      "review_task_id": "er_9f6034097825:KIT-IMPACT-06:review",
+      "draft_task_id": "er_9f6034097825:KIT-IMPACT-06:draft",
       "draft_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
       "drafter_key_id": "key_drafter_06",
       "reviewer_key_id": "key_reviewer_06",
-      "publication_sha256": "bc9d822f2d640458384be6db50f7e74c684426eb50ef604413d5939e8a313e6f"
+      "publication_sha256": "c7b3660637c556996fd89342c68f6a7d9ab0a637eebad0c4644952466da0c4ef"
     },
     {
       "spdx_license": "MIT",
@@ -1366,16 +1362,16 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "f5a2a25c9c850629aed762f639d8e39f823ca75b7f77ff2b12d0b676f7f514c6",
-      "review_receipt": "149a933db1b54ed7dd2a2fd85d41e5885a549581eb8e20f4f81320e208fea178",
+      "draft_receipt": "c0883aecf0e4bbf09e70b423aae16fa8017829b4e5082bf1487184f4c9e4424b",
+      "review_receipt": "2d4f0acfa5325f85360a38ea974a8b17a1e72b08d61de1e38ed04f0251695dcb",
       "blob_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
       "catalog_version": 1,
-      "review_task_id": "er_5dd05410d384:KIT-INTAKE-03:review",
-      "draft_task_id": "er_5dd05410d384:KIT-INTAKE-03:draft",
+      "review_task_id": "er_8481ac379b6d:KIT-INTAKE-03:review",
+      "draft_task_id": "er_8481ac379b6d:KIT-INTAKE-03:draft",
       "draft_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
       "drafter_key_id": "key_drafter_03",
       "reviewer_key_id": "key_reviewer_03",
-      "publication_sha256": "7f09a6d98e4469c84571e0765203b8e7c5dd9ed5246bb282ebbdee41f6713d6a"
+      "publication_sha256": "6f73c227ddd72648d1f228404c4578d915b14ded8fe620ffbfce62fe9c02c954"
     },
     {
       "spdx_license": "MIT",
@@ -1642,16 +1638,16 @@
       "reviewed_by_key": "key_reviewer_12",
       "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
       "steward_signoff": null,
-      "draft_receipt": "25bb71d67fcc8975cdf67bc87800a823d89a2e5bb0b7d12a946540319a7f2b2a",
-      "review_receipt": "1357a6e643d4e1aebeb171afa39f1e7f06427faa22aa0300fdfb219c55393a23",
+      "draft_receipt": "c17c4ba0c114cacd24b44e31477bdf62fe0df50266252c40f834eb0d099f901d",
+      "review_receipt": "7be7def61c9e8ce0ef7824c86d6e682c75c52fdcb78215e621f3e9695024dddf",
       "blob_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
       "catalog_version": 1,
-      "review_task_id": "er_a8311fa5315d:KIT-PANTRY-12:review",
-      "draft_task_id": "er_a8311fa5315d:KIT-PANTRY-12:draft",
+      "review_task_id": "er_6674a2f9de2a:KIT-PANTRY-12:review",
+      "draft_task_id": "er_6674a2f9de2a:KIT-PANTRY-12:draft",
       "draft_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
       "drafter_key_id": "key_drafter_12",
       "reviewer_key_id": "key_reviewer_12",
-      "publication_sha256": "2119ad743fa977f7a152824aaf774e47c2e695407c4f63048687331690d0862e"
+      "publication_sha256": "3dbddf3f4078b0206822933f121c172c3a3ca7fb532a5d62d1cc592bbc30a67a"
     },
     {
       "spdx_license": "MIT",
@@ -1909,16 +1905,16 @@
       "reviewed_by_key": "key_reviewer_09",
       "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
       "steward_signoff": null,
-      "draft_receipt": "0e1c41932519e38e261ceaa1bacb7c9e7e74d8d8381adbc2691090ae7da845f4",
-      "review_receipt": "eed8ccf0217ebe774b40abe1d458942fdc047700b0e182b172421b981f6e8ee7",
+      "draft_receipt": "cabc3e2711c3e1a88ce9464354e2b7507cfde3349ddb4c865eafe627f964fc21",
+      "review_receipt": "9b198e24861852630c1cb497632bcf06793b8757a87c7f10d73b5af35fbf0fc3",
       "blob_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
       "catalog_version": 1,
-      "review_task_id": "er_66ffa3d3e3ab:KIT-POLICY-09:review",
-      "draft_task_id": "er_66ffa3d3e3ab:KIT-POLICY-09:draft",
+      "review_task_id": "er_7e1eeeb553d5:KIT-POLICY-09:review",
+      "draft_task_id": "er_7e1eeeb553d5:KIT-POLICY-09:draft",
       "draft_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
       "drafter_key_id": "key_drafter_09",
       "reviewer_key_id": "key_reviewer_09",
-      "publication_sha256": "f72b886ae1bf86a90a413e1a2abd570f41a2cd3db849103afcd2a7f814d7aa39"
+      "publication_sha256": "42d6ef2d5c89ee88cef600fa450d08d71a2acae4450a904ce396a987397b503e"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -2118,16 +2114,16 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "739f94781d3c46321299f3c17d6cc1469a69a69a49c7532da85b19576fe06416",
-      "review_receipt": "66ad03ddce2b622989bf1faf8dc3ca8459e6a558dd9085702d59a845aab1068e",
+      "draft_receipt": "013fec5dc77914572a99164d930964c679979876927f4e60041702e240f7f8d3",
+      "review_receipt": "712816ec6b8474cc84f964282303d8537804255b6e22eacbd480ba791d1ff16a",
       "blob_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
       "catalog_version": 1,
-      "review_task_id": "er_f5a3e3d1bae3:KIT-RECRUIT-01:review",
-      "draft_task_id": "er_f5a3e3d1bae3:KIT-RECRUIT-01:draft",
+      "review_task_id": "er_f355e38e298f:KIT-RECRUIT-01:review",
+      "draft_task_id": "er_f355e38e298f:KIT-RECRUIT-01:draft",
       "draft_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
       "drafter_key_id": "key_drafter_01",
       "reviewer_key_id": "key_reviewer_01",
-      "publication_sha256": "c13910429c68288f6caaad3cabd0449a9832a7c361dfde56ae1dcc8c4a6fccc2"
+      "publication_sha256": "2d0f5b608c0997d07e4509d28a446090aac79eaf460565ef85c350c76b0e7b8a"
     },
     {
       "spdx_license": "MIT",
@@ -2398,16 +2394,16 @@
       "reviewed_by_key": "key_reviewer_11",
       "review_notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people.",
       "steward_signoff": null,
-      "draft_receipt": "c45b4edc1b9e9e727008bab6e13cd326fcef1d7685dfa62d50d1c73f3d514cb7",
-      "review_receipt": "4cf9a2f97729756c4cf871e334946bacb699b838857aa4f816d25adf9d9f848f",
+      "draft_receipt": "fe9483ed62a1ea20ce4c34c775e0a41cb36507aeb3fa5d8d61b84af7fb9508d7",
+      "review_receipt": "ab47b3e02faf8dd34c5abfa6089ec99e04a65bb543c0b2d607654cd7b01a3c6d",
       "blob_sha256": "1035047ee9848d77790c0e6bac224f0147406878f46641d342c3bac8358a4723",
       "catalog_version": 1,
-      "review_task_id": "er_01e6038f13bb:KIT-RELIEF-11:review",
-      "draft_task_id": "er_01e6038f13bb:KIT-RELIEF-11:draft",
+      "review_task_id": "er_b232401fef3d:KIT-RELIEF-11:review",
+      "draft_task_id": "er_b232401fef3d:KIT-RELIEF-11:draft",
       "draft_sha256": "1035047ee9848d77790c0e6bac224f0147406878f46641d342c3bac8358a4723",
       "drafter_key_id": "key_drafter_11",
       "reviewer_key_id": "key_reviewer_11",
-      "publication_sha256": "0d8679f8e67e10bd68658f9522dc9932e81f3db3db45d1017da2645bbcdab6e9"
+      "publication_sha256": "601ea2a1220296817c8028deacd0619133df2e85adfe9e59a6718c7fef83def7"
     },
     {
       "spdx_license": "MIT",
@@ -2664,16 +2660,16 @@
       "reviewed_by_key": "key_reviewer_10",
       "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "e0724a78f536232354094440675ab7bb501c952e3c18ac304453022dc452d0df",
-      "review_receipt": "ed9b9fca032dc86a56630a51dd784046c88bb7e77608ea8f83a0eca1d053cdcf",
+      "draft_receipt": "194c816fa08bbe2b9b335824ce245d9a5188e895f499bfda739ac5db04168eea",
+      "review_receipt": "f2948c656650bf2c781b1ec584f6918291a43964da0db23148737e09684f45ea",
       "blob_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
       "catalog_version": 1,
-      "review_task_id": "er_579e5f6769ae:KIT-RENEWAL-10:review",
-      "draft_task_id": "er_579e5f6769ae:KIT-RENEWAL-10:draft",
+      "review_task_id": "er_8e92dd505d55:KIT-RENEWAL-10:review",
+      "draft_task_id": "er_8e92dd505d55:KIT-RENEWAL-10:draft",
       "draft_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
       "drafter_key_id": "key_drafter_10",
       "reviewer_key_id": "key_reviewer_10",
-      "publication_sha256": "c7ac9f5649b01c75e21c2b85821ed2f56e95b67e1ff60bba6446a42fc66bab29"
+      "publication_sha256": "d2542a17b7d26aa504484383926f7cc49d4681e44a6d06fc2b300c4ba36cfbff"
     },
     {
       "spdx_license": "CC0-1.0",
@@ -2875,16 +2871,16 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "c3afd5b98e2307daec0991c561c600aff23161499a14df13b4b3c6913668cd57",
-      "review_receipt": "3e0eef959c90f4dc41d35790a38119ecb54275e420fb44433032e969e223eac5",
+      "draft_receipt": "080f7a1b5039ab1bf4d71f3c36cad885494c95f3af6f294df3919fff0d4574ae",
+      "review_receipt": "810cd2a7b4d8a3b194ead12e0ec681c1375fde84d2080555bd104f81b8a0cca5",
       "blob_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
       "catalog_version": 1,
-      "review_task_id": "er_0999b8030854:KIT-SHIFT-05:review",
-      "draft_task_id": "er_0999b8030854:KIT-SHIFT-05:draft",
+      "review_task_id": "er_b24972000e1a:KIT-SHIFT-05:review",
+      "draft_task_id": "er_b24972000e1a:KIT-SHIFT-05:draft",
       "draft_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
       "drafter_key_id": "key_drafter_05",
       "reviewer_key_id": "key_reviewer_05",
-      "publication_sha256": "aa894041473dc4630f2b6d194953640061a300dbe4b0da8e7f8e344bcc3606ff"
+      "publication_sha256": "cec89f1313b590f2262d64794e75801281ee89cdcca092804a6bc42839e09c8d"
     },
     {
       "spdx_license": "MIT",
@@ -3168,17 +3164,17 @@
       "reviewed_by": "volunteer-reviewer-08",
       "reviewed_by_key": "key_reviewer_08",
       "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
-      "steward_signoff": "victim-services-steward",
-      "draft_receipt": "de0a30154ad46ae013a0aff201333e8e4a2de2cc9c6694795dd7c534710add19",
-      "review_receipt": "2925b32a7f9c4c2481a411accb6448256bc6b986d93395f883de0d824df977ea",
+      "steward_signoff": null,
+      "draft_receipt": "66913a6f78eddcfde19489aab70d18a6db39624038eda807006c6652634e7038",
+      "review_receipt": "02156a90820c2c1b97f18630baead645f0996c4ec6998096b4b28f9694d2b70a",
       "blob_sha256": "5f505f73ae4094a90bb763cb67bd00ba4fb8da4249971c0c4320c00ee28184de",
       "catalog_version": 1,
-      "review_task_id": "er_e5da91aff81a:KIT-SUPPORT-08:review",
-      "draft_task_id": "er_e5da91aff81a:KIT-SUPPORT-08:draft",
+      "review_task_id": "er_0a992cbb32f2:KIT-SUPPORT-08:review",
+      "draft_task_id": "er_0a992cbb32f2:KIT-SUPPORT-08:draft",
       "draft_sha256": "5f505f73ae4094a90bb763cb67bd00ba4fb8da4249971c0c4320c00ee28184de",
       "drafter_key_id": "key_drafter_08",
       "reviewer_key_id": "key_reviewer_08",
-      "publication_sha256": "81ab60a298a8f6827e0593a3a11d614baa98cd4006a17b5496a5728f247b0c2d"
+      "publication_sha256": "0a5837518b9fda9977f6335213ba32c64be5225621ac345f2644313c1137539c"
     },
     {
       "spdx_license": "MIT",
@@ -3437,16 +3433,16 @@
       "reviewed_by_key": "key_reviewer_13",
       "review_notes": "Checked placeholders instead of names, held rows with missing privacy choices, word-for-word acknowledgment wording, and that special handling, wording and sending stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "2143a9ccd0a89a33a2747465c36fa12db4285cd101aa0bd1ba4b35babb882475",
-      "review_receipt": "5ef247eb1e09f503146eca239b92c2e7596ec79f4a3111037c3dd2f384b344a2",
+      "draft_receipt": "486cdc63e838af5ad77a1098f9cf7475aedb9bfee1f972330efab808a718c724",
+      "review_receipt": "ba5d11f56a0fe0d8d1ac7f7806810137b1d078e4491b74202ef271276859baf2",
       "blob_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
       "catalog_version": 1,
-      "review_task_id": "er_a1569930bc9f:KIT-THANKS-13:review",
-      "draft_task_id": "er_a1569930bc9f:KIT-THANKS-13:draft",
+      "review_task_id": "er_a5b20edd1932:KIT-THANKS-13:review",
+      "draft_task_id": "er_a5b20edd1932:KIT-THANKS-13:draft",
       "draft_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
       "drafter_key_id": "key_drafter_13",
       "reviewer_key_id": "key_reviewer_13",
-      "publication_sha256": "a6ec84fa9e63403d63932874a1330ad17dc47c80007f940068c8b705c229a790"
+      "publication_sha256": "5e081b0a15f2eb721594d4f1db553d346e4950cddd20a22a55ef377597edb77b"
     },
     {
       "spdx_license": "MIT",
@@ -3788,17 +3784,17 @@
       "reviewed_by": "volunteer-reviewer-07",
       "reviewed_by_key": "key_reviewer_07",
       "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
-      "steward_signoff": "records-steward-lead",
-      "draft_receipt": "2ed53d6876298ee3a416ebf6b6f2de3159c0402c6179b1bb0c7032cc6f660e04",
-      "review_receipt": "c10048eec3189472fc218ebf12bee161ead81c2e8cd738fb36388a2d4dc453d0",
+      "steward_signoff": null,
+      "draft_receipt": "9264e8dca7830b22b3159f86544fd9551045a377c949113efd488e4871f37068",
+      "review_receipt": "2a6abf4d6dfa484dbbdd2427d3471d9127450e0b4d8bdc6dec48bf20eae553c0",
       "blob_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
       "catalog_version": 1,
-      "review_task_id": "er_540de5e62637:KIT-TRANSCR-07:review",
-      "draft_task_id": "er_540de5e62637:KIT-TRANSCR-07:draft",
+      "review_task_id": "er_3843d3eeb199:KIT-TRANSCR-07:review",
+      "draft_task_id": "er_3843d3eeb199:KIT-TRANSCR-07:draft",
       "draft_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
       "drafter_key_id": "key_drafter_07",
       "reviewer_key_id": "key_reviewer_07",
-      "publication_sha256": "1afbbfd16b7de9ddb85fc02c146637550d2db540ab46429ded2123b3c7111149"
+      "publication_sha256": "62c220d0440d98941405a7e2d8a419631febbff4f065f7719e12f31e7339d61e"
     }
   ]
 }
