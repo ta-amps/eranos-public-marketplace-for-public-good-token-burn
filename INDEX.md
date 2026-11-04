@@ -162,8 +162,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`examples/kits/13-donor-thank-you-letters.json`](examples/kits/13-donor-thank-you-letters.json) | JSON object: `seed_pack`, `request`, `review` |
 | [`examples/kits/14-multilingual-flyer-translation-check.json`](examples/kits/14-multilingual-flyer-translation-check.json) | JSON object: `seed_pack`, `request`, `review` |
 | [`examples/kits/15-housing-and-charity-verification.json`](examples/kits/15-housing-and-charity-verification.json) | JSON object: `request`, `draft`, `review` |
-| [`examples/kits/README.md`](examples/kits/README.md) | Synthetic Example Kit Bundles |
-| [`examples/requests/README.md`](examples/requests/README.md) | Synthetic nonprofit requests |
+| [`examples/kits/README.md`](examples/kits/README.md) | Made-up Example Kit Bundles |
+| [`examples/requests/README.md`](examples/requests/README.md) | Made-up nonprofit requests |
 | [`examples/requests/hotline-routing.md`](examples/requests/hotline-routing.md) | Organization type |
 | [`examples/requests/personal-data.md`](examples/requests/personal-data.md) | Organization type |
 | [`examples/requests/shift-reminders.md`](examples/requests/shift-reminders.md) | Organization type |

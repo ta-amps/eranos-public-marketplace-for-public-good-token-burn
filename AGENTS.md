@@ -79,8 +79,8 @@ tests/               unit, pipeline, API, edge-lock, brief, guard-hook and leak-
 Never break these. If a task seems to need it, stop and ask Taylor.
 
 1. Example data and public sources only. Every example and test fixture carries a visible practice-case mark:
-   `Practice case: an example, not a real person or case.` Owner, October 31, 2026: "DO NOT INCLUDE SYNTHETIC."
-   Nothing a visitor or agent can see says "synthetic"; older fixtures still hold the former internal mark, which
+   `Practice case: an example, not a real person or case.` Owner, October 31, 2026: don't show the old internal mark's word.
+   Nothing a visitor or agent can see says it; older fixtures still hold the former internal mark, which
    the site and its snapshots show as the new one (`eranos/visible.py`) and the verifier accepts. Real client
    records from NGOs or real people's posts never enter this repo.
 2. Live interviews, crisis safety planning, eligibility or legal decisions about a real person, and any

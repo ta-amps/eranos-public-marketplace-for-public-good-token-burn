@@ -8,6 +8,6 @@ summary, any steward parking, the publication digest, the digests of the example
 composed inputs, both repositories' commits and whether their trees were clean, the kind of computer
 it ran on (read from the DMI chassis type only) and the number of model calls, which is zero.
 
-These are example runs on one computer with synthetic data. They are not hosted volunteer runs,
+These are example runs on one computer with made-up data. They are not hosted volunteer runs,
 evaluations or evidence that a kit helps a real organization. `tests/test_example_runs.py` fails when
 an example or its seed pack changes after its run, so the runs are recorded again.

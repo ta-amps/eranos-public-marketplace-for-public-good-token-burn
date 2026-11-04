@@ -4,7 +4,7 @@ Volunteer or field operations team
 
 ### The job to be done
 
-Compare this week's pantry shift sign-ups with the volunteer roster and draft a shift handoff checklist, plain-language role cards and a reminder list for the on-duty coordinator, with a clear escalation path for urgent safety questions. (SYNTHETIC request.)
+Compare this week's pantry shift sign-ups with the volunteer roster and draft a shift handoff checklist, plain-language role cards and a reminder list for the on-duty coordinator, with a clear escalation path for urgent safety questions. (MADE-UP request.)
 
 ### Steps that must stay with a person
 

@@ -4,7 +4,7 @@ Legal-aid or rights clinic
 
 ### The job to be done
 
-Summarize new state laws affecting tenants, with a citation for every point, so our clinic staff can update their plain-language handouts. (SYNTHETIC request.)
+Summarize new state laws affecting tenants, with a citation for every point, so our clinic staff can update their plain-language handouts. (MADE-UP request.)
 
 ### Steps that must stay with a person
 

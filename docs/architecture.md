@@ -43,7 +43,7 @@ flowchart LR
 | Schemas & records | `eranos/schemas/tracks.py`, `eranos/schemas/records.py` | Strict Pydantic records (`extra="forbid"`): `TrackPack`, `KitRequest`, `KitDraft`, `AgentSkillSpec`, `MCPToolSpec`, `PublishedKit`, `TaskBrief` | neutral |
 | Strict JSON loader | `eranos/jsonfile.py` | Loads track packs, kit bundles, and briefs while rejecting duplicate keys and `NaN`/`Infinity` | neutral |
 | Track registry & packs | `eranos/tracks.py`, `tracks/` | Loads the NGO and nonprofit tracks; neutral Python code names zero track IDs | data is specific |
-| Deterministic verifier | `eranos/verifier.py` | Verifies step autonomy boundaries, required `human_only` kinds, MCP JSON Schema shape, HTTPS source citations, non-accusatory copy, and `SYNTHETIC` fixtures | neutral |
+| Deterministic verifier | `eranos/verifier.py` | Verifies step autonomy boundaries, required `human_only` kinds, MCP JSON Schema shape, HTTPS source citations, non-accusatory copy, and marked practice fixtures | neutral |
 | Queues | `eranos/queues/stages.py` | Defines `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) stage configs on Teleion Fabric | neutral |
 | Two-step pipeline | `eranos/pipeline/run.py`, `examples/kits/` | Runs `spec -> draft -> review`, stores canonical SHA-256 blobs, enforces `drafter != reviewer` and defense-in-depth re-verification, supports steward `park`/`resume`, and publishes via atomic CAS batch | neutral |
 | Fabric adapter | `eranos/adapter/` | Switches between local SQLite `tessera.Store` and remote `tessera.client.Client` via `ERANOS_BACKEND`, tracing every call to JSONL | neutral |
@@ -71,7 +71,7 @@ flowchart LR
 |---|---|---|
 | E1 | No kit, track, or fixture accuses a party or requests surveillance, scraping, or personal-data harvesting | `test_accusatory_words_are_blocked`, `test_prohibited_collection_topics_are_blocked` |
 | E2 | Interviews, crisis safety plans, legal judgments, individual decisions, and external transmissions stay human_only | `test_interviews_and_decisions_must_stay_human_only`, `test_verifier_catches_missing_track_required_human_only_kind` |
-| E3 | Every fixture carries the SYNTHETIC mark and strict JSON files refuse duplicate keys and NaN | `test_synthetic_fixture_requires_synthetic_mark`, `test_strict_json_rejects_duplicate_keys_and_nan` |
+| E3 | Every fixture carries the practice mark and strict JSON files refuse duplicate keys and NaN | the fixture-mark test, `test_strict_json_rejects_duplicate_keys_and_nan` |
 | E4 | Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data | `test_every_track_loads_across_both_domains`, `test_neutral_code_names_no_track_or_kit_id`, `test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes` |
 | E5 | Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Teleion Fabric key ID | `test_published_kit_refuses_same_drafter_and_reviewer`, `test_self_review_by_same_worker_or_key_is_refused` |
 | E6 | Unverified drafts cannot be published even if an upstream worker forges a verification report | `test_unverified_draft_cannot_be_approved`, `test_every_example_kit_passes_deterministic_verifier` |
@@ -93,7 +93,7 @@ flowchart LR
 | Edge to API | When `ERANOS_EDGE_SECRET` is set, `x-edge-auth` must match in constant time except `GET /api/health` | `eranos/api/app.py` |
 | Volunteer drafter to catalog | Single-agent publication is impossible: `eq03` refuses approval when reviewer worker ID or key ID matches drafter, and re-runs `verify_kit` deterministically | `eranos/pipeline/run.py`, `eranos/schemas/records.py` |
 | Sensitive kits to human steward | Requests or tracks needing steward sign-off park on Teleion Fabric (`park` / `resume`, where Teleion Fabric enforces `parker != resumer`) before publication | `eranos/pipeline/run.py` |
-| Kit boundaries to people | `interview`, `legal_judgment`, `crisis_safety_plan`, `case_referral`, `grant_signoff`, and `external_send` steps are refused unless marked `human_only`; fixtures must start with `SYNTHETIC` | `eranos/schemas/records.py`, `eranos/verifier.py` |
+| Kit boundaries to people | `interview`, `legal_judgment`, `crisis_safety_plan`, `case_referral`, `grant_signoff`, and `external_send` steps are refused unless marked `human_only`; fixtures must start with the practice mark | `eranos/schemas/records.py`, `eranos/verifier.py` |
 
 ## Deployment
 

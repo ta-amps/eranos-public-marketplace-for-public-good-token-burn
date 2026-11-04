@@ -1,17 +1,17 @@
-# Synthetic Example Kit Bundles
+# Made-up Example Kit Bundles
 
-Each file `examples/kits/*.json` holds a synthetic request, volunteer agent draft, optional steward
+Each file `examples/kits/*.json` holds a made-up request, volunteer agent draft, optional steward
 sign-off payload, and independent review decision exercised end-to-end by `make verify-examples`
 (`eq01 -> eq02 -> eq03 -> eranos.catalog`).
 
-Every fixture input begins with `SYNTHETIC:` -- no real client, worker, caller, or donor data is ever
+Every fixture input begins with a practice mark -- no real client, worker, caller, or donor data is ever
 stored in this repository.
 
 ## Kits that point at a seed pack
 
 An example with a `seed_pack` block holds only this catalog's envelope: the kit id, track, license and
 governance fields, the scripted review and any steward sign-off. It names its pack's kit noun, and the noun
-holding the organization's need in its own plain words, by exact NounRef pins. Everything else, from the step map to the synthetic test cases, is read
+holding the organization's need in its own plain words, by exact NounRef pins. Everything else, from the step map to the made-up test cases, is read
 from `packs/<pack>/nouns.json` in the seed-pack library (`ERANOS_SEED_PACKS`, by default
 `../seed-packs-library-of-nouns-and-verbs`), so each kit has one source.
 

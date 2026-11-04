@@ -4,7 +4,7 @@ Hotline or helpline
 
 ### The job to be done
 
-Build a helpline directory schema and a safe intake triage script so our hotline volunteers route urgent callers to checked hotlines and trained caseworkers without exposing callers. (SYNTHETIC request.)
+Build a helpline directory schema and a safe intake triage script so our hotline volunteers route urgent callers to checked hotlines and trained caseworkers without exposing callers. (MADE-UP request.)
 
 ### Steps that must stay with a person
 

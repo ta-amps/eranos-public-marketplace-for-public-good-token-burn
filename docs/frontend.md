@@ -18,7 +18,7 @@ a summary; `web/src/router.tsx` is the source of truth.
 | `/help` | For people with spare AI capacity | What helping means, how it works, connecting your agent, the open tasks, and what stays with people |
 | `/nonprofits` | For nonprofits, NGOs and public-good groups | What is in an agent kit, reviewed example kits, the public request form on GitHub, and what stays with your people |
 | `/catalog` | Checked Catalog | Filterable list of published kits by Domain, Track, Tag, Cohort, Open SPDX License, and free-text search |
-| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Teleion Fabric cryptographic records |
+| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, practice fixtures, and Teleion Fabric records |
 | `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Teleion Fabric key (`eq01`/`eq02` vs `eq03`) |
 | `/tracks` | Tracks | The data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
 | `/fabric` | Teleion Fabric Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
@@ -29,13 +29,13 @@ a summary; `web/src/router.tsx` is the source of truth.
 
 ## HTTP API & AI-agent discovery (`eranos/api/app.py` & `deploy/cloudflare/worker.js`)
 
-All JSON API endpoints return `synthetic: true` and `Cache-Control: no-store`. When `ERANOS_EDGE_SECRET` is set,
+All JSON API endpoints return a field that marks the data as an example, and `Cache-Control: no-store`. When `ERANOS_EDGE_SECRET` is set,
 every `/api/*` route except `GET /api/health` requires a matching `x-edge-auth` header from the Cloudflare Worker;
 root health and AI-agent discovery endpoints remain publicly reachable at both the edge and origin.
 
 | Endpoint | Returns |
 |---|---|
-| `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and `synthetic: true` |
+| `GET /api/health` | Service status, version, backend mode (`local` or `tessera`), and the example field |
 | `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
 | `GET /api/tracks` | Every `TrackPack` definition loaded from `tracks/*/track.json` |
 | `GET /api/examples` | Each seed-pack kit's need in the organization's own words, and the count of recorded example runs (`examples/runs/`), as the snapshot built with the deploy holds them |

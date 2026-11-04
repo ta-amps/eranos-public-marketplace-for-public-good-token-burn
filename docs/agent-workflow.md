@@ -107,7 +107,7 @@ license or cohort gates. Credentialed private consumers should query Teleion Fab
 | Clean checkout Worker asset test | `tests/test_api_and_edge.py` | Uses checked-in public assets rather than requiring an existing build directory |
 
 Run `make check`, `make verify-examples`, `make suite BACKEND=local` and `make web-check`.
-Worker regressions use Node and synthetic bindings, not deployed D1. No live paid model call or
+Worker regressions use Node and stub bindings, not deployed D1. No live paid model call or
 new deployment is implied by these local checks. A passing practice check cannot substitute for
 independent review and authorized catalog publication.
 

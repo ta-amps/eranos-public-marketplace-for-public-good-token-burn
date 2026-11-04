@@ -33,7 +33,7 @@ it adds no service, queue or permission of its own.
 
 | Part | In Eranos |
 |---|---|
-| Nouns | The track definitions (`tracks/<id>/track.json`), task briefs (`briefs/`), kit drafts, synthetic test cases, verification results, review decisions and published kits in `eranos.catalog` |
+| Nouns | The track definitions (`tracks/<id>/track.json`), task briefs (`briefs/`), kit drafts, made-up test cases, verification results, review decisions and published kits in `eranos.catalog` |
 | Verbs | `eq01` checks a brief; `eq02` builds and self-tests a kit; `eq03` reviews it with a different reviewer and publishes it. A parked sensitive kit resumes only after a nonprofit steward signs off |
 | Surfaces | The Eranos website and its local web app, the HTTP API and MCP tools (`/mcp`), and the `eranos` command line |
 | Infrastructure | Teleion Fabric: claims and leases, version checks on every write, content hashes, records and scoped keys |

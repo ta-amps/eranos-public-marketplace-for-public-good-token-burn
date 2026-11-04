@@ -11,7 +11,7 @@ Checked on October 29, 2026, in a fresh clone of `main` with this page's documen
 |---|---|
 | `make check` | Lint, strict types, secret scan, index and architecture checks pass; 79 tests passed and 1 skipped. The skipped test compares shared scripts with a `hackathon-context` checkout next to this one, and passes when that checkout is present |
 | `make verify-examples` | Every example kit is built, checked, independently reviewed and published to a local catalog. Kits that point at a seed pack are composed from the library first. Sensitive kits wait for a steward's sign-off and then resume |
-| `make record-runs` | Every example kit is checked, built and independently reviewed with this repository's own pipeline on a throwaway local store, and one evidence noun per kit is written to `examples/runs/`. These are example runs on one computer with synthetic data, not hosted volunteer runs |
+| `make record-runs` | Every example kit is checked, built and independently reviewed with this repository's own pipeline on a throwaway local store, and one evidence noun per kit is written to `examples/runs/`. These are example runs on one computer with made-up data, not hosted volunteer runs |
 | `make suite BACKEND=local` | Teleion Fabric's conformance suite through Eranos's adapter: 30 passed, 6 skipped, using Teleion Fabric revision that CI uses |
 
 ## Open contribution and the nonprofit side, October 30, 2026
@@ -47,7 +47,7 @@ repositories. Teleion Fabric and the Teleion Fabric shim are infrastructure; eve
 
 ## Known limits
 
-- Every example and test uses synthetic data. A reviewed kit is not certified for any particular organization.
+- Every example and test uses made-up data. A reviewed kit is not certified for any particular organization.
 - The hosted site never calls an AI model. The optional donor demo calls one only when an operator asks for it,
   and that path has no shared spending reservation or global budget yet.
 - A practice record hashes the check's outcome, not the exact draft text. Exact-content records are a
