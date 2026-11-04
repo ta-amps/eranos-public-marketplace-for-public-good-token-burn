@@ -44,8 +44,25 @@ DOAJ = {
 }
 
 
+OPENALEX = {
+    "results": [
+        {
+            "doi": "https://doi.org/10.5555/y",
+            "title": "Volunteer motivation",
+            "abstract_inverted_index": {
+                "Thanks": [0],
+                "keep": [1],
+                "volunteers": [2],
+                "coming": [3],
+                "back.": [4],
+            },
+        }
+    ]
+}
+
+
 def fetcher(url: str) -> Fetched:
-    body = EPMC if "europepmc" in url else DOAJ
+    body = EPMC if "europepmc" in url else DOAJ if "doaj" in url else OPENALEX
     raw = json.dumps(body).encode()
     return Fetched(
         url=url,
@@ -64,11 +81,11 @@ def brief(text: str = QUESTION) -> dict:
 
 
 def test_query_is_about_the_subject_not_the_asking():
-    assert R.query_terms(QUESTION) == ["nonprofits", "volunteers"]
+    assert R.query_terms(QUESTION) == ["nonprofits", "retention", "volunteers"]
 
 
 def test_a_question_no_official_page_fits_gets_the_research_searches():
-    assert [a["id"] for a in brief()["fetch"]["apis"]] == ["europe-pmc", "doaj"]
+    assert [a["id"] for a in brief()["fetch"]["apis"]] == ["openalex", "doaj", "europe-pmc"]
 
 
 def test_a_question_an_official_source_fits_keeps_only_that_source():
@@ -81,10 +98,12 @@ def test_each_article_is_its_own_source_with_its_own_address_and_no_authors():
     sources, failures = R.gather(brief(), fetcher)
     assert failures == []
     assert [s["url"] for s in sources] == [
-        "https://europepmc.org/article/MED/111",
+        "https://doi.org/10.5555/y",
         "https://doi.org/10.1234/x",
+        "https://europepmc.org/article/MED/111",
     ]
-    assert sources[0]["title"] == "Volunteer retention in community groups."
+    assert sources[0]["title"] == "Volunteer motivation"
+    assert "Thanks keep volunteers coming back." in sources[0]["text"]
     joined = " ".join(s["text"] for s in sources)
     assert "<h4>" not in joined and "Person" not in joined
     assert "clear roles and regular thanks." in joined
@@ -112,4 +131,4 @@ def test_a_search_with_no_abstracts_is_a_recorded_reason():
 
     sources, failures = R.gather(brief(), empty)
     assert sources == []
-    assert len(failures) == 2 and "no articles" in failures[0]
+    assert len(failures) == 3 and "no articles" in failures[0]

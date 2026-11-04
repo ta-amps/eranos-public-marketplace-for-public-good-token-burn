@@ -323,14 +323,14 @@
         ]
       },
       {
-        "id": "europe-pmc",
-        "publisher": "Europe PMC, European Bioinformatics Institute",
-        "host": "www.ebi.ac.uk",
+        "id": "openalex",
+        "publisher": "OpenAlex, the open catalog of research",
+        "host": "api.openalex.org",
         "path_prefixes": [
-          "/europepmc/webservices/rest/search"
+          "/works"
         ],
         "access": "official_api",
-        "query": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query={terms}&format=json&resultType=core&pageSize=5",
+        "query": "https://api.openalex.org/works?search={terms}&per-page=6&filter=has_abstract:true&select=id,doi,title,publication_year,abstract_inverted_index",
         "topics": [
           "literature",
           "studies",
@@ -340,7 +340,7 @@
           "journal"
         ],
         "general": true,
-        "results": "europe_pmc"
+        "results": "openalex"
       },
       {
         "id": "doaj",
@@ -361,6 +361,26 @@
         ],
         "general": true,
         "results": "doaj"
+      },
+      {
+        "id": "europe-pmc",
+        "publisher": "Europe PMC, European Bioinformatics Institute",
+        "host": "www.ebi.ac.uk",
+        "path_prefixes": [
+          "/europepmc/webservices/rest/search"
+        ],
+        "access": "official_api",
+        "query": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query={terms}&format=json&resultType=core&pageSize=5",
+        "topics": [
+          "literature",
+          "studies",
+          "evidence",
+          "scholarly",
+          "peer-reviewed",
+          "journal"
+        ],
+        "general": true,
+        "results": "europe_pmc"
       }
     ],
     "deadline_seconds": 30,
@@ -624,7 +644,7 @@
   },
   "dedicated": {
     "about": "Up to five dedicated workers, run by ta-amps, pick up tasks that no volunteer has taken, so every request moves even when no volunteer is online: one planner, two makers and two checkers (owner D11).",
-    "grace_seconds": 90,
+    "grace_seconds": 10,
     "queues": [
       "eq01",
       "eq02",

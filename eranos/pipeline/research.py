@@ -150,8 +150,6 @@ _QUERY_STOP = frozenset(
         "helps",
         "help",
         "helping",
-        "keep",
-        "keeps",
         "small",
         "real",
         "what",
@@ -160,6 +158,23 @@ _QUERY_STOP = frozenset(
         "good",
     ]
 )
+
+
+# Everyday words for what a question is after, as research papers say it.
+_QUERY_MEANS = {
+    "keep": "retention",
+    "keeps": "retention",
+    "keeping": "retention",
+    "retain": "retention",
+    "stay": "retention",
+    "leave": "turnover",
+    "quit": "turnover",
+    "recruit": "recruitment",
+    "find": "recruitment",
+    "train": "training",
+    "raise": "fundraising",
+    "donate": "donation",
+}
 
 
 def words(text: str) -> set[str]:
@@ -207,6 +222,7 @@ def query_terms(text: str, limit: int = 6) -> list[str]:
         word = word.strip("'-") if "(" in word else word.strip("'-()")
         if word in _QUERY_STOP:
             continue
+        word = _QUERY_MEANS.get(word, word)
         if len(word) >= 4 and word not in _STOP and word not in seen and not word.isdigit():
             seen.append(word)
     return seen[:limit]
@@ -337,6 +353,16 @@ def search_articles(kind: str, raw: bytes) -> list[dict[str, str]]:
                         "abstract": abstract,
                         "url": f"https://europepmc.org/article/{source}/{ident}",
                     }
+                )
+    elif kind == "openalex":
+        for item in data.get("results") or []:
+            inverted = item.get("abstract_inverted_index") or {}
+            places = sorted((at, word) for word, spots in inverted.items() for at in spots)
+            abstract = _plain(" ".join(word for _, word in places))
+            url = item.get("doi") or item.get("id")
+            if abstract and url and str(url).startswith("https://"):
+                out.append(
+                    {"title": _plain(item.get("title")), "abstract": abstract, "url": str(url)}
                 )
     elif kind == "doaj":
         for item in data.get("results") or []:

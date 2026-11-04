@@ -739,7 +739,7 @@
     },
     "dedicated": {
      "about": "Up to five dedicated workers, run by ta-amps, pick up tasks that no volunteer has taken, so every request moves even when no volunteer is online: one planner, two makers and two checkers (owner D11).",
-     "grace_seconds": 90,
+     "grace_seconds": 10,
      "labels": {
       "dedicated": "dedicated worker {n} (run by ta-amps)",
       "volunteer": "a volunteer's AI"
@@ -1093,14 +1093,14 @@
       {
        "access": "official_api",
        "general": true,
-       "host": "www.ebi.ac.uk",
-       "id": "europe-pmc",
+       "host": "api.openalex.org",
+       "id": "openalex",
        "path_prefixes": [
-        "/europepmc/webservices/rest/search"
+        "/works"
        ],
-       "publisher": "Europe PMC, European Bioinformatics Institute",
-       "query": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query={terms}&format=json&resultType=core&pageSize=5",
-       "results": "europe_pmc",
+       "publisher": "OpenAlex, the open catalog of research",
+       "query": "https://api.openalex.org/works?search={terms}&per-page=6&filter=has_abstract:true&select=id,doi,title,publication_year,abstract_inverted_index",
+       "results": "openalex",
        "topics": [
         "literature",
         "studies",
@@ -1121,6 +1121,26 @@
        "publisher": "Directory of Open Access Journals",
        "query": "https://doaj.org/api/search/articles/{terms}?pageSize=5",
        "results": "doaj",
+       "topics": [
+        "literature",
+        "studies",
+        "evidence",
+        "scholarly",
+        "peer-reviewed",
+        "journal"
+       ]
+      },
+      {
+       "access": "official_api",
+       "general": true,
+       "host": "www.ebi.ac.uk",
+       "id": "europe-pmc",
+       "path_prefixes": [
+        "/europepmc/webservices/rest/search"
+       ],
+       "publisher": "Europe PMC, European Bioinformatics Institute",
+       "query": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query={terms}&format=json&resultType=core&pageSize=5",
+       "results": "europe_pmc",
        "topics": [
         "literature",
         "studies",

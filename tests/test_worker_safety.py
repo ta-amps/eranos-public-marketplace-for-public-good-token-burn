@@ -423,7 +423,7 @@ def test_dedicated_grace_is_counted_from_when_the_verb_was_queued(tmp_path: Path
     backend.verbs = [
         {"kind": "research", "created_at": now - 30, "updated_at": now - 30, "not_before": now - 30}
     ]
-    assert 55 <= worker.grace_wait(["research"]) <= 61  # queued 30 s ago; 90 s grace by default
+    assert worker.grace_wait(["research"]) == 0.0  # queued 30 s ago; the grace is 10 s
     backend.verbs = [
         {
             "kind": "research",
