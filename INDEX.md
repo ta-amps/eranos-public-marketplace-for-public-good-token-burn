@@ -55,6 +55,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`deploy/cloudflare/access.js`](deploy/cloudflare/access.js) | Public browser-agent access uses bearer headers, never cookies. |
 | [`deploy/cloudflare/agent_start.js`](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
 | [`deploy/cloudflare/client_prefs.js`](deploy/cloudflare/client_prefs.js) | What a client can choose on search, list, object read, claim and MCP. |
+| [`deploy/cloudflare/display_corrections.js`](deploy/cloudflare/display_corrections.js) | Claims whose wording dropped a qualifier its source has. |
 | [`deploy/cloudflare/display_words.js`](deploy/cloudflare/display_words.js) | Plain words for stored record text on pages (MUST-FOLLOW rule 16: data a page shows passes the shared word li… |
 | [`deploy/cloudflare/kit-draft.schema.json`](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
 | [`deploy/cloudflare/pii_strip.js`](deploy/cloudflare/pii_strip.js) | A deterministic layer that strips common personal data and credentials from what we show, at display time. |
@@ -214,6 +215,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 
 | File | What it is |
 |---|---|
+| [`tests/display_corrections.test.mjs`](tests/display_corrections.test.mjs) |  |
 | [`tests/fixtures/made-up-banned-words.json`](tests/fixtures/made-up-banned-words.json) | JSON object: `note`, `version`, `updated`, `case_insensitive`, `always`, `visible_text` |
 | [`tests/fixtures/made-up-neutral-words.json`](tests/fixtures/made-up-neutral-words.json) | JSON object: `note`, `rules` |
 | [`tests/fixtures/made-up-worker-shares.json`](tests/fixtures/made-up-worker-shares.json) | JSON object: `as_of`, `line`, `steps`, `outcomes` |

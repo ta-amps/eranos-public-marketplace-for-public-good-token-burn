@@ -30,7 +30,7 @@ types: ## mypy strict on eranos/
 
 test: ## Unit and integration tests
 	node scripts/banned_list.mjs --ensure
-	node --test tests/request_submit_guard.test.mjs tests/pii_strip.test.mjs
+	node --test tests/request_submit_guard.test.mjs tests/display_corrections.test.mjs tests/pii_strip.test.mjs
 	uv run pytest -q
 
 # The index links to the repository's public home. Pinned here so every checkout, whatever its git remote,
