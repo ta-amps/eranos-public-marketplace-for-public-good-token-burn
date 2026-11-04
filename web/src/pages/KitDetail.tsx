@@ -16,6 +16,14 @@ import { useNoun } from "../lib/useNoun";
 import { Evidence } from "../components/status/StatusParts";
 import { AppLink } from "../router";
 
+/** An older review note named a step the rule no longer has. The record keeps its words; the page says what's true now. */
+function plainReviewNotes(notes: string | undefined): string {
+  return String(notes ?? "").replace(
+    /;?\s*parking on \S+(?: \S+)? for human helpline steward sign-off before catalog publication\.?/i,
+    ". Under an older rule, this version also had a sign-off step before it was published.",
+  );
+}
+
 export function KitDetail({ id }: { id: string }) {
   const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}?view=page`);
   const words = useNoun<RequestStatusNoun>("request-status").value;
@@ -46,6 +54,8 @@ export function KitDetail({ id }: { id: string }) {
   }
 
   const entry = state.data;
+  // Only a review a model really did says so: a live worker's reader writes this line, and fixed checks never do.
+  const modelRead = /read all of this kit's text/.test(String(entry.review_notes ?? ""));
   const { kit, verification } = entry;
   const skills = allSkills(kit);
   const tools = allTools(kit);
@@ -311,10 +321,11 @@ export function KitDetail({ id }: { id: string }) {
             <dd>{kit.drafted_by}</dd>
           </div>
           <div>
-            <dt>Audited and approved by a different worker</dt>
+            <dt>{modelRead ? "Audited and approved by a different worker" : "Checked by a different worker with fixed checks"}</dt>
             <dd>
-              {entry.reviewed_by}. A worker audited this, not a person, and it was checked on made-up practice data only. A person on
-              your team decides whether to use it.
+              {modelRead
+                ? `${entry.reviewed_by}. A worker audited this, not a person, and a model read all of its text. It was checked on made-up practice data only. A person on your team decides whether to use it.`
+                : `${entry.reviewed_by}. No model read this version's text. A worker ran fixed checks on made-up practice data only, and no person reviewed it. A person on your team decides whether to use it.`}
             </dd>
           </div>
           <div>
@@ -325,7 +336,7 @@ export function KitDetail({ id }: { id: string }) {
           </div>
           <div>
             <dt>Reviewer notes</dt>
-            <dd data-source-text>{entry.review_notes}</dd>
+            <dd data-source-text>{plainReviewNotes(entry.review_notes)}</dd>
           </div>
         </dl>
       </section>

@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 
 import type { NonprofitsPageNoun } from "../src/lib/nouns";
@@ -337,6 +338,25 @@ test.describe("on the hosted build", () => {
     for (const src of scripts) text += await (await request.get(src)).text();
     expect(scripts.length).toBeGreaterThan(0);
     expect(text).not.toMatch(/synthetic|\bo?l{2}ama\b|kothar|kinema|shamash/i);
+  });
+
+  test("a kit page says whether a model read it, and an old note doesn't promise a person's step", async ({ page }) => {
+    const base = JSON.parse(readFileSync(new URL("../public/snapshot/catalog/KIT-RECRUIT-01.json", import.meta.url), "utf-8"));
+    await mockSite(page, {
+      catalog: {
+        "KIT-RECRUIT-01": { ...base, review_notes: "Practice review with fixed checks on made-up sample data; no model assessment was performed." },
+        "KIT-FLYER-14": { ...base, review_notes: "Muse Wonder 1.0 read all of this kit's text. Found nothing." },
+        "KIT-HOTLINE-02": { ...base, review_notes: "Automated checks and UNODC citations pass; parking on Teleion Fabric for human helpline steward sign-off before catalog publication." },
+      },
+    });
+    await page.goto("/catalog/KIT-RECRUIT-01");
+    await expect(page.locator("main")).toContainText("No model read this version's text");
+    await expect(page.locator("main")).not.toContainText("a model read all of its text");
+    await page.goto("/catalog/KIT-FLYER-14");
+    await expect(page.locator("main")).toContainText("a model read all of its text");
+    await page.goto("/catalog/KIT-HOTLINE-02");
+    await expect(page.locator("main")).toContainText("Under an older rule, this version also had a sign-off step");
+    await expect(page.locator("main")).not.toContainText("parking on");
   });
 
   test("B2: /help lists the live open tasks, and a task copies as a claim for your agent", async ({ page }) => {
