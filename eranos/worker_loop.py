@@ -1588,6 +1588,7 @@ class Worker:
             judge=judge,
             max_points=max_points,
             max_question_chars=max_q_cfg,
+            reuse_rules=self.rules().get("reuse") or {},
         )
         self._facts(gate, request_id, self.reuse_facts(lease, out, part))
         check = out.get("check") or {}
