@@ -275,7 +275,12 @@ def has_new_outcomes(tuning: dict[str, Any], outcomes: list[Outcome]) -> bool:
     if int(inputs.get("outcomes") or 0) != len(outcomes):
         return True
     now_stats = {i: {k: round(v, 4) for k, v in s.items()} for i, s in posteriors(outcomes).items()}
-    return now_stats != (tuning.get("stats") or {})
+    if now_stats != (tuning.get("stats") or {}):
+        return True
+    # A variant added or dropped by hand since the last version has to reach the mix too.
+    in_mix = {i for shares in (tuning.get("mix") or {}).values() for i in shares}
+    live = {str(v.get("id")) for v in tuning.get("variants") or [] if v.get("status") in LIVE}
+    return bool(tuning.get("mix")) and in_mix != live
 
 
 def retune(tuning: dict[str, Any], outcomes: list[Outcome], *, now: float) -> dict[str, Any]:
