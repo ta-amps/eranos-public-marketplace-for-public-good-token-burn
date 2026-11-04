@@ -570,6 +570,10 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         text = words.log.received ?? "";
         break;
       case "plan_claimed":
+        if (record.events[index + 1]?.type === "closed") {
+          text = w ? fill(words.log.plan_claimed_close ?? words.log.plan_claimed ?? "", { who: w }) : (words.log.plan_claimed_close_anon ?? words.log.plan_claimed_anon ?? "");
+          break;
+        }
         text = w ? fill(words.log.plan_claimed ?? "", { who: w }) : (words.log.plan_claimed_anon ?? "");
         if (w) plannedBy.set("plan", w);
         break;
