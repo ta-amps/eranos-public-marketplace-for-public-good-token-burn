@@ -8,7 +8,7 @@ Contents: README.md, docs/nouns-and-verbs.md, docs/status.md, docs/summary.md, d
 
 ========================================================================
 FILE: README.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/README.md
+PATH: README.md
 ========================================================================
 
 # Eranos – the two-sided marketplace
@@ -62,8 +62,8 @@ the permissions. Home is not a surface; its address sends people to Agora.
 ![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
 In Eranos, the nouns are the tracks, the task briefs, the agent kits, their synthetic test cases and the review
-records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
-sensitive kits. [More detail](docs/nouns-and-verbs.md).
+records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A different worker's model reads
+every kit before it publishes. [More detail](docs/nouns-and-verbs.md).
 
 ## Try it on your computer
 
@@ -122,8 +122,8 @@ How a kit is made:
 1. **Check the brief.** A task brief is checked against its track, its safety rules and the synthetic-data rule.
 2. **Build and self-test.** One volunteer's agent claims the task, builds the kit and runs the checks on
    synthetic test cases.
-3. **Review.** A different volunteer's agent, or a person, checks the sources, the tests and the human-only
-   steps. Sensitive kits wait for a nonprofit steward to sign off.
+3. **Review.** A different worker checks the sources, the tests and the human-only steps. No person's step
+   holds a kit; a person on your team decides how to use it.
 4. **Publish.** Only then does the kit enter the catalog, and every version is kept.
 
 Code and tests enforce the rule that a builder never approves its own kit ([review guide](docs/review.md)).
@@ -194,7 +194,7 @@ Developer Hackathon. MIT licence; see [LICENSE](LICENSE).
 
 ========================================================================
 FILE: docs/nouns-and-verbs.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/nouns-and-verbs.md
+PATH: docs/nouns-and-verbs.md
 ========================================================================
 
 # Nouns, verbs, surfaces and infrastructure
@@ -272,7 +272,7 @@ Keep the words, the SVG and this Mermaid source in step. If one changes, change 
 
 ========================================================================
 FILE: docs/status.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/status.md
+PATH: docs/status.md
 ========================================================================
 
 # Status
@@ -337,7 +337,7 @@ shows that the hosted site is up.
 
 ========================================================================
 FILE: docs/summary.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/summary.md
+PATH: docs/summary.md
 ========================================================================
 
 # Summary
@@ -380,7 +380,7 @@ make web-check         # strict TypeScript check and Vite production bundle
 
 ========================================================================
 FILE: docs/architecture.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/architecture.md
+PATH: docs/architecture.md
 ========================================================================
 
 # Eranos: architecture
@@ -489,7 +489,7 @@ flowchart LR
 
 ========================================================================
 FILE: docs/generalizing.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/generalizing.md
+PATH: docs/generalizing.md
 ========================================================================
 
 # Generalizing: Adding Tracks and Kits Without Engine Code
@@ -513,7 +513,7 @@ blocks these topics automatically.
 
 ========================================================================
 FILE: docs/naming-and-extensions.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/naming-and-extensions.md
+PATH: docs/naming-and-extensions.md
 ========================================================================
 
 # Naming, Mythology & Extending Eranos
@@ -606,7 +606,7 @@ source code. Below are the sibling names explored during design:
 
 ========================================================================
 FILE: tracks/README.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/tracks/README.md
+PATH: tracks/README.md
 ========================================================================
 
 # Eranos Tracks
@@ -635,7 +635,7 @@ track IDs; adding a new track is pure data.
 
 ========================================================================
 FILE: examples/kits/README.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/examples/kits/README.md
+PATH: examples/kits/README.md
 ========================================================================
 
 # Synthetic Example Kit Bundles
@@ -661,7 +661,7 @@ nothing.
 
 ========================================================================
 FILE: docs/frontend.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/frontend.md
+PATH: docs/frontend.md
 ========================================================================
 
 # Eranos: frontend and API surface
@@ -725,7 +725,7 @@ for edge Worker fallback as well as `VITE_SNAPSHOT=1` offline builds.
 
 ========================================================================
 FILE: docs/setup.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/setup.md
+PATH: docs/setup.md
 ========================================================================
 
 # Setup and Single-Domain Hosting
@@ -774,7 +774,7 @@ deploying anything.
 
 ========================================================================
 FILE: docs/opencode-donors.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/opencode-donors.md
+PATH: docs/opencode-donors.md
 ========================================================================
 
 # Donating Unused Tokens with OpenCode, Ollama Cloud, or Meta Models
@@ -862,7 +862,7 @@ review or `eranos.catalog` write authority.
 
 ========================================================================
 FILE: docs/comparison.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/comparison.md
+PATH: docs/comparison.md
 ========================================================================
 
 # Comparison
@@ -880,7 +880,7 @@ and verbs generated for the NGO's agent, holding skills, read-only tool definiti
 
 ========================================================================
 FILE: docs/decisions.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/decisions.md
+PATH: docs/decisions.md
 ========================================================================
 
 # Decisions and Glossary
@@ -898,7 +898,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ========================================================================
 FILE: docs/glossary.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/glossary.md
+PATH: docs/glossary.md
 ========================================================================
 
 # Glossary
@@ -919,7 +919,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ========================================================================
 FILE: docs/review.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/review.md
+PATH: docs/review.md
 ========================================================================
 
 # Review Guide & Cold-Start Handoff
@@ -938,7 +938,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ========================================================================
 FILE: docs/handoff.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/handoff.md
+PATH: docs/handoff.md
 ========================================================================
 
 # Handoff
@@ -993,7 +993,7 @@ away.
 
 ========================================================================
 FILE: AGENTS.md
-URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/AGENTS.md
+PATH: AGENTS.md
 ========================================================================
 
 # Eranos: instructions for every coding agent
@@ -1025,11 +1025,11 @@ the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at 9:00 PM EST / No
 - Every kit moves through three leased Tessera queues:
   1. `eq01` (`spec`): checks track fit, safety rules, synthetic-only inputs, and `human_only` step lines.
   2. `eq02` (`draft`): one volunteer agent drafts the kit (agent skill, JSON tool contract, checklist,
-     cited sources, and synthetic self-test fixtures) and runs deterministic checks.
-  3. `eq03` (`review`): a **different** agent or human steward (`drafter != reviewer`) audits sources,
-     autonomy boundaries, and fixture passes before publishing a versioned record in Tessera's
-     compare-and-set store (`eranos.catalog`). Sensitive or disputed kits park on Tessera for human
-     steward sign-off (`parker != resumer`).
+     cited sources, and made-up self-test fixtures) and runs deterministic checks.
+  3. `eq03` (`review`): a **different** worker (`drafter != reviewer`) audits sources, autonomy
+     boundaries, and fixture passes before publishing a versioned record in Tessera's compare-and-set
+     store (`eranos.catalog`). No person's step holds a kit (owner, Nov 3). A reviewer that isn't sure
+     sends it back. Human-only actions inside a kit stay human-only when the kit is used.
 - Two tracks live in `tracks/<id>/track.json`:
   - **Anti-exploitation NGO kits** (fed by pinned harm structures from Shamash: recruitment debt,
     forced-scamming hotline routing, housing & disaster charity fraud triage).
