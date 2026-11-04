@@ -1,0 +1,83 @@
+{
+  "format": "ta-amps.process-spec.v1",
+  "process_id": "process-scan-reading-sample",
+  "process_class": "handwritten_case_files",
+  "title": "Scanned document reading process report",
+  "reading_step": {
+    "done_by": "the organization's own agent or a local OCR tool",
+    "by_this_process": false
+  },
+  "summary_hook": {
+    "default": "off",
+    "how": "this process has no summary hook"
+  },
+  "steps": [
+    {
+      "id": "check-readings",
+      "operation": "check_readings",
+      "params": {
+        "fields": [
+          {
+            "name": "document_type",
+            "kind": "text",
+            "label": "What kind of document this is"
+          },
+          {
+            "name": "document_date",
+            "kind": "date",
+            "label": "The date written on the document, as written"
+          },
+          {
+            "name": "client_reference",
+            "kind": "text",
+            "label": "The reference or case number on the document"
+          },
+          {
+            "name": "client_name",
+            "kind": "case_text",
+            "label": "The client's name, as written"
+          },
+          {
+            "name": "request_or_need",
+            "kind": "case_text",
+            "label": "What the client asks for or needs, word for word"
+          },
+          {
+            "name": "handwritten_notes",
+            "kind": "case_text",
+            "label": "Other handwritten notes, word for word"
+          },
+          {
+            "name": "page_count",
+            "kind": "number",
+            "label": "How many pages the document has"
+          }
+        ],
+        "min_confidence": 0.85
+      },
+      "instruction": "Compare each reading file with the field list, and find scans with no reading and readings with no scan.",
+      "piece": "p1-check"
+    },
+    {
+      "id": "fill-spreadsheet",
+      "operation": "fill_spreadsheet",
+      "params": {},
+      "instruction": "Fill one spreadsheet row per scan, exactly as read; unclear or low-confidence values stay out of the row.",
+      "piece": "p2-fill"
+    },
+    {
+      "id": "list-for-person",
+      "operation": "list_for_person",
+      "params": {},
+      "instruction": "List every unclear, low-confidence or missing field and all client text for a person to check.",
+      "piece": "p3-person"
+    },
+    {
+      "id": "write-report",
+      "operation": "write_report",
+      "params": {},
+      "instruction": "Write a short report with the counts and how many rows wait for a person.",
+      "piece": "p4-report"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "request": {
+    "id": "req-b4-data-cleaning-local-01",
+    "description": "A reusable process to clean our volunteer sign-up spreadsheets: remove duplicates, fix date and phone formats, flag missing contact fields, with a short report.",
+    "output_type": "reusable_process",
+    "frequency": "monthly"
+  },
+  "plan_part": {
+    "pieces": [
+      {"id": "p1-profile", "title": "Profile the columns", "depends_on": [], "claimed_by": "local-worker"},
+      {"id": "p2-dedupe", "title": "Remove duplicate rows", "depends_on": ["p1-profile"], "claimed_by": "local-worker"},
+      {"id": "p3-formats", "title": "Fix date and phone formats", "depends_on": ["p1-profile"], "claimed_by": "local-worker"},
+      {"id": "p4-missing", "title": "Flag missing contact fields", "depends_on": ["p1-profile"], "claimed_by": "local-worker"},
+      {"id": "p5-report", "title": "Write a short report", "depends_on": ["p2-dedupe", "p3-formats", "p4-missing"], "claimed_by": "local-worker"}
+    ],
+    "combine": {"id": "p6-combine", "title": "Combine the pieces into one process package", "depends_on": ["p5-report"]}
+  },
+  "note": "Local build input. The live request goes through the marketplace's intake and B1's workers; its plan comes from the planner."
+}

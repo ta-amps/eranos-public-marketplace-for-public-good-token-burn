@@ -1,0 +1,81 @@
+{
+  "format": "ta-amps.vendored.v1",
+  "recorded_at": "2026-10-31",
+  "entries": [
+    {
+      "folder": "vendor/library",
+      "source": "notes/claude-work-2026-10-31/eranos-impl/seed-packs-library-of-nouns-and-verbs",
+      "commit": "168500501378bbd6f625efaf810126d8f5ef017f",
+      "how": "copied, then patched (Nov 1): build_packs.py and validate_packs.py also accept the owner's vocabulary (A collection of Task Objects and Tasks for ..., ## Task Objects, ## Tasks) next to the library's own; finding F31-B4-21",
+      "files": {
+        "packs/tessera-contract.json": "6047853d68430dd7ed6951c16b8c9a35a2206071804d0643727b4663533ae956",
+        "scripts/build_packs.py": "99845e6cf5e926e7375dd13a93855bfb7990b91f55dd1b31921cd3826a32b539",
+        "scripts/check_public.py": "f0ebacd396025c3842edfb71ee516047c322015551ece6d93e8c43ece7566799",
+        "scripts/private-names.sha256": "94aa72fdd14fcbaf3c96d29ad78a38db398e8949803d87dbd1a57eaaf72a3059",
+        "scripts/surface-names.sha256": "afc72d1e03a9da0900ece5fcc791f04c5e467bbfe886f6e5eab2ab39467c8d90",
+        "scripts/validate_packs.py": "09f3d2a8ee6a3602e95cce6d52f5f634c7c6cb81c0ab642ec86b2214bf04f83a"
+      }
+    },
+    {
+      "folder": "vendor/eranos_verify",
+      "source": "notes/claude-work-2026-10-31/eranos-impl/eranos-public-marketplace-for-public-good-token-burn",
+      "commit": "6397473d1de84ed6467caaa156b9ca0fb042fe96",
+      "how": "copied, then patched (Oct 31 to Nov 1): eranos/schemas/records.py and verifier.py accept a MADE-UP test-case mark (findings F31-B4-12)",
+      "files": {
+        "eranos/__init__.py": "7e5dbaa20454baf35d2035b57a7b35412a568bba69eb08fe7c3324333a6f1c1b",
+        "eranos/copy.py": "8da1485328b36f29d0741447c63f942cd3f506dd57280bb1d8cde5957e5841e6",
+        "eranos/jsonfile.py": "176ec32f214e87d1eb4f47523ef2d398638875f7a65f8ef0d9c12a53ea2620cd",
+        "eranos/privacy.py": "97d4c924e759ca6a515d8bd36ef32c620e0d8422cb51753505caaee35665bfbd",
+        "eranos/schemas/__init__.py": "d2bff83231c7189cab3c3fad0443e9a9b395999235e2b6d29afd6b4a046444b5",
+        "eranos/schemas/records.py": "5d63419f422dca260c497979f7590a7370f00cdcecaaf2b90dd3721ee053d72a",
+        "eranos/schemas/tracks.py": "8cbedd46a76b7a2ba5891c0e27ce11fd17dfe714b0fe1d5c0230d353fe27c77a",
+        "eranos/tracks.py": "8b6c9de07ce35002974e5489153b8c01901773e7bbca2c678f9112c933c939a4",
+        "eranos/verifier.py": "184664e8eedca8db983184538aac96aabbc3575d4aaf955ba83a96b89c4023eb",
+        "tracks/donor-stewardship-and-privacy/track.json": "94495a967656f41a0da699be8204b19171d6fbd6d76a0007d8bc6c6b6526962a",
+        "tracks/program-impact-reporting/track.json": "619b56081542a24186fc3745552f42903b7147da72d3c1f1e78d4743b93ca5aa",
+        "tracks/statement-transcription/track.json": "eba3c36b283e4458e8249de10d645323841b35a8143832834266b76c9eb9f130",
+        "tracks/volunteer-shift-and-sop-builder/track.json": "587f9ed39fd7338a116f879698c29a5871bbe200e8029f77984b3799c0230599"
+      }
+    },
+    {
+      "folder": "vendor/persona_compiler",
+      "source": "notes/work-2026-10-30/feed-runner/staged-packs/portable-agent-persona-compiler/code (staged proposal, not in git)",
+      "commit": null,
+      "how": "copied unchanged; the package adds adapted OpenCode and Roo files next to its output (findings F31-B4-01, F31-B4-02)",
+      "files": {
+        "__init__.py": "b2350e67a0053d18804821ac0923f801a8c149b1276dc72150809e83831ad376",
+        "__main__.py": "fbf764a2ff4b4c05718dc0bed1745c353cf84820d92071f3ac359ca200be9621",
+        "compiler.py": "bf160a7946d4beb383452427ede6399754d28b04e4659d61c820ebf1a9629e8f"
+      }
+    },
+    {
+      "folder": "vendor/persona_compiler_tests",
+      "source": "same, tests/",
+      "commit": null,
+      "how": "copied unchanged",
+      "files": {
+        "test_persona_compiler.py": "5a5fad309646b7216d42cffb4d26cffda59a3bde062580e52745744481912971"
+      }
+    },
+    {
+      "folder": "vendor/config_scanner",
+      "source": "notes/work-2026-10-30/feed-runner/staged-packs/agent-config-supply-chain-scanner/code (staged proposal, not in git)",
+      "commit": null,
+      "how": "copied unchanged",
+      "files": {
+        "__init__.py": "a2eb4bc4bf2b183a35ba35bc83798e25f7172727ee33c9ffa5470c247bac5553",
+        "__main__.py": "e496d0665b962a22438b25ac90f5aed0749b94c880cebacf190d19fc8a438be5",
+        "scanner.py": "4379064be0faa9c9521b8798dba2c038f91e54528e2190e012e7a306be5c9f6d"
+      }
+    },
+    {
+      "folder": "vendor/config_scanner_tests",
+      "source": "same, tests/",
+      "commit": null,
+      "how": "copied unchanged",
+      "files": {
+        "test_config_scanner.py": "06fe7fc0f42d14ccb9a51cbea64c5bfe3335d217b339d764ff428fd2c5db568f"
+      }
+    }
+  ]
+}

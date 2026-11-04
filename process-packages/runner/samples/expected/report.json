@@ -1,0 +1,252 @@
+{
+  "files": [
+    {
+      "columns": [
+        {
+          "empty": 0,
+          "filled": 0,
+          "header": "Name",
+          "role": "name"
+        },
+        {
+          "empty": 0,
+          "filled": 0,
+          "header": "Email",
+          "role": "email"
+        },
+        {
+          "empty": 0,
+          "filled": 0,
+          "header": "Phone",
+          "role": "phone"
+        },
+        {
+          "empty": 0,
+          "filled": 0,
+          "header": "Signup Date",
+          "role": "date"
+        }
+      ],
+      "dates_ambiguous": 0,
+      "dates_fixed": 0,
+      "dates_unreadable": 0,
+      "delimiter": "comma",
+      "duplicate_conflicts": 0,
+      "duplicates_removed": 0,
+      "emails_tidied": 0,
+      "emails_unreadable": 0,
+      "encoding": "utf-8",
+      "file": "empty-sheet-sample.csv",
+      "phones_fixed": 0,
+      "phones_unreadable": 0,
+      "possible_duplicates": 0,
+      "rows_in": 0,
+      "rows_missing_contact": 0,
+      "rows_missing_required": 0,
+      "rows_out": 0
+    },
+    {
+      "columns": [
+        {
+          "empty": 0,
+          "filled": 5,
+          "header": "Volunteer Name",
+          "role": "name"
+        },
+        {
+          "empty": 0,
+          "filled": 5,
+          "header": "E-mail",
+          "role": "email"
+        },
+        {
+          "empty": 2,
+          "filled": 3,
+          "header": "Mobile",
+          "role": "phone"
+        },
+        {
+          "empty": 0,
+          "filled": 5,
+          "header": "Date Signed Up",
+          "role": "date"
+        },
+        {
+          "empty": 0,
+          "filled": 5,
+          "header": "Shift",
+          "role": "other"
+        }
+      ],
+      "dates_ambiguous": 0,
+      "dates_fixed": 6,
+      "dates_unreadable": 0,
+      "delimiter": "tab",
+      "duplicate_conflicts": 0,
+      "duplicates_removed": 1,
+      "emails_tidied": 1,
+      "emails_unreadable": 1,
+      "encoding": "utf-8",
+      "file": "fall-fair-signups-sample.tsv",
+      "phones_fixed": 4,
+      "phones_unreadable": 0,
+      "possible_duplicates": 0,
+      "rows_in": 6,
+      "rows_missing_contact": 0,
+      "rows_missing_required": 0,
+      "rows_out": 5
+    },
+    {
+      "columns": [
+        {
+          "empty": 1,
+          "filled": 10,
+          "header": "First Name",
+          "role": "first_name"
+        },
+        {
+          "empty": 1,
+          "filled": 10,
+          "header": "Last Name",
+          "role": "last_name"
+        },
+        {
+          "empty": 1,
+          "filled": 10,
+          "header": "Email",
+          "role": "email"
+        },
+        {
+          "empty": 1,
+          "filled": 10,
+          "header": "Phone",
+          "role": "phone"
+        },
+        {
+          "empty": 0,
+          "filled": 11,
+          "header": "Signup Date",
+          "role": "date"
+        },
+        {
+          "empty": 0,
+          "filled": 11,
+          "header": "Availability",
+          "role": "other"
+        },
+        {
+          "empty": 10,
+          "filled": 1,
+          "header": "Notes",
+          "role": "other"
+        }
+      ],
+      "dates_ambiguous": 0,
+      "dates_fixed": 11,
+      "dates_unreadable": 2,
+      "delimiter": "comma",
+      "duplicate_conflicts": 1,
+      "duplicates_removed": 3,
+      "emails_tidied": 1,
+      "emails_unreadable": 1,
+      "encoding": "utf-8",
+      "file": "spring-signups-sample.csv",
+      "phones_fixed": 11,
+      "phones_unreadable": 1,
+      "possible_duplicates": 1,
+      "rows_in": 14,
+      "rows_missing_contact": 1,
+      "rows_missing_required": 1,
+      "rows_out": 11
+    },
+    {
+      "columns": [
+        {
+          "empty": 0,
+          "filled": 3,
+          "header": "Name",
+          "role": "name"
+        },
+        {
+          "empty": 0,
+          "filled": 3,
+          "header": "Email",
+          "role": "email"
+        },
+        {
+          "empty": 1,
+          "filled": 2,
+          "header": "Phone",
+          "role": "phone"
+        },
+        {
+          "empty": 0,
+          "filled": 3,
+          "header": "Signup date",
+          "role": "date"
+        }
+      ],
+      "dates_ambiguous": 2,
+      "dates_fixed": 3,
+      "dates_unreadable": 0,
+      "delimiter": "semicolon",
+      "duplicate_conflicts": 0,
+      "duplicates_removed": 0,
+      "emails_tidied": 0,
+      "emails_unreadable": 0,
+      "encoding": "utf-8",
+      "file": "winter-signups-sample.csv",
+      "phones_fixed": 2,
+      "phones_unreadable": 0,
+      "possible_duplicates": 0,
+      "rows_in": 3,
+      "rows_missing_contact": 0,
+      "rows_missing_required": 0,
+      "rows_out": 3
+    }
+  ],
+  "format": "ta-amps.process-report.v1",
+  "person_checks": {
+    "ambiguous_date": 2,
+    "duplicate_conflict": 1,
+    "invalid_date": 2,
+    "invalid_email": 2,
+    "invalid_phone": 1,
+    "missing_contact": 1,
+    "missing_required": 1,
+    "possible_duplicate": 1
+  },
+  "process": "reference",
+  "steps": [
+    "profile_columns",
+    "normalize_dates",
+    "normalize_phones",
+    "deduplicate",
+    "flag_missing_fields",
+    "write_report"
+  ],
+  "summary": {
+    "text": "The process read 23 rows in 4 file(s) and kept 19, removing 4 duplicates. It put 20 dates and 17 phone numbers in one format. 11 flags need a person, including 1 row(s) with no email and no phone.",
+    "written_by": "the process's fixed template (no model)"
+  },
+  "title": "Volunteer sign-up sheet cleaning report",
+  "totals": {
+    "changes_recorded": 44,
+    "contacts_in_more_than_one_file": 1,
+    "dates_ambiguous": 2,
+    "dates_fixed": 20,
+    "dates_unreadable": 2,
+    "duplicate_conflicts": 1,
+    "duplicates_removed": 4,
+    "emails_tidied": 2,
+    "emails_unreadable": 2,
+    "flags_for_a_person": 11,
+    "phones_fixed": 17,
+    "phones_unreadable": 1,
+    "possible_duplicates": 1,
+    "rows_in": 23,
+    "rows_missing_contact": 1,
+    "rows_missing_required": 1,
+    "rows_out": 19
+  }
+}

@@ -1,0 +1,9 @@
+# SHA-256 of lowercased surface and product names that seed packs must not carry.
+# Packs name them only in a descriptor's provenance_notes or a source's moved_from field.
+# One hash per line. The hash of a name is: printf '%s' NAME | sha256sum
+d488476689bd8ff0424956c989ae7508815f2821f9524dfd3ea5aea931911978
+4322a6b237d4d0f47990bad6edf90913cd88d2a1a6a9698a756b73e4dfd69329
+9410a442dd664c9234966c5ecc0ff595431749474bc67b7e2ce5ccaaed7793ec
+b9202caba466d1bf108f5143959b9fc897a6ca3d881ef96cfa332bbadc7da774
+f7070d57bbe5496e29249421e91572f46ac4c2b62953b7ea046fa3707b9e6b2a
+9487383d51a2ced05ed2fd66f7789f51794e8eba04167737518fcd3b1b558499

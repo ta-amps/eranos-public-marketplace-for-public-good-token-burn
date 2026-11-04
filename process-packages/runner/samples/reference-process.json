@@ -1,0 +1,71 @@
+{
+  "format": "ta-amps.process-spec.v1",
+  "process_id": "reference",
+  "process_class": "tabular_cleaning",
+  "title": "Volunteer sign-up sheet cleaning report",
+  "steps": [
+    {
+      "id": "profile-columns",
+      "operation": "profile_columns",
+      "params": {
+        "min_share": 0.6
+      }
+    },
+    {
+      "id": "normalize-dates",
+      "operation": "normalize_dates",
+      "params": {
+        "output_format": "YYYY-MM-DD",
+        "assume_order": "MDY",
+        "two_digit_year_pivot": 69
+      }
+    },
+    {
+      "id": "normalize-phones",
+      "operation": "normalize_phones",
+      "params": {
+        "default_country": "US",
+        "output": "E.164"
+      }
+    },
+    {
+      "id": "deduplicate",
+      "operation": "deduplicate",
+      "params": {
+        "match_on": [
+          "exact_row",
+          "email",
+          "name_and_phone"
+        ],
+        "fill_blanks": true,
+        "flag_same_name": true,
+        "tidy_emails": true
+      }
+    },
+    {
+      "id": "flag-missing",
+      "operation": "flag_missing_fields",
+      "params": {
+        "contact_any": [
+          "email",
+          "phone"
+        ],
+        "required_roles": [
+          "name"
+        ],
+        "check_email_format": true
+      }
+    },
+    {
+      "id": "write-report",
+      "operation": "write_report",
+      "params": {
+        "summary": "deterministic"
+      }
+    }
+  ],
+  "summary_hook": {
+    "default": "off",
+    "how": "--summary-command, your own agent's command; it gets the counts only"
+  }
+}

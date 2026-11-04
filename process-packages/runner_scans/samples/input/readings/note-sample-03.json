@@ -1,0 +1,13 @@
+{
+  "format": "ta-amps.scan-reading.v1",
+  "document_id": "note-sample-03",
+  "source_file": "note-sample-03.png",
+  "read_by": "made-up sample reading, typed by hand",
+  "fields": {
+    "document_type": {"value": "Note", "confidence": 0.97},
+    "client_reference": {"value": "SAMPLE-0103", "confidence": 0.96},
+    "client_name": {"value": "Sample Client Three", "confidence": 0.93},
+    "handwritten_notes": {"value": "asked about the winter coat drive", "confidence": 0.9},
+    "staff_initials": {"value": "S.W.", "confidence": 0.88}
+  }
+}

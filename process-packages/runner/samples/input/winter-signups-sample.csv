@@ -1,0 +1,5 @@
+# Made-up sample file (no real data), exported with semicolons; every date could be read day-first or month-first.
+Name;Email;Phone;Signup date
+Noor Haddad;noor.haddad@example.com;(305) 555-0119;01/02/2026
+Eli Brandt;eli.brandt@example.com;305-555-0128;02/03/2026
+Sky Moreau;sky.moreau@example.com;;2/2/2026

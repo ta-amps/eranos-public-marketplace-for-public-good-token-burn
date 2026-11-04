@@ -1,0 +1,5 @@
+document_id,source_file,document_type,document_date,client_reference,client_name,request_or_need,handwritten_notes,page_count,person_check,fields_to_check
+intake-form-sample-01,intake-form-sample-01.png,Intake form,2026-03-14,SAMPLE-0101,Sample Client One,help with a housing form,prefers morning visits,1,yes,client_name; request_or_need; handwritten_notes
+intake-form-sample-02,intake-form-sample-02.png,Intake form,,SAMPLE-0102,Sample Client Two,a ride to the food bank,,1,yes,document_date; client_name; request_or_need; handwritten_notes
+intake-form-sample-04,intake-form-sample-04.png,,,,,,,,yes,*
+note-sample-03,note-sample-03.png,Note,,SAMPLE-0103,Sample Client Three,,asked about the winter coat drive,,yes,document_date; client_name; request_or_need; handwritten_notes; page_count; staff_initials

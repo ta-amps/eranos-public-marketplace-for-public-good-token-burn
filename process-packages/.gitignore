@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+out/packages/
+out/stage/
+out/runs/
+out/process-clean-*/
+golive/*/receipts.jsonl

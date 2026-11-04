@@ -1,0 +1,56 @@
+file,row,column,issue,original,cleaned,needs_person,note
+fall-fair-signups-sample.tsv,1,Date Signed Up,date_fixed,25.10.2026,2026-10-25,no,
+fall-fair-signups-sample.tsv,2,Date Signed Up,date_fixed,25.10.2026,2026-10-25,no,
+fall-fair-signups-sample.tsv,3,Date Signed Up,date_fixed,03.11.2026,2026-11-03,no,
+fall-fair-signups-sample.tsv,4,Date Signed Up,date_fixed,07.11.2026,2026-11-07,no,
+fall-fair-signups-sample.tsv,5,Date Signed Up,date_fixed,08.11.2026,2026-11-08,no,
+fall-fair-signups-sample.tsv,6,Date Signed Up,date_fixed,30.10.2026,2026-10-30,no,
+fall-fair-signups-sample.tsv,1,Mobile,phone_fixed,+44 20 7946 0018,+442079460018,no,
+fall-fair-signups-sample.tsv,2,Mobile,phone_fixed,+44 20 7946 0018,+442079460018,no,
+fall-fair-signups-sample.tsv,3,Mobile,phone_fixed,(718) 555-0147,+17185550147,no,
+fall-fair-signups-sample.tsv,6,Mobile,phone_fixed,212-555-0142,+12125550142,no,
+fall-fair-signups-sample.tsv,2,E-mail,email_tidied,JAMIE.FOX@example.net,jamie.fox@example.net,no,
+fall-fair-signups-sample.tsv,2,,duplicate_removed,,,no,exact_duplicate; kept row 1
+fall-fair-signups-sample.tsv,5,E-mail,invalid_email,pat at example.net,,yes,not an email address the process can read
+spring-signups-sample.csv,1,Signup Date,date_fixed,03/14/2026,2026-03-14,no,
+spring-signups-sample.csv,2,Signup Date,date_fixed,03/14/2026,2026-03-14,no,
+spring-signups-sample.csv,4,Signup Date,date_fixed,March 15 2026,2026-03-15,no,
+spring-signups-sample.csv,5,Signup Date,date_fixed,3/16/26,2026-03-16,no,
+spring-signups-sample.csv,6,Signup Date,date_fixed,04/02/2026,2026-04-02,no,
+spring-signups-sample.csv,7,Signup Date,date_fixed,05/03/2026,2026-05-03,no,
+spring-signups-sample.csv,8,Signup Date,date_fixed,2026/03/20,2026-03-20,no,
+spring-signups-sample.csv,9,Signup Date,invalid_date,04/31/2026,,yes,not a date the process can read
+spring-signups-sample.csv,10,Signup Date,date_fixed,12 April 2026,2026-04-12,no,
+spring-signups-sample.csv,11,Signup Date,date_fixed,Apr 18 2026,2026-04-18,no,
+spring-signups-sample.csv,12,Signup Date,date_fixed,04/19/2026,2026-04-19,no,
+spring-signups-sample.csv,13,Signup Date,invalid_date,TBD,,yes,not a date the process can read
+spring-signups-sample.csv,14,Signup Date,date_fixed,04/20/2026,2026-04-20,no,
+spring-signups-sample.csv,1,Phone,phone_fixed,(212) 555-0142,+12125550142,no,
+spring-signups-sample.csv,2,Phone,phone_fixed,(212) 555-0142,+12125550142,no,
+spring-signups-sample.csv,3,Phone,phone_fixed,212.555.0177,+12125550177,no,
+spring-signups-sample.csv,5,Phone,phone_fixed,+1 212 555 0123,+12125550123,no,
+spring-signups-sample.csv,6,Phone,phone_fixed,2125550123,+12125550123,no,
+spring-signups-sample.csv,7,Phone,invalid_phone,555-0199,,yes,not a phone number the process can read
+spring-signups-sample.csv,8,Phone,phone_fixed,212-555-0150,+12125550150,no,
+spring-signups-sample.csv,10,Phone,phone_fixed,(646) 555-0110 x12,+16465550110 ext 12,no,
+spring-signups-sample.csv,11,Phone,phone_fixed,646-555-0181,+16465550181,no,
+spring-signups-sample.csv,12,Phone,phone_fixed,917-555-0105,+19175550105,no,
+spring-signups-sample.csv,13,Phone,phone_fixed,1-646-555-0136,+16465550136,no,
+spring-signups-sample.csv,14,Phone,phone_fixed,646 555 0164,+16465550164,no,
+spring-signups-sample.csv,3,Email,email_tidied,Jordan.Okafor@Example.org,jordan.okafor@example.org,no,
+spring-signups-sample.csv,2,,duplicate_removed,,,no,exact_duplicate; kept row 1
+spring-signups-sample.csv,3,Notes,filled_from_duplicate,,Prefers mornings,no,"taken from row 4, a duplicate"
+spring-signups-sample.csv,4,,duplicate_removed,,,no,same_email; kept row 3
+spring-signups-sample.csv,5,Email,filled_from_duplicate,,sam.rivera@example.org,no,"taken from row 6, a duplicate"
+spring-signups-sample.csv,5,Signup Date,duplicate_conflict,2026-04-02,2026-03-16,yes,row 6 is a duplicate with a different value; the first was kept
+spring-signups-sample.csv,6,,duplicate_removed,,,no,same_name_and_phone; kept row 5
+spring-signups-sample.csv,12,,possible_duplicate,,,yes,same name as row 11 with different contact details; a person decides
+spring-signups-sample.csv,8,Email,invalid_email,riley.chen@example,,yes,not an email address the process can read
+spring-signups-sample.csv,9,,missing_contact,,,yes,no email and no phone; a person decides whether to follow up
+spring-signups-sample.csv,14,,missing_required,,,yes,no name
+winter-signups-sample.csv,1,Signup date,ambiguous_date,01/02/2026,2026-01-02,yes,read as MDY; check against the original
+winter-signups-sample.csv,2,Signup date,ambiguous_date,02/03/2026,2026-02-03,yes,read as MDY; check against the original
+winter-signups-sample.csv,3,Signup date,date_fixed,2/2/2026,2026-02-02,no,
+winter-signups-sample.csv,1,Phone,phone_fixed,(305) 555-0119,+13055550119,no,
+winter-signups-sample.csv,2,Phone,phone_fixed,305-555-0128,+13055550128,no,
+fall-fair-signups-sample.tsv,,,also_in_other_file,,,no,the same email address is also in spring-signups-sample.csv

@@ -1,0 +1,38 @@
+{
+  "id": "statement-transcription",
+  "title": "Handwritten Statements and Records",
+  "domain": "nonprofit_ops",
+  "summary": "Helps community organizations turn handwritten statements, cards and forms into text typed exactly as written, with every uncertain reading flagged for a person and local terms listed in a glossary, while staff check, follow up and decide how statements are used.",
+  "sister_area": null,
+  "organizations": [
+    {
+      "org_type": "Community center or services nonprofit that collects handwritten statements and forms",
+      "serves": "Community members who write statements, and the staff and interns who type them up",
+      "mandate": "Keep every statement in the writer's own words, protect it, and use it only with consent"
+    }
+  ],
+  "allowed_artifacts": [
+    "agent_skill",
+    "mcp_tool_spec",
+    "csv_template",
+    "markdown_sop",
+    "synthetic_test_pack"
+  ],
+  "required_human_only": [
+    "individual_decision",
+    "external_send"
+  ],
+  "never": [
+    "Correct, tidy, summarize or translate a writer's words in the transcription",
+    "Guess an unclear word without flagging it for a person",
+    "Share a statement without the writer's consent"
+  ],
+  "sources": [
+    {
+      "title": "National Archives: Citizen Archivist resources for transcribing records",
+      "url": "https://www.archives.gov/citizen-archivist/resources",
+      "checked_date": "2026-10-30"
+    }
+  ],
+  "needs_steward_signoff": true
+}

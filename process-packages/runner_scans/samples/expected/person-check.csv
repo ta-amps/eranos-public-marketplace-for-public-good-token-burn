@@ -1,0 +1,16 @@
+document_id,source_file,field,issue,value_read,confidence,note
+intake-form-sample-01,intake-form-sample-01.png,client_name,case_text,Sample Client One,0.95,Client text: a person always checks it against the scan.
+intake-form-sample-01,intake-form-sample-01.png,handwritten_notes,case_text,prefers morning visits,0.92,Client text: a person always checks it against the scan.
+intake-form-sample-01,intake-form-sample-01.png,request_or_need,case_text,help with a housing form,0.93,Client text: a person always checks it against the scan.
+intake-form-sample-02,intake-form-sample-02.png,client_name,case_text,Sample Client Two,0.94,Client text: a person always checks it against the scan.
+intake-form-sample-02,intake-form-sample-02.png,document_date,low_confidence,2026-03-18,0.55,The reader was not sure enough. Look at the scan.
+intake-form-sample-02,intake-form-sample-02.png,handwritten_notes,case_text,call after,,Client text: a person always checks it against the scan.
+intake-form-sample-02,intake-form-sample-02.png,handwritten_notes,unclear,call after,,The reader marked this unclear. Look at the scan and type what it says.
+intake-form-sample-02,intake-form-sample-02.png,request_or_need,case_text,a ride to the food bank,0.91,Client text: a person always checks it against the scan.
+intake-form-sample-04,intake-form-sample-04.png,*,no_reading,,,"No reading file for this scan yet, so its row is empty. Read it, or type it by hand."
+note-sample-03,note-sample-03.png,client_name,case_text,Sample Client Three,0.93,Client text: a person always checks it against the scan.
+note-sample-03,note-sample-03.png,document_date,missing,,,The reading has no value for this field. Look at the scan.
+note-sample-03,note-sample-03.png,handwritten_notes,case_text,asked about the winter coat drive,0.9,Client text: a person always checks it against the scan.
+note-sample-03,note-sample-03.png,page_count,missing,,,The reading has no value for this field. Look at the scan.
+note-sample-03,note-sample-03.png,request_or_need,missing,,,The reading has no value for this field. Look at the scan.
+note-sample-03,note-sample-03.png,staff_initials,unknown_field,S.W.,,"This field is not on the process's field list, so it is not in the spreadsheet."

@@ -1,0 +1,25 @@
+{
+  "format": "ta-amps.scan-report.v1",
+  "process_id": "process-scan-reading-sample",
+  "title": "Scanned document reading process report",
+  "runner_version": "1.0.0",
+  "model_calls": 0,
+  "totals": {
+    "scans": 4,
+    "readings": 3,
+    "documents": 4,
+    "fields_total": 28,
+    "fields_filled": 16,
+    "rows_for_a_person": 15,
+    "documents_for_a_person": 4
+  },
+  "issues": {
+    "case_text": 8,
+    "low_confidence": 1,
+    "missing": 3,
+    "no_reading": 1,
+    "unclear": 1,
+    "unknown_field": 1
+  },
+  "inputs_unchanged": true
+}

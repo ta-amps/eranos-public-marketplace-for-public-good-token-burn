@@ -1,0 +1,15 @@
+{
+  "format": "ta-amps.scan-reading.v1",
+  "document_id": "intake-form-sample-02",
+  "source_file": "intake-form-sample-02.png",
+  "read_by": "made-up sample reading, typed by hand",
+  "fields": {
+    "document_type": {"value": "Intake form", "confidence": 0.98},
+    "document_date": {"value": "2026-03-18", "confidence": 0.55},
+    "client_reference": {"value": "SAMPLE-0102", "confidence": 0.96},
+    "client_name": {"value": "Sample Client Two", "confidence": 0.94},
+    "request_or_need": {"value": "a ride to the food bank", "confidence": 0.91},
+    "handwritten_notes": {"value": "call after", "unclear": true},
+    "page_count": {"value": "1", "confidence": 0.99}
+  }
+}

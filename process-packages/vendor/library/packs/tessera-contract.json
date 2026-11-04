@@ -1,0 +1,4104 @@
+{
+  "categories": {
+    "noun.benchmark_suite": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag"
+      ],
+      "canonical_tags": [
+        "benchmark",
+        "eval",
+        "golden-suite"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "repeat_run_determinism",
+        "fixture_hash_integrity",
+        "contamination_guard_score",
+        "rubric_discriminative_power"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Reproducible evaluation harness, golden fixtures, scoring rubric, and anti-contamination hashes.",
+      "title": "Deterministic Benchmark Suite"
+    },
+    "noun.case_bundle": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "contradicts",
+        "corroborates",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "case-bundle",
+        "redacted",
+        "human-gated"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "redaction_completeness",
+        "exhibit_hash_coverage",
+        "timeline_consistency",
+        "caveat_disclosure_ratio"
+      ],
+      "human_sensitive": true,
+      "kind": "noun",
+      "summary": "PII-redacted case facts, timeline evidence, applicable statute links, and open caveats.",
+      "title": "Structured Case Bundle"
+    },
+    "noun.code_node": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "contradicts",
+        "corroborates",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "code",
+        "deterministic",
+        "ast"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "ast_complexity",
+        "cyclomatic_bound",
+        "pure_function_ratio",
+        "test_branch_coverage"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Typed function, class, module, or AST unit with deterministic test coverage.",
+      "title": "Verified Code Node"
+    },
+    "noun.consensus_ballot": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "corroborates",
+        "contradicts",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "consensus",
+        "ballot",
+        "adjudication"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "quorum_margin_ratio",
+        "voter_calibration_mean",
+        "sybil_fence_integrity",
+        "citation_completeness"
+      ],
+      "human_sensitive": true,
+      "kind": "noun",
+      "summary": "Attested multi-verifier adjudication record with Sybil fencing, calibration weights, and receipt hash.",
+      "title": "Calibrated Consensus Ballot"
+    },
+    "noun.eval_run": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "corroborates",
+        "contradicts",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "eval-run",
+        "scorecard",
+        "null-honest"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "null_honesty_compliance",
+        "sample_size_adequacy",
+        "confidence_interval_tightness",
+        "environment_reproducibility"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Fingerprinted benchmark or ablation run scorecard with null-honest metrics and SHA-256 receipts.",
+      "title": "Fingerprinted Evaluation Run"
+    },
+    "noun.feed_source": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "contradicts",
+        "corroborates",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "live-feed",
+        "volatile",
+        "etag-tracked"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "etag_support",
+        "update_cadence_hours",
+        "parse_reliability",
+        "uptime_ratio_7d"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Volatile advisory stream, public data endpoint, or live pricing feed tracked via ETag/SHA-256.",
+      "title": "Live External Feed Source"
+    },
+    "noun.mcp_server": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "mcp",
+        "tool-schema",
+        "capability"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 10000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "schema_completeness",
+        "transport_reliability",
+        "scope_least_privilege",
+        "idempotency_support"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Model Context Protocol server descriptor, tool JSON schemas, auth scope, and transport spec.",
+      "title": "MCP Server Capability Card"
+    },
+    "noun.model_spec": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "corroborates",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "model-card",
+        "routing",
+        "pricing"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "context_window_tokens",
+        "empirical_calibration_ece",
+        "cost_per_1m_tokens",
+        "tool_call_accuracy"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Inference model card covering context window, modalities, token pricing, and empirical calibration.",
+      "title": "Model Capability Specification"
+    },
+    "noun.motion_profile": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "motion",
+        "trajectory",
+        "rig"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "spline_c2_continuity",
+        "joint_limit_margin",
+        "peak_jerk_bound",
+        "frame_rate_lock"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Parameterized keyframe curves, velocity/jerk limits, and rig joint constraints.",
+      "title": "Kinematic Motion Profile"
+    },
+    "noun.negative_tombstone": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "contradicts",
+        "corroborates",
+        "verifies"
+      ],
+      "canonical_tags": [
+        "negative.knowledge",
+        "tombstone",
+        "do-not-repeat"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.25,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 2000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "reproduction_determinism",
+        "failure_signature_specificity",
+        "blast_radius_severity",
+        "prevented_retry_count"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Verified record of a buggy, unsafe, repealed, or falsified candidate preventing repeat failures.",
+      "title": "Negative Knowledge Tombstone"
+    },
+    "noun.ngo_kit": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "corroborates",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "ngo",
+        "field-kit",
+        "human-safeguard"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "reading_grade_score",
+        "checklist_completeness",
+        "escalation_clarity",
+        "pii_zero_leak_score"
+      ],
+      "human_sensitive": true,
+      "kind": "noun",
+      "summary": "Actionable humanitarian or legal-aid intake checklist, workflow, and safeguard packet.",
+      "title": "NGO Field Operations Kit"
+    },
+    "noun.prompt_shim": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "prompt-shim",
+        "context-rule",
+        "token-bounded"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.1,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1500.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "trigger_precision",
+        "token_budget_utilization",
+        "instruction_conflict_risk",
+        "ablation_lift_score"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Governed context-injection rule with explicit trigger conditions, safety bounds, and token budget.",
+      "title": "Governed Prompt Shim"
+    },
+    "noun.public_source": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "corroborates",
+        "contradicts",
+        "verifies",
+        "rebutted_by_tombstone",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "public-source",
+        "documentation",
+        "provenance"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "authority_tier",
+        "license_clarity",
+        "anchor_link_stability",
+        "snapshot_hash_freshness"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Curated documentation portal, technical specification, open standard, or public dataset index.",
+      "title": "Curated Public Source Index"
+    },
+    "noun.recovery_playbook": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "verifies",
+        "requires_noun",
+        "produces_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag"
+      ],
+      "canonical_tags": [
+        "recovery",
+        "playbook",
+        "fault-containment"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.25,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 3000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "failure_class_coverage",
+        "containment_latency_ms",
+        "idempotent_replay_safety",
+        "recovery_success_rate"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Deterministic fault-recovery procedure mapped to failure classes, queue controls, and replay gates.",
+      "title": "Deterministic Fault Recovery Playbook"
+    },
+    "noun.reflex_procedure": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "reflex",
+        "0-call",
+        "distilled"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.05,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "zero_call_hit_rate",
+        "precondition_specificity",
+        "token_savings_ratio",
+        "replay_determinism"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Zero-call or ultra-low-token deterministic execution recipe distilled from verified trajectories.",
+      "title": "Distilled Reflex Procedure"
+    },
+    "noun.scene_recipe": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "scene",
+        "spatial",
+        "kinematics"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "bounding_box_validity",
+        "asset_manifest_completeness",
+        "frame_budget_adherence",
+        "camera_frustum_coverage"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Reproducible 2D/3D spatial layout, lighting, camera rig, and asset binding graph.",
+      "title": "Declarative Scene Recipe"
+    },
+    "noun.seed_hypothesis": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "contradicts",
+        "corroborates",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag"
+      ],
+      "canonical_tags": [
+        "hypothesis",
+        "seed",
+        "falsifiable"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "falsifiability_clarity",
+        "novelty_vs_tombstones",
+        "expected_information_gain",
+        "experiment_cost_bound"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Falsifiable candidate framing, predicted failure mode, and planned verification experiments.",
+      "title": "Seed Problem Hypothesis"
+    },
+    "noun.shim_provision": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "verifies",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "shim",
+        "adapter",
+        "schema-bridge"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.5,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 2000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "roundtrip_fidelity",
+        "schema_diff_coverage",
+        "backward_compat_score",
+        "bridge_overhead_ms"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Deterministic protocol, schema, or SDK adapter bridging mismatched tool interfaces.",
+      "title": "Compatibility Shim Provision"
+    },
+    "noun.skill_pack": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "verifies",
+        "requires_noun",
+        "produces_noun",
+        "rebutted_by_tombstone",
+        "compiled_into_dag",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "skill-pack",
+        "tool-bindings",
+        "reusable"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.5,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 8000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "tool_binding_coverage",
+        "step_idempotency_ratio",
+        "context_footprint_tokens",
+        "cross_profile_portability"
+      ],
+      "human_sensitive": false,
+      "kind": "noun",
+      "summary": "Reusable multi-step agent skill bundle with verified tool bindings, guardrails, and receipts.",
+      "title": "Verified Agent Skill Pack"
+    },
+    "noun.statute_card": {
+      "allowed_relations": [
+        "derives_from",
+        "supersedes",
+        "contradicts",
+        "corroborates",
+        "requires_noun",
+        "rebutted_by_tombstone",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "statute",
+        "compliance",
+        "cited"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "jurisdiction_iso",
+        "effective_window_days",
+        "primary_citation_verified",
+        "amendment_volatility"
+      ],
+      "human_sensitive": true,
+      "kind": "noun",
+      "summary": "Jurisdiction-scoped statutory or regulatory provision with effective dates and citations.",
+      "title": "Regulatory Statute Card"
+    },
+    "verb.audit_profile_parity": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "verifies",
+        "adapted_for_cohort",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "profile-parity",
+        "audit",
+        "governance"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.05,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 2000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "char_clamp_adherence",
+        "human_gate_consistency",
+        "budget_stepdown_accuracy",
+        "caveat_preservation_ratio"
+      ],
+      "human_sensitive": true,
+      "kind": "verb",
+      "summary": "Verify output clamping, human-review gates, shims, and USD budgets across all CallerProfiles.",
+      "title": "Audit Caller Profile Safety and Budget Parity"
+    },
+    "verb.benchmark_harness": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "verifies",
+        "corroborates",
+        "contradicts",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "benchmark",
+        "harness",
+        "multi-arm"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "arm_isolation_integrity",
+        "seed_reproducibility",
+        "statistical_power",
+        "cost_accounting_precision"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Execute reproducible multi-arm harness evaluation with locked seeds, Wilson bounds, and SHA-256 receipt.",
+      "title": "Execute Multi-Arm Benchmark Harness"
+    },
+    "verb.compile_dag": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "compiled_into_dag",
+        "verifies"
+      ],
+      "canonical_tags": [
+        "dag",
+        "compiler",
+        "deterministic"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "topological_validity",
+        "critical_path_compression",
+        "type_edge_soundness",
+        "idempotency_key_coverage"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Lower expanded plans and candidate steps into a topologically sorted, typed execution graph.",
+      "title": "Compile Deterministic Execution DAG"
+    },
+    "verb.decompose_dag": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "compiled_into_dag",
+        "derives_from",
+        "verifies"
+      ],
+      "canonical_tags": [
+        "decompose",
+        "wave",
+        "dag"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "wave_determinism",
+        "step_granularity_balance",
+        "dependency_chain_soundness",
+        "idempotent_enqueue_safety"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Compile a high-level goal or seed category into a typed dependency wave of child verbs.",
+      "title": "Decompose Goal into Dependency Wave"
+    },
+    "verb.distill_reflex": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "derives_from",
+        "verifies",
+        "compiled_into_dag"
+      ],
+      "canonical_tags": [
+        "distill",
+        "reflex",
+        "token-saving"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "trace_corroboration_count",
+        "replay_pass_ratio",
+        "compression_ratio",
+        "precondition_soundness"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Compress repeated high-confidence execution traces into a 0-call noun.reflex_procedure.",
+      "title": "Distill Verified Trace into Reflex"
+    },
+    "verb.expand_seed": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "derives_from",
+        "compiled_into_dag"
+      ],
+      "canonical_tags": [
+        "expand",
+        "planning",
+        "hypothesis"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "branch_prune_efficiency",
+        "dag_acyclicity",
+        "noun_reuse_ratio",
+        "budget_adherence"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Elaborate a seed hypothesis into concrete sub-tasks, required nouns, and falsification checks.",
+      "title": "Expand Seed Hypothesis"
+    },
+    "verb.fetch_feed": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "corroborates",
+        "supersedes"
+      ],
+      "canonical_tags": [
+        "fetch",
+        "feed",
+        "conditional-http"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "conditional_304_efficiency",
+        "header_provenance_completeness",
+        "timeout_resilience",
+        "drift_detection_accuracy"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Poll an external feed source using ETag/If-None-Match headers and record provenance.",
+      "title": "Fetch External Feed Conditionally"
+    },
+    "verb.generate_seed": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "derives_from",
+        "corroborates",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "seed",
+        "synthesize",
+        "discovery"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "dedup_novelty_ratio",
+        "provenance_link_density",
+        "falsification_predicate_score",
+        "seed_to_canonical_yield"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Synthesize structured, falsifiable seed nouns from raw domain observations and delta feeds.",
+      "title": "Synthesize Structured Seed Nouns"
+    },
+    "verb.ingest": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "derives_from",
+        "verifies"
+      ],
+      "canonical_tags": [
+        "ingest",
+        "cas",
+        "normalize"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "dedup_hit_ratio",
+        "schema_parse_fidelity",
+        "redaction_pass_rate",
+        "throughput_bytes_per_sec"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Parse raw input bytes, strip unsafe tokens, compute CAS SHA-256, and emit a typed Noun.",
+      "title": "Normalize and Ingest Artifact"
+    },
+    "verb.probe_source": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "verifies",
+        "corroborates",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "probe",
+        "liveness",
+        "sha256-drift"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.05,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "timeout_bound_adherence",
+        "conditional_header_hit_rate",
+        "sha256_drift_accuracy",
+        "https_safety_enforcement"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Execute bounded conditional HTTP/ETag/SHA-256 liveness, latency, and drift check on an endpoint.",
+      "title": "Probe Source Liveness and Drift"
+    },
+    "verb.problemize": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "derives_from",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "problemize",
+        "framing",
+        "constraints"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "acceptance_gate_testability",
+        "constraint_completeness",
+        "reflex_shortcircuit_rate",
+        "scope_tightness"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Convert noisy observations or user requests into testable constraints, acceptance gates, and seeds.",
+      "title": "Frame Bounded Problem Statement"
+    },
+    "verb.recheck_fragility": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "verifies",
+        "supersedes",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "fragility",
+        "recheck",
+        "freshness"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "staleness_reduction",
+        "drift_precision",
+        "dependent_invalidation_speed",
+        "probe_budget_efficiency"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Re-probe decayed artifacts against live endpoints, statutes, or schemas to refresh confidence.",
+      "title": "Recheck Stale or Fragile Noun"
+    },
+    "verb.reconcile_conflict": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "supersedes",
+        "contradicts"
+      ],
+      "canonical_tags": [
+        "reconcile",
+        "3-way-merge",
+        "cas"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "auto_merge_ratio",
+        "crdt_commutativity",
+        "conflict_path_minimality",
+        "ancestor_fidelity"
+      ],
+      "human_sensitive": true,
+      "kind": "verb",
+      "summary": "Merge disjoint edits, monotonic tag sets, and commutative counters or isolate collisions.",
+      "title": "Reconcile 3-Way Context/CAS Conflict"
+    },
+    "verb.recover_fault": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "derives_from",
+        "verifies",
+        "supersedes",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "recover",
+        "dead-letter",
+        "replay"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 0.25,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "failure_classification_accuracy",
+        "replay_idempotency",
+        "post_recovery_pass_rate",
+        "containment_speed_ms"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Classify dead-letter or transient failure, apply deterministic recovery playbook, and replay safely.",
+      "title": "Diagnose and Replay Faulted Task"
+    },
+    "verb.situate": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "corroborates",
+        "contradicts",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "situate",
+        "context-graph",
+        "jurisdiction"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "neighborhood_recall",
+        "tombstone_coverage",
+        "jurisdiction_match_accuracy",
+        "hop_budget_efficiency"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Anchor an artifact or signal inside its graph neighborhood, statutory scope, and prior history.",
+      "title": "Situate in Graph and Jurisdiction"
+    },
+    "verb.solve_draft": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "derives_from",
+        "supersedes",
+        "adapted_for_cohort"
+      ],
+      "canonical_tags": [
+        "solve",
+        "draft",
+        "synthesis"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "first_pass_gate_rate",
+        "constraint_satisfaction",
+        "shim_reuse_ratio",
+        "synthesis_token_efficiency"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Construct a candidate code node, shim, scene recipe, or brief satisfying problem constraints.",
+      "title": "Synthesize Candidate Solution Draft"
+    },
+    "verb.verify_gate": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "verifies",
+        "corroborates",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "verify",
+        "gate",
+        "0-call"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "zero_flake_determinism",
+        "assertion_density",
+        "leak_scan_coverage",
+        "gate_latency_ms"
+      ],
+      "human_sensitive": false,
+      "kind": "verb",
+      "summary": "Run unit tests, benchmark assertions, schema validators, and safety checks on a candidate.",
+      "title": "Execute Deterministic Verification Gate"
+    },
+    "verb.vote_judge": {
+      "allowed_relations": [
+        "requires_noun",
+        "produces_noun",
+        "verifies",
+        "supersedes",
+        "rebutted_by_tombstone"
+      ],
+      "canonical_tags": [
+        "voting",
+        "judging",
+        "sybil-fenced"
+      ],
+      "dimensions": {
+        "cost_usd": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 5.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "determinism": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "evidence_grounding": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "fragility_score": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "latency_p95_ms": {
+          "allowed_values": [],
+          "direction": "lower_is_better",
+          "dtype": "float",
+          "max_val": 30000.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "reusability": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": false
+        },
+        "safety_compliance": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "token_efficiency": {
+          "allowed_values": [],
+          "direction": "higher_is_better",
+          "dtype": "float",
+          "max_val": 1.0,
+          "min_val": 0.0,
+          "required": true
+        },
+        "verification_tier": {
+          "allowed_values": [
+            "unverified",
+            "deterministic_gate",
+            "multi_verifier",
+            "steward_attested"
+          ],
+          "direction": "higher_is_better",
+          "dtype": "categorical",
+          "max_val": 3.0,
+          "min_val": 0.0,
+          "required": false
+        }
+      },
+      "domain_dimensions": [
+        "sybil_rejection_accuracy",
+        "calibration_weighting_fidelity",
+        "quorum_attainment",
+        "tombstone_emission_rate"
+      ],
+      "human_sensitive": true,
+      "kind": "verb",
+      "summary": "Tally Sybil-fenced, calibration-weighted verifier votes and route winner or park for human.",
+      "title": "Adjudicate Conflict via Calibrated Ballots"
+    }
+  },
+  "effect_classes": [
+    "read",
+    "write-internal",
+    "write-repo",
+    "public"
+  ],
+  "fields": {
+    "NounRef": [
+      "key",
+      "store",
+      "value_sha256",
+      "version"
+    ],
+    "RecordWrite": [
+      "allowed_surfaces",
+      "expected_version",
+      "key",
+      "namespace",
+      "owner_key_id",
+      "producer_surface",
+      "store",
+      "tags",
+      "target_cohorts",
+      "value",
+      "visibility_scope"
+    ],
+    "TaskSpec": [
+      "allowed_surfaces",
+      "brief",
+      "depends_on",
+      "effect_class",
+      "idempotency_key",
+      "kind",
+      "namespace",
+      "not_before",
+      "owner_key_id",
+      "priority",
+      "producer_surface",
+      "queue",
+      "tags",
+      "target_cohorts",
+      "task_id",
+      "visibility_scope"
+    ],
+    "governed": [
+      "allowed_surfaces",
+      "namespace",
+      "owner_key_id",
+      "producer_surface",
+      "tags",
+      "target_cohorts",
+      "visibility_scope"
+    ]
+  },
+  "format": "ta-amps.tessera-contract-snapshot.v1",
+  "limits": {
+    "idempotency_key_max_length": 256,
+    "max_dependencies": 100,
+    "max_report_bytes": 32768,
+    "task_priority": [
+      0,
+      100
+    ]
+  },
+  "patterns": {
+    "name": "^[a-z0-9][a-z0-9_.-]{0,63}$",
+    "namespace": "^[a-z0-9][a-z0-9_.-]{0,63}$",
+    "noun_ref_key": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$",
+    "record_key": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}$",
+    "task_id": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$"
+  },
+  "payload_tag_fields": [
+    "area",
+    "category",
+    "category_id",
+    "domain",
+    "kind",
+    "stage",
+    "surface",
+    "track"
+  ],
+  "purpose": "Facts copied from Tessera's own code so the stdlib validator can check packs without Tessera installed. Regenerate with scripts/validate_against_tessera.py --write.",
+  "relation_types": [
+    "derives_from",
+    "supersedes",
+    "contradicts",
+    "corroborates",
+    "verifies",
+    "requires_noun",
+    "produces_noun",
+    "rebutted_by_tombstone",
+    "compiled_into_dag",
+    "adapted_for_cohort"
+  ],
+  "report": {
+    "block_kinds": [
+      "context",
+      "environment",
+      "error",
+      "input",
+      "problem",
+      "solution"
+    ],
+    "contract_fields": [
+      "context_hash",
+      "environment_hash",
+      "input_schema",
+      "output_schema",
+      "toolchain_hash"
+    ],
+    "root_fields": [
+      "artifact_refs",
+      "blocks",
+      "contract",
+      "embedding",
+      "harness",
+      "model",
+      "summaries",
+      "usage",
+      "version"
+    ],
+    "shape_domain": "execution-shape-v1\\0",
+    "summary_fields": [
+      "input",
+      "problem",
+      "solution"
+    ],
+    "token_fields": [
+      "cached_tokens",
+      "input_tokens",
+      "output_tokens",
+      "total_tokens"
+    ]
+  },
+  "tessera": {
+    "commit": "55458514e84eaf1e524637c3bd04916ebb4b3c35",
+    "files": {
+      "src/tessera/_storage.py": "da5cd4b4232a8c1e679de06f785713e0cd6f138ea32df356b63d8fa50035e69f",
+      "src/tessera/execution_matching.py": "bbcba5a12338ea092addaf6602cb0c5e987729c6433d9e0d3fe4d46846a7a58e",
+      "src/tessera/models.py": "51495212f0ea8d3960419488f0f4c24e7b683bb873215c9d8829d72b20144043",
+      "src/tessera/ontology/categories.py": "2ae0072ec940ca760df7424299e25f77e4fdfe8d02062d69cde4f4b8757f98c2",
+      "src/tessera/receipts.py": "3ccc976d14b4fa43c773a5ae6e1939af6bb64d4fdc40683cecfb1dcd231a8c38",
+      "tools/research_seed.py": "7c1a3d91cf301e32a32dd288361859f76e2ff0349e3a33755dc6ba4d013b76f0"
+    },
+    "repository": "https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine"
+  },
+  "verification_tiers": [
+    "unverified",
+    "deterministic_gate",
+    "multi_verifier",
+    "steward_attested"
+  ],
+  "visibility_scopes": [
+    "allowlist_surfaces",
+    "private",
+    "public_commons",
+    "surface_only"
+  ]
+}
