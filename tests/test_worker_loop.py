@@ -802,6 +802,14 @@ def test_a_process_kit_sends_all_it_publishes_to_the_reader(
     fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     reader = _KitReader("approved")
+    seen: list[dict[str, Any]] = []
+    original = process_part.reviewed_value
+
+    def spy(handler: Any, value: Any, fields: dict[str, Any]) -> Any:
+        seen.append(fields)
+        return original(handler, value, fields)
+
+    monkeypatch.setattr(process_part, "reviewed_value", spy)
     _, _, part = _process_run(fabric, tmp_path, monkeypatch, reader)
     sent = json.loads(reader.sent[0])
     assert (
@@ -812,8 +820,8 @@ def test_a_process_kit_sends_all_it_publishes_to_the_reader(
     assert "package's own tests" in sent["checked_by_this_worker"][0]
     review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
     assert review["output"]["approved"] is True
-    notes = review["output"]["catalog_value"]["review_notes"]
-    assert "the records this kit publishes" in notes and "read all" not in notes
+    assert "the records this kit publishes" in seen[0]["review_notes"]
+    assert "read all" not in seen[0]["review_notes"]
 
 
 B4_HANDLER = os.environ.get("ERANOS_PROCESS_HANDLER", "")

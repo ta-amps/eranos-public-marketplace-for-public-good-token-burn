@@ -1250,6 +1250,7 @@ class Worker:
         )
         if gate.ended == "lost" or beat.lost is not None:
             message += "; the lease was lost before the result could be submitted"
+            private_message += "; the lease was lost before the result could be submitted"
         if gate.ended is None:
             try:  # a separate key: an earlier submit under the lease's key may have landed unseen
                 receipt = gate.submit(
