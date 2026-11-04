@@ -49,6 +49,9 @@ from eranos.pipeline.status_events import fact, has_event, queue_snapshot, recor
 
 OUTPUT_TYPES = ("process", "information", "both")
 MAX_UNRECORDED_REPLANS = 3  # re-plans of a plan whose record write kept failing (the review's F1b)
+# How long a request waits before its process part is built and checked again, after a check that
+# never reached a verdict (a model outage, usually). One wait per retry, then it closes with the reason.
+REVIEW_RETRY_WAITS = (600.0, 1800.0)
 REUSE_CHECK_WORDS = (
     "A reviewed answer from the library may fit. Another worker checks that it answers this request"
     " before it is sent; if it does not, new work is planned."
@@ -780,6 +783,21 @@ class Planner:
         noun = read_request(self.b, self.request_id)
         value = noun[0] if noun else {}
         occurrences = list(value.get("occurrences") or [latest])
+        if pointer is None and self._check_never_finished(latest):
+            tries = int(value.get("review_retries") or 0)
+            if tries < len(REVIEW_RETRY_WAITS) and self._count_retry(tries):
+                return self._wait_to_check_again(occurrences, tries)
+            self._facts(
+                [
+                    fact(
+                        "blocked",
+                        **self.who,
+                        ref=f"{self.request_id} check",
+                        findings=[f"the check did not finish after {tries + 1} rounds of tries"],
+                        reason="The check could not finish, so this request is closed with no result. Nothing was published.",
+                    )
+                ]
+            )
         failed = [d for d in self.recover(list(latest.get("children") or [])) if d.get("error")]
         if (
             failed
@@ -823,6 +841,78 @@ class Planner:
         )
         return closed
 
+    def _check_never_finished(self, latest: dict[str, Any]) -> bool:
+        """Every part of a one-off request is a process part that was built and whose check went dead
+        with no verdict. A check that says no is `done`, so it never counts here. Any other part, or
+        a recurring request (its next occurrence is the retry), closes or goes on as before."""
+        if latest.get("unrecorded") or self.terms.get("frequency") == "recurring":
+            return False
+        ids = {str(i) for i in latest.get("children") or []}
+        mine = [c for c in self.lease.children if c.task_id in ids]
+        if any(isinstance(c.output, dict) and c.output.get("approved") is True for c in mine):
+            return False
+        states = {c.task_id: c.state for c in mine}
+        working = [p for p in self._plan_parts() if p.get("route") != "held"]
+        return bool(working) and all(
+            p.get("route") == "process"
+            and states.get(str(p.get("work_task_id"))) == "done"
+            and states.get(str(p.get("review_task_id"))) == "dead"
+            for p in working
+        )
+
+    def _plan_parts(self) -> list[dict[str, Any]]:
+        try:
+            return list(
+                (self.b.get_record(PLANS_STORE, self.request_id).value or {}).get("parts") or []
+            )
+        except NotFound:
+            return []
+
+    def _count_retry(self, tries: int) -> bool:
+        """Count a retry before it starts. A count that can't be saved means no retry, so the limit holds."""
+        self._set_fields(review_retries=tries + 1)
+        noun = read_request(self.b, self.request_id)
+        return int(((noun[0] if noun else {}) or {}).get("review_retries") or 0) == tries + 1
+
+    def _wait_to_check_again(self, occurrences: list[dict[str, Any]], tries: int) -> dict[str, Any]:
+        """Keep the request open: wait, then wake() plans its part again, under a new check."""
+        wait = REVIEW_RETRY_WAITS[tries]
+        view = self.b.park(
+            self.lease.task_id,
+            self.lease.fencing_token,
+            reason=f"the check did not finish; trying again in {int(wait)} s",
+            resume_within=wait,
+        )
+        due = time.time() + wait
+        occurrences[-1] = {
+            **occurrences[-1],
+            "status": "check_retry",
+            "next_at": round(due, 3),
+            "park": int(view.parks),
+        }
+        self._store_occurrences(
+            occurrences,
+            [
+                # work_released, not queued: the page shows its reason, and reads a queued fact's
+                # next_at as a recurring request's schedule.
+                fact(
+                    "work_released",
+                    part=part,
+                    reason=(
+                        f"The check could not finish, so nothing was published. This request stays "
+                        f"open and tries again in about {round(wait / 60)} minutes."
+                    ),
+                    ref=f"{self.request_id} park {view.parks}",
+                    **self.who,
+                    summary={"retry": tries + 1},
+                )
+                for part in sorted(
+                    int(p["part"]) for p in self._plan_parts() if p.get("route") == "process"
+                )
+            ],
+        )
+        return {"status": "check_retry", "next_at": due, "park": view.parks, "retry": tries + 1}
+
     def park(
         self, occurrences: list[dict[str, Any]], period: int, wait: float | None = None
     ) -> dict[str, Any]:
@@ -864,6 +954,21 @@ class Planner:
         }
 
     def wake(self, latest: dict[str, Any]) -> dict[str, Any]:
+        if latest.get("status") == "check_retry":
+            # A split the record missed (its write failed, or a crash) goes to finish(), which reads
+            # those children's results and has its own limit. It is never planned over.
+            noun = read_request(self.b, self.request_id)
+            known = {
+                str(i)
+                for o in ((noun[0] if noun else {}) or {}).get("occurrences") or []
+                for i in o.get("children") or []
+            }
+            missed = [c.task_id for c in self.lease.children if c.task_id not in known]
+            if missed:
+                return self.finish(
+                    {"n": latest["n"], "status": "planned", "children": missed, "unrecorded": True}
+                )
+            return self.plan(int(latest["n"]), reuse=False)
         noun = read_request(self.b, self.request_id)
         occurrences = list((noun[0] if noun else {}).get("occurrences") or [latest])
         recurring = self.terms.get("frequency") == "recurring" and self.terms.get("period_s")
