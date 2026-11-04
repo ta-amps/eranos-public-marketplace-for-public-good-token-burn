@@ -933,7 +933,7 @@ function openTaskView(verb, queue) {
   const tags = Array.isArray(verb.tags) ? verb.tags : [];
   return {
     task_id: String(verb.task_id || ""),
-    queue,
+    queue: String(verb.queue || queue),
     kind: String(verb.kind || ""),
     title: String(brief.title || brief.goal || "").slice(0, 140),
     request_id: brief.request_id ? String(brief.request_id) : null,
@@ -1903,31 +1903,43 @@ async function cachedNetworkStrip(request, env) {
   return answer(text);
 }
 
+// Upkeep is real work that only our own keyed workers do, so it never stands in front of a stranger's choices.
+const UPKEEP_TASK_KINDS = new Set(["tune"]);
+
+// First what a stranger's agent can really claim, read with no key as that agent would; then the keyed view. Tasks a no-key
+// agent can claim come first, upkeep last, oldest first inside each group.
+function orderOpenTasks(tasks) {
+  const rank = (t) => (t.open_to_anonymous ? 0 : UPKEEP_TASK_KINDS.has(t.kind) ? 2 : 1);
+  return [...tasks].sort((a, b) => rank(a) - rank(b) || (a.created_at || 0) - (b.created_at || 0));
+}
+
 async function loadOpenTasksFromTessera(env) {
   let reachable = false;
-  const tasks = [];
+  const byId = new Map();
+  const read = async (query, headers, queue) => {
+    try {
+      const resp = await env.TESSERA.fetch(`https://fabric.teleionlabs.com/ns/main/v1/verbs?${query}`, { headers });
+      if (!resp.ok) {
+        await resp.body?.cancel();
+        return;
+      }
+      reachable = true;
+      const body = await resp.json();
+      for (const verb of Array.isArray(body.verbs) ? body.verbs : []) {
+        const view = openTaskView(verb, queue);
+        if (!byId.has(view.task_id)) byId.set(view.task_id, view);
+      }
+    } catch {
+      // an unreachable queue is reported below, never as an empty list
+    }
+  };
+  if (env.TESSERA) await read("status=ready&limit=50", { "X-Agent-Label": "eranos-open-task-list" }, "");
   if (env.TESSERA && env.TESSERA_SURFACE_KEY) {
     for (const queue of OPEN_TASK_QUEUES) {
-      try {
-        const resp = await env.TESSERA.fetch(
-          `https://fabric.teleionlabs.com/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
-          {
-            headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
-          }
-        );
-        if (resp.ok) {
-          reachable = true;
-          const body = await resp.json();
-          for (const verb of Array.isArray(body.verbs) ? body.verbs : []) tasks.push(openTaskView(verb, queue));
-        } else {
-          await resp.body?.cancel();
-        }
-      } catch {
-        // an unreachable queue is reported below, never as an empty list
-      }
+      await read(`queue=${queue}&status=ready&limit=20`, { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" }, queue);
     }
   }
-  return { reachable, tasks };
+  return { reachable, tasks: orderOpenTasks([...byId.values()]) };
 }
 
 async function handleCloudApi(request, env, pathname) {
@@ -2068,7 +2080,18 @@ async function handleCloudApi(request, env, pathname) {
       }
       return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
     }
-    return jsonResp({ synthetic: false, tasks });
+    const params = new URL(request.url).searchParams;
+    const onlyOpen = ["1", "true"].includes(params.get("open_to_me") || "");
+    const includeUpkeep = !["0", "false"].includes(params.get("include_upkeep") || "");
+    const wanted = Number(params.get("max_results") || params.get("limit") || 0);
+    let shown = tasks.filter((t) => (!onlyOpen || t.open_to_anonymous) && (includeUpkeep || !UPKEEP_TASK_KINDS.has(t.kind)));
+    if (Number.isInteger(wanted) && wanted > 0) shown = shown.slice(0, wanted);
+    return jsonResp({
+      synthetic: false,
+      tasks: shown,
+      open_to_new_agents: tasks.filter((t) => t.open_to_anonymous).length,
+      practice_task_url: "https://fabric.teleionlabs.com/v1/verbs",
+    });
   }
 
   const nounMatch = /^\/api\/nouns\/([a-z0-9_.-]+)(?:\/([^/]+))?$/.exec(pathname);

@@ -645,18 +645,24 @@ def test_a_request_record_history_is_public_and_only_for_requests_and_plans() ->
     assert out["escape"]["status"] == 400
 
 
-OPEN_TASKS = """({ TESSERA_SURFACE_KEY: "test-surface-key", TESSERA: { async fetch(url) {
+OPEN_TASKS = """({ TESSERA_SURFACE_KEY: "test-surface-key", TESSERA: { async fetch(url, init) {
   const queue = new URL(url).searchParams.get("queue");
-  return new Response(JSON.stringify({ verbs: [{ task_id: "t_" + queue, kind: queue === "eq02" ? "research" : "report_review",
-    created_at: 1793474000, tags: queue === "eq02" ? ["open:anonymous"] : [], brief: { title: "Clinic: summarize the laws", request_id: "rq-x", part: 1, secret_output: "never shown" },
-    output: "never shown" }], next: null }), { headers: { "content-type": "application/json" } });
+  const keyed = Boolean(init && init.headers && init.headers.Authorization);
+  const verb = (task_id, q, kind, tags, created_at) => ({ task_id, queue: q, kind, created_at, tags,
+    brief: { title: "Clinic: summarize the laws", request_id: "rq-x", part: 1 }, output: "never shown" });
+  const open = verb("t_eq02", "eq02", "research", ["open:anonymous"], 1793474000);
+  const verbs = !keyed ? [open]
+    : queue === "eq02" ? [verb("t_keyed", "eq02", "volunteer_followup", [], 1793470000), open]
+    : [verb("t_tune", "eq03", "tune", [], 1793460000), verb("t_eq03", "eq03", "report_review", [], 1793474001)];
+  return new Response(JSON.stringify({ verbs, next: null }), { headers: { "content-type": "application/json" } });
 } } })"""
 
 
 def test_open_tasks_are_read_with_the_surface_key_and_show_only_the_brief_title() -> None:
     out = _worker([("tasks", "GET", "/api/open-tasks", None)], OPEN_TASKS)
     tasks = json.loads(out["tasks"]["body"])["tasks"]
-    assert [t["queue"] for t in tasks] == ["eq02", "eq03"]
+    # What a no-key agent can claim comes first, upkeep last, and a Task seen by both reads appears once.
+    assert [t["task_id"] for t in tasks] == ["t_eq02", "t_keyed", "t_eq03", "t_tune"]
     assert tasks[0] == {
         "task_id": "t_eq02",
         "queue": "eq02",
@@ -668,6 +674,16 @@ def test_open_tasks_are_read_with_the_surface_key_and_show_only_the_brief_title(
         "open_to_anonymous": True,
     }
     assert "never shown" not in out["tasks"]["body"]
+    assert json.loads(out["tasks"]["body"])["open_to_new_agents"] == 1
+    narrowed = _worker(
+        [
+            ("open", "GET", "/api/open-tasks?open_to_me=1", None),
+            ("noupkeep", "GET", "/api/open-tasks?include_upkeep=false&max_results=2", None),
+        ],
+        OPEN_TASKS,
+    )
+    assert [t["task_id"] for t in json.loads(narrowed["open"]["body"])["tasks"]] == ["t_eq02"]
+    assert [t["task_id"] for t in json.loads(narrowed["noupkeep"]["body"])["tasks"]] == ["t_eq02", "t_keyed"]
     unreachable = _worker([("tasks", "GET", "/api/open-tasks", None)])
     assert unreachable["tasks"]["status"] == 503
 
