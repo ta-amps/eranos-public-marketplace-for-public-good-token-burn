@@ -185,6 +185,7 @@ test.describe("a request that closed with nothing delivered", () => {
     expect(isOwnTest(start)).toBe(true);
     expect(withoutOwnLabel(start)).toBe("How do we plan?");
     expect(isOwnTest("We want a plan for our test run, for flood season.")).toBe(false);
+    expect(isOwnTest("Test run results for our flyer are in, what now?")).toBe(false);
     expect(isOwnTest(null)).toBe(false);
   });
 });
