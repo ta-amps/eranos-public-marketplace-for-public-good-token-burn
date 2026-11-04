@@ -615,9 +615,13 @@ export function PlainStatus({
   const nothingReady = !parts.some((p) => p.check === "approved" || p.decide === "yourturn" || p.decide === "decided");
   const noResult = facts.closed && nothingReady && !facts.withdrawn && !facts.blocked && !facts.reused && words.no_result ? words.no_result : null;
   const cause = noResultCause(rawEvents);
+  // A process no ready class fits is looked up as public information instead: the note says so.
+  const noClass = parts.some((p) => p.plan.output_type === "process" && p.plan.route === "public-only");
   const noResultWhy = !noResult
     ? ""
-    : cause.tries === 0
+    : noClass && noResult.why_no_process_class
+      ? noResult.why_no_process_class
+      : cause.tries === 0
       ? noResult.why_never_tried
       : cause.sources
         ? cause.tries === 1

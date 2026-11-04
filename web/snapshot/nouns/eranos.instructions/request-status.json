@@ -793,7 +793,8 @@
     "why_no_sources": "We searched public sources {n} times. Nothing we found answered your question with a sentence we could quote word for word, and we don’t guess.",
     "why_no_sources_one": "We searched public sources. Nothing we found answered your question with a sentence we could quote word for word, and we don’t guess.",
     "why_other": "We tried {n} times, and no result passed our checks.",
-    "why_other_one": "We tried, and no result passed our checks."
+    "why_other_one": "We tried, and no result passed our checks.",
+    "why_no_process_class": "We don’t have a ready way to build this kind of process yet. We looked for public information about it instead, and nothing passed our checks."
    }
   },
   "steps": {

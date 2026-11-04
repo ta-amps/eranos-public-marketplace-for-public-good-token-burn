@@ -160,12 +160,13 @@ export function plainReason(reason: string | undefined): string | undefined {
   return reason && TECHNICAL_REASON.test(reason) ? "a technical problem" : reason;
 }
 /** A label we put on our own test and practice requests; it isn't part of the question. */
-const OWN_LABEL = /\s*\btest run\b(?:,\s*[^.?!]{0,30})?[.?!]?\s*$/i;
+const OWN_LABEL_END = /\s*\btest run\b(?:,\s*[^.?!]{0,30})?[.?!]?\s*$/i;
+const OWN_LABEL_START = /^\s*test run\b[^.?!]*[.?!]\s*/i;
 export function isOwnTest(text: string | null | undefined): boolean {
-  return OWN_LABEL.test(text ?? "");
+  return OWN_LABEL_END.test(text ?? "") || OWN_LABEL_START.test(text ?? "");
 }
 export function withoutOwnLabel(text: string | null | undefined): string {
-  return (text ?? "").replace(OWN_LABEL, "").replace(/\s+/g, " ").trim();
+  return (text ?? "").replace(OWN_LABEL_START, "").replace(OWN_LABEL_END, "").replace(/\s+/g, " ").trim();
 }
 
 /** Why a closed request has nothing to show, from its own record: how many tries, and whether sources were why;

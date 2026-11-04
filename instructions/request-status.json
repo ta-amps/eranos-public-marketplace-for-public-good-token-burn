@@ -788,7 +788,8 @@
     "Add a link to a public page you trust. We read your links first.",
     "Try a narrower question in plain words. Small questions are easier to find sources for."
    ],
-   "again": "Ask again"
+   "again": "Ask again",
+   "why_no_process_class": "We don’t have a ready way to build this kind of process yet. We looked for public information about it instead, and nothing passed our checks."
   }
  },
  "steps": {

@@ -479,6 +479,7 @@ export interface PlainWords {
     why_other: T;
     why_other_one: T;
     why_never_tried: T;
+    why_no_process_class?: T;
     can_do_title: T;
     can_do: T[];
     again: T;

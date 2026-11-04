@@ -181,6 +181,9 @@ test.describe("a request that closed with nothing delivered", () => {
     expect(isOwnTest("How do we test a run of 40 flyers?")).toBe(false);
     expect(isOwnTest("We ran a test run of our disaster plan; what next?")).toBe(false);
     expect(withoutOwnLabel("We ran a test run of our plan; what next?")).toBe("We ran a test run of our plan; what next?");
+    const start = "Test run, Nov 4, 2026, our own example, not a real organization's request. How do we plan?";
+    expect(isOwnTest(start)).toBe(true);
+    expect(withoutOwnLabel(start)).toBe("How do we plan?");
     expect(isOwnTest(null)).toBe(false);
   });
 });
