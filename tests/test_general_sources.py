@@ -328,7 +328,22 @@ def test_label_words_inside_a_question_are_the_question():
     )
     assert R.subject_text(text) == text
     assert "evacuation" in R.query_terms(text)
-    assert R.subject_text("Practice case: an example. How do we plan?") == "How do we plan?"
+    assert (
+        R.subject_text("Practice case: an example, not a real person or case. How do we plan?")
+        == "How do we plan?"
+    )
+    assert R.subject_text("Practice case: How do we plan?") == "How do we plan?"
+    assert (
+        R.subject_text("Test run: How do we plan? We have 20 bins.")
+        == "How do we plan? We have 20 bins."
+    )
+    assert (
+        R.subject_text(
+            "How do we plan? Test run, Nov 4, 2026, our own example, not a real organization's request."
+        )
+        == "How do we plan?"
+    )
+    assert R.subject_text("How do we plan? (Test run, Nov 4.)") == "How do we plan?"
     assert R.subject_text("How do we plan? Test run, Nov 4.") == "How do we plan?"
     start = (
         "Test run, Nov 4, 2026, our own example, not a real organization's request. How do we plan?"
@@ -404,3 +419,59 @@ def test_two_rounds_of_sources_never_share_a_number():
     made["fetch"]["apis"] = [a for a in made["fetch"]["apis"] if a["id"] == "doaj"]
     second, _ = R.gather(made, lambda u: fetcher(u), phrases=["other words"])
     assert not {s["id"] for s in first} & {s["id"] for s in second}
+
+
+def test_a_less_than_sign_in_an_abstract_is_text_not_a_tag():
+    assert (
+        R._plain("sites with <10 staff and >50 volunteers")
+        == "sites with <10 staff and >50 volunteers"
+    )
+    assert R._plain("<h4>Abstract</h4>Volunteers stayed.") == "Abstract Volunteers stayed."
+
+
+def test_a_banned_word_in_the_question_or_a_title_does_not_stop_a_report():
+    from eranos.pipeline.solutions import report_findings
+
+    report = {"question": "Do we need criminal background checks?", "title": "Criminal checks"}
+    assert not any("accusatory" in f for f in report_findings(report, {"sources": []}))
+    assert any(
+        "accusatory" in f
+        for f in report_findings({"summary": "They are criminals."}, {"sources": []})
+    )
+
+
+def test_sentences_that_lost_their_start_or_end_or_sit_under_a_warning_are_not_quotable():
+    for text in (
+        "A pantry may not, under Sec. 5 of the code, hand out raw chicken without a license.",
+        "Do not follow Gov. Smith who said a pantry can hand out raw chicken.",
+        "Do not give more than approx. 40 pounds of raw chicken to any guest.",
+    ):
+        assert all(
+            not s.startswith(("5 of", "Smith", "40 pounds")) for s in R.standalone_sentences(text)
+        )
+    ended = "Volunteers can hand out raw chicken in most U.S. States only with a permit."
+    assert all(not s.endswith("U.S.") for s in R.standalone_sentences(ended))
+    for heading in (
+        "Don\u2019t",
+        "Avoid these mistakes",
+        "Common mistakes",
+        "Unsafe practices",
+        "What not to do",
+    ):
+        assert R.standalone_sentences(f"{heading}\nLeave raw chicken out for 2 hours.") == []
+    assert R.standalone_sentences("Avoid\nLeave it out.\nSafe storage\nKeep it cold.") == [
+        "Safe storage",
+        "Keep it cold.",
+    ]
+
+
+def test_a_claim_cannot_flip_or_add_a_negation():
+    long = "Volunteers who work alone at the food pantry must not handle raw chicken."
+    assert R.adds_to_quote(
+        "Volunteers who work alone at the food pantry must handle raw chicken.", long
+    )
+    assert R.adds_to_quote(
+        "Volunteers and staff may handle it.", "Neither volunteers nor staff may handle it."
+    )
+    assert R.adds_to_quote("Do not keep raw chicken cold.", "Keep raw chicken cold.")
+    assert not R.adds_to_quote("Keep raw chicken cold.", "Keep raw chicken cold.")

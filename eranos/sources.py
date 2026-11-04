@@ -73,7 +73,7 @@ BLOCK_TAGS = frozenset(
     ]
 )
 SKIP_TAGS = frozenset({"script", "style", "noscript", "template", "svg", "head"})
-_SPACE = re.compile(r"[ \t\f\v\r\xa0]+")
+_SPACE = re.compile(r"[ \t\f\v\r\xa0\x1c-\x1f\x85\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+")
 
 
 class SourceRefused(ValueError):

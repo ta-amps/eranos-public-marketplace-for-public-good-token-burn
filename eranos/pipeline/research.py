@@ -212,13 +212,17 @@ _ABOUT_PEOPLE = frozenset(
 )
 _PEOPLE_MEANS = frozenset({"retention", "turnover", "recruitment"})
 # A label says who is asking or why, not what about: it never goes into a search.
+_LABEL_DATE = r"(?:[,:\s-]+(?:on\s+)?[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?"
+_LABEL_LONG = r"(?:,\s*our own example, not a real organization's request)?"
 _LABEL_START = re.compile(
-    r"^\s*(?:example request:\s*|(?:practice case:|test run\b)[^.?!\n]*[.?!]\s+(?=\S))",
+    r"^\s*(?:\(?test run" + _LABEL_DATE + _LABEL_LONG + r"\s*\)?\s*[.:\u2013-]\s*"
+    r"|practice case:\s*(?:an example, not a real person or case\.\s*)?"
+    r"|example request:\s*)",
     re.IGNORECASE,
 )
 # Its own sentence at the end, with at most a date: "...? Test run, Nov 4."
 _LABEL_END = re.compile(
-    r"(?:^|(?<=[.?!])\s+)test run(?:,\s*[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?[.?!]?\s*$",
+    r"(?:^|(?<=[.?!])\s+)\(?test run" + _LABEL_DATE + _LABEL_LONG + r"[.?!]?\)?\s*$",
     re.IGNORECASE,
 )
 
@@ -400,7 +404,8 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
     return unique[: int(fetch.get("max_sources") or 5)]
 
 
-_TAG = re.compile(r"<[^>]+>")
+# A tag starts with a letter: "<10 staff and >50 volunteers" is text, and removing it changes the facts.
+_TAG = re.compile(r"</?[a-zA-Z][^<>]*>")
 MAX_ARTICLES_PER_SEARCH = 4
 # A search answer carries each article's opening; its full text takes one more call, same host.
 WIKIPEDIA_PAGE = (
@@ -878,9 +883,11 @@ def store_sources(backend: Any, sources: list[dict[str, Any]]) -> list[dict[str,
 _NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
 _ADDRESS = re.compile(r"https?://\S+|www\.\S+|\b[\w-]{2,}\.[a-z]{2,}\b(?:/\S*)?", re.IGNORECASE)
 _NEGATION = re.compile(
-    r"\b(?:not|never|no(?! more| later| longer| fewer| less)|none|without|cannot|avoid|stop|refuse|prohibit\w*|forbid\w*|\w+n't|\w+n\u2019t)\b",
+    r"\b(?:not|never|no(?! more| later| longer| fewer| less)|none|neither|nor|without|cannot|avoid|stop|"
+    r"refuse|prohibit\w*|forbid\w*|\w+n't|\w+n\u2019t)\b",
     re.IGNORECASE,
 )
+_DUTY_NEGATION = re.compile(r"\b(?:must|may|should|shall)\s+not\b|\bnever\b", re.IGNORECASE)
 
 
 def _numbers(text: str) -> set[str]:
@@ -891,31 +898,57 @@ def adds_to_quote(claim: str, quote: str) -> bool:
     """A claim's wording may be the model's; its figures, web addresses and negation may not: every
     number and address must be in the quote, and a quote that opens with "never" stays negative."""
     opening, head = _NEGATION.search(quote), len(" ".join(quote.split()[:6]))
+    negative = bool(_NEGATION.search(claim))
     return (
         bool(_numbers(claim) - _numbers(quote))
         or any(a.lower().rstrip(".,;)") not in quote.lower() for a in _ADDRESS.findall(claim))
-        or bool(opening and opening.start() < head and not _NEGATION.search(claim))
+        or bool(opening and opening.start() < head and not negative)
+        or bool(_DUTY_NEGATION.search(quote) and not negative)
+        or bool(negative and not opening)
     )
 
 
-_ABBREVIATED = re.compile(r"(?:\b[A-Z]\.|\b(?:e\.g|i\.e|etc|vs|Dr|Mr|Mrs|Ms|No|St|Inc|Co|cf)\.)$")
-_CUT_OFF_LINE = re.compile(r"(?::|\b(?:not|never|no|don't|do not|must not|cannot))$", re.IGNORECASE)
+_ABBREVIATED = re.compile(
+    r"(?:\b[A-Z]\.|\b(?:e\.g|i\.e|etc|vs|Dr|Mr|Mrs|Ms|No|St|Inc|Co|cf|Sec|Secs|Gov|Sen|Rep|Fig|Dept|"
+    r"approx|Pub|Vol|Art|Ch|al|ca|pp?|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\.)$"
+)
+_SHORT_WORD_END = re.compile(r"\b\w{1,6}\.$")
+_CUT_OFF_LINE = re.compile(
+    r"(?::|\b(?:not|never|no|don['\u2019]t|do not|must not|cannot))$", re.IGNORECASE
+)
+_WARNING_HEADING = re.compile(
+    r"\b(?:don['\u2019]?ts?|do not|never|not|avoid\w*|mistakes?|myths?|unsafe|prohibited|forbidden|"
+    r"false|wrong|risks?|dangers?|dangerous|warnings?|bad)\b",
+    re.IGNORECASE,
+)
 
 
 def standalone_sentences(text: str) -> list[str]:
-    """The sentences a claim may quote, in order. A piece that may have lost its start isn't one: it
-    starts in lowercase, follows an abbreviation ("the U.S. states..."), or follows a line that
-    ends in a colon or a "never", so a quote can't drop the word that gives a sentence its meaning."""
+    """The sentences a claim may quote, in order. A piece that may have lost its start or end isn't
+    one: it starts in lowercase, follows an abbreviation ("the U.S. states..."), starts with a digit
+    or symbol after a short word and a period ("Sec. 5..."), ends in an abbreviation, follows a line
+    ending in a colon or a "never", or sits under a heading that warns ("Avoid these mistakes"), so
+    a quote can't drop the word that gives a sentence its meaning."""
     out: list[str] = []
     before = ""
+    warned = False
     for line in text.split("\n"):
+        line = line.strip()
+        if line and not line.endswith((".", "!", "?", ":", '"', "\u201d", ")")):
+            warned = bool(_WARNING_HEADING.search(line))  # a heading rules what follows it
         for piece in _SENTENCE.split(line):
             piece = piece.strip()
+            if not piece:
+                continue
             cut = _ABBREVIATED.search(before) or _CUT_OFF_LINE.search(before)
-            if piece and not cut and not piece[0].islower():
+            lost = (
+                not piece[0].isalpha()
+                and piece[0] not in "\"'\u201c("
+                and _SHORT_WORD_END.search(before)
+            )
+            if not (cut or lost or warned or piece[0].islower() or _ABBREVIATED.search(piece)):
                 out.append(piece)
-            if piece:
-                before = piece
+            before = piece
     return out
 
 
@@ -1048,7 +1081,9 @@ def do_research(
                 phrases, more, lost = found
                 tried += phrases
                 all_sources = sources + more
-                among = candidate_sentences(all_sources, f"{question} {' '.join(phrases)}", limit)
+                among = candidate_sentences(
+                    all_sources, f"{subject_text(question)} {' '.join(phrases)}", limit
+                )
                 record.update(
                     phrases=phrases, fetched=len(more), failed=lost[:10], candidates=len(among)
                 )
@@ -1490,7 +1525,8 @@ def review_research(
             kept.append(
                 {
                     "id": f"C{len(kept) + 1}",
-                    "text": text,
+                    # An outsider's wording is never published: its claim reads as the quote itself.
+                    "text": text if researcher in trusted_makers else quote,
                     "citations": [{"source": record["id"], "quote": quote}],
                 }
             )

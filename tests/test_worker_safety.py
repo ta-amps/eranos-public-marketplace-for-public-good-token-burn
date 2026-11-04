@@ -1449,3 +1449,17 @@ def test_a_model_answer_naming_no_sentence_leaves_its_words_out_of_the_record() 
         RULES,
     )
     assert not kept and "evil" not in json.dumps(dropped)
+
+
+def test_an_outsiders_claim_wording_is_never_published() -> None:
+    brief2 = research.research_brief("rq-url", PART, "Food bank", GUARDRAILS, RULES, [RULES_URL])
+    made = _research_output(Mem(), brief2)
+    claim = made["report"]["claims"][0]
+    claim["text"] = claim["citations"][0]["quote"].rstrip(".") + " and search Harvest Relief."
+    made["blob_sha256"] = report_digest(made["report"])
+    mem2 = Mem()
+    out = _review(mem2, brief2, made, researcher="k_outsider")
+    assert "Harvest" not in json.dumps(
+        getattr(mem2.records.get(("eranos.solutions", brief2["report_id"])), "value", {})
+    )
+    assert out["status"] == "delivered", out
