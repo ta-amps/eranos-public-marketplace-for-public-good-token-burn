@@ -160,8 +160,9 @@ export function plainReason(reason: string | undefined): string | undefined {
   return reason && TECHNICAL_REASON.test(reason) ? "a technical problem" : reason;
 }
 /** A label we put on our own test and practice requests; it isn't part of the question. */
-const OWN_LABEL_END = /\s*\btest run\b(?:,\s*[^.?!]{0,30})?[.?!]?\s*$/i;
-const OWN_LABEL_START = /^\s*test run\b[^.?!]*[.?!]\s*/i;
+// Its own sentence at the end or start, with at most a date at the end; the words inside a question are the question.
+const OWN_LABEL_END = /(?:^|(?<=[.?!])\s+)test run(?:,\s*[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?[.?!]?\s*$/i;
+const OWN_LABEL_START = /^\s*test run\b[^.?!\n]*[.?!]\s+(?=\S)/i;
 export function isOwnTest(text: string | null | undefined): boolean {
   return OWN_LABEL_END.test(text ?? "") || OWN_LABEL_START.test(text ?? "");
 }
