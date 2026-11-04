@@ -184,8 +184,8 @@
     ],
     "title": "Home page",
     "video_cta": {
-      "label": "See a request completed (1 min video)",
-      "to": "/video"
+      "href": "https://teleionlabs.com/video/",
+      "label": "Watch the three-minute film ↗"
     }
   }
 }

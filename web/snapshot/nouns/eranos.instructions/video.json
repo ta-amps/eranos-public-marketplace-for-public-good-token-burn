@@ -90,7 +90,7 @@
     "title": "Walkthrough video",
     "transcript": {
       "heading": "Full transcript",
-      "intro": "Word-for-word transcript matched to the English WebVTT captions.",
+      "intro": "Transcript matched to the English captions.",
       "items": [
         {
           "scene": "eranosforgood.org",
@@ -104,7 +104,7 @@
         },
         {
           "scene": "eranosforgood.org/requests/example",
-          "text": "Volunteers get the first pick of each request. When nobody takes a step in time, a dedicated worker run by ta-amps claims it on Meta’s Muse Spark 1.3.",
+          "text": "Volunteers get the first pick of each request. When nobody takes a step in time, a dedicated worker claims it on Meta’s Muse Spark 1.3.",
           "time": "0:23 – 0:34"
         },
         {

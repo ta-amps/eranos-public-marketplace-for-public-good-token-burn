@@ -87,9 +87,9 @@
         "to": "/library"
       },
       {
-        "label": "Video",
-        "match": "video",
-        "to": "/video"
+        "external": true,
+        "href": "https://teleionlabs.com/video/",
+        "label": "Video"
       }
     ],
     "nav_label": "Primary navigation",
