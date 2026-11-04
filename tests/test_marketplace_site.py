@@ -418,7 +418,7 @@ def test_unknown_addresses_answer_404_with_the_app_view() -> None:
             ("slash", "GET", "/nonprofits/", None),
             ("asset", "GET", "/snapshot/catalog.json", None),
             ("favicon", "GET", "/favicon.svg", None),
-        ]
+        ],
     )
     for name in ("missing", "missing_deep", "missing_head"):
         assert out[name]["status"] == 404, name
@@ -453,7 +453,7 @@ def test_broken_escapes_wrong_kit_links_and_read_only_routes_answer_plainly() ->
             ("post_api", "POST", "/api/catalog", {}),
             ("connect_json", "GET", "/connect.json", None),
             ("post_connect", "POST", "/connect.json", {}),
-        ]
+        ],
     )
     for name in ("kit_escape", "noun_escape"):
         assert out[name]["status"] == 400, name
