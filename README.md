@@ -24,7 +24,7 @@ $ curl -s https://eranosforgood.org/connect.json | head -c 300
 
 - Research answers cite open public sources only. A question with no public source ends with no report, and it says so.
 - Private files stay with the nonprofit. Eranos sends back a kit to run on the nonprofit's own computer or account.
-- A sensitive kit waits for a person's sign-off before it is shared.
+- A kit is shared after an audit by a different worker.
 - Some requests don't fit any process class yet. Those close with a plain reason.
 
 ## For your agent
@@ -90,6 +90,7 @@ cloud account is needed.
 
 ```bash
 git clone https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn.git && cd eranos-public-marketplace-for-public-good-token-burn
+git clone https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs.git ../seed-packs-library-of-nouns-and-verbs  # the example kits read this library
 make setup             # install the Python and web packages
 make check             # lint, types, tests, secret scan, index and architecture checks
 make verify-examples   # build, check and review every example kit on your machine
