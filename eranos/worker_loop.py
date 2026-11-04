@@ -2008,6 +2008,23 @@ class Worker:
             )
         ]
         now = time.time()
+        if not tuning_mod.has_new_outcomes(tuning, outcomes):
+            output = {
+                "node": "tune",
+                "status": "no_new_outcomes",
+                "tuner_version": tuning.get("tuner_version"),
+                "record_version": version,
+                "outcomes": len(outcomes),
+            }
+            gate.submit(
+                lease.task_id,
+                lease.fencing_token,
+                output,
+                idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
+                ok=True,
+            )
+            self.trace.write("tune_no_new_outcomes", outcomes=len(outcomes))
+            return output
         for v in tuning.get("variants") or []:
             if isinstance(v, dict) and v.get("model"):
                 v["model_display"] = self.model_display(str(v["model"]))
