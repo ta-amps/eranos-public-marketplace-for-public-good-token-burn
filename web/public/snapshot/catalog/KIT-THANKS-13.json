@@ -256,14 +256,14 @@
   "reviewed_by_key": "key_reviewer_13",
   "review_notes": "Checked placeholders instead of names, held rows with missing privacy choices, word-for-word acknowledgment wording, and that special handling, wording and sending stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "d21d37192b0627dc9cc9ee6dc63c4625e8ad8d1b6697020781b057775371bb98",
-  "review_receipt": "1662dd0829e8f365f5eaf51c86ade56956e2551f0234f5f84a759b00111ec372",
+  "draft_receipt": "fab5dfe3064984a12d6945734878d4093ea3b77f3814e9a0e5e7dc986cbf8c8c",
+  "review_receipt": "a2714ffe0087046861b3ef55bcecdc6bee5042a48b5fe86502cf7ee381a08d62",
   "blob_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
   "catalog_version": 1,
-  "review_task_id": "er_814208ec3d3e:KIT-THANKS-13:review",
-  "draft_task_id": "er_814208ec3d3e:KIT-THANKS-13:draft",
+  "review_task_id": "er_4fcfe767a8f4:KIT-THANKS-13:review",
+  "draft_task_id": "er_4fcfe767a8f4:KIT-THANKS-13:draft",
   "draft_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
   "drafter_key_id": "key_drafter_13",
   "reviewer_key_id": "key_reviewer_13",
-  "publication_sha256": "57e257b4b42f2bea594a37a2473da4be46a65878f721c17e14f07180b523d5f3"
+  "publication_sha256": "fde161f51411c4ec17fc9c5a36267a164871ab0ce36374eb8c457eee299c4dda"
 }

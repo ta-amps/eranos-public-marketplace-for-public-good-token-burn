@@ -54,8 +54,8 @@
       "about": "The models these workers call: Meta's Muse models through the Meta API, at the standard tier only (a contributor-tier id is refused). Which model, persona and effort each step runs is tuned from recorded outcomes (eranos.instructions/worker.policy); id is the model a step uses when no tuned variant can run, and volunteer_id is the volunteer mode's fixed model. Display names and token rates come from the model catalog, eranos.instructions/models.meta; a model with no rates there is never called.",
       "base_url": "https://api.meta.ai/v1",
       "budget": {
-        "about": "The owner's caps: $25 a UTC day (owner D11, Nov 1) and $150 in all (the owner's Meta credit), shared by every worker on the machine; the code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later.",
-        "daily_usd": 25,
+        "about": "The owner's cap: $150 in all (the owner's Meta credit), shared by every worker on the machine; the owner removed the daily limit on Nov 4, so the daily figure equals the total. The code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later.",
+        "daily_usd": 150,
         "total_usd": 150
       },
       "fallback": "none: when the Meta model cannot answer, the verb records the failure and is retried later",
@@ -200,6 +200,14 @@
         "help"
       ],
       "max_candidates": 200,
+      "not_reused": [
+        "RPT-R9CE6D53-01",
+        "RPT-R709418C-01",
+        "RPT-RD865E06-01",
+        "RPT-RF92DA4E-01",
+        "RPT-RF0D3C3D-01",
+        "RPT-R4834064-01"
+      ],
       "stopwords": [
         "a",
         "about",
@@ -1147,6 +1155,148 @@
             "financial"
           ],
           "url": "https://www.councilofnonprofits.org/running-nonprofit/administration-and-financial-management"
+        },
+        {
+          "access": "public_web_page",
+          "id": "ftc-data-breach",
+          "publisher": "U.S. Federal Trade Commission",
+          "topics": [
+            "breach",
+            "breaches",
+            "hacked",
+            "leak",
+            "leaked"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/data-breach-response-guide-business"
+        },
+        {
+          "access": "public_web_page",
+          "id": "council-solicitation-registration",
+          "publisher": "National Council of Nonprofits",
+          "requires": [
+            "donation",
+            "donations",
+            "donor",
+            "donors",
+            "fundraising",
+            "charity",
+            "charities",
+            "charitable",
+            "nonprofit"
+          ],
+          "topics": [
+            "solicitation",
+            "solicit",
+            "asking",
+            "registration",
+            "register"
+          ],
+          "url": "https://www.councilofnonprofits.org/running-nonprofit/fundraising-and-resource-development/charitable-solicitation-registration"
+        },
+        {
+          "access": "public_web_page",
+          "id": "irs-conflict-of-interest",
+          "publisher": "Internal Revenue Service",
+          "requires": [
+            "board",
+            "policy",
+            "directors",
+            "trustees"
+          ],
+          "topics": [
+            "conflict",
+            "conflicts"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/form-1023-purpose-of-conflict-of-interest-policy"
+        },
+        {
+          "access": "public_web_page",
+          "id": "doj-fair-housing",
+          "publisher": "U.S. Department of Justice",
+          "requires": [
+            "housing",
+            "tenant",
+            "tenants",
+            "rent",
+            "rental",
+            "landlord"
+          ],
+          "topics": [
+            "fair-housing",
+            "discrimination"
+          ],
+          "url": "https://www.justice.gov/crt/fair-housing-act-1"
+        },
+        {
+          "access": "public_web_page",
+          "id": "irs-ubit",
+          "publisher": "Internal Revenue Service",
+          "topics": [
+            "unrelated",
+            "ubit",
+            "merchandise",
+            "sponsorship"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/unrelated-business-income-tax"
+        },
+        {
+          "access": "public_web_page",
+          "id": "irs-lobbying",
+          "publisher": "Internal Revenue Service",
+          "topics": [
+            "lobbying",
+            "lobby",
+            "legislation"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/lobbying"
+        },
+        {
+          "access": "public_web_page",
+          "id": "cdc-respiratory",
+          "publisher": "U.S. Centers for Disease Control and Prevention",
+          "topics": [
+            "flu",
+            "influenza",
+            "outbreak",
+            "covid",
+            "germs",
+            "sick",
+            "respiratory"
+          ],
+          "url": "https://www.cdc.gov/respiratory-viruses/prevention/index.html"
+        },
+        {
+          "access": "public_web_page",
+          "id": "cdc-heat-health",
+          "publisher": "U.S. Centers for Disease Control and Prevention",
+          "topics": [
+            "heat",
+            "heatwave",
+            "cooling"
+          ],
+          "url": "https://www.cdc.gov/heat-health/about/index.html"
+        },
+        {
+          "access": "public_web_page",
+          "id": "cdc-mental-health",
+          "publisher": "U.S. Centers for Disease Control and Prevention",
+          "topics": [
+            "mental",
+            "depression",
+            "anxiety"
+          ],
+          "url": "https://www.cdc.gov/mental-health/about/index.html"
+        },
+        {
+          "access": "public_web_page",
+          "id": "samhsa-988",
+          "publisher": "Substance Abuse and Mental Health Services Administration",
+          "topics": [
+            "suicide",
+            "crisis",
+            "988"
+          ],
+          "url": "https://www.samhsa.gov/find-help/988"
         }
       ],
       "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it.",
