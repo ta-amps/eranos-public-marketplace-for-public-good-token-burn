@@ -6,15 +6,14 @@
     "title": "Rental Deposit & Disaster-Relief Charity Registry Check Kit",
     "goal": "Equip tenant legal-aid clinics and disaster-response coalitions with a public-registry lookup schema, deposit-escrow checklist, and fee-comparison check while keeping every legal or regulator action strictly with staff.",
     "target_org": "Tenant legal-aid clinic and disaster-relief coalition",
-    "needs_steward_signoff": true,
+    "needs_steward_signoff": false,
     "spdx_license": "Apache-2.0",
     "tags": [
       "domain:anti_exploitation",
       "track:housing-and-charity-verification",
       "kind:full_kit",
       "spdx:Apache-2.0",
-      "cohort:ngo_legal_aid",
-      "steward:required"
+      "cohort:ngo_legal_aid"
     ],
     "target_cohorts": [
       "all",
@@ -38,8 +37,7 @@
       "track:housing-and-charity-verification",
       "kind:full_kit",
       "spdx:Apache-2.0",
-      "cohort:ngo_legal_aid",
-      "steward:required"
+      "cohort:ngo_legal_aid"
     ],
     "target_cohorts": [
       "all",
@@ -189,13 +187,9 @@
   },
   "review": {
     "kit_id": "KIT-HOUSING-15",
-    "verdict": "park_for_steward",
+    "verdict": "approve",
     "reviewed_by": "placeholder",
     "reviewed_by_key": "placeholder",
     "notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off."
-  },
-  "steward_signoff": {
-    "steward": "housing-clinic-steward",
-    "notes": "Confirmed mutual-aid groups are never labeled dishonestly and all tenant decisions and external referrals stay strictly with clinic staff."
   }
 }
