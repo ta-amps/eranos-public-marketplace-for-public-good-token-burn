@@ -54,8 +54,12 @@ export function KitDetail({ id }: { id: string }) {
   }
 
   const entry = state.data;
-  // Only a review a model really did says so: a live worker's reader writes this line, and fixed checks never do.
-  const modelRead = /read all of this kit's text/.test(String(entry.review_notes ?? ""));
+  // Only a review a model really did says so, in the words the live worker's reader wrote: all of a kit's
+  // text, or for a process kit the records it publishes. Fixed checks never write these.
+  const reviewNotes = String(entry.review_notes ?? "");
+  const modelReadAll = /read all of this kit's text and found no problems/.test(reviewNotes);
+  const modelReadRecords = /read the records this kit publishes/.test(reviewNotes);
+  const modelRead = modelReadAll || modelReadRecords;
   const { kit, verification } = entry;
   const skills = allSkills(kit);
   const tools = allTools(kit);
@@ -323,9 +327,11 @@ export function KitDetail({ id }: { id: string }) {
           <div>
             <dt>{modelRead ? "Audited and approved by a different worker" : "Checked by a different worker with fixed checks"}</dt>
             <dd>
-              {modelRead
-                ? `${entry.reviewed_by}. A worker audited this, not a person, and a model read all of its text. It was checked on made-up practice data only. A person on your team decides whether to use it.`
-                : `${entry.reviewed_by}. No model read this version's text. A worker ran fixed checks on made-up practice data only, and no person reviewed it. A person on your team decides whether to use it.`}
+              {modelReadRecords
+                ? `${entry.reviewed_by}. A worker audited this, not a person: a model read the records this kit publishes, and fixed checks covered the bundle's files. It was checked on made-up practice data only. A person on your team decides whether to use it.`
+                : modelReadAll
+                  ? `${entry.reviewed_by}. A worker audited this, not a person, and a model read all of its text. It was checked on made-up practice data only. A person on your team decides whether to use it.`
+                  : `${entry.reviewed_by}. No model read this version's text. A worker ran fixed checks on made-up practice data only, and no person reviewed it. A person on your team decides whether to use it.`}
             </dd>
           </div>
           <div>
