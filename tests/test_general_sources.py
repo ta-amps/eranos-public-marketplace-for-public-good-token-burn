@@ -482,3 +482,21 @@ def test_an_icons_title_is_not_the_pages_title():
 
     page = b"<html><head><title>Severe Weather</title></head><body><svg><title>Lock</title></svg><p>Plan now.</p></body></html>"
     assert extract_text("text/html", page) == ("Severe Weather", "Plan now.")
+
+
+def test_an_ordinary_heading_with_a_worrying_word_rules_nothing_out():
+    for heading in (
+        "Know Your Risk for Floods",
+        "Weather Watches and Warnings",
+        "How To Recognize and Avoid Phishing Scams",
+        "Not-for-profit groups",
+        "What is not covered",
+    ):
+        assert (
+            R.standalone_sentences(f"{heading}\nLeave the area at once.")[-1]
+            == "Leave the area at once."
+        )
+    long = "This paragraph has no end mark and it says this does not cover every case at all"
+    assert (
+        R.standalone_sentences(f"{long}\nLeave the area at once.")[-1] == "Leave the area at once."
+    )

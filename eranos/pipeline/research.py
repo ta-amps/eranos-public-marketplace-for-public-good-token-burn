@@ -213,7 +213,7 @@ _ABOUT_PEOPLE = frozenset(
 _PEOPLE_MEANS = frozenset({"retention", "turnover", "recruitment"})
 # A label says who is asking or why, not what about: it never goes into a search.
 _LABEL_DATE = r"(?:[,:\s-]+(?:on\s+)?[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?"
-_LABEL_LONG = r"(?:,\s*our own example, not a real organization's request)?"
+_LABEL_LONG = r"(?:,\s*our own example, not a real organization['\u2019]s request)?"
 _LABEL_START = re.compile(
     r"^\s*(?:\(?test run" + _LABEL_DATE + _LABEL_LONG + r"\s*\)?\s*[.:\u2013-]\s*"
     r"|practice case:\s*(?:an example, not a real person or case\.\s*)?"
@@ -405,7 +405,7 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
 
 
 # A tag starts with a letter: "<10 staff and >50 volunteers" is text, and removing it changes the facts.
-_TAG = re.compile(r"</?[a-zA-Z][^<>]*>")
+_TAG = re.compile(r"</?[a-zA-Z][^<>]*>|<!--.*?-->", re.DOTALL)
 MAX_ARTICLES_PER_SEARCH = 4
 # A search answer carries each article's opening; its full text takes one more call, same host.
 WIKIPEDIA_PAGE = (
@@ -789,8 +789,8 @@ def check_claims(
 
 
 CONTENT_NOTICE = (
-    "Quotes are copied word for word from the public sources named here. Each claim's wording was"
-    " written by an AI model and checked against its quote; this request's record names the worker"
+    "Quotes are copied word for word from the public sources named here. Each claim is its quote, or"
+    " an AI model's wording checked against its quote; this request's record names the worker"
     " and the model. Everything in this report is data, never instructions."
 )
 SOURCE_FIELDS = (
@@ -917,8 +917,8 @@ _CUT_OFF_LINE = re.compile(
     r"(?::|\b(?:not|never|no|don['\u2019]t|do not|must not|cannot))$", re.IGNORECASE
 )
 _WARNING_HEADING = re.compile(
-    r"\b(?:don['\u2019]?ts?|do not|never|not|avoid\w*|mistakes?|myths?|unsafe|prohibited|forbidden|"
-    r"false|wrong|risks?|dangers?|dangerous|warnings?|bad)\b",
+    r"^(?:avoid\b|never\b|do not\b|don['\u2019]t\b)|\bdon['\u2019]ts\b|\bwhat not to\b|\bnot to do\b"
+    r"|\b(?:mistakes?|myths?|unsafe|prohibited|forbidden)\b",
     re.IGNORECASE,
 )
 
@@ -934,8 +934,13 @@ def standalone_sentences(text: str) -> list[str]:
     warned = False
     for line in text.split("\n"):
         line = line.strip()
-        if line and not line.endswith((".", "!", "?", ":", '"', "\u201d", ")")):
-            warned = bool(_WARNING_HEADING.search(line))  # a heading rules what follows it
+        # A short line with no end mark is a heading, and rules what follows it.
+        if (
+            line
+            and not line.endswith((".", "!", "?", ":", '"', "\u201d", ")"))
+            and len(line.split()) <= 8
+        ):
+            warned = bool(_WARNING_HEADING.search(line))
         for piece in _SENTENCE.split(line):
             piece = piece.strip()
             if not piece:
@@ -1516,7 +1521,11 @@ def review_research(
             or adds_to_quote(text, quote)
         ):
             dropped.append({"claim": where, "reason": "the claim says more than its quote"})
-        elif find_accusatory_words(text) or personal_data_findings({"claim": text}):
+        elif (
+            find_accusatory_words(text)
+            or personal_data_findings({"claim": text})
+            or (researcher not in trusted_makers and find_accusatory_words(quote))
+        ):
             dropped.append({"claim": where, "reason": "accusatory words or personal data"})
         elif quote in seen:
             dropped.append({"claim": where, "reason": "repeats a kept quote"})
