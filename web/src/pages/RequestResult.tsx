@@ -450,7 +450,7 @@ export function RequestResult({ id }: { id: string }) {
   }
   if (!loaded) return null;
   const view: Loaded = { ...loaded, decision: decision ?? loaded.decision };
-  const processPart = view.part?.route === "private-files" || view.part?.route === "process" || view.part?.output_type === "process" || Boolean(view.solution?.process);
+  const processPart = view.part?.route === "private-files" || view.part?.route === "process" || (view.part?.output_type === "process" && view.part?.route !== "public-only") || Boolean(view.solution?.process);
   const solution = view.solution;
   const report = solution?.report;
   const process = solution?.process;
@@ -544,6 +544,9 @@ export function RequestResult({ id }: { id: string }) {
           ) : (
             <StateNotice tone="wait" head={processPart ? (words.result.not_ready ?? "") : (r.not_ready ?? "")} testId="result-not-ready" />
           ))}
+        {view.part?.output_type === "process" && view.part?.route === "public-only" && words.plain.no_process_class_note && (
+          <StateNotice tone="info" head={words.plain.no_process_class_note} testId="result-no-process-class" />
+        )}
         {solution?.audit_status === "not_audited_yet" && (
           <StateNotice tone="wait" head={words.result.not_audited_yet ?? ""} testId="result-not-audited" />
         )}

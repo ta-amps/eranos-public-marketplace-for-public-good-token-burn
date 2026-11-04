@@ -161,8 +161,10 @@ export function plainReason(reason: string | undefined): string | undefined {
 }
 /** A label we put on our own test and practice requests; it isn't part of the question. */
 // Its own sentence at the end or start, with at most a date at the end; the words inside a question are the question.
-const OWN_LABEL_END = /(?:^|(?<=[.?!])\s+)test run(?:,\s*[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?[.?!]?\s*$/i;
-const OWN_LABEL_START = /^\s*test run\b[^.?!\n]*[.?!]\s+(?=\S)/i;
+const OWN_LABEL_DATE = String.raw`(?:[,:\s-]+(?:on\s+)?[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?`;
+const OWN_LABEL_LONG = String.raw`(?:,\s*our own example, not a real organization's request)?`;
+const OWN_LABEL_END = new RegExp(String.raw`(?:^|(?<=[.?!])\s+)\(?test run${OWN_LABEL_DATE}${OWN_LABEL_LONG}[.?!]?\)?\s*$`, "i");
+const OWN_LABEL_START = new RegExp(String.raw`^\s*\(?test run${OWN_LABEL_DATE}${OWN_LABEL_LONG}\s*\)?\s*[.:\u2013-]\s*`, "i");
 export function isOwnTest(text: string | null | undefined): boolean {
   return OWN_LABEL_END.test(text ?? "") || OWN_LABEL_START.test(text ?? "");
 }

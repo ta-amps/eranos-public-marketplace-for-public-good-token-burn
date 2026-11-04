@@ -193,6 +193,33 @@ test.describe("on the hosted build, a request's steps follow its real state", ()
     await expect(page.getByTestId("no-result-again")).toHaveAttribute("href", /^\/nonprofits/);
   });
 
+  test("a process no tested class fits: says we can't build it, what comes instead, and never promises setup files", async ({ page }) => {
+    const w = noun<StatusWords & { plain: { no_process_class_note?: string } }>("request-status").plain;
+    const planned = {
+      type: "planned",
+      ref: `eranos.plans/${REQUEST_ID}`,
+      receipt: "a".repeat(64),
+      parts: [{ part: 1, route: "public-only", output_type: "process", text: "A reusable process for our CSV." }],
+    };
+    await open(page, [RECEIVED, PLAN_CLAIMED, planned], [], "open_for_build");
+    await expect(page.getByTestId("no-process-class")).toHaveText(w.no_process_class_note ?? "missing");
+    await expect(page.locator("main")).not.toContainText("Setup files");
+  });
+
+  test("a process no class fits that closed with nothing: says so in the no-result note", async ({ page }) => {
+    const w = noun<StatusWords>("request-status").plain;
+    const planned = {
+      type: "planned",
+      ref: `eranos.plans/${REQUEST_ID}`,
+      receipt: "a".repeat(64),
+      parts: [{ part: 1, route: "public-only", output_type: "process", text: "A reusable process for our CSV." }],
+    };
+    await open(page, [RECEIVED, PLAN_CLAIMED, planned, CLOSED], [3], "closed");
+    await expect(page.getByTestId("no-result-why")).toContainText("can’t build a reusable process");
+    await expect(page.getByTestId("no-process-class")).toHaveCount(0);
+    expect(w.chip).toBeTruthy();
+  });
+
   test("closed with nothing delivered and no search that came back empty: it never says we searched", async ({ page }) => {
     const w = noun<StatusWords>("request-status").plain;
     await open(page, [RECEIVED, PLAN_CLAIMED, CLOSED], [2], "closed");

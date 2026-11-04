@@ -470,6 +470,8 @@ export interface PlainWords {
   > &
     /** reused: a request answered from the library with no new work (F-UI-STALE-001); the fit check's states. */
     Partial<Record<"reused" | "reused_unchecked" | "reuse_does_not_fit" | "reuse_checking", T>>;
+  /** A process no tested class fits: what we can't do, and what the person gets instead. */
+  no_process_class_note?: T;
   /** What happened and what to do next, when a request closed with nothing delivered. */
   no_result?: {
     title: T;

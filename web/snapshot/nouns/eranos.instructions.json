@@ -2553,8 +2553,9 @@
       "why_no_sources_one": "We searched public sources. Nothing we found answered your question with a sentence we could quote word for word, and we don’t guess.",
       "why_other": "We tried {n} times, and no result passed our checks.",
       "why_other_one": "We tried, and no result passed our checks.",
-      "why_no_process_class": "We don’t have a ready way to build this kind of process yet. We looked for public information about it instead, and nothing passed our checks."
-     }
+      "why_no_process_class": "We can’t build a reusable process for this yet: we don’t have a tested one that fits. We looked for public information about it instead, and nothing passed our checks."
+     },
+     "no_process_class_note": "We can’t build a reusable process for this yet: we don’t have a tested one that fits. What you get instead is a short report from public sources about it, with a source for every point, if we can find any."
     },
     "steps": {
      "tag_process": "A reusable process",
