@@ -49,6 +49,9 @@ from eranos.pipeline.status_events import fact, has_event, queue_snapshot, recor
 
 OUTPUT_TYPES = ("process", "information", "both")
 MAX_UNRECORDED_REPLANS = 3  # re-plans of a plan whose record write kept failing (the review's F1b)
+# How long a request waits before its process part is built and checked again, after a check that
+# never reached a verdict (a model outage, usually). One wait per retry, then it closes with the reason.
+REVIEW_RETRY_WAITS = (600.0, 1800.0)
 REUSE_CHECK_WORDS = (
     "A reviewed answer from the library may fit. Another worker checks that it answers this request"
     " before it is sent; if it does not, new work is planned."
@@ -780,6 +783,21 @@ class Planner:
         noun = read_request(self.b, self.request_id)
         value = noun[0] if noun else {}
         occurrences = list(value.get("occurrences") or [latest])
+        if pointer is None and self._check_never_finished(latest):
+            tries = int(value.get("review_retries") or 0)
+            if tries < len(REVIEW_RETRY_WAITS):
+                return self._wait_to_check_again(occurrences, tries)
+            self._facts(
+                [
+                    fact(
+                        "blocked",
+                        **self.who,
+                        ref=f"{self.request_id} check",
+                        findings=[f"the check did not finish after {tries + 1} rounds of tries"],
+                        reason="The check could not finish, so this request is closed with no result. Nothing was published.",
+                    )
+                ]
+            )
         failed = [d for d in self.recover(list(latest.get("children") or [])) if d.get("error")]
         if (
             failed
@@ -823,6 +841,61 @@ class Planner:
         )
         return closed
 
+    def _check_never_finished(self, latest: dict[str, Any]) -> bool:
+        """A process part was built, its check went dead with no verdict, and nothing in this round
+        was approved. A check that says no is `done`, so it never counts here. Parts that were
+        approved are not built again, so a round with any approval closes as before."""
+        ids = {str(i) for i in latest.get("children") or []}
+        mine = [c for c in self.lease.children if c.task_id in ids]
+        if any(isinstance(c.output, dict) and c.output.get("approved") is True for c in mine):
+            return False
+        states = {c.task_id: c.state for c in mine}
+        try:
+            parts = (self.b.get_record(PLANS_STORE, self.request_id).value or {}).get("parts")
+        except NotFound:
+            return False
+        return any(
+            p.get("route") == "process"
+            and states.get(str(p.get("work_task_id"))) == "done"
+            and states.get(str(p.get("review_task_id"))) == "dead"
+            for p in parts or []
+        )
+
+    def _wait_to_check_again(self, occurrences: list[dict[str, Any]], tries: int) -> dict[str, Any]:
+        """Keep the request open: wait, then wake() plans its part again, under a new check."""
+        wait = REVIEW_RETRY_WAITS[tries]
+        # Counted before the park, so a crash between the two can only use up a retry, never add one.
+        self._set_fields(review_retries=tries + 1)
+        view = self.b.park(
+            self.lease.task_id,
+            self.lease.fencing_token,
+            reason=f"the check did not finish; trying again in {int(wait)} s",
+            resume_within=wait,
+        )
+        due = time.time() + wait
+        occurrences[-1] = {
+            **occurrences[-1],
+            "status": "check_retry",
+            "next_at": round(due, 3),
+            "park": int(view.parks),
+        }
+        self._store_occurrences(
+            occurrences,
+            [
+                fact(
+                    "queued",
+                    reason=(
+                        f"The check could not finish, so nothing was published. This request stays "
+                        f"open and tries again in about {round(wait / 60)} minutes."
+                    ),
+                    ref=f"{self.request_id} park {view.parks}",
+                    **self.who,
+                    summary={"retry": tries + 1, "next_at": round(due, 3)},
+                )
+            ],
+        )
+        return {"status": "check_retry", "next_at": due, "park": view.parks, "retry": tries + 1}
+
     def park(
         self, occurrences: list[dict[str, Any]], period: int, wait: float | None = None
     ) -> dict[str, Any]:
@@ -864,6 +937,8 @@ class Planner:
         }
 
     def wake(self, latest: dict[str, Any]) -> dict[str, Any]:
+        if latest.get("status") == "check_retry":
+            return self.plan(int(latest["n"]), reuse=False)
         noun = read_request(self.b, self.request_id)
         occurrences = list((noun[0] if noun else {}).get("occurrences") or [latest])
         recurring = self.terms.get("frequency") == "recurring" and self.terms.get("period_s")

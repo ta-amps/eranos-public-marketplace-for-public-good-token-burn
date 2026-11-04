@@ -825,6 +825,123 @@ def test_a_process_kit_sends_all_it_publishes_to_the_reader(
     assert "read all" not in seen[0]["review_notes"]
 
 
+class _Outage(FakeModel):
+    """A reader that fails like a Meta outage until `down` is cleared."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.down, self.calls = True, 0
+
+    def chat_json(self, system: str, user: str, **kwargs: Any) -> dict[str, Any]:
+        self.calls += 1
+        if self.down:
+            raise RuntimeError("made-up model outage: 503")
+        return _KitReader("approved").chat_json(system, user, **kwargs)
+
+
+def _outage_run(fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[Any, ...]:
+    from tessera import QueueConfig
+
+    import eranos.pipeline.planner as planner_mod
+
+    monkeypatch.setattr(planner_mod, "REVIEW_RETRY_WAITS", (1.0, 1.0))
+    admin = fabric.admin_client()
+    admin.define_queue(
+        QueueConfig(
+            name="eq03", lease_seconds=1800, backoff_base_seconds=0.1, backoff_cap_seconds=0.2
+        )
+    )
+    admin.close()
+    bundle = tmp_path / "bundle" / "bundle.tgz"
+    bundle.parent.mkdir()
+    bundle.write_bytes(b"made-up sample process bundle")
+    handler_path = tmp_path / "handler.py"
+    handler_path.write_text(HANDLER_FILE)
+    monkeypatch.setenv("TEST_BUNDLE", str(bundle))
+    handler = process_part.load_handler(str(handler_path))
+    rid = fabric.file_request(
+        fabric.requester(),
+        {
+            "text": "A reusable process to merge our made-up shift lists and flag gaps.",
+            "links": [],
+            "organization_type": "Food pantry",
+            "output_type": "process",
+            "frequency": "one-off",
+        },
+        "proc-outage",
+    )
+    reader = _Outage()
+    w = _workers(fabric, handler=handler)
+    w["reviewer"] = _reviewer(fabric, name="reviewer", handler=handler, model=reader)
+    w["reviewer"].pacer.min_empty_seconds = 0.0
+    return handler, rid, w, reader
+
+
+def _is_public(fabric: Any, ids: dict[str, Any]) -> bool:
+    stored = fabric.get(f"/v1/stores/eranos.processes/records/{ids['catalog_record']['key']}")
+    return stored.get("visibility_scope") == "public_commons"
+
+
+def _pump(w: dict[str, Worker], fabric: Any, rid: str, until: Any, seconds: float = 40.0) -> None:
+    """Run the workers until `until(the request's record)`, each as often as it will take work."""
+    import time as clock
+
+    end = clock.time() + seconds
+    while clock.time() < end:
+        for worker in w.values():
+            worker.pacer.next_at.clear()
+            worker.run_once()
+        if until(_record(fabric, rid)):
+            return
+        clock.sleep(0.2)
+    raise AssertionError(f"not reached: {json.dumps(_record(fabric, rid))[:800]}")
+
+
+@needs_workerd
+def test_a_short_outage_keeps_the_process_request_open_and_it_publishes_after(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    handler, rid, w, reader = _outage_run(fabric, tmp_path, monkeypatch)
+    _pump(w, fabric, rid, lambda r: r.get("review_retries") == 1)
+    record = _record(fabric, rid)
+    assert record["status"] != "closed" and record["parts"]["1"]["status"] == "open"
+    assert reader.calls == 3, "three attempts of the first check, all failed"
+    ids = handler.expected_records({"request_id": rid}, {"part": 1})
+    assert not _is_public(fabric, ids)
+    reader.down = False
+    _pump(w, fabric, rid, lambda r: r.get("status") == "closed")
+    assert _is_public(fabric, ids)
+    types = [e["type"] for e in _record(fabric, rid)["events"]]
+    assert "check_approved" in types and "blocked" not in types
+
+
+@needs_workerd
+def test_a_long_outage_closes_with_the_reason_and_publishes_nothing(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    handler, rid, w, reader = _outage_run(fabric, tmp_path, monkeypatch)
+    _pump(w, fabric, rid, lambda r: r.get("status") == "closed", seconds=90.0)
+    record = _record(fabric, rid)
+    assert record["review_retries"] == 2 and reader.calls == 9, "three rounds, then it stops"
+    assert any(e["type"] == "blocked" and "no result" in e["reason"] for e in record["events"])
+    ids = handler.expected_records({"request_id": rid}, {"part": 1})
+    assert not _is_public(fabric, ids)
+
+
+@needs_workerd
+def test_a_check_that_says_no_is_not_retried(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reader = _KitReader("needs_revision")
+    _, rid, _ = _process_run(fabric, tmp_path, monkeypatch, reader)
+    planner = fabric.worker("planner")
+    for _ in range(4):
+        planner.pacer.next_at.clear()
+        planner.run_once()
+    record = _record(fabric, rid)
+    assert "review_retries" not in record and len(reader.sent) == 1
+
+
 B4_HANDLER = os.environ.get("ERANOS_PROCESS_HANDLER", "")
 FILM_REQUEST = (
     "A reusable process to clean our volunteer sign-up spreadsheets: remove duplicates, fix date and phone "
