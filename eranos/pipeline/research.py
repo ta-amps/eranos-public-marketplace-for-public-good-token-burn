@@ -245,8 +245,11 @@ def research_brief(
     rules = worker_rules.get("sources") or {}
     apis = select_apis(part["text"], list(rules.get("official_apis") or []))
     pages = select_apis(part["text"], list(rules.get("official_pages") or []))
-    if not apis and not pages and not links:
-        apis = general_apis(list(rules.get("official_apis") or []))
+    # Open research searches come after any official source that fits, so a narrow topic list never leaves a
+    # question with nothing to read.
+    if not links:
+        extra = general_apis(list(rules.get("official_apis") or []))
+        apis = [*apis, *[a for a in extra if a not in apis]]
     return {
         **brief,
         "report_id": report_id,
@@ -300,7 +303,18 @@ def research_brief(
 def review_brief(brief: dict[str, Any]) -> dict[str, Any]:
     """The review verb's input, written by the planner: the ids, the question and what may be
     fetched, so the reviewer rebuilds the report from its own checks and reads no eq02 task."""
-    keys = ("request_id", "part", "report_id", "title", "question", "legal", "occurrence", "fetch")
+    keys = (
+        "request_id",
+        "part",
+        "report_id",
+        "title",
+        "question",
+        "legal",
+        "occurrence",
+        "fetch",
+        "limits",
+        "accept_unaudited",
+    )
     return {k: brief[k] for k in keys if k in brief} | {
         "kind": "eranos.report_review",
         "recheck": "fetch every cited source again; deliver only claims whose quotes pass",
@@ -653,6 +667,13 @@ def build_report(
             if (pages.get(str(s.get("url"))) or {}).get("caveat")
         )
     )
+    # A short result is still a result: it says what's missing rather than being closed.
+    if 0 < len(claims) < 3:
+        caveats.append(
+            "This is a short result: only the points above passed the quote check, and more may exist."
+        )
+    if brief.get("limits"):
+        caveats.append(str(brief["limits"]))
     report: dict[str, Any] = {
         "report_id": brief["report_id"],
         "request_id": brief["request_id"],
@@ -871,6 +892,73 @@ def ensure_delivered(
     )
 
 
+DRAFTS_STORE = "eranos.drafts"
+NOT_AUDITED = "not_audited_yet"
+
+
+def save_unaudited(
+    backend: Any,
+    report: dict[str, Any],
+    *,
+    request_id: str,
+    part: Any,
+    maker_receipt: str,
+    deliver: bool,
+) -> None:
+    """The maker's report, readable at once and labeled: a different worker has not checked it yet.
+    It's always kept as a draft; a request that asked for unaudited results also gets it as its result."""
+    report_id = str(report["report_id"])
+    value = {
+        "schema_version": 1,
+        "request_id": request_id,
+        "part": part,
+        "report": report,
+        "report_sha256": report_digest(report),
+        "research_receipt": maker_receipt,
+        "audit_status": NOT_AUDITED,
+        "next_step": "A different worker hasn't checked this yet. A person at the nonprofit decides what to use.",
+    }
+    for store in (DRAFTS_STORE, SOLUTIONS_STORE) if deliver else (DRAFTS_STORE,):
+        try:
+            current = backend.get_record(store, report_id)
+            version = current.version
+            if store == SOLUTIONS_STORE and (current.value or {}).get("audit_status") == "audited":
+                continue
+        except NotFound:
+            version = 0
+        backend.put_record(
+            store,
+            report_id,
+            value,
+            expected_version=version,
+            producer_surface=PRODUCER,
+            visibility_scope="public_commons",
+            tags=["state:not_audited_yet", "kind:public_report"],
+        )
+    if deliver:
+        update_request_part(backend, request_id, part, "delivered_unaudited", report_id=report_id)
+
+
+def mark_audit_failed(backend: Any, report_id: str, findings: list[str]) -> None:
+    """A result already shown before its audit now says the audit didn't pass, and why."""
+    for store in (SOLUTIONS_STORE, DRAFTS_STORE):
+        try:
+            current = backend.get_record(store, report_id)
+        except NotFound:
+            continue
+        if (current.value or {}).get("audit_status") != NOT_AUDITED:
+            continue
+        backend.put_record(
+            store,
+            report_id,
+            {**current.value, "audit_status": "audit_failed", "audit_findings": findings},
+            expected_version=current.version,
+            producer_surface=PRODUCER,
+            visibility_scope="public_commons",
+            tags=["state:audit_failed", "kind:public_report"],
+        )
+
+
 def review_research(
     backend: Any,
     lease: Any,
@@ -1053,7 +1141,16 @@ def review_research(
         kept = [c for c in kept if c["id"] not in unsupported]
     basis = {
         k: brief.get(k)
-        for k in ("report_id", "request_id", "title", "question", "legal", "occurrence", "fetch")
+        for k in (
+            "report_id",
+            "request_id",
+            "title",
+            "question",
+            "legal",
+            "occurrence",
+            "fetch",
+            "limits",
+        )
     }
     stages = {
         "reviewed": {
@@ -1103,6 +1200,7 @@ def review_research(
             ok=True,
         )
         update_request_part(backend, request_id, part, "needs_revision", findings=findings[:20])
+        mark_audit_failed(backend, report_id, findings[:20])
         return {
             "status": "needs_revision",
             "findings": findings,

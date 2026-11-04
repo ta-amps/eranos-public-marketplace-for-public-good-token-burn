@@ -1498,3 +1498,64 @@ def test_specific_actionable_sentences_rank_first_among_a_sources_candidates() -
         [{"id": "SRC-1", "text": text}], "What food rules apply to a pantry?", 2
     )
     assert [p["text"][:9] for p in picked] == ["Keep cold", "A pantry "]
+
+
+@needs_workerd
+def test_a_request_that_accepts_unaudited_gets_a_labeled_result_then_the_audit_changes_it(
+    fabric: Any,
+) -> None:
+    requester = fabric.requester()
+    rid = fabric.file_request(
+        requester,
+        {
+            "text": INFO_TEXT,
+            "links": [RULES_URL],
+            "organization_type": "Food bank",
+            "output_type": "information",
+            "frequency": "one-off",
+            "accept_unaudited": True,
+        },
+        "early1",
+    )
+    w = _workers(fabric)
+    assert w["planner"].run_once() == "worked"
+    assert w["builder"].run_once() == "worked"
+    part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+    early = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")
+    assert early["value"]["audit_status"] == "not_audited_yet"
+    assert not early["value"].get("review_receipt")
+    assert _record(fabric, rid)["parts"]["1"]["status"] == "delivered_unaudited"
+    assert w["reviewer"].run_once() == "worked"
+    audited = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")
+    assert audited["value"]["audit_status"] == "audited" and audited["value"]["review_receipt"]
+    assert _record(fabric, rid)["parts"]["1"]["status"] == "delivered"
+
+
+@needs_workerd
+def test_a_process_request_no_class_fits_gets_labeled_research_not_a_refusal(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    bundle = tmp_path / "bundle.tgz"
+    bundle.write_bytes(b"made-up sample process bundle")
+    handler_path = tmp_path / "handler.py"
+    handler_path.write_text(
+        HANDLER_FILE + "\n\ndef reuse_signature(text):\n    return {'key': None}\n"
+    )
+    monkeypatch.setenv("TEST_BUNDLE", str(bundle))
+    handler = process_part.load_handler(str(handler_path))
+    requester = fabric.requester()
+    rid = fabric.file_request(
+        requester,
+        {
+            "text": INFO_TEXT,
+            "links": [RULES_URL],
+            "organization_type": "Food bank",
+            "output_type": "process",
+            "frequency": "one-off",
+        },
+        "nofit1",
+    )
+    w = _workers(fabric, handler=handler)
+    assert w["planner"].run_once() == "worked"
+    part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+    assert part["route"] == "public-only" and part.get("report_id")

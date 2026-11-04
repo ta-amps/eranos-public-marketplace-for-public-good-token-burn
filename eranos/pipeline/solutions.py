@@ -257,6 +257,7 @@ def deliver_report(
         "review_task_id": review_task_id,
         "review_receipt": review_receipt,
         "research_receipt": research_receipt,
+        "audit_status": "audited",
         "next_step": "A person at the nonprofit decides what to do with this result.",
     }
     sources = [s for s in report.get("sources") or [] if isinstance(s, dict)]

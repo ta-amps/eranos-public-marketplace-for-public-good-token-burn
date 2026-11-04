@@ -65,6 +65,8 @@ def request_terms(brief: dict[str, Any], rules: dict[str, Any]) -> dict[str, Any
         terms["output_type"] = output_type
     if frequency in FREQUENCIES:
         terms["frequency"] = frequency
+    if brief.get("accept_unaudited") is True:
+        terms["accept_unaudited"] = True
     if frequency == "recurring":
         recurring = rules.get("recurring") or {}
         cadences: dict[str, int] = recurring.get("cadences") or {}
@@ -334,6 +336,15 @@ class Planner:
             entry: dict[str, Any] = {k: part[k] for k in ("part", "route", "text", "legal")} | dict(
                 self.terms
             )
+            limits = None
+            if part["route"] == "private-files" and not self._process_fits(part["text"]):
+                # No tested process fits this yet: give what public research has, and say what's missing.
+                part = {**part, "route": "public-only"}
+                entry["route"] = "public-only"
+                limits = (
+                    "We don't have a tested reusable process for this yet, so this is public research on it. "
+                    "A volunteer can build the process later."
+                )
             if part["route"] == "public-only" and self.guardrails is not None:
                 brief = research.research_brief(
                     self.request_id,
@@ -345,6 +356,8 @@ class Planner:
                     self.terms,
                     occurrence,
                 )
+                if limits:
+                    brief["limits"] = limits
                 entry.update(report_id=brief["report_id"])
                 kinds, review = ("research", "report_review"), research.review_brief(brief)
             elif part["route"] == "private-files":
@@ -382,6 +395,16 @@ class Planner:
             )
             plan.append(entry)
         return out, plan
+
+    def _process_fits(self, text: str) -> bool:
+        """Whether a tested process class fits. With no way to tell, the build is tried."""
+        signature = getattr(self.handler, "reuse_signature", None)
+        if signature is None:
+            return True
+        try:
+            return bool((signature(text) or {}).get("key"))
+        except Exception:
+            return True
 
     def _plan_noun_occurrence(
         self, occurrence: int, plan: list[dict[str, Any]], plain: list[str]

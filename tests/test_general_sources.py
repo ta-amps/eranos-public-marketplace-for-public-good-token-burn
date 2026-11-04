@@ -88,10 +88,10 @@ def test_a_question_no_official_page_fits_gets_the_research_searches():
     assert [a["id"] for a in brief()["fetch"]["apis"]] == ["openalex", "doaj", "europe-pmc"]
 
 
-def test_a_question_an_official_source_fits_keeps_only_that_source():
+def test_an_official_source_comes_first_and_open_research_follows():
     fetch = brief("What federal rule covers uniform allowable cost for a grant?")["fetch"]
-    assert "europe-pmc" not in [a["id"] for a in fetch["apis"]]
-    assert fetch["apis"]
+    ids = [a["id"] for a in fetch["apis"]]
+    assert ids.index("europe-pmc") > ids.index("federal-register")
 
 
 def test_each_article_is_its_own_source_with_its_own_address_and_no_authors():
@@ -132,3 +132,52 @@ def test_a_search_with_no_abstracts_is_a_recorded_reason():
     sources, failures = R.gather(brief(), empty)
     assert sources == []
     assert len(failures) == 3 and "no articles" in failures[0]
+
+
+class _Mem:
+    def __init__(self):
+        self.records = {}
+
+    def get_record(self, store, key):
+
+        from tessera import NotFound
+
+        if (store, key) not in self.records:
+            raise NotFound("none")
+        return self.records[(store, key)]
+
+    def put_record(self, store, key, value, expected_version=0, **kw):
+        from types import SimpleNamespace
+
+        rec = SimpleNamespace(value=value, version=expected_version + 1, **kw)
+        self.records[(store, key)] = rec
+        return rec
+
+
+def _report(report_id="RPT-X"):
+    return {"report_id": report_id, "claims": [{"id": "C1"}]}
+
+
+def test_a_maker_report_is_kept_as_a_labeled_draft_and_delivered_only_when_asked(monkeypatch):
+    monkeypatch.setattr(R, "update_request_part", lambda *a, **k: None)
+    mem = _Mem()
+    R.save_unaudited(mem, _report(), request_id="rq", part=1, maker_receipt="r", deliver=False)
+    assert mem.records[(R.DRAFTS_STORE, "RPT-X")].value["audit_status"] == "not_audited_yet"
+    assert (R.SOLUTIONS_STORE, "RPT-X") not in mem.records
+    R.save_unaudited(mem, _report(), request_id="rq", part=1, maker_receipt="r", deliver=True)
+    assert mem.records[(R.SOLUTIONS_STORE, "RPT-X")].value["audit_status"] == "not_audited_yet"
+
+
+def test_a_failed_audit_changes_the_label_and_an_audited_result_is_never_overwritten(monkeypatch):
+    monkeypatch.setattr(R, "update_request_part", lambda *a, **k: None)
+    mem = _Mem()
+    R.save_unaudited(mem, _report(), request_id="rq", part=1, maker_receipt="r", deliver=True)
+    R.mark_audit_failed(mem, "RPT-X", ["a quote did not match"])
+    assert mem.records[(R.SOLUTIONS_STORE, "RPT-X")].value["audit_status"] == "audit_failed"
+    mem.records[(R.SOLUTIONS_STORE, "RPT-Y")] = __import__("types").SimpleNamespace(
+        value={"audit_status": "audited"}, version=1
+    )
+    R.save_unaudited(
+        mem, _report("RPT-Y"), request_id="rq", part=1, maker_receipt="r", deliver=True
+    )
+    assert mem.records[(R.SOLUTIONS_STORE, "RPT-Y")].value["audit_status"] == "audited"

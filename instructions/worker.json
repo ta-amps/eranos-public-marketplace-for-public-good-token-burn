@@ -628,7 +628,7 @@
     "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it."
   },
   "research": {
-    "min_claims": 3,
+    "min_claims": 1,
     "max_claims": 8,
     "candidate_sentences": 30,
     "support_overlap": 0.5,

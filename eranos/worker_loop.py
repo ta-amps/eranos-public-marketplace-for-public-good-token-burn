@@ -1384,6 +1384,15 @@ class Worker:
             lease.task_id, lease.fencing_token, done["output"], idempotency_key=idem, ok=True
         )
         self.say("its own checks passed · reported: submitted for an independent check")
+        if lease.kind == "research" and isinstance(done["output"].get("report"), dict):
+            research.save_unaudited(
+                gate,
+                done["output"]["report"],
+                request_id=str(request_id),
+                part=part,
+                maker_receipt=receipt.receipt_hash,
+                deliver=lease.brief.get("accept_unaudited") is True,
+            )
         self._facts(
             gate,
             request_id,
