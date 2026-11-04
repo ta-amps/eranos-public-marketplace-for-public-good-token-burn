@@ -810,6 +810,18 @@ class Worker:
             "why": pick.get("why"),
         }
 
+    def escalation(self, rules: dict[str, Any], model_id: str) -> Any:
+        """The stronger model a research Task gets when its own model keeps no claim: named by the
+        worker noun, usable like any model here, never for a volunteer (who runs its own model),
+        and None when it is the model already running or can't run."""
+        wanted = str((rules.get("research") or {}).get("escalate_model") or "")
+        if self.config.volunteer or not wanted or wanted == model_id:
+            return None
+        try:
+            return self.meta(wanted)
+        except ModelUnavailable:
+            return None
+
     def _fetcher(self, rules: dict[str, Any]) -> Callable[[str], Fetched]:
         """The injected fetcher (tests) or one with the worker noun's own limits."""
         if self.fetcher is not None:
@@ -1391,6 +1403,8 @@ class Worker:
                 meter=meter,
                 worker_rules=nouns["worker"],
                 variant=variant,
+                escalate=self.escalation(nouns["worker"], str(variant.get("model") or "")),
+                second_look=not self.config.volunteer,
             )
         else:
             done = process_part.do_process(gate, lease, handler=self.handler)
@@ -1507,6 +1521,7 @@ class Worker:
                 worker_rules=nouns["worker"],
                 guardrails=nouns.get("public-research") or {},
                 checker=self.checker(lease, pick, meter, notes, nouns["worker"]),
+                trusted_makers=frozenset(self.config.our_key_ids),
             )
         else:
             out = process_part.review_package(
@@ -1871,10 +1886,18 @@ class Worker:
             return {}
         research_out = lease.dependencies[0].output if lease.dependencies else None
         made = (research_out or {}).get("made_with") if isinstance(research_out, dict) else None
+        made = made if isinstance(made, dict) else {}
+        # A maker writes this: only a variant the tuning noun knows goes on the public record.
+        known = {
+            str(v.get("id"))
+            for v in (self.tuning()[0].get("variants") or [])
+            if isinstance(v, dict)
+        }
+        maker_variant = made.get("variant") if str(made.get("variant")) in known else None
         record = {
             "step": "check",
             "variant": checked.get("variant"),
-            "maker_variant": (made or {}).get("variant"),
+            "maker_variant": maker_variant,
             "unsupported": checked.get("unsupported") or [],
             "cost_usd": checked.get("cost_usd"),
             "seconds": checked.get("seconds"),

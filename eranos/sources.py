@@ -73,7 +73,7 @@ BLOCK_TAGS = frozenset(
     ]
 )
 SKIP_TAGS = frozenset({"script", "style", "noscript", "template", "svg", "head"})
-_SPACE = re.compile(r"[ \t\f\v\r\xa0]+")
+_SPACE = re.compile(r"[ \t\f\v\r\xa0\x1c-\x1f\x85\u2000-\u200a\u2028\u2029\u202f\u205f\u3000]+")
 
 
 class SourceRefused(ValueError):
@@ -265,10 +265,15 @@ class _Text(HTMLParser):
         self.title = ""
         self._skip = 0
         self._in_title = False
+        self._in_svg = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if tag == "title":
-            self._in_title = True
+            # Only the page's own title: an icon's <title> inside an svg isn't one ("Ready.govLock").
+            self._in_title = not self._in_svg and not self.title
+        elif tag == "svg":
+            self._in_svg = True
+            self._skip += 1
         elif tag in SKIP_TAGS:
             self._skip += 1
         elif tag in BLOCK_TAGS:
@@ -281,6 +286,9 @@ class _Text(HTMLParser):
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
             self._in_title = False
+        elif tag == "svg":
+            self._in_svg = False
+            self._skip = max(0, self._skip - 1)
         elif tag in SKIP_TAGS:
             self._skip = max(0, self._skip - 1)
         elif tag in BLOCK_TAGS:
@@ -290,7 +298,8 @@ class _Text(HTMLParser):
         if self._in_title:
             self.title += data
         elif not self._skip:
-            self.lines[-1] += data
+            # A newline in the page's source is only a space; block tags end a line.
+            self.lines[-1] += data.replace("\r", " ").replace("\n", " ")
 
 
 def _lines(text: str) -> str:

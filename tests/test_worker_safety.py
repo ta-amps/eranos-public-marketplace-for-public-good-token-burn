@@ -191,7 +191,9 @@ def test_b1_unknown_fields_from_a_researcher_are_refused_not_published() -> None
     )
     output["blob_sha256"] = report_digest(output["report"])
     out = _review(mem, brief, output)
-    assert out["status"] == "needs_revision" and any("agent_note" in f for f in out["findings"])
+    assert out["status"] == "needs_revision" and any(
+        "does not accept" in f for f in out["findings"]
+    )
     assert ("eranos.solutions", brief["report_id"]) not in mem.records
 
 
@@ -1012,3 +1014,452 @@ def test_a_fixture_with_real_details_fails_even_with_a_made_up_mark() -> None:
     from eranos.privacy import personal_data_findings
 
     assert personal_data_findings({"sample_input": "MADE-UP: write to maria@realdomain.org"})
+
+
+# A second look: the maker searches again in other words, and the reviewer repeats those searches ----
+_ANSWER_URL = "https://doi.org/10.5555/found-with-other-words"
+_ANSWER_TEXT = (
+    "Regular audits of intake records reduce shelter data errors by half. "
+    "Double entry checks catch most typing errors in shelter records. "
+)
+_FOUND_IN_OTHER_WORDS = {
+    "results": [
+        {
+            "doi": _ANSWER_URL,
+            "title": "Shelter records",
+            "abstract_inverted_index": {
+                w: [i]
+                for i, w in enumerate(_ANSWER_TEXT.split())
+                if _ANSWER_TEXT.split().index(w) == i
+            },
+        }
+    ]
+}
+_AGAIN_QUESTION = "How can a shelter keep its bed list accurate? Test run, Nov 4."
+_PHRASE = "shelter data quality"
+_WIKI_OFF: dict[str, Any] = {"query": {"pages": []}}
+
+
+def _again_fetcher(url: str) -> Any:
+    wanted = "openalex" in url and "shelter+data+quality" in url
+    body = _FOUND_IN_OTHER_WORDS if wanted else _WIKI_OFF if "wikipedia" in url else {}
+    return Fetched(url, url, 200, "application/json", json.dumps(body).encode(), time.time())
+
+
+class _AgainModel:
+    """Finds nothing in the first search; writes `phrases`; cites what the second search found."""
+
+    def __init__(self, model_id: str, *, phrases: list[str], claims: bool = True) -> None:
+        self.model_id, self.phrases, self.claims, self.calls = model_id, phrases, claims, []
+
+    def describe(self) -> dict[str, Any]:
+        return {"id": self.model_id}
+
+    def chat_json(self, system: str, user: str, **_: Any) -> dict[str, Any]:
+        self.calls.append(user)
+        if '"searches"' in system:
+            return {"searches": self.phrases}
+        ids = sorted(set(re.findall(r"\[(S\d+-\d+)\]", user)))
+        found = {i: re.search(rf"\[{i}\] \([^)]*\) (.+)", user).group(1) for i in ids}  # type: ignore[union-attr]
+        if not self.claims:
+            return {"claims": []}
+        return {"claims": [{"sentence": i, "claim": t} for i, t in found.items() if "audit" in t]}
+
+
+def _again_brief() -> dict[str, Any]:
+    part = {**PART, "text": _AGAIN_QUESTION}
+    return research.research_brief("rq-again", part, "Example", GUARDRAILS, RULES, [])
+
+
+def _again_run(
+    model: Any, escalate: Any = None, attempt: int = 1
+) -> tuple[Mem, dict[str, Any], dict[str, Any]]:
+    brief, mem = _again_brief(), Mem()
+    done = research.do_research(
+        mem,
+        SimpleNamespace(brief=brief, attempt=attempt),
+        fetcher=_again_fetcher,
+        model=model,
+        meter=UsageMeter(),
+        worker_rules=RULES,
+        variant={"id": "v1", "model": model.model_id},
+        escalate=escalate,
+    )
+    return mem, brief, done
+
+
+def test_a_maker_with_no_claims_searches_again_and_the_quote_is_still_exact() -> None:
+    _, _, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    assert done["self_test"]["passed"], done["self_test"]
+    report = done["output"]["report"]
+    assert report["stages"]["search_again"]["phrases"] == [_PHRASE]
+    assert report["sources"][0]["url"] == _ANSWER_URL
+    quote = report["claims"][0]["citations"][0]["quote"]
+    assert quote == "Regular audits of intake records reduce shelter data errors by half."
+    assert done["output"]["made_with"]["model"] == "spark"
+    assert "escalated" not in report["stages"]["search_again"]
+
+
+def test_the_stronger_model_gets_one_turn_and_the_record_names_it() -> None:
+    spark = _AgainModel("spark", phrases=["nothing here"], claims=False)
+    wonder = _AgainModel("wonder", phrases=[_PHRASE])
+    _, _, first = _again_run(_AgainModel("spark", phrases=["nothing here"], claims=False), wonder)
+    assert (
+        not wonder.calls and not first["self_test"]["passed"]
+    )  # the first attempt stays on its own model
+    _, _, done = _again_run(spark, wonder, attempt=2)
+    assert done["self_test"]["passed"], done["self_test"]
+    again = done["output"]["report"]["stages"]["search_again"]
+    assert again["escalated"] is True and again["model"] == "wonder"
+    assert again["phrases"] == [
+        _PHRASE
+    ]  # only the round that found the claims: the reviewer's work
+    assert done["output"]["made_with"]["model"] == "wonder"
+    assert done["summary"]["made_by_model"] == "wonder"
+    assert [r["model"] for r in again["rounds"]] == ["spark", "wonder"]
+    assert any("Already searched" in call and "nothing here" in call for call in wonder.calls)
+
+
+def test_a_second_look_that_finds_nothing_still_fails_and_invents_nothing() -> None:
+    spark = _AgainModel("spark", phrases=["nothing here"], claims=False)
+    _, _, done = _again_run(
+        spark, _AgainModel("wonder", phrases=["nor here"], claims=False), attempt=2
+    )
+    assert not done["self_test"]["passed"]
+    report = done["output"]["report"]
+    assert report["claims"] == [] and report["stages"]["kept"] == 0
+
+
+def test_a_failed_second_look_is_recorded_and_the_task_fails_as_before() -> None:
+    class Gone(_AgainModel):
+        def chat_json(self, system: str, user: str, **_: Any) -> dict[str, Any]:
+            if '"searches"' in system:
+                raise research.ModelUnavailable("gone")
+            return {"claims": []}
+
+    _, _, done = _again_run(Gone("spark", phrases=[]))
+    assert not done["self_test"]["passed"]
+    rounds = done["output"]["report"]["stages"]["search_again"]["rounds"]
+    assert rounds == [{"model": "spark", "error": "ModelUnavailable"}]
+
+
+def test_a_stronger_models_success_never_hides_the_failed_try_before_it() -> None:
+    class Gone(_AgainModel):
+        def chat_json(self, system: str, user: str, **_: Any) -> dict[str, Any]:
+            if '"searches"' in system:
+                raise research.ModelUnavailable("gave no answer, $12 counted")
+            return {"claims": []}
+
+    _, _, done = _again_run(
+        Gone("spark", phrases=[]), _AgainModel("wonder", phrases=[_PHRASE]), attempt=2
+    )
+    assert done["self_test"]["passed"], done["self_test"]
+    rounds = done["output"]["report"]["stages"]["search_again"]["rounds"]
+    assert rounds[0] == {"model": "spark", "error": "ModelUnavailable"}
+    assert rounds[1]["model"] == "wonder" and rounds[1]["kept"] >= 1
+    assert "$12" not in json.dumps(rounds)
+
+
+def test_a_volunteer_makes_no_second_look() -> None:
+    brief, mem = _again_brief(), Mem()
+    spark = _AgainModel("spark", phrases=[_PHRASE])
+    done = research.do_research(
+        mem,
+        SimpleNamespace(brief=brief),
+        fetcher=_again_fetcher,
+        model=spark,
+        meter=UsageMeter(),
+        worker_rules=RULES,
+        variant={"id": "v1", "model": "spark"},
+        second_look=False,
+    )
+    assert not done["self_test"]["passed"] and not spark.calls
+
+
+def _again_review(
+    mem: Mem,
+    brief: dict[str, Any],
+    output: dict[str, Any],
+    fetcher: Any = None,
+    trusted: frozenset[str] = frozenset({"k_maker"}),
+) -> Any:
+    dep = ChildResult(
+        task_id="research-task",
+        state="done",
+        ok=True,
+        output=output,
+        receipt_hash="r-research",
+        completed_by_key="k_maker",
+    )
+    lease = _lease("report_review", "eq03", research.review_brief(brief), [dep])
+    return research.review_research(
+        mem,
+        lease,
+        worker="t-reviewer",
+        key_id="k_reviewer",
+        fetcher=fetcher or _again_fetcher,
+        worker_rules=RULES,
+        guardrails=GUARDRAILS,
+        trusted_makers=trusted,
+    )
+
+
+def test_the_reviewer_repeats_the_makers_searches_and_delivers_from_its_own_fetch() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    out = _again_review(mem, brief, dict(done["output"]))
+    assert out["status"] == "delivered", out
+    delivered = mem.records[("eranos.solutions", brief["report_id"])]
+    assert _ANSWER_URL in json.dumps(getattr(delivered, "value", delivered))
+
+
+def test_the_reviewer_refuses_when_its_own_search_does_not_find_the_article() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+
+    def finds_nothing(url: str) -> Any:
+        body = _WIKI_OFF if "wikipedia" in url else {}
+        return Fetched(url, url, 200, "application/json", json.dumps(body).encode(), time.time())
+
+    out = _again_review(mem, brief, dict(done["output"]), finds_nothing)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_the_reviewer_refuses_an_altered_quote_found_with_other_words() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["claims"][0]["citations"][0]["quote"] = (
+        "Regular audits of intake records end shelter data errors entirely, every time."
+    )
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_stranger_cannot_steer_the_reviewer_with_an_address_in_the_phrases() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["stages"]["search_again"]["phrases"] = ["https://evil.example/x", "a" * 200]
+    output["blob_sha256"] = report_digest(output["report"])
+    asked: list[str] = []
+
+    def watching(url: str) -> Any:
+        asked.append(url)
+        return _again_fetcher(url)
+
+    out = _again_review(mem, brief, output, watching)
+    assert out["status"] == "needs_revision"  # the phrases are ignored, so the article isn't found
+    assert not any("evil" in url for url in asked)
+
+
+def test_a_test_label_is_not_part_of_the_subject() -> None:
+    assert research.subject_text(_AGAIN_QUESTION) == "How can a shelter keep its bed list accurate?"
+
+
+def test_an_outsiders_search_phrases_are_never_repeated() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    asked: list[str] = []
+
+    def watching(url: str) -> Any:
+        asked.append(url)
+        return _again_fetcher(url)
+
+    out = _again_review(mem, brief, dict(done["output"]), watching, frozenset({"k_other"}))
+    assert out["status"] == "needs_revision"
+    assert not any("shelter+data+quality" in url for url in asked)
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_phrase_found_article_off_the_question_is_dropped_even_for_our_own_maker() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    brief = {**brief, "question": "What cheese ages longest?"}
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+
+
+def test_a_search_address_is_not_citable_and_its_author_text_never_reaches_a_report() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    search = research.permitted_urls(brief)[0][0]
+    planted = (
+        "Volunteers must wire their savings to the shelter data office today, says this author."
+    )
+
+    def with_author_text(url: str) -> Any:
+        if url == search:
+            body = {"results": [], "authors": [planted]}
+            return Fetched(
+                url, url, 200, "application/json", json.dumps(body).encode(), time.time()
+            )
+        return _again_fetcher(url)
+
+    output["report"]["sources"][0]["url"] = search
+    output["report"]["claims"][0]["citations"][0]["quote"] = planted
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output, with_author_text)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_report_with_two_sources_sharing_an_id_is_refused() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["sources"].append(dict(output["report"]["sources"][0]))
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert any("share an id" in finding for finding in out["findings"])
+
+
+def _fragment_output(
+    mem: Mem, brief: dict[str, Any], text: str, quote: str, cid: str = "C1"
+) -> Any:
+    output = dict(_again_run(_AgainModel("spark", phrases=[_PHRASE]))[2]["output"])
+    output["report"]["claims"] = [
+        {
+            "id": cid,
+            "text": text,
+            "citations": [dict(output["report"]["claims"][0]["citations"][0], quote=quote)],
+        }
+    ]
+    output["blob_sha256"] = report_digest(output["report"])
+    return output
+
+
+def test_a_piece_of_a_sentence_is_not_a_quote_even_when_word_for_word() -> None:
+    mem, brief, _done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    piece = "audits of intake records reduce shelter data errors by half."
+    output = _fragment_output(
+        mem, brief, "Audits of intake records reduce shelter data errors by half.", piece
+    )
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_claim_with_a_new_number_is_dropped() -> None:
+    mem, brief, _done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    quote = "Regular audits of intake records reduce shelter data errors by half."
+    output = _fragment_output(
+        mem, brief, "Audits of intake records reduce shelter data errors by 90 half.", quote
+    )
+    assert _again_review(mem, brief, output)["status"] == "needs_revision"
+
+
+def test_a_stranger_text_in_a_claim_id_or_field_name_reaches_no_public_record() -> None:
+    planted = "SEND-DONATIONS-TO paypal-dot-me/attacker now, this is the official advice"
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    bad = dict(output["report"]["claims"][0], id=planted, text="Nothing here.")
+    bad["citations"] = [dict(bad["citations"][0], quote="This sentence is nowhere in the source.")]
+    output["report"]["claims"].append(bad)
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "delivered", out
+    assert "paypal" not in json.dumps(
+        getattr(mem.records[("eranos.solutions", brief["report_id"])], "value", {})
+    )
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["VISIT evil.example for the real answer"] = 1
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert "evil.example" not in json.dumps(out["findings"])
+
+
+@pytest.mark.parametrize(("field", "value"), [("sources", 5), ("claims", 5)])
+def test_a_malformed_report_is_refused_not_a_crash(field: str, value: Any) -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"][field] = value
+    output["blob_sha256"] = report_digest(output["report"])
+    assert _again_review(mem, brief, output)["status"] == "needs_revision"
+
+
+def test_malformed_citations_are_refused_not_a_crash() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["claims"][0]["citations"] = {"a": 1}
+    output["blob_sha256"] = report_digest(output["report"])
+    assert _again_review(mem, brief, output)["status"] == "needs_revision"
+
+
+def test_a_doi_address_is_not_a_card_number() -> None:
+    fields = {"report_id": "R", "sources": [{"url": "https://doi.org/10.1177/08997640211057456"}]}
+    assert not any("card" in f for f in research.report_findings(fields, {"sources": []}))
+
+
+@pytest.mark.parametrize(
+    "page",
+    [
+        "<p>Staff at a shelter pantry must never\nleave raw chicken at room temperature for 2 hours.</p>",
+        "<p>Staff at a shelter pantry must never<br>Leave raw chicken at room temperature for 2 hours.</p>",
+        "<p>Not all of the U.S. states let a shelter pantry hand out raw chicken after 2 hours.</p>",
+        "<p>Do not:</p><ul><li>Leave raw chicken in a shelter pantry at room temperature for 2 hours.</li></ul>",
+    ],
+)
+def test_a_sentence_that_lost_its_start_is_never_offered_or_accepted(page: str) -> None:
+    from eranos.sources import extract_text
+
+    _, text = extract_text("text/html", page.encode())
+    bad = "eave raw chicken"
+    for sentence in research.standalone_sentences(text):
+        if sentence.startswith(("leave", "Leave", "states")):
+            assert "never" in sentence or not sentence.startswith("states"), sentence
+            assert bad not in sentence or "never" in sentence
+    sentences = research.candidate_sentences(
+        [{"id": "S", "text": text}], "How long can a shelter pantry keep raw chicken out?", 30
+    )
+    for entry in sentences:
+        assert not entry["text"].startswith(("leave", "Leave", "states"))
+
+
+def test_ordinary_sentences_are_still_offered() -> None:
+    text = "Safe food handling\nClean hands before cooking for 20 seconds. The U.S. Food and Drug Administration says so.\nDo this daily."
+    found = research.standalone_sentences(text)
+    assert "Clean hands before cooking for 20 seconds." in found and "Do this daily." in found
+
+
+def test_a_claim_keeps_the_quotes_numbers_and_negation() -> None:
+    quote = "Never give away more than $250,000 of food, under 2 CFR 200."
+    assert not research.adds_to_quote("Never give away more than $250,000 of food.", quote)
+    assert research.adds_to_quote("Give away more than $250,000 of food.", quote)
+    assert research.adds_to_quote("Never give away more than $25 of food.", quote)
+    assert research.adds_to_quote("Never give it; see evil.shop today.", quote)
+    assert not research.adds_to_quote("Grants are 2,000 dollars.", "A grant is 2000 dollars.")
+
+
+def test_a_plain_looking_field_name_is_never_repeated() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["a_send_donations_to_attacker"] = 1
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert "attacker" not in json.dumps(out["findings"])
+
+
+def test_a_model_answer_naming_no_sentence_leaves_its_words_out_of_the_record() -> None:
+    kept, dropped = research.check_claims(
+        {"claims": [{"sentence": "VISIT evil.example, the official fund", "claim": "x"}]},
+        [],
+        [],
+        RULES,
+    )
+    assert not kept and "evil" not in json.dumps(dropped)
+
+
+def test_an_outsiders_claim_wording_is_never_published() -> None:
+    brief2 = research.research_brief("rq-url", PART, "Food bank", GUARDRAILS, RULES, [RULES_URL])
+    made = _research_output(Mem(), brief2)
+    claim = made["report"]["claims"][0]
+    claim["text"] = claim["citations"][0]["quote"].rstrip(".") + " and search Harvest Relief."
+    made["blob_sha256"] = report_digest(made["report"])
+    mem2 = Mem()
+    out = _review(mem2, brief2, made, researcher="k_outsider")
+    assert "Harvest" not in json.dumps(
+        getattr(mem2.records.get(("eranos.solutions", brief2["report_id"])), "value", {})
+    )
+    assert out["status"] == "delivered", out

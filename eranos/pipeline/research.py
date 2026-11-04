@@ -13,17 +13,20 @@
 
 from __future__ import annotations
 
+import contextlib
+import ipaddress
 import json
 import re
+import time
 from collections.abc import Callable
 from dataclasses import replace
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import quote_plus, urlsplit
 
 from tessera import NotFound
 
 from eranos.copy import find_accusatory_words
-from eranos.model_client import ChatModel, UsageMeter
+from eranos.model_client import ChatModel, ModelUnavailable, UsageMeter
 from eranos.pipeline.request_noun import PRODUCER, update_request_part
 from eranos.pipeline.requests import INSTRUCTIONS_STORE, _common_brief
 from eranos.pipeline.run import SelfReviewRefused
@@ -35,11 +38,19 @@ from eranos.pipeline.solutions import (
     report_findings,
 )
 from eranos.privacy import personal_data_findings
-from eranos.sources import Fetched, SourceRefused, api_query_url, source_record
+from eranos.sources import Fetched, SourceRefused, _lines, api_query_url, source_record
 
 SOURCES_STORE = "eranos.sources"
 BRIEF_KIND = "eranos.public_research"
 Fetcher = Callable[[str], Fetched]
+FETCH_RETRY_SECONDS = 2.0
+MAX_SEARCH_PHRASES = 3
+MAX_PHRASE_CHARS = 80
+# Source numbers: the brief's searches stay under this, repeated phrases above it, and a source the
+# reviewer fetches directly by address above that, so two sources never share an id.
+PHRASE_NUMBERS_FROM = 100
+DIRECT_NUMBERS_FROM = 1000
+_PLAIN_PHRASE = re.compile(r"[^\W_][\w '-]*")
 _SENTENCE = re.compile(r"(?<=[.!?])\s+")
 _WORD = re.compile(r"[a-z0-9][a-z0-9()'-]*")
 _STOP = frozenset(
@@ -156,6 +167,7 @@ _QUERY_STOP = frozenset(
         "ways",
         "best",
         "good",
+        "guidance",
     ]
 )
 
@@ -175,6 +187,51 @@ _QUERY_MEANS = {
     "raise": "fundraising",
     "donate": "donation",
 }
+# "Keep", "stay", "leave" and "find" mean retention or recruitment only when the question is about
+# people: keeping a spreadsheet accurate is not retention, and that word sent a search to green roofs.
+_ABOUT_PEOPLE = frozenset(
+    {
+        "volunteer",
+        "volunteers",
+        "staff",
+        "employee",
+        "employees",
+        "worker",
+        "workers",
+        "donor",
+        "donors",
+        "member",
+        "members",
+        "people",
+        "clients",
+        "tutor",
+        "tutors",
+        "mentor",
+        "mentors",
+    }
+)
+_PEOPLE_MEANS = frozenset({"retention", "turnover", "recruitment"})
+# A label says who is asking or why, not what about: it never goes into a search.
+_LABEL_DATE = r"(?:[,:\s-]+(?:on\s+)?[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?"
+_LABEL_LONG = r"(?:,\s*our own example, not a real organization['\u2019]s request)?"
+_LABEL_START = re.compile(
+    r"^\s*(?:\(?test run" + _LABEL_DATE + _LABEL_LONG + r"\s*\)?\s*[.:\u2013-]\s*"
+    r"|practice case:\s*(?:an example, not a real person or case\.\s*)?"
+    r"|example request:\s*)",
+    re.IGNORECASE,
+)
+# Its own sentence at the end, with at most a date: "...? Test run, Nov 4."
+_LABEL_END = re.compile(
+    r"(?:^|(?<=[.?!])\s+)\(?test run" + _LABEL_DATE + _LABEL_LONG + r"[.?!]?\)?\s*$",
+    re.IGNORECASE,
+)
+
+
+def subject_text(text: str) -> str:
+    """The question without a test, example or practice label at its start or end. The same words
+    inside a question ("a test run of our disaster plan") are the question."""
+    subject = " ".join(_LABEL_END.sub("", _LABEL_START.sub("", text)).split())
+    return subject or " ".join(text.split())
 
 
 def words(text: str) -> set[str]:
@@ -218,11 +275,16 @@ def general_apis(apis: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def query_terms(text: str, limit: int = 6) -> list[str]:
     seen: list[str] = []
-    for word in _WORD.findall(text.lower()):
+    found = _WORD.findall(subject_text(text).lower())
+    about_people = bool(_ABOUT_PEOPLE & {w.strip("'-()") for w in found})
+    for word in found:
         word = word.strip("'-") if "(" in word else word.strip("'-()")
         if word in _QUERY_STOP:
             continue
-        word = _QUERY_MEANS.get(word, word)
+        means = _QUERY_MEANS.get(word, word)
+        if means != word and means in _PEOPLE_MEANS and not about_people:
+            continue
+        word = means
         if len(word) >= 4 and word not in _STOP and word not in seen and not word.isdigit():
             seen.append(word)
     return seen[:limit]
@@ -250,6 +312,8 @@ def research_brief(
     if not links:
         extra = general_apis(list(rules.get("official_apis") or []))
         apis = [*apis, *[a for a in extra if a not in apis]]
+    if part.get("legal"):  # a legal answer rests on official text and research, never an open wiki
+        apis = [a for a in apis if a.get("results") != "wikipedia"]
     return {
         **brief,
         "report_id": report_id,
@@ -340,8 +404,14 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
     return unique[: int(fetch.get("max_sources") or 5)]
 
 
-_TAG = re.compile(r"<[^>]+>")
+# A tag starts with a letter: "<10 staff and >50 volunteers" is text, and removing it changes the facts.
+_TAG = re.compile(r"</?[a-zA-Z][^<>]*>|<!--.*?-->", re.DOTALL)
 MAX_ARTICLES_PER_SEARCH = 4
+# A search answer carries each article's opening; its full text takes one more call, same host.
+WIKIPEDIA_PAGE = (
+    "https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2"
+    "&prop=extracts&explaintext=1&redirects=1&titles={title}"
+)
 
 
 def _plain(text: Any) -> str:
@@ -391,7 +461,31 @@ def search_articles(kind: str, raw: bytes) -> list[dict[str, str]]:
                 out.append(
                     {"title": _plain(bib.get("title")), "abstract": abstract, "url": str(url)}
                 )
+    elif kind == "wikipedia":
+        pages = (data.get("query") or {}).get("pages") or []
+        for item in sorted(
+            (p for p in pages if isinstance(p, dict)) if isinstance(pages, list) else [],
+            key=lambda p: int(p.get("index") or 0),
+        ):
+            title, abstract = _plain(item.get("title")), _lines(str(item.get("extract") or ""))
+            url = str(item.get("fullurl") or "")
+            if abstract and title and url.startswith("https://en.wikipedia.org/wiki/"):
+                out.append(
+                    {
+                        "title": title,
+                        "abstract": abstract,
+                        "url": url,
+                        "full_text": WIKIPEDIA_PAGE.format(title=quote_plus(title)),
+                    }
+                )
     return out[:MAX_ARTICLES_PER_SEARCH]
+
+
+def wikipedia_text(raw: bytes) -> str:
+    """The plain text of one article from its full-text answer, or nothing."""
+    pages = (json.loads(raw.decode("utf-8", errors="replace")).get("query") or {}).get("pages")
+    first = pages[0] if isinstance(pages, list) and pages else {}
+    return _lines(str(first.get("extract") or "")) if isinstance(first, dict) else ""
 
 
 def _result_kind(brief: dict[str, Any], url: str) -> str | None:
@@ -403,13 +497,74 @@ def _result_kind(brief: dict[str, Any], url: str) -> str | None:
     return None
 
 
-def gather(brief: dict[str, Any], fetcher: Fetcher) -> tuple[list[dict[str, Any]], list[str]]:
+def _fetch_again(fetcher: Fetcher, url: str) -> Fetched:
+    """One fetch, asked once more after a short wait: public search services drop calls now and
+    then, and one dropped call shouldn't cost a nonprofit its answer. A refused address isn't asked
+    again."""
+    try:
+        return fetcher(url)
+    except SourceRefused:
+        raise
+    except (RuntimeError, ValueError):
+        time.sleep(FETCH_RETRY_SECONDS)
+        return fetcher(url)
+
+
+def _names_an_ip(url: str) -> bool:
+    try:
+        ipaddress.ip_address(urlsplit(url).hostname or "")
+    except ValueError:
+        return False
+    return True
+
+
+def clean_phrases(value: Any) -> list[str]:
+    """The search phrases a maker's output may carry: plain words only, few and short. Anything
+    else is left out. They only ever fill the query of an allowlisted search, URL-encoded."""
+    out: list[str] = []
+    for item in value if isinstance(value, list) else []:
+        phrase = " ".join(str(item).split()) if isinstance(item, str) else ""
+        if (
+            phrase
+            and len(phrase) <= MAX_PHRASE_CHARS
+            and _PLAIN_PHRASE.fullmatch(phrase)
+            and phrase.lower() not in [p.lower() for p in out]
+        ):
+            out.append(phrase)
+    return out[:MAX_SEARCH_PHRASES]
+
+
+def phrase_urls(brief: dict[str, Any], phrases: list[str]) -> list[tuple[str, str, str | None]]:
+    """(url, access, publisher) for a second search: each phrase on each research search the brief
+    already permits, and nothing else. A brief with no research search searches nothing."""
+    apis = [a for a in (brief.get("fetch") or {}).get("apis") or [] if a.get("results")]
+    return [
+        (
+            api_query_url(api, [phrase]),
+            str(api.get("access") or "official_api"),
+            api.get("publisher"),
+        )
+        for phrase in phrases
+        for api in apis
+    ]
+
+
+def gather(
+    brief: dict[str, Any],
+    fetcher: Fetcher,
+    *,
+    phrases: list[str] | None = None,
+    known_urls: frozenset[str] = frozenset(),
+) -> tuple[list[dict[str, Any]], list[str]]:
     """Fetch every permitted source once; failures are kept as reasons, never hidden. A research
-    search becomes one source per article, each citing the article's own address."""
+    search becomes one source per article, each citing the article's own address. With `phrases`,
+    it runs those searches instead of the brief's sources, numbered apart from them, leaving out
+    articles already in `known_urls`."""
     records: list[dict[str, Any]] = []
     failures: list[str] = []
     fetch_rules = brief.get("fetch") or {}
-    number = 0
+    number = PHRASE_NUMBERS_FROM if phrases else 0
+    seen = set(known_urls)
 
     def keep(
         fetched: Fetched, access: str, publisher: str | None, title: str | None = None
@@ -432,9 +587,10 @@ def gather(brief: dict[str, Any], fetcher: Fetcher) -> tuple[list[dict[str, Any]
         else:
             failures.append(f"source {number}: no text could be extracted")
 
-    for index, (url, access, publisher) in enumerate(permitted_urls(brief), start=1):
+    addresses = phrase_urls(brief, phrases) if phrases else permitted_urls(brief)
+    for index, (url, access, publisher) in enumerate(addresses, start=1):
         try:
-            fetched = fetcher(url)
+            fetched = _fetch_again(fetcher, url)
         except (SourceRefused, RuntimeError, ValueError) as exc:
             failures.append(f"source {index}: {exc}")
             continue
@@ -450,12 +606,24 @@ def gather(brief: dict[str, Any], fetcher: Fetcher) -> tuple[list[dict[str, Any]
         if not articles:
             failures.append(f"source {index}: its search found no articles with an abstract")
         for article in articles:
+            if article["url"] in seen or _names_an_ip(article["url"]):
+                continue
+            seen.add(article["url"])
+            abstract = article["abstract"]
+            if article.get("full_text"):
+                # When the full text can't be read, the opening the search gave still counts.
+                with contextlib.suppress(
+                    SourceRefused, RuntimeError, ValueError, AttributeError, TypeError
+                ):
+                    abstract = (
+                        wikipedia_text(_fetch_again(fetcher, article["full_text"]).raw) or abstract
+                    )
             page = replace(
                 fetched,
                 url=article["url"],
                 final_url=article["url"],
                 content_type="text/plain",
-                raw=(article["title"].rstrip(".") + ".\n" + article["abstract"]).encode("utf-8"),
+                raw=(article["title"].rstrip(".") + ".\n" + abstract).encode("utf-8"),
             )
             keep(page, access, publisher, article["title"])
     return records, failures
@@ -496,26 +664,22 @@ def candidate_sentences(
 ) -> list[dict[str, Any]]:
     """Numbered sentences that share words with the question, at most 12 per source, taken from
     every source in turn (each one's best first)."""
-    wanted = words(question)
+    wanted = words(subject_text(question))
     picked: list[tuple[int, int, int, dict[str, Any]]] = []
     for s_index, source in enumerate(sources, start=1):
         scored = []
         position = 0
         seen: set[str] = set()
-        for line in str(source["text"]).split("\n"):
-            for sentence in _SENTENCE.split(line):
-                sentence = sentence.strip()
-                position += 1
-                if not 40 <= len(sentence) <= 400 or len(sentence.split()) < 6:
-                    continue
-                if sentence in seen or not sentence.rstrip("\"')").endswith((".", "!", "?")):
-                    continue  # headings and repeated lines are not claims
-                seen.add(sentence)
-                overlap = len(wanted & words(sentence))
-                if (
-                    overlap
-                ):  # it must share a word with the question; then specific ones rank higher
-                    scored.append((overlap + specificity(sentence), position, sentence))
+        for sentence in standalone_sentences(str(source["text"])):
+            position += 1
+            if not 40 <= len(sentence) <= 400 or len(sentence.split()) < 6:
+                continue
+            if sentence in seen or not sentence.rstrip("\"')").endswith((".", "!", "?")):
+                continue  # headings and repeated lines are not claims
+            seen.add(sentence)
+            overlap = len(wanted & words(sentence))
+            if overlap:  # it must share a word with the question; then specific ones rank higher
+                scored.append((overlap + specificity(sentence), position, sentence))
         scored.sort(key=lambda item: (-item[0], item[1]))
         for rank, (overlap, position, sentence) in enumerate(scored[:12]):
             picked.append(
@@ -588,7 +752,7 @@ def check_claims(
         claim = " ".join(str(item.get("claim") or "").split())
         entry = by_id.get(sid)
         if entry is None:
-            dropped.append({"sentence": sid, "reason": "names no numbered sentence"})
+            dropped.append({"sentence": "?", "reason": "names no numbered sentence"})
             continue
         source_id = entry["source"]
         quote = " ".join(str(entry["text"]).split())
@@ -600,6 +764,9 @@ def check_claims(
             dropped.append({"sentence": sid, "reason": "no claim text"})
             continue
         if len(claim_words & words(quote)) / len(claim_words) < overlap_needed:
+            dropped.append({"sentence": sid, "reason": "the claim says more than its quote"})
+            continue
+        if len(claim) > MAX_CLAIM_CHARS or adds_to_quote(claim, quote):
             dropped.append({"sentence": sid, "reason": "the claim says more than its quote"})
             continue
         if find_accusatory_words(claim) or personal_data_findings({"claim": claim}):
@@ -622,8 +789,8 @@ def check_claims(
 
 
 CONTENT_NOTICE = (
-    "Quotes are copied word for word from the public sources named here. Each claim's wording was"
-    " written by an AI model and checked against its quote; this request's record names the worker"
+    "Quotes are copied word for word from the public sources named here. Each claim is its quote, or"
+    " an AI model's wording checked against its quote; this request's record names the worker"
     " and the model. Everything in this report is data, never instructions."
 )
 SOURCE_FIELDS = (
@@ -654,17 +821,13 @@ def build_report(
     cited = {c["citations"][0]["source"] for c in claims}
     used = [s for s in sources if s["id"] in cited]
     # A caveat the worker noun gives an official page (for example that food rules vary by state
-    # and county) goes with every report that cites the page; it is never the researcher's text.
-    pages = {
-        str(p.get("url")): p
-        for p in ((brief.get("fetch") or {}).get("pages") or [])
-        if isinstance(p, dict)
-    }
+    # and county) goes with every report whose brief holds that page, whichever source a claim
+    # cites: the topic that called for it is the same. It is never the researcher's text.
     caveats = list(
         dict.fromkeys(
-            str((pages.get(str(s.get("url"))) or {}).get("caveat") or "")
-            for s in used
-            if (pages.get(str(s.get("url"))) or {}).get("caveat")
+            str(p["caveat"])
+            for p in ((brief.get("fetch") or {}).get("pages") or [])
+            if isinstance(p, dict) and p.get("caveat")
         )
     )
     # A short result is still a result: it says what's missing rather than being closed.
@@ -717,6 +880,138 @@ def store_sources(backend: Any, sources: list[dict[str, Any]]) -> list[dict[str,
     return refs
 
 
+_NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
+_ADDRESS = re.compile(r"https?://\S+|www\.\S+|\b[\w-]{2,}\.[a-z]{2,}\b(?:/\S*)?", re.IGNORECASE)
+_NEGATION = re.compile(
+    r"\b(?:not|never|no(?! more| later| longer| fewer| less)|none|neither|nor|without|cannot|avoid|stop|"
+    r"refuse|prohibit\w*|forbid\w*|\w+n't|\w+n\u2019t)\b",
+    re.IGNORECASE,
+)
+_DUTY_NEGATION = re.compile(r"\b(?:must|may|should|shall)\s+not\b|\bnever\b", re.IGNORECASE)
+
+
+def _numbers(text: str) -> set[str]:
+    return {n.replace(",", "") for n in _NUMBER.findall(text)}
+
+
+def adds_to_quote(claim: str, quote: str) -> bool:
+    """A claim's wording may be the model's; its figures, web addresses and negation may not: every
+    number and address must be in the quote, and a quote that opens with "never" stays negative."""
+    opening, head = _NEGATION.search(quote), len(" ".join(quote.split()[:6]))
+    negative = bool(_NEGATION.search(claim))
+    return (
+        bool(_numbers(claim) - _numbers(quote))
+        or any(a.lower().rstrip(".,;)") not in quote.lower() for a in _ADDRESS.findall(claim))
+        or bool(opening and opening.start() < head and not negative)
+        or bool(_DUTY_NEGATION.search(quote) and not negative)
+        or bool(negative and not opening)
+    )
+
+
+_ABBREVIATED = re.compile(
+    r"(?:\b[A-Z]\.|\b(?:e\.g|i\.e|etc|vs|Dr|Mr|Mrs|Ms|No|St|Inc|Co|cf|Sec|Secs|Gov|Sen|Rep|Fig|Dept|"
+    r"approx|Pub|Vol|Art|Ch|al|ca|pp?|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sept?|Oct|Nov|Dec)\.)$"
+)
+_SHORT_WORD_END = re.compile(r"\b\w{1,6}\.$")
+_CUT_OFF_LINE = re.compile(
+    r"(?::|\b(?:not|never|no|don['\u2019]t|do not|must not|cannot))$", re.IGNORECASE
+)
+_WARNING_HEADING = re.compile(
+    r"^(?:avoid\b|never\b|do not\b|don['\u2019]t\b)|\bdon['\u2019]ts\b|\bwhat not to\b|\bnot to do\b"
+    r"|\b(?:mistakes?|myths?|unsafe|prohibited|forbidden)\b",
+    re.IGNORECASE,
+)
+
+
+def standalone_sentences(text: str) -> list[str]:
+    """The sentences a claim may quote, in order. A piece that may have lost its start or end isn't
+    one: it starts in lowercase, follows an abbreviation ("the U.S. states..."), starts with a digit
+    or symbol after a short word and a period ("Sec. 5..."), ends in an abbreviation, follows a line
+    ending in a colon or a "never", or sits under a heading that warns ("Avoid these mistakes"), so
+    a quote can't drop the word that gives a sentence its meaning."""
+    out: list[str] = []
+    before = ""
+    warned = False
+    for line in text.split("\n"):
+        line = line.strip()
+        # A short line with no end mark is a heading, and rules what follows it.
+        if (
+            line
+            and not line.endswith((".", "!", "?", ":", '"', "\u201d", ")"))
+            and len(line.split()) <= 8
+        ):
+            warned = bool(_WARNING_HEADING.search(line))
+        for piece in _SENTENCE.split(line):
+            piece = piece.strip()
+            if not piece:
+                continue
+            cut = _ABBREVIATED.search(before) or _CUT_OFF_LINE.search(before)
+            lost = (
+                not piece[0].isalpha()
+                and piece[0] not in "\"'\u201c("
+                and _SHORT_WORD_END.search(before)
+            )
+            if not (cut or lost or warned or piece[0].islower() or _ABBREVIATED.search(piece)):
+                out.append(piece)
+            before = piece
+    return out
+
+
+def whole_sentences(text: str) -> set[str]:
+    return {" ".join(piece.split()) for piece in standalone_sentences(text)}
+
+
+def on_subject(claim: dict[str, Any], sources: list[dict[str, Any]], question: str) -> bool:
+    """A claim from a search in other words still has to be about the question: its quote or its
+    article's title shares a word with it. Search phrases choose where to look, never the subject."""
+    wanted = words(subject_text(question))
+    citation = claim["citations"][0]
+    title = next((str(s.get("title") or "") for s in sources if s["id"] == citation["source"]), "")
+    return bool(wanted & (words(str(citation["quote"])) | words(title)))
+
+
+def _model_id(model: Any) -> str:
+    described = model.describe() if hasattr(model, "describe") else {}
+    return str((described or {}).get("id") or "")
+
+
+def search_round(
+    model: ChatModel,
+    brief: dict[str, Any],
+    question: str,
+    research: dict[str, Any],
+    fetcher: Fetcher,
+    meter: UsageMeter,
+    sources: list[dict[str, Any]],
+    tried: list[str],
+) -> tuple[list[str], list[dict[str, Any]], list[str]] | None:
+    """One more search in the model's words: (phrases, new sources, failures); None when it gave
+    no new usable phrase or the brief has no research search to run them on."""
+    if not phrase_urls(brief, ["x"]):
+        return None
+    user = f"Question: {subject_text(question)}"
+    if tried:
+        user += "\nAlready searched, with nothing useful: " + "; ".join(tried)
+    asked = model.chat_json(
+        "\n".join(research.get("search_prompt") or []),
+        user,
+        meter=meter,
+        temperature=0.0,
+        seed=20261104,
+    )
+    wanted = clean_phrases(asked.get("searches") if isinstance(asked, dict) else None)
+    phrases = [p for p in wanted if p.lower() not in [t.lower() for t in tried]]
+    if not phrases:
+        return None
+    more, lost = gather(
+        brief,
+        fetcher,
+        phrases=phrases,
+        known_urls=frozenset(str(s["url"]) for s in sources),
+    )
+    return phrases, more, lost
+
+
 def do_research(
     backend: Any,
     lease: Any,
@@ -726,9 +1021,13 @@ def do_research(
     meter: UsageMeter,
     worker_rules: dict[str, Any],
     variant: dict[str, Any] | None = None,
+    escalate: ChatModel | None = None,
+    second_look: bool = True,
 ) -> dict[str, Any]:
     """The builder's research work: {output, self_test, artifact_refs, summary}. `variant` is the
-    tuned pick (persona, effort, temperature); its id and model go in the output as `made_with`."""
+    tuned pick (persona, effort, temperature); its id and model go in the output as `made_with`.
+    `escalate` is the stronger model that gets a turn when `model` keeps no claim, and `second_look`
+    says whether this maker's search phrases would be repeated by a reviewer at all."""
     variant = variant or {}
     persona = (
         (variant.get("persona") or {}).get("text")
@@ -738,28 +1037,89 @@ def do_research(
     brief = dict(lease.brief)
     research = worker_rules.get("research") or {}
     sources, failures = gather(brief, fetcher)
-    sentences = candidate_sentences(
-        sources, brief["question"], int(research.get("candidate_sentences") or 30)
-    )
+    question = str(brief["question"])
+    limit = int(research.get("candidate_sentences") or 30)
+    sentences = candidate_sentences(sources, question, limit)
     refs = store_sources(backend, sources) if sources else []
-    proposed: Any = {}
-    if sentences:
-        system, user = prompt_text(worker_rules, brief["question"], sentences, sources, persona)
-        # The first attempt samples at the variant's temperature; a retried verb samples a little
-        # more widely, with a different seed, so it does not repeat the same failure. Both are in
-        # the execution report.
-        attempt = max(1, int(getattr(lease, "attempt", 1) or 1))
-        base = float(variant.get("temperature") or 0.0)
-        temperature = base if attempt == 1 else max(base, min(0.6, 0.2 * attempt))
-        proposed = model.chat_json(
+    # The first attempt samples at the variant's temperature; a retried verb samples a little
+    # more widely, with a different seed, so it does not repeat the same failure. Both are in
+    # the execution report.
+    attempt = max(1, int(getattr(lease, "attempt", 1) or 1))
+    base = float(variant.get("temperature") or 0.0)
+    temperature = base if attempt == 1 else max(base, min(0.6, 0.2 * attempt))
+    effort = variant.get("reasoning_effort")
+
+    def ask(using: ChatModel, among: list[dict[str, Any]], seen: list[dict[str, Any]]) -> Any:
+        system, user = prompt_text(worker_rules, question, among, seen, persona)
+        return using.chat_json(
             system,
             user,
             meter=meter,
             temperature=temperature,
             seed=20261031 + attempt - 1,
-            reasoning_effort=variant.get("reasoning_effort"),
+            reasoning_effort=effort,
         )
+
+    proposed: Any = ask(model, sentences, sources) if sentences else {}
     claims, dropped = check_claims(proposed, sentences, sources, worker_rules)
+    search_again: dict[str, Any] = {}
+    if not claims and second_look and research.get("search_prompt"):
+        # Nothing the first search found answers the question. The model may say so; it may also
+        # look again, in other words, on the same permitted searches. From the second attempt a
+        # stronger model gets one turn too. Every claim still rests on a sentence copied by code
+        # from a source, and the reviewer runs the same searches itself.
+        rounds: list[ChatModel] = [model]
+        if escalate is not None and escalate is not model and attempt >= 2:
+            rounds.append(escalate)
+        tried: list[str] = []
+        records: list[dict[str, Any]] = []
+        for using in rounds:
+            record: dict[str, Any] = {"model": _model_id(using)}
+            records.append(record)
+            try:
+                found = search_round(
+                    using, brief, question, research, fetcher, meter, sources, tried
+                )
+                if found is None:
+                    record["phrases"] = []
+                    continue
+                phrases, more, lost = found
+                tried += phrases
+                all_sources = sources + more
+                among = candidate_sentences(
+                    all_sources, f"{subject_text(question)} {' '.join(phrases)}", limit
+                )
+                record.update(
+                    phrases=phrases, fetched=len(more), failed=lost[:10], candidates=len(among)
+                )
+                answer: Any = ask(using, among, all_sources) if among else {}
+            except (ModelUnavailable, RuntimeError, ValueError, TypeError, AttributeError) as exc:
+                record["error"] = type(exc).__name__  # its kind only: a message can carry spend
+                continue
+            checked_claims, found_dropped = check_claims(answer, among, all_sources, worker_rules)
+            dropped += found_dropped
+            found_claims: list[dict[str, Any]] = []
+            for claim in checked_claims:
+                if on_subject(claim, all_sources, question):
+                    found_claims.append({**claim, "id": f"C{len(found_claims) + 1}"})
+                else:
+                    dropped.append({"sentence": claim["id"], "reason": "not about the question"})
+            record["kept"] = len(found_claims)
+            if found_claims:
+                claims, sentences, proposed = found_claims, among, answer
+                cited = {c["citations"][0]["source"] for c in claims}
+                refs += store_sources(backend, [m for m in more if m["id"] in cited])
+                sources = all_sources
+                search_again = {
+                    "phrases": phrases,
+                    "model": record["model"],
+                    "kept": len(claims),
+                }
+                if using is not model:
+                    search_again["escalated"] = True
+                    variant = {**variant, "model": record["model"]}
+                break
+        search_again["rounds"] = records
     stages = {
         "fetch": {
             "permitted": len(permitted_urls(brief)),
@@ -771,6 +1131,8 @@ def do_research(
         # "no_claims": the model answered with an empty list; the tuner charges that to a variant
         # only when another attempt on the same part found claims (FB1-024).
         "answer": "no_call"
+        if not sentences and not any(r.get("candidates") for r in search_again.get("rounds") or [])
+        else "no_claims"
         if not sentences
         else "claims"
         if isinstance(proposed, dict) and proposed.get("claims")
@@ -779,6 +1141,7 @@ def do_research(
         else "unparsed",
         "kept": len(claims),
         "dropped": dropped[:20],
+        **({"search_again": search_again} if search_again else {}),
     }
     report = build_report(brief, sources, claims, stages)
     checked = {**brief, "sources": sources}
@@ -807,6 +1170,7 @@ def do_research(
             "sources": len(report["sources"]),
             "claims": len(claims),
             "dropped": len(dropped),
+            **({"made_by_model": search_again["model"]} if search_again.get("escalated") else {}),
         },
     }
 
@@ -836,6 +1200,10 @@ REPORT_SOURCE_KEYS = frozenset({*SOURCE_FIELDS, "published"})
 MAX_CLAIM_CHARS = 300
 
 
+def _items(value: Any) -> list[Any]:
+    return value if isinstance(value, list) else []
+
+
 def shape_findings(output: dict[str, Any]) -> list[str]:
     """Unknown fields are refused, never passed on: a research output is data from a stranger."""
     out: list[str] = []
@@ -844,17 +1212,21 @@ def shape_findings(output: dict[str, Any]) -> list[str]:
         if not isinstance(value, dict):
             out.append(f"{where} must be an object")
         elif extra := sorted(set(value) - allowed):
-            out.append(f"{where} has fields this review does not accept: {', '.join(extra)[:200]}")
+            # A stranger chooses these names, so public records give only how many.
+            out.append(f"{where} has {len(extra)} field(s) this review does not accept")
 
     unknown("the research output", output, OUTPUT_KEYS)
     report = output.get("report")
     unknown("the report", report, REPORT_KEYS)
     if isinstance(report, dict):
-        for source in report.get("sources") or []:
+        for name in ("sources", "claims"):
+            if not isinstance(report.get(name), list):
+                out.append(f"the report's {name} must be a list")
+        for source in _items(report.get("sources")):
             unknown("a source", source, REPORT_SOURCE_KEYS)
-        for claim in report.get("claims") or []:
+        for claim in _items(report.get("claims")):
             unknown("a claim", claim, CLAIM_KEYS)
-            for citation in (claim.get("citations") or []) if isinstance(claim, dict) else []:
+            for citation in _items(claim.get("citations")) if isinstance(claim, dict) else []:
                 unknown("a citation", citation, CITATION_KEYS)
     return out
 
@@ -969,6 +1341,7 @@ def review_research(
     worker_rules: dict[str, Any],
     guardrails: dict[str, Any],
     checker: Callable[[str, list[dict[str, Any]]], dict[str, Any]] | None = None,
+    trusted_makers: frozenset[str] = frozenset(),
 ) -> dict[str, Any]:
     """Rebuild the report from this reviewer's own checks, then approve and deliver it, or send it back.
 
@@ -981,6 +1354,10 @@ def review_research(
     reviewer's own fetch of the permitted sources, and the claims whose quotes pass against that
     fetch; its summary, decision and disclaimer are generated here. Nothing else the researcher
     wrote is passed on, and an output with fields this review does not know is refused.
+
+    A maker's search phrases are repeated only for `trusted_makers`, our own dedicated keys: words
+    from an outsider would let it choose an article (anyone can edit an encyclopedia) for a real
+    nonprofit's answer, so an outsider's second-look claims find no article here and are dropped.
     """
     research = lease.dependencies[0]
     brief = dict(lease.brief)
@@ -1041,13 +1418,19 @@ def review_research(
         )
     research_rules = worker_rules.get("research") or {}
     overlap_needed = float(research_rules.get("support_overlap") or 0.5)
-    permitted = permitted_urls(brief)
+    # A research search's own address is never citable: its answer holds text the article reader
+    # leaves out on purpose, such as authors' details. Only an article it returned can be cited.
+    permitted = [p for p in permitted_urls(brief) if not _result_kind(brief, p[0])]
     numbered = {
-        url: (n, access, publisher) for n, (url, access, publisher) in enumerate(permitted, start=1)
+        url: (DIRECT_NUMBERS_FROM + n, access, publisher)
+        for n, (url, access, publisher) in enumerate(permitted, start=1)
     }
+    source_ids = [str(s.get("id")) for s in _items(report.get("sources")) if isinstance(s, dict)]
+    if len(set(source_ids)) != len(source_ids):
+        findings.append("two sources in the report share an id")
     claimed_urls = {
         str(s.get("id")): str(s.get("url") or "")
-        for s in report.get("sources") or []
+        for s in _items(report.get("sources"))
         if isinstance(s, dict)
     }
     fresh: dict[str, dict[str, Any]] = {}
@@ -1056,6 +1439,21 @@ def review_research(
     # claim may cite only an article that its own search returned, with the quote in that text.
     if any(api.get("results") for api in (brief.get("fetch") or {}).get("apis") or []):
         searched, search_failures = gather(brief, fetcher)
+        # A maker that looked again says in which words; this reviewer runs those same searches on
+        # the same permitted services. The words choose where to look, never what a source says.
+        stages_in = report.get("stages") if isinstance(report.get("stages"), dict) else {}
+        again = stages_in.get("search_again") if isinstance(stages_in, dict) else None
+        phrases = clean_phrases(again.get("phrases") if isinstance(again, dict) else None)
+        if researcher not in trusted_makers:
+            phrases = []
+        if phrases:
+            more, more_failures = gather(
+                brief,
+                fetcher,
+                phrases=phrases,
+                known_urls=frozenset(str(s["url"]) for s in searched),
+            )
+            searched, search_failures = searched + more, search_failures + more_failures
         fresh.update({str(s["url"]): s for s in searched})
         numbered.update(
             {str(s["url"]): (0, str(s["access"]), s.get("publisher")) for s in searched}
@@ -1065,17 +1463,20 @@ def review_research(
     kept: list[dict[str, Any]] = []
     dropped: list[dict[str, str]] = []
     seen: set[str] = set()
-    claims = [c for c in report.get("claims") or [] if isinstance(c, dict)]
-    for claim in claims[: int(research_rules.get("max_claims") or 8)]:
-        citation = (claim.get("citations") or [{}])[0]
+    claims = [c for c in _items(report.get("claims")) if isinstance(c, dict)]
+    # Records name a claim by its place in the report: its id is a stranger's text.
+    for place, claim in enumerate(claims[: int(research_rules.get("max_claims") or 8)], start=1):
+        where = f"claim {place}"
+        cited_list = _items(claim.get("citations"))
+        citation = cited_list[0] if cited_list else None
         if not isinstance(citation, dict):
-            dropped.append({"claim": str(claim.get("id")), "reason": "no citation"})
+            dropped.append({"claim": where, "reason": "no citation"})
             continue
         url = claimed_urls.get(str(citation.get("source")), "")
         if url not in numbered:
             dropped.append(
                 {
-                    "claim": str(claim.get("id")),
+                    "claim": where,
                     "reason": "cites a source the brief does not permit",
                 }
             )
@@ -1097,35 +1498,44 @@ def review_research(
                 findings.append(f"a cited source could not be fetched again: {exc}")
         record = fresh.get(url)
         if record is None:
-            dropped.append(
-                {"claim": str(claim.get("id")), "reason": "its source could not be fetched again"}
-            )
+            dropped.append({"claim": where, "reason": "its source could not be fetched again"})
             continue
         quote = " ".join(str(citation.get("quote") or "").split())
         text = " ".join(str(claim.get("text") or "").split())
         claim_words = words(text)
-        if problem := quote_finding(str(claim.get("id")), record["id"], quote, record["text"]):
-            dropped.append({"claim": str(claim.get("id")), "reason": problem})
+        if not on_subject(
+            {"citations": [{"source": record["id"], "quote": quote}]},
+            [record],
+            str(brief.get("question") or ""),
+        ):
+            dropped.append({"claim": where, "reason": "not about the question"})
+        elif problem := quote_finding(str(place), record["id"], quote, record["text"]):
+            dropped.append({"claim": where, "reason": problem})
+        elif quote not in whole_sentences(str(record["text"])):
+            # A piece of a sentence can drop its "never"; our maker always quotes whole sentences.
+            dropped.append({"claim": where, "reason": "the quote is not a whole sentence"})
         elif (
             not claim_words
             or len(text) > MAX_CLAIM_CHARS
             or len(claim_words & words(quote)) / len(claim_words) < overlap_needed
+            or adds_to_quote(text, quote)
         ):
-            dropped.append(
-                {"claim": str(claim.get("id")), "reason": "the claim says more than its quote"}
-            )
-        elif find_accusatory_words(text) or personal_data_findings({"claim": text}):
-            dropped.append(
-                {"claim": str(claim.get("id")), "reason": "accusatory words or personal data"}
-            )
+            dropped.append({"claim": where, "reason": "the claim says more than its quote"})
+        elif (
+            find_accusatory_words(text)
+            or personal_data_findings({"claim": text})
+            or (researcher not in trusted_makers and find_accusatory_words(quote))
+        ):
+            dropped.append({"claim": where, "reason": "accusatory words or personal data"})
         elif quote in seen:
-            dropped.append({"claim": str(claim.get("id")), "reason": "repeats a kept quote"})
+            dropped.append({"claim": where, "reason": "repeats a kept quote"})
         else:
             seen.add(quote)
             kept.append(
                 {
                     "id": f"C{len(kept) + 1}",
-                    "text": text,
+                    # An outsider's wording is never published: its claim reads as the quote itself.
+                    "text": text if researcher in trusted_makers else quote,
                     "citations": [{"source": record["id"], "quote": quote}],
                 }
             )
@@ -1136,7 +1546,10 @@ def review_research(
         unsupported = set(checked.get("unsupported") or []) | set(second.get("unsupported") or [])
         for claim_id in sorted(unsupported):
             dropped.append(
-                {"claim": claim_id, "reason": "the model check found its quote does not support it"}
+                {
+                    "claim": claim_id,
+                    "reason": "the model check found its quote does not support it or it doesn't help",
+                }
             )
         kept = [c for c in kept if c["id"] not in unsupported]
     basis = {

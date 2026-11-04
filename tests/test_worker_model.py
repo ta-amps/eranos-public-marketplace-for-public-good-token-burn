@@ -510,7 +510,7 @@ def test_a_topic_whose_own_page_is_short_gets_more_official_pages() -> None:
     assert {access for _, access in urls[1:]} == {"public_web_page"} and len(urls) == 3
     unrelated = {
         **part,
-        "text": "A checklist of quick accessibility checks for a small nonprofit's website.",
+        "text": "A checklist of quick checks for a small nonprofit's holiday party.",
     }
     assert not research.research_brief("rq-b", unrelated, "Small nonprofit", {}, RULES, [])[
         "fetch"

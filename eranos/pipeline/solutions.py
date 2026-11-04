@@ -145,6 +145,8 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
         k: v
         for k, v in _strings(report, "report").items()
         if not (k.endswith("_sha256") and _DIGEST.fullmatch(v))
+        # A DOI's digits are an article's address, not a card number.
+        and not (k.endswith(".url") and v.startswith("https://doi.org/10."))
     }
     findings += personal_data_findings({k: own(v) for k, v in strings.items()})
     findings += [
@@ -154,7 +156,9 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
         )
         if finding.split(": ", 1)[1] not in CONTACT_KINDS
     ]
-    own_words = " ".join(own(v) for k, v in strings.items() if not k.endswith(".quote"))
+    own_words = " ".join(
+        own(v) for k, v in strings.items() if not k.endswith((".quote", ".question", ".title"))
+    )
     if words := find_accusatory_words(own_words):
         findings.append(f"report uses accusatory words ({', '.join(words)})")
     disclaimer = str(rules.get("legal_disclaimer") or "not legal advice")
