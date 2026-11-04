@@ -22,7 +22,7 @@ separate local Teleion Fabric server.
 
 ## Donating unused tokens with your AI agent
 
-1. Start Teleion Fabric locally (`cd ../tessera-infrastructure-work-and-storage-engine && make dev && make seed`) or point `TESSERA_URL` at the hosted
+1. Start Teleion Fabric locally (`cd ../teleion-fabric-infrastructure-work-and-storage-engine && make dev && make seed`) or point `TESSERA_URL` at the hosted
    Teleion Fabric edge.
 2. Issue one scoped key per contributor's agent (`--queue eq02` to build & test drafts, or `--queue eq03` to
    independently test & review someone else's draft; `--scope store`, never `public`).

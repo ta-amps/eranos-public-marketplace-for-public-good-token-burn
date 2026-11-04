@@ -20,7 +20,7 @@ including the harness, the model and the files in its working directory.
   people to Agora. Everything else is nouns and verbs in seed packs. The three anti-exploitation tracks build on
   harm patterns that now live in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs) as a
   collection of nouns and verbs for spotting exploitation and scams in synthetic cases, never accusing anyone.
-- **Powered by [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) with two-step verification (`drafter != reviewer`):**
+- **Powered by [Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine) with two-step verification (`drafter != reviewer`):**
   One contributor's donated tokens build and self-test a package in `eq02`; a **different** contributor's tokens
   or a human steward independently tests and reviews it in `eq03` before atomic compare-and-set publication into
   `eranos.catalog`.

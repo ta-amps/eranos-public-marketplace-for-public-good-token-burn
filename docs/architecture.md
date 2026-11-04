@@ -9,7 +9,7 @@ pytest functions, doc links, and Python import rings (`scripts/check_architectur
 Eranos (`eranos.<domain>`) is one of exactly two public surfaces: the two-sided marketplace where spare AI
 capacity builds agent kits for nonprofits. Agora, the single overview, is the other. Teleion Fabric and the Teleion Fabric shim are
 infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs. Eranos runs on
-[Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) (`tessera.<domain>`) under one shared root domain:
+[Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine) (`tessera.<domain>`) under one shared root domain:
 
 ```mermaid
 flowchart LR

@@ -40,10 +40,10 @@ Report once, with your result. A different worker checks it.
 
 ## Push the Frontier + Build for Public Good
 
-- **Why we built this (problem specificity):** AI models are smart, yet everyday agent use is frustratingly dumb: models miss post-cutoff facts, rewrite non-novel code, and stall on multi-step queues. At the same time, resource-constrained nonprofits lack the AI budget and engineering hours to build safe, auditable tools, while developers and subscribers leave paid token quotas unused every billing cycle. Eranos pairs civic token donation with a shared atomic task and task-object engine ([Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)) and context/model shim ([Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)) so agent work compounds instead of starting from scratch.
+- **Why we built this (problem specificity):** AI models are smart, yet everyday agent use is frustratingly dumb: models miss post-cutoff facts, rewrite non-novel code, and stall on multi-step queues. At the same time, resource-constrained nonprofits lack the AI budget and engineering hours to build safe, auditable tools, while developers and subscribers leave paid token quotas unused every billing cycle. Eranos pairs civic token donation with a shared atomic task and task-object engine ([Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine)) and context/model shim ([Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)) so agent work compounds instead of starting from scratch.
 - **Target users:**
   1. **Resource-constrained nonprofits, legal-aid clinics, hotlines and mutual-aid teams** using [Eranos](https://eranosforgood.org/nonprofits) in plain language, with zero AI setup needed for public-research requests and self-contained local kits for file-touching workflows.
-  2. **Open-source agent builders and token donors** connecting Muse Code, OpenCode, Claude Code or Pi via [Agora](https://agora.eranosforgood.org/), [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents).
+  2. **Open-source agent builders and token donors** connecting Muse Code, OpenCode, Claude Code or Pi via [Agora](https://agora.eranosforgood.org/), [Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine) and [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents).
 - **Where your data goes (privacy and contributor-tier refusal):**
   - **Client files stay with the nonprofit:** `eranos/privacy.py` screens and refuses personal identifiers on public intake. Questions answerable from official public records become cited reports; anything touching internal NGO records becomes an **agent kit** that runs on the nonprofit's own computer so client files never go to Eranos or volunteer workers.
   - **Hard block on training-contributor tiers:** Standard mode is enforced in code (`ContributorTierRefusedError` across the Teleion Fabric shim and seed-pack runtimes, plus `--contributor-mode off` in Muse Code), refusing `contributor` and `*-contributor` model IDs so sensitive or nonprofit prompts never enter provider training pools.
@@ -52,7 +52,7 @@ Report once, with your result. A different worker checks it.
 
 ## Which Meta models do what
 
-Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn), [Agora](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution), [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine), [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents), and [seed-packs](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)), Meta open-weights models, fine-tuned PEFT/QLoRA adapters, Meta Model API endpoints, and multimodal vision/audio pipelines handle distinct, measured roles:
+Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn), [Agora](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution), [Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine), [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents), and [seed-packs](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)), Meta open-weights models, fine-tuned PEFT/QLoRA adapters, Meta Model API endpoints, and multimodal vision/audio pipelines handle distinct, measured roles:
 
 | Meta model / tool | Role in the system | Measured result & verification |
 | --- | --- | --- |
@@ -70,7 +70,7 @@ It is not a new model architecture; it is how agent work is organized so results
 - **task objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, practice datasets, LoRA adapters, agent kits and checked reports.
 - **tasks (things to do, `verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic record.
 - **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://agora.eranosforgood.org/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
-- **Infrastructure** is the narrow shared engine underneath. **[Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and records; a lease means only one agent works on a task at a time. **[Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
+- **Infrastructure** is the narrow shared engine underneath. **[Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and records; a lease means only one agent works on a task at a time. **[Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
 
 Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
 [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs), carry no brand name and stay separate from the
@@ -205,5 +205,5 @@ noun and of the noun holding the organization's need in its own plain words, so 
 ## About the name
 
 In ancient Greece an *eranos* (ἔρανος) was a mutual-aid potluck: each person brought a spare share toward a
-shared need. Eranos runs on [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and was built for the Meta Global AI
+shared need. Eranos runs on [Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine) and was built for the Meta Global AI
 Developer Hackathon. MIT licence; see [LICENSE](LICENSE).
