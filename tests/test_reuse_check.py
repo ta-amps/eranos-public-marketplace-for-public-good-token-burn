@@ -904,3 +904,12 @@ def test_reuse_brief_and_review_preserve_decisive_requirements_past_1200_chars(
     parsed_user = json.loads(seen_prompts[0])
     assert parsed_user["request"] == after_text
     assert requirement in parsed_user["request"]
+
+
+def test_a_report_taken_off_display_is_never_offered_again() -> None:
+    rules = json.loads((ROOT / "instructions" / "worker.json").read_text())["reuse"]
+    fabric = Fabric()
+    fabric.library_report("RPT-RC676414-01", IRS_REPORT)
+    assert any(c[1].key == "RPT-RC676414-01" for c in reuse.candidates(fabric, rules))
+    gone = {**rules, "not_reused": ["RPT-RC676414-01"]}
+    assert not any(c[1].key == "RPT-RC676414-01" for c in reuse.candidates(fabric, gone))

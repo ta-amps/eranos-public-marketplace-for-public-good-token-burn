@@ -132,7 +132,10 @@ def candidates(backend: Any, rules: dict[str, Any]) -> list[tuple[str, Any, str,
             records = backend.list_records(store, limit=limit)
         except Exception:  # noqa: S112 - a store this key cannot list has no candidates
             continue
+        not_reused = set(rules.get("not_reused") or [])  # taken off display: never offered again
         for record in records:
+            if record.key in not_reused:
+                continue
             value = record.value if isinstance(record.value, dict) else {}
             if store == "eranos.solutions":
                 receipt = str(value.get("review_receipt") or "")

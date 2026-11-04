@@ -500,3 +500,33 @@ def test_an_ordinary_heading_with_a_worrying_word_rules_nothing_out():
     assert (
         R.standalone_sentences(f"{long}\nLeave the area at once.")[-1] == "Leave the area at once."
     )
+
+
+def test_warning_headings_in_ordinary_words_still_rule_out_what_follows():
+    for heading in (
+        "Things to avoid",
+        "What you should not do",
+        "Things you must never do",
+        "False claims about charities",
+        "Bad advice for charities",
+        "What to avoid",
+        "How not to respond",
+        "Not recommended",
+        "Dos and Donts",
+        "1. Avoid these foods",
+        "Warning",
+        "Avoid these common mistakes when you prepare for a big flood",
+    ):
+        assert R.standalone_sentences(f"{heading}\nCharities may endorse a candidate.") == [
+            heading
+        ] or (
+            "Charities may endorse a candidate."
+            not in R.standalone_sentences(f"{heading}\nCharities may endorse a candidate.")
+        ), heading
+    assert "Stay safe." in R.standalone_sentences("How to avoid scams\nStay safe.")
+
+
+def test_many_unclosed_comments_stay_fast():
+    started = time.time()
+    R._plain("<!-- x " * 20000)
+    assert time.time() - started < 2
