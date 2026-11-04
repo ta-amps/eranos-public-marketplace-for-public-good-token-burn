@@ -199,14 +199,14 @@
   "reviewed_by_key": "key_reviewer_05",
   "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
   "steward_signoff": null,
-  "draft_receipt": "6bd587fff8c550c8fcc3bbc7c5eacea65a3d29e085d93aca0f4755c3f201e68d",
-  "review_receipt": "ce98c61ef33d93c637da960589c27ecb9af11cef216458d1062a01f4b6aee9ce",
+  "draft_receipt": "92ee796813da9fdbb10da143f6fb362dfd22e8d5a9f1646c7b1543e23f2f6e43",
+  "review_receipt": "1171f7bd32d609206873717b44b60db28c946f50b35785a318219ac458221dac",
   "blob_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
   "catalog_version": 1,
-  "review_task_id": "er_99c7735ecaa5:KIT-SHIFT-05:review",
-  "draft_task_id": "er_99c7735ecaa5:KIT-SHIFT-05:draft",
+  "review_task_id": "er_3b6badc459ac:KIT-SHIFT-05:review",
+  "draft_task_id": "er_3b6badc459ac:KIT-SHIFT-05:draft",
   "draft_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
   "drafter_key_id": "key_drafter_05",
   "reviewer_key_id": "key_reviewer_05",
-  "publication_sha256": "b0d11a35862f0c7c965cc5acf19cf8f23d45e3c6ee0d93991ba18946d95ac46f"
+  "publication_sha256": "3c2e5980c0ad924e9f1f61e77f294af2317712c48a5fe9b2f145d479154b43e6"
 }
