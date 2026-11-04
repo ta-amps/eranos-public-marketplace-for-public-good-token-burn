@@ -1409,7 +1409,7 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
       }
       const fxId = String(fx.id || `FX-${i}`);
       const sample = String(fx.sample_input || "");
-      if (!sample.includes("SYNTHETIC") && !sample.includes(CASE_MARK)) {
+      if (!sample.includes("MADE-UP") && !sample.includes("SYNTHETIC") && !sample.includes(CASE_MARK)) {
         addIssue(`fixture '${fxId}' sample_input must carry the practice-case mark ("Practice case: an example, not a real person or case.")`);
       }
       if (fx.expected_human_escalation === true) hasEsc = true;
