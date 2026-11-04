@@ -24,7 +24,6 @@ from support.workerd_fabric import RULES_HTML, RULES_URL, FakeModel, fixture_fet
 from tessera import IdempotencyConflict, Lease, NotFound, StorageQuotaExhausted, VersionConflict
 from tessera.models import ChildResult
 
-from eranos.sources import Fetched
 from eranos.jsonfile import load_json
 from eranos.model_client import UsageMeter
 from eranos.pipeline import process as process_part
