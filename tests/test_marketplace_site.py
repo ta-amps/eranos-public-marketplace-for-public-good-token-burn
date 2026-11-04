@@ -722,6 +722,8 @@ def test_catalog_and_nouns_take_the_shared_client_choices() -> None:
     assert everything["preferences"]["returned"] == len(everything["kits"])
     assert len(json.loads(out["one"]["body"])["kits"]) == 1
     assert len(json.loads(out["limit"]["body"])["kits"]) == 1
+    assert json.loads(out["one"]["body"])["next_offset"] == 1
+    assert json.loads(out["all"]["body"])["next_offset"] is None
     small = json.loads(out["small"]["body"])
     assert small["kits"] == [] and small["preferences"]["left_out_by_max_bytes"] > 0
     assert "warnings" in json.loads(out["bad"]["body"])["preferences"]
