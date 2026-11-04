@@ -520,7 +520,7 @@ export function RequestResult({ id }: { id: string }) {
       : processPart
         ? words.result.meta_anon
         : r.meta_anon,
-    report ? fill(r.sources_count ?? "", { n: report.sources.length }) : null,
+    report ? (report.sources.length === 1 ? (r.sources_count ?? "").replace("{n} sources", "1 source") : fill(r.sources_count ?? "", { n: report.sources.length })) : null,
     receipts.length ? fill(r.receipts ?? "", { list: receipts.map(shortReceipt).join(", ") }) : null,
   ].filter(Boolean);
   const approved = Boolean(solution?.review_receipt);

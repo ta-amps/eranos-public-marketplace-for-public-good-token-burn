@@ -153,7 +153,7 @@ function hasEvidence(event: StatusEvent): boolean {
 
 /** Folds the facts, in order, into each step's state. A fact without a receipt or a record is ignored. */
 /** A worker's raw error is for its record, not for the people reading a request page. */
-const TECHNICAL_REASON = /\b[A-Z][a-z]+(?:Error|Exception)\b|Traceback|errors\.pydantic\.dev|\[type=|_forbidden|ended dead|\bstack trace\b/;
+const TECHNICAL_REASON = /\b[A-Z][a-z]+(?:Error|Exception)\b|Traceback|errors\.pydantic\.dev|\[type=|_forbidden|ended dead|\bstack trace\b|self-test failed|"exit_code"|\blog_tail\b/;
 export function plainReason(reason: string): string;
 export function plainReason(reason: string | undefined): string | undefined;
 export function plainReason(reason: string | undefined): string | undefined {

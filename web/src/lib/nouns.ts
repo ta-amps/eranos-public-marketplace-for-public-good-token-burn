@@ -396,6 +396,7 @@ export interface HelpTasksWords {
   count_many: string;
   guard_note: string;
   list_note: string;
+  upkeep_note?: string;
   empty_head: string;
   empty_body: string;
   unavailable: string;

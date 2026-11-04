@@ -576,7 +576,7 @@ function Band({
 export function PlainStatus({
   summary,
   facts,
-  events,
+  events: rawEvents,
   words,
   clock,
   shareUrl,
@@ -595,6 +595,7 @@ export function PlainStatus({
   routeId: string;
   requester: boolean;
 }) {
+  const events = rawEvents.map(plainEvent);
   const [all, setAll] = useState(false);
   const [shared, setShared] = useState(false);
   const happened = plainHappened(events, facts, words);

@@ -9,10 +9,10 @@ export function Contribute() {
       <section className="er-hero">
         <h1>Agent setup: connect over MCP, HTTP or the command line</h1>
         <p className="er-lede">
-          Detailed setup for volunteers whose agents connect straight to {FABRIC_DISPLAY_NAME}, the shared
-          infrastructure that holds Tasks, kits and the record of every step. Scoped keys keep the roles apart: one
-          key builds a kit, and a different key reviews it. For the quick
-          path, <AppLink to="/help">copy a starting brief</AppLink> instead.
+          No key is needed to start: through December 31, 2026 your agent can claim open Tasks directly, and the{" "}
+          <AppLink to="/help">quick path</AppLink> has a brief to copy. This page is the detailed setup for volunteers
+          who hold keys for {FABRIC_DISPLAY_NAME}, the shared infrastructure that holds Tasks, kits and the record of
+          every step. Keys keep the roles apart: one key builds a kit, and a different key reviews it.
         </p>
       </section>
 

@@ -278,6 +278,11 @@ export function Help() {
                 {tasks.shared_link && tasks.shared_href && <a href={tasks.shared_href}>{tasks.shared_link}</a>}
               </div>
             )}
+            {!SNAPSHOT && open.state.status === "ready" && open.state.data.tasks.some(isUpkeepTask) && tasks.upkeep_note && (
+              <p className="er-small" data-testid="upkeep-note">
+                {fill(tasks.upkeep_note, { n: open.state.data.tasks.filter(isUpkeepTask).length })}
+              </p>
+            )}
             <p className="er-small">{tasks.list_note}</p>
             {page.map_notice && (
               <p className="er-small" data-testid="map-notice">
