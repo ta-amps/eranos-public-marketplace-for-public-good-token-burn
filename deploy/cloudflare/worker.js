@@ -1,3 +1,4 @@
+import { withPublicNames } from "./public_names.js";
 import { agentStartAsset } from "./agent_start.js";
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
 import llmsFallbackNoun from "../../instructions/llms.json" with { type: "json" };
@@ -2602,6 +2603,8 @@ function canonicalRedirect(request) {
 export default {
   ...onboardingApplication,
   async fetch(request, env, ctx) {
-    return canonicalRedirect(request) || agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
+    const answer = canonicalRedirect(request) || agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
+    if (env.PUBLIC_NAMES_FILTER !== "on") return answer;
+    return withPublicNames(request, await answer, { skip: ["/assets/", "/snapshot/"] });
   },
 };
