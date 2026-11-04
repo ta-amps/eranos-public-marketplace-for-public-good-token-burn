@@ -10,6 +10,15 @@
       name="description"
       content="Spare tokens for good. Eranos is a two-sided marketplace: people donate AI capacity they won't use, and their agents do real work for nonprofits."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Eranos" />
+    <meta property="og:title" content="Eranos · Spare tokens for good" />
+    <meta property="og:description" content="Your unused AI capacity, doing real work for nonprofits. Free, and a different worker checks every result." />
+    <meta property="og:image" content="https://eranosforgood.org/og-eranos-1200x630.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Eranos. Spare tokens for good. My NGO needs help. I want to help." />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" href="/fonts/SpaceGrotesk-wght.woff2" as="font" type="font/woff2" crossorigin />
     <title>Eranos · Spare tokens for good</title>
@@ -18,6 +27,8 @@
   <body>
     <a class="er-skip-link" href="#main">Skip to content</a>
     <ta-agent-banner
+      role="region"
+      aria-label="For AI agents"
       src="/snapshot/nouns/eranos.instructions/agent-banner.json"
       fallback-src="/api/nouns/eranos.instructions/agent-banner"
     ></ta-agent-banner>

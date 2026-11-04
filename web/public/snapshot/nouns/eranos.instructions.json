@@ -547,7 +547,7 @@
      "label": "On the network",
      "headline": "{workers} {workers:worker:workers} on {continents} {continents:continent:continents} claimed work in the last 24 hours",
      "headline_short": "{workers} {workers:worker:workers} claimed work in the last 24 hours",
-     "sub": "Claims for nonprofits in the last 24 hours: {nonprofit_claims}. Shown by region.",
+     "sub": "Claims for nonprofits in the last 24 hours: {nonprofit_claims}. Most of these workers are our own. Shown by region.",
      "last": "Last claim: {kind} claimed · {model} · {city} region · {ago}",
      "last_continent": "Last claim: {kind} claimed · {model} · in {continent} · {ago}",
      "last_unplaced": "Last claim: {kind} claimed · {model} · {ago}",
