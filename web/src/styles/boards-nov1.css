@@ -81,6 +81,10 @@
     gap: 2px 16px;
     width: 100%;
   }
+  /* A long label wraps inside its column, so the footer never pushes a phone page sideways. */
+  .er-site-footer-links a {
+    white-space: normal;
+  }
 }
 
 /* ---------------------------------------------------------------- EranosHome hero */
