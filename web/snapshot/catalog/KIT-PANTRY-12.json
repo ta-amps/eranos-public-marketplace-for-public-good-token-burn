@@ -264,14 +264,14 @@
   "reviewed_by_key": "key_reviewer_12",
   "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
   "steward_signoff": null,
-  "draft_receipt": "11bee72d3a5e2b9267490b8b31824bf61a32025bcbebe36529ced451c9454b59",
-  "review_receipt": "cf5a7d95ff7dcfa5c4cfe38bd05954e7dd9ef100611fb008d8decac50fa81934",
+  "draft_receipt": "f8adfa95064b170c9e88322466e0419a5c35e51786e9983289ebd6d5052c6151",
+  "review_receipt": "0c67afb89512b32bc56127a2ef28d4c4a23f6c7e17a01b63e3243391d1302835",
   "blob_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
   "catalog_version": 1,
-  "review_task_id": "er_461f948f793e:KIT-PANTRY-12:review",
-  "draft_task_id": "er_461f948f793e:KIT-PANTRY-12:draft",
+  "review_task_id": "er_359e9cf665fd:KIT-PANTRY-12:review",
+  "draft_task_id": "er_359e9cf665fd:KIT-PANTRY-12:draft",
   "draft_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
   "drafter_key_id": "key_drafter_12",
   "reviewer_key_id": "key_reviewer_12",
-  "publication_sha256": "19876fc61bf27ed2a6e1bcffd1f5250efedfea446967142a2708ad8ddf91e69d"
+  "publication_sha256": "696d134464f2a6230253287d7d7c055f8e5c115a273dcd3ff69c167e9bfef80b"
 }

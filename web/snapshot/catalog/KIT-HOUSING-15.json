@@ -210,14 +210,14 @@
   "reviewed_by_key": "key_reviewer_15",
   "review_notes": "Made-up example fixture, not a record of a real review. It shows neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings.",
   "steward_signoff": null,
-  "draft_receipt": "bcb8d083df4f9035b98674a79c8d548c511114644da898b52d97510f22216815",
-  "review_receipt": "c3131b8f12db886949e90902e710e265bd71ce8f3e9b12e3aa834d98dc90307b",
+  "draft_receipt": "cfb047b89dc442f8c0143495ec72b37a3d1a1317b7d1924c1fb642c3c840e0e2",
+  "review_receipt": "9d64b7a2025bbbc14bef2edaef7b3b994989ae6d0442e01f6517831725829733",
   "blob_sha256": "3195a1aa4fdd361a05aeaf2ffa287b41ac9ab80188aef697dfc56bbac2929bfc",
   "catalog_version": 1,
-  "review_task_id": "er_f4bd84cf99e5:KIT-HOUSING-15:review",
-  "draft_task_id": "er_f4bd84cf99e5:KIT-HOUSING-15:draft",
+  "review_task_id": "er_24684e1570aa:KIT-HOUSING-15:review",
+  "draft_task_id": "er_24684e1570aa:KIT-HOUSING-15:draft",
   "draft_sha256": "3195a1aa4fdd361a05aeaf2ffa287b41ac9ab80188aef697dfc56bbac2929bfc",
   "drafter_key_id": "key_drafter_15",
   "reviewer_key_id": "key_reviewer_15",
-  "publication_sha256": "1a25e7c02672af2e472339e1890f8ea71df079edc88a54411553727d981a544e"
+  "publication_sha256": "abd487b72abca5eb3fd9fc10189daf7756a2802ca78b8b46099208434c5fa80a"
 }
