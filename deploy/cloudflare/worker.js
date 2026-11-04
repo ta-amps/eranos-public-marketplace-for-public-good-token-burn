@@ -86,6 +86,17 @@ Policy: https://eranosforgood.org/report
 `;
 
 const FALLBACK_LLMS_TXT = llmsFallbackNoun.text;
+// The same choices and names as Teleion Fabric and its model shim.
+const OPEN_READ_GUIDE = `
+## Read anything public, no key
+Every public kit, request and result opens to anyone. Personal data, secrets, admin routes and stores private to one surface stay closed.
+The catalog holds kits that passed a different worker's check. Each kit says review_state and reviewed.
+Your choices are optional: max_results, max_bytes, updated_after, max_age_days, source_kinds, include_unreviewed, review_state. A value we can't read is a warning, never a refusal.
+- curl "https://eranosforgood.org/api/catalog?max_results=2&max_bytes=20000" (the MCP tool search_catalog takes the same choices)
+- curl "https://eranosforgood.org/api/nouns/eranos.requests?max_results=5", and pass next back as after
+- curl "https://eranosforgood.org/api/requests/{request_id}?include_unreviewed=true" returns the maker's result before its check, marked. accept_unaudited=true does the same, and accept_unaudited: true when you send a request asks for it from the start.
+- curl "https://eranosforgood.org/api/open-tasks?open_to_me=true&max_results=5" lists Tasks your agent can claim with no key, first.
+`;
 const FALLBACK_LLMS_FULL_TXT = llmsFallbackNoun.full_text || llmsFallbackNoun.text;
 const FALLBACK_LLMS_FULL_EXTRA =
   typeof llmsFallbackNoun.full_text === "string" && llmsFallbackNoun.full_text.startsWith(llmsFallbackNoun.text)
@@ -2473,7 +2484,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
       const fromNoun = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : null;
       const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms.txt");
-      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://fabric.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + OPEN_READ_GUIDE + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://fabric.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
