@@ -171,16 +171,31 @@ class RunnerTests(unittest.TestCase):
         self.assertFalse(receipt["summary_hook"]["used"])
 
     def test_summary_hook_gets_counts_only_and_its_text_is_checked(self) -> None:
-        good = "The process read 23 rows and kept 19. A person should check the flagged rows next."
+        # The numbers come from this package's own run, since its steps decide how many rows it keeps.
+        totals = self.run_spec(SPEC)[0]["totals"]
+        self.assertEqual(totals["rows_in"], 23)
+        good = (f"The process read {totals['rows_in']} rows and kept {totals['rows_out']}. "
+                "A person should check the flagged rows next.")
         script = ("import sys; data = sys.stdin.read(); "
                   "assert '@' not in data and 'Avery' not in data and 'rows_in' in data; "
                   f"print({good!r})")
-        report, _ = self.run_spec(SPEC, summary_command=self.hook(script))
+        report, out = self.run_spec(SPEC, summary_command=self.hook(script))
         self.assertEqual(report["summary"]["text"], good)
+        self.assertIn("your summary command", report["summary"]["written_by"])
+        kept = sum(len(read_rows(p)) for p in (out / "cleaned").glob("*.csv"))
+        self.assertEqual(totals["rows_out"], kept, "the count given to the command is the rows really kept")
         bad = "The process read 23 rows and found 977 problems for 42 volunteers."
         report, _ = self.run_spec(SPEC, summary_command=self.hook(f"print({bad!r})"))
         self.assertNotEqual(report["summary"]["text"], bad)
         self.assertIn("failed its checks", report["summary"]["written_by"])
+
+    def test_summary_hook_on_the_reference_steps_keeps_the_reviewed_counts(self) -> None:
+        good = "The process read 23 rows and kept 19. A person should check the flagged rows next."
+        script = ("import sys; data = sys.stdin.read(); "
+                  "assert '@' not in data and 'Avery' not in data and 'rows_in' in data; "
+                  f"print({good!r})")
+        report, _ = self.run_spec(REFERENCE, summary_command=self.hook(script))
+        self.assertEqual(report["summary"]["text"], good)
 
     def test_a_failing_summary_command_leaves_the_fixed_text(self) -> None:
         report, _ = self.run_spec(SPEC, summary_command=self.hook("import sys; sys.exit(3)"))

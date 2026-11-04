@@ -6,9 +6,11 @@
 from __future__ import annotations
 
 import hashlib
+import itertools
 import json
 import shutil
 import socket
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -33,6 +35,24 @@ from process_packages import tabular  # noqa: E402
 FIRST = json.loads((ROOT / "requests" / "first-process.json").read_text(encoding="utf-8"))
 REWORDED = ("We need something reusable that tidies our volunteer registration sheets: get rid of double entries, "
             "standardize the dates and phone numbers, and point out anyone missing an email or phone, plus a brief summary.")
+
+
+class RunnerTestsForEveryStepChoice(unittest.TestCase):
+    """A package ships the runner's tests with its own process.json, so they must hold for any steps a request can ask for."""
+
+    def test_the_shipped_runner_tests_pass_for_every_choice_of_operations(self) -> None:
+        reuse_ops = sorted(tabular.REUSE_TO_OPERATION)
+        for size in range(len(reuse_ops) + 1):
+            for chosen in itertools.combinations(reuse_ops, size):
+                with self.subTest(operations=chosen), tempfile.TemporaryDirectory() as folder:
+                    code = Path(folder) / "code"
+                    shutil.copytree(ROOT / "runner", code, ignore=shutil.ignore_patterns("__pycache__"))
+                    steps, _ = tabular.combine_steps("clean our list", [], list(chosen))
+                    spec = tabular.process_spec("process-test", "Test list", steps)
+                    (code / "process.json").write_text(json.dumps(spec), encoding="utf-8")
+                    done = subprocess.run([sys.executable, "-W", "error", "-B", "-m", "unittest", "discover", "-s", "tests"],
+                                          cwd=code, capture_output=True, text=True, check=False, timeout=300)
+                    self.assertEqual(done.returncode, 0, done.stderr[-1500:])
 
 
 class ReuseKeyTests(unittest.TestCase):
@@ -132,7 +152,7 @@ class BuildTests(unittest.TestCase):
         for name in ("library_pack_checks", "instantiate", "verify_kit", "unit_tests", "persona_lint", "supply_chain_scan", "public_check"):
             self.assertTrue(checks[name]["passed"], name)
         self.assertGreaterEqual(checks["persona_lint"]["targets_passing"], 8)
-        self.assertEqual(checks["unit_tests"]["tests"], 9)
+        self.assertEqual(checks["unit_tests"]["tests"], 10)
 
     def test_rebuild_is_byte_identical(self) -> None:
         again = build_process(FIRST["request"], FIRST["plan_part"], out_dir=self.tmp / "b", run_docker=False,
