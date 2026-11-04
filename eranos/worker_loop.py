@@ -810,6 +810,18 @@ class Worker:
             "why": pick.get("why"),
         }
 
+    def escalation(self, rules: dict[str, Any], model_id: str) -> Any:
+        """The stronger model a research Task gets when its own model keeps no claim: named by the
+        worker noun, usable like any model here, never for a volunteer (who runs its own model),
+        and None when it is the model already running or can't run."""
+        wanted = str((rules.get("research") or {}).get("escalate_model") or "")
+        if self.config.volunteer or not wanted or wanted == model_id:
+            return None
+        try:
+            return self.meta(wanted)
+        except ModelUnavailable:
+            return None
+
     def _fetcher(self, rules: dict[str, Any]) -> Callable[[str], Fetched]:
         """The injected fetcher (tests) or one with the worker noun's own limits."""
         if self.fetcher is not None:
@@ -1391,6 +1403,7 @@ class Worker:
                 meter=meter,
                 worker_rules=nouns["worker"],
                 variant=variant,
+                escalate=self.escalation(nouns["worker"], str(variant.get("model") or "")),
             )
         else:
             done = process_part.do_process(gate, lease, handler=self.handler)
@@ -2008,7 +2021,9 @@ class Worker:
             )
         ]
         now = time.time()
-        waiting_failures = any(tuning_mod.failures_to_propose(tuning, outcomes, step) for step in tuning_mod.STEPS)
+        waiting_failures = any(
+            tuning_mod.failures_to_propose(tuning, outcomes, step) for step in tuning_mod.STEPS
+        )
         if not waiting_failures and not tuning_mod.has_new_outcomes(tuning, outcomes):
             output = {
                 "node": "tune",

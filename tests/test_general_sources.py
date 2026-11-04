@@ -6,6 +6,8 @@ import json
 import time
 from pathlib import Path
 
+import pytest
+
 from eranos.pipeline import research as R
 from eranos.sources import Fetched
 
@@ -85,7 +87,17 @@ def test_query_is_about_the_subject_not_the_asking():
 
 
 def test_a_question_no_official_page_fits_gets_the_research_searches():
-    assert [a["id"] for a in brief()["fetch"]["apis"]] == ["openalex", "doaj", "europe-pmc"]
+    assert [a["id"] for a in brief()["fetch"]["apis"]] == [
+        "openalex",
+        "doaj",
+        "europe-pmc",
+        "wikipedia",
+    ]
+
+
+def test_an_ordinary_question_can_read_the_encyclopedia_and_the_research_searches():
+    ids = [a["id"] for a in brief("How should a shelter welcome new helpers?")["fetch"]["apis"]]
+    assert ids == ["openalex", "wikipedia", "doaj", "europe-pmc"]
 
 
 def test_an_official_source_comes_first_and_open_research_follows():
@@ -96,7 +108,7 @@ def test_an_official_source_comes_first_and_open_research_follows():
 
 def test_each_article_is_its_own_source_with_its_own_address_and_no_authors():
     sources, failures = R.gather(brief(), fetcher)
-    assert failures == []
+    assert len(failures) == 1 and "no articles" in failures[0]  # this fixture has no encyclopedia
     assert [s["url"] for s in sources] == [
         "https://doi.org/10.5555/y",
         "https://doi.org/10.1234/x",
@@ -131,7 +143,7 @@ def test_a_search_with_no_abstracts_is_a_recorded_reason():
 
     sources, failures = R.gather(brief(), empty)
     assert sources == []
-    assert len(failures) == 3 and "no articles" in failures[0]
+    assert len(failures) == 4 and "no articles" in failures[0]
 
 
 class _Mem:
@@ -181,3 +193,130 @@ def test_a_failed_audit_changes_the_label_and_an_audited_result_is_never_overwri
         mem, _report("RPT-Y"), request_id="rq", part=1, maker_receipt="r", deliver=True
     )
     assert mem.records[(R.SOLUTIONS_STORE, "RPT-Y")].value["audit_status"] == "audited"
+
+
+def test_a_label_and_a_false_friend_stay_out_of_the_search():
+    text = "How can a shelter keep its bed-list spreadsheet accurate? Test run, Nov 4."
+    terms = R.query_terms(text)
+    assert "retention" not in terms and "keep" not in terms
+    assert not {"test", "run"} & set(terms)
+    assert "spreadsheet" in terms
+    assert "retention" in R.query_terms("How do small nonprofits keep their volunteers?")
+
+
+WIKI = {
+    "query": {
+        "pages": [
+            {
+                "index": 2,
+                "title": "Second article",
+                "extract": "Second opening sentence about volunteers and nonprofits.",
+                "fullurl": "https://en.wikipedia.org/wiki/Second_article",
+            },
+            {
+                "index": 1,
+                "title": "First article",
+                "extract": "First opening sentence about volunteers and nonprofits.",
+                "fullurl": "https://en.wikipedia.org/wiki/First_article",
+            },
+            {"index": 3, "title": "Not https", "extract": "x", "fullurl": "http://x.example/"},
+        ]
+    }
+}
+
+
+def _wiki_brief() -> dict:
+    return {
+        "report_id": "RPT-W",
+        "request_id": "rq-w",
+        "part": 1,
+        "fetch": {
+            "links": [],
+            "pages": [],
+            "query_terms": ["volunteers"],
+            "max_sources": 5,
+            "apis": [a for a in RULES["sources"]["official_apis"] if a["id"] == "wikipedia"],
+        },
+    }
+
+
+def test_wikipedia_gives_one_source_per_article_with_its_full_text_and_own_address():
+    def answer(url: str) -> Fetched:
+        body = (
+            {
+                "query": {
+                    "pages": [{"extract": "Whole article text about volunteers and nonprofits."}]
+                }
+            }
+            if "generator=search" not in url
+            else WIKI
+        )
+        return Fetched(url, url, 200, "application/json", json.dumps(body).encode(), time.time())
+
+    sources, failures = R.gather(_wiki_brief(), answer)
+    assert not failures
+    assert [s["url"] for s in sources] == [
+        "https://en.wikipedia.org/wiki/First_article",
+        "https://en.wikipedia.org/wiki/Second_article",
+    ]
+    assert "Whole article text" in sources[0]["text"]
+    assert sources[0]["publisher"].startswith("Wikipedia")
+
+
+def test_a_failed_full_text_still_leaves_the_opening_the_search_gave(monkeypatch):
+    monkeypatch.setattr(R, "FETCH_RETRY_SECONDS", 0)
+
+    def answer(url: str) -> Fetched:
+        if "generator=search" not in url:
+            raise RuntimeError("no answer")
+        return Fetched(url, url, 200, "application/json", json.dumps(WIKI).encode(), time.time())
+
+    sources, _ = R.gather(_wiki_brief(), answer)
+    assert "First opening sentence" in sources[0]["text"]
+
+
+def test_a_dropped_search_is_asked_once_more_and_a_refused_address_never(monkeypatch):
+    monkeypatch.setattr(R, "FETCH_RETRY_SECONDS", 0)
+    calls = {"n": 0}
+
+    def flaky(url: str) -> Fetched:
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("answered 503")
+        return fetcher(url)
+
+    assert R._fetch_again(flaky, "https://x.example/").status == 200
+    assert calls["n"] == 2
+    calls["n"] = 0
+
+    def refused(url: str) -> Fetched:
+        calls["n"] += 1
+        raise R.SourceRefused("no")
+
+    with pytest.raises(R.SourceRefused):
+        R._fetch_again(refused, "https://x.example/")
+    assert calls["n"] == 1
+
+
+def test_search_phrases_stay_plain_few_and_short():
+    assert R.clean_phrases(
+        ["data quality", "DATA  quality", "a" * 81, "https://x.example/a", "a;b"]
+    ) == ["data quality"]
+    assert R.clean_phrases("data quality") == []
+    assert R.clean_phrases([1, None, {"x": 1}]) == []
+    assert len(R.clean_phrases(["a b", "c d", "e f", "g h"])) == R.MAX_SEARCH_PHRASES
+
+
+def test_phrases_only_fill_the_query_of_a_search_the_brief_permits():
+    urls = [u for u, _, _ in R.phrase_urls(brief(), ["a b&host=evil.example"])]
+    assert len(urls) == 4
+    assert all("%26host%3Devil.example" in u for u in urls)
+    assert {u.split("/")[2] for u in urls} == {
+        "api.openalex.org",
+        "en.wikipedia.org",
+        "doaj.org",
+        "www.ebi.ac.uk",
+    }
+    part = {"text": "What does this page say?", "part": 1, "n": 1}
+    with_links = R.research_brief("rq-test", part, "Example", GUARD, RULES, ["https://x.example/"])
+    assert R.phrase_urls(with_links, ["a b"]) == []
