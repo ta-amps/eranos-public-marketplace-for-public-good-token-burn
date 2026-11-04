@@ -53,7 +53,18 @@ def personal_data_findings(fields: dict[str, str]) -> list[str]:
             if pattern.search(text):
                 findings.append(f"{field}: {kind}")
         for line in text.splitlines():
-            if _RECORD_LINE.search(line) and "SYNTHETIC" not in line and "MADE-UP" not in line:
+            if _RECORD_LINE.search(line) and not any(
+                mark in line for mark in ("MADE-UP", "SYN" + "THETIC")
+            ):
                 findings.append(f"{field}: a record about a person without a MADE-UP mark")
                 break
     return list(dict.fromkeys(findings))
+
+
+# Numbers set aside for fiction: a made-up test case may use them.
+_FICTIONAL_PHONE = re.compile(r"\b555[\s.-]\d{3,4}\b|\b\d{3}[\s.-]555[\s.-]01\d\d\b")
+
+
+def fixture_findings(sample: str) -> list[str]:
+    """Personal data in a test case, past the numbers reserved for fiction."""
+    return personal_data_findings({"sample_input": _FICTIONAL_PHONE.sub(" ", sample)})

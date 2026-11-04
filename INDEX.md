@@ -351,7 +351,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (200)
+## web/ (216)
 
 | File | What it is |
 |---|---|
@@ -386,16 +386,22 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/public/snapshot/examples.json`](web/public/snapshot/examples.json) | JSON object: `is_example`, `needs`, `runs` |
 | [`web/public/snapshot/fabric.json`](web/public/snapshot/fabric.json) | JSON object: `display_name`, `plan`, `is_example`, `queues` |
 | [`web/public/snapshot/nouns/eranos.instructions.json`](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/public/snapshot/nouns/eranos.instructions.json`](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/public/snapshot/nouns/eranos.instructions.json`](web/public/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
 | [`web/public/snapshot/nouns/eranos.instructions/agent-banner.json`](web/public/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/classify.json`](web/public/snapshot/nouns/eranos.instructions/classify.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/connect.json`](web/public/snapshot/nouns/eranos.instructions/connect.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/help-page.json`](web/public/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/help.json`](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/help.json`](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/help.json`](web/public/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/home.json`](web/public/snapshot/nouns/eranos.instructions/home.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/library.json`](web/public/snapshot/nouns/eranos.instructions/library.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/llms.json`](web/public/snapshot/nouns/eranos.instructions/llms.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/models.meta.json`](web/public/snapshot/nouns/eranos.instructions/models.meta.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json`](web/public/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/nonprofits.json`](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/nonprofits.json`](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/nonprofits.json`](web/public/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/public-research.json`](web/public/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/request-example-process.json`](web/public/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
@@ -405,6 +411,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/public/snapshot/nouns/eranos.instructions/site.json`](web/public/snapshot/nouns/eranos.instructions/site.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/trust.json`](web/public/snapshot/nouns/eranos.instructions/trust.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/video.json`](web/public/snapshot/nouns/eranos.instructions/video.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/worker.json`](web/public/snapshot/nouns/eranos.instructions/worker.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/public/snapshot/nouns/eranos.instructions/worker.json`](web/public/snapshot/nouns/eranos.instructions/worker.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/worker.json`](web/public/snapshot/nouns/eranos.instructions/worker.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.instructions/worker.policy.json`](web/public/snapshot/nouns/eranos.instructions/worker.policy.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/public/snapshot/nouns/eranos.sources.json`](web/public/snapshot/nouns/eranos.sources.json) | JSON object: `is_example`, `store`, `records` |
@@ -435,16 +443,22 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/snapshot/examples.json`](web/snapshot/examples.json) | JSON object: `is_example`, `needs`, `runs` |
 | [`web/snapshot/fabric.json`](web/snapshot/fabric.json) | JSON object: `display_name`, `plan`, `is_example`, `queues` |
 | [`web/snapshot/nouns/eranos.instructions.json`](web/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/snapshot/nouns/eranos.instructions.json`](web/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
+| [`web/snapshot/nouns/eranos.instructions.json`](web/snapshot/nouns/eranos.instructions.json) | JSON object: `is_example`, `store`, `records` |
 | [`web/snapshot/nouns/eranos.instructions/agent-banner.json`](web/snapshot/nouns/eranos.instructions/agent-banner.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/classify.json`](web/snapshot/nouns/eranos.instructions/classify.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/connect.json`](web/snapshot/nouns/eranos.instructions/connect.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/help-page.json`](web/snapshot/nouns/eranos.instructions/help-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/help.json`](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/help.json`](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/help.json`](web/snapshot/nouns/eranos.instructions/help.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/home.json`](web/snapshot/nouns/eranos.instructions/home.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/library.json`](web/snapshot/nouns/eranos.instructions/library.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/llms.json`](web/snapshot/nouns/eranos.instructions/llms.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/models.meta.json`](web/snapshot/nouns/eranos.instructions/models.meta.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/nonprofits-page.json`](web/snapshot/nouns/eranos.instructions/nonprofits-page.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/nonprofits.json`](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/nonprofits.json`](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/nonprofits.json`](web/snapshot/nouns/eranos.instructions/nonprofits.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/public-research.json`](web/snapshot/nouns/eranos.instructions/public-research.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/request-example-process.json`](web/snapshot/nouns/eranos.instructions/request-example-process.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
@@ -454,6 +468,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/snapshot/nouns/eranos.instructions/site.json`](web/snapshot/nouns/eranos.instructions/site.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/trust.json`](web/snapshot/nouns/eranos.instructions/trust.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/video.json`](web/snapshot/nouns/eranos.instructions/video.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/worker.json`](web/snapshot/nouns/eranos.instructions/worker.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
+| [`web/snapshot/nouns/eranos.instructions/worker.json`](web/snapshot/nouns/eranos.instructions/worker.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/worker.json`](web/snapshot/nouns/eranos.instructions/worker.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.instructions/worker.policy.json`](web/snapshot/nouns/eranos.instructions/worker.policy.json) | JSON object: `is_example`, `store`, `key`, `version`, `value` |
 | [`web/snapshot/nouns/eranos.sources.json`](web/snapshot/nouns/eranos.sources.json) | JSON object: `is_example`, `store`, `records` |

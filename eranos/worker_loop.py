@@ -1384,6 +1384,15 @@ class Worker:
             lease.task_id, lease.fencing_token, done["output"], idempotency_key=idem, ok=True
         )
         self.say("its own checks passed · reported: submitted for an independent check")
+        if lease.kind == "research" and isinstance(done["output"].get("report"), dict):
+            research.save_unaudited(
+                gate,
+                done["output"]["report"],
+                request_id=str(request_id),
+                part=part,
+                maker_receipt=receipt.receipt_hash,
+                deliver=lease.brief.get("accept_unaudited") is True,
+            )
         self._facts(
             gate,
             request_id,
@@ -1454,8 +1463,6 @@ class Worker:
             if status == "delivered"
             else "checks passed · reported: published to the library"
             if status == "published"
-            else "checks passed · waiting for a person's sign-off"
-            if status == "parked"
             else "reported: sent back for another try"
         )
         return out
@@ -1645,17 +1652,6 @@ class Worker:
                         "tasks": tasks,
                     },
                 ),
-            ]
-        if status == "parked":
-            return [
-                fact(
-                    "check_approved",
-                    part=part,
-                    worker=who,
-                    **kind,
-                    summary={"work_by": work_by},
-                ),
-                fact("signoff_required", part=part, ref=f"eranos.steward_requests/{lease.task_id}"),
             ]
         if status == "published":
             key = out.get("kit_id") or (out.get("published") or [{}])[0].get("key")

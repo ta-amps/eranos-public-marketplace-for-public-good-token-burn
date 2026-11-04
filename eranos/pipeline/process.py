@@ -33,7 +33,6 @@ from tessera.receipts import canonical_json
 
 from eranos.pipeline.request_noun import PRODUCER, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
-from eranos.tracks import get_track
 
 HANDLER_ENV = "ERANOS_PROCESS_HANDLER"
 # Required for any reviewer that runs a process handler: the builder key ids it trusts.
@@ -52,31 +51,6 @@ def trusted_builder_keys(raw: str | None = None) -> frozenset[str]:
     """The builder key ids named in ERANOS_PROCESS_BUILDER_KEYS (or `raw`), without blanks."""
     text = os.environ.get(BUILDER_KEYS_ENV, "") if raw is None else raw
     return frozenset(k.strip() for k in text.split(",") if k.strip())
-
-
-STEWARD_STORE = "eranos.steward_requests"
-
-
-def person_signoff(backend: Any, review_task_id: str, *, person: str, notes: str = "") -> Any:
-    """A person's yes for one parked kit, bound to the exact bundle the reviewer checked."""
-    pending = backend.get_record(STEWARD_STORE, review_task_id).value
-    return backend.resume(
-        review_task_id,
-        {
-            "approved": True,
-            "kit_id": pending["kit_id"],
-            "draft_sha256": pending["draft_sha256"],
-            "steward": person,
-            "notes": notes,
-        },
-    )
-
-
-def _track_needs_person(track_id: str) -> bool:
-    try:
-        return bool(get_track(track_id).needs_steward_signoff)
-    except (KeyError, ValueError, OSError):
-        return True  # a track we can't read is treated as sensitive
 
 
 BUILD_KIND, REVIEW_KIND = "process", "process_review"
@@ -622,45 +596,6 @@ def review_package(
         },
     )
     publication = publication_digest_value(value)
-    # A track that handles sensitive material waits for a person: the page promises it, and a worker
-    # can't stand in. The reviewer's approval is real but nothing is public until a person says yes.
-    track_id = ((value or {}).get("kit") or {}).get("track_id") if isinstance(value, dict) else None
-    if track_id and _track_needs_person(str(track_id)):
-        said = (lease.inputs[-1] if getattr(lease, "inputs", None) else None) or {}
-        agreed = (
-            said.get("approved") is True
-            and said.get("kit_id") == ids["kit_id"]
-            and said.get("draft_sha256") == digest
-            and said.get("steward")
-        )
-        if not agreed:
-            try:
-                version = backend.get_record(STEWARD_STORE, lease.task_id).version
-            except NotFound:
-                version = 0
-            backend.put_record(
-                STEWARD_STORE,
-                lease.task_id,
-                {"kit_id": ids["kit_id"], "draft_sha256": digest, "request_id": request_id},
-                expected_version=version,
-                producer_surface=PRODUCER,
-                visibility_scope="surface_only",
-                tags=["status:quarantined"],
-            )
-            parked = backend.park(
-                lease.task_id,
-                lease.fencing_token,
-                reason=f"waiting for a person's sign-off on {ids['kit_id']}",
-                resume_within=604800.0,
-            )
-            update_request_part(backend, request_id, part, "awaiting_steward")
-            return {
-                "node": "process_review",
-                "status": "parked",
-                "kit_id": ids["kit_id"],
-                "park": parked.parks,
-                "bundle_sha256": digest,
-            }
     review = {
         "node": "process_review",
         "status": "approved",

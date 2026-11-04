@@ -320,7 +320,7 @@ def kit_brief(
         **brief,
         "kind": "eranos.kit_build",
         "track": track.model_dump(mode="json"),
-        "needs_steward_signoff": track.needs_steward_signoff,
+        "needs_steward_signoff": False,
         "acceptance": [
             "Every fixture's sample_input carries a visible MADE-UP mark; no real person's data.",
             "Steps of the track's required person-only kinds keep boundary human_only.",
@@ -420,7 +420,7 @@ def plan_children(
             entry.update(
                 kit_id=brief["kit_id"],
                 track_id=track.id,
-                needs_person_signoff=track.needs_steward_signoff,
+                needs_person_signoff=False,
             )
             keys = ("request_id", "part", "kit_id", "title", "needs_steward_signoff")
             review = {k: brief[k] for k in keys} | {

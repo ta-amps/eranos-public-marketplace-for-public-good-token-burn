@@ -671,7 +671,7 @@ def review_process(package, request, plan_part, *, bundle_path=None, records=Non
               "both drafts were written by the build's key" if set(writers.values()) == {builder_key_id} else "OTHER WRITER"]
     verified = {name: {"value_sha256": record_digest(rec["value"])} for name, rec in (records or {}).items()}
     # Rebuilt from the bundle and the request, never copied from the drafts.
-    verified["catalog_value"] = {"title": "Made-up sample data-cleaning process", "request_id": request["request_id"]}
+    verified["catalog_value"] = {"kit": {"track_id": "donor-stewardship-and-privacy"}, "title": "Made-up sample data-cleaning process", "request_id": request["request_id"]}
     verified["template_value"] = {"kind": "run_process", "pack": "data-cleaning"}
     return {"passed": not any(c.isupper() for c in checks), "checks": checks, "verified": verified}
 """
@@ -1501,20 +1501,45 @@ def test_specific_actionable_sentences_rank_first_among_a_sources_candidates() -
 
 
 @needs_workerd
-def test_a_sensitive_process_kit_waits_for_a_person_then_publishes(
+def test_a_request_that_accepts_unaudited_gets_a_labeled_result_then_the_audit_changes_it(
+    fabric: Any,
+) -> None:
+    requester = fabric.requester()
+    rid = fabric.file_request(
+        requester,
+        {
+            "text": INFO_TEXT,
+            "links": [RULES_URL],
+            "organization_type": "Food bank",
+            "output_type": "information",
+            "frequency": "one-off",
+            "accept_unaudited": True,
+        },
+        "early1",
+    )
+    w = _workers(fabric)
+    assert w["planner"].run_once() == "worked"
+    assert w["builder"].run_once() == "worked"
+    part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+    early = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")
+    assert early["value"]["audit_status"] == "not_audited_yet"
+    assert not early["value"].get("review_receipt")
+    assert _record(fabric, rid)["parts"]["1"]["status"] == "delivered_unaudited"
+    assert w["reviewer"].run_once() == "worked"
+    audited = fabric.get(f"/v1/stores/eranos.solutions/records/{part['report_id']}")
+    assert audited["value"]["audit_status"] == "audited" and audited["value"]["review_receipt"]
+    assert _record(fabric, rid)["parts"]["1"]["status"] == "delivered"
+
+
+@needs_workerd
+def test_a_process_request_no_class_fits_gets_labeled_research_not_a_refusal(
     fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    """The page promises it: a kit on a sensitive track is not public until a person says yes."""
-    monkeypatch.setattr(process_part, "_track_needs_person", lambda track_id: True)
-    bundle = tmp_path / "bundle" / "bundle.tgz"
-    bundle.parent.mkdir()
+    bundle = tmp_path / "bundle.tgz"
     bundle.write_bytes(b"made-up sample process bundle")
     handler_path = tmp_path / "handler.py"
     handler_path.write_text(
-        HANDLER_FILE.replace(
-            'verified["catalog_value"] = {"title": "Made-up sample data-cleaning process",',
-            'verified["catalog_value"] = {"kit": {"track_id": "statement-transcription"}, "title": "Made-up sample data-cleaning process",',
-        )
+        HANDLER_FILE + "\n\ndef reuse_signature(text):\n    return {'key': None}\n"
     )
     monkeypatch.setenv("TEST_BUNDLE", str(bundle))
     handler = process_part.load_handler(str(handler_path))
@@ -1522,26 +1547,15 @@ def test_a_sensitive_process_kit_waits_for_a_person_then_publishes(
     rid = fabric.file_request(
         requester,
         {
-            "text": "A reusable process to merge our made-up shift lists and flag gaps.",
-            "links": [],
-            "organization_type": "Food pantry",
+            "text": INFO_TEXT,
+            "links": [RULES_URL],
+            "organization_type": "Food bank",
             "output_type": "process",
             "frequency": "one-off",
         },
-        "proc2",
+        "nofit1",
     )
     w = _workers(fabric, handler=handler)
-    for role in ("planner", "builder", "reviewer"):
-        assert w[role].run_once() == "worked"
+    assert w["planner"].run_once() == "worked"
     part = fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
-    ids = handler.expected_records({"request_id": rid}, {"part": 1})
-    assert _record(fabric, rid)["parts"]["1"]["status"] == "awaiting_steward"
-    assert "signoff_required" in _types(_record(fabric, rid))
-    draft = fabric.get(f"/v1/stores/eranos.processes/records/{ids['catalog_record']['key']}")
-    assert draft.get("visibility_scope") != "public_commons"
-    process_part.person_signoff(
-        fabric.admin_client(), part["review_task_id"], person="a test person", notes="read it"
-    )
-    assert w["reviewer"].run_once() == "worked"
-    stored = fabric.get(f"/v1/stores/eranos.processes/records/{ids['catalog_record']['key']}")
-    assert stored["visibility_scope"] == "public_commons" and stored["value"]["review_receipt"]
+    assert part["route"] == "public-only" and part.get("report_id")

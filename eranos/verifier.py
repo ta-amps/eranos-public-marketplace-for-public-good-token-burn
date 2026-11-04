@@ -13,6 +13,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from eranos.copy import PROHIBITED_COLLECTION_TOPICS, find_accusatory_words
+from eranos.privacy import fixture_findings
 from eranos.schemas import (
     HUMAN_ONLY_KINDS,
     OPEN_SPDX_ALLOWLIST,
@@ -96,6 +97,10 @@ def verify_kit(draft: KitDraft, track: TrackPack) -> VerificationReport:
     for fx in draft.fixtures:
         if not has_example_mark(fx.sample_input):
             issues.append(f"fixture {fx.id!r} lacks the practice-case mark")
+        issues.extend(
+            f"fixture {fx.id!r} holds personal details: {found}"
+            for found in fixture_findings(fx.sample_input)
+        )
         bad = find_accusatory_words(fx.sample_input)
         if bad:
             issues.append(f"fixture {fx.id!r} contains accusatory words: {', '.join(bad)}")
@@ -274,6 +279,8 @@ def practice_verify_kit(
             sample = str(fx.get("sample_input") or "")
             if not has_example_mark(sample):
                 add_issue(f"fixture {fx_id!r} sample_input must carry the practice-case mark")
+            for found in fixture_findings(sample):
+                add_issue(f"fixture {fx_id!r} holds personal details: {found}")
             esc = fx.get("expected_human_escalation")
             if esc is True:
                 has_esc = True

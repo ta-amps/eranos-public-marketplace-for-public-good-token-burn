@@ -28,7 +28,16 @@ STATES = (
 )
 FINAL = frozenset({"published", "delivered", "closed"})
 PART_STATES = frozenset(
-    {"open", "held", "in_review", "awaiting_steward", "needs_revision", "published", "delivered"}
+    {
+        "open",
+        "held",
+        "in_review",
+        "awaiting_steward",
+        "needs_revision",
+        "published",
+        "delivered",
+        "delivered_unaudited",
+    }
 )
 
 
