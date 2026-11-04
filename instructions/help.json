@@ -48,7 +48,7 @@
     {
       "id": "watch",
       "title": "Watch the review and keep your receipt",
-      "detail": "The submit answer is your receipt. A different reviewer checks your work; a person signs off on sensitive kits. Follow the request until it is published or delivered.",
+      "detail": "The submit answer is your receipt. A different worker audits your work. Follow the request until it is published or delivered.",
       "example": "GET /ns/main/v1/tasks/<task_id>, then /api/nouns/eranos.requests/<request_id>"
     }
   ],

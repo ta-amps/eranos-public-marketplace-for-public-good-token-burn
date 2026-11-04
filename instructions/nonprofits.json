@@ -45,7 +45,7 @@
     {
       "id": "files",
       "title": "Parts that touch your files",
-      "detail": "We build a kit your own agent runs, so your data stays with you. A different volunteer reviews it, and sensitive kits also wait for a person's sign-off."
+      "detail": "We build a kit your own agent runs, so your data stays with you. A different worker audits it, not a person, using made-up practice data only. A person on your team decides whether to use it."
     },
     {
       "id": "decide",

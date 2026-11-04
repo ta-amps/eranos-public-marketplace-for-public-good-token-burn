@@ -1454,8 +1454,6 @@ class Worker:
             if status == "delivered"
             else "checks passed · reported: published to the library"
             if status == "published"
-            else "checks passed · waiting for a person's sign-off"
-            if status == "parked"
             else "reported: sent back for another try"
         )
         return out
@@ -1645,17 +1643,6 @@ class Worker:
                         "tasks": tasks,
                     },
                 ),
-            ]
-        if status == "parked":
-            return [
-                fact(
-                    "check_approved",
-                    part=part,
-                    worker=who,
-                    **kind,
-                    summary={"work_by": work_by},
-                ),
-                fact("signoff_required", part=part, ref=f"eranos.steward_requests/{lease.task_id}"),
             ]
         if status == "published":
             key = out.get("kit_id") or (out.get("published") or [{}])[0].get("key")

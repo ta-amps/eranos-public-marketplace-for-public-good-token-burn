@@ -48,7 +48,7 @@ def test_classify_then_split_routes_public_private_and_mixed_requests(
             assert part["work_task_id"] != part["review_task_id"]
             assert ("report_id" in part) == (part["route"] == "public-only")
             assert ("kit_id" in part) == (part["route"] == "private-files")
-    assert seen["asks"]["form"]["plan"][0]["needs_person_signoff"] is True
+    assert seen["asks"]["form"]["plan"][0]["needs_person_signoff"] is False
     plain = " ".join(seen["asks"]["mixed"]["plain"])
     assert "We'll do this part from public information" in plain
     assert "This part touches your files, so we'll build a kit your own agent runs" in plain
