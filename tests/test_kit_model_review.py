@@ -15,7 +15,7 @@ from tessera.receipts import canonical_json
 
 from eranos.adapter import TracedBackend
 from eranos.adapter import local as local_adapter
-from eranos.model_client import BudgetExhausted, Ledger, MetaModel, ModelUnavailable
+from eranos.model_client import BudgetExhausted, Ledger, MetaModel, ModelUnavailable, UsageMeter
 from eranos.pipeline import (
     SelfReviewRefused,
     UnverifiedKitRefused,
@@ -758,3 +758,30 @@ def test_the_reader_can_be_afforded_at_the_largest_kit(tmp_path: Path) -> None:
     ledger.reserve(25.0 - wonder.estimate(100))
     with pytest.raises(ModelUnavailable):
         wonder.afford(MAX_KIT_BYTES)
+
+
+# Mutants the review named ------------------------------------------------------------------------
+def test_a_kit_by_this_worker_or_with_a_bad_digest_costs_no_read(
+    backend: Any, tmp_path: Path
+) -> None:
+    req, _ = _anon_draft(backend, lambda d: d.update(drafted_by="reviewer-01"))
+    reader = Reader(CLEAN)
+    _facts_of_review(backend, tmp_path, reader)
+    assert reader.calls == [] and get_published_kit(backend, req.kit_id) is None
+
+
+def test_a_bad_digest_costs_no_read(backend: Any, tmp_path: Path) -> None:
+    req, _ = _anon_draft(backend, None, lambda o: o.update(blob_sha256="0" * 64))
+    reader = Reader(CLEAN)
+    _facts_of_review(backend, tmp_path, reader)
+    assert reader.calls == [] and get_published_kit(backend, req.kit_id) is None
+
+
+def test_the_readers_screen_stops_contact_details_with_kinds_only(tmp_path: Path) -> None:
+    reader = Reader(CLEAN)
+    worker = _reviewer(object(), tmp_path, reader)
+    lease = mock.Mock(task_id="t", fencing_token=1)
+    read = worker.review_reader(lease, UsageMeter(), {}, "")
+    out = read({"catalog": {"kit": {"steps": [{"guidance": PRIVATE}]}}})
+    assert out["approved"] is False and reader.calls == []
+    assert out["findings"] == ["personal_data: 1"], "no field names or words in a public record"
