@@ -13,9 +13,12 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Callable
+from dataclasses import replace
 from typing import Any
+from urllib.parse import urlsplit
 
 from tessera import NotFound
 
@@ -128,6 +131,37 @@ _STOP = frozenset(
 )
 
 
+# Words about the asking, not the subject: searching for them finds nothing useful.
+_QUERY_STOP = frozenset(
+    [
+        "example",
+        "request",
+        "showcase",
+        "eranos",
+        "organization",
+        "organizations",
+        "short",
+        "brief",
+        "literature",
+        "review",
+        "research",
+        "public",
+        "using",
+        "helps",
+        "help",
+        "helping",
+        "keep",
+        "keeps",
+        "small",
+        "real",
+        "what",
+        "ways",
+        "best",
+        "good",
+    ]
+)
+
+
 def words(text: str) -> set[str]:
     out = set()
     for word in _WORD.findall(text.lower()):
@@ -161,10 +195,18 @@ def select_apis(text: str, apis: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [api for *_, api in sorted(scored, key=lambda s: s[:3])]
 
 
+def general_apis(apis: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The open research sources for a request no official page or API fits by topic, so that a
+    question about anything still has somewhere public to look. They search published abstracts."""
+    return [api for api in apis if api.get("general")]
+
+
 def query_terms(text: str, limit: int = 6) -> list[str]:
     seen: list[str] = []
     for word in _WORD.findall(text.lower()):
         word = word.strip("'-") if "(" in word else word.strip("'-()")
+        if word in _QUERY_STOP:
+            continue
         if len(word) >= 4 and word not in _STOP and word not in seen and not word.isdigit():
             seen.append(word)
     return seen[:limit]
@@ -187,6 +229,8 @@ def research_brief(
     rules = worker_rules.get("sources") or {}
     apis = select_apis(part["text"], list(rules.get("official_apis") or []))
     pages = select_apis(part["text"], list(rules.get("official_pages") or []))
+    if not apis and not pages and not links:
+        apis = general_apis(list(rules.get("official_apis") or []))
     return {
         **brief,
         "report_id": report_id,
@@ -198,7 +242,19 @@ def research_brief(
         "fetch": {
             "links": [link for link in links if link.startswith("https://")][:10],
             "apis": [
-                {k: api[k] for k in ("id", "publisher", "host", "path_prefixes", "access", "query")}
+                {
+                    k: api[k]
+                    for k in (
+                        "id",
+                        "publisher",
+                        "host",
+                        "path_prefixes",
+                        "access",
+                        "query",
+                        "results",
+                    )
+                    if k in api
+                }
                 for api in apis
             ],
             "pages": [
@@ -254,29 +310,114 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
     return unique[: int(fetch.get("max_sources") or 5)]
 
 
+_TAG = re.compile(r"<[^>]+>")
+MAX_ARTICLES_PER_SEARCH = 4
+
+
+def _plain(text: Any) -> str:
+    return " ".join(_TAG.sub(" ", str(text or "")).split())
+
+
+def search_articles(kind: str, raw: bytes) -> list[dict[str, str]]:
+    """The articles in a research search answer that have an abstract: title, abstract and the
+    address of the article itself. Authors and affiliations are left out."""
+    data = json.loads(raw.decode("utf-8", errors="replace"))
+    out: list[dict[str, str]] = []
+    if kind == "europe_pmc":
+        for item in (data.get("resultList") or {}).get("result") or []:
+            abstract, source, ident = (
+                _plain(item.get("abstractText")),
+                item.get("source"),
+                item.get("id"),
+            )
+            if abstract and source and ident:
+                out.append(
+                    {
+                        "title": _plain(item.get("title")),
+                        "abstract": abstract,
+                        "url": f"https://europepmc.org/article/{source}/{ident}",
+                    }
+                )
+    elif kind == "doaj":
+        for item in data.get("results") or []:
+            bib = item.get("bibjson") or {}
+            doi = next(
+                (i.get("id") for i in bib.get("identifier") or [] if i.get("type") == "doi"), None
+            )
+            link = next((x.get("url") for x in bib.get("link") or [] if x.get("url")), None)
+            url = f"https://doi.org/{doi}" if doi else link
+            abstract = _plain(bib.get("abstract"))
+            if abstract and url and str(url).startswith("https://"):
+                out.append(
+                    {"title": _plain(bib.get("title")), "abstract": abstract, "url": str(url)}
+                )
+    return out[:MAX_ARTICLES_PER_SEARCH]
+
+
+def _result_kind(brief: dict[str, Any], url: str) -> str | None:
+    """How to read this search address's answer, for a source the brief marks as a research search."""
+    host = urlsplit(url).hostname
+    for api in (brief.get("fetch") or {}).get("apis") or []:
+        if api.get("results") and api.get("host") == host:
+            return str(api["results"])
+    return None
+
+
 def gather(brief: dict[str, Any], fetcher: Fetcher) -> tuple[list[dict[str, Any]], list[str]]:
-    """Fetch every permitted source once; failures are kept as reasons, never hidden."""
+    """Fetch every permitted source once; failures are kept as reasons, never hidden. A research
+    search becomes one source per article, each citing the article's own address."""
     records: list[dict[str, Any]] = []
     failures: list[str] = []
-    for number, (url, access, publisher) in enumerate(permitted_urls(brief), start=1):
-        try:
-            fetched = fetcher(url)
-        except (SourceRefused, RuntimeError, ValueError) as exc:
-            failures.append(f"source {number}: {exc}")
-            continue
+    fetch_rules = brief.get("fetch") or {}
+    number = 0
+
+    def keep(
+        fetched: Fetched, access: str, publisher: str | None, title: str | None = None
+    ) -> None:
+        nonlocal number
+        number += 1
         record = source_record(
             fetched,
             source_id=f"SRC-{brief['report_id']}-{number}",
             access=access,
             publisher=publisher,
-            max_text_chars=int((brief.get("fetch") or {}).get("max_text_chars") or 60000),
+            max_text_chars=int(fetch_rules.get("max_text_chars") or 60000),
             request_id=str(brief["request_id"]),
             part=brief.get("part"),
         )
+        if title:
+            record["title"] = title[:300]
         if record["text"].strip():
             records.append(record)
         else:
             failures.append(f"source {number}: no text could be extracted")
+
+    for index, (url, access, publisher) in enumerate(permitted_urls(brief), start=1):
+        try:
+            fetched = fetcher(url)
+        except (SourceRefused, RuntimeError, ValueError) as exc:
+            failures.append(f"source {index}: {exc}")
+            continue
+        kind = _result_kind(brief, url)
+        if not kind:
+            keep(fetched, access, publisher)
+            continue
+        try:
+            articles = search_articles(kind, fetched.raw)
+        except (ValueError, AttributeError, TypeError) as exc:
+            failures.append(f"source {index}: its answer could not be read: {exc}")
+            continue
+        if not articles:
+            failures.append(f"source {index}: its search found no articles with an abstract")
+        for article in articles:
+            page = replace(
+                fetched,
+                url=article["url"],
+                final_url=article["url"],
+                content_type="text/plain",
+                raw=(article["title"].rstrip(".") + ".\n" + article["abstract"]).encode("utf-8"),
+            )
+            keep(page, access, publisher, article["title"])
     return records, failures
 
 

@@ -321,6 +321,46 @@
           "allowable",
           "cost"
         ]
+      },
+      {
+        "id": "europe-pmc",
+        "publisher": "Europe PMC, European Bioinformatics Institute",
+        "host": "www.ebi.ac.uk",
+        "path_prefixes": [
+          "/europepmc/webservices/rest/search"
+        ],
+        "access": "official_api",
+        "query": "https://www.ebi.ac.uk/europepmc/webservices/rest/search?query={terms}&format=json&resultType=core&pageSize=5",
+        "topics": [
+          "literature",
+          "studies",
+          "evidence",
+          "scholarly",
+          "peer-reviewed",
+          "journal"
+        ],
+        "general": true,
+        "results": "europe_pmc"
+      },
+      {
+        "id": "doaj",
+        "publisher": "Directory of Open Access Journals",
+        "host": "doaj.org",
+        "path_prefixes": [
+          "/api/search/articles/"
+        ],
+        "access": "official_api",
+        "query": "https://doaj.org/api/search/articles/{terms}?pageSize=5",
+        "topics": [
+          "literature",
+          "studies",
+          "evidence",
+          "scholarly",
+          "peer-reviewed",
+          "journal"
+        ],
+        "general": true,
+        "results": "doaj"
       }
     ],
     "deadline_seconds": 30,
