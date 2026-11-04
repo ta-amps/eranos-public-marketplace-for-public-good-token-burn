@@ -8,6 +8,8 @@
 // stripPiiDeep(value)       the same over JSON strings; identifiers, addresses, digests and code files are left alone
 
 const OWN_OR_EXAMPLE_MAIL = /@(?:(?:[a-z0-9-]+\.)*(?:example\.(?:com|org|net)|teleionlabs\.com|eranosforgood\.org))$/i;
+// These file endings are also country domains (Paraguay, Moldova, Saint Helena), so an address ending in one is an address.
+const COUNTRY_ENDING = /\.(?:py|md|sh)$/i;
 const FILE_ENDING = /\.(?:png|jpe?g|gif|svg|webp|js|mjs|ts|tsx|py|json|css|html?|md|txt|woff2?|lock|ya?ml|toml|sh)$/i;
 const CREDENTIAL = new RegExp([
   String.raw`-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)`,
@@ -104,22 +106,36 @@ function isPublicNumber(found, at, whole) {
 
 // A card can sit inside an identifier, a code span or a longer run of numbers: every stretch of whole digit groups adding up to a card's
 // length is read. Not inside a longer word or a digest, and not a number in an address.
-const DIGIT_RUN = /(?<![A-Za-z0-9/=#])\d+(?:[ .-]\d+)*(?![A-Za-z0-9])/g;
+const DIGIT_RUN = /(?<![A-Za-z0-9/])\d+(?:[ .-]\d+)*(?![A-Za-z0-9])/g;
 function maskCards(text) {
   return text.replace(DIGIT_RUN, (run) => {
-    if (run.length > 400) return run.replace(/\d[\d .-]{11,}\d/g, (part) => (part.length > 400 ? part : maskCards(part)));
     const pieces = run.split(/([ .-])/);
-    for (let start = 0; start < pieces.length; start += 2) {
-      let digits = "";
-      for (let end = start; end < pieces.length && digits.length < 19; end += 2) {
-        digits += pieces[end];
-        if (digits.length >= 13 && digits.length <= 19 && looksLikeCard(digits)) {
-          const found = pieces.slice(start, end + 1).join("");
-          return `${pieces.slice(0, start).join("")}[card number]${maskCards(pieces.slice(end + 1).join(""))}`.replace(found, "[card number]");
+    let out = "";
+    let start = 0;
+    while (start < pieces.length) {
+      let matchedEnd = -1;
+      // One separator, and groups of 3 or more digits: a row of decimals or phone numbers isn't a card.
+      if (pieces[start].length >= 3) {
+        let digits = "";
+        const sep = pieces[start + 1];
+        for (let end = start; end < pieces.length && pieces[end].length >= 3 && digits.length < 19; end += 2) {
+          if (end > start && pieces[end - 1] !== sep) break;
+          digits += pieces[end];
+          if (digits.length >= 13 && digits.length <= 19 && looksLikeCard(digits)) {
+            matchedEnd = end;
+            break;
+          }
         }
       }
+      if (matchedEnd >= 0) {
+        out += "[card number]" + (pieces[matchedEnd + 1] ?? "");
+        start = matchedEnd + 2;
+      } else {
+        out += pieces[start] + (pieces[start + 1] ?? "");
+        start += 2;
+      }
     }
-    return run;
+    return out;
   });
 }
 const LABELED_SSN = /\b((?:ssn|social security(?: number| no\.?)?)["']?\s{0,8}[:#=-]?\s{0,8}["']?)\d{3}[ -]?\d{2}[ -]?\d{4}\b/gi;
@@ -153,7 +169,7 @@ export function stripPii(raw, { quote = false } = {}) {
   let out = raw.replace(CREDENTIAL, "[credential]").replace(NAMED_SECRET, "$1[credential]").replace(LOOSE_SECRET, "$1[credential]");
   out = out.replace(EMAIL, (m) => {
     const at = m.lastIndexOf("@");
-    if (OWN_OR_EXAMPLE_MAIL.test(m.slice(at)) || /@\d+(?:\.(?:\d+|x))+$/i.test(m) || FILE_ENDING.test(m) || /^git@(?:github\.com|gitlab\.com|bitbucket\.org)$/i.test(m)) return m;
+    if (OWN_OR_EXAMPLE_MAIL.test(m.slice(at)) || /@\d+(?:\.(?:\d+|x))+$/i.test(m) || (FILE_ENDING.test(m) && !COUNTRY_ENDING.test(m)) || /^git@(?:github\.com|gitlab\.com|bitbucket\.org)$/i.test(m)) return m;
     return "[email]";
   });
   out = out.replace(ID_LABEL, (m, label, value) => (/\d/.test(value) && !/^(?:tin|ein|Tin|Ein)\b/.test(label) ? `${label}[id number]` : m));
@@ -179,18 +195,28 @@ export function stripCredentials(raw) {
 function stripCode(value) {
   const out = stripCredentials(value).replace(CREDENTIAL, "[credential]").replace(EMAIL, (m) => {
     const at = m.lastIndexOf("@");
-    return OWN_OR_EXAMPLE_MAIL.test(m.slice(at)) || /@\d+(?:\.(?:\d+|x))+$/i.test(m) || FILE_ENDING.test(m) || /^git@(?:github\.com|gitlab\.com|bitbucket\.org)$/i.test(m) ? m : "[email]";
+    return OWN_OR_EXAMPLE_MAIL.test(m.slice(at)) || /@\d+(?:\.(?:\d+|x))+$/i.test(m) || (FILE_ENDING.test(m) && !COUNTRY_ENDING.test(m)) || /^git@(?:github\.com|gitlab\.com|bitbucket\.org)$/i.test(m) ? m : "[email]";
   });
   return maskCards(out).replace(SSN, "[id number]").replace(LABELED_SSN, "$1[id number]");
 }
 // A field named for a secret holds one, unless it's a placeholder.
-const SECRET_FIELD = /(?:^|_)(?:api_?key|secret|secret_key|client_secret|password|passwd|pwd|access_token|auth_token|bearer|credential|credentials)$/i;
-const PLACEHOLDER = /^(?:<|\$|\{|%|your[_-]|xxx|\*|example|none|null|changeme|redacted)|\[credential\]/i;
-const cleanMapKey = (key) => (WORTH_READING.test(key) && /@|\d{9,}|[_-]/.test(key) ? stripPii(key) : key);
+const SECRET_FIELD = /(?:^|_)(?:api_?key|secret|secret_?key|client_?secret|password|passwd|pwd|password_hash|private_?key|access_?token|auth_?token|refresh_?token|session_?token|token|authorization|bearer|credentials?)$|(?:apiKey|secretKey|clientSecret|privateKey|accessToken|authToken|refreshToken|sessionToken)$/i;
+const PLACEHOLDER = /^(?:<|\$\{|\$[A-Z_]|\{|%|your[_-]|xxx|\*|example|none|null|changeme|redacted)|\[credential\]/i;
+const DIGEST_KEY = /(?:^|_)(?:sha|sha256|digest|hash|fingerprint|simhash\w*|lsh\w*)$/i;
+const ID_KEY = /(?:^|_)(?:id|ids|key|keys)$/i;
+const cleanMapKey = (key) => (WORTH_READING.test(key) ? stripPii(key) : key);
+// Two keys can become the same marker: each keeps its own value.
+function setKey(out, key, item) {
+  const clean = cleanMapKey(key);
+  let name = clean;
+  for (let n = 2; Object.hasOwn(out, name); n += 1) name = `${clean} ${n}`;
+  out[name] = item;
+}
 
 export function stripPiiDeep(value, keyName = "", mode = "text") {
   if (typeof value === "string") {
-    if (SECRET_FIELD.test(keyName) && value.length >= 8 && !PLACEHOLDER.test(value)) return "[credential]";
+    // A value with spaces is a sentence about the field, not the secret.
+    if (SECRET_FIELD.test(keyName) && value.length >= 8 && !/\s/.test(value) && !PLACEHOLDER.test(value)) return "[credential]";
     if (mode === "code") return stripCode(value);
     if (PII_KEY.test(keyName)) return piiKeyMarker(keyName, value);
     if (BUILT_FROM_TEXT.test(keyName)) {
@@ -200,8 +226,10 @@ export function stripPiiDeep(value, keyName = "", mode = "text") {
     }
     // An identifier stays as it is unless what it holds is never an identifier.
     if (SKIP_KEY.test(keyName) && /^[^\s@]+$/.test(value)) {
-      const hard = maskCards(value.replace(CREDENTIAL, "[credential]")).replace(SSN, "[id number]");
-      return hard === value ? value : hard;
+      const secretsOut = value.replace(CREDENTIAL, "[credential]").replace(NAMED_SECRET, "$1[credential]").replace(LOOSE_SECRET, "$1[credential]");
+      // A digest or a plain id is read back as it is.
+      if (DIGEST_KEY.test(keyName) || (/^\d+$/.test(value) && ID_KEY.test(keyName))) return secretsOut;
+      return maskCards(secretsOut).replace(SSN, "[id number]");
     }
     return stripPii(value, { quote: mode === "quote" });
   }
@@ -210,9 +238,14 @@ export function stripPiiDeep(value, keyName = "", mode = "text") {
     const out = {};
     for (const [key, item] of Object.entries(value)) {
       const next = /\.(?:md|txt|csv)$/i.test(key) ? "text" : childMode(value, key, mode);
-      out[cleanMapKey(key)] = stripPiiDeep(item, key, next);
+      setKey(out, key, stripPiiDeep(item, key, next));
     }
     return out;
+  }
+  // A number can be a card or an id number too; other numbers stay numbers.
+  if (typeof value === "number" && Number.isSafeInteger(value)) {
+    if (PII_KEY.test(keyName)) return piiKeyMarker(keyName, String(value));
+    if (!DIGEST_KEY.test(keyName) && !ID_KEY.test(keyName) && looksLikeCard(String(value))) return "[card number]";
   }
   return value;
 }
@@ -225,7 +258,7 @@ export function stripPiiForDisplay(value, keyName = "", mode = "text") {
     const out = {};
     for (const [key, item] of Object.entries(value)) {
       const next = /\.(?:md|txt|csv)$/i.test(key) ? "text" : childMode(value, key, mode);
-      out[cleanMapKey(key)] = stripPiiForDisplay(item, key, next);
+      setKey(out, key, stripPiiForDisplay(item, key, next));
     }
     return out;
   }
