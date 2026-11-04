@@ -443,7 +443,7 @@ test.describe("a checked part waiting for a person's sign-off", () => {
     await page.goto(`/requests/${REQUEST_ID}`);
     await expect(page.getByTestId("band-toggle-4")).toHaveAttribute("aria-expanded", "true");
     for (const n of [1, 2, 3]) await expect(page.getByTestId(`band-toggle-${n}`)).toHaveAttribute("aria-expanded", "false");
-    await expect(page.getByTestId("band-status-4")).toHaveText("Waiting for a person to sign off");
+    await expect(page.getByTestId("band-status-4")).toHaveText("Waiting for its last step");
   });
 });
 

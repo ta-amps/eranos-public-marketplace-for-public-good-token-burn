@@ -83,9 +83,6 @@ export function KitDetail({ id }: { id: string }) {
           <span className="er-chip er-chip-assists">{kit.deliverable_kind.replace(/_/g, " ")}</span>
           <span className="er-chip er-chip-neutral">SPDX: {spdxLicense}</span>
           <span className="er-chip er-chip-drafts">Scope: {visibilityScope}</span>
-          {entry.steward_signoff && (
-            <span className="er-chip er-chip-steward">Steward sign-off: {entry.steward_signoff}</span>
-          )}
         </div>
         <h1>{kit.title}</h1>
         <p className="er-lede" data-source-text>{kit.summary}</p>
