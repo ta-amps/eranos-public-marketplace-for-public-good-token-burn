@@ -290,7 +290,8 @@ class _Text(HTMLParser):
         if self._in_title:
             self.title += data
         elif not self._skip:
-            self.lines[-1] += data
+            # A newline in the page's source is only a space; block tags end a line.
+            self.lines[-1] += data.replace("\r", " ").replace("\n", " ")
 
 
 def _lines(text: str) -> str:

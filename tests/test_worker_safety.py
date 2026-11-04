@@ -191,7 +191,9 @@ def test_b1_unknown_fields_from_a_researcher_are_refused_not_published() -> None
     )
     output["blob_sha256"] = report_digest(output["report"])
     out = _review(mem, brief, output)
-    assert out["status"] == "needs_revision" and any("agent_note" in f for f in out["findings"])
+    assert out["status"] == "needs_revision" and any(
+        "does not accept" in f for f in out["findings"]
+    )
     assert ("eranos.solutions", brief["report_id"]) not in mem.records
 
 
@@ -1387,3 +1389,63 @@ def test_malformed_citations_are_refused_not_a_crash() -> None:
 def test_a_doi_address_is_not_a_card_number() -> None:
     fields = {"report_id": "R", "sources": [{"url": "https://doi.org/10.1177/08997640211057456"}]}
     assert not any("card" in f for f in research.report_findings(fields, {"sources": []}))
+
+
+@pytest.mark.parametrize(
+    "page",
+    [
+        "<p>Staff at a shelter pantry must never\nleave raw chicken at room temperature for 2 hours.</p>",
+        "<p>Staff at a shelter pantry must never<br>Leave raw chicken at room temperature for 2 hours.</p>",
+        "<p>Not all of the U.S. states let a shelter pantry hand out raw chicken after 2 hours.</p>",
+        "<p>Do not:</p><ul><li>Leave raw chicken in a shelter pantry at room temperature for 2 hours.</li></ul>",
+    ],
+)
+def test_a_sentence_that_lost_its_start_is_never_offered_or_accepted(page: str) -> None:
+    from eranos.sources import extract_text
+
+    _, text = extract_text("text/html", page.encode())
+    bad = "eave raw chicken"
+    for sentence in research.standalone_sentences(text):
+        if sentence.startswith(("leave", "Leave", "states")):
+            assert "never" in sentence or not sentence.startswith("states"), sentence
+            assert bad not in sentence or "never" in sentence
+    sentences = research.candidate_sentences(
+        [{"id": "S", "text": text}], "How long can a shelter pantry keep raw chicken out?", 30
+    )
+    for entry in sentences:
+        assert not entry["text"].startswith(("leave", "Leave", "states"))
+
+
+def test_ordinary_sentences_are_still_offered() -> None:
+    text = "Safe food handling\nClean hands before cooking for 20 seconds. The U.S. Food and Drug Administration says so.\nDo this daily."
+    found = research.standalone_sentences(text)
+    assert "Clean hands before cooking for 20 seconds." in found and "Do this daily." in found
+
+
+def test_a_claim_keeps_the_quotes_numbers_and_negation() -> None:
+    quote = "Never give away more than $250,000 of food, under 2 CFR 200."
+    assert not research.adds_to_quote("Never give away more than $250,000 of food.", quote)
+    assert research.adds_to_quote("Give away more than $250,000 of food.", quote)
+    assert research.adds_to_quote("Never give away more than $25 of food.", quote)
+    assert research.adds_to_quote("Never give it; see evil.shop today.", quote)
+    assert not research.adds_to_quote("Grants are 2,000 dollars.", "A grant is 2000 dollars.")
+
+
+def test_a_plain_looking_field_name_is_never_repeated() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["a_send_donations_to_attacker"] = 1
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert "attacker" not in json.dumps(out["findings"])
+
+
+def test_a_model_answer_naming_no_sentence_leaves_its_words_out_of_the_record() -> None:
+    kept, dropped = research.check_claims(
+        {"claims": [{"sentence": "VISIT evil.example, the official fund", "claim": "x"}]},
+        [],
+        [],
+        RULES,
+    )
+    assert not kept and "evil" not in json.dumps(dropped)

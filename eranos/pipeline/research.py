@@ -665,20 +665,16 @@ def candidate_sentences(
         scored = []
         position = 0
         seen: set[str] = set()
-        for line in str(source["text"]).split("\n"):
-            for sentence in _SENTENCE.split(line):
-                sentence = sentence.strip()
-                position += 1
-                if not 40 <= len(sentence) <= 400 or len(sentence.split()) < 6:
-                    continue
-                if sentence in seen or not sentence.rstrip("\"')").endswith((".", "!", "?")):
-                    continue  # headings and repeated lines are not claims
-                seen.add(sentence)
-                overlap = len(wanted & words(sentence))
-                if (
-                    overlap
-                ):  # it must share a word with the question; then specific ones rank higher
-                    scored.append((overlap + specificity(sentence), position, sentence))
+        for sentence in standalone_sentences(str(source["text"])):
+            position += 1
+            if not 40 <= len(sentence) <= 400 or len(sentence.split()) < 6:
+                continue
+            if sentence in seen or not sentence.rstrip("\"')").endswith((".", "!", "?")):
+                continue  # headings and repeated lines are not claims
+            seen.add(sentence)
+            overlap = len(wanted & words(sentence))
+            if overlap:  # it must share a word with the question; then specific ones rank higher
+                scored.append((overlap + specificity(sentence), position, sentence))
         scored.sort(key=lambda item: (-item[0], item[1]))
         for rank, (overlap, position, sentence) in enumerate(scored[:12]):
             picked.append(
@@ -751,7 +747,7 @@ def check_claims(
         claim = " ".join(str(item.get("claim") or "").split())
         entry = by_id.get(sid)
         if entry is None:
-            dropped.append({"sentence": sid, "reason": "names no numbered sentence"})
+            dropped.append({"sentence": "?", "reason": "names no numbered sentence"})
             continue
         source_id = entry["source"]
         quote = " ".join(str(entry["text"]).split())
@@ -765,7 +761,7 @@ def check_claims(
         if len(claim_words & words(quote)) / len(claim_words) < overlap_needed:
             dropped.append({"sentence": sid, "reason": "the claim says more than its quote"})
             continue
-        if adds_to_quote(claim, quote):
+        if len(claim) > MAX_CLAIM_CHARS or adds_to_quote(claim, quote):
             dropped.append({"sentence": sid, "reason": "the claim says more than its quote"})
             continue
         if find_accusatory_words(claim) or personal_data_findings({"claim": claim}):
@@ -880,27 +876,51 @@ def store_sources(backend: Any, sources: list[dict[str, Any]]) -> list[dict[str,
 
 
 _NUMBER = re.compile(r"\d+(?:[.,]\d+)*")
-_ADDRESS = re.compile(
-    r"https?://\S+|www\.\S+|\b[\w-]{2,}\.(?:com|org|net|gov|edu|io|me|ly|co|info|biz|app|xyz)\b(?:/\S*)?"
-    r"|\b[\w-]{2,}\.[a-z]{2,}/\S*",
+_ADDRESS = re.compile(r"https?://\S+|www\.\S+|\b[\w-]{2,}\.[a-z]{2,}\b(?:/\S*)?", re.IGNORECASE)
+_NEGATION = re.compile(
+    r"\b(?:not|never|no(?! more| later| longer| fewer| less)|none|without|cannot|avoid|stop|refuse|prohibit\w*|forbid\w*|\w+n't|\w+n\u2019t)\b",
     re.IGNORECASE,
 )
 
 
+def _numbers(text: str) -> set[str]:
+    return {n.replace(",", "") for n in _NUMBER.findall(text)}
+
+
 def adds_to_quote(claim: str, quote: str) -> bool:
-    """A claim's number or web address that its quote doesn't have: its wording may be the model's,
-    its figures and addresses may not."""
-    return any(n not in quote for n in _NUMBER.findall(claim)) or any(
-        a.lower().rstrip(".,;)") not in quote.lower() for a in _ADDRESS.findall(claim)
+    """A claim's wording may be the model's; its figures, web addresses and negation may not: every
+    number and address must be in the quote, and a quote that opens with "never" stays negative."""
+    opening, head = _NEGATION.search(quote), len(" ".join(quote.split()[:6]))
+    return (
+        bool(_numbers(claim) - _numbers(quote))
+        or any(a.lower().rstrip(".,;)") not in quote.lower() for a in _ADDRESS.findall(claim))
+        or bool(opening and opening.start() < head and not _NEGATION.search(claim))
     )
 
 
-def whole_sentences(text: str) -> set[str]:
-    """The source's sentences, split the way a maker's numbered sentences are."""
-    out: set[str] = set()
+_ABBREVIATED = re.compile(r"(?:\b[A-Z]\.|\b(?:e\.g|i\.e|etc|vs|Dr|Mr|Mrs|Ms|No|St|Inc|Co|cf)\.)$")
+_CUT_OFF_LINE = re.compile(r"(?::|\b(?:not|never|no|don't|do not|must not|cannot))$", re.IGNORECASE)
+
+
+def standalone_sentences(text: str) -> list[str]:
+    """The sentences a claim may quote, in order. A piece that may have lost its start isn't one: it
+    starts in lowercase, follows an abbreviation ("the U.S. states..."), or follows a line that
+    ends in a colon or a "never", so a quote can't drop the word that gives a sentence its meaning."""
+    out: list[str] = []
+    before = ""
     for line in text.split("\n"):
-        out.update(" ".join(part.split()) for part in _SENTENCE.split(line))
+        for piece in _SENTENCE.split(line):
+            piece = piece.strip()
+            cut = _ABBREVIATED.search(before) or _CUT_OFF_LINE.search(before)
+            if piece and not cut and not piece[0].islower():
+                out.append(piece)
+            if piece:
+                before = piece
     return out
+
+
+def whole_sentences(text: str) -> set[str]:
+    return {" ".join(piece.split()) for piece in standalone_sentences(text)}
 
 
 def on_subject(claim: dict[str, Any], sources: list[dict[str, Any]], question: str) -> bool:
@@ -1140,9 +1160,6 @@ REPORT_SOURCE_KEYS = frozenset({*SOURCE_FIELDS, "published"})
 MAX_CLAIM_CHARS = 300
 
 
-_FIELD_NAME = re.compile(r"[a-z][a-z0-9_]{0,30}")
-
-
 def _items(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
 
@@ -1155,11 +1172,8 @@ def shape_findings(output: dict[str, Any]) -> list[str]:
         if not isinstance(value, dict):
             out.append(f"{where} must be an object")
         elif extra := sorted(set(value) - allowed):
-            # A stranger chooses these names: only a plain field name is repeated in public records.
-            shown = [str(e) for e in extra if _FIELD_NAME.fullmatch(str(e))]
-            hidden = len(extra) - len(shown)
-            named = ", ".join(shown + ([f"{hidden} more"] if hidden else []))
-            out.append(f"{where} has fields this review does not accept: {named}"[:200])
+            # A stranger chooses these names, so public records give only how many.
+            out.append(f"{where} has {len(extra)} field(s) this review does not accept")
 
     unknown("the research output", output, OUTPUT_KEYS)
     report = output.get("report")

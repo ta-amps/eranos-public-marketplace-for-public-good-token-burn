@@ -1886,10 +1886,18 @@ class Worker:
             return {}
         research_out = lease.dependencies[0].output if lease.dependencies else None
         made = (research_out or {}).get("made_with") if isinstance(research_out, dict) else None
+        made = made if isinstance(made, dict) else {}
+        # A maker writes this: only a variant the tuning noun knows goes on the public record.
+        known = {
+            str(v.get("id"))
+            for v in (self.tuning()[0].get("variants") or [])
+            if isinstance(v, dict)
+        }
+        maker_variant = made.get("variant") if str(made.get("variant")) in known else None
         record = {
             "step": "check",
             "variant": checked.get("variant"),
-            "maker_variant": (made or {}).get("variant"),
+            "maker_variant": maker_variant,
             "unsupported": checked.get("unsupported") or [],
             "cost_usd": checked.get("cost_usd"),
             "seconds": checked.get("seconds"),
