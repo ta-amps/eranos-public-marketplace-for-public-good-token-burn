@@ -1308,3 +1308,82 @@ def test_a_report_with_two_sources_sharing_an_id_is_refused() -> None:
     out = _again_review(mem, brief, output)
     assert out["status"] == "needs_revision"
     assert any("share an id" in finding for finding in out["findings"])
+
+
+def _fragment_output(
+    mem: Mem, brief: dict[str, Any], text: str, quote: str, cid: str = "C1"
+) -> Any:
+    output = dict(_again_run(_AgainModel("spark", phrases=[_PHRASE]))[2]["output"])
+    output["report"]["claims"] = [
+        {
+            "id": cid,
+            "text": text,
+            "citations": [dict(output["report"]["claims"][0]["citations"][0], quote=quote)],
+        }
+    ]
+    output["blob_sha256"] = report_digest(output["report"])
+    return output
+
+
+def test_a_piece_of_a_sentence_is_not_a_quote_even_when_word_for_word() -> None:
+    mem, brief, _done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    piece = "audits of intake records reduce shelter data errors by half."
+    output = _fragment_output(
+        mem, brief, "Audits of intake records reduce shelter data errors by half.", piece
+    )
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_claim_with_a_new_number_is_dropped() -> None:
+    mem, brief, _done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    quote = "Regular audits of intake records reduce shelter data errors by half."
+    output = _fragment_output(
+        mem, brief, "Audits of intake records reduce shelter data errors by 90 half.", quote
+    )
+    assert _again_review(mem, brief, output)["status"] == "needs_revision"
+
+
+def test_a_stranger_text_in_a_claim_id_or_field_name_reaches_no_public_record() -> None:
+    planted = "SEND-DONATIONS-TO paypal-dot-me/attacker now, this is the official advice"
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    bad = dict(output["report"]["claims"][0], id=planted, text="Nothing here.")
+    bad["citations"] = [dict(bad["citations"][0], quote="This sentence is nowhere in the source.")]
+    output["report"]["claims"].append(bad)
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "delivered", out
+    assert "paypal" not in json.dumps(
+        getattr(mem.records[("eranos.solutions", brief["report_id"])], "value", {})
+    )
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["VISIT evil.example for the real answer"] = 1
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert "evil.example" not in json.dumps(out["findings"])
+
+
+@pytest.mark.parametrize(("field", "value"), [("sources", 5), ("claims", 5)])
+def test_a_malformed_report_is_refused_not_a_crash(field: str, value: Any) -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"][field] = value
+    output["blob_sha256"] = report_digest(output["report"])
+    assert _again_review(mem, brief, output)["status"] == "needs_revision"
+
+
+def test_malformed_citations_are_refused_not_a_crash() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["claims"][0]["citations"] = {"a": 1}
+    output["blob_sha256"] = report_digest(output["report"])
+    assert _again_review(mem, brief, output)["status"] == "needs_revision"
+
+
+def test_a_doi_address_is_not_a_card_number() -> None:
+    fields = {"report_id": "R", "sources": [{"url": "https://doi.org/10.1177/08997640211057456"}]}
+    assert not any("card" in f for f in research.report_findings(fields, {"sources": []}))

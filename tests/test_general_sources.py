@@ -337,6 +337,34 @@ def test_label_words_inside_a_question_are_the_question():
     assert not {"test", "organization's"} & set(R.query_terms(start + " Budget plans."))
 
 
+def test_more_label_shapes_leave_the_question_whole():
+    for text in (
+        "How should we plan an evacuation test run, including wheelchair routes?",
+        "We want a plan for our test run, for flood season.",
+    ):
+        assert R.subject_text(text) == text
+    assert (
+        R.subject_text("Example request: how do we run a test run?") == "how do we run a test run?"
+    )
+    assert R.subject_text("Practice case: how can a pantry keep volunteers?").endswith(
+        "volunteers?"
+    )
+    assert R.subject_text("Test run.") == "Test run."
+
+
+def test_a_claim_may_not_add_a_number_or_an_address():
+    quote = "Keep raw chicken cold for no more than 2 hours, says fda.gov today."
+    assert not R.adds_to_quote("Keep raw chicken cold for 2 hours, says fda.gov.", quote)
+    assert R.adds_to_quote("Keep raw chicken cold for 200 hours.", quote)
+    assert R.adds_to_quote("Read more at evil.example/x for details.", quote)
+    assert R.adds_to_quote("Donate at paypal.me today.", quote)
+
+
+def test_a_search_answer_cannot_name_a_bare_ip_as_an_article():
+    assert R._names_an_ip("https://169.254.169.254/latest/meta")
+    assert not R._names_an_ip("https://doi.org/10.1/x")
+
+
 def test_a_literal_retention_word_stays_and_only_a_mapped_one_goes():
     assert "retention" in R.query_terms("What are the IRS record retention rules?")
     assert "turnover" in R.query_terms("How do we measure inventory turnover?")

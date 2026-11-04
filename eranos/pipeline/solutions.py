@@ -145,6 +145,8 @@ def report_findings(report: Any, brief: dict[str, Any]) -> list[str]:
         k: v
         for k, v in _strings(report, "report").items()
         if not (k.endswith("_sha256") and _DIGEST.fullmatch(v))
+        # A DOI's digits are an article's address, not a card number.
+        and not (k.endswith(".url") and v.startswith("https://doi.org/10."))
     }
     findings += personal_data_findings({k: own(v) for k, v in strings.items()})
     findings += [
