@@ -197,14 +197,14 @@
   "reviewed_by_key": "key_reviewer_01",
   "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
   "steward_signoff": null,
-  "draft_receipt": "0c52ddab25de08c823bcf6005608ad8152cca871c06108ca89356d2b3a6c5c35",
-  "review_receipt": "b533b2876c58074abaf4c45b8047ed9090b8bedecceacaed2a36681f7dbd3140",
+  "draft_receipt": "e4da040aa50bd3590ac8435301ecffb0bca6b57bcc162ff29de6dd3714b56961",
+  "review_receipt": "ed7843a892e1f6741552a754936d2baca6448660a0b607cf1d4232ee484fd252",
   "blob_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
   "catalog_version": 1,
-  "review_task_id": "er_ef397081f8e4:KIT-RECRUIT-01:review",
-  "draft_task_id": "er_ef397081f8e4:KIT-RECRUIT-01:draft",
+  "review_task_id": "er_1e30b4ec10e0:KIT-RECRUIT-01:review",
+  "draft_task_id": "er_1e30b4ec10e0:KIT-RECRUIT-01:draft",
   "draft_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
   "drafter_key_id": "key_drafter_01",
   "reviewer_key_id": "key_reviewer_01",
-  "publication_sha256": "b5b82ef9a8af80a9de3a6811a1bcefed88fe74bda2c9e80b9db7b1ac0235f4b0"
+  "publication_sha256": "6d4ef19241b56badb6cb01112d47b67fa1ef84d7c4fcd3c060b2a12468902ba8"
 }
