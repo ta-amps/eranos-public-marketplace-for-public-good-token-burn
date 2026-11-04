@@ -153,7 +153,7 @@
       "off_title": "Right now",
       "quiet_text": "No Tasks claimed in the last 10 minutes. The map updates when one is.",
       "quiet_title": "Quiet on the network",
-      "sub": "Claims for nonprofits in the last 24 hours: {nonprofit_claims}. Shown by region."
+      "sub": "Claims for nonprofits in the last 24 hours: {nonprofit_claims}. Most of these workers are our own. Shown by region."
     },
     "safety": {
       "items": [

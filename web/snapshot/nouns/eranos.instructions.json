@@ -524,7 +524,7 @@
           "off_title": "Right now",
           "quiet_text": "No Tasks claimed in the last 10 minutes. The map updates when one is.",
           "quiet_title": "Quiet on the network",
-          "sub": "Claims for nonprofits in the last 24 hours: {nonprofit_claims}. Shown by region."
+          "sub": "Claims for nonprofits in the last 24 hours: {nonprofit_claims}. Most of these workers are our own. Shown by region."
         },
         "safety": {
           "items": [
@@ -3671,14 +3671,37 @@
             "answer",
             "help"
           ],
-          "max_candidates": 200,
+          "labels": [
+            "\\s*(?:^|(?<=[.?!])\\s*)(?:[\\w-]+\\s+)?test run,(?:\\s+second request,)?\\s+Nov(?:ember)?\\.?\\s+\\d{1,2}(?:,\\s+our own example,\\s+not a real organization's request)?\\.?\\s*$",
+            "\\s*(?:^|(?<=[.?!])\\s*)Labeled gaps test, Nov 4, a repeat of an earlier question, our own, not a real organization's request\\.\\s*$",
+            "\\s*(?:^|(?<=[.?!])\\s*)This is an example for the Eranos showcase, not a real organization\\.\\s*$",
+            "^\\s*example request:\\s*"
+          ],
+          "max_candidates": 1000,
           "not_reused": [
-            "RPT-R9CE6D53-01",
+            "RPT-R1087361-01",
+            "RPT-R2629BD5-01",
+            "RPT-R30F07F9-01",
+            "RPT-R364D880-01",
+            "RPT-R3DC7D0A-01",
+            "RPT-R4834064-01",
+            "RPT-R662CA2B-01",
             "RPT-R709418C-01",
+            "RPT-R7E76ADA-01",
+            "RPT-R7EF1806-01",
+            "RPT-R81E610E-01",
+            "RPT-R89864E8-01",
+            "RPT-R8A6EAE9-01",
+            "RPT-R8F5EC63-01",
+            "RPT-R9C79B12-01",
+            "RPT-R9CE6D53-01",
+            "RPT-RA1FAFC6-01",
+            "RPT-RB7F38AF-01",
+            "RPT-RC80830D-01",
             "RPT-RD865E06-01",
-            "RPT-RF92DA4E-01",
+            "RPT-RD9152EF-01",
             "RPT-RF0D3C3D-01",
-            "RPT-R4834064-01"
+            "RPT-RF92DA4E-01"
           ],
           "stopwords": [
             "a",
@@ -3813,7 +3836,7 @@
             "\\bin\\s+plain\\s+(?:english|language|words)\\b",
             "\\bfor\\s+(?:our|my|the)\\s+(?:staff|team|board|volunteers)\\b"
           ],
-          "threshold": 0.8
+          "threshold": 0.5
         },
         "schema_version": 1,
         "sources": {
