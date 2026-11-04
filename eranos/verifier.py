@@ -13,7 +13,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from eranos.copy import PROHIBITED_COLLECTION_TOPICS, find_accusatory_words
-from eranos.privacy import fixture_findings
+from eranos.privacy import fixture_findings, text_personal_findings
 from eranos.schemas import (
     HUMAN_ONLY_KINDS,
     OPEN_SPDX_ALLOWLIST,
@@ -122,6 +122,10 @@ def verify_kit(draft: KitDraft, track: TrackPack) -> VerificationReport:
                 f" the agent that uses the kit brings its own model (found {shipped.group(0)!r})"
             )
             break
+
+    issues.extend(
+        f"personal details in the kit: {found}" for found in text_personal_findings(content)
+    )
 
     if not draft.sources:
         issues.append("at least one HTTPS primary source is required")

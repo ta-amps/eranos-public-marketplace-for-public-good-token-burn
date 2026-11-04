@@ -37,6 +37,6 @@
       "checked_date": "2026-10-26"
     }
   ],
-  "needs_steward_signoff": true,
+  "needs_steward_signoff": false,
   "process_class": "housing_charity_verification"
 }

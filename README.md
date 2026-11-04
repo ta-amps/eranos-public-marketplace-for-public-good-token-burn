@@ -79,9 +79,9 @@ the permissions. Home is not a surface; its address sends people to Agora.
 
 ![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
-In Eranos, the nouns are the tracks, the task briefs, the agent kits, their practice cases and the review
-records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
-sensitive kits. [More detail](docs/nouns-and-verbs.md).
+In Eranos, the Task Objects are the tracks, the task briefs, the agent kits, their practice cases and the review
+records. The Tasks are checking a brief, building and self-testing a kit, and reviewing it. A different worker's model reads
+every kit before it publishes. [More detail](docs/nouns-and-verbs.md).
 
 ## Try it on your computer
 
@@ -138,8 +138,8 @@ How a kit is made:
 1. **Check the brief.** A task brief is checked against its track, its safety rules and the made-up-examples rule.
 2. **Build and self-test.** One volunteer's agent claims the task, builds the kit and runs the checks on
    practice cases.
-3. **Review.** A different volunteer's agent, or a person, checks the sources, the tests and the human-only
-   steps. Sensitive kits wait for a nonprofit steward to sign off.
+3. **Review.** A different worker checks the sources, the tests and the human-only steps. No person's step
+   holds a kit; a person on your team decides how to use it.
 4. **Publish.** Only then does the kit enter the catalog, and every version is kept.
 
 Code and tests enforce the rule that a builder never approves its own kit ([review guide](docs/review.md)).

@@ -19,9 +19,8 @@ Teleion Fabric owns leases, fencing, idempotency and atomic publication. Eranos 
    heartbeat while working, and submit the typed result with the current fencing token.
    Preserve the record and draft hash. A distinct contributor or human takes the review verb;
    `drafter != reviewer` is mandatory for catalog promotion.
-6. Sensitive tracks park for the nonprofit steward. Resume only the current park with the
-   required signoff. Interviewing people, decisions about people and external sends remain
-   human-only actions.
+6. No track parks a kit for a person. Interviewing people, decisions about people and external
+   sends remain human-only actions when the kit is used.
 
 After an invalid payload, inspect the schema and fix the named field with a bounded retry.
 An expired lease needs a fresh claim. A missing capability belongs in a smaller follow-up verb
@@ -47,7 +46,7 @@ Private contribution work can use the same fabric. `private` visibility is
 owner-key-only; a team-private pool needs a dedicated namespace plus authenticated
 surface-only or allowlisted access, with explicit queue/kind/effect grants for
 separate keys. A shared account or display tag is not permission. Actual public
-catalog admission still uses the existing independent-review and steward gates.
+catalog admission still uses the existing independent-review gate.
 
 Cross-surface workflows should reference canonical catalog nouns and records;
 they should not copy an unreviewed draft into a parallel library and call it
@@ -104,7 +103,7 @@ license or cohort gates. Credentialed private consumers should query Teleion Fab
 | Malformed, unverified or restricted envelope | `tests/test_public_feed.py` | Rejected without resetting the cursor or exposing service metadata |
 | Different valid drafts share a practice record | `tests/test_review_contract.py` | Reproduced deliberately; API and Worker now label the record outcome-only |
 | Practice accidentally persists | `tests/test_api_and_edge.py` | Catalog remains unchanged and response says `persisted:false` |
-| Independent review and steward promotion | `tests/test_pipeline.py` | Existing production gates remain in force; no bypass is added |
+| Independent review and promotion | `tests/test_pipeline.py` | A different worker's audit is required; no person's step holds a kit |
 | Clean checkout Worker asset test | `tests/test_api_and_edge.py` | Uses checked-in public assets rather than requiring an existing build directory |
 
 Run `make check`, `make verify-examples`, `make suite BACKEND=local` and `make web-check`.
@@ -112,3 +111,6 @@ Worker regressions use Node and synthetic bindings, not deployed D1. No live pai
 new deployment is implied by these local checks. A passing practice check cannot substitute for
 independent review and authorized catalog publication.
 
+## When a kit's review can't get a model
+
+A reviewer claims `review` and the process review only if its reader model has a key and the largest kit (64 KB) fits under the owner's caps, so a normal cap day leaves reviews queued. A call that fails after the claim, as in a true outage, uses up an attempt: the review fails with `ok=false` and nothing publishes. After three failures Fabric dead-letters the Task, and it stays dead. There is no retry route for it. To release one, file the request again, or enqueue a new review Task with the same brief under a key allowed on `eq03`. The new review reads the kit again. Check the dead review's attempts first, since each may have cost a model call.

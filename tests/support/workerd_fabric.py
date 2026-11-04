@@ -294,6 +294,15 @@ class FakeModel:
         seed: int | None = None,
         reasoning_effort: str | None = None,
     ) -> dict[str, Any]:
+        if system.startswith("You audit a reusable kit"):
+            return {
+                "verdict": "approved",
+                "dangerous_advice": [],
+                "personal_data": [],
+                "autonomy": [],
+                "false_claims": [],
+                "notes": "Read it all; the test model found nothing.",
+            }
         self.calls += 1
         self.sampling = (temperature, seed)
         meter.add(

@@ -25,12 +25,14 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Protocol
 
 from tessera import NotFound
 from tessera.receipts import canonical_json
 
+from eranos.pipeline.model_review import PROCESS_KIT_TEXT
 from eranos.pipeline.request_noun import PRODUCER, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
 
@@ -456,8 +458,11 @@ def review_package(
     handler: Any,
     key_id: str,
     trusted_keys: frozenset[str] | None = None,
+    reader: Callable[..., dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """A different key checks the package it fetched itself, in a clean process, then publishes it.
+
+    `reader` is a model other than the maker's reading the text to publish; a live worker always sends one.
 
     The handler is told who completed the build and which builder keys this reviewer trusts, and it
     sees who wrote each draft record, so a package written by any other key is never approved.
@@ -567,6 +572,19 @@ def review_package(
         if not findings and not _has_rebuilt(verified):
             # Never fall back to the draft's own text: without rebuilt values nothing is published.
             findings.append(NO_REBUILT_VALUES)
+    reading: dict[str, Any] = {}
+    if not findings and reader is not None:
+        rebuilt_values = verdict.get("verified") or {}
+        reading = reader(
+            {
+                "catalog": rebuilt_values.get("catalog_value"),
+                "template": rebuilt_values.get("template_value"),
+            },
+            ("This worker ran the package's own tests again in a clean folder, and they passed.",),
+            PROCESS_KIT_TEXT,
+        )
+        if not reading.get("approved"):
+            findings.extend(reading.get("findings") or ["not_approved: 1"])
     if findings:
         receipt = backend.submit(
             lease.task_id,
@@ -592,7 +610,9 @@ def review_package(
             "drafter_key_id": build.completed_by_key,
             "drafted_by": build.completed_by_key,
             "draft_sha256": digest,
-            "review_notes": verdict.get("notes"),
+            "review_notes": " ".join(x for x in (verdict.get("notes"), reading.get("notes")) if x)[
+                :500
+            ],
         },
     )
     publication = publication_digest_value(value)

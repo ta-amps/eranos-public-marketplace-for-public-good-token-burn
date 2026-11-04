@@ -88,7 +88,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`docs/status.md`](docs/status.md) | Status |
 | [`docs/summary.md`](docs/summary.md) | Summary |
 
-## eranos/ (49)
+## eranos/ (50)
 
 | File | What it is |
 |---|---|
@@ -114,6 +114,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`eranos/pacing.py`](eranos/pacing.py) | What the workers' requests cost, counted, and local wake-ups instead of fast polling. |
 | [`eranos/pipeline/__init__.py`](eranos/pipeline/__init__.py) | Two-step volunteer agent pipeline on Tessera. |
 | [`eranos/pipeline/examples.py`](eranos/pipeline/examples.py) | Example needs and recorded example runs: the nouns the marketplace shows about its example kits. |
+| [`eranos/pipeline/model_review.py`](eranos/pipeline/model_review.py) | The reading a kit gets before it can publish: a model reads every word, a screen looks for personal data. |
 | [`eranos/pipeline/plain_words.py`](eranos/pipeline/plain_words.py) | Plain words for everything the workers publish: never the word the owner forbids (Oct 31). |
 | [`eranos/pipeline/planner.py`](eranos/pipeline/planner.py) | The planner's work on one claimed request verb (eq01, kind request). |
 | [`eranos/pipeline/process.py`](eranos/pipeline/process.py) | Process parts: a request for a reusable process becomes a generated, tested process package. |
@@ -147,13 +148,13 @@ Every file in this repo with a one-line description taken from the file itself. 
 | File | What it is |
 |---|---|
 | [`examples/kits/01-job-recruitment-triage.json`](examples/kits/01-job-recruitment-triage.json) | JSON object: `request`, `draft`, `review` |
-| [`examples/kits/02-coerced-work-hotline-routing.json`](examples/kits/02-coerced-work-hotline-routing.json) | JSON object: `request`, `draft`, `review`, `steward_signoff` |
+| [`examples/kits/02-coerced-work-hotline-routing.json`](examples/kits/02-coerced-work-hotline-routing.json) | JSON object: `request`, `draft`, `review` |
 | [`examples/kits/03-intake-and-referral-triage.json`](examples/kits/03-intake-and-referral-triage.json) | JSON object: `request`, `draft`, `review` |
 | [`examples/kits/04-grant-and-compliance-ops.json`](examples/kits/04-grant-and-compliance-ops.json) | JSON object: `request`, `draft`, `review` |
 | [`examples/kits/05-volunteer-shift-sop-pack.json`](examples/kits/05-volunteer-shift-sop-pack.json) | JSON object: `request`, `draft`, `review` |
 | [`examples/kits/06-monthly-program-impact-report.json`](examples/kits/06-monthly-program-impact-report.json) | JSON object: `seed_pack`, `request`, `review` |
-| [`examples/kits/07-handwritten-statements-to-text.json`](examples/kits/07-handwritten-statements-to-text.json) | JSON object: `seed_pack`, `request`, `steward_signoff`, `review` |
-| [`examples/kits/08-victim-support-referrals.json`](examples/kits/08-victim-support-referrals.json) | JSON object: `seed_pack`, `request`, `steward_signoff`, `review` |
+| [`examples/kits/07-handwritten-statements-to-text.json`](examples/kits/07-handwritten-statements-to-text.json) | JSON object: `seed_pack`, `request`, `review` |
+| [`examples/kits/08-victim-support-referrals.json`](examples/kits/08-victim-support-referrals.json) | JSON object: `seed_pack`, `request`, `review` |
 | [`examples/kits/09-policy-research-brief.json`](examples/kits/09-policy-research-brief.json) | JSON object: `seed_pack`, `request`, `review` |
 | [`examples/kits/10-funding-impact-summary.json`](examples/kits/10-funding-impact-summary.json) | JSON object: `seed_pack`, `request`, `review` |
 | [`examples/kits/11-volunteer-shift-schedule.json`](examples/kits/11-volunteer-shift-schedule.json) | JSON object: `seed_pack`, `request`, `review` |
@@ -291,7 +292,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (36)
+## tests/ (37)
 
 | File | What it is |
 |---|---|
@@ -310,6 +311,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tests/test_example_runs.py`](tests/test_example_runs.py) | Example runs: one evidence noun per example kit, written by the repository's own pipeline. |
 | [`tests/test_general_sources.py`](tests/test_general_sources.py) | A question no official page fits still gets public sources: open research searches, cited per article. |
 | [`tests/test_guard_hook.py`](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
+| [`tests/test_kit_model_review.py`](tests/test_kit_model_review.py) | A kit publishes only after a model other than the maker's read every word; there's no person's step. |
 | [`tests/test_light_ui_only.py`](tests/test_light_ui_only.py) | Mechanical light-UI-only conformance gate for Eranos. |
 | [`tests/test_made_up_mark.py`](tests/test_made_up_mark.py) | The hosted practice check and page text treat the MADE-UP mark as the Python check does. |
 | [`tests/test_marketplace_site.py`](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |

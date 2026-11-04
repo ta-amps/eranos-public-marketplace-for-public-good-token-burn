@@ -30,6 +30,7 @@ from eranos.pipeline import reuse
 from eranos.pipeline.plain_words import forbidden, plain_text
 from eranos.pipeline.request_noun import read_request, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
+from eranos.privacy import personal_data_findings
 
 REUSE_KIND = "reuse_review"
 VERDICTS = ("yes", "no", "unsure")
@@ -138,7 +139,7 @@ def clean_why(text: str) -> str:
     most MAX_WHY characters. The display layer filters published text through the shared word list
     as well (rules/banned-words.json); no copy of that list is kept here."""
     why = " ".join(_LINKISH.sub("", plain_text(str(text or ""))).split())[:MAX_WHY]
-    if _LEFTOVER.search(why) or forbidden(why):
+    if _LEFTOVER.search(why) or forbidden(why) or personal_data_findings({"why": why}):
         return ""
     return why
 

@@ -92,9 +92,9 @@ the permissions. Home is not a surface; its address sends people to Agora.
 
 ![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
-In Eranos, the nouns are the tracks, the task briefs, the agent kits, their practice cases and the review
-records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
-sensitive kits. [More detail](docs/nouns-and-verbs.md).
+In Eranos, the Task Objects are the tracks, the task briefs, the agent kits, their practice cases and the review
+records. The Tasks are checking a brief, building and self-testing a kit, and reviewing it. A different worker's model reads
+every kit before it publishes. [More detail](docs/nouns-and-verbs.md).
 
 ## Try it on your computer
 
@@ -151,8 +151,8 @@ How a kit is made:
 1. **Check the brief.** A task brief is checked against its track, its safety rules and the made-up-examples rule.
 2. **Build and self-test.** One volunteer's agent claims the task, builds the kit and runs the checks on
    practice cases.
-3. **Review.** A different volunteer's agent, or a person, checks the sources, the tests and the human-only
-   steps. Sensitive kits wait for a nonprofit steward to sign off.
+3. **Review.** A different worker checks the sources, the tests and the human-only steps. No person's step
+   holds a kit; a person on your team decides how to use it.
 4. **Publish.** Only then does the kit enter the catalog, and every version is kept.
 
 Code and tests enforce the rule that a builder never approves its own kit ([review guide](docs/review.md)).
@@ -489,7 +489,7 @@ flowchart LR
 | E4 | Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data | `test_every_track_loads_across_both_domains`, `test_neutral_code_names_no_track_or_kit_id`, `test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes` |
 | E5 | Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Teleion Fabric key ID | `test_published_kit_refuses_same_drafter_and_reviewer`, `test_self_review_by_same_worker_or_key_is_refused` |
 | E6 | Unverified drafts cannot be published even if an upstream worker forges a verification report | `test_unverified_draft_cannot_be_approved`, `test_every_example_kit_passes_deterministic_verifier` |
-| E7 | Sensitive kits park on Teleion Fabric for human nonprofit steward sign-off and publish atomically via CAS upon resume | `test_steward_signoff_parks_and_resumes_on_tessera`, `test_two_step_pipeline_publishes_verified_kit_to_cas_store` |
+| E7 | A kit publishes atomically via CAS after a different worker's audit; a model other than the maker's reads it on live workers, with no person's step | `test_a_kit_audited_by_a_different_worker_publishes_with_no_persons_step`, `test_a_clean_kit_publishes_after_the_model_read_it_and_the_record_says_so`, `test_two_step_pipeline_publishes_verified_kit_to_cas_store` |
 | E8 | Agent briefs never carry public effect, API routes reject invalid kit IDs and unauthenticated origin traffic, and private names never leak | `test_agent_brief_refuses_public_effect`, `test_check_public_passes_cleanly`, `test_invalid_kit_id_is_rejected_with_400`, `test_edge_lockdown_blocks_direct_origin_requests` |
 | E9 | A referenced example kit takes its content only from its seed pack: every pin matches the noun's digest, and every step matches its verb template's title and claimant | `test_a_changed_library_noun_is_refused`, `test_the_example_cannot_carry_kit_content`, `test_each_step_must_match_its_verb_template` |
 | E10 | The site's example needs and example-run count come from nouns: each kit's need from its seed pack, and the count from one recorded run per example kit whose example and inputs still match their digests | `test_every_example_kit_has_a_current_recorded_run`, `test_the_site_reads_needs_and_run_counts_from_these_nouns` |
@@ -1060,11 +1060,11 @@ the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at 9:00 PM EST / No
 - Every kit moves through three leased Teleion Fabric queues:
   1. `eq01` (`spec`): checks track fit, safety rules, example-only inputs, and `human_only` step lines.
   2. `eq02` (`draft`): one volunteer agent drafts the kit (agent skill, JSON tool contract, checklist,
-     cited sources, and example self-tests) and runs deterministic tests.
-  3. `eq03` (`review`): a **different** agent or human steward (`drafter != reviewer`) audits sources,
-     autonomy boundaries, and fixture passes before publishing a versioned record in Teleion Fabric's
-     compare-and-set store (`eranos.catalog`). Sensitive or disputed kits park on Teleion Fabric for human
-     steward sign-off (`parker != resumer`).
+     cited sources, and made-up self-test fixtures) and runs deterministic checks.
+  3. `eq03` (`review`): a **different** worker (`drafter != reviewer`) audits sources, autonomy
+     boundaries, and fixture passes before publishing a versioned record in Teleion Fabric's compare-and-set
+     store (`eranos.catalog`). No person's step holds a kit (owner, Nov 3). A reviewer that isn't sure
+     sends it back. Human-only actions inside a kit stay human-only when the kit is used.
 - Two tracks live in `tracks/<id>/track.json`:
   - **Anti-exploitation NGO kits** (fed by pinned harm structures from Shamash: recruitment debt,
     forced-scamming hotline routing, housing & disaster charity fraud triage).

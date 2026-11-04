@@ -4,7 +4,7 @@ Enforces:
 - quarantine (`visibility_scope="surface_only"`, `status:quarantined`) on unreviewed `eq01`/`eq02` items;
 - `drafter != reviewer` across worker IDs, payload keys, and Tessera task result `completed_by_key`;
 - deterministic verification before any review approval can publish;
-- human nonprofit steward sign-off via Tessera `park` and `resume` (`by != parked_by` always enforced);
+- a task parked before the Nov 3 rule change can still be resumed (`by != parked_by` always enforced); nothing new parks for a person;
 - atomic compare-and-set batch publish (`eranos.catalog` + `eranos.index`), governance metadata stamping,
   and `noun.promotions` feed publication.
 """
@@ -183,6 +183,12 @@ def _claim_with_key(
     if key_id is not None and "key_id" in param_names:
         kwargs["key_id"] = key_id
     return backend.claim(queue, worker, **kwargs)
+
+
+def brief_kit_id(brief: dict[str, Any]) -> str | None:
+    """The kit a review's brief is for: a request part's own id, or the example kit's request. None refuses every draft."""
+    request = brief.get("request")
+    return brief.get("kit_id") or (request.get("kit_id") if isinstance(request, dict) else None)
 
 
 def draft_digests(raw_draft: Any, draft: KitDraft) -> set[str]:
@@ -672,20 +678,25 @@ def run_review_step(
     key_id: str,
     tracks_root: Path | None = None,
 ) -> dict[str, Any] | None:
-    with _eranos_surface_scope(backend):
-        recovered = recover_publications(
-            backend, _publish_to_catalog, kit_id=decision.kit_id, key_id=key_id
-        )
-    if recovered is not None:
+    lease = _claim_with_key(backend, "eq03", worker, key_id=key_id, kinds=["review"])
+    if lease is None:
+        # Nothing to review: only then can a current approval finish an interrupted one. With a lease in
+        # hand, this decision is about the lease's own draft and its own intent replaces any older one,
+        # so an old approval never publishes in its place and the lease is never left behind.
+        if decision.verdict != "approved":
+            return None
+        with _eranos_surface_scope(backend):
+            recovered = recover_publications(
+                backend, _publish_to_catalog, kit_id=decision.kit_id, key_id=key_id
+            )
+        if recovered is None:
+            return None
         return {
             "node": "review",
             "status": "published",
             "kit_id": recovered.kit.kit_id,
             "published": recovered.model_dump(mode="json"),
         }
-    lease = _claim_with_key(backend, "eq03", worker, key_id=key_id, kinds=["review"])
-    if lease is None:
-        return None
     brief = lease.brief if isinstance(lease.brief, dict) else {}
     request_id, part = brief.get("request_id"), brief.get("part")
     dep_res = lease.dependencies[0]
@@ -696,7 +707,7 @@ def run_review_step(
 
     draft = KitDraft.model_validate(dep_res.output["draft"])
     # A build verb's result answers its own brief: an open build cannot replace another kit.
-    if (brief.get("kit_id") and draft.kit_id != brief["kit_id"]) or (
+    if draft.kit_id != brief_kit_id(brief) or (
         brief.get("track_id") and draft.track_id != brief["track_id"]
     ):
         backend.submit(
@@ -721,11 +732,6 @@ def run_review_step(
     upstream_report = VerificationReport.model_validate(dep_res.output["verification"])
     reverified = verify_kit(draft, get_track(draft.track_id, tracks_root))
     blob_sha256 = str(dep_res.output["blob_sha256"])
-    # The brief, set by the checker, can raise the sign-off requirement; a submission cannot lower it.
-    needs_steward = bool(dep_res.output.get("needs_steward_signoff", False)) or bool(
-        brief.get("needs_steward_signoff", False)
-    )
-
     drafter_workers, drafter_keys = _collect_drafter_identities(backend, dep_res, draft)
     reviewer_workers = {w.strip() for w in (worker, decision.reviewed_by) if w and w.strip()}
     reviewer_keys = {k.strip() for k in (key_id, decision.reviewed_by_key) if k and k.strip()}
@@ -765,68 +771,29 @@ def run_review_step(
     if request_id and part is not None:
         update_request_part(backend, str(request_id), part, "in_review")
     if decision.verdict == "approved" and (not upstream_report.passed or not reverified.passed):
-        issues = reverified.issues or upstream_report.issues
+        count = len(reverified.issues or upstream_report.issues)
         backend.submit(
             lease.task_id,
             lease.fencing_token,
             {"node": "review", "status": "rejected_unverified", "kit_id": draft.kit_id},
             idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
             ok=False,
-            error=f"unverified draft refused: {'; '.join(issues)}",
+            error=f"unverified draft refused: {count} issue(s)",
         )
         raise UnverifiedKitRefused(
-            f"cannot approve {draft.kit_id}: failed deterministic checks ({'; '.join(issues)})"
+            f"cannot approve {draft.kit_id}: failed deterministic checks ({count} issue(s))"
         )
     report = reverified
 
+    # A kit publishes after a different worker's audit, with no person's step (owner, Nov 3). A reviewer that isn't sure sends it back.
     steward_input = lease.inputs[-1] if lease.inputs else None
-    if (needs_steward or decision.verdict == "park_for_steward") and steward_input is None:
-        with _eranos_surface_scope(backend):
-            try:
-                steward_request_version = backend.get_record(
-                    "eranos.steward_requests", lease.task_id
-                ).version
-            except NotFound:
-                steward_request_version = 0
-            backend.put_record(
-                "eranos.steward_requests",
-                lease.task_id,
-                {"kit_id": draft.kit_id, "draft_sha256": blob_sha256},
-                expected_version=steward_request_version,
-                producer_surface="surface:eranos",
-                visibility_scope="surface_only",
-                tags=["status:quarantined"],
-            )
-        parked: TaskView = backend.park(
-            lease.task_id,
-            lease.fencing_token,
-            reason=f"waiting for human nonprofit steward sign-off on {draft.kit_id}",
-            resume_within=604800.0,
-        )
-        if request_id and part is not None:
-            update_request_part(backend, str(request_id), part, "awaiting_steward")
-        return {
-            "node": "review",
-            "status": "parked",
-            "kit_id": draft.kit_id,
-            "park": parked.parks,
-        }
-
-    if (needs_steward or decision.verdict == "park_for_steward") and (
-        not isinstance(steward_input, dict)
-        or steward_input.get("approved") is not True
-        or steward_input.get("kit_id") != draft.kit_id
-        or steward_input.get("draft_sha256") != blob_sha256
-        or not steward_input.get("steward")
-    ):
-        backend.park(
-            lease.task_id,
-            lease.fencing_token,
-            reason="affirmative steward approval bound to this draft is required",
-            resume_within=604800.0,
-        )
-        raise UnverifiedKitRefused(
-            "steward approval is missing, negative, or for a different draft"
+    if decision.verdict == "park_for_steward":
+        decision = decision.model_copy(
+            update={
+                "verdict": "needs_revision",
+                "notes": decision.notes
+                or "The reviewer asked for changes before this can publish.",
+            }
         )
 
     if decision.verdict == "needs_revision":
@@ -853,9 +820,13 @@ def run_review_step(
             "review_receipt": receipt.receipt_hash,
         }
 
+    # Only a person's yes to this very draft, from before the rule changed, is ever named on the record.
     steward_label = (
         str(steward_input.get("steward") or steward_input.get("by"))
         if isinstance(steward_input, dict)
+        and steward_input.get("approved") is True
+        and steward_input.get("kit_id") == draft.kit_id
+        and steward_input.get("draft_sha256") == blob_sha256
         and (steward_input.get("steward") or steward_input.get("by"))
         else None
     )

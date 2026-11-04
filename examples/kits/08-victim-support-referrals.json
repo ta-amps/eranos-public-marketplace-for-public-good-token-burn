@@ -18,7 +18,7 @@
     "kit_id": "KIT-SUPPORT-08",
     "track_id": "victim-support-referrals",
     "deliverable_kind": "full_kit",
-    "needs_steward_signoff": true,
+    "needs_steward_signoff": false,
     "spdx_license": "MIT",
     "tags": [
       "domain:nonprofit_ops",
@@ -37,10 +37,6 @@
       "surface:eranos",
       "surface:herma"
     ]
-  },
-  "steward_signoff": {
-    "steward": "victim-services-steward",
-    "notes": "Steward confirmed the agent sees service needs only, never a person's story, name or location, and that every conversation, safety step, decision and contact stays with trained advocates."
   },
   "review": {
     "kit_id": "KIT-SUPPORT-08",

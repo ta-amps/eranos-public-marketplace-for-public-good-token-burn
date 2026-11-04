@@ -464,7 +464,7 @@ def synthesize_review_decision(
                 "expected_json_shape": {
                     "kit_id": draft.kit_id,
                     "draft_sha256": digest,
-                    "verdict": "approved | needs_revision | park_for_steward",
+                    "verdict": "approved | needs_revision",
                     "notes": "Evidence-based explanation, 5 to 500 characters",
                 },
             },

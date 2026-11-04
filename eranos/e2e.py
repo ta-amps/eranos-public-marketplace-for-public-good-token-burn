@@ -39,7 +39,7 @@ from eranos.contributor import OPEN_NAMESPACE, USER_AGENT, OpenSession, contribu
 from eranos.donor_worker import synthesize_review_decision
 from eranos.intake import parse_issue_form
 from eranos.nouns import seed_nouns
-from eranos.pipeline import resume_steward_signoff, run_review_step
+from eranos.pipeline import run_review_step
 from eranos.pipeline.requests import (
     OPEN_VERB_TAG,
     PersonalDataRefused,
@@ -250,18 +250,6 @@ def _review(fabric: Fabric, entry: dict[str, Any], say: Say) -> dict[str, Any]:
         outcome = review_kit(fabric, entry["review_task_id"])
     if outcome is None:
         raise RuntimeError(f"no review verb was ready for part {entry['part']}")
-    if outcome["status"] == "parked":
-        say(f"     part {entry['part']}: parked for a person's sign-off; the person signs off")
-        resume_steward_signoff(
-            fabric.steward,
-            entry["review_task_id"],
-            by="nonprofit-steward",
-            steward="nonprofit-steward",
-            notes="SYNTHETIC steward sign-off after reading the kit.",
-        )
-        outcome = review_kit(fabric, entry["review_task_id"])
-        if outcome is None or outcome["status"] != "published":
-            raise RuntimeError(f"part {entry['part']} did not publish after sign-off: {outcome}")
     say(f"     part {entry['part']}: a different keyed reviewer -> {outcome['status']}")
     return outcome
 

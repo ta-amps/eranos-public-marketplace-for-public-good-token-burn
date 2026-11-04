@@ -327,6 +327,12 @@ class MetaModel:
         if self.ledger is not None:
             self.ledger.check(self.estimate(4000))
 
+    def afford(self, prompt_chars: int) -> None:
+        """Raise ModelUnavailable unless a call of this size, at the most output it can use, fits the caps."""
+        self._key()
+        if self.ledger is not None:
+            self.ledger.check(self.estimate(prompt_chars))
+
     def describe(self) -> dict[str, Any]:
         return dict(self._described)
 
