@@ -5,20 +5,26 @@
     "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
     "goal": "Give helpline intake desks a verified directory lookup tool and red-flag checklist for suspicious overseas job offers while keeping all safety planning strictly human-only.",
     "target_org": "Regional anti-exploitation helpline desk",
-    "needs_steward_signoff": true,
+    "needs_steward_signoff": false,
     "spdx_license": "CC-BY-4.0",
     "tags": [
       "domain:anti_exploitation",
       "track:coerced-work-hotline-routing",
       "kind:full_kit",
       "spdx:CC-BY-4.0",
-      "cohort:ngo_hotline",
-      "steward:required"
+      "cohort:ngo_hotline"
     ],
-    "target_cohorts": ["all", "ngo_hotline"],
+    "target_cohorts": [
+      "all",
+      "ngo_hotline"
+    ],
     "producer_surface": "surface:eranos",
     "visibility_scope": "public_commons",
-    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"]
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ]
   },
   "draft": {
     "kit_id": "KIT-HOTLINE-02",
@@ -30,13 +36,19 @@
       "track:coerced-work-hotline-routing",
       "kind:full_kit",
       "spdx:CC-BY-4.0",
-      "cohort:ngo_hotline",
-      "steward:required"
+      "cohort:ngo_hotline"
     ],
-    "target_cohorts": ["all", "ngo_hotline"],
+    "target_cohorts": [
+      "all",
+      "ngo_hotline"
+    ],
     "producer_surface": "surface:eranos",
     "visibility_scope": "public_commons",
-    "allowed_surfaces": ["surface:eranos", "surface:herma", "surface:kothar"],
+    "allowed_surfaces": [
+      "surface:eranos",
+      "surface:herma",
+      "surface:kothar"
+    ],
     "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
     "summary": "Matches corridor countries and languages to re-verified public helplines and consular desks, surfacing unverified offer indicators while reserving all crisis safety planning for trained staff.",
     "target_org": "Regional anti-exploitation helpline desk",
@@ -90,14 +102,31 @@
       "description": "Filters verified public helpline records by destination country, origin country, and spoken language.",
       "input_schema": {
         "type": "object",
-        "required": ["corridor", "language"],
+        "required": [
+          "corridor",
+          "language"
+        ],
         "properties": {
-          "corridor": { "type": "string", "minLength": 2 },
-          "language": { "type": "string", "minLength": 2 },
-          "max_age_days": { "type": "integer", "minimum": 1, "default": 90 }
+          "corridor": {
+            "type": "string",
+            "minLength": 2
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2
+          },
+          "max_age_days": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 90
+          }
         }
       },
-      "output_fields": ["matches", "stale_entries", "requires_human_recheck"],
+      "output_fields": [
+        "matches",
+        "stale_entries",
+        "requires_human_recheck"
+      ],
       "read_only": true
     },
     "checklist": [
@@ -117,14 +146,19 @@
         "id": "FX-HOTLINE-PRECHECK",
         "scenario": "Pre-departure job-seeker verifying a licensed recruiter listing",
         "sample_input": "SYNTHETIC: Caller asks which official labour registry checks an overseas customer-support job contract before signing.",
-        "expected_indicators": ["registry_verification_requested"],
+        "expected_indicators": [
+          "registry_verification_requested"
+        ],
         "expected_human_escalation": false
       },
       {
         "id": "FX-HOTLINE-URGENT",
         "scenario": "Family reports sudden transit reroute and restricted phone access",
         "sample_input": "SYNTHETIC: Family member reports job-seeker landed in a different city and was asked to surrender travel documents.",
-        "expected_indicators": ["transit_reroute", "document_retention"],
+        "expected_indicators": [
+          "transit_reroute",
+          "document_retention"
+        ],
         "expected_human_escalation": true
       }
     ],
@@ -133,13 +167,9 @@
   },
   "review": {
     "kit_id": "KIT-HOTLINE-02",
-    "verdict": "park_for_steward",
+    "verdict": "approved",
     "reviewed_by": "placeholder",
     "reviewed_by_key": "placeholder",
     "notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication."
-  },
-  "steward_signoff": {
-    "steward": "helpline-steward-lead",
-    "notes": "Reviewed crisis escalation boundaries; all caller contact and safety steps remain strictly human_only."
   }
 }

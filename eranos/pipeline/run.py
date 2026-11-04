@@ -4,7 +4,7 @@ Enforces:
 - quarantine (`visibility_scope="surface_only"`, `status:quarantined`) on unreviewed `eq01`/`eq02` items;
 - `drafter != reviewer` across worker IDs, payload keys, and Tessera task result `completed_by_key`;
 - deterministic verification before any review approval can publish;
-- human nonprofit steward sign-off via Tessera `park` and `resume` (`by != parked_by` always enforced);
+- a task parked before the Nov 3 rule change can still be resumed (`by != parked_by` always enforced); nothing new parks for a person;
 - atomic compare-and-set batch publish (`eranos.catalog` + `eranos.index`), governance metadata stamping,
   and `noun.promotions` feed publication.
 """
@@ -721,11 +721,6 @@ def run_review_step(
     upstream_report = VerificationReport.model_validate(dep_res.output["verification"])
     reverified = verify_kit(draft, get_track(draft.track_id, tracks_root))
     blob_sha256 = str(dep_res.output["blob_sha256"])
-    # The brief, set by the checker, can raise the sign-off requirement; a submission cannot lower it.
-    needs_steward = bool(dep_res.output.get("needs_steward_signoff", False)) or bool(
-        brief.get("needs_steward_signoff", False)
-    )
-
     drafter_workers, drafter_keys = _collect_drafter_identities(backend, dep_res, draft)
     reviewer_workers = {w.strip() for w in (worker, decision.reviewed_by) if w and w.strip()}
     reviewer_keys = {k.strip() for k in (key_id, decision.reviewed_by_key) if k and k.strip()}
@@ -779,54 +774,11 @@ def run_review_step(
         )
     report = reverified
 
+    # A kit publishes after a different worker's audit, with no person's step (owner, Nov 3). A reviewer that isn't sure sends it back.
     steward_input = lease.inputs[-1] if lease.inputs else None
-    if (needs_steward or decision.verdict == "park_for_steward") and steward_input is None:
-        with _eranos_surface_scope(backend):
-            try:
-                steward_request_version = backend.get_record(
-                    "eranos.steward_requests", lease.task_id
-                ).version
-            except NotFound:
-                steward_request_version = 0
-            backend.put_record(
-                "eranos.steward_requests",
-                lease.task_id,
-                {"kit_id": draft.kit_id, "draft_sha256": blob_sha256},
-                expected_version=steward_request_version,
-                producer_surface="surface:eranos",
-                visibility_scope="surface_only",
-                tags=["status:quarantined"],
-            )
-        parked: TaskView = backend.park(
-            lease.task_id,
-            lease.fencing_token,
-            reason=f"waiting for human nonprofit steward sign-off on {draft.kit_id}",
-            resume_within=604800.0,
-        )
-        if request_id and part is not None:
-            update_request_part(backend, str(request_id), part, "awaiting_steward")
-        return {
-            "node": "review",
-            "status": "parked",
-            "kit_id": draft.kit_id,
-            "park": parked.parks,
-        }
-
-    if (needs_steward or decision.verdict == "park_for_steward") and (
-        not isinstance(steward_input, dict)
-        or steward_input.get("approved") is not True
-        or steward_input.get("kit_id") != draft.kit_id
-        or steward_input.get("draft_sha256") != blob_sha256
-        or not steward_input.get("steward")
-    ):
-        backend.park(
-            lease.task_id,
-            lease.fencing_token,
-            reason="affirmative steward approval bound to this draft is required",
-            resume_within=604800.0,
-        )
-        raise UnverifiedKitRefused(
-            "steward approval is missing, negative, or for a different draft"
+    if decision.verdict == "park_for_steward":
+        decision = decision.model_copy(
+            update={"verdict": "needs_revision", "notes": decision.notes or "The reviewer asked for changes before this can publish."}
         )
 
     if decision.verdict == "needs_revision":

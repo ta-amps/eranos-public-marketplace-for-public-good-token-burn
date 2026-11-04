@@ -5,9 +5,9 @@
   "title": "Victim Support Referral Options Kit",
   "example": {
     "path": "examples/kits/08-victim-support-referrals.json",
-    "sha256": "c4a6313276cf993696920f994e27265b2a00b18670460cfd7f55a6c7ef8d8cb1"
+    "sha256": "ac739b3d4f1d77af4361ac4c7f2213cbba2c52073f8ff5e8705f84b83b3b359c"
   },
-  "inputs_sha256": "afd0b7fef812fbc78c79ee0c23e9966f456d8c8d3c98185dc2d594267e5b9c10",
+  "inputs_sha256": "8ad26bfd2bd8b871a21161613381f3f3543df4e1b7345913336fc09afe605f83",
   "seed_pack": {
     "pack_id": "kit-victim-support-referrals",
     "kit": {
@@ -27,28 +27,28 @@
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_bafecdaf97a1:KIT-SUPPORT-08:spec",
+      "task_id": "er_432d007598a0:KIT-SUPPORT-08:spec",
       "worker": "spec-gate-08",
       "key_id": "key_spec_08",
       "ok": true,
-      "receipt_sha256": "ce72451f54447ce00305339da9b9e28c43a6eee5868228d239349cb5c5340b6d",
+      "receipt_sha256": "e0c998b7a76107ec57097ac9da73db1d23b00fe5df723d7ddbc26ecb595a5a97",
       "state_after": "done",
-      "submitted_at": "1793334712.933066"
+      "submitted_at": "1793775051.4243727"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_bafecdaf97a1:KIT-SUPPORT-08:draft",
+      "task_id": "er_432d007598a0:KIT-SUPPORT-08:draft",
       "worker": "volunteer-drafter-08",
       "key_id": "key_drafter_08",
       "ok": true,
-      "receipt_sha256": "ca096e02d8a0f1a190b9c1133fa756c81be638fbc45c7a456449e61d3b71d9ff",
+      "receipt_sha256": "51ba2bac79c5d60648f91685bbe1a3f5dd82f189e2dac42f15ecb3de02c47399",
       "state_after": "done",
-      "submitted_at": "1793334712.9348896",
-      "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+      "submitted_at": "1793775051.4270687",
+      "draft_sha256": "d0693581c67d9e0009e4d120897e89baf42af62e3b0253a66c095e5cb5264232",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 3,
         "human_only_steps": [
           "support-conversation",
@@ -60,16 +60,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_bafecdaf97a1:KIT-SUPPORT-08:review",
+      "task_id": "er_432d007598a0:KIT-SUPPORT-08:review",
       "worker": "volunteer-reviewer-08",
       "key_id": "key_reviewer_08",
       "ok": true,
-      "receipt_sha256": "33175fa98eb92e532c0b916846c53e1399c64e8d135c794ff2c4be8103854516",
+      "receipt_sha256": "5aba4fd67d00022edcffef2301601e7adb45a7e8e3faf3df1f1581643dd823c7",
       "state_after": "done",
-      "submitted_at": "1793334712.94464",
-      "parked_for_steward": true,
-      "steward_signoff": "victim-services-steward",
-      "publication_sha256": "d19ba029a08875c587c92ada562a410a0c435f514ae280c684346e30e6f9e225"
+      "submitted_at": "1793775051.4330585",
+      "parked_for_steward": false,
+      "steward_signoff": null,
+      "publication_sha256": "2dc155bc2f92c04f59e041f61b0bf07d76f8db19ccfed0e712fd6b0f12b20d80"
     }
   ],
   "outcome": "published",
@@ -84,14 +84,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "b69cbd1c3233253a1f1a666f8e3a3f0f8bd930dc",
-    "tree_clean": true,
+    "commit": "8edd552bb512ee020093bb18debaabcc797abb59",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "5d11d8f323469366b66aab4e4270a432b46863c9",
+      "commit": "b62b1a74bdaafe4a5348909d232d5803cb66cf91",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-10-30T04:31:53Z"
+  "recorded_at": "2026-11-04T06:50:51Z"
 }

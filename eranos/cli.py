@@ -27,7 +27,6 @@ from eranos.pipeline import (
     library_root,
     list_published_kits,
     load_example_bundles,
-    resume_steward_signoff,
     run_draft_step,
     run_review_step,
     run_spec_step,
@@ -64,34 +63,9 @@ def _run_all_examples(backend: Any, graphs: list[Any] | None = None) -> list[dic
             worker=f"volunteer-reviewer-{idx:02d}",
             key_id=f"key_reviewer_{idx:02d}",
         )
-        if first_review and first_review.get("status") == "parked":
-            steward = bundle["steward_signoff"]
-            resume_steward_signoff(
-                backend,
-                graph.review_task_id,
-                by=steward["steward"],
-                steward=steward["steward"],
-                notes=steward["notes"],
-            )
-            final_review = run_review_step(
-                backend,
-                ReviewDecision(
-                    kit_id=req.kit_id,
-                    verdict="approved",
-                    reviewed_by=f"volunteer-reviewer-{idx:02d}",
-                    reviewed_by_key=f"key_reviewer_{idx:02d}",
-                    notes=decision.notes,
-                ),
-                worker=f"volunteer-reviewer-{idx:02d}",
-                key_id=f"key_reviewer_{idx:02d}",
-            )
-            if final_review is None or final_review["status"] != "published":
-                raise RuntimeError(f"Expected {req.kit_id} to publish after steward sign-off")
-            results.append(final_review)
-        else:
-            if first_review is None or first_review["status"] != "published":
-                raise RuntimeError(f"Expected {req.kit_id} to publish on review")
-            results.append(first_review)
+        if first_review is None or first_review["status"] != "published":
+            raise RuntimeError(f"Expected {req.kit_id} to publish on review")
+        results.append(first_review)
     return results
 
 

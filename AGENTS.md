@@ -27,11 +27,11 @@ the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at 9:00 PM EST / No
 - Every kit moves through three leased Tessera queues:
   1. `eq01` (`spec`): checks track fit, safety rules, synthetic-only inputs, and `human_only` step lines.
   2. `eq02` (`draft`): one volunteer agent drafts the kit (agent skill, JSON tool contract, checklist,
-     cited sources, and synthetic self-test fixtures) and runs deterministic checks.
-  3. `eq03` (`review`): a **different** agent or human steward (`drafter != reviewer`) audits sources,
-     autonomy boundaries, and fixture passes before publishing a versioned record in Tessera's
-     compare-and-set store (`eranos.catalog`). Sensitive or disputed kits park on Tessera for human
-     steward sign-off (`parker != resumer`).
+     cited sources, and made-up self-test fixtures) and runs deterministic checks.
+  3. `eq03` (`review`): a **different** worker (`drafter != reviewer`) audits sources, autonomy
+     boundaries, and fixture passes before publishing a versioned record in Tessera's compare-and-set
+     store (`eranos.catalog`). No person's step holds a kit (owner, Nov 3). A reviewer that isn't sure
+     sends it back. Human-only actions inside a kit stay human-only when the kit is used.
 - Two tracks live in `tracks/<id>/track.json`:
   - **Anti-exploitation NGO kits** (fed by pinned harm structures from Shamash: recruitment debt,
     forced-scamming hotline routing, housing & disaster charity fraud triage).

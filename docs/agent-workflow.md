@@ -19,9 +19,8 @@ Tessera owns leases, fencing, idempotency and atomic publication. Eranos owns th
    heartbeat while working, and submit the typed result with the current fencing token.
    Preserve the receipt and draft hash. A distinct contributor or human takes the review verb;
    `drafter != reviewer` is mandatory for catalog promotion.
-6. Sensitive tracks park for the nonprofit steward. Resume only the current park with the
-   required signoff. Interviewing people, decisions about people and external sends remain
-   human-only actions.
+6. No track parks a kit for a person. Interviewing people, decisions about people and external
+   sends remain human-only actions when the kit is used.
 
 After an invalid payload, inspect the schema and fix the named field with a bounded retry.
 An expired lease needs a fresh claim. A missing capability belongs in a smaller follow-up verb
@@ -47,7 +46,7 @@ Private contribution work can use the same fabric. `private` visibility is
 owner-key-only; a team-private pool needs a dedicated namespace plus authenticated
 surface-only or allowlisted access, with explicit queue/kind/effect grants for
 separate keys. A shared account or display tag is not permission. Actual public
-catalog admission still uses the existing independent-review and steward gates.
+catalog admission still uses the existing independent-review gate.
 
 Cross-surface workflows should reference canonical catalog nouns and receipts;
 they should not copy an unreviewed draft into a parallel library and call it
@@ -104,7 +103,7 @@ license or cohort gates. Credentialed private consumers should query Tessera dir
 | Malformed, unverified or restricted envelope | `tests/test_public_feed.py` | Rejected without resetting the cursor or exposing service metadata |
 | Different valid drafts share a practice receipt | `tests/test_review_contract.py` | Reproduced deliberately; API and Worker now label the receipt outcome-only |
 | Practice accidentally persists | `tests/test_api_and_edge.py` | Catalog remains unchanged and response says `persisted:false` |
-| Independent review and steward promotion | `tests/test_pipeline.py` | Existing production gates remain in force; no bypass is added |
+| Independent review and promotion | `tests/test_pipeline.py` | A different worker's audit is required; no person's step holds a kit |
 | Clean checkout Worker asset test | `tests/test_api_and_edge.py` | Uses checked-in public assets rather than requiring an existing build directory |
 
 Run `make check`, `make verify-examples`, `make suite BACKEND=local` and `make web-check`.

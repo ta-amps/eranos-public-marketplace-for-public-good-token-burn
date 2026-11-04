@@ -18,7 +18,7 @@
     "kit_id": "KIT-TRANSCR-07",
     "track_id": "statement-transcription",
     "deliverable_kind": "full_kit",
-    "needs_steward_signoff": true,
+    "needs_steward_signoff": false,
     "spdx_license": "MIT",
     "tags": [
       "domain:nonprofit_ops",
@@ -37,10 +37,6 @@
       "surface:eranos",
       "surface:herma"
     ]
-  },
-  "steward_signoff": {
-    "steward": "records-steward-lead",
-    "notes": "Steward confirmed the sample pages are synthetic and stamped, the writer's words are kept exactly, every uncertain reading goes to a person, and safety follow-up, sign-off and sharing stay with staff."
   },
   "review": {
     "kit_id": "KIT-TRANSCR-07",

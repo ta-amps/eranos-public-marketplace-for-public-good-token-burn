@@ -109,8 +109,8 @@ How a kit is made:
 1. **Check the brief.** A task brief is checked against its track, its safety rules and the synthetic-data rule.
 2. **Build and self-test.** One volunteer's agent claims the task, builds the kit and runs the checks on
    synthetic test cases.
-3. **Review.** A different volunteer's agent, or a person, checks the sources, the tests and the human-only
-   steps. Sensitive kits wait for a nonprofit steward to sign off.
+3. **Review.** A different worker checks the sources, the tests and the human-only steps. No person's step
+   holds a kit; a person on your team decides how to use it.
 4. **Publish.** Only then does the kit enter the catalog, and every version is kept.
 
 Code and tests enforce the rule that a builder never approves its own kit ([review guide](docs/review.md)).

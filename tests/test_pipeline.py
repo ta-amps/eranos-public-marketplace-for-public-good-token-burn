@@ -281,68 +281,42 @@ def test_all_three_drafter_reviewer_and_parker_resumer_bypasses_closed(
         backend.close()
 
 
-def test_steward_signoff_parks_and_resumes_on_tessera(backend: TracedBackend) -> None:
-    try:
-        bundle = load_example_bundles()[1]  # KIT-HOTLINE-02 requires steward signoff
-        req = KitRequest.model_validate(bundle["request"])
-        graph = submit_kit_request(backend, req)
-        run_spec_step(backend)
-        run_draft_step(backend, bundle["draft"], worker="drafter-01", key_id="key_d1")
+def test_a_kit_audited_by_a_different_worker_publishes_with_no_persons_step(backend: TracedBackend) -> None:
+    """Owner, Nov 3: sensitive tracks too, and an old request that still carries the flag."""
+    bundle = load_example_bundles()[1]  # KIT-HOTLINE-02, a sensitive track
+    request = {**bundle["request"], "needs_steward_signoff": True}
+    req = KitRequest.model_validate(request)
+    graph = submit_kit_request(backend, req)
+    run_spec_step(backend)
+    run_draft_step(backend, bundle["draft"], worker="drafter-01", key_id="key_d1")
+    _, rev_grant = issue_reviewer_key(backend._inner, "rev-01")  # type: ignore[attr-defined]
+    rev_key_id = str(rev_grant.key_id)
+    out = run_review_step(
+        backend,
+        ReviewDecision(
+            kit_id=req.kit_id,
+            verdict="approved",
+            reviewed_by="reviewer-01",
+            reviewed_by_key=rev_key_id,
+            notes="Audited by a different worker.",
+        ),
+        worker="reviewer-01",
+        key_id=rev_key_id,
+    )
+    assert out is not None and out["status"] != "parked"
+    assert backend.task(graph.review_task_id).parks == 0
+    published = get_published_kit(backend, req.kit_id)
+    assert published is not None
+    assert published.reviewed_by == "reviewer-01"
+    assert published.steward_signoff is None
 
-        # Create real key in local store so Store.claim records parked_by = rev_key_id
-        _, rev_grant = issue_reviewer_key(backend._inner, "rev-01")  # type: ignore[attr-defined]
-        rev_key_id = str(rev_grant.key_id)
 
-        first = run_review_step(
-            backend,
-            ReviewDecision.model_validate(bundle["review"]),
-            worker="reviewer-01",
-            key_id=rev_key_id,
-        )
-        assert first is not None and first["status"] == "parked"
-        assert list_published_kits(backend) == []
-
-        # (c) Empty steward / by must raise ValueError
-        with pytest.raises(ValueError, match="non-empty"):
-            resume_steward_signoff(backend, graph.review_task_id, by="   ", notes="Blank steward")
-
-        # (c) Parker == resumer (by key_id OR worker) must raise Forbidden even on local backend
-        with pytest.raises(Forbidden):
-            resume_steward_signoff(
-                backend, graph.review_task_id, by=rev_key_id, notes="Self-resume by parking key"
-            )
-        with pytest.raises(Forbidden):
-            resume_steward_signoff(
-                backend,
-                graph.review_task_id,
-                by="reviewer-01",
-                notes="Self-resume by parking worker",
-            )
-
-        resume_steward_signoff(
-            backend,
-            graph.review_task_id,
-            steward="helpline-director",
-            by="steward:helpline-director",
-            notes="Verified human-only crisis steps.",
-        )
-        second = run_review_step(
-            backend,
-            ReviewDecision(
-                kit_id=req.kit_id,
-                verdict="approved",
-                reviewed_by="reviewer-01",
-                reviewed_by_key=rev_key_id,
-                notes="Approved following steward sign-off.",
-            ),
-            worker="reviewer-01",
-            key_id=rev_key_id,
-        )
-        assert second is not None and second["status"] == "published"
-        published = get_published_kit(backend, req.kit_id)
-        assert published is not None and published.steward_signoff == "helpline-director"
-    finally:
-        backend.close()
+def test_no_track_or_example_holds_a_kit_for_a_person() -> None:
+    root = Path(__file__).resolve().parents[1]
+    for path in [*root.glob("tracks/*/track.json"), *root.glob("examples/kits/*.json")]:
+        text = path.read_text(encoding="utf-8")
+        assert '"needs_steward_signoff": true' not in text, path
+        assert "park_for_steward" not in text, path
 
 
 def test_unverified_draft_cannot_be_approved(backend: TracedBackend) -> None:
@@ -503,18 +477,22 @@ def test_wrong_kit_approval_and_negative_steward_resume_do_not_publish(
     backend.close()
 
 
-def test_negative_steward_decision_reparks(backend: TracedBackend) -> None:
+def test_a_reviewer_asking_to_park_sends_the_kit_back_and_nothing_publishes(backend: TracedBackend) -> None:
     bundle = load_example_bundles()[1]
     req = KitRequest.model_validate(bundle["request"])
     graph = submit_kit_request(backend, req)
     run_spec_step(backend)
-    run_draft_step(backend, bundle["draft"], worker="draft-synthetic", key_id="draft-key")
-    decision = ReviewDecision.model_validate(bundle["review"])
-    run_review_step(backend, decision, worker="review-synthetic", key_id="review-key")
-    backend.resume(
-        graph.review_task_id, {"approved": False, "notes": "SYNTHETIC refusal"}, by="human-steward"
+    run_draft_step(backend, bundle["draft"], worker="drafter-01", key_id="draft-key")
+    decision = ReviewDecision(
+        kit_id=req.kit_id,
+        verdict="park_for_steward",
+        reviewed_by="reviewer-01",
+        reviewed_by_key="review-key",
+        notes="Not sure about this one.",
     )
-    with pytest.raises(UnverifiedKitRefused, match="steward approval"):
-        run_review_step(backend, decision, worker="review-synthetic", key_id="review-key")
+    out = run_review_step(backend, decision, worker="reviewer-01", key_id="review-key")
+    assert out is not None and out["status"] == "needs_revision"
     assert get_published_kit(backend, req.kit_id) is None
-    assert backend.task(graph.review_task_id).state == "waiting"
+    assert backend.task(graph.review_task_id).parks == 0
+
+
