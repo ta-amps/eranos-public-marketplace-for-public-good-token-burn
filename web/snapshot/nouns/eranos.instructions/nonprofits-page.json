@@ -151,6 +151,16 @@
     },
     "eyebrow": "For nonprofits, NGOs and public-good groups",
     "form": {
+      "adapt": {
+        "from_fallback": "this finished result",
+        "from_label": "You are starting from:",
+        "from_note": "It stays as it is. Your new request links to it, and it's public like every request.",
+        "heading": "Adapt this for your group.",
+        "hint": "For example: another state, another language, typed forms instead of handwritten ones. Please don't add names or case details.",
+        "label": "What should be different for your group?",
+        "lead": "Start from a finished result. Tell us what should change, and AI workers make a new version for you.",
+        "placeholder": "For example: the same report for our state, in Spanish"
+      },
       "after_send": "You’ll get a private link to follow your request and make decisions.",
       "causes_label": "Causes, separated by commas",
       "check": {

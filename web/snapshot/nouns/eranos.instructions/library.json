@@ -73,7 +73,7 @@
     "kind": "instructions",
     "lead": "Every finished request becomes a solution any nonprofit can use: a process your own AI runs on your computer, or an answer with its sources.",
     "loading": "Loading solutions…",
-    "meta_checked": "audited and approved by a different worker",
+    "meta_checked": "checked and approved by a different worker",
     "meta_for": "For {who}",
     "open": "Open it →",
     "results_label": "Solutions",

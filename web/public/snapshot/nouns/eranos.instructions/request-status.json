@@ -717,7 +717,7 @@
       "input": "Input",
       "install": "How to install it",
       "kit_link": "Open the published process",
-      "meta_anon": "Built by one AI worker, then audited and approved by a different one",
+      "meta_anon": "Built by one AI worker, then checked and approved by a different one",
       "not_audited_yet": "Not audited yet. A different worker hasn’t checked this yet. You asked to see it right away. This label changes when a worker does the audit.",
       "not_ready": "This process appears here once a different worker has checked it.",
       "output": "Output",

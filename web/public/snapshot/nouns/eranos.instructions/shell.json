@@ -5,16 +5,12 @@
   "version": 1,
   "value": {
     "audience": "everyone who reads Eranos",
-    "external_note": "opens on Agora",
+    "external_note": "opens on Teleion Labs",
     "footer": {
       "beta_note": "Beta until 2027. Open to everyone; your experience may vary.",
       "brand": "Eranos",
       "line": "We don’t accept private information at this stage.",
       "links": [
-        {
-          "href": "https://agora.eranosforgood.org/",
-          "label": "Agora ↗"
-        },
         {
           "href": "https://teleionlabs.com/",
           "label": "Teleion Labs ↗"
@@ -28,7 +24,7 @@
           "to": "/requests"
         },
         {
-          "href": "https://agora.eranosforgood.org/network/",
+          "href": "https://shim.teleionlabs.com/dashboard",
           "label": "Network ↗"
         },
         {
@@ -36,11 +32,11 @@
           "label": "Models used ↗"
         },
         {
-          "href": "https://agora.eranosforgood.org/status/",
+          "href": "https://teleionlabs.com/status/",
           "label": "Status ↗"
         },
         {
-          "href": "https://agora.eranosforgood.org/source/",
+          "href": "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn",
           "label": "Source ↗"
         },
         {
@@ -105,7 +101,7 @@
     },
     "right": {
       "external": true,
-      "href": "https://agora.eranosforgood.org/how-it-works/",
+      "href": "https://teleionlabs.com/fabric/",
       "label": "How it works"
     },
     "schema_version": 1,

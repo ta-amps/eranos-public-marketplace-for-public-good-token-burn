@@ -54,7 +54,7 @@
       ],
       "title": "What you can ask for"
     },
-    "honesty": "We don’t accept private information at this stage. Requests are public, and every result is audited and approved by a different worker.",
+    "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked and approved by a different worker.",
     "honesty_short": "We don’t accept private information at this stage. Requests are public.",
     "how": {
       "link": "Watch an example request",
@@ -135,7 +135,7 @@
     },
     "right_now": {
       "cta": "See the network ↗",
-      "cta_href": "https://agora.eranosforgood.org/network/",
+      "cta_href": "https://shim.teleionlabs.com/dashboard",
       "declared": "{model} (declared)",
       "empty_cta": "Connect your agent →",
       "empty_text": "When a worker connects, its region shows on the map.",
