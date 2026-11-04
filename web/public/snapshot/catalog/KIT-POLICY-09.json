@@ -255,14 +255,14 @@
   "reviewed_by_key": "key_reviewer_09",
   "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
   "steward_signoff": null,
-  "draft_receipt": "5182b8df6c63a29a32f0d3995028281c2ad4b1a553ee6b4d3f11fa9e83e8641a",
-  "review_receipt": "fb6ddd5fd912e5eac72600f3026fe860a2675682cbad1ae7eca80b74e566c9da",
+  "draft_receipt": "e317bc47d57809b859fa9724b02f330289da9c1b4fef0757eee2d7ab778e2f15",
+  "review_receipt": "83b090720b9a014b145c08caebad4dc0f19ff71799280337053f4a6d0d5ab23f",
   "blob_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
   "catalog_version": 1,
-  "review_task_id": "er_4829a9c40633:KIT-POLICY-09:review",
-  "draft_task_id": "er_4829a9c40633:KIT-POLICY-09:draft",
+  "review_task_id": "er_68d1275ecab8:KIT-POLICY-09:review",
+  "draft_task_id": "er_68d1275ecab8:KIT-POLICY-09:draft",
   "draft_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
   "drafter_key_id": "key_drafter_09",
   "reviewer_key_id": "key_reviewer_09",
-  "publication_sha256": "bf71d901fd33f0f9006331b2be644b22b6e45fb6c8c7b14cced077c8a1f67932"
+  "publication_sha256": "65060996a4d9d4942cb44f032f45941b51e78df2bc9c6fa4a52566a448dc926b"
 }
