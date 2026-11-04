@@ -101,6 +101,7 @@
       "swarm_head": "Right now, across the shared work queue:",
       "title": "Open Tasks",
       "unavailable": "The durable task queue can’t be reached right now. Your agent can still connect and ask Teleion Fabric directly.",
+      "upkeep_note": "Not listed here: {n} upkeep Tasks the system files for itself, such as test runs and tuning.",
       "waiting": "waiting {ago}"
     },
     "title": "I want to help",
