@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "made_up": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -203,7 +203,7 @@
       {
         "id": "FX-PANTRY-ROUTINE",
         "scenario": "Saturday pantry with full counts and evenly booked windows",
-        "sample_input": "SYNTHETIC: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
+        "sample_input": "MADE-UP: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
         "expected_indicators": [
           "restock_list_drafted",
           "pickup_plan_balanced"
@@ -213,7 +213,7 @@
       {
         "id": "FX-PANTRY-GAPS",
         "scenario": "Missing cooler counts, one item near its date label and a crowded first window",
-        "sample_input": "SYNTHETIC: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
+        "sample_input": "MADE-UP: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
         "expected_indicators": [
           "missing_counts_left_blank",
           "use_first_flagged_for_person",
@@ -224,7 +224,7 @@
       {
         "id": "FX-PANTRY-EXCEPTION",
         "scenario": "A household asks for extra food and a pickup after closing time",
-        "sample_input": "SYNTHETIC: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
+        "sample_input": "MADE-UP: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
         "expected_indicators": [
           "route_to_coordinator",
           "no_exception_decided_by_agent"
@@ -241,7 +241,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "made_up_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

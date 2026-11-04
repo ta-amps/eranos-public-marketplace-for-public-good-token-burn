@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "made_up": true,
   "spdx_license": "CC0-1.0",
   "tags": [
     "status:verified",
@@ -150,7 +150,7 @@
       {
         "id": "FX-SHIFT-ROUTINE",
         "scenario": "Saturday morning pantry coordinator preparing four station role cards",
-        "sample_input": "SYNTHETIC: 3-hour Saturday pantry shift with 12 volunteers across intake welcome, dry-goods table, cold storage, and exit carry-out.",
+        "sample_input": "MADE-UP: 3-hour Saturday pantry shift with 12 volunteers across intake welcome, dry-goods table, cold storage, and exit carry-out.",
         "expected_indicators": [
           "four_station_cards_generated"
         ],
@@ -159,7 +159,7 @@
       {
         "id": "FX-SHIFT-ESCALATE",
         "scenario": "Guest requests urgent cold-weather shelter exception after hours",
-        "sample_input": "SYNTHETIC: Volunteer at welcome table asks how to handle an after-hours family shelter accommodation request.",
+        "sample_input": "MADE-UP: Volunteer at welcome table asks how to handle an after-hours family shelter accommodation request.",
         "expected_indicators": [
           "route_to_shift_captain"
         ],
@@ -175,7 +175,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "made_up_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

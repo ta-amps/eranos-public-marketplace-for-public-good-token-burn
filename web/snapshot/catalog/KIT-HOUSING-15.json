@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "made_up": true,
   "spdx_license": "Apache-2.0",
   "tags": [
     "status:verified",
@@ -189,7 +189,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "made_up_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",

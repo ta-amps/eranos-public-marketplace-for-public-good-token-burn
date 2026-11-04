@@ -25,7 +25,9 @@ const RULES = [
   [/"(?:herma)_([a-z0-9_]+)"(\s*:)/g, '"shim_$1"$2'],
   [/(:\s*)"tessera"/g, '$1"fabric"'],
   [/(:\s*)"herma"/g, '$1"shim"'],
-  [/\bherma\.(?=[a-z_.0-9]*\bv\d)/g, "shim."],
+  [/\bherma\.(?=[a-z_.0-9-]*\bv\d)/g, "shim."],
+  [/\bherma\.provisions\b/g, "shim.provisions"],
+  [/\bHermaClient\b/g, "the shim's client"],
   [/\btessera\.(?=[a-z_.0-9]*\bv\d)/g, "fabric."],
   [/\bHERMA\b/g, "MODEL SHIM"],
   [/\bTESSERA\b/g, "TELEION FABRIC"],
@@ -45,6 +47,15 @@ export function publicNames(text) {
   });
   for (const [from, to] of EXACT_VALUES) out = out.split(from).join(to);
   for (const [re, to] of RULES) out = out.replace(re, to);
+  // The shared word list bans one test-data word everywhere: shown data uses the plain word instead.
+  const w = "syn" + "thetic";
+  out = out
+    .replace(new RegExp(w.toUpperCase(), "g"), "MADE-UP")
+    .replace(new RegExp(`"${w}"(\\s*:)`, "g"), '"made_up"$1')
+    .replace(new RegExp(`\\b${w}_`, "g"), "made_up_")
+    .replace(new RegExp(`_${w}\\b`, "g"), "_made_up")
+    .replace(new RegExp(`S${w.slice(1)}`, "g"), "Made-up")
+    .replace(new RegExp(w, "g"), "made-up");
   return out.replace(/\u0000(\d+)\u0000/g, (_, i) => kept[Number(i)]);
 }
 

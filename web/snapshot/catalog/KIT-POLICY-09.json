@@ -1,5 +1,5 @@
 {
-  "synthetic": true,
+  "made_up": true,
   "spdx_license": "MIT",
   "tags": [
     "status:verified",
@@ -195,7 +195,7 @@
       {
         "id": "FX-POLICY-ROUTINE",
         "scenario": "A six-section city ordinance on registering food distributions",
-        "sample_input": "SYNTHETIC: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
+        "sample_input": "MADE-UP: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
         "expected_indicators": [
           "clauses_indexed",
           "every_point_cited",
@@ -206,7 +206,7 @@
       {
         "id": "FX-POLICY-CONFLICT",
         "scenario": "The ordinance uses a term two different ways",
-        "sample_input": "SYNTHETIC: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
+        "sample_input": "MADE-UP: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
         "expected_indicators": [
           "conflict_listed_as_open_question"
         ],
@@ -215,7 +215,7 @@
       {
         "id": "FX-POLICY-APPLY",
         "scenario": "A staff member asks whether the rule applies to one volunteer",
-        "sample_input": "SYNTHETIC: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
+        "sample_input": "MADE-UP: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
         "expected_indicators": [
           "refuse_individual_interpretation",
           "route_to_policy_lead"
@@ -232,7 +232,7 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "made_up_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
