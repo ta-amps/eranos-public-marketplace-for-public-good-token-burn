@@ -9,6 +9,7 @@ shown and stored without repeating what it refused.
 from __future__ import annotations
 
 import re
+from typing import Any
 
 _EMAIL = re.compile(
     r"[A-Za-z0-9._%+-]+@(?!example\.(?:com|org|net)\b)[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}"
@@ -68,3 +69,31 @@ _FICTIONAL_PHONE = re.compile(r"\b555[\s.-]\d{3,4}\b|\b\d{3}[\s.-]555[\s.-]01\d\
 def fixture_findings(sample: str) -> list[str]:
     """Personal data in a test case, past the numbers reserved for fiction."""
     return personal_data_findings({"sample_input": _FICTIONAL_PHONE.sub(" ", sample)})
+
+
+LABEL_FIELDS = frozenset(
+    {"spdx_license", "tags", "target_cohorts", "allowed_surfaces", "producer_surface"}
+)
+
+
+def _strings(node: Any, path: str = "") -> list[tuple[str, str]]:
+    if isinstance(node, str):
+        return [(path, node)]
+    if isinstance(node, dict):
+        return [s for k, v in node.items() for s in _strings(v, f"{path}.{k}" if path else str(k))]
+    if isinstance(node, list | tuple):
+        return [s for i, v in enumerate(node) for s in _strings(v, f"{path}[{i}]")]
+    return []
+
+
+def text_personal_findings(value: Any, *, skip: frozenset[str] = LABEL_FIELDS) -> list[str]:
+    """Personal data anywhere in a kit's text, as `field: kind`, never the match. Sources are public links; their addresses aren't screened."""
+    found: list[str] = []
+    top = {k: v for k, v in value.items() if k not in skip} if isinstance(value, dict) else value
+    for path, text in _strings(top):
+        if path.startswith("sources") and path.endswith(
+            ("url", "source_url", "publisher", "title")
+        ):
+            continue
+        found.extend(personal_data_findings({path: _FICTIONAL_PHONE.sub(" ", text)}))
+    return list(dict.fromkeys(found))[:10]

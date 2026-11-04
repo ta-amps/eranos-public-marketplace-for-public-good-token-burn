@@ -778,7 +778,11 @@ def run_review_step(
     steward_input = lease.inputs[-1] if lease.inputs else None
     if decision.verdict == "park_for_steward":
         decision = decision.model_copy(
-            update={"verdict": "needs_revision", "notes": decision.notes or "The reviewer asked for changes before this can publish."}
+            update={
+                "verdict": "needs_revision",
+                "notes": decision.notes
+                or "The reviewer asked for changes before this can publish.",
+            }
         )
 
     if decision.verdict == "needs_revision":
@@ -805,9 +809,13 @@ def run_review_step(
             "review_receipt": receipt.receipt_hash,
         }
 
+    # Only a person's yes to this very draft, from before the rule changed, is ever named on the record.
     steward_label = (
         str(steward_input.get("steward") or steward_input.get("by"))
         if isinstance(steward_input, dict)
+        and steward_input.get("approved") is True
+        and steward_input.get("kit_id") == draft.kit_id
+        and steward_input.get("draft_sha256") == blob_sha256
         and (steward_input.get("steward") or steward_input.get("by"))
         else None
     )

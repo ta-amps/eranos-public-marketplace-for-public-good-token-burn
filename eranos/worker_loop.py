@@ -51,7 +51,6 @@ from tessera.errors import BY_CODE, InvalidRequest
 
 from eranos import __version__, config
 from eranos.adapter.traced import TracedBackend
-from eranos.donor_worker import synthesize_review_decision
 from eranos.log import TraceWriter
 from eranos.model_client import (
     LEDGER_ENV,
@@ -68,6 +67,7 @@ from eranos.pacing import CountingTransport, RequestCounter, hourly_summary, pok
 from eranos.pipeline import load_example_bundles, research
 from eranos.pipeline import process as process_part
 from eranos.pipeline import tuning as tuning_mod
+from eranos.pipeline.model_review import maker_model_of, pick_review_model, read_kit
 from eranos.pipeline.plain_words import forbidden, plain
 from eranos.pipeline.planner import Planner, load_nouns
 from eranos.pipeline.reuse_check import (
@@ -81,7 +81,8 @@ from eranos.pipeline.reuse_check import (
 )
 from eranos.pipeline.run import SelfReviewRefused, run_draft_step, run_review_step, run_spec_step
 from eranos.pipeline.status_events import fact, queue_snapshot, record_events
-from eranos.schemas import KitDraft, VerificationReport
+from eranos.privacy import text_personal_findings
+from eranos.schemas import KitDraft, ReviewDecision, VerificationReport
 from eranos.sources import Fetched, fetch, policy_from_rules
 
 # Kit builds and kit reviews are not claimed here: kits carry a fixture mark these workers must
@@ -107,8 +108,8 @@ DECLARED = {
     "report_review": "deterministic re-fetch and quote check (no model)",
     "spec": "deterministic scope check (no model)",
     "draft": "example kit in plain words (no model)",
-    "review": "deterministic kit checks (no model)",
-    process_part.REVIEW_KIND: "process handler review, in a clean process",
+    "review": "fixed kit checks, then a model other than the maker's reads every word",
+    process_part.REVIEW_KIND: "process handler review, in a clean process, then a model other than the maker's reads every word",
     REUSE_KIND: "a Muse model checks that a library answer fits the request",
 }
 EXIT_STORAGE_ALLOWANCE = (
@@ -1117,7 +1118,7 @@ class Worker:
         try:
             self._pick = None
             if lease.kind in KIT_KINDS:
-                outcome = self.kit(gate, lease)
+                outcome = self.kit(gate, lease, meter, notes)
             elif lease.kind == "tune":
                 outcome = self.tune(gate, lease, meter)
             elif self.config.role == "planner":
@@ -1455,6 +1456,9 @@ class Worker:
                 handler=self.handler,
                 key_id=self.config.key_id,
                 trusted_keys=self.process_builder_keys,
+                reader=self.review_reader(
+                    lease, meter, notes, maker_model_of(lease.dependencies[0].output)
+                ),
             )
         self._facts(gate, request_id, self.review_facts(lease, out, part))
         status = out.get("status")
@@ -1567,7 +1571,49 @@ class Worker:
             self._kit_bundles = {str(b["request"]["kit_id"]): b for b in load_example_bundles()}
         return self._kit_bundles
 
-    def kit(self, gate: LeaseGate, lease: Lease) -> dict[str, Any]:
+    def review_reader(
+        self, lease: Lease, meter: UsageMeter, notes: dict[str, Any], maker_model: str
+    ) -> Callable[[Any], dict[str, Any]]:
+        """A model other than the maker's reads a kit before it can publish. No other model, or
+        no answer, raises: the kit stays unpublished. Doubt comes back as findings."""
+        model_id = pick_review_model(maker_model)
+        if model_id is None:
+            raise ModelUnavailable("no model other than the maker's can read this kit")
+        pick = {
+            "variant": {
+                "id": "kit-review",
+                "step": "review",
+                "model": model_id,
+                "temperature": 0.0,
+            },
+            "probability": 1.0,
+            "tuner_version": None,
+            "why": "a model other than the maker's reads every kit before it publishes",
+        }
+        notes["pick"] = pick
+
+        def read(value: Any) -> dict[str, Any]:
+            screened = text_personal_findings(value)
+            if screened:
+                return {
+                    "approved": False,
+                    "findings": [f"personal details: {x}" for x in screened],
+                    "model": None,
+                    "notes": "The personal-data screen stopped this kit before any model read it.",
+                }
+            return read_kit(
+                self.meta(model_id).chat_json,
+                value,
+                model_id=model_id,
+                model_display=self.model_display(model_id),
+                meter=meter,
+            )
+
+        return read
+
+    def kit(
+        self, gate: LeaseGate, lease: Lease, meter: UsageMeter, notes: dict[str, Any]
+    ) -> dict[str, Any]:
         """One step of an example kit's rebuild, in plain words; publication follows the review."""
         worker, key_id = self.config.label, self.config.key_id
         if lease.kind == "spec":
@@ -1595,11 +1641,21 @@ class Worker:
             )
             return {"status": "nothing_to_review", "receipt": receipt.receipt_hash}
         draft = KitDraft.model_validate(dep.output["draft"])
-        decision = synthesize_review_decision(
-            draft,
-            VerificationReport.model_validate(dep.output["verification"]),
-            worker=worker,
-            key_id=key_id,
+        verification = VerificationReport.model_validate(dep.output["verification"])
+        reading = self.review_reader(lease, meter, notes, maker_model_of(dep.output))(
+            draft.model_dump(mode="json")
+        )
+        decision = ReviewDecision(
+            kit_id=draft.kit_id,
+            verdict="approved" if verification.passed and reading["approved"] else "needs_revision",
+            reviewed_by=worker,
+            reviewed_by_key=key_id,
+            notes=(
+                reading["notes"]
+                + (" Sent back: " + "; ".join(reading["findings"]) if reading["findings"] else "")
+            )[:500]
+            if len(reading["notes"]) >= 5
+            else "Sent back by the reader.",
         )
         if forbidden(dep.output):
             decision = decision.model_copy(

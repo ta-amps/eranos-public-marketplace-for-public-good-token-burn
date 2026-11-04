@@ -25,6 +25,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any, Protocol
 
@@ -456,8 +457,11 @@ def review_package(
     handler: Any,
     key_id: str,
     trusted_keys: frozenset[str] | None = None,
+    reader: Callable[[Any], dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """A different key checks the package it fetched itself, in a clean process, then publishes it.
+
+    `reader` is a model other than the maker's reading the text to publish; a live worker always sends one.
 
     The handler is told who completed the build and which builder keys this reviewer trusts, and it
     sees who wrote each draft record, so a package written by any other key is never approved.
@@ -567,6 +571,11 @@ def review_package(
         if not findings and not _has_rebuilt(verified):
             # Never fall back to the draft's own text: without rebuilt values nothing is published.
             findings.append(NO_REBUILT_VALUES)
+    reading: dict[str, Any] = {}
+    if not findings and reader is not None:
+        reading = reader((verdict.get("verified") or {}).get("catalog_value"))
+        if not reading.get("approved"):
+            findings.extend(reading.get("findings") or ["the model didn't approve this kit"])
     if findings:
         receipt = backend.submit(
             lease.task_id,
@@ -592,7 +601,9 @@ def review_package(
             "drafter_key_id": build.completed_by_key,
             "drafted_by": build.completed_by_key,
             "draft_sha256": digest,
-            "review_notes": verdict.get("notes"),
+            "review_notes": " ".join(x for x in (verdict.get("notes"), reading.get("notes")) if x)[
+                :500
+            ],
         },
     )
     publication = publication_digest_value(value)

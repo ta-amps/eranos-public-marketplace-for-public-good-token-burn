@@ -8,7 +8,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
-from tessera import Forbidden, RecordWrite
+from tessera import RecordWrite
 
 from eranos.adapter import TracedBackend
 from eranos.adapter import local as local_adapter
@@ -30,7 +30,6 @@ from eranos.pipeline import (
     get_published_kit,
     list_published_kits,
     load_example_bundles,
-    resume_steward_signoff,
     run_draft_step,
     run_review_step,
     run_spec_step,
@@ -281,7 +280,9 @@ def test_all_three_drafter_reviewer_and_parker_resumer_bypasses_closed(
         backend.close()
 
 
-def test_a_kit_audited_by_a_different_worker_publishes_with_no_persons_step(backend: TracedBackend) -> None:
+def test_a_kit_audited_by_a_different_worker_publishes_with_no_persons_step(
+    backend: TracedBackend,
+) -> None:
     """Owner, Nov 3: sensitive tracks too, and an old request that still carries the flag."""
     bundle = load_example_bundles()[1]  # KIT-HOTLINE-02, a sensitive track
     request = {**bundle["request"], "needs_steward_signoff": True}
@@ -477,7 +478,9 @@ def test_wrong_kit_approval_and_negative_steward_resume_do_not_publish(
     backend.close()
 
 
-def test_a_reviewer_asking_to_park_sends_the_kit_back_and_nothing_publishes(backend: TracedBackend) -> None:
+def test_a_reviewer_asking_to_park_sends_the_kit_back_and_nothing_publishes(
+    backend: TracedBackend,
+) -> None:
     bundle = load_example_bundles()[1]
     req = KitRequest.model_validate(bundle["request"])
     graph = submit_kit_request(backend, req)
@@ -494,5 +497,3 @@ def test_a_reviewer_asking_to_park_sends_the_kit_back_and_nothing_publishes(back
     assert out is not None and out["status"] == "needs_revision"
     assert get_published_kit(backend, req.kit_id) is None
     assert backend.task(graph.review_task_id).parks == 0
-
-

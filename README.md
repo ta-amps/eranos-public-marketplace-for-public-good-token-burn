@@ -49,8 +49,8 @@ the permissions. Home is not a surface; its address sends people to Agora.
 ![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
 In Eranos, the nouns are the tracks, the task briefs, the agent kits, their synthetic test cases and the review
-records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A person signs off on
-sensitive kits. [More detail](docs/nouns-and-verbs.md).
+records. The verbs are checking a brief, building and self-testing a kit, and reviewing it. A different worker's model reads
+every kit before it publishes. [More detail](docs/nouns-and-verbs.md).
 
 ## Try it on your computer
 
