@@ -5,13 +5,13 @@
       "store": "seedpack.kit-handwritten-statements",
       "key": "kit-handwritten-statements.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "66ff6202a4b6d9a416adeb68e3571c21c51b3d73a64368ecc18f3ebf044fd25c"
+      "value_sha256": "8c6d8916723401fadec30d19dd3866fa76146b7f5abe53299b5fbfcfb89cf1c7"
     },
     "request": {
       "store": "seedpack.kit-handwritten-statements",
       "key": "kit-handwritten-statements.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "2eeffcb37b54c2f095a73fb3f12851c3aab6e62f62e4b7f219cc548a44d4f842"
+      "value_sha256": "b5500d4cf6d2ed46e0a091a1bf8438165395c5b0547b9e2bfbab397cdc0eeef0"
     }
   },
   "request": {

@@ -5,13 +5,13 @@
       "store": "seedpack.kit-flyer-translation-check",
       "key": "kit-flyer-translation-check.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "3fcf7700dc7666eefd861575e1bd1d795d054d0cab584fb7a46d186f9ab2b26b"
+      "value_sha256": "7f6cfe72d74f0e4a414151e2560643ca4c7ad6da53c5aa18f7607c6aec3e0d0c"
     },
     "request": {
       "store": "seedpack.kit-flyer-translation-check",
       "key": "kit-flyer-translation-check.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "c653118eba30d76e9e0426783d9b9fdda07303163177f2d753259e8e7bc50308"
+      "value_sha256": "e1db8c1f8caace11c5d6e76ab0967d4d6767b1bc2cafbfdc1b1eedc1ceb1022e"
     }
   },
   "request": {

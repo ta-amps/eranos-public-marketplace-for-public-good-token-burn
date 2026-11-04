@@ -5,50 +5,50 @@
   "title": "Donor Thank-You Letters with Privacy Checks Kit",
   "example": {
     "path": "examples/kits/13-donor-thank-you-letters.json",
-    "sha256": "9242fedd8960507340d573971738c6a37dbdb6cf0b93d72ab14a513bf2ea4f19"
+    "sha256": "18fb4e4b38d4fb78bf9c1ed43af7674d478d0859d67a953201dcba075c2b29cf"
   },
-  "inputs_sha256": "521f116149205ee2f168d581e09eed10fef3e31dea1448c357b015694e302578",
+  "inputs_sha256": "babc2bda49d8ba324fa3387a38539a4ab96b93413122bb50e7b1baf98c41e1a7",
   "seed_pack": {
     "pack_id": "kit-donor-thank-you-letters",
     "kit": {
       "store": "seedpack.kit-donor-thank-you-letters",
       "key": "kit-donor-thank-you-letters.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "f44cc42c6db7147cc0971bbcdeebc794d11a55c5e0d1b9e2d94c650246adf3b7"
+      "value_sha256": "1d7c3ae605cc653c8460146318845d0e9bc72b37c7587e837dfd1782f48879f6"
     },
     "request": {
       "store": "seedpack.kit-donor-thank-you-letters",
       "key": "kit-donor-thank-you-letters.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "5f016c00c556769c1a77df483e7558474b05cb28d41617455eb1680abb739f0d"
+      "value_sha256": "a16055b73cbf5db41653337751f9f2f3cd99fa2571b7134b0ac205d04a31d950"
     }
   },
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_7d3221ac646a:KIT-THANKS-13:spec",
+      "task_id": "er_4855625d1ca4:KIT-THANKS-13:spec",
       "worker": "spec-gate-13",
       "key_id": "key_spec_13",
       "ok": true,
-      "receipt_sha256": "36105ca7801c3ff9f952261cfbcd8dd06b54ee7590a5a6e6b4b6aeb7d8037375",
+      "receipt_sha256": "4b2016c992497b31cc959afef1e3f8751fba153bed78d302129470978fbb565a",
       "state_after": "done",
-      "submitted_at": "1793556669.2891183"
+      "submitted_at": "1793759431.6771793"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_7d3221ac646a:KIT-THANKS-13:draft",
+      "task_id": "er_4855625d1ca4:KIT-THANKS-13:draft",
       "worker": "volunteer-drafter-13",
       "key_id": "key_drafter_13",
       "ok": true,
-      "receipt_sha256": "808d7fd37f331e9a7e9a6eb0515b7da09c4f4d0f31e28adf88083d5dd3e76e1e",
+      "receipt_sha256": "57e33ca6e64dcb2e8cdf9ca65cad9daa781b22d40b5025d4f84a51f352527276",
       "state_after": "done",
-      "submitted_at": "1793556669.2932088",
-      "draft_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+      "submitted_at": "1793759431.693133",
+      "draft_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 2,
         "human_only_steps": [
           "decide-special-handling",
@@ -60,16 +60,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_7d3221ac646a:KIT-THANKS-13:review",
+      "task_id": "er_4855625d1ca4:KIT-THANKS-13:review",
       "worker": "volunteer-reviewer-13",
       "key_id": "key_reviewer_13",
       "ok": true,
-      "receipt_sha256": "23b1d2037761ed623edafc51fa28b3bc7336e1c136ec6b7a19ece451966fad18",
+      "receipt_sha256": "9375c517237d29e60416f8e6584d031589a2f6df0d9eb6f80a241a03a8421f5b",
       "state_after": "done",
-      "submitted_at": "1793556669.306152",
+      "submitted_at": "1793759431.735282",
       "parked_for_steward": false,
       "steward_signoff": null,
-      "publication_sha256": "fe5bff6c0645fe7a43fa9f61191cc3c9b416ed96ebc7891d5fa74fe3c7858b7f"
+      "publication_sha256": "20ae393052d1a595f6208790a3087f6c167fefe1bda142b5b40fadb93aad69d9"
     }
   ],
   "outcome": "published",
@@ -84,14 +84,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "7c22355872eedfabface0850d5670565dee91962",
-    "tree_clean": true,
+    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-01T18:11:09Z"
+  "recorded_at": "2026-11-04T02:30:32Z"
 }

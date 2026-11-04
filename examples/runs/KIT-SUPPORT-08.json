@@ -5,50 +5,50 @@
   "title": "Victim Support Referral Options Kit",
   "example": {
     "path": "examples/kits/08-victim-support-referrals.json",
-    "sha256": "c4a6313276cf993696920f994e27265b2a00b18670460cfd7f55a6c7ef8d8cb1"
+    "sha256": "f501cb8d60524de18a3090215c945618edb6f3b5ab151d453abc08380cab878c"
   },
-  "inputs_sha256": "afd0b7fef812fbc78c79ee0c23e9966f456d8c8d3c98185dc2d594267e5b9c10",
+  "inputs_sha256": "36ec9cda9178866ed2c4249d309763f5e1bd4fd239cfbf427a147984b973870f",
   "seed_pack": {
     "pack_id": "kit-victim-support-referrals",
     "kit": {
       "store": "seedpack.kit-victim-support-referrals",
       "key": "kit-victim-support-referrals.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "efa495d7cd4704dff11c6df6c11ae970ad6929aba87205784840b627ca9c533d"
+      "value_sha256": "5f99f3f4f7a08292a2e7a94d1e963748382af83fc79de7d4ac11838aa8b07b2f"
     },
     "request": {
       "store": "seedpack.kit-victim-support-referrals",
       "key": "kit-victim-support-referrals.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "3f9b99d6a1fd93fad773f3ebe8d92c34d5da41224b36dfa89a3852acba046f96"
+      "value_sha256": "bd805bc9448cd2fbe0b0c7a32184f2611b9360297afadbdc24779a2bffee755c"
     }
   },
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_3138ee08c1d6:KIT-SUPPORT-08:spec",
+      "task_id": "er_4dd9fee89191:KIT-SUPPORT-08:spec",
       "worker": "spec-gate-08",
       "key_id": "key_spec_08",
       "ok": true,
-      "receipt_sha256": "492523660c6db1dc8b027e817ab514530bfb2dac3a654958daeb0fcdfbc25e67",
+      "receipt_sha256": "d65985de6e4897d8f92d6741c022ca0f32e16edac8f7e9d587de9c8ad81eec9d",
       "state_after": "done",
-      "submitted_at": "1793556669.1193805"
+      "submitted_at": "1793759431.0700567"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_3138ee08c1d6:KIT-SUPPORT-08:draft",
+      "task_id": "er_4dd9fee89191:KIT-SUPPORT-08:draft",
       "worker": "volunteer-drafter-08",
       "key_id": "key_drafter_08",
       "ok": true,
-      "receipt_sha256": "aed2742e06952e5c1385c505707b78f23984555e895e004a7cd4a5eb4f659d43",
+      "receipt_sha256": "d6663d6d948b40f0f4fb6eb3088539d0d0a0785bd53160996597c72e5cef5f99",
       "state_after": "done",
-      "submitted_at": "1793556669.1225052",
-      "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+      "submitted_at": "1793759431.0767958",
+      "draft_sha256": "5f505f73ae4094a90bb763cb67bd00ba4fb8da4249971c0c4320c00ee28184de",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 3,
         "human_only_steps": [
           "support-conversation",
@@ -60,16 +60,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_3138ee08c1d6:KIT-SUPPORT-08:review",
+      "task_id": "er_4dd9fee89191:KIT-SUPPORT-08:review",
       "worker": "volunteer-reviewer-08",
       "key_id": "key_reviewer_08",
       "ok": true,
-      "receipt_sha256": "d6b74d1e31a179ce0628d183f568c3f04372c454e6b047b9da7208ed33f4b19c",
+      "receipt_sha256": "396696967b14f26da0c0325385ca86b813aaf2b00d829cdcda222f1476515c2e",
       "state_after": "done",
-      "submitted_at": "1793556669.1391466",
+      "submitted_at": "1793759431.110195",
       "parked_for_steward": true,
       "steward_signoff": "victim-services-steward",
-      "publication_sha256": "ca24118907b1d37115f4abb6b5ff937ba9a26a438fe523671e70b98cdac564d5"
+      "publication_sha256": "1241887ba4e3a888c0a9b3fe19f6b78a987512f8791b57e7b6a8feec78a680a2"
     }
   ],
   "outcome": "published",
@@ -84,14 +84,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "7c22355872eedfabface0850d5670565dee91962",
-    "tree_clean": true,
+    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-01T18:11:09Z"
+  "recorded_at": "2026-11-04T02:30:32Z"
 }

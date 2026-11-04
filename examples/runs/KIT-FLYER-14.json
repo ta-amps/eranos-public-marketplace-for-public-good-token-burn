@@ -5,50 +5,50 @@
   "title": "Multilingual Service Flyer Translation Check Kit",
   "example": {
     "path": "examples/kits/14-multilingual-flyer-translation-check.json",
-    "sha256": "41ecefbd85db54a72ea4958bcc5197b9da8da1f3b84f7b03ed17f196d1136081"
+    "sha256": "da5d9d1e6a2e7d8cf815bb3f559f23c443acea65a99b969c818950e9f36e3aed"
   },
-  "inputs_sha256": "1004df483ce7516747724aa35d4023e353c8ad13a5be807ac6655c99d5992f78",
+  "inputs_sha256": "33de9e46aecc72257cab8fa169e0852a6b569a9ac19d2e40f56025bd4d807967",
   "seed_pack": {
     "pack_id": "kit-flyer-translation-check",
     "kit": {
       "store": "seedpack.kit-flyer-translation-check",
       "key": "kit-flyer-translation-check.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "3fcf7700dc7666eefd861575e1bd1d795d054d0cab584fb7a46d186f9ab2b26b"
+      "value_sha256": "7f6cfe72d74f0e4a414151e2560643ca4c7ad6da53c5aa18f7607c6aec3e0d0c"
     },
     "request": {
       "store": "seedpack.kit-flyer-translation-check",
       "key": "kit-flyer-translation-check.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "c653118eba30d76e9e0426783d9b9fdda07303163177f2d753259e8e7bc50308"
+      "value_sha256": "e1db8c1f8caace11c5d6e76ab0967d4d6767b1bc2cafbfdc1b1eedc1ceb1022e"
     }
   },
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_18f3fb1b930c:KIT-FLYER-14:spec",
+      "task_id": "er_fc313536942b:KIT-FLYER-14:spec",
       "worker": "spec-gate-14",
       "key_id": "key_spec_14",
       "ok": true,
-      "receipt_sha256": "3931412b2d7e37683d4c70643566149ea2b94c3f48417b38ee49c9498225f880",
+      "receipt_sha256": "c6ff07a25d8f61c47554eb6f166fb31d5f49537f3970f82ac6d026b7a46a09e4",
       "state_after": "done",
-      "submitted_at": "1793556669.3201218"
+      "submitted_at": "1793759431.777591"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_18f3fb1b930c:KIT-FLYER-14:draft",
+      "task_id": "er_fc313536942b:KIT-FLYER-14:draft",
       "worker": "volunteer-drafter-14",
       "key_id": "key_drafter_14",
       "ok": true,
-      "receipt_sha256": "dd467042b5d116ac502bc338c6ab3654a1b5c4477045d41343494a11bae62c8a",
+      "receipt_sha256": "8e8abafb48242cb1d593cdf2b485cb14ba5c931d38275f21f1babbbe66fa6970",
       "state_after": "done",
-      "submitted_at": "1793556669.3238344",
-      "draft_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+      "submitted_at": "1793759431.792193",
+      "draft_sha256": "7d975c945728ae38e3231d31a410d3af71470272a78daf5d36a723f0b23cb7ff",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 2,
         "human_only_steps": [
           "fluent-review",
@@ -59,16 +59,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_18f3fb1b930c:KIT-FLYER-14:review",
+      "task_id": "er_fc313536942b:KIT-FLYER-14:review",
       "worker": "volunteer-reviewer-14",
       "key_id": "key_reviewer_14",
       "ok": true,
-      "receipt_sha256": "30f0196d34ea58c274805eee264c1422d044d7983ebd8dbe6a43f66e81e8ae21",
+      "receipt_sha256": "47220b235585d6601e44b14fec537197c46682f145aa59ad64987d7efb3829a1",
       "state_after": "done",
-      "submitted_at": "1793556669.349527",
+      "submitted_at": "1793759431.848493",
       "parked_for_steward": false,
       "steward_signoff": null,
-      "publication_sha256": "44ab998a41f917aa6a3c692af769445ba2b1bb5ec0d201739df9c25e400fd9d2"
+      "publication_sha256": "cfb005d80e6928eb8e1ecdf7837a18c527f143012291695fbb8e4136a042240c"
     }
   ],
   "outcome": "published",
@@ -83,14 +83,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "7c22355872eedfabface0850d5670565dee91962",
-    "tree_clean": true,
+    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-01T18:11:09Z"
+  "recorded_at": "2026-11-04T02:30:32Z"
 }

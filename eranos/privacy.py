@@ -53,7 +53,7 @@ def personal_data_findings(fields: dict[str, str]) -> list[str]:
             if pattern.search(text):
                 findings.append(f"{field}: {kind}")
         for line in text.splitlines():
-            if _RECORD_LINE.search(line) and "SYNTHETIC" not in line:
-                findings.append(f"{field}: a record about a person without a SYNTHETIC mark")
+            if _RECORD_LINE.search(line) and "SYNTHETIC" not in line and "MADE-UP" not in line:
+                findings.append(f"{field}: a record about a person without a MADE-UP mark")
                 break
     return list(dict.fromkeys(findings))

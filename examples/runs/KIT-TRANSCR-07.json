@@ -5,50 +5,50 @@
   "title": "Handwritten Statements to Text Kit",
   "example": {
     "path": "examples/kits/07-handwritten-statements-to-text.json",
-    "sha256": "95ee8ad351796be004a9cf7c8d8e642495d0f207d9e2a2a3818e043824921a04"
+    "sha256": "55041d1e9885a4039e4c0e320e0fdff29caa8eb481cf3d1fc0923afcb7fa0771"
   },
-  "inputs_sha256": "d8337d31a69bc4f8020ec7f76478a4396d43341c789e80135348614961ef10a4",
+  "inputs_sha256": "d9abcf13d688feaafbd83d6725157610a962c1a55a0c6b22f207597139cab726",
   "seed_pack": {
     "pack_id": "kit-handwritten-statements",
     "kit": {
       "store": "seedpack.kit-handwritten-statements",
       "key": "kit-handwritten-statements.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "66ff6202a4b6d9a416adeb68e3571c21c51b3d73a64368ecc18f3ebf044fd25c"
+      "value_sha256": "8c6d8916723401fadec30d19dd3866fa76146b7f5abe53299b5fbfcfb89cf1c7"
     },
     "request": {
       "store": "seedpack.kit-handwritten-statements",
       "key": "kit-handwritten-statements.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "2eeffcb37b54c2f095a73fb3f12851c3aab6e62f62e4b7f219cc548a44d4f842"
+      "value_sha256": "b5500d4cf6d2ed46e0a091a1bf8438165395c5b0547b9e2bfbab397cdc0eeef0"
     }
   },
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_2d722753461e:KIT-TRANSCR-07:spec",
+      "task_id": "er_f11c40106b52:KIT-TRANSCR-07:spec",
       "worker": "spec-gate-07",
       "key_id": "key_spec_07",
       "ok": true,
-      "receipt_sha256": "b09c9dd68433db1fb4e5ec453f92e8e6a19cb27a24ac7277316887856109606f",
+      "receipt_sha256": "b911ea93e848b436a75f93de965dbd26b6c53c76d7065a0c21e8628e46f4a4c6",
       "state_after": "done",
-      "submitted_at": "1793556669.0739625"
+      "submitted_at": "1793759430.9933681"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_2d722753461e:KIT-TRANSCR-07:draft",
+      "task_id": "er_f11c40106b52:KIT-TRANSCR-07:draft",
       "worker": "volunteer-drafter-07",
       "key_id": "key_drafter_07",
       "ok": true,
-      "receipt_sha256": "c6e7f69b1af7e224cedfb7c0d2e74fd5256996013fb5209e069296e08f9ab68c",
+      "receipt_sha256": "875b63d30fc1a755a310dc0ab2891093e8fcfc6c8aa56a5592eb842306419268",
       "state_after": "done",
-      "submitted_at": "1793556669.0796106",
-      "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+      "submitted_at": "1793759431.001617",
+      "draft_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 4,
         "human_only_steps": [
           "verify-readings",
@@ -61,16 +61,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_2d722753461e:KIT-TRANSCR-07:review",
+      "task_id": "er_f11c40106b52:KIT-TRANSCR-07:review",
       "worker": "volunteer-reviewer-07",
       "key_id": "key_reviewer_07",
       "ok": true,
-      "receipt_sha256": "026dbcd4af3b5e77ac74d0519a01bd76a2565aec040ad05c7ee14b2d1a4325f8",
+      "receipt_sha256": "b3fbf954e02839e86ca671f927180ed02271b28a71b70352d27796819b2a0d98",
       "state_after": "done",
-      "submitted_at": "1793556669.1060567",
+      "submitted_at": "1793759431.0491436",
       "parked_for_steward": true,
       "steward_signoff": "records-steward-lead",
-      "publication_sha256": "d4bf24c70b7f73d0edfdf311d3fdb48a93ca62a9381745657b4741a641402b3f"
+      "publication_sha256": "f74bac6573a5a15d06f9af230ac3e3f1ab5b5cdf0544f609cbe095798a8c396d"
     }
   ],
   "outcome": "published",
@@ -85,14 +85,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "7c22355872eedfabface0850d5670565dee91962",
-    "tree_clean": true,
+    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-01T18:11:09Z"
+  "recorded_at": "2026-11-04T02:30:32Z"
 }

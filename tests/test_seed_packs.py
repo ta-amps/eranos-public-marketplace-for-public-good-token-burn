@@ -59,7 +59,7 @@ def test_referenced_example_composes_from_its_pack_and_verifies(path: Path) -> N
     assert report.passed, report.issues
 
     asked = bundle["example_request"]
-    assert asked["mark"] == "SYNTHETIC"
+    assert asked["mark"] == "MADE-UP"
     assert asked["says"].startswith("We need ")
     assert "request a kit" not in asked["says"].lower()
     assert asked["noun"] == raw["seed_pack"]["request"]

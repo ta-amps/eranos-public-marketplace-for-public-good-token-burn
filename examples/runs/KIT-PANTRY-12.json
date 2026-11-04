@@ -5,50 +5,50 @@
   "title": "Food Bank Inventory and Pickup Scheduling Kit",
   "example": {
     "path": "examples/kits/12-food-bank-pickup-scheduling.json",
-    "sha256": "6ecc5c36fccba4b6918f2d5249194df61b9cca4a0e86c716eed57d2e50eb7e64"
+    "sha256": "1d465892bf5755c3cf590db0df9e710a688b6f890310c926ea488d33e6d37b6d"
   },
-  "inputs_sha256": "0959cd9d4d0fc7cfd655f671a9af197777e78bde2bf46feed621f243747acaf0",
+  "inputs_sha256": "27292781070b28abe3a05b709d558a7f688f1bf61415184bc368f127573d1a3b",
   "seed_pack": {
     "pack_id": "kit-food-bank-pickups",
     "kit": {
       "store": "seedpack.kit-food-bank-pickups",
       "key": "kit-food-bank-pickups.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "21c07cd04580223be8ad2c2d6d35810392cbe2eeef54cd37fb3cdaf9abe5e048"
+      "value_sha256": "c2938274f24de945d375a358bb9659f81ca08027651ef34659ce07d4391103b3"
     },
     "request": {
       "store": "seedpack.kit-food-bank-pickups",
       "key": "kit-food-bank-pickups.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "1a8dda65eb64a9910843578281a2d2f33c237207a18c7148d4431a0473099d42"
+      "value_sha256": "d5f1124979bf1ce481118d79a812d6e0e12700c0d905525419aac02bdbf6152a"
     }
   },
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_1f80a788c470:KIT-PANTRY-12:spec",
+      "task_id": "er_199a0b907676:KIT-PANTRY-12:spec",
       "worker": "spec-gate-12",
       "key_id": "key_spec_12",
       "ok": true,
-      "receipt_sha256": "a7e3c3fab363a3cb2efd96956529df2328f83120b5664d6fde75f1954cad6ea0",
+      "receipt_sha256": "55653d81130237f1706fc39ae9808a7ef4fd5a35caab6e28be91c4c61409c1c2",
       "state_after": "done",
-      "submitted_at": "1793556669.2562006"
+      "submitted_at": "1793759431.376286"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_1f80a788c470:KIT-PANTRY-12:draft",
+      "task_id": "er_199a0b907676:KIT-PANTRY-12:draft",
       "worker": "volunteer-drafter-12",
       "key_id": "key_drafter_12",
       "ok": true,
-      "receipt_sha256": "1b5639bb9c30117f8963e66843d3989a3578467557412ca5fa0d66df08eef8a8",
+      "receipt_sha256": "7298ff9b747e4b463bf0638b9f024f68c5d46cdb9b2c5db32b02b0385b4160bc",
       "state_after": "done",
-      "submitted_at": "1793556669.2620258",
-      "draft_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+      "submitted_at": "1793759431.390941",
+      "draft_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 3,
         "human_only_steps": [
           "decide-exceptions",
@@ -59,16 +59,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_1f80a788c470:KIT-PANTRY-12:review",
+      "task_id": "er_199a0b907676:KIT-PANTRY-12:review",
       "worker": "volunteer-reviewer-12",
       "key_id": "key_reviewer_12",
       "ok": true,
-      "receipt_sha256": "333a0562f0e62e4ed0eb3dba17f0d473b1201aa850f422c128bb06094d44efb5",
+      "receipt_sha256": "c08d8f5865c1e9e30f3c6d6ff0781ef0546a4946088278df03122d645d051b76",
       "state_after": "done",
-      "submitted_at": "1793556669.2775567",
+      "submitted_at": "1793759431.632133",
       "parked_for_steward": false,
       "steward_signoff": null,
-      "publication_sha256": "dc0dd6b84233e18b469581e4b31d1c43de28051f59e21bba0c41684b4c7636ff"
+      "publication_sha256": "4b7cf36c9acfd96cc93c087bfc61ade473ca3fbd297712622227ce502360dd11"
     }
   ],
   "outcome": "published",
@@ -83,14 +83,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "7c22355872eedfabface0850d5670565dee91962",
-    "tree_clean": true,
+    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-01T18:11:09Z"
+  "recorded_at": "2026-11-04T02:30:32Z"
 }

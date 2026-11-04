@@ -5,13 +5,13 @@
       "store": "seedpack.kit-funding-impact-summary",
       "key": "kit-funding-impact-summary.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "d5ffb966501b9a28c14acc2ce0e7f33ee7104ac230feae1250f987fbcdf98c41"
+      "value_sha256": "b4d9a862f9b773c04c0877328e8ace1c8d5d34d01716c02713e7f02c4b52f5b8"
     },
     "request": {
       "store": "seedpack.kit-funding-impact-summary",
       "key": "kit-funding-impact-summary.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "5bcf88c1d889362f96bbfb389a360b8df14793eb980fc20e69b61a6fa67ac461"
+      "value_sha256": "c02c443f22d9291837409a4c6addc22c0eba15d9f9a631cd5eeee2641a7da871"
     }
   },
   "request": {

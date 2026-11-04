@@ -5,50 +5,50 @@
   "title": "Disaster Relief Volunteer Shift Schedule Kit",
   "example": {
     "path": "examples/kits/11-volunteer-shift-schedule.json",
-    "sha256": "7944e79b944e0d5be7f29fe890af37d5c0ddf721433bbc4329b2ec8b4c6f2754"
+    "sha256": "0cc722d4b39607b107c5c37f766f25d8d724787e4854fefba091f2f954d4d00f"
   },
-  "inputs_sha256": "a0c62b7213e36fceb57276c124089c9ece9e743e675df7d0f65cd594331b2352",
+  "inputs_sha256": "13b48d5eea7d10b6f7a6d2a592b7442f834c0ad8a2995180c4c47c039d28cf5a",
   "seed_pack": {
     "pack_id": "kit-volunteer-shift-schedule",
     "kit": {
       "store": "seedpack.kit-volunteer-shift-schedule",
       "key": "kit-volunteer-shift-schedule.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "ca06a9390cd41678f8731ed03988f6d2bb0531d47b28db7c1babef1d807afca0"
+      "value_sha256": "64a876ca09d1b490979470d13b4262ac22d39b1dde0abc0ac39cc0cb3d5e9c73"
     },
     "request": {
       "store": "seedpack.kit-volunteer-shift-schedule",
       "key": "kit-volunteer-shift-schedule.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "d16c4b42f7619c121dc3839bf8eb7c2f3e448cd3e06c816236500de975002564"
+      "value_sha256": "44ff3104c643f63fde9b074274e62cefe5d227f936b5ddc69134a08aa5c2a2c4"
     }
   },
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_1f8243d3d821:KIT-RELIEF-11:spec",
+      "task_id": "er_507e78e3e425:KIT-RELIEF-11:spec",
       "worker": "spec-gate-11",
       "key_id": "key_spec_11",
       "ok": true,
-      "receipt_sha256": "7b46cf6746a53c92f6f171b2b667adb335d5dd5054bf969adfeac1d7b394df29",
+      "receipt_sha256": "12521b4e7a94d0c73f273582b75e62ed327d4286ad1d01272a1b2f6d71fac733",
       "state_after": "done",
-      "submitted_at": "1793556669.220307"
+      "submitted_at": "1793759431.2753298"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_1f8243d3d821:KIT-RELIEF-11:draft",
+      "task_id": "er_507e78e3e425:KIT-RELIEF-11:draft",
       "worker": "volunteer-drafter-11",
       "key_id": "key_drafter_11",
       "ok": true,
-      "receipt_sha256": "ab29bf12d7a4e574f68349452227c45d69ec4e8f4c3f6d884dcc664876bbb251",
+      "receipt_sha256": "38c9d368cd13381a716e89f46c8aefa727dfb1546906da52d95ff65a9d5daa23",
       "state_after": "done",
-      "submitted_at": "1793556669.225201",
-      "draft_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
+      "submitted_at": "1793759431.2936635",
+      "draft_sha256": "1035047ee9848d77790c0e6bac224f0147406878f46641d342c3bac8358a4723",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 3,
         "human_only_steps": [
           "confirm-placements",
@@ -60,16 +60,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_1f8243d3d821:KIT-RELIEF-11:review",
+      "task_id": "er_507e78e3e425:KIT-RELIEF-11:review",
       "worker": "volunteer-reviewer-11",
       "key_id": "key_reviewer_11",
       "ok": true,
-      "receipt_sha256": "1d4c5261f46e1b48e2d45aa3c265d3383964e3b7b66b629dabcbd5193038ea33",
+      "receipt_sha256": "63c66bd99f8ebff18e3ac5fadaddc7bbf8e21b826368d9f093ed55e68667e6f2",
       "state_after": "done",
-      "submitted_at": "1793556669.2395341",
+      "submitted_at": "1793759431.3327096",
       "parked_for_steward": false,
       "steward_signoff": null,
-      "publication_sha256": "52feb9ab5ea6b862a0828cbff782b0dc8ed355bf25d8eaf5c46384ba2c21d3eb"
+      "publication_sha256": "4edb1c5ec350328510f305be9b85c0f8b41ea94e8c50882d0a15a2497631a1ab"
     }
   ],
   "outcome": "published",
@@ -84,14 +84,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "7c22355872eedfabface0850d5670565dee91962",
-    "tree_clean": true,
+    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-01T18:11:09Z"
+  "recorded_at": "2026-11-04T02:30:32Z"
 }

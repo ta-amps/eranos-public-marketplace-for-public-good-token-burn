@@ -18,7 +18,7 @@ from typing import Any
 CASE_MARK = "Practice case: an example, not a real person or case."
 _WORD = re.compile("synthetic", re.IGNORECASE)
 _RULES: list[tuple[re.Pattern[str], str | Callable[[re.Match[str]], str]]] = [
-    (re.compile(r"SYNTHETIC:\s*"), CASE_MARK + " "),
+    (re.compile(r"(?:SYNTHETIC|MADE-UP):\s*"), CASE_MARK + " "),
     (re.compile(r"\bSYNTHETIC\b"), "practice-case"),
     (re.compile(r"synthetic_example"), "example"),
     (re.compile(r"synthetic_"), "example_"),

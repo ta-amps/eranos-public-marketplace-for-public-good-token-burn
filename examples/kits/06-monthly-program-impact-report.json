@@ -5,13 +5,13 @@
       "store": "seedpack.kit-monthly-impact-report",
       "key": "kit-monthly-impact-report.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "ce133f88abdd8074ffbc73e76b255ea5032a0802103634d4d310ea95056c64de"
+      "value_sha256": "2d937863b69f4418b48128a9fd3ea650bd96d12c6d0119f6bca56a8c8b05518d"
     },
     "request": {
       "store": "seedpack.kit-monthly-impact-report",
       "key": "kit-monthly-impact-report.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "f562c26ff17681a546b5435bc688c8a218d9c2e0b9b6b4f1500767ac23c5840e"
+      "value_sha256": "8cc5c7a74013dfca4ffbb2082e88da9e7a6db378109d3e66c9f291d6dfddc993"
     }
   },
   "request": {

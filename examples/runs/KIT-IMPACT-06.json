@@ -5,50 +5,50 @@
   "title": "Monthly Program Impact Report Kit",
   "example": {
     "path": "examples/kits/06-monthly-program-impact-report.json",
-    "sha256": "6505109d6ad8b42ecee1b181568678a1ed45b9d7ff7c1785a0ca253230bb62ba"
+    "sha256": "66049c4c23bc7d270dc36415c3528e13f5cfaf1cb65d301b61c2b4e7c4bbf845"
   },
-  "inputs_sha256": "4d1f45433f4607b6a3dba317c003ac3f6427c67faa4727509606e1078983538e",
+  "inputs_sha256": "8dab7f49c861acdecb7372a7c19205aed782a7919833ffd5e85dab2b079f349d",
   "seed_pack": {
     "pack_id": "kit-monthly-impact-report",
     "kit": {
       "store": "seedpack.kit-monthly-impact-report",
       "key": "kit-monthly-impact-report.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "ce133f88abdd8074ffbc73e76b255ea5032a0802103634d4d310ea95056c64de"
+      "value_sha256": "2d937863b69f4418b48128a9fd3ea650bd96d12c6d0119f6bca56a8c8b05518d"
     },
     "request": {
       "store": "seedpack.kit-monthly-impact-report",
       "key": "kit-monthly-impact-report.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "f562c26ff17681a546b5435bc688c8a218d9c2e0b9b6b4f1500767ac23c5840e"
+      "value_sha256": "8cc5c7a74013dfca4ffbb2082e88da9e7a6db378109d3e66c9f291d6dfddc993"
     }
   },
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_7c3511c727b7:KIT-IMPACT-06:spec",
+      "task_id": "er_5066cc8bddcd:KIT-IMPACT-06:spec",
       "worker": "spec-gate-06",
       "key_id": "key_spec_06",
       "ok": true,
-      "receipt_sha256": "3bb65d14e96d9d4924c89a34149b9dd4914a7461d86d67a83e3e7bd5fc8f74b5",
+      "receipt_sha256": "c447bbaf5bfc73b45163072f6eeeab9bd7c28afe6dbae66dd6256a2e768aec29",
       "state_after": "done",
-      "submitted_at": "1793556669.0401936"
+      "submitted_at": "1793759430.9547458"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_7c3511c727b7:KIT-IMPACT-06:draft",
+      "task_id": "er_5066cc8bddcd:KIT-IMPACT-06:draft",
       "worker": "volunteer-drafter-06",
       "key_id": "key_drafter_06",
       "ok": true,
-      "receipt_sha256": "24cec5514684dd2ce90daef848b1d2ba35480f667e4bdc0f0431f989fd257154",
+      "receipt_sha256": "8715caf68a9837db44dc60c9a72f61491f9b0a2f915714b6317b3520919e8324",
       "state_after": "done",
-      "submitted_at": "1793556669.0453749",
-      "draft_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
+      "submitted_at": "1793759430.9617045",
+      "draft_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
       "verification": {
         "passed": true,
-        "checks_run": 8,
+        "checks_run": 9,
         "fixtures": 3,
         "human_only_steps": [
           "check-figures",
@@ -60,16 +60,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_7c3511c727b7:KIT-IMPACT-06:review",
+      "task_id": "er_5066cc8bddcd:KIT-IMPACT-06:review",
       "worker": "volunteer-reviewer-06",
       "key_id": "key_reviewer_06",
       "ok": true,
-      "receipt_sha256": "fef72c4c0c5e6770e2b6aa71a843bc6e26e0e054b00ca05eb3f0cbea8b6d6b7a",
+      "receipt_sha256": "867a9c269bb4beb3aaa776b0d50f2e31c311b466c029f07e086eede5e0b127dd",
       "state_after": "done",
-      "submitted_at": "1793556669.0565143",
+      "submitted_at": "1793759430.9764826",
       "parked_for_steward": false,
       "steward_signoff": null,
-      "publication_sha256": "ab5d62bc07bb87f7d828602411e71eba954f57b27c342e6cd34d5f10ae1dd0e2"
+      "publication_sha256": "a5cfe2e0cc94f3d87ec0c2fb063f880027ab96c3cc0b8980b66cb8de85beb93d"
     }
   ],
   "outcome": "published",
@@ -84,14 +84,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "7c22355872eedfabface0850d5670565dee91962",
-    "tree_clean": true,
+    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
+    "tree_clean": false,
     "seed_pack_library": {
-      "commit": "c377996e670e85129bd161245220907d2fdded4e",
+      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-01T18:11:09Z"
+  "recorded_at": "2026-11-04T02:30:32Z"
 }

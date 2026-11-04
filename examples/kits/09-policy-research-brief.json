@@ -5,13 +5,13 @@
       "store": "seedpack.kit-policy-research-brief",
       "key": "kit-policy-research-brief.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "f2e6bcf021dd849df0e2d1504c7132f30deac70d76e5905929653ba0dec038d0"
+      "value_sha256": "b1a69b86b658b34db9c4f9066a3dcd779062b3bff7bb9bd78f3fe0907a84e66b"
     },
     "request": {
       "store": "seedpack.kit-policy-research-brief",
       "key": "kit-policy-research-brief.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "5dd6bf9cc3eb41da44f90e53319118db8cbfa93e23284a0c39a496b628dc7048"
+      "value_sha256": "dd13af6ee8b3eea27d5eef6363cf44d42e5282066698edd11611477ca5cbe373"
     }
   },
   "request": {

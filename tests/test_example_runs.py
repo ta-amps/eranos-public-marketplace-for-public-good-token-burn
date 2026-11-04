@@ -63,7 +63,7 @@ def test_the_site_reads_needs_and_run_counts_from_these_nouns() -> None:
     payload = examples_payload(load_example_bundles(), load_example_runs())
     assert payload["runs"]["count"] == len(load_example_bundles())
     assert payload["runs"]["label"].endswith(", synthetic data")
-    assert payload["needs"] and all(need["mark"] == "SYNTHETIC" for need in payload["needs"])
+    assert payload["needs"] and all(need["mark"] == "MADE-UP" for need in payload["needs"])
     for name in ("snapshot", "public/snapshot"):
         shown = json.loads((root / "web" / name / "examples.json").read_text(encoding="utf-8"))
         # The snapshot holds the payload in visitors' words (eranos/visible.py).

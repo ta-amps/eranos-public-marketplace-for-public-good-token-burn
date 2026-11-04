@@ -5,13 +5,13 @@
       "store": "seedpack.kit-food-bank-pickups",
       "key": "kit-food-bank-pickups.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "21c07cd04580223be8ad2c2d6d35810392cbe2eeef54cd37fb3cdaf9abe5e048"
+      "value_sha256": "c2938274f24de945d375a358bb9659f81ca08027651ef34659ce07d4391103b3"
     },
     "request": {
       "store": "seedpack.kit-food-bank-pickups",
       "key": "kit-food-bank-pickups.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "1a8dda65eb64a9910843578281a2d2f33c237207a18c7148d4431a0473099d42"
+      "value_sha256": "d5f1124979bf1ce481118d79a812d6e0e12700c0d905525419aac02bdbf6152a"
     }
   },
   "request": {

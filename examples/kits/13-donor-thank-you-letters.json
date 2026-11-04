@@ -5,13 +5,13 @@
       "store": "seedpack.kit-donor-thank-you-letters",
       "key": "kit-donor-thank-you-letters.v0.1.0.kit",
       "version": 1,
-      "value_sha256": "f44cc42c6db7147cc0971bbcdeebc794d11a55c5e0d1b9e2d94c650246adf3b7"
+      "value_sha256": "1d7c3ae605cc653c8460146318845d0e9bc72b37c7587e837dfd1782f48879f6"
     },
     "request": {
       "store": "seedpack.kit-donor-thank-you-letters",
       "key": "kit-donor-thank-you-letters.v0.1.0.example.request",
       "version": 1,
-      "value_sha256": "5f016c00c556769c1a77df483e7558474b05cb28d41617455eb1680abb739f0d"
+      "value_sha256": "a16055b73cbf5db41653337751f9f2f3cd99fa2571b7134b0ac205d04a31d950"
     }
   },
   "request": {

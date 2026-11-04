@@ -163,7 +163,7 @@ def compose_bundle(
     asked = pack.value(ref["request"], "seed_pack.request", "request")
     tests = pack.value(kit["test_cases"], "kit.test_cases", "test_cases")
     for name, noun in (("request", asked), ("test cases", tests)):
-        if noun.get("content_kind") != "synthetic_example":
+        if noun.get("content_kind") not in ("made_up_example", "synthetic_example"):
             raise SeedPackError(f"the pack's {name} must be marked as a synthetic example")
     track = get_track(str(envelope.get("track_id", "")), tracks_root)
 
@@ -215,9 +215,13 @@ def compose_bundle(
     composed["draft"] = draft
     composed["seed_pack"] = dict(ref)
     says = asked.get("says")
-    if not isinstance(says, str) or not says.strip() or asked.get("mark") != "SYNTHETIC":
+    if (
+        not isinstance(says, str)
+        or not says.strip()
+        or asked.get("mark") not in ("MADE-UP", "SYNTHETIC")
+    ):
         raise SeedPackError(
-            "the pack's request says what is needed in plain words and is marked SYNTHETIC"
+            "the pack's request says what is needed in plain words and is marked MADE-UP"
         )
     composed["example_request"] = {
         "title": asked["title"],

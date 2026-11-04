@@ -147,7 +147,7 @@ def research_report(brief: dict[str, Any]) -> dict[str, Any]:
     claims: list[dict[str, Any]] = []
     for source in scanned:
         for sentence in _SENTENCE.split(str(source.get("text", ""))):
-            if sentence.startswith("SYNTHETIC") or not (wanted & _words(sentence)):
+            if sentence.startswith(("SYNTHETIC", "MADE-UP")) or not (wanted & _words(sentence)):
                 continue
             claims.append(
                 {
