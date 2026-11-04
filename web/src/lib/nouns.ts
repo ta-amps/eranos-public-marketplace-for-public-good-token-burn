@@ -138,7 +138,7 @@ export interface ShellNoun {
   external_note: string;
   menu: { button: string; open_label: string; close: string; close_label: string; sheet_label: string };
   /** SiteFooter v2 (ta-amps.footer/2, Nov 2): the brand, ONE row of links in the canonical order, and one short line. */
-  footer: { brand?: string; line: string; links_label: string; links: NounLink[] };
+  footer: { brand?: string; line: string; beta_note?: string; links_label: string; links: NounLink[] };
   /** What a page that failed to draw says instead of going blank (the app's error boundary). */
   page_error?: { title: string; body: string; reload: string; home: string };
 }

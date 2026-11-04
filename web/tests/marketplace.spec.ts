@@ -584,6 +584,15 @@ test.describe("wording and accessibility", () => {
     expect(dark.text).toBe(light.text);
   });
 
+  test("the small beta note sits under the footer, not in it", async ({ page }) => {
+    await page.goto("/");
+    const note = page.getByTestId("beta-note");
+    await expect(note).toHaveText("Beta until 2027. Open to everyone; your experience may vary.");
+    await expect(note).toHaveCSS("font-size", "11px");
+    await expect(page.locator("footer.er-footer").getByTestId("beta-note")).toHaveCount(0);
+    await expect(page.getByTestId("footer-line")).toHaveText("We don’t accept private information at this stage.");
+  });
+
   test("the footer is the standard one: one row of links and one short line (ta-amps.footer/1, rule 13)", async ({ page }) => {
     for (const path of ["/", "/help", "/nonprofits", "/connect"]) {
       await page.goto(path);

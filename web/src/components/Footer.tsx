@@ -5,12 +5,14 @@ import { Mark } from "./Mark";
 /**
  * The standard footer (ta-amps.footer/2, MUST-FOLLOW rule 13): the tile mark and the name, ONE row of links in the
  * canonical order (a link to another host is absolute and carries ↗), and one short line: the privacy line. Every
- * word is the `shell` noun's footer. The agent links live in the banner above every page.
+ * word is the `shell` noun's footer. The agent links live in the banner above every page. The beta note sits under
+ * the footer, not in it, so the footer keeps its one row and one line.
  */
 export function Footer({ shell }: { shell: ShellNoun | null; site: SiteNoun | null }) {
   if (!shell) return <footer className="er-footer er-site-footer" />;
   return (
-    <footer className="er-footer er-site-footer">
+    <>
+      <footer className="er-footer er-site-footer">
       <div className="er-site-footer-row">
         <span className="er-site-footer-name">
           <Mark size={20} />
@@ -34,5 +36,11 @@ export function Footer({ shell }: { shell: ShellNoun | null; site: SiteNoun | nu
         {shell.footer.line}
       </p>
     </footer>
+    {shell.footer.beta_note ? (
+      <p className="er-site-beta-note" data-testid="beta-note">
+        {shell.footer.beta_note}
+      </p>
+    ) : null}
+    </>
   );
 }

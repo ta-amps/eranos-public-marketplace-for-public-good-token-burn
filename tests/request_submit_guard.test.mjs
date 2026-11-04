@@ -33,6 +33,7 @@ function fixture({ wait = 0, matches = false, rejectLookupOnce = false } = {}) {
     navigator: { onLine: true },
     draft: { text: 'Example public grant deadlines', name: 'Example group', type: 'Community group', causes: '', links: '', frequency: 'one-off', cadence: '' },
     newRequest: { current: false },
+    acceptUnaudited: false,
     fetchCachedLibrary() { lookupCalls++; return rejectLookupOnce && lookupCalls === 1 ? Promise.reject(new Error('Fixture lookup failed')) : lookup; },
     searchLibrary() { return matches ? [{ id: 'fixture-process', title: 'An existing example' }] : []; },
     setHits(value) { state.hits = value; },

@@ -92,7 +92,8 @@
         "to": "/report"
       }
     ],
-    "line": "We don’t accept private information at this stage."
+    "line": "We don’t accept private information at this stage.",
+    "beta_note": "Beta until 2027. Open to everyone; your experience may vary."
   },
   "right": {
     "href": "https://agora.eranosforgood.org/how-it-works/",
