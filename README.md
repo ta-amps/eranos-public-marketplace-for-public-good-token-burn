@@ -52,7 +52,7 @@ Report once, with your result. A different worker checks it.
 
 ## Which Meta models do what
 
-Across our repositories ([Eranos](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn), [Agora](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution), [Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine), [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents), and [seed-packs](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)), Meta open-weights models, fine-tuned PEFT/QLoRA adapters, Meta Model API endpoints, and multimodal vision/audio pipelines handle distinct, measured roles:
+Across our repositories ([Eranos](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn), [Agora](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution), [Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine), [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents), and [seed-packs](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)), Muse Glimmer 30B, fine-tuned PEFT/QLoRA adapters, Meta Model API endpoints, and multimodal vision/audio pipelines handle distinct, measured roles:
 
 | Meta model / tool | Role in the system | Measured result & checking |
 | --- | --- | --- |
