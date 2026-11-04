@@ -292,7 +292,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (39)
+## tests/ (37)
 
 | File | What it is |
 |---|---|
@@ -314,8 +314,6 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tests/test_kit_model_review.py`](tests/test_kit_model_review.py) | A kit publishes only after a model other than the maker's read every word; there's no person's step. |
 | [`tests/test_light_ui_only.py`](tests/test_light_ui_only.py) | Mechanical light-UI-only conformance gate for Eranos. |
 | [`tests/test_made_up_mark.py`](tests/test_made_up_mark.py) | The hosted practice check and page text treat the MADE-UP mark as the Python check does. |
-| [`tests/test_marketplace_site.py`](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
-| [`tests/test_marketplace_site.py`](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [`tests/test_marketplace_site.py`](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [`tests/test_model_client.py`](tests/test_model_client.py) | The workers' Meta client: standard tier only, the key from its file, caps before any call, no fallback. |
 | [`tests/test_open_contribution.py`](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |
