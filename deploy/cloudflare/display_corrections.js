@@ -1,30 +1,64 @@
-// Claims whose wording dropped a qualifier its source has. Pages and reads show the source's exact words instead; the
-// stored record is never changed, and the shown record says which claims this touched.
+// Corrections to what pages and reads show of delivered reports. A stored record is never changed, and a shown record
+// says what was changed. From a read of every delivered report on Nov 4; the list is in COORDINATION.
 const SHOWN_AS_QUOTES = { "RPT-RC676414-01": ["C1", "C2", "C3"] };
-// Claims from an off-topic source: off public display, and so is a source nothing else cites.
-const OFF_TOPIC = { "RPT-RC676414-01": ["C5", "C6"] };
+const OFF_TOPIC = {
+  "RPT-RC676414-01": ["C5", "C6"],
+  "RPT-R418249C-01": ["C5"],
+  "RPT-R4834064-01": ["C1", "C2", "C3", "C4"],
+  "RPT-R53372FA-01": ["C2"],
+  "RPT-R7B15D81-01": ["C2"],
+};
+const TAKEN_OFF = new Set([
+  "RPT-R9CE6D53-01",
+  "RPT-R709418C-01",
+  "RPT-RD865E06-01",
+  "RPT-RF92DA4E-01",
+  "RPT-RF0D3C3D-01",
+]);
+const TAKEN_OFF_NOTE = "We took this report off display: its sources didn't answer the question. Please ask again, with a link to a page you trust if you have one.";
+const COUNT_LINE = /^\d+ cited points? from \d+ public sources?\./;
+
+function countLine(claims, sources) {
+  return `${claims.length} cited point${claims.length === 1 ? "" : "s"} from ${sources.length} public source${sources.length === 1 ? "" : "s"}.`;
+}
 
 export function withExactQuotes(noun) {
   const report = noun?.value?.report;
-  const ids = noun?.store === "eranos.solutions" && report ? SHOWN_AS_QUOTES[noun.key] : undefined;
-  if (!ids || !Array.isArray(report.claims)) return noun;
-  let summary = String(report.summary ?? "");
+  if (noun?.store !== "eranos.solutions" || !report || !Array.isArray(report.claims)) return noun;
+  if (TAKEN_OFF.has(noun.key)) {
+    return { ...noun, value: { ...noun.value, report: { ...report, claims: [], sources: [], summary: TAKEN_OFF_NOTE, taken_off_display: true } } };
+  }
+  const exact = SHOWN_AS_QUOTES[noun.key] ?? [];
   const off = OFF_TOPIC[noun.key] ?? [];
-  const claims = report.claims
-    .filter((claim) => !off.includes(claim?.id))
-    .map((claim) => {
-      const quote = claim?.citations?.[0]?.quote;
-      if (!ids.includes(claim?.id) || !quote) return claim;
+  if (!exact.length && !off.length) return noun;
+  let summary = String(report.summary ?? "");
+  const claims = [];
+  for (const claim of report.claims) {
+    if (off.includes(claim?.id)) {
+      summary = summary.replace(String(claim.text), "");
+      continue;
+    }
+    const quote = claim?.citations?.[0]?.quote;
+    if (exact.includes(claim?.id) && quote) {
       summary = summary.replace(String(claim.text), quote);
-      return { ...claim, text: quote, shown_as_quote: true };
-    });
+      claims.push({ ...claim, text: quote, shown_as_quote: true });
+    } else {
+      claims.push(claim);
+    }
+  }
   const cited = new Set(claims.flatMap((claim) => (claim?.citations ?? []).map((c) => c.source)));
-  const sources = Array.isArray(report.sources) ? report.sources.filter((source) => cited.has(source?.id)) : report.sources;
-  if (off.length && Array.isArray(sources)) {
-    summary = summary.replace(
-      /^\d+ cited points? from \d+ public sources?\./,
-      `${claims.length} cited point${claims.length === 1 ? "" : "s"} from ${sources.length} public source${sources.length === 1 ? "" : "s"}.`,
-    );
+  const sources = Array.isArray(report.sources) ? report.sources.filter((source) => cited.has(source?.id)) : [];
+  if (off.length) {
+    summary = summary.replace(COUNT_LINE, countLine(claims, sources)).replace(/\s+/g, " ").trim();
+    // The summary quotes the first claims: when all of those came off, the first one left takes their place.
+    if (claims[0] && !claims.some((claim) => summary.includes(String(claim.text)))) {
+      summary = summary.replace(COUNT_LINE, (line) => `${line} ${claims[0].text}`);
+    }
   }
   return { ...noun, value: { ...noun.value, report: { ...report, claims, sources, summary } } };
+}
+
+/** A report taken off display isn't listed at all. */
+export function isListed(record) {
+  return !TAKEN_OFF.has(record?.key);
 }
