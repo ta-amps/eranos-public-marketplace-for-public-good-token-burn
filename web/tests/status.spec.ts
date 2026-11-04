@@ -80,6 +80,8 @@ test.describe("on the hosted build", () => {
     await page.getByRole("button", { name: "Send request", exact: true }).click();
     const libraryCheck = page.getByTestId("library-check");
     await expect(libraryCheck).toBeVisible();
+    await expect(libraryCheck.getByRole("heading")).toHaveText("Similar answers in the shared library");
+    await expect(page.getByRole("button", { name: "Send request", exact: true })).toBeHidden();
     await libraryCheck.getByRole("button", { name: "Send as a new request" }).click();
     await expect(page.getByTestId("request-problem")).toBeVisible();
     // Shared-library suggestions remain visible while rate-limited so the requester can read matching kits or retry cleanly.

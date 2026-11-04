@@ -673,14 +673,17 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
         </section>
       )}
 
-      <div className="er-send-row">
-        <button type="submit" className="er-btn-primary er-btn-large" aria-disabled={!canSend} disabled={sending || Boolean(waitingUntil)}>
-          {sendLabel}
-        </button>
-        <p className="er-send-note" data-testid="send-note">
-          {canSend ? form.ready_note : notReady || form.after_send}
-        </p>
-      </div>
+      {/* While the library suggestions show, their own button is the one way to send, so two send buttons never compete. */}
+      {!(hits && libraryWords) && (
+        <div className="er-send-row">
+          <button type="submit" className="er-btn-primary er-btn-large" aria-disabled={!canSend} disabled={sending || Boolean(waitingUntil)}>
+            {sendLabel}
+          </button>
+          <p className="er-send-note" data-testid="send-note">
+            {canSend ? form.ready_note : notReady || form.after_send}
+          </p>
+        </div>
+      )}
       {queue && (
         <p className="er-small" data-testid="queue-line">
           {fill(form.hosted, { waiting: queue.waiting, working: queue.working + queue.checking })}

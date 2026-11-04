@@ -97,11 +97,11 @@
  "stored_empty": "Parts of {short} join the shared library when your team chooses to use them.",
  "back": "← Back to {short}",
  "check": {
-  "title": "Already answered in the shared library",
-  "lead": "These may already answer your request.",
+  "title": "Similar answers in the shared library",
+  "lead": "These came up in a search. They may or may not fit your request.",
   "read": "Read it now",
   "read_note": "Found by search. Reading it needs no new agent work.",
   "send": "Send as a new request",
-  "send_note": "Only if these don’t answer it."
+  "send_note": "If none of these fit."
  }
 }

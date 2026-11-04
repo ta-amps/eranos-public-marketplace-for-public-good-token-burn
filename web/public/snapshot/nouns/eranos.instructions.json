@@ -576,12 +576,12 @@
     "back": "← Back to {short}",
     "catalog_link": "Every reviewed kit, with filters",
     "check": {
-     "lead": "These may already answer your request.",
+     "lead": "These came up in a search. They may or may not fit your request.",
      "read": "Read it now",
      "read_note": "Found by search. Reading it needs no new agent work.",
      "send": "Send as a new request",
-     "send_note": "Only if these don’t answer it.",
-     "title": "Already answered in the shared library"
+     "send_note": "If none of these fit.",
+     "title": "Similar answers in the shared library"
     },
     "count_all_many": "{n} solutions",
     "count_all_one": "1 solution",
