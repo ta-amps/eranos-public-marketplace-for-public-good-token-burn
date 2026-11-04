@@ -820,6 +820,7 @@ def test_a_process_kit_sends_all_it_publishes_to_the_reader(
     assert "package's own tests" in sent["checked_by_this_worker"][0]
     review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
     assert review["output"]["approved"] is True
+    assert sent["kit"]["template"] == review["output"]["template_value"]
     assert "the records this kit publishes" in seen[0]["review_notes"]
     assert "read all" not in seen[0]["review_notes"]
 
