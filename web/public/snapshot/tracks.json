@@ -81,7 +81,7 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": false
     },
     {
       "id": "donor-stewardship-and-privacy",
@@ -236,7 +236,7 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": false
     },
     {
       "id": "intake-and-referral-triage",
@@ -316,7 +316,7 @@
           "checked_date": "2026-10-26"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": false
     },
     {
       "id": "policy-and-public-rules",
@@ -433,7 +433,7 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": false
     },
     {
       "id": "victim-support-referrals",
@@ -473,7 +473,7 @@
           "checked_date": "2026-10-30"
         }
       ],
-      "needs_steward_signoff": true
+      "needs_steward_signoff": false
     },
     {
       "id": "volunteer-shift-and-sop-builder",

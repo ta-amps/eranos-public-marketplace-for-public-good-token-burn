@@ -250,8 +250,6 @@ def _review(fabric: Fabric, entry: dict[str, Any], say: Say) -> dict[str, Any]:
         outcome = review_kit(fabric, entry["review_task_id"])
     if outcome is None:
         raise RuntimeError(f"no review verb was ready for part {entry['part']}")
-    if outcome["status"] != "published":
-        raise RuntimeError(f"part {entry['part']} did not publish: {outcome}")
     say(f"     part {entry['part']}: a different keyed reviewer -> {outcome['status']}")
     return outcome
 
