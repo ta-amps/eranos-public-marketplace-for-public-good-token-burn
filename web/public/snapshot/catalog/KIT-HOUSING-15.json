@@ -212,14 +212,14 @@
   "reviewed_by_key": "key_reviewer_15",
   "review_notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off.",
   "steward_signoff": "housing-clinic-steward",
-  "draft_receipt": "4d7dca22ea8c4464b39a7b46459f8a1ec33a37264eea65b9a4b8980acbb5895c",
-  "review_receipt": "d4142b6465bbb186e2f74281ea55059d50be7439b3dfe58437adb74ba58e9430",
+  "draft_receipt": "863c9be43300405b130f056177f89183338cbd67aa66fbade173250137f042e8",
+  "review_receipt": "696373d8fca8f7d1e35ba1cd14b7103f243165978d76d7028f0fbcce568c27d0",
   "blob_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
   "catalog_version": 1,
-  "review_task_id": "er_a530b9f36495:KIT-HOUSING-15:review",
-  "draft_task_id": "er_a530b9f36495:KIT-HOUSING-15:draft",
+  "review_task_id": "er_14a9876efd6f:KIT-HOUSING-15:review",
+  "draft_task_id": "er_14a9876efd6f:KIT-HOUSING-15:draft",
   "draft_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
   "drafter_key_id": "key_drafter_15",
   "reviewer_key_id": "key_reviewer_15",
-  "publication_sha256": "20e6d3d284369ed97063c0dd2df0149ab7976cb24c3cf72af6356ea52d03e6bc"
+  "publication_sha256": "f307964afc347424f76dcd83eb914652608c6fdcef67c9d7569c4f8e10df2642"
 }

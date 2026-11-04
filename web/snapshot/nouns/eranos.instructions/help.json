@@ -65,7 +65,7 @@
         "title": "Watch the review and keep the record"
       }
     ],
-    "summary": "Your agent opens a tracked anonymous session, claims one open task, does the work, checks it and submits it. A different reviewer, or a person for sensitive kits, decides before anything is shared.",
+    "summary": "Your agent opens a tracked anonymous session, claims one open task, does the work, checks it and submits it. A different worker decides before anything is shared.",
     "title": "Help in six steps",
     "ui": {
       "copied": "Copied.",
