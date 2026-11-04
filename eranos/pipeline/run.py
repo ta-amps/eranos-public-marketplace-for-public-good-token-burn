@@ -185,6 +185,12 @@ def _claim_with_key(
     return backend.claim(queue, worker, **kwargs)
 
 
+def brief_kit_id(brief: dict[str, Any]) -> str | None:
+    """The kit a review's brief is for: a request part's own id, or the example kit's request. None refuses every draft."""
+    request = brief.get("request")
+    return brief.get("kit_id") or (request.get("kit_id") if isinstance(request, dict) else None)
+
+
 def draft_digests(raw_draft: Any, draft: KitDraft) -> set[str]:
     """The two accepted content digests of a draft: canonical JSON as submitted, or the stored blob."""
     stored = json.dumps(draft.model_dump(mode="json"), sort_keys=True).encode("utf-8")
@@ -672,22 +678,25 @@ def run_review_step(
     key_id: str,
     tracks_root: Path | None = None,
 ) -> dict[str, Any] | None:
-    # An interrupted approval is finished only by a current approval: a new "no" never publishes an old yes.
-    if decision.verdict == "approved":
+    lease = _claim_with_key(backend, "eq03", worker, key_id=key_id, kinds=["review"])
+    if lease is None:
+        # Nothing to review: only then can a current approval finish an interrupted one. With a lease in
+        # hand, this decision is about the lease's own draft and its own intent replaces any older one,
+        # so an old approval never publishes in its place and the lease is never left behind.
+        if decision.verdict != "approved":
+            return None
         with _eranos_surface_scope(backend):
             recovered = recover_publications(
                 backend, _publish_to_catalog, kit_id=decision.kit_id, key_id=key_id
             )
-        if recovered is not None:
-            return {
-                "node": "review",
-                "status": "published",
-                "kit_id": recovered.kit.kit_id,
-                "published": recovered.model_dump(mode="json"),
-            }
-    lease = _claim_with_key(backend, "eq03", worker, key_id=key_id, kinds=["review"])
-    if lease is None:
-        return None
+        if recovered is None:
+            return None
+        return {
+            "node": "review",
+            "status": "published",
+            "kit_id": recovered.kit.kit_id,
+            "published": recovered.model_dump(mode="json"),
+        }
     brief = lease.brief if isinstance(lease.brief, dict) else {}
     request_id, part = brief.get("request_id"), brief.get("part")
     dep_res = lease.dependencies[0]
@@ -698,7 +707,7 @@ def run_review_step(
 
     draft = KitDraft.model_validate(dep_res.output["draft"])
     # A build verb's result answers its own brief: an open build cannot replace another kit.
-    if (brief.get("kit_id") and draft.kit_id != brief["kit_id"]) or (
+    if draft.kit_id != brief_kit_id(brief) or (
         brief.get("track_id") and draft.track_id != brief["track_id"]
     ):
         backend.submit(
@@ -762,17 +771,17 @@ def run_review_step(
     if request_id and part is not None:
         update_request_part(backend, str(request_id), part, "in_review")
     if decision.verdict == "approved" and (not upstream_report.passed or not reverified.passed):
-        issues = reverified.issues or upstream_report.issues
+        count = len(reverified.issues or upstream_report.issues)
         backend.submit(
             lease.task_id,
             lease.fencing_token,
             {"node": "review", "status": "rejected_unverified", "kit_id": draft.kit_id},
             idempotency_key=f"{lease.task_id}:{lease.fencing_token}",
             ok=False,
-            error=f"unverified draft refused: {'; '.join(issues)}",
+            error=f"unverified draft refused: {count} issue(s)",
         )
         raise UnverifiedKitRefused(
-            f"cannot approve {draft.kit_id}: failed deterministic checks ({'; '.join(issues)})"
+            f"cannot approve {draft.kit_id}: failed deterministic checks ({count} issue(s))"
         )
     report = reverified
 

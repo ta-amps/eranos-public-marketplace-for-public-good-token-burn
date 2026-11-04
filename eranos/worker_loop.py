@@ -35,6 +35,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import httpx
+from pydantic import ValidationError
 from tessera import (
     InvalidState,
     Lease,
@@ -67,7 +68,14 @@ from eranos.pacing import CountingTransport, RequestCounter, hourly_summary, pok
 from eranos.pipeline import load_example_bundles, research
 from eranos.pipeline import process as process_part
 from eranos.pipeline import tuning as tuning_mod
-from eranos.pipeline.model_review import maker_model_of, pick_review_model, read_kit
+from eranos.pipeline.model_review import (
+    ALL_KIT_TEXT,
+    MAX_KIT_BYTES,
+    REVIEW_MODELS,
+    maker_model_of,
+    pick_review_model,
+    read_kit,
+)
 from eranos.pipeline.plain_words import forbidden, plain
 from eranos.pipeline.planner import Planner, load_nouns
 from eranos.pipeline.reuse_check import (
@@ -81,6 +89,7 @@ from eranos.pipeline.reuse_check import (
 )
 from eranos.pipeline.run import (
     SelfReviewRefused,
+    brief_kit_id,
     draft_digests,
     run_draft_step,
     run_review_step,
@@ -88,7 +97,7 @@ from eranos.pipeline.run import (
 )
 from eranos.pipeline.status_events import fact, queue_snapshot, record_events
 from eranos.privacy import text_personal_findings
-from eranos.schemas import KitDraft, ReviewDecision
+from eranos.schemas import KitDraft, ReviewDecision, VerificationReport
 from eranos.sources import Fetched, fetch, policy_from_rules
 from eranos.tracks import get_track
 from eranos.verifier import verify_kit
@@ -107,7 +116,29 @@ VOLUNTEER_KINDS = frozenset({"research", "report_review"})
 MODEL_STEPS = {"research": "make", "report_review": "check"}
 # Verbs that need a model to answer, so none is claimed while it cannot (the reuse check runs the
 # worker noun's fixed model, not a tuned variant).
-MODEL_KINDS = frozenset({*MODEL_STEPS, REUSE_KIND, "review", process_part.REVIEW_KIND})
+READER_KINDS = frozenset({"review", process_part.REVIEW_KIND})
+MODEL_KINDS = frozenset({*MODEL_STEPS, REUSE_KIND, *READER_KINDS})
+
+
+class _ReadersOut(Exception):
+    """The kit reader can't answer now; other model work may still run."""
+
+
+def public_failure(exc: BaseException) -> str:
+    """A failure as public records may say it: its kind and counts. Validation errors quote their
+    input, and any other message may quote a maker's text."""
+    if isinstance(exc, ValidationError):
+        return f"{type(exc).__name__}: {exc.error_count()} field(s) failed"
+    if isinstance(exc, KeyError):
+        return f"{type(exc).__name__}: a field is missing"
+    text = f"{type(exc).__name__}: {str(exc)[:900]}"
+    return (
+        f"{type(exc).__name__}: details are in the worker's log"
+        if text_personal_findings(text)
+        else text
+    )
+
+
 MODEL_CATALOG = ("eranos.instructions", "models.meta")
 LOCAL_CATALOG = Path(__file__).resolve().parents[1] / "instructions" / "models.meta.json"
 DECLARED = {
@@ -116,8 +147,8 @@ DECLARED = {
     "report_review": "deterministic re-fetch and quote check (no model)",
     "spec": "deterministic scope check (no model)",
     "draft": "example kit in plain words (no model)",
-    "review": "fixed kit checks, then a model other than the maker's reads every word",
-    process_part.REVIEW_KIND: "process handler review, in a clean process, then a model other than the maker's reads every word",
+    "review": "fixed kit checks, then a model other than the maker's reads all the kit's text",
+    process_part.REVIEW_KIND: "process handler review of the bundle's files in a clean process, then a model other than the maker's reads the records it publishes",
     REUSE_KIND: "a Muse model checks that a library answer fits the request",
 }
 EXIT_STORAGE_ALLOWANCE = (
@@ -802,6 +833,10 @@ class Worker:
                 if hasattr(model, "healthy"):
                     model.healthy()
                 model.describe()
+                self._reader_can_answer(kinds)
+            except _ReadersOut as exc:  # the kit reader can't answer: research and the rest go on
+                self.trace.write("kit_reader_unavailable", level="warning", error=str(exc)[:200])
+                kinds = [k for k in kinds if k not in READER_KINDS]
             except (
                 ModelUnavailable
             ) as exc:  # includes a spent cap: nothing is claimed that needs it
@@ -813,6 +848,19 @@ class Worker:
                 self.trace.write(event, level="warning", error=str(exc)[:200])
                 kinds = [k for k in kinds if k not in MODEL_KINDS]
         return kinds
+
+    def _reader_can_answer(self, kinds: list[str]) -> None:
+        """A review is claimed only if the dearest reader could read the largest kit under the caps, so a
+        normal cap day leaves reviews queued. If a call still fails after the claim, for example in a true
+        outage, the attempt is used up: see docs/agent-workflow.md for how to release a dead review."""
+        if not any(k in READER_KINDS for k in kinds):
+            return
+        try:
+            reader = self.meta(REVIEW_MODELS[0])
+            if hasattr(reader, "afford"):
+                reader.afford(MAX_KIT_BYTES)
+        except ModelUnavailable as exc:
+            raise _ReadersOut(str(exc)) from exc
 
     def model_fields(self, kind: str, pick: dict[str, Any] | None = None) -> dict[str, Any]:
         """What a status fact says a verb runs: the pick (`model` id, `model_display`, variant,
@@ -1186,12 +1234,14 @@ class Worker:
     ) -> None:
         """Record a failure: submit ok=false while the lease is held, log it, write a fact. Never raises."""
         self.stats["failed"] += 1
-        message = f"{type(exc).__name__}: {str(exc)[:900]}"
+        # The full words go only to this machine's log: they can quote a maker's text.
+        private_message = f"{type(exc).__name__}: {str(exc)[:900]}"
+        message = public_failure(exc)
         self.say(f"could not finish {STEP_WORDS.get(lease.kind, 'a Task')} · {type(exc).__name__}")
         if isinstance(exc, ExampleOnlyRefused):
             message = (
                 "Tessera refused personal or payment data in a write (example_only); the part"
-                f" needs example data only: {str(exc)[:600]}"
+                " needs example data only."
             )
         receipt = (
             gate.receipt.receipt_hash
@@ -1223,7 +1273,7 @@ class Worker:
                 task_id=lease.task_id,
                 queue=lease.queue,
                 kind=lease.kind,
-                error=message[:600],
+                error=private_message[:600],
                 receipt=receipt,
                 lease_lost=beat.lost is not None or gate.ended == "lost",
             )
@@ -1600,7 +1650,9 @@ class Worker:
         }
         notes["pick"] = pick
 
-        def read(value: Any, known_facts: tuple[str, ...] = ()) -> dict[str, Any]:
+        def read(
+            value: Any, known_facts: tuple[str, ...] = (), what: str = ALL_KIT_TEXT
+        ) -> dict[str, Any]:
             screened = text_personal_findings(value)
             if screened:
                 return {
@@ -1617,14 +1669,30 @@ class Worker:
                 model_display=self.model_display(model_id),
                 meter=meter,
                 known_facts=known_facts,
+                what=what,
             )
 
         return read
 
     def kit_free_checks(
-        self, draft: KitDraft, output: dict[str, Any], *, worker: str, key_id: str
+        self,
+        draft: KitDraft,
+        output: dict[str, Any],
+        brief: dict[str, Any],
+        *,
+        worker: str,
+        key_id: str,
     ) -> str | None:
         """What can stop a kit for free, by this worker's own checks and not the maker's report. run_review_step checks them again."""
+        if draft.kit_id != brief_kit_id(brief) or (
+            brief.get("track_id") and draft.track_id != brief["track_id"]
+        ):
+            return "it doesn't answer this review's brief"
+        try:
+            if not VerificationReport.model_validate(output.get("verification")).passed:
+                return "its maker's own checks failed"
+        except ValueError:
+            return "its maker gave no check report"
         if worker == draft.drafted_by or key_id == draft.drafted_by_key:
             return "a worker can't audit its own kit"
         if str(output.get("blob_sha256") or "") not in draft_digests(output["draft"], draft):
@@ -1665,7 +1733,13 @@ class Worker:
             )
             return {"status": "nothing_to_review", "receipt": receipt.receipt_hash}
         draft = KitDraft.model_validate(dep.output["draft"])
-        stopped = self.kit_free_checks(draft, dep.output, worker=worker, key_id=key_id)
+        stopped = self.kit_free_checks(
+            draft,
+            dep.output,
+            lease.brief if isinstance(lease.brief, dict) else {},
+            worker=worker,
+            key_id=key_id,
+        )
         if stopped:  # the free checks first, so a bad kit costs no model call
             reading = {
                 "approved": False,

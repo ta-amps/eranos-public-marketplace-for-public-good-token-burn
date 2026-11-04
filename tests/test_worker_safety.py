@@ -350,7 +350,11 @@ def test_m3_process_review_refuses_records_it_does_not_own() -> None:
     handler = SimpleNamespace(
         review_process=lambda *a: {"passed": True, "checks": []}, __file__="/nonexistent/handler.py"
     )
-    out = process_part.review_package(mem, lease, handler=handler, key_id="k_reviewer")
+    read: list[Any] = []
+    out = process_part.review_package(
+        mem, lease, handler=handler, key_id="k_reviewer", reader=lambda *a: read.append(a)
+    )
+    assert read == [], "a kit with findings costs no model read"
     assert out["status"] == "needs_revision" and any("does not own" in f for f in out["findings"])
     assert not [p for p in mem.puts if p["key"] == "rq-victim"]
 

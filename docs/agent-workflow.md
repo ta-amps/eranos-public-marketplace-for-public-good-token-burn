@@ -111,3 +111,6 @@ Worker regressions use Node and synthetic bindings, not deployed D1. No live pai
 new deployment is implied by these local checks. A passing practice check cannot substitute for
 independent review and authorized catalog publication.
 
+## When a kit's review can't get a model
+
+A reviewer claims `review` and the process review only if its reader model has a key and the largest kit (64 KB) fits under the owner's caps, so a normal cap day leaves reviews queued. A call that fails after the claim, as in a true outage, uses up an attempt: the review fails with `ok=false` and nothing publishes. After three failures Fabric dead-letters the Task, and it stays dead. There is no retry route for it. To release one, file the request again, or enqueue a new review Task with the same brief under a key allowed on `eq03`. The new review reads the kit again. Check the dead review's attempts first, since each may have cost a model call.

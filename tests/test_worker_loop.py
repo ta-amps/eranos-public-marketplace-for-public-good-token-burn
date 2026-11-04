@@ -812,6 +812,8 @@ def test_a_process_kit_sends_all_it_publishes_to_the_reader(
     assert "package's own tests" in sent["checked_by_this_worker"][0]
     review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
     assert review["output"]["approved"] is True
+    notes = review["output"]["catalog_value"]["review_notes"]
+    assert "the records this kit publishes" in notes and "read all" not in notes
 
 
 B4_HANDLER = os.environ.get("ERANOS_PROCESS_HANDLER", "")

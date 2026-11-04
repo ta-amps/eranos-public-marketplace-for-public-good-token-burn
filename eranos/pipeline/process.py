@@ -32,6 +32,7 @@ from typing import Any, Protocol
 from tessera import NotFound
 from tessera.receipts import canonical_json
 
+from eranos.pipeline.model_review import PROCESS_KIT_TEXT
 from eranos.pipeline.request_noun import PRODUCER, update_request_part
 from eranos.pipeline.run import SelfReviewRefused
 
@@ -580,6 +581,7 @@ def review_package(
                 "template": rebuilt_values.get("template_value"),
             },
             ("This worker ran the package's own tests again in a clean folder, and they passed.",),
+            PROCESS_KIT_TEXT,
         )
         if not reading.get("approved"):
             findings.extend(reading.get("findings") or ["not_approved: 1"])
