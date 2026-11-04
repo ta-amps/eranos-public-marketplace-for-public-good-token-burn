@@ -1,4 +1,4 @@
-# Keyword index of eranos-workers
+# Keyword index of eranos-public-marketplace-for-public-good-token-burn
 
 Where each term appears. Terms come from `keywords.txt` (add a line there, then `make index`); each row lists up to 12 files, most mentions first.
 
