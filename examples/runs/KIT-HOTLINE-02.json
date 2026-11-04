@@ -5,33 +5,33 @@
   "title": "Coerced Overseas Offer Helpline Directory & Safe Triage Kit",
   "example": {
     "path": "examples/kits/02-coerced-work-hotline-routing.json",
-    "sha256": "842ad708bc485fdad043c547112e098c5740f401eadfe9273a3972814d98781c"
+    "sha256": "98b4f9c311c86cb714ff96c0ea61c148fe7f9ea22b830c6efc38619e610a9312"
   },
-  "inputs_sha256": "1ee476e14f00325d84c20a4726af9309ac66c50f246e8f51faf873d42b714e11",
+  "inputs_sha256": "184ee7725aa67174c21dce349433b535cd3fbddc2d4ea0a6aac795efab6da5cd",
   "seed_pack": null,
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_e346a58659a6:KIT-HOTLINE-02:spec",
+      "task_id": "er_a6b414262497:KIT-HOTLINE-02:spec",
       "worker": "spec-gate-02",
       "key_id": "key_spec_02",
       "ok": true,
-      "receipt_sha256": "2c181654734ee084d4d6a9f1d97e7c7ba25d24a927fcf978d018eb1a224a32c2",
+      "receipt_sha256": "0e2c6c7f2437a61832034b7b1636f16829ece2ef4e0d95afd3097402c1df81e4",
       "state_after": "done",
-      "submitted_at": "1793759570.9861321"
+      "submitted_at": "1793784478.068656"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_e346a58659a6:KIT-HOTLINE-02:draft",
+      "task_id": "er_a6b414262497:KIT-HOTLINE-02:draft",
       "worker": "volunteer-drafter-02",
       "key_id": "key_drafter_02",
       "ok": true,
-      "receipt_sha256": "403f8a5c9dcb7d734a4b872f4f0cfdf4c1287fd86516edc257a404f9d26c6075",
+      "receipt_sha256": "b85f04a11bf22e642db28ed6161d3a13ea4d2531695f8679dcf88abf54fa17ae",
       "state_after": "done",
-      "submitted_at": "1793759570.9916296",
-      "draft_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
+      "submitted_at": "1793784478.0751321",
+      "draft_sha256": "9eec59aa1b9f594b68d032473378690201a96acf047285eaace4f2c9af8f7a09",
       "verification": {
         "passed": true,
         "checks_run": 9,
@@ -46,16 +46,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_e346a58659a6:KIT-HOTLINE-02:review",
+      "task_id": "er_a6b414262497:KIT-HOTLINE-02:review",
       "worker": "volunteer-reviewer-02",
       "key_id": "key_reviewer_02",
       "ok": true,
-      "receipt_sha256": "dbf0173f7ceed23c91305c70b68c4fc295b052f5854c927c39252272a9ee1958",
+      "receipt_sha256": "db78fbdbf806f925e27f44f93c4806e3a615d7808d4482a08a14b97e9b267f34",
       "state_after": "done",
-      "submitted_at": "1793759571.0150263",
-      "parked_for_steward": true,
-      "steward_signoff": "helpline-steward-lead",
-      "publication_sha256": "89b5da086878e8d6597a63070f7d713ed92ed397b8eeb66e533e2447c9c6db63"
+      "submitted_at": "1793784478.0859997",
+      "parked_for_steward": false,
+      "steward_signoff": null,
+      "publication_sha256": "7e904e6bcf03ef55f6477bc5c90bd0c5daaba8de9f03f6f079d549a9e19ae9d1"
     }
   ],
   "outcome": "published",
@@ -70,14 +70,14 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "209bda93056883967e75530666f9e32cdb180b02",
+    "commit": "8a7e18540e5db681df784d82fa0bc512e75946bf",
     "tree_clean": true,
     "seed_pack_library": {
-      "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
+      "commit": "a8fea84c51415c98d4ace0aff2d323de7d9901d7",
       "tree_clean": true
     }
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-04T02:32:51Z"
+  "recorded_at": "2026-11-04T09:27:58Z"
 }
