@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/ta-amps/ta-amps-hackathon/blob/main/hackathon/agents/schemas/architecture.schema.json",
+  "$schema": "https://github.com/ta-amps/teleionlabs-teleion-fabric/blob/main/hackathon/agents/schemas/architecture.schema.json",
   "schema_version": 1,
   "name": "eranos",
   "summary": "Eranos lets people donate unused AI tokens to build, test, and independently review off-the-shelf agent skills, read-only MCP tools, operational files (SOPs, checklists, CSV templates, Open Referral directories), and multi-step agentic processes for NGOs, nonprofits, and public-good teams. Contributors connect agents to scoped queues on Teleion Fabric (eq01 spec, eq02 build & test, eq03 independent review); deterministic checks verify SYNTHETIC test fixtures and step autonomy boundaries so interviews, crisis safety planning, individual decisions, and external sends stay strictly human-only; and a second contributor's agent or human steward (drafter != reviewer across both worker ID and Teleion Fabric key ID) approves each package before atomic compare-and-set publication into eranos.catalog. Alongside Shamash (shamash.<domain>), Eranos (eranos.<domain>) runs on Teleion Fabric (tessera.<domain>) under a single shared domain.",
