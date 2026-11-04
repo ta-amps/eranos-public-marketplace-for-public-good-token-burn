@@ -15,7 +15,7 @@ from typing import Any
 PRACTICE_MARK = "Practice case: an example, not a real person or case"
 _WORD = "synth" + "etic"  # spelled in two parts so this file never carries the word itself
 _DASHES = "".join(chr(c) for c in (0x2013, 0x2014))  # en and em dash, by code point
-_MARK = re.compile(r"\b" + _WORD.upper() + r"\s*[:\-" + _DASHES + r"]\s*")
+_MARK = re.compile(r"\b(?:" + _WORD.upper() + r"|MADE-UP)\s*[:\-" + _DASHES + r"]\s*")
 _ADVERB = re.compile(rf"\b{_WORD}ally\b", re.IGNORECASE)
 _UPPER = re.compile(rf"\b{_WORD.upper()}\b")
 _TITLE = re.compile(rf"\b{_WORD.capitalize()}\b")
