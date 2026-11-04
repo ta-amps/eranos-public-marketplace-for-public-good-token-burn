@@ -622,10 +622,18 @@ def review_package(
         },
     )
     publication = publication_digest_value(value)
-    # A track that handles sensitive material waits for a person: the page promises it, and a worker
-    # can't stand in. The reviewer's approval is real but nothing is public until a person says yes.
+    # A track that handles sensitive material waits for a person: the page promises it. The reviewer's
+    # approval is real, but nothing is public until a yes bound to this exact bundle comes back.
+    # It fails closed: a kit that names no track, or a plan part asking for a person, waits as well.
     track_id = ((value or {}).get("kit") or {}).get("track_id") if isinstance(value, dict) else None
-    if track_id and _track_needs_person(str(track_id)):
+    plan_part = brief.get("plan_part") if isinstance(brief.get("plan_part"), dict) else {}
+    asked_for_person = bool(
+        brief.get("needs_steward_signoff")
+        or brief.get("needs_person_signoff")
+        or plan_part.get("needs_person_signoff")
+        or plan_part.get("needs_steward_signoff")
+    )
+    if asked_for_person or not track_id or _track_needs_person(str(track_id)):
         said = (lease.inputs[-1] if getattr(lease, "inputs", None) else None) or {}
         agreed = (
             said.get("approved") is True

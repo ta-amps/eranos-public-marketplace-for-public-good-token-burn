@@ -1002,3 +1002,9 @@ def test_a_review_of_a_search_refuses_an_altered_quote() -> None:
     out = _search_review(mem, brief, output)
     assert out["status"] == "needs_revision"
     assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_fixture_with_real_details_fails_even_with_a_made_up_mark() -> None:
+    from eranos.privacy import personal_data_findings
+
+    assert personal_data_findings({"sample_input": "MADE-UP: write to maria@realdomain.org"})

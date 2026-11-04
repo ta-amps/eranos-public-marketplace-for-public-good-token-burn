@@ -37,6 +37,7 @@ from eranos.pipeline import (
     run_spec_step,
     submit_kit_request,
 )
+from eranos.privacy import personal_data_findings
 from eranos.schemas import (
     AgentSkillSpec,
     CustomArtifactSpec,
@@ -222,6 +223,10 @@ def synthesize_draft(
         )
         r_in = str(raw_synth.get("routine_input") or "")
         e_in = str(raw_synth.get("escalate_input") or "")
+        # A made-up mark is no use on real details: refuse them before anything is stamped.
+        found = personal_data_findings({"routine_input": r_in, "escalate_input": e_in})
+        if found:
+            raise ValueError(f"the model's test cases hold personal details: {found[:2]}")
         if not any(mark in r_in for mark in FIXTURE_MARKS):
             r_in = f"MADE-UP: {r_in}"
         if not any(mark in e_in for mark in FIXTURE_MARKS):

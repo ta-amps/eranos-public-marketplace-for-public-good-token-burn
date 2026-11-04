@@ -671,7 +671,7 @@ def review_process(package, request, plan_part, *, bundle_path=None, records=Non
               "both drafts were written by the build's key" if set(writers.values()) == {builder_key_id} else "OTHER WRITER"]
     verified = {name: {"value_sha256": record_digest(rec["value"])} for name, rec in (records or {}).items()}
     # Rebuilt from the bundle and the request, never copied from the drafts.
-    verified["catalog_value"] = {"title": "Made-up sample data-cleaning process", "request_id": request["request_id"]}
+    verified["catalog_value"] = {"kit": {"track_id": "donor-stewardship-and-privacy"}, "title": "Made-up sample data-cleaning process", "request_id": request["request_id"]}
     verified["template_value"] = {"kind": "run_process", "pack": "data-cleaning"}
     return {"passed": not any(c.isupper() for c in checks), "checks": checks, "verified": verified}
 """
@@ -1512,8 +1512,7 @@ def test_a_sensitive_process_kit_waits_for_a_person_then_publishes(
     handler_path = tmp_path / "handler.py"
     handler_path.write_text(
         HANDLER_FILE.replace(
-            'verified["catalog_value"] = {"title": "Made-up sample data-cleaning process",',
-            'verified["catalog_value"] = {"kit": {"track_id": "statement-transcription"}, "title": "Made-up sample data-cleaning process",',
+            '"track_id": "donor-stewardship-and-privacy"', '"track_id": "statement-transcription"'
         )
     )
     monkeypatch.setenv("TEST_BUNDLE", str(bundle))
