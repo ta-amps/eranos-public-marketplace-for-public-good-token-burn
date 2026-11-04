@@ -68,7 +68,7 @@ function foldChar(ch) {
 // A line in a code or config file that sets a secret: API_KEY=abc, password: abc.
 const SECRET_LINE = /^(\s*(?:export\s+)?["']?[\w-]*(?:API_?KEY|SECRET|TOKEN|PASSWORD|PASSWD|PWD)["']?\s{0,8}[:=]\s{0,8})(\S{8,})$/gim;
 // secret= and token= are common words, so these want a value with a digit.
-const LOOSE_SECRET = /(?<![A-Za-z0-9])((?:secret|token)["']?\s{0,8}[:=]\s{0,8}["']?)(?=[^\s"',;)}&]*\d)([A-Za-z0-9._~+\/-]{12,})/gi;
+const LOOSE_SECRET = /(?<![A-Za-z0-9_-])((?:secret|token)["']?\s{0,8}[:=]\s{0,8}["']?)(?=[^\s"',;)}&]*\d)([A-Za-z0-9._~+\/-]{12,})/gi;
 
 function luhn(digits) {
   let sum = 0;
@@ -101,7 +101,7 @@ function stripPlain(text, quote) {
   for (const pattern of PHONES) {
     out = out.replace(pattern, (m) => { const n = digitCount(m); return n >= (/^0{2}|^011/.test(m) ? 10 : 8) && n <= 15 ? "[phone]" : m; });
   }
-  out = out.replace(BARE_PHONE, (m) => (/^20\d\d(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:[01]\d|2[0-3])$/.test(m) || m === "2147483647" || m === "4294967295" ? m : "[phone]"));
+  out = out.replace(BARE_PHONE, (m) => (/^20\d\d(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:[01]\d|2[0-3])$/.test(m) || /^(?:214748364[78]|429496729[56])$/.test(m) ? m : "[phone]"));
   out = out.replace(OTHER_BARE, (m, at, whole) => (/(?:gtin|ean|upc|isbn|sku|barcode)[\s:#-]*$/i.test(whole.slice(Math.max(0, at - 10), at)) ? m : "[phone]"));
   out = out.replace(ADDRESS_SURE, "[address]").replace(ADDRESS_LOOSE, "[address]").replace(PO_BOX, "[address]");
   return out;
