@@ -1616,3 +1616,19 @@ def test_the_worker_checked_reuse_facts_pass_the_status_schema() -> None:
     base = {"schema_version": 1, "request_id": request_id, "status": "open_for_build"}
     assert not list(validator.iter_errors({**base, "event": {"at": 1, **rejected}}))
     assert list(validator.iter_errors({**base, "event": {"at": 1, **wrong}}))
+
+
+def test_my_ngo_needs_help_comes_first_in_every_menu() -> None:
+    """Owner rule: "My NGO needs help" is left and first. The shell's menu and the page before the app loads both say so."""
+    shell = json.loads((ROOT / "instructions" / "shell.json").read_text(encoding="utf-8"))
+    labels = [link["label"] for link in shell["nav"]]
+    assert labels.index("My NGO needs help") < labels.index("I want to help")
+
+    html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+    nav = html[html.index('<nav aria-label="Primary navigation">') :]
+    nav = nav[: nav.index("</nav>")]
+    assert nav.index("My NGO needs help") < nav.index("I want to help")
+
+    home = json.loads((ROOT / "instructions" / "home.json").read_text(encoding="utf-8"))
+    text = json.dumps(home, ensure_ascii=False)
+    assert text.index("My NGO needs help") < text.index("I want to help")
