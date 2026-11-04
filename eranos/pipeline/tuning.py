@@ -268,6 +268,16 @@ def chance_best(stats: dict[str, dict[str, float]], ids: list[str], seed: int) -
     return {i: wins[i] / DRAWS for i in ids}
 
 
+def has_new_outcomes(tuning: dict[str, Any], outcomes: list[Outcome]) -> bool:
+    """Whether the recorded outcomes differ from what the current version rests on. A timer firing
+    with the same evidence is not a reason for a new version."""
+    inputs = tuning.get("inputs") or {}
+    if int(inputs.get("outcomes") or 0) != len(outcomes):
+        return True
+    now_stats = {i: {k: round(v, 4) for k, v in s.items()} for i, s in posteriors(outcomes).items()}
+    return now_stats != (tuning.get("stats") or {})
+
+
 def retune(tuning: dict[str, Any], outcomes: list[Outcome], *, now: float) -> dict[str, Any]:
     """The next version of the tuning noun from all recorded outcomes: shares, trials kept or
     dropped, and the read-only summary the pages show. Deterministic for the same inputs."""
