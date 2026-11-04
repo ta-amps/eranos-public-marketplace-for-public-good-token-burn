@@ -2495,7 +2495,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
             ? `${noun.value.text}${FALLBACK_LLMS_FULL_EXTRA}`
             : null;
       const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms-full.txt");
-      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_FULL_TXT) + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_FULL_TXT) + OPEN_READ_GUIDE + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/agent.md") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
