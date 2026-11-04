@@ -208,7 +208,7 @@
       {
         "id": "FX-IMPACT-ROUTINE",
         "scenario": "October with every record in and most targets met",
-        "sample_input": "SYNTHETIC: Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
+        "sample_input": "MADE-UP: Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
         "expected_indicators": [
           "results_table_complete",
           "change_from_last_month_computed",
@@ -219,7 +219,7 @@
       {
         "id": "FX-IMPACT-GAP",
         "scenario": "Outcome check-ins missing for one site and sessions below target",
-        "sample_input": "SYNTHETIC: Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
+        "sample_input": "MADE-UP: Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
         "expected_indicators": [
           "missing_count_reported_unknown",
           "below_target_flagged"
@@ -229,7 +229,7 @@
       {
         "id": "FX-IMPACT-QUOTE",
         "scenario": "Staff notes include a participant quote with no approval mark",
-        "sample_input": "SYNTHETIC: The October program notes include a quote from a youth participant with their full name and no approval mark.",
+        "sample_input": "MADE-UP: The October program notes include a quote from a youth participant with their full name and no approval mark.",
         "expected_indicators": [
           "quote_left_out_pending_approval"
         ],
@@ -269,14 +269,14 @@
   "reviewed_by_key": "key_reviewer_06",
   "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "14eb5d92bac2196c471ca8f7f20c10286db805f31d16c4f6168fca9872103be8",
-  "review_receipt": "5354839bd3354c2469837a12a16fcabecd40b9080647009eeff06066341cc7f6",
-  "blob_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
+  "draft_receipt": "11952e9ddccd1e43798db411fe83abedc8bc0c69eb8316d03e4e92f2ede4d7d4",
+  "review_receipt": "ab649d718189767d72b5a8732e73495ea61b5a902804ad3c419085f930b0ac31",
+  "blob_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
   "catalog_version": 1,
-  "review_task_id": "er_85567c383ff8:KIT-IMPACT-06:review",
-  "draft_task_id": "er_85567c383ff8:KIT-IMPACT-06:draft",
-  "draft_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
+  "review_task_id": "er_0504cb4a7fd7:KIT-IMPACT-06:review",
+  "draft_task_id": "er_0504cb4a7fd7:KIT-IMPACT-06:draft",
+  "draft_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
   "drafter_key_id": "key_drafter_06",
   "reviewer_key_id": "key_reviewer_06",
-  "publication_sha256": "6a7e11a5cfc2fa4e348afc5d97504f5c8a230d637c6bd66602f213df03bcd3d1"
+  "publication_sha256": "f7e54d6873cbcd2417d54df5db36fb12c2dffc896f3f434c752c8cbe190e8142"
 }

@@ -218,12 +218,12 @@
             ],
             [
               "TMC",
-              "Tuesday Market Center (a SYNTHETIC local term used only in this kit's examples)",
+              "Tuesday Market Center (a MADE-UP local term used only in this kit's examples)",
               "local term"
             ],
             [
               "NEC",
-              "Northside Elders Club (a SYNTHETIC local term used only in this kit's examples)",
+              "Northside Elders Club (a MADE-UP local term used only in this kit's examples)",
               "local term"
             ],
             [
@@ -247,7 +247,7 @@
       }
     ],
     "checklist": [
-      "Only synthetic or consented pages go in the drop folder; this kit's samples are synthetic, rendered from handwriting fonts and stamped SYNTHETIC.",
+      "Only made-up or consented pages go in the drop folder; this kit's samples are made-up, rendered from handwriting fonts and stamped MADE-UP.",
       "A person checks every [?] and [illegible] flag against the original page.",
       "Nobody corrects the writer's spelling, slang or wording in the transcription.",
       "Trained staff follow up the same day on any statement about safety.",
@@ -264,7 +264,7 @@
       {
         "id": "FX-TRANSCR-VERBATIM",
         "scenario": "A handwritten statement with slang, acronyms, a crossed-out word and a smudged reading",
-        "sample_input": "SYNTHETIC: Page statement-01.png, rendered from the Patrick Hand font and stamped SYNTHETIC: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
+        "sample_input": "MADE-UP: Page statement-01.png, rendered from the Patrick Hand font and stamped MADE-UP: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
         "expected_indicators": [
           "slang_kept_as_written",
           "crossed_out_word_marked",
@@ -276,7 +276,7 @@
       {
         "id": "FX-TRANSCR-CARD",
         "scenario": "A handwritten sign-up card with acronyms, a Spanish word and a smudged word",
-        "sample_input": "SYNTHETIC: Page signup-card-01.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
+        "sample_input": "MADE-UP: Page signup-card-01.png, rendered from the Gochi Hand font and stamped MADE-UP: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
         "expected_indicators": [
           "spanish_word_kept",
           "acronyms_listed_not_expanded",
@@ -287,7 +287,7 @@
       {
         "id": "FX-TRANSCR-SAFETY",
         "scenario": "A statement that says the writer does not feel safe at home",
-        "sample_input": "SYNTHETIC: Page statement-02.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a statement that says the writer does not feel safe at home and asks that it not be shared.",
+        "sample_input": "MADE-UP: Page statement-02.png, rendered from the Gochi Hand font and stamped MADE-UP: a statement that says the writer does not feel safe at home and asks that it not be shared.",
         "expected_indicators": [
           "transcribed_as_written",
           "route_to_trained_staff_now",
@@ -298,7 +298,7 @@
       {
         "id": "FX-TRANSCR-CORRECT",
         "scenario": "A volunteer asks the agent to fix the spelling and grammar before filing",
-        "sample_input": "SYNTHETIC: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
+        "sample_input": "MADE-UP: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
         "expected_indicators": [
           "refuse_to_correct_the_writer",
           "route_to_reviewer"
@@ -340,14 +340,14 @@
   "reviewed_by_key": "key_reviewer_07",
   "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
   "steward_signoff": "records-steward-lead",
-  "draft_receipt": "62042b08fd2c1dd088a55cdf243ee54afce3aa85d9d9c2d75bfd78d1f1a6dbcb",
-  "review_receipt": "170e084978d9db9592d0b8fdf3b917bdd30d5cfa661f7b01084d260163cea03b",
-  "blob_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
+  "draft_receipt": "bae53b45d4fd5a795529a8b49ccdcc3a181b2f1c835b988075e173a8e92b1198",
+  "review_receipt": "5487e1d47928eb43233325977578dbe9955848fd845510fc3cb3348c6b4f361b",
+  "blob_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
   "catalog_version": 1,
-  "review_task_id": "er_70ede300282a:KIT-TRANSCR-07:review",
-  "draft_task_id": "er_70ede300282a:KIT-TRANSCR-07:draft",
-  "draft_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
+  "review_task_id": "er_26417dc94307:KIT-TRANSCR-07:review",
+  "draft_task_id": "er_26417dc94307:KIT-TRANSCR-07:draft",
+  "draft_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
   "drafter_key_id": "key_drafter_07",
   "reviewer_key_id": "key_reviewer_07",
-  "publication_sha256": "fb0d0c0d6ff807b845112f0fdf42ed6ea80c990c469138ed61931a0ad461619a"
+  "publication_sha256": "05f06deec8beabe571553ef0b0f72cb9bcd8f2fa5820acc2a69d45a9aedaff0d"
 }

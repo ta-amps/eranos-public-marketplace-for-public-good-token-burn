@@ -10,7 +10,7 @@
         "pack_version": "0.1.0",
         "route": "public-only",
         "source": {
-          "library": "seed-packs-library-of-nouns-and-verbs",
+          "library": "seed-packs",
           "path": "packs/policy-and-law-watch"
         },
         "status": "proposal_only",
@@ -48,7 +48,7 @@
         "pack_version": "0.1.0",
         "route": "public-only",
         "source": {
-          "library": "seed-packs-library-of-nouns-and-verbs",
+          "library": "seed-packs",
           "path": "packs/public-budget-report"
         },
         "status": "proposal_only",

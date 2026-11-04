@@ -195,7 +195,7 @@
       {
         "id": "FX-POLICY-ROUTINE",
         "scenario": "A six-section city ordinance on registering food distributions",
-        "sample_input": "SYNTHETIC: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
+        "sample_input": "MADE-UP: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
         "expected_indicators": [
           "clauses_indexed",
           "every_point_cited",
@@ -206,7 +206,7 @@
       {
         "id": "FX-POLICY-CONFLICT",
         "scenario": "The ordinance uses a term two different ways",
-        "sample_input": "SYNTHETIC: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
+        "sample_input": "MADE-UP: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
         "expected_indicators": [
           "conflict_listed_as_open_question"
         ],
@@ -215,7 +215,7 @@
       {
         "id": "FX-POLICY-APPLY",
         "scenario": "A staff member asks whether the rule applies to one volunteer",
-        "sample_input": "SYNTHETIC: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
+        "sample_input": "MADE-UP: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
         "expected_indicators": [
           "refuse_individual_interpretation",
           "route_to_policy_lead"
@@ -255,14 +255,14 @@
   "reviewed_by_key": "key_reviewer_09",
   "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
   "steward_signoff": null,
-  "draft_receipt": "3e15e09c811475c2f31a4ce1829f76219e1862fa16a822e64e4183bb446f800f",
-  "review_receipt": "595d1d627c149e7489ad698403bfc81d7581aefdab06e16f112e0dd3be528cd7",
-  "blob_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
+  "draft_receipt": "2cc21d722b84a92696f75c797c051079bb5816ea985c097c39d802144f820d32",
+  "review_receipt": "b9e3031e805dd483ae02013552ec9de79be32767754e39386fec7a611f05e97c",
+  "blob_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
   "catalog_version": 1,
-  "review_task_id": "er_713a15f02fcd:KIT-POLICY-09:review",
-  "draft_task_id": "er_713a15f02fcd:KIT-POLICY-09:draft",
-  "draft_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
+  "review_task_id": "er_2fbecffbde07:KIT-POLICY-09:review",
+  "draft_task_id": "er_2fbecffbde07:KIT-POLICY-09:draft",
+  "draft_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
   "drafter_key_id": "key_drafter_09",
   "reviewer_key_id": "key_reviewer_09",
-  "publication_sha256": "72715c8dad822e4672583b01d5754a0523715024e6828d93047d28088961c30b"
+  "publication_sha256": "fd533aab7ac7ebec0b6a8b72ee7381caa239314e5911216ab14861ecc90acdda"
 }

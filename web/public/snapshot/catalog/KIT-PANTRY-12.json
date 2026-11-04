@@ -203,7 +203,7 @@
       {
         "id": "FX-PANTRY-ROUTINE",
         "scenario": "Saturday pantry with full counts and evenly booked windows",
-        "sample_input": "SYNTHETIC: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
+        "sample_input": "MADE-UP: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
         "expected_indicators": [
           "restock_list_drafted",
           "pickup_plan_balanced"
@@ -213,7 +213,7 @@
       {
         "id": "FX-PANTRY-GAPS",
         "scenario": "Missing cooler counts, one item near its date label and a crowded first window",
-        "sample_input": "SYNTHETIC: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
+        "sample_input": "MADE-UP: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
         "expected_indicators": [
           "missing_counts_left_blank",
           "use_first_flagged_for_person",
@@ -224,7 +224,7 @@
       {
         "id": "FX-PANTRY-EXCEPTION",
         "scenario": "A household asks for extra food and a pickup after closing time",
-        "sample_input": "SYNTHETIC: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
+        "sample_input": "MADE-UP: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
         "expected_indicators": [
           "route_to_coordinator",
           "no_exception_decided_by_agent"
@@ -264,14 +264,14 @@
   "reviewed_by_key": "key_reviewer_12",
   "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
   "steward_signoff": null,
-  "draft_receipt": "20ce69d03ee1cd2acd5255adb86ef3f134cd6b7f071f7f27af4a7c5e59e243bc",
-  "review_receipt": "80aba4fd4981574951f54d957cfeb0669af8a53462b409ab4d91e5a9eabde338",
-  "blob_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
+  "draft_receipt": "9f39c235240c21e3bbe226d60bcbca72b0059c5ee165b72adf86e925433590c2",
+  "review_receipt": "9e074b5cfad6bdf4b15224210ff6d92b5f7ca0374b165e42036dd5e3dbc81911",
+  "blob_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
   "catalog_version": 1,
-  "review_task_id": "er_1e266ca19702:KIT-PANTRY-12:review",
-  "draft_task_id": "er_1e266ca19702:KIT-PANTRY-12:draft",
-  "draft_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
+  "review_task_id": "er_ee9f84d222fe:KIT-PANTRY-12:review",
+  "draft_task_id": "er_ee9f84d222fe:KIT-PANTRY-12:draft",
+  "draft_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
   "drafter_key_id": "key_drafter_12",
   "reviewer_key_id": "key_reviewer_12",
-  "publication_sha256": "04c2dd96b94d12769482fa25ddd0fe6c7033840bff11169c9b4cfe94d9149673"
+  "publication_sha256": "8fd0bca742b6ff40f9aeeda3fadec2c4f94a12789d379afb663eb7241f9f7cfd"
 }

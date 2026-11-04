@@ -187,7 +187,7 @@
       {
         "id": "FX-FLYER-MATCH",
         "scenario": "All five translations carry every fact unchanged",
-        "sample_input": "SYNTHETIC: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
+        "sample_input": "MADE-UP: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
         "expected_indicators": [
           "all_facts_present",
           "questions_listed_for_reviewer"
@@ -197,7 +197,7 @@
       {
         "id": "FX-FLYER-MISMATCH",
         "scenario": "A translated date and phone number differ from the source",
-        "sample_input": "SYNTHETIC: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
+        "sample_input": "MADE-UP: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
         "expected_indicators": [
           "mismatched_date",
           "mismatched_phone_number",
@@ -238,14 +238,14 @@
   "reviewed_by_key": "key_reviewer_14",
   "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
   "steward_signoff": null,
-  "draft_receipt": "3534a55e87d0d96db75264619544a878cc7cea91b2b12f8bfd03a9ddd39d04b2",
-  "review_receipt": "12f5afc7eb8723a9677308275498e3fe2b5d70f0d61ed22d6d035c7144d76476",
-  "blob_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
+  "draft_receipt": "ec2121057b840f5ff839749edbe1e1755e9b5a0cff5d160bdf6f37a60253f0a3",
+  "review_receipt": "669fa4712acdf62f8dae37dd7da5eb251f6ffa79ff08d8a0c57781ee0dce8349",
+  "blob_sha256": "7d975c945728ae38e3231d31a410d3af71470272a78daf5d36a723f0b23cb7ff",
   "catalog_version": 1,
-  "review_task_id": "er_a925e0805f6b:KIT-FLYER-14:review",
-  "draft_task_id": "er_a925e0805f6b:KIT-FLYER-14:draft",
-  "draft_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
+  "review_task_id": "er_5ad16a614c0b:KIT-FLYER-14:review",
+  "draft_task_id": "er_5ad16a614c0b:KIT-FLYER-14:draft",
+  "draft_sha256": "7d975c945728ae38e3231d31a410d3af71470272a78daf5d36a723f0b23cb7ff",
   "drafter_key_id": "key_drafter_14",
   "reviewer_key_id": "key_reviewer_14",
-  "publication_sha256": "948420c2800ee284a7b010dfa821651a12a2af7c9b5292631f61950fbc41f22f"
+  "publication_sha256": "e4dcff50d4befccb48bd7b4eb359ff5bee8ff4ee57f9dd7905784dfe3b16ae2a"
 }

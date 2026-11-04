@@ -202,7 +202,7 @@
       {
         "id": "FX-RENEWAL-ROUTINE",
         "scenario": "Two-year grant with every period reported and most targets met",
-        "sample_input": "SYNTHETIC: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
+        "sample_input": "MADE-UP: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
         "expected_indicators": [
           "period_table_complete",
           "spending_copied_from_finance_lead",
@@ -213,7 +213,7 @@
       {
         "id": "FX-RENEWAL-GAP",
         "scenario": "One quarter's results are missing and one measure is well below target",
-        "sample_input": "SYNTHETIC: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
+        "sample_input": "MADE-UP: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
         "expected_indicators": [
           "missing_period_reported_unknown",
           "below_target_flagged"
@@ -254,14 +254,14 @@
   "reviewed_by_key": "key_reviewer_10",
   "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "af9aadd64ac35e29ae229a7e00b00fca81a4ad6d3e0db390d12f8fec38915ffd",
-  "review_receipt": "41d980befa9801265c5683f2c233fd0d5b77e639aa5cec00d2a3cd348f0f1a26",
-  "blob_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
+  "draft_receipt": "f10a29f31426d1cec97a3c665246dbcf9a0a280d27f635e8936b284ca22bce74",
+  "review_receipt": "6f080a7b49793deb762474d4cb8621f7d38ab5929dc648b7ad74e86da12e9735",
+  "blob_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
   "catalog_version": 1,
-  "review_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:review",
-  "draft_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:draft",
-  "draft_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
+  "review_task_id": "er_377c16bcdfe2:KIT-RENEWAL-10:review",
+  "draft_task_id": "er_377c16bcdfe2:KIT-RENEWAL-10:draft",
+  "draft_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
   "drafter_key_id": "key_drafter_10",
   "reviewer_key_id": "key_reviewer_10",
-  "publication_sha256": "d5841df9f1583ed9af1548410114267aa948265d1a79453e5591c354b5d15808"
+  "publication_sha256": "2bb73c9fce6f9c943b65a79cface8160d756fb8ef1c0fa8cc87bf1d423617a86"
 }

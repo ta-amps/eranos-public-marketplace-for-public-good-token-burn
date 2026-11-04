@@ -190,7 +190,7 @@
           {
             "id": "FX-FLYER-MATCH",
             "scenario": "All five translations carry every fact unchanged",
-            "sample_input": "SYNTHETIC: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
+            "sample_input": "MADE-UP: Flu clinic flyer in English with Spanish, Vietnamese, Arabic, Haitian Creole and Tagalog versions; the date 2026-11-12, the hours 9:00 to 13:00 and the phone line 555-0142 match in every version.",
             "expected_indicators": [
               "all_facts_present",
               "questions_listed_for_reviewer"
@@ -200,7 +200,7 @@
           {
             "id": "FX-FLYER-MISMATCH",
             "scenario": "A translated date and phone number differ from the source",
-            "sample_input": "SYNTHETIC: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
+            "sample_input": "MADE-UP: The Tagalog version shows 2026-11-21 instead of 2026-11-12 and the phone line 555-0124 instead of 555-0142.",
             "expected_indicators": [
               "mismatched_date",
               "mismatched_phone_number",
@@ -241,16 +241,16 @@
       "reviewed_by_key": "key_reviewer_14",
       "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
       "steward_signoff": null,
-      "draft_receipt": "3534a55e87d0d96db75264619544a878cc7cea91b2b12f8bfd03a9ddd39d04b2",
-      "review_receipt": "12f5afc7eb8723a9677308275498e3fe2b5d70f0d61ed22d6d035c7144d76476",
-      "blob_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
+      "draft_receipt": "ec2121057b840f5ff839749edbe1e1755e9b5a0cff5d160bdf6f37a60253f0a3",
+      "review_receipt": "669fa4712acdf62f8dae37dd7da5eb251f6ffa79ff08d8a0c57781ee0dce8349",
+      "blob_sha256": "7d975c945728ae38e3231d31a410d3af71470272a78daf5d36a723f0b23cb7ff",
       "catalog_version": 1,
-      "review_task_id": "er_a925e0805f6b:KIT-FLYER-14:review",
-      "draft_task_id": "er_a925e0805f6b:KIT-FLYER-14:draft",
-      "draft_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
+      "review_task_id": "er_5ad16a614c0b:KIT-FLYER-14:review",
+      "draft_task_id": "er_5ad16a614c0b:KIT-FLYER-14:draft",
+      "draft_sha256": "7d975c945728ae38e3231d31a410d3af71470272a78daf5d36a723f0b23cb7ff",
       "drafter_key_id": "key_drafter_14",
       "reviewer_key_id": "key_reviewer_14",
-      "publication_sha256": "948420c2800ee284a7b010dfa821651a12a2af7c9b5292631f61950fbc41f22f"
+      "publication_sha256": "e4dcff50d4befccb48bd7b4eb359ff5bee8ff4ee57f9dd7905784dfe3b16ae2a"
     },
     {
       "spdx_license": "BSD-3-Clause",
@@ -450,16 +450,16 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "5afa9d9554c8f5699049762d830b532a6cd3c88c0e64ec2af2d7c9c4006ba315",
-      "review_receipt": "99ebda396d545ef4e0d07d35fe6030ae950b06130d9b826e6b2151194ffa9d0d",
+      "draft_receipt": "1008808e07e45ab9f935d07e16c6b4b7836d67cb166624bdc47ffb231577913d",
+      "review_receipt": "3adc6c269d321a14b4a974cc024b2b1a1df38e0f11ef2b6210454186eeaefc0d",
       "blob_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
       "catalog_version": 1,
-      "review_task_id": "er_fb8a4d080393:KIT-GRANT-04:review",
-      "draft_task_id": "er_fb8a4d080393:KIT-GRANT-04:draft",
+      "review_task_id": "er_b0c70580c506:KIT-GRANT-04:review",
+      "draft_task_id": "er_b0c70580c506:KIT-GRANT-04:draft",
       "draft_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
       "drafter_key_id": "key_drafter_04",
       "reviewer_key_id": "key_reviewer_04",
-      "publication_sha256": "80608a570be9ba52a4ca12a68d6489c617e3a7e4bca917c2f90a1579c7559e28"
+      "publication_sha256": "44ca0fbb7ee664d9f053d837bfc696c363ff2a6d6201a219776a9b99a8347099"
     },
     {
       "spdx_license": "CC-BY-4.0",
@@ -658,16 +658,16 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "6e3a7daab0b4dc3d87a2d5074613aa9c91c1da74abe9ce28adde6ed1d9bf42be",
-      "review_receipt": "6a8872e23b1ed2dcccb11ef58621786a540b75ad33ed8ed1b0a781035306583c",
+      "draft_receipt": "1e6bde3769dc7cf364389ec6bc11a71daf49893deb2955da4191e10b563dbbce",
+      "review_receipt": "53c56e6df10056b425b67a4e305775502d2589515472a0d7bdc91706f6da6edc",
       "blob_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
       "catalog_version": 1,
-      "review_task_id": "er_8c3498d67301:KIT-HOTLINE-02:review",
-      "draft_task_id": "er_8c3498d67301:KIT-HOTLINE-02:draft",
+      "review_task_id": "er_fad51b5ec458:KIT-HOTLINE-02:review",
+      "draft_task_id": "er_fad51b5ec458:KIT-HOTLINE-02:draft",
       "draft_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
       "drafter_key_id": "key_drafter_02",
       "reviewer_key_id": "key_reviewer_02",
-      "publication_sha256": "66b711b3b615692f3ec7ecab2427bcdcff0c3e6c0683b690040eb8948cdf9005"
+      "publication_sha256": "8c6739c7c2ec7a56ebb818364aac96ab04e3944f6d19201a62f088b2f83211c8"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -882,16 +882,16 @@
       "reviewed_by_key": "key_reviewer_15",
       "review_notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off.",
       "steward_signoff": "housing-clinic-steward",
-      "draft_receipt": "c5ea5122ff532dba2fd1e0c78c6ec0e34ac4af746f7a1aa63ffe6f71d36df8ca",
-      "review_receipt": "2e3193003a333901b21831bf737935d8a6172f75aad953fafcae4b44e96a88ab",
+      "draft_receipt": "f7e6a47e6f02374bb36c2298ea0d830c916dcddc3e8fabe4db7e7c61d38e7256",
+      "review_receipt": "0351362a684dc21dd5f5420244dcaff0187900c1e3fb059dd1836cff3f62f79f",
       "blob_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
       "catalog_version": 1,
-      "review_task_id": "er_b46043d4b543:KIT-HOUSING-15:review",
-      "draft_task_id": "er_b46043d4b543:KIT-HOUSING-15:draft",
+      "review_task_id": "er_69cdaec28f1c:KIT-HOUSING-15:review",
+      "draft_task_id": "er_69cdaec28f1c:KIT-HOUSING-15:draft",
       "draft_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
       "drafter_key_id": "key_drafter_15",
       "reviewer_key_id": "key_reviewer_15",
-      "publication_sha256": "a649984cadff5f6952deff80a312d4abb0087f2c66cc23380f22db559d848c01"
+      "publication_sha256": "7b1f98dfd3f99cd5e52542651275ed40a85bd91207d8bb34020fb0be3e558955"
     },
     {
       "spdx_license": "MIT",
@@ -1102,7 +1102,7 @@
           {
             "id": "FX-IMPACT-ROUTINE",
             "scenario": "October with every record in and most targets met",
-            "sample_input": "SYNTHETIC: Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
+            "sample_input": "MADE-UP: Month 2026-10. Targets: 40 homework sessions, 90 youth served, 70 outcome check-ins. Counted: 42 sessions, 96 youth, 71 check-ins. Last month: 38 sessions, 88 youth, 65 check-ins.",
             "expected_indicators": [
               "results_table_complete",
               "change_from_last_month_computed",
@@ -1113,7 +1113,7 @@
           {
             "id": "FX-IMPACT-GAP",
             "scenario": "Outcome check-ins missing for one site and sessions below target",
-            "sample_input": "SYNTHETIC: Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
+            "sample_input": "MADE-UP: Month 2026-11. Site B outcome check-ins not yet entered; sessions counted 29 of a 40 target.",
             "expected_indicators": [
               "missing_count_reported_unknown",
               "below_target_flagged"
@@ -1123,7 +1123,7 @@
           {
             "id": "FX-IMPACT-QUOTE",
             "scenario": "Staff notes include a participant quote with no approval mark",
-            "sample_input": "SYNTHETIC: The October program notes include a quote from a youth participant with their full name and no approval mark.",
+            "sample_input": "MADE-UP: The October program notes include a quote from a youth participant with their full name and no approval mark.",
             "expected_indicators": [
               "quote_left_out_pending_approval"
             ],
@@ -1163,16 +1163,16 @@
       "reviewed_by_key": "key_reviewer_06",
       "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "14eb5d92bac2196c471ca8f7f20c10286db805f31d16c4f6168fca9872103be8",
-      "review_receipt": "5354839bd3354c2469837a12a16fcabecd40b9080647009eeff06066341cc7f6",
-      "blob_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
+      "draft_receipt": "11952e9ddccd1e43798db411fe83abedc8bc0c69eb8316d03e4e92f2ede4d7d4",
+      "review_receipt": "ab649d718189767d72b5a8732e73495ea61b5a902804ad3c419085f930b0ac31",
+      "blob_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
       "catalog_version": 1,
-      "review_task_id": "er_85567c383ff8:KIT-IMPACT-06:review",
-      "draft_task_id": "er_85567c383ff8:KIT-IMPACT-06:draft",
-      "draft_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
+      "review_task_id": "er_0504cb4a7fd7:KIT-IMPACT-06:review",
+      "draft_task_id": "er_0504cb4a7fd7:KIT-IMPACT-06:draft",
+      "draft_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
       "drafter_key_id": "key_drafter_06",
       "reviewer_key_id": "key_reviewer_06",
-      "publication_sha256": "6a7e11a5cfc2fa4e348afc5d97504f5c8a230d637c6bd66602f213df03bcd3d1"
+      "publication_sha256": "f7e54d6873cbcd2417d54df5db36fb12c2dffc896f3f434c752c8cbe190e8142"
     },
     {
       "spdx_license": "MIT",
@@ -1366,16 +1366,16 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "e4f90e019deabc74bcc55610e96c86a3a2720a1e4c6f07ada010ed25e5e4447d",
-      "review_receipt": "f8060fca767ee4de85905b6fb5ce2642a8047bef1c5ed755522d4cfec7b7c34c",
+      "draft_receipt": "e6d88cbf3a00e12be8e2e74d21f6c41f0d8b52940ec2b1e8c98793ce2bcf6355",
+      "review_receipt": "d8d43b23f20d674bf4cd87d593e7cf0ae3adc6f2b5aa33d3755add2ff8d1c546",
       "blob_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
       "catalog_version": 1,
-      "review_task_id": "er_faef1cf5bd4c:KIT-INTAKE-03:review",
-      "draft_task_id": "er_faef1cf5bd4c:KIT-INTAKE-03:draft",
+      "review_task_id": "er_62415e76bdcc:KIT-INTAKE-03:review",
+      "draft_task_id": "er_62415e76bdcc:KIT-INTAKE-03:draft",
       "draft_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
       "drafter_key_id": "key_drafter_03",
       "reviewer_key_id": "key_reviewer_03",
-      "publication_sha256": "b23928cb0ca30e867758c7bac617910d2a34147e5a06f7ad834eee5e2ad2b843"
+      "publication_sha256": "c6a7f17357674c93258c04c85211b68d69cf619248b65fcc0d776c23fcc73322"
     },
     {
       "spdx_license": "MIT",
@@ -1581,7 +1581,7 @@
           {
             "id": "FX-PANTRY-ROUTINE",
             "scenario": "Saturday pantry with full counts and evenly booked windows",
-            "sample_input": "SYNTHETIC: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
+            "sample_input": "MADE-UP: Week of 2026-11-07. 42 stock rows across dry shelf, cooler and freezer; 3 items below restock level; 36 booked slots across four windows; 6 volunteers per window.",
             "expected_indicators": [
               "restock_list_drafted",
               "pickup_plan_balanced"
@@ -1591,7 +1591,7 @@
           {
             "id": "FX-PANTRY-GAPS",
             "scenario": "Missing cooler counts, one item near its date label and a crowded first window",
-            "sample_input": "SYNTHETIC: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
+            "sample_input": "MADE-UP: Week of 2026-11-14. Cooler counts missing for 5 rows; yogurt labeled best if used by 2026-11-16; 18 slots booked in the first window and 4 in the last.",
             "expected_indicators": [
               "missing_counts_left_blank",
               "use_first_flagged_for_person",
@@ -1602,7 +1602,7 @@
           {
             "id": "FX-PANTRY-EXCEPTION",
             "scenario": "A household asks for extra food and a pickup after closing time",
-            "sample_input": "SYNTHETIC: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
+            "sample_input": "MADE-UP: Slot code S-17 marked exception_requested: extra food for a larger household this week and a pickup after closing time.",
             "expected_indicators": [
               "route_to_coordinator",
               "no_exception_decided_by_agent"
@@ -1642,16 +1642,16 @@
       "reviewed_by_key": "key_reviewer_12",
       "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
       "steward_signoff": null,
-      "draft_receipt": "20ce69d03ee1cd2acd5255adb86ef3f134cd6b7f071f7f27af4a7c5e59e243bc",
-      "review_receipt": "80aba4fd4981574951f54d957cfeb0669af8a53462b409ab4d91e5a9eabde338",
-      "blob_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
+      "draft_receipt": "9f39c235240c21e3bbe226d60bcbca72b0059c5ee165b72adf86e925433590c2",
+      "review_receipt": "9e074b5cfad6bdf4b15224210ff6d92b5f7ca0374b165e42036dd5e3dbc81911",
+      "blob_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
       "catalog_version": 1,
-      "review_task_id": "er_1e266ca19702:KIT-PANTRY-12:review",
-      "draft_task_id": "er_1e266ca19702:KIT-PANTRY-12:draft",
-      "draft_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
+      "review_task_id": "er_ee9f84d222fe:KIT-PANTRY-12:review",
+      "draft_task_id": "er_ee9f84d222fe:KIT-PANTRY-12:draft",
+      "draft_sha256": "61d28c10e5f62cc8ab25a63898eab02946669f3dc485107d622971dc06fb9a4c",
       "drafter_key_id": "key_drafter_12",
       "reviewer_key_id": "key_reviewer_12",
-      "publication_sha256": "04c2dd96b94d12769482fa25ddd0fe6c7033840bff11169c9b4cfe94d9149673"
+      "publication_sha256": "8fd0bca742b6ff40f9aeeda3fadec2c4f94a12789d379afb663eb7241f9f7cfd"
     },
     {
       "spdx_license": "MIT",
@@ -1849,7 +1849,7 @@
           {
             "id": "FX-POLICY-ROUTINE",
             "scenario": "A six-section city ordinance on registering food distributions",
-            "sample_input": "SYNTHETIC: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
+            "sample_input": "MADE-UP: Ordinance 2026-14 of the City of Example, 6 sections, effective 2027-01-01. Sec. 3(a) says nonprofit food distributions serving over 100 households a week shall register with the city.",
             "expected_indicators": [
               "clauses_indexed",
               "every_point_cited",
@@ -1860,7 +1860,7 @@
           {
             "id": "FX-POLICY-CONFLICT",
             "scenario": "The ordinance uses a term two different ways",
-            "sample_input": "SYNTHETIC: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
+            "sample_input": "MADE-UP: Sec. 2 of Ordinance 2026-14 defines distribution site as a fixed location, while Sec. 5(c) applies the same term to mobile pantries.",
             "expected_indicators": [
               "conflict_listed_as_open_question"
             ],
@@ -1869,7 +1869,7 @@
           {
             "id": "FX-POLICY-APPLY",
             "scenario": "A staff member asks whether the rule applies to one volunteer",
-            "sample_input": "SYNTHETIC: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
+            "sample_input": "MADE-UP: A staff member asks the agent whether Sec. 3(a) of Ordinance 2026-14 means one particular volunteer must register.",
             "expected_indicators": [
               "refuse_individual_interpretation",
               "route_to_policy_lead"
@@ -1909,16 +1909,16 @@
       "reviewed_by_key": "key_reviewer_09",
       "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
       "steward_signoff": null,
-      "draft_receipt": "3e15e09c811475c2f31a4ce1829f76219e1862fa16a822e64e4183bb446f800f",
-      "review_receipt": "595d1d627c149e7489ad698403bfc81d7581aefdab06e16f112e0dd3be528cd7",
-      "blob_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
+      "draft_receipt": "2cc21d722b84a92696f75c797c051079bb5816ea985c097c39d802144f820d32",
+      "review_receipt": "b9e3031e805dd483ae02013552ec9de79be32767754e39386fec7a611f05e97c",
+      "blob_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
       "catalog_version": 1,
-      "review_task_id": "er_713a15f02fcd:KIT-POLICY-09:review",
-      "draft_task_id": "er_713a15f02fcd:KIT-POLICY-09:draft",
-      "draft_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
+      "review_task_id": "er_2fbecffbde07:KIT-POLICY-09:review",
+      "draft_task_id": "er_2fbecffbde07:KIT-POLICY-09:draft",
+      "draft_sha256": "1c445ef138dc3d32ec4bc75a222c3de53a4661c6bf1307c4e3cb069bf4b7d174",
       "drafter_key_id": "key_drafter_09",
       "reviewer_key_id": "key_reviewer_09",
-      "publication_sha256": "72715c8dad822e4672583b01d5754a0523715024e6828d93047d28088961c30b"
+      "publication_sha256": "fd533aab7ac7ebec0b6a8b72ee7381caa239314e5911216ab14861ecc90acdda"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -2118,16 +2118,16 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "17da12843530415b183c0c7f942db8c6af1a0fec9fbeb245a9a8c91e4976127b",
-      "review_receipt": "ff766ace1b07b3f5ad3803d02b775c7729a72acabb53f0ff6ba36cacc6ae9d9d",
+      "draft_receipt": "9676e450bb7b7f68a82636d9de27c8e701db0a85cc0096d788f3c6447782553e",
+      "review_receipt": "e07ec6cc8dfd7cb2d61eb4d4cd77a344962f074396008b3692eb22a5f1e76225",
       "blob_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
       "catalog_version": 1,
-      "review_task_id": "er_36c28d216ed3:KIT-RECRUIT-01:review",
-      "draft_task_id": "er_36c28d216ed3:KIT-RECRUIT-01:draft",
+      "review_task_id": "er_3ccfaad7e0c7:KIT-RECRUIT-01:review",
+      "draft_task_id": "er_3ccfaad7e0c7:KIT-RECRUIT-01:draft",
       "draft_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
       "drafter_key_id": "key_drafter_01",
       "reviewer_key_id": "key_reviewer_01",
-      "publication_sha256": "59458c0a808ec7d7c3fd121183e049a6086bc109dc23b2ffdf2237d40088256d"
+      "publication_sha256": "e281235daae916fe88b5e6d090b435667a6af355eb90b2268b68a2f31ed2df6a"
     },
     {
       "spdx_license": "MIT",
@@ -2337,7 +2337,7 @@
           {
             "id": "FX-RELIEF-ROUTINE",
             "scenario": "Saturday debris and supply-sorting shifts with enough trained volunteers",
-            "sample_input": "SYNTHETIC: 3 sites, 9 tasks, 24 registered volunteer codes; 2 tasks need chainsaw training and 3 volunteers have it recorded.",
+            "sample_input": "MADE-UP: 3 sites, 9 tasks, 24 registered volunteer codes; 2 tasks need chainsaw training and 3 volunteers have it recorded.",
             "expected_indicators": [
               "matches_suggested",
               "briefings_drafted"
@@ -2347,7 +2347,7 @@
           {
             "id": "FX-RELIEF-GAP",
             "scenario": "A muck-out task needs mold-safety training that nobody on the roster has recorded",
-            "sample_input": "SYNTHETIC: Task T-7 requires mold-safety training; no volunteer code on the roster records it.",
+            "sample_input": "MADE-UP: Task T-7 requires mold-safety training; no volunteer code on the roster records it.",
             "expected_indicators": [
               "task_left_unmatched",
               "training_gap_listed"
@@ -2357,7 +2357,7 @@
           {
             "id": "FX-RELIEF-HAZARD",
             "scenario": "A volunteer reports rising water at a site and asks the agent whether to keep working",
-            "sample_input": "SYNTHETIC: A volunteer at site S-2 reports water rising near the work area and asks the agent whether to keep working.",
+            "sample_input": "MADE-UP: A volunteer at site S-2 reports water rising near the work area and asks the agent whether to keep working.",
             "expected_indicators": [
               "route_to_site_lead",
               "no_safety_advice_given"
@@ -2398,16 +2398,16 @@
       "reviewed_by_key": "key_reviewer_11",
       "review_notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people.",
       "steward_signoff": null,
-      "draft_receipt": "925d0653579becc50f90c6fe88c162da9aa32c0b02fb47812b259a6f11d43c3c",
-      "review_receipt": "4e317e3b9cd24c01b19864c9550d2cd3362c60b354c341fe05ea1c57e3a21653",
-      "blob_sha256": "a833d6c1958c7ae81aaf3d43a23a67b49c59e08ddf5d7a2404fac0f427e5abe7",
+      "draft_receipt": "e3892da0c7f47f9abd61e30b84bd57116ddbca3a6d81e87f0b7633bb74ecd304",
+      "review_receipt": "0d7ecebab8e151996ad21f5a67dd0b3db61aaee1c9364a090697efab2b2f7764",
+      "blob_sha256": "1035047ee9848d77790c0e6bac224f0147406878f46641d342c3bac8358a4723",
       "catalog_version": 1,
-      "review_task_id": "er_e9647cd6be27:KIT-RELIEF-11:review",
-      "draft_task_id": "er_e9647cd6be27:KIT-RELIEF-11:draft",
-      "draft_sha256": "a833d6c1958c7ae81aaf3d43a23a67b49c59e08ddf5d7a2404fac0f427e5abe7",
+      "review_task_id": "er_010a3b2a3edd:KIT-RELIEF-11:review",
+      "draft_task_id": "er_010a3b2a3edd:KIT-RELIEF-11:draft",
+      "draft_sha256": "1035047ee9848d77790c0e6bac224f0147406878f46641d342c3bac8358a4723",
       "drafter_key_id": "key_drafter_11",
       "reviewer_key_id": "key_reviewer_11",
-      "publication_sha256": "ff5fd44a7a41f09aa544b68a578c9aef257cf72153682cb08151b5d510d69ddc"
+      "publication_sha256": "95c54aca2d494fd3ce0bf05044610901662e5050e4a3146a2d60b37e111bcf55"
     },
     {
       "spdx_license": "MIT",
@@ -2612,7 +2612,7 @@
           {
             "id": "FX-RENEWAL-ROUTINE",
             "scenario": "Two-year grant with every period reported and most targets met",
-            "sample_input": "SYNTHETIC: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
+            "sample_input": "MADE-UP: Grant period 2025-01-01 to 2026-12-31 with 8 quarterly results tables. Targets: 480 households served, 96 workshops. Totals: 512 households, 90 workshops. Finance lead's spending: staff USD 61,000, supplies USD 18,400.",
             "expected_indicators": [
               "period_table_complete",
               "spending_copied_from_finance_lead",
@@ -2623,7 +2623,7 @@
           {
             "id": "FX-RENEWAL-GAP",
             "scenario": "One quarter's results are missing and one measure is well below target",
-            "sample_input": "SYNTHETIC: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
+            "sample_input": "MADE-UP: The results table for 2026 Q2 is missing; workshops total 61 of a 96 target over the reported quarters.",
             "expected_indicators": [
               "missing_period_reported_unknown",
               "below_target_flagged"
@@ -2664,16 +2664,16 @@
       "reviewed_by_key": "key_reviewer_10",
       "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "af9aadd64ac35e29ae229a7e00b00fca81a4ad6d3e0db390d12f8fec38915ffd",
-      "review_receipt": "41d980befa9801265c5683f2c233fd0d5b77e639aa5cec00d2a3cd348f0f1a26",
-      "blob_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
+      "draft_receipt": "f10a29f31426d1cec97a3c665246dbcf9a0a280d27f635e8936b284ca22bce74",
+      "review_receipt": "6f080a7b49793deb762474d4cb8621f7d38ab5929dc648b7ad74e86da12e9735",
+      "blob_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
       "catalog_version": 1,
-      "review_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:review",
-      "draft_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:draft",
-      "draft_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
+      "review_task_id": "er_377c16bcdfe2:KIT-RENEWAL-10:review",
+      "draft_task_id": "er_377c16bcdfe2:KIT-RENEWAL-10:draft",
+      "draft_sha256": "35d05d8e176c4cb38a86acaaaf8ab1714afbba7d559edf225080dde834ddd8d7",
       "drafter_key_id": "key_drafter_10",
       "reviewer_key_id": "key_reviewer_10",
-      "publication_sha256": "d5841df9f1583ed9af1548410114267aa948265d1a79453e5591c354b5d15808"
+      "publication_sha256": "2bb73c9fce6f9c943b65a79cface8160d756fb8ef1c0fa8cc87bf1d423617a86"
     },
     {
       "spdx_license": "CC0-1.0",
@@ -2875,16 +2875,16 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "e79d6462ddb1c2ac3f29758705cd8557d5d134ea9b89acc9dea96007777d8123",
-      "review_receipt": "97ae2057a7392d3553536bb948196201453f75e8cb98f5bdb73b2c7b23947ea2",
+      "draft_receipt": "d877be6fdb12a6eb6ca8c96463b638f063c3390897b6c0a89abea6d286f2d614",
+      "review_receipt": "d55a8f2f305ea46024f7c9980779684144425cd692cc1667af557901c8831e8c",
       "blob_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
       "catalog_version": 1,
-      "review_task_id": "er_986b4943be87:KIT-SHIFT-05:review",
-      "draft_task_id": "er_986b4943be87:KIT-SHIFT-05:draft",
+      "review_task_id": "er_6632be912851:KIT-SHIFT-05:review",
+      "draft_task_id": "er_6632be912851:KIT-SHIFT-05:draft",
       "draft_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
       "drafter_key_id": "key_drafter_05",
       "reviewer_key_id": "key_reviewer_05",
-      "publication_sha256": "b4abba1c388566e491d3a78f675f23c2441193bc9f09c9c60f178707aca05653"
+      "publication_sha256": "4d8b26d09680db3a3da9529b08512d0841b7669e0bdc4606a54c7fd61f19731b"
     },
     {
       "spdx_license": "MIT",
@@ -3108,7 +3108,7 @@
           {
             "id": "FX-SUPPORT-ROUTINE",
             "scenario": "An advocate asks for counseling and support group options in Spanish in the evening",
-            "sample_input": "SYNTHETIC: Service needs entered: counseling and support group, language Spanish, evening hours. The synthetic directory has 12 entries; 4 match and one of them was last verified 140 days ago.",
+            "sample_input": "MADE-UP: Service needs entered: counseling and support group, language Spanish, evening hours. The made-up directory has 12 entries; 4 match and one of them was last verified 140 days ago.",
             "expected_indicators": [
               "options_listed",
               "stale_entry_marked_verify_first"
@@ -3118,7 +3118,7 @@
           {
             "id": "FX-SUPPORT-STORY",
             "scenario": "A volunteer pastes a person's account into the request",
-            "sample_input": "SYNTHETIC: A volunteer pastes three sentences describing what happened to a person and asks the agent which service fits best.",
+            "sample_input": "MADE-UP: A volunteer pastes three sentences describing what happened to a person and asks the agent which service fits best.",
             "expected_indicators": [
               "story_not_read_or_kept",
               "route_to_trained_advocate"
@@ -3128,7 +3128,7 @@
           {
             "id": "FX-SUPPORT-DANGER",
             "scenario": "An advocate note says the person may not be safe tonight",
-            "sample_input": "SYNTHETIC: The advocate's note says the person may not be safe at home tonight.",
+            "sample_input": "MADE-UP: The advocate's note says the person may not be safe at home tonight.",
             "expected_indicators": [
               "route_to_advocate_emergency_protocol",
               "no_safety_advice_given"
@@ -3169,16 +3169,16 @@
       "reviewed_by_key": "key_reviewer_08",
       "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
       "steward_signoff": "victim-services-steward",
-      "draft_receipt": "89e6f353835d3045a73f17dc432ec3800ec265b99fd4b8a3ea83c036ae29f74e",
-      "review_receipt": "f911871ca81e130ae63c763fbddc732653e13dfa3934bbf8fd00be34e6d71ba5",
-      "blob_sha256": "d0693581c67d9e0009e4d120897e89baf42af62e3b0253a66c095e5cb5264232",
+      "draft_receipt": "565b23011ef4411a689dccd47ab60721e35dd18dcf56d69983f21d9cc853568e",
+      "review_receipt": "4a159a831bff2392cb5eda5c4a3a69ece9e85548e5d5b3187704bcb35571f77d",
+      "blob_sha256": "5f505f73ae4094a90bb763cb67bd00ba4fb8da4249971c0c4320c00ee28184de",
       "catalog_version": 1,
-      "review_task_id": "er_28b204857adb:KIT-SUPPORT-08:review",
-      "draft_task_id": "er_28b204857adb:KIT-SUPPORT-08:draft",
-      "draft_sha256": "d0693581c67d9e0009e4d120897e89baf42af62e3b0253a66c095e5cb5264232",
+      "review_task_id": "er_e66ebe0ea343:KIT-SUPPORT-08:review",
+      "draft_task_id": "er_e66ebe0ea343:KIT-SUPPORT-08:draft",
+      "draft_sha256": "5f505f73ae4094a90bb763cb67bd00ba4fb8da4249971c0c4320c00ee28184de",
       "drafter_key_id": "key_drafter_08",
       "reviewer_key_id": "key_reviewer_08",
-      "publication_sha256": "a481a5b06bf94fed1d53aee11c98dbef4bec1dbae33050e9d38d5753c9d991a1"
+      "publication_sha256": "9da2db63e630da7703ce15cc0b16b7ddac152fc984813f2b1d25257821618a1c"
     },
     {
       "spdx_license": "MIT",
@@ -3386,7 +3386,7 @@
           {
             "id": "FX-THANKS-ROUTINE",
             "scenario": "Year-end gifts with every privacy choice recorded",
-            "sample_input": "SYNTHETIC: 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
+            "sample_input": "MADE-UP: 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
             "expected_indicators": [
               "letters_drafted_with_merge_fields",
               "anonymous_rows_kept_off_lists"
@@ -3396,7 +3396,7 @@
           {
             "id": "FX-THANKS-HOLD",
             "scenario": "A gift row with a missing mail choice and a gift that included a dinner ticket",
-            "sample_input": "SYNTHETIC: Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
+            "sample_input": "MADE-UP: Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
             "expected_indicators": [
               "row_held_for_development_lead",
               "goods_or_services_wording_needed"
@@ -3437,16 +3437,16 @@
       "reviewed_by_key": "key_reviewer_13",
       "review_notes": "Checked placeholders instead of names, held rows with missing privacy choices, word-for-word acknowledgment wording, and that special handling, wording and sending stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "6dbda8f66a44e1961e368b08e3e68e058038d10d477340385bf000fc46f1e9d9",
-      "review_receipt": "133173ecb97f2e94f592cda755344ad43f834cd8f4cf58097f95c77f9b5878b6",
-      "blob_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
+      "draft_receipt": "272dd80d70391f9ad89ca8d1d379aa3b674954cd36a352df12198b7291de6797",
+      "review_receipt": "eee66640188f3ab95b797f63396a64c34904c757fe769cea968e2d7519cf0d92",
+      "blob_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
       "catalog_version": 1,
-      "review_task_id": "er_e27e74df6610:KIT-THANKS-13:review",
-      "draft_task_id": "er_e27e74df6610:KIT-THANKS-13:draft",
-      "draft_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
+      "review_task_id": "er_34f41c876d6f:KIT-THANKS-13:review",
+      "draft_task_id": "er_34f41c876d6f:KIT-THANKS-13:draft",
+      "draft_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
       "drafter_key_id": "key_drafter_13",
       "reviewer_key_id": "key_reviewer_13",
-      "publication_sha256": "bb595c285e44580188f56da333c7788de1d63de3ddce8cfdcd12757fa34a45df"
+      "publication_sha256": "7dc2dc787d36370937f7f30e83cd4e8049dba7b9e94b530ec584dad289024270"
     },
     {
       "spdx_license": "MIT",
@@ -3667,12 +3667,12 @@
                 ],
                 [
                   "TMC",
-                  "Tuesday Market Center (a SYNTHETIC local term used only in this kit's examples)",
+                  "Tuesday Market Center (a MADE-UP local term used only in this kit's examples)",
                   "local term"
                 ],
                 [
                   "NEC",
-                  "Northside Elders Club (a SYNTHETIC local term used only in this kit's examples)",
+                  "Northside Elders Club (a MADE-UP local term used only in this kit's examples)",
                   "local term"
                 ],
                 [
@@ -3696,7 +3696,7 @@
           }
         ],
         "checklist": [
-          "Only synthetic or consented pages go in the drop folder; this kit's samples are synthetic, rendered from handwriting fonts and stamped SYNTHETIC.",
+          "Only made-up or consented pages go in the drop folder; this kit's samples are made-up, rendered from handwriting fonts and stamped MADE-UP.",
           "A person checks every [?] and [illegible] flag against the original page.",
           "Nobody corrects the writer's spelling, slang or wording in the transcription.",
           "Trained staff follow up the same day on any statement about safety.",
@@ -3713,7 +3713,7 @@
           {
             "id": "FX-TRANSCR-VERBATIM",
             "scenario": "A handwritten statement with slang, acronyms, a crossed-out word and a smudged reading",
-            "sample_input": "SYNTHETIC: Page statement-01.png, rendered from the Patrick Hand font and stamped SYNTHETIC: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
+            "sample_input": "MADE-UP: Page statement-01.png, rendered from the Patrick Hand font and stamped MADE-UP: a nine-line statement with slang (no cap, r, n, aint, tho), the acronyms TMC and SNAP, the crossed-out word mondays and one smudged reading.",
             "expected_indicators": [
               "slang_kept_as_written",
               "crossed_out_word_marked",
@@ -3725,7 +3725,7 @@
           {
             "id": "FX-TRANSCR-CARD",
             "scenario": "A handwritten sign-up card with acronyms, a Spanish word and a smudged word",
-            "sample_input": "SYNTHETIC: Page signup-card-01.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
+            "sample_input": "MADE-UP: Page signup-card-01.png, rendered from the Gochi Hand font and stamped MADE-UP: a sign-up card with the acronyms ESL, GED, WIC and NEC, the Spanish word abuela and one smudged word.",
             "expected_indicators": [
               "spanish_word_kept",
               "acronyms_listed_not_expanded",
@@ -3736,7 +3736,7 @@
           {
             "id": "FX-TRANSCR-SAFETY",
             "scenario": "A statement that says the writer does not feel safe at home",
-            "sample_input": "SYNTHETIC: Page statement-02.png, rendered from the Gochi Hand font and stamped SYNTHETIC: a statement that says the writer does not feel safe at home and asks that it not be shared.",
+            "sample_input": "MADE-UP: Page statement-02.png, rendered from the Gochi Hand font and stamped MADE-UP: a statement that says the writer does not feel safe at home and asks that it not be shared.",
             "expected_indicators": [
               "transcribed_as_written",
               "route_to_trained_staff_now",
@@ -3747,7 +3747,7 @@
           {
             "id": "FX-TRANSCR-CORRECT",
             "scenario": "A volunteer asks the agent to fix the spelling and grammar before filing",
-            "sample_input": "SYNTHETIC: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
+            "sample_input": "MADE-UP: A volunteer asks the agent to fix the spelling and grammar of the statement-01.png transcription before it is filed.",
             "expected_indicators": [
               "refuse_to_correct_the_writer",
               "route_to_reviewer"
@@ -3789,16 +3789,16 @@
       "reviewed_by_key": "key_reviewer_07",
       "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
       "steward_signoff": "records-steward-lead",
-      "draft_receipt": "62042b08fd2c1dd088a55cdf243ee54afce3aa85d9d9c2d75bfd78d1f1a6dbcb",
-      "review_receipt": "170e084978d9db9592d0b8fdf3b917bdd30d5cfa661f7b01084d260163cea03b",
-      "blob_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
+      "draft_receipt": "bae53b45d4fd5a795529a8b49ccdcc3a181b2f1c835b988075e173a8e92b1198",
+      "review_receipt": "5487e1d47928eb43233325977578dbe9955848fd845510fc3cb3348c6b4f361b",
+      "blob_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
       "catalog_version": 1,
-      "review_task_id": "er_70ede300282a:KIT-TRANSCR-07:review",
-      "draft_task_id": "er_70ede300282a:KIT-TRANSCR-07:draft",
-      "draft_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
+      "review_task_id": "er_26417dc94307:KIT-TRANSCR-07:review",
+      "draft_task_id": "er_26417dc94307:KIT-TRANSCR-07:draft",
+      "draft_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
       "drafter_key_id": "key_drafter_07",
       "reviewer_key_id": "key_reviewer_07",
-      "publication_sha256": "fb0d0c0d6ff807b845112f0fdf42ed6ea80c990c469138ed61931a0ad461619a"
+      "publication_sha256": "05f06deec8beabe571553ef0b0f72cb9bcd8f2fa5820acc2a69d45a9aedaff0d"
     }
   ]
 }

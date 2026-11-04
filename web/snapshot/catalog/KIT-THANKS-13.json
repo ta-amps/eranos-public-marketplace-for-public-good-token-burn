@@ -205,7 +205,7 @@
       {
         "id": "FX-THANKS-ROUTINE",
         "scenario": "Year-end gifts with every privacy choice recorded",
-        "sample_input": "SYNTHETIC: 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
+        "sample_input": "MADE-UP: 48 gift rows dated 2026-12-01 to 2026-12-31, amounts from USD 25 to USD 1,000, every row with anonymous, mail and listing choices; 3 rows marked anonymous.",
         "expected_indicators": [
           "letters_drafted_with_merge_fields",
           "anonymous_rows_kept_off_lists"
@@ -215,7 +215,7 @@
       {
         "id": "FX-THANKS-HOLD",
         "scenario": "A gift row with a missing mail choice and a gift that included a dinner ticket",
-        "sample_input": "SYNTHETIC: Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
+        "sample_input": "MADE-UP: Gift code G-31 has no mail choice recorded; gift code G-44 of USD 300 included a dinner ticket valued at USD 80.",
         "expected_indicators": [
           "row_held_for_development_lead",
           "goods_or_services_wording_needed"
@@ -256,14 +256,14 @@
   "reviewed_by_key": "key_reviewer_13",
   "review_notes": "Checked placeholders instead of names, held rows with missing privacy choices, word-for-word acknowledgment wording, and that special handling, wording and sending stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "6dbda8f66a44e1961e368b08e3e68e058038d10d477340385bf000fc46f1e9d9",
-  "review_receipt": "133173ecb97f2e94f592cda755344ad43f834cd8f4cf58097f95c77f9b5878b6",
-  "blob_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
+  "draft_receipt": "272dd80d70391f9ad89ca8d1d379aa3b674954cd36a352df12198b7291de6797",
+  "review_receipt": "eee66640188f3ab95b797f63396a64c34904c757fe769cea968e2d7519cf0d92",
+  "blob_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
   "catalog_version": 1,
-  "review_task_id": "er_e27e74df6610:KIT-THANKS-13:review",
-  "draft_task_id": "er_e27e74df6610:KIT-THANKS-13:draft",
-  "draft_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
+  "review_task_id": "er_34f41c876d6f:KIT-THANKS-13:review",
+  "draft_task_id": "er_34f41c876d6f:KIT-THANKS-13:draft",
+  "draft_sha256": "5136a85ea205a280cba36f5a216cf6b47dc688750bd86b5a385e04c239e9bdde",
   "drafter_key_id": "key_drafter_13",
   "reviewer_key_id": "key_reviewer_13",
-  "publication_sha256": "bb595c285e44580188f56da333c7788de1d63de3ddce8cfdcd12757fa34a45df"
+  "publication_sha256": "7dc2dc787d36370937f7f30e83cd4e8049dba7b9e94b530ec584dad289024270"
 }
