@@ -396,6 +396,28 @@ test.describe("on the hosted build", () => {
     expect(text).not.toMatch(/receipt|\b[0-9a-f]{12,}\b/i);
   });
 
+  test("a closed request keeps its last failed try and doesn't say it's waiting in line", async ({ page }) => {
+    const now = Math.floor(Date.now() / 1000);
+    const event = (version: number, value: Record<string, unknown>) => ({
+      version,
+      created_at: now - 300 + version,
+      value: { schema_version: 1, request_id: REQUEST_ID, status: "open_for_build", event: { at: now - 300 + version, ...value } },
+    });
+    const history = [
+      event(1, { type: "received", receipt: "a".repeat(64) }),
+      event(2, { type: "planned", receipt: "b".repeat(64), parts: [{ part: 1, route: "public-only", text: "Summarize the laws.", report_id: "RPT-RAAAAAAA-01" }] }),
+      event(3, { type: "work_claimed", part: 1, receipt: "c".repeat(64), worker: "worker-3", model: "muse-spark" }),
+      event(4, { type: "work_failed", part: 1, receipt: "d".repeat(64), reason: "self-test failed: no quoted claims", summary: { attempt: 3, max_attempts: 3 } }),
+      event(5, { type: "closed", receipt: "e".repeat(64) }),
+    ];
+    await mockSite(page, { history, request: { request_id: REQUEST_ID, status: "closed", text: "Summarize the laws." } });
+    await page.goto(`/requests/${REQUEST_ID}`);
+    if ((await page.getByTestId("band-toggle-2").getAttribute("aria-expanded")) !== "true") await page.getByTestId("band-toggle-2").click();
+    await expect(page.getByTestId("failed-1")).toContainText("The last try failed: self-test failed: no quoted claims");
+    await expect(page.getByTestId("failed-1")).not.toContainText("back in line");
+    await expect(page.getByTestId("waiting-1")).toHaveCount(0);
+  });
+
   test("B4: a published process package shows 'Download the process', with no digest on the page; an unreviewed one does not", async ({ page }) => {
     const processExample = noun<{ solution: Record<string, unknown> }>("request-example-process");
     const plan = { request_id: REQUEST_ID, receipt: { claim_receipt: "e".repeat(64) }, parts: [{ part: 1, route: "private-files", text: "A process.", kit_id: "PRC-35DE86-01" }] };

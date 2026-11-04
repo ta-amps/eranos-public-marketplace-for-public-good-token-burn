@@ -1,3 +1,4 @@
+import { discoveryFile, SITEMAP_XML, wantsPlainText } from "./agent_connect.js";
 import { CLIENT_PREF_PROPERTIES, applyClientPrefs, readClientPrefs } from "./client_prefs.js";
 import { withPublicNames } from "./public_names.js";
 import { agentStartAsset } from "./agent_start.js";
@@ -78,6 +79,8 @@ Allow: /agent.md
 Allow: /.well-known/agent-card.json
 Allow: /.well-known/agent.json
 Allow: /.well-known/security.txt
+
+Sitemap: https://eranosforgood.org/sitemap.xml
 `;
 
 const SECURITY_TXT = `Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
@@ -94,7 +97,7 @@ const OPEN_READ_GUIDE = `
 Every public kit, request and result opens to anyone. Secrets, admin routes and stores private to one surface stay closed, and personal data is screened when a request comes in.
 The catalog holds kits that passed a different worker's check. Each kit says review_state and reviewed.
 Your choices are optional: max_results, max_bytes, updated_after, max_age_days, source_kinds, include_unreviewed, review_state. A value we can't read is a warning, never a refusal.
-- curl "https://eranosforgood.org/api/catalog?max_results=2&max_bytes=20000" (the MCP tool search_catalog takes the same choices)
+- curl "https://eranosforgood.org/api/catalog?max_results=2&max_bytes=20000", and pass next_offset back as offset (the MCP tool search_catalog takes the same choices)
 - curl "https://eranosforgood.org/api/nouns/eranos.requests?max_results=5", and pass next back as after
 - curl "https://eranosforgood.org/api/requests/{request_id}?include_unreviewed=true" returns the maker's result before its check, marked. accept_unaudited=true does the same, and accept_unaudited: true when you send a request asks for it from the start.
 - curl "https://eranosforgood.org/api/open-tasks?open_to_me=true&max_results=5" lists Tasks your agent can claim with no key, first.
@@ -263,6 +266,7 @@ const MCP_TOOLS = [
         cohort: { type: "string" },
         spdx: { type: "string" },
         q: { type: "string" },
+        offset: { type: "integer", description: "Where to go on from: next_offset of the last reply." },
         ...CLIENT_PREF_PROPERTIES,
       },
       additionalProperties: false,
@@ -621,13 +625,15 @@ function catalogAnswer(rawKits, searchParams) {
   const filtered = filterCatalogKits(rawKits, searchParams).map((entry) => ({ ...entry, ...kitReviewLabels(entry) }));
   const prefs = readClientPrefs(searchParams);
   if (!prefs.max_results && Number(searchParams.get("limit")) > 0) prefs.max_results = Number(searchParams.get("limit"));
-  const chosen = applyClientPrefs(filtered, prefs, {
+  const offset = Math.max(0, Number(searchParams.get("offset")) || 0);
+  const chosen = applyClientPrefs(filtered.slice(offset), prefs, {
     stateOf: (entry) => entry.review_state,
     // A kit with no date stays in: nothing says it's old.
     timeOf: (entry) => entry.updated_at ?? entry.published_at ?? entry.created_at ?? Infinity,
     kindsOf: (entry) => ["kit", entry.kind, entry.kit?.kind, entry.kit?.domain, entry.kit?.track, entry.track, ...(Array.isArray(entry.tags) ? entry.tags : [])].filter(Boolean),
   });
-  return { synthetic: true, two_step_verified: true, kits: chosen.items, preferences: chosen.report };
+  const leftOut = chosen.report.left_out_by_max_results + chosen.report.left_out_by_max_bytes;
+  return { synthetic: true, two_step_verified: true, kits: chosen.items, next_offset: leftOut && chosen.items.length ? offset + chosen.items.length : null, preferences: chosen.report };
 }
 
 function filterCatalogKits(entries, searchParams) {
@@ -1644,7 +1650,7 @@ async function lookupSingleKit(request, env, kitId, cohort = null) {
 
 async function handleMcp(request, env) {
   if (request.method !== "POST") {
-    return problem(405, "Method Not Allowed", "MCP endpoint requires POST JSON-RPC 2.0.", "method_not_allowed", {
+    return problem(405, "Method Not Allowed", "MCP endpoint requires POST JSON-RPC 2.0. If your tool can only open URLs, the kits are at https://eranosforgood.org/api/catalog and instructions at https://eranosforgood.org/llms.txt", "method_not_allowed", {
       allow: "POST",
     });
   }
@@ -1715,7 +1721,7 @@ async function handleMcp(request, env) {
       for (const k of ["domain", "track", "tag", "cohort", "spdx", "q"]) {
         if (typeof args[k] === "string" && args[k].trim()) sp.set(k, args[k]);
       }
-      for (const k of Object.keys(CLIENT_PREF_PROPERTIES)) {
+      for (const k of [...Object.keys(CLIENT_PREF_PROPERTIES), "offset"]) {
         if (args[k] !== undefined && args[k] !== null) sp.set(k, String(args[k]));
       }
       const payload = catalogAnswer(rawKits, sp);
@@ -2070,8 +2076,10 @@ async function handleCloudApi(request, env, pathname) {
         // graceful fallback if anonymous session minting is rate-limited
       }
     }
-    return jsonResp({
-      ...negotiation,
+    // A handshake's session token belongs to the caller who asked for it, so it stays out of the display step.
+    const answer = await jsonResp({ ...negotiation }).json();
+    return new Response(JSON.stringify({
+      ...answer,
       ...(tesseraSession
         ? {
             session_id: tesseraSession.session_id,
@@ -2080,7 +2088,7 @@ async function handleCloudApi(request, env, pathname) {
             tessera_session: tesseraSession,
           }
         : {}),
-    });
+    }), { status: 200, headers: { "content-type": "application/json", "cache-control": "private, no-store" } });
   }
 
   if (pathname === "/api/tracks") {
@@ -2299,7 +2307,7 @@ async function handleCloudApi(request, env, pathname) {
   if (kitMatch) {
     const kitId = decodeSegment(kitMatch[1]);
     if (kitId === BROKEN_ESCAPE || !KIT_ID_RE.test(kitId)) {
-      return problem(400, "Bad Request", "invalid kit id", "invalid_request");
+      return problem(400, "Bad Request", "invalid kit id: see the list at https://eranosforgood.org/api/catalog", "invalid_request");
     }
     const found = await lookupSingleKit(request, env, kitId);
     if (!found) {
@@ -2650,7 +2658,8 @@ const onboardingApplication = {
     }
     const access = accessResponse(request, "eranos");
     if (access) return finish(access, request.method);
-    let response = await handleDiscoveryRoute(request, env, pathname);
+    let response = await connectRoute(request, env, pathname);
+    if (!response) response = await handleDiscoveryRoute(request, env, pathname);
     if (!response) {
       if (pathname === "/api" || pathname.startsWith("/api/")) {
         if ((env.STORAGE_MODE || "cloud") === "origin") {
@@ -2670,7 +2679,9 @@ const onboardingApplication = {
           (!isAppPage(pathname) ||
             (await isMissingKitPage(request, env, pathname)))
         ) {
-          response = new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers });
+          response = wantsHtml(request)
+            ? new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers })
+            : plainNotFound(pathname);
         } else if (response.status === 200 && html && request.method === "GET") {
           response = await withCanonical(response, pathname);
         }
@@ -2681,6 +2692,26 @@ const onboardingApplication = {
     return finish(response, request.method);
   },
 };
+
+const wantsHtml = (request) => (request.headers.get("accept") || "").toLowerCase().includes("text/html");
+function plainNotFound(pathname) {
+  const shown = pathname.length > 200 ? `${pathname.slice(0, 200)}...` : pathname;
+  return new Response(`No page at ${shown}.\nStart at https://eranosforgood.org/llms.txt . Agent kits: https://eranosforgood.org/api/catalog . Ways to connect: https://teleionlabs.com/docs/#ways\n`, {
+    status: 404,
+    headers: { "content-type": "text/plain; charset=utf-8" },
+  });
+}
+// Files agents look for, and plain text for a client that asks for it. Not a page, so no page shell.
+async function connectRoute(request, env, pathname) {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const json = discoveryFile(pathname);
+  if (json) return jsonResp(json);
+  if (pathname === "/sitemap.xml") return textResp(SITEMAP_XML, "application/xml; charset=utf-8");
+  if (pathname === "/" && wantsPlainText(request)) {
+    return handleDiscoveryRoute(new Request(new URL("/llms.txt", request.url), { method: request.method, headers: request.headers }), env, "/llms.txt");
+  }
+  return null;
+}
 
 // The vendored onboarding module still serves /agent-start.{js,css,json}. Its landing banner is not
 // injected here: the home page opens on the marketplace's two front doors, and the /help page copies the

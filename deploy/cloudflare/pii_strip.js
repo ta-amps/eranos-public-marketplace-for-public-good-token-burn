@@ -8,6 +8,8 @@
 // stripPiiDeep(value)       the same over JSON strings; identifiers, addresses, digests and code files are left alone
 
 const OWN_OR_EXAMPLE_MAIL = /@(?:(?:[a-z0-9-]+\.)*(?:example\.(?:com|org|net)|teleionlabs\.com|eranosforgood\.org))$/i;
+// These file endings are also country domains (Paraguay, Moldova, Saint Helena), so an address ending in one is an address.
+const COUNTRY_ENDING = /\.(?:py|md|sh)$/i;
 const FILE_ENDING = /\.(?:png|jpe?g|gif|svg|webp|js|mjs|ts|tsx|py|json|css|html?|md|txt|woff2?|lock|ya?ml|toml|sh)$/i;
 const CREDENTIAL = new RegExp([
   String.raw`-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)`,
@@ -84,7 +86,7 @@ function luhn(digits) {
 function looksLikeCard(found) {
   const digits = found.replace(/[ -]/g, "");
   if (/^(\d)\1+$/.test(digits)) return false;
-  const brand = digits.length === 13 ? /^4/ : digits.length === 14 ? /^3(?:0[0-5]|[68])/ : digits.length === 15 ? /^3[47]/ : digits.length === 16 ? /^(?:4|5[1-5]|2(?:2[2-9]|[3-6]\d|7[01]|720)|6(?:011|5|4[4-9])|35)/ : digits.length === 19 ? /^(?:4|5|6|35)/ : null;
+  const brand = digits.length === 13 ? /^4/ : digits.length === 14 ? /^3(?:0[0-5]|[68])/ : digits.length === 15 ? /^3[47]/ : digits.length === 16 ? /^(?:4|5[1-5]|5018|5020|5038|5893|2(?:2[2-9]|[3-6]\d|7[01]|720)|6(?:011|5|4[4-9]|2|304|759|76[1-3])|35)/ : digits.length === 19 ? /^(?:4|5|6|35)/ : null;
   if (!brand || !brand.test(digits)) return false;
   return luhn(digits);
 }
@@ -102,13 +104,48 @@ function isPublicNumber(found, at, whole) {
   return PUBLIC_NUMBER_WORD.test(whole.slice(Math.max(0, at - 40), at)) || PUBLIC_NUMBER_WORD.test(whole.slice(at + found.length, at + found.length + 15));
 }
 
+// A card can sit inside an identifier, a code span or a longer run of numbers: every stretch of whole digit groups adding up to a card's
+// length is read. Not inside a longer word or a digest, and not a number in an address.
+const DIGIT_RUN = /(?<![A-Za-z0-9/])\d+(?:[ .-]\d+)*(?![A-Za-z0-9])/g;
+function maskCards(text) {
+  return text.replace(DIGIT_RUN, (run) => {
+    const pieces = run.split(/([ .-])/);
+    let out = "";
+    let start = 0;
+    while (start < pieces.length) {
+      let matchedEnd = -1;
+      // One separator, and groups of 3 or more digits: a row of decimals or phone numbers isn't a card.
+      if (pieces[start].length >= 3) {
+        let digits = "";
+        const sep = pieces[start + 1];
+        for (let end = start; end < pieces.length && pieces[end].length >= 3 && digits.length < 19; end += 2) {
+          if (end > start && pieces[end - 1] !== sep) break;
+          digits += pieces[end];
+          if (digits.length >= 13 && digits.length <= 19 && looksLikeCard(digits)) {
+            matchedEnd = end;
+            break;
+          }
+        }
+      }
+      if (matchedEnd >= 0) {
+        out += "[card number]" + (pieces[matchedEnd + 1] ?? "");
+        start = matchedEnd + 2;
+      } else {
+        out += pieces[start] + (pieces[start + 1] ?? "");
+        start += 2;
+      }
+    }
+    return out;
+  });
+}
+const LABELED_SSN = /\b((?:ssn|social security(?: number| no\.?)?)["']?\s{0,8}[:#=-]?\s{0,8}["']?)\d{3}[ -]?\d{2}[ -]?\d{4}\b/gi;
+
 function digitCount(text) { return (text.match(/\d/g) || []).length; }
 
 function stripPlain(text, quote) {
-  let out = text;
+  // After a stored \\n the letter no longer sits against the number, so these read again here.
+  let out = maskCards(text).replace(SSN, "[id number]");
   out = out.replace(IBAN, (m) => (digitCount(m) >= 10 ? "[bank account]" : m));
-  out = out.replace(CARD, (m) => (looksLikeCard(m) ? "[card number]" : m));
-  out = out.replace(SSN, "[id number]");
   out = out.replace(IPV4, (m, at, whole) => (NOT_A_PERSON_IP.test(m) || VERSION_BEFORE.test(whole.slice(Math.max(0, at - 12), at)) ? m : "[ip address]"));
   out = out.replace(IPV6, (m) => (/^(?:::1?|2001:db8:|fe80:)/i.test(m) || (m.match(/[0-9a-f]+/gi) || []).length < 3 ? m : "[ip address]"));
   if (quote) return out;
@@ -132,11 +169,12 @@ export function stripPii(raw, { quote = false } = {}) {
   let out = raw.replace(CREDENTIAL, "[credential]").replace(NAMED_SECRET, "$1[credential]").replace(LOOSE_SECRET, "$1[credential]");
   out = out.replace(EMAIL, (m) => {
     const at = m.lastIndexOf("@");
-    if (OWN_OR_EXAMPLE_MAIL.test(m.slice(at)) || /@\d[\d.x]*\.[a-z0-9]+$/i.test(m) || /^git@(?:github\.com|gitlab\.com|bitbucket\.org)$/i.test(m)) return m;
+    if (OWN_OR_EXAMPLE_MAIL.test(m.slice(at)) || /@\d+(?:\.(?:\d+|x))+$/i.test(m) || (FILE_ENDING.test(m) && !COUNTRY_ENDING.test(m)) || /^git@(?:github\.com|gitlab\.com|bitbucket\.org)$/i.test(m)) return m;
     return "[email]";
   });
   out = out.replace(ID_LABEL, (m, label, value) => (/\d/.test(value) && !/^(?:tin|ein|Tin|Ein)\b/.test(label) ? `${label}[id number]` : m));
   out = out.replace(BIRTH, (_, label) => `${label}[date of birth]`);
+  out = maskCards(out).replace(SSN, "[id number]").replace(LABELED_SSN, "$1[id number]");
   // Everything else reads only the gaps between protected spans.
   let result = "";
   let last = 0;
@@ -153,16 +191,46 @@ export function stripCredentials(raw) {
 }
 
 /** The same over JSON. Keys and non-strings stay; identifiers and addresses stay; code files lose only credentials. */
+// Code keeps its text, and still loses what is never code: credentials, addresses, cards and social numbers.
+function stripCode(value) {
+  const out = stripCredentials(value).replace(CREDENTIAL, "[credential]").replace(EMAIL, (m) => {
+    const at = m.lastIndexOf("@");
+    return OWN_OR_EXAMPLE_MAIL.test(m.slice(at)) || /@\d+(?:\.(?:\d+|x))+$/i.test(m) || (FILE_ENDING.test(m) && !COUNTRY_ENDING.test(m)) || /^git@(?:github\.com|gitlab\.com|bitbucket\.org)$/i.test(m) ? m : "[email]";
+  });
+  return maskCards(out).replace(SSN, "[id number]").replace(LABELED_SSN, "$1[id number]");
+}
+// A field named for a secret holds one, unless it's a placeholder.
+const SECRET_FIELD = /(?:^|_)(?:api_?key|secret|secret_?key|client_?secret|password|passwd|pwd|password_hash|private_?key|access_?token|auth_?token|refresh_?token|session_?token|token|authorization|bearer|credentials?)$|(?:apiKey|secretKey|clientSecret|privateKey|accessToken|authToken|refreshToken|sessionToken)$/i;
+const PLACEHOLDER = /^(?:<|\$\{|\$[A-Z_]|\{|%|your[_-]|xxx|\*|example|none|null|changeme|redacted)|\[credential\]/i;
+const DIGEST_KEY = /(?:^|_)(?:sha|sha256|digest|hash|fingerprint|simhash\w*|lsh\w*)$/i;
+const ID_KEY = /(?:^|_)(?:id|ids|key|keys)$/i;
+const cleanMapKey = (key) => (WORTH_READING.test(key) ? stripPii(key) : key);
+// Two keys can become the same marker: each keeps its own value.
+function setKey(out, key, item) {
+  const clean = cleanMapKey(key);
+  let name = clean;
+  for (let n = 2; Object.hasOwn(out, name); n += 1) name = `${clean} ${n}`;
+  out[name] = item;
+}
+
 export function stripPiiDeep(value, keyName = "", mode = "text") {
   if (typeof value === "string") {
-    if (mode === "code") return stripCredentials(value);
+    // A value with spaces is a sentence about the field, not the secret.
+    if (SECRET_FIELD.test(keyName) && value.length >= 8 && !/\s/.test(value) && !PLACEHOLDER.test(value)) return "[credential]";
+    if (mode === "code") return stripCode(value);
     if (PII_KEY.test(keyName)) return piiKeyMarker(keyName, value);
     if (BUILT_FROM_TEXT.test(keyName)) {
       const spaced = value.replace(/_/g, " ");
       const stripped = stripPii(spaced);
       return stripped === spaced ? value : stripped;
     }
-    if (SKIP_KEY.test(keyName) && /^[^\s@]+$/.test(value)) return value;
+    // An identifier stays as it is unless what it holds is never an identifier.
+    if (SKIP_KEY.test(keyName) && /^[^\s@]+$/.test(value)) {
+      const secretsOut = value.replace(CREDENTIAL, "[credential]").replace(NAMED_SECRET, "$1[credential]").replace(LOOSE_SECRET, "$1[credential]");
+      // A digest or a plain id is read back as it is.
+      if (DIGEST_KEY.test(keyName) || (/^\d+$/.test(value) && ID_KEY.test(keyName))) return secretsOut;
+      return maskCards(secretsOut).replace(SSN, "[id number]");
+    }
     return stripPii(value, { quote: mode === "quote" });
   }
   if (Array.isArray(value)) return value.map((item) => stripPiiDeep(item, keyName, mode));
@@ -170,9 +238,14 @@ export function stripPiiDeep(value, keyName = "", mode = "text") {
     const out = {};
     for (const [key, item] of Object.entries(value)) {
       const next = /\.(?:md|txt|csv)$/i.test(key) ? "text" : childMode(value, key, mode);
-      out[key] = stripPiiDeep(item, key, next);
+      setKey(out, key, stripPiiDeep(item, key, next));
     }
     return out;
+  }
+  // A number can be a card or an id number too; other numbers stay numbers.
+  if (typeof value === "number" && Number.isSafeInteger(value)) {
+    if (PII_KEY.test(keyName)) return piiKeyMarker(keyName, String(value));
+    if (!DIGEST_KEY.test(keyName) && !ID_KEY.test(keyName) && looksLikeCard(String(value))) return "[card number]";
   }
   return value;
 }
@@ -185,7 +258,7 @@ export function stripPiiForDisplay(value, keyName = "", mode = "text") {
     const out = {};
     for (const [key, item] of Object.entries(value)) {
       const next = /\.(?:md|txt|csv)$/i.test(key) ? "text" : childMode(value, key, mode);
-      out[key] = stripPiiForDisplay(item, key, next);
+      setKey(out, key, stripPiiForDisplay(item, key, next));
     }
     return out;
   }

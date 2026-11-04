@@ -58,7 +58,7 @@ export function readClientPrefs(source, nowSeconds = Date.now() / 1000) {
   const after = pick(source, "updated_after");
   if (after !== null) {
     const seconds = /^\d+(\.\d+)?$/.test(String(after)) ? Number(after) : Date.parse(String(after)) / 1000;
-    if (Number.isFinite(seconds)) out.updated_after = seconds;
+    if (Number.isFinite(seconds) && Math.abs(seconds) < 8.64e12) out.updated_after = seconds;
     else warnings.push("updated_after should be an ISO date or Unix seconds; ignored");
   }
   const age = pick(source, "max_age_days");
@@ -68,7 +68,10 @@ export function readClientPrefs(source, nowSeconds = Date.now() / 1000) {
     else warnings.push("max_age_days should be a number above 0; ignored");
   }
   const kinds = pick(source, "source_kinds");
-  if (kinds !== null) out.source_kinds = list(kinds);
+  if (kinds !== null) {
+    out.source_kinds = list(kinds).slice(0, 20);
+    if (list(kinds).length > 20) warnings.push("source_kinds takes up to 20; the rest were ignored");
+  }
   const results = pick(source, "max_results");
   if (results !== null) out.max_results = wholeNumber(results, "max_results", warnings);
   const bytes = pick(source, "max_bytes");

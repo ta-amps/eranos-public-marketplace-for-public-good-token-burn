@@ -831,7 +831,9 @@ export function PlainStatus({
               const n = part.plan.part;
               const agent = part.workAgent;
               const done = part.work === "done";
-              const waitingForVolunteer = !agent && !done && part.work !== "held";
+              // A closed request has no line to be in: its last failed try stays on the page, the waiting words don't.
+              const closed = Boolean(facts.closed);
+              const waitingForVolunteer = !agent && !done && !closed && part.work !== "held";
               const since = waitingForVolunteer ? waitingSince(events, n) : null;
               return (
                 <div key={n} className="er-band-part" data-part={n}>
@@ -846,7 +848,7 @@ export function PlainStatus({
                     const tries = events.filter((e) => e.part === n && (e.type === "work_claimed" || e.type === "work_released"));
                     const last = tries.at(-1);
                     if (!last || last.type !== "work_released" || !last.reason || done) return null;
-                    const retry = last.summary?.attempt && last.summary.max_attempts ? fill(b.made.retry_count, { n: last.summary.attempt, m: last.summary.max_attempts }) : b.made.retry;
+                    const retry = closed ? "" : last.summary?.attempt && last.summary.max_attempts ? fill(b.made.retry_count, { n: last.summary.attempt, m: last.summary.max_attempts }) : b.made.retry;
                     return (
                       <p className="er-band-failed" data-testid={`failed-${n}`}>
                         {fill(b.made.failed, { reason: shortReason(last.reason) })} {retry}

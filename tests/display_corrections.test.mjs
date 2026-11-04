@@ -76,3 +76,13 @@ test("when the first claims come off, the summary names one that stays", () => {
   const shown = withExactQuotes(input).value.report;
   assert.equal(shown.summary, "1 cited point from 1 public source. Five stays.");
 });
+
+test("the word rule is for our own jargon: a tax term stays on a page", async () => {
+  const { default: list } = await import("../deploy/cloudflare/banned_words.generated.js");
+  if (list.source === "fixture") return;
+  const { makeNeutral } = await import("../deploy/cloudflare/display_words.js");
+  const neutral = makeNeutral(list);
+  assert.equal(neutral("Gross receipts under $50,000 a year"), "Gross receipts under $50,000 a year");
+  assert.equal(neutral("Keep donation receipts on file"), "Keep donation receipts on file");
+  assert.equal(neutral("Every worker keeps receipts"), "Every worker keeps records");
+});
