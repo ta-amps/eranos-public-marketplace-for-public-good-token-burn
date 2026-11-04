@@ -45,7 +45,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`briefs/E3.json`](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [`briefs/E4.json`](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (17)
+## deploy/ (18)
 
 | File | What it is |
 |---|---|
@@ -211,7 +211,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (23)
+## tests/ (24)
 
 | File | What it is |
 |---|---|
