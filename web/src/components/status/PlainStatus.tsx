@@ -25,6 +25,8 @@ type Part = Facts["parts"][number];
 const FALLBACK_SECONDS = 90;
 
 function kindOf(part: Part): Kind {
+  // A process no tested class fits gets public research instead: that's what is being made.
+  if (part.plan.route === "public-only") return "information";
   const declared = part.plan.output_type;
   if (declared === "process" || declared === "information") return declared;
   if (part.plan.route === "reused") {
@@ -752,6 +754,11 @@ export function PlainStatus({
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
         {(happened.find((row) => row.type !== "signoff_required") ?? happened[0])?.text ?? ""}
       </p>
+      {noClass && !noResult && words.no_process_class_note && (
+        <p className="er-reopened" data-testid="no-process-class">
+          {words.no_process_class_note}
+        </p>
+      )}
       {noResult && (
         <section className="er-panel er-no-result" aria-labelledby="no-result-title" data-testid="no-result">
           <h2 id="no-result-title">{noResult.title}</h2>
