@@ -1103,6 +1103,7 @@ def test_footer_is_the_shared_standard_footer() -> None:
         "Models used ↗",
         "Status ↗",
         "Source ↗",
+        "Built with Muse Spark Open ↗",
         "Privacy",
         "Terms",
         "Report a problem",

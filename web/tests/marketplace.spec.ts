@@ -638,7 +638,7 @@ test.describe("wording and accessibility", () => {
     }
     const footer = page.locator("footer.er-footer");
     const links = footer.getByRole("navigation", { name: "Site information" }).getByRole("link");
-    await expect(links).toHaveText(["Teleion Labs ↗", "Library", "Requests", "Network ↗", "Models used ↗", "Status ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
+    await expect(links).toHaveText(["Teleion Labs ↗", "Library", "Requests", "Network ↗", "Models used ↗", "Status ↗", "Source ↗", "Built with Muse Spark Open ↗", "Privacy", "Terms", "Report a problem"]);
     await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
     await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://teleionlabs.com/status/");
     // One row: at desktop width every link sits on the same line.

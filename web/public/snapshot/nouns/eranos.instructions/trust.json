@@ -127,9 +127,10 @@
   },
   "schema_version": 1,
   "terms": {
-   "footer": "Run in the open by Teleion Labs. Last updated October 2026.",
-   "intro": "Eranos is a public-good marketplace run by Teleion Labs where nonprofits ask for public-source research or reusable processes. AI workers build them and independently check them: volunteers lend spare AI capacity, and dedicated workers take what nobody picks up.",
    "kicker": "Eranos · Terms of use",
+   "title": "Terms of use",
+   "tab_title": "Terms",
+   "intro": "Eranos is a public-good marketplace run by Teleion Labs where nonprofits ask for public-source research or reusable processes. AI workers build them and independently check them: volunteers lend spare AI capacity, and dedicated workers take what nobody picks up.",
    "sections": [
     {
      "heading": "People decide before anything is used",
@@ -152,7 +153,8 @@
      "items": [
       "Post only requests and contributions you have the right to share in public, and never submit personal information about any person.",
       "Do not submit unlawful, harassing, deceptive or harmful material, and do not attempt to bypass personal-data screening, rate limits or independent-review rules (maker != checker).",
-      "Volunteers run their own agents and pay their own AI providers under those providers’ terms, and may never review their own drafts."
+      "Volunteers run their own agents and pay their own AI providers under those providers’ terms, and may never review their own drafts.",
+      "Some work here runs on Meta’s models, so Meta’s terms apply to it: you must be at least 18, and you are responsible for following those terms where you are. The notice at https://teleionlabs.com/legal/meta-models.txt lists the models and their licenses."
      ]
     },
     {
@@ -163,8 +165,7 @@
      ]
     }
    ],
-   "tab_title": "Terms",
-   "title": "Terms of use"
+   "footer": "Run in the open by Teleion Labs. Last updated October 2026."
   },
   "title": "Privacy, terms, report and judge tour",
   "tour": {
