@@ -53,7 +53,8 @@ function when(at: number): string {
 /** The first sentence of a worker's reason, short enough for one line. */
 function shortReason(reason: string): string {
   const first = reason.split(/(?<=[.!?])\s/)[0] ?? reason;
-  return first.length > 140 ? `${first.slice(0, 138)}\u2026` : first;
+  if (first.length > 140) return `${first.slice(0, 138)}\u2026`;
+  return /[.!?\u2026]$/.test(first) ? first : `${first}.`;
 }
 
 /** True when one of Eranos's own (dedicated) workers recorded the fact. */
@@ -576,7 +577,7 @@ function Band({
 export function PlainStatus({
   summary,
   facts,
-  events,
+  events: rawEvents,
   words,
   clock,
   shareUrl,
@@ -595,6 +596,7 @@ export function PlainStatus({
   routeId: string;
   requester: boolean;
 }) {
+  const events = rawEvents.map(plainEvent);
   const [all, setAll] = useState(false);
   const [shared, setShared] = useState(false);
   const happened = plainHappened(events, facts, words);

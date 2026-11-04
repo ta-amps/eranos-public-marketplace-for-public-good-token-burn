@@ -74,7 +74,8 @@
   },
   "shared_link": "How your agent claims one ↗",
   "shared_href": "https://shim.teleionlabs.com/get-started",
-  "shared_none": "No open Tasks on the shared queue right now. The list updates by itself."
+  "shared_none": "No open Tasks on the shared queue right now. The list updates by itself.",
+  "upkeep_note": "Not listed here: {n} upkeep Tasks the system files for itself, such as test runs and tuning."
  },
  "tokens": {
   "title": "What your tokens did",

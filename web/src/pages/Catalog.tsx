@@ -70,7 +70,7 @@ export function Catalog() {
   const tags = useMemo(() => {
     const out = new Set<string>();
     for (const entry of baseKits) {
-      for (const t of [...(entry.tags ?? []), ...(entry.kit.tags ?? [])]) {
+      for (const t of [...(entry.tags ?? []), ...(entry.kit.tags ?? [])].filter((tag) => !/^(status|reuse|request|package):/.test(tag))) {
         if (t && !t.startsWith("status:")) out.add(t);
       }
     }
