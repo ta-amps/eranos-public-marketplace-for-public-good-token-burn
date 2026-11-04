@@ -30,7 +30,7 @@ function fixture({ wait = 0, matches = false, rejectLookupOnce = false } = {}) {
     submitting: { current: false }, waitingUntil: wait,
     setTried() {}, setProblem(value) { problems.push(value); },
     unmet: [], box: { current: null }, SNAPSHOT: false,
-    navigator: { onLine: true },
+    navigator: { onLine: true }, acceptUnaudited: false,
     draft: { text: 'Example public grant deadlines', name: 'Example group', type: 'Community group', causes: '', links: '', frequency: 'one-off', cadence: '' },
     newRequest: { current: false },
     fetchCachedLibrary() { lookupCalls++; return rejectLookupOnce && lookupCalls === 1 ? Promise.reject(new Error('Fixture lookup failed')) : lookup; },
