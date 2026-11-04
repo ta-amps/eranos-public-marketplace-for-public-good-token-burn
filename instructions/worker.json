@@ -825,6 +825,268 @@
           "website"
         ],
         "url": "https://www.w3.org/WAI/test-evaluate/easy-checks/"
+      },
+      {
+        "access": "public_web_page",
+        "id": "irs-hiring-employees",
+        "publisher": "Internal Revenue Service",
+        "topics": [
+          "hiring",
+          "hire",
+          "employee",
+          "employees",
+          "payroll"
+        ],
+        "url": "https://www.irs.gov/businesses/small-businesses-self-employed/hiring-employees"
+      },
+      {
+        "access": "public_web_page",
+        "id": "eeoc-small-business",
+        "publisher": "U.S. Equal Employment Opportunity Commission",
+        "topics": [
+          "hiring",
+          "hire",
+          "employee",
+          "employees",
+          "discrimination",
+          "harassment"
+        ],
+        "url": "https://www.eeoc.gov/employers/small-business"
+      },
+      {
+        "access": "public_web_page",
+        "id": "dol-flsa",
+        "publisher": "U.S. Department of Labor",
+        "topics": [
+          "wage",
+          "wages",
+          "overtime",
+          "minimum",
+          "payroll"
+        ],
+        "url": "https://www.dol.gov/agencies/whd/flsa"
+      },
+      {
+        "access": "public_web_page",
+        "id": "dol-nonprofits-flsa",
+        "publisher": "U.S. Department of Labor",
+        "topics": [
+          "wage",
+          "wages",
+          "overtime",
+          "stipend",
+          "employee",
+          "employees",
+          "volunteer",
+          "volunteers"
+        ],
+        "url": "https://www.dol.gov/agencies/whd/fact-sheets/14a-flsa-non-profits",
+        "requires": [
+          "wage",
+          "wages",
+          "pay",
+          "paid",
+          "overtime",
+          "stipend",
+          "employee",
+          "employees",
+          "hiring",
+          "hire",
+          "legal"
+        ]
+      },
+      {
+        "access": "public_web_page",
+        "id": "usa-food-help",
+        "publisher": "USA.gov",
+        "topics": [
+          "snap",
+          "wic",
+          "hunger",
+          "food-stamps",
+          "food-help",
+          "benefits"
+        ],
+        "url": "https://www.usa.gov/food-help",
+        "requires": [
+          "food",
+          "pantry",
+          "hunger",
+          "meal",
+          "meals",
+          "snap"
+        ]
+      },
+      {
+        "access": "public_web_page",
+        "id": "usa-housing-help",
+        "publisher": "USA.gov",
+        "topics": [
+          "rental",
+          "rent",
+          "housing",
+          "tenant",
+          "tenants",
+          "homeless",
+          "eviction"
+        ],
+        "url": "https://www.usa.gov/housing-help"
+      },
+      {
+        "access": "public_web_page",
+        "id": "usa-scams",
+        "publisher": "USA.gov",
+        "topics": [
+          "scam",
+          "scams",
+          "fraud",
+          "identity"
+        ],
+        "url": "https://www.usa.gov/scams-and-fraud"
+      },
+      {
+        "access": "public_web_page",
+        "id": "cdc-flu-prevention",
+        "publisher": "U.S. Centers for Disease Control and Prevention",
+        "topics": [
+          "flu",
+          "influenza",
+          "outbreak",
+          "germs",
+          "sick"
+        ],
+        "url": "https://www.cdc.gov/flu/prevention/index.html"
+      },
+      {
+        "access": "public_web_page",
+        "id": "cdc-health-literacy",
+        "publisher": "U.S. Centers for Disease Control and Prevention",
+        "topics": [
+          "literacy",
+          "health-literacy"
+        ],
+        "url": "https://www.cdc.gov/health-literacy/php/about/index.html"
+      },
+      {
+        "access": "public_web_page",
+        "id": "ready-kit",
+        "publisher": "Ready.gov, U.S. Department of Homeland Security",
+        "topics": [
+          "emergency",
+          "disaster",
+          "kit",
+          "supplies",
+          "preparedness"
+        ],
+        "url": "https://www.ready.gov/kit"
+      },
+      {
+        "access": "public_web_page",
+        "id": "ready-heat",
+        "publisher": "Ready.gov, U.S. Department of Homeland Security",
+        "topics": [
+          "heat",
+          "heatwave",
+          "cooling"
+        ],
+        "url": "https://www.ready.gov/heat"
+      },
+      {
+        "access": "public_web_page",
+        "id": "ready-floods",
+        "publisher": "Ready.gov, U.S. Department of Homeland Security",
+        "topics": [
+          "flood",
+          "floods",
+          "flooding"
+        ],
+        "url": "https://www.ready.gov/floods"
+      },
+      {
+        "access": "public_web_page",
+        "id": "ada-intro",
+        "publisher": "U.S. Department of Justice, ADA.gov",
+        "topics": [
+          "disability",
+          "disabilities",
+          "ada",
+          "wheelchair",
+          "accommodation"
+        ],
+        "url": "https://www.ada.gov/topics/intro-to-ada/"
+      },
+      {
+        "access": "public_web_page",
+        "id": "ada-service-animals",
+        "publisher": "U.S. Department of Justice, ADA.gov",
+        "topics": [
+          "service-animal",
+          "service",
+          "guide-dog",
+          "emotional-support"
+        ],
+        "url": "https://www.ada.gov/resources/service-animals-2010-requirements/",
+        "requires": [
+          "animal",
+          "animals",
+          "dog",
+          "dogs"
+        ]
+      },
+      {
+        "access": "public_web_page",
+        "id": "epa-wasted-food",
+        "publisher": "U.S. Environmental Protection Agency",
+        "topics": [
+          "waste",
+          "wasted",
+          "spoilage",
+          "leftovers"
+        ],
+        "url": "https://www.epa.gov/recycle/reducing-wasted-food-home",
+        "requires": [
+          "food",
+          "pantry",
+          "meal",
+          "meals",
+          "kitchen"
+        ]
+      },
+      {
+        "access": "public_web_page",
+        "id": "irs-501c3",
+        "publisher": "Internal Revenue Service",
+        "topics": [
+          "501(c)(3)",
+          "exempt",
+          "exemption",
+          "nonprofit-status"
+        ],
+        "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/exemption-requirements-501c3-organizations"
+      },
+      {
+        "access": "public_web_page",
+        "id": "grants-101",
+        "publisher": "Grants.gov, U.S. Department of Health and Human Services",
+        "topics": [
+          "grant",
+          "grants",
+          "funding"
+        ],
+        "url": "https://www.grants.gov/learn-grants/grants-101"
+      },
+      {
+        "access": "public_web_page",
+        "id": "council-finance",
+        "publisher": "National Council of Nonprofits",
+        "topics": [
+          "budget",
+          "bookkeeping",
+          "audit",
+          "accounting",
+          "financial"
+        ],
+        "url": "https://www.councilofnonprofits.org/running-nonprofit/administration-and-financial-management"
       }
     ],
     "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it."

@@ -475,3 +475,10 @@ def test_a_claim_cannot_flip_or_add_a_negation():
     )
     assert R.adds_to_quote("Do not keep raw chicken cold.", "Keep raw chicken cold.")
     assert not R.adds_to_quote("Keep raw chicken cold.", "Keep raw chicken cold.")
+
+
+def test_an_icons_title_is_not_the_pages_title():
+    from eranos.sources import extract_text
+
+    page = b"<html><head><title>Severe Weather</title></head><body><svg><title>Lock</title></svg><p>Plan now.</p></body></html>"
+    assert extract_text("text/html", page) == ("Severe Weather", "Plan now.")

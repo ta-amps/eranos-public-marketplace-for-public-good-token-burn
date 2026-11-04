@@ -265,10 +265,15 @@ class _Text(HTMLParser):
         self.title = ""
         self._skip = 0
         self._in_title = False
+        self._in_svg = False
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         if tag == "title":
-            self._in_title = True
+            # Only the page's own title: an icon's <title> inside an svg isn't one ("Ready.govLock").
+            self._in_title = not self._in_svg and not self.title
+        elif tag == "svg":
+            self._in_svg = True
+            self._skip += 1
         elif tag in SKIP_TAGS:
             self._skip += 1
         elif tag in BLOCK_TAGS:
@@ -281,6 +286,9 @@ class _Text(HTMLParser):
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
             self._in_title = False
+        elif tag == "svg":
+            self._in_svg = False
+            self._skip = max(0, self._skip - 1)
         elif tag in SKIP_TAGS:
             self._skip = max(0, self._skip - 1)
         elif tag in BLOCK_TAGS:
