@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { withExactQuotes } from "../deploy/cloudflare/display_corrections.js";
+import { isListed, withExactQuotes } from "../deploy/cloudflare/display_corrections.js";
 
 const noun = (key, store = "eranos.solutions") => ({
   store,
@@ -48,4 +48,31 @@ test("an off-topic claim and the source only it cites come off display, and the 
   assert.deepEqual(shown.sources, [{ id: "S1" }]);
   assert.match(shown.summary, /^2 cited points from 1 public source\./);
   assert.equal(input.value.report.claims.length, 3);
+});
+
+test("a report taken off display shows only a plain note and isn't listed; the input is untouched", () => {
+  const input = noun("RPT-R9CE6D53-01");
+  const shown = withExactQuotes(input).value.report;
+  assert.deepEqual(shown.claims, []);
+  assert.deepEqual(shown.sources, []);
+  assert.equal(shown.taken_off_display, true);
+  assert.match(shown.summary, /off display/);
+  assert.equal(input.value.report.claims.length, 2);
+  assert.equal(isListed({ key: "RPT-R9CE6D53-01" }), false);
+  assert.equal(isListed({ key: "RPT-OTHER-01" }), true);
+});
+
+test("when the first claims come off, the summary names one that stays", () => {
+  const input = noun("RPT-R4834064-01");
+  input.value.report.claims = [
+    { id: "C1", text: "One.", citations: [{ source: "S1", quote: "q" }] },
+    { id: "C2", text: "Two.", citations: [{ source: "S1", quote: "q" }] },
+    { id: "C3", text: "Three.", citations: [{ source: "S1", quote: "q" }] },
+    { id: "C4", text: "Four.", citations: [{ source: "S1", quote: "q" }] },
+    { id: "C5", text: "Five stays.", citations: [{ source: "S2", quote: "q" }] },
+  ];
+  input.value.report.sources = [{ id: "S1" }, { id: "S2" }];
+  input.value.report.summary = "5 cited points from 2 public sources. One. Two. Three.";
+  const shown = withExactQuotes(input).value.report;
+  assert.equal(shown.summary, "1 cited point from 1 public source. Five stays.");
 });
