@@ -27,24 +27,24 @@
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_f11c40106b52:KIT-TRANSCR-07:spec",
+      "task_id": "er_0ebf3c944bfe:KIT-TRANSCR-07:spec",
       "worker": "spec-gate-07",
       "key_id": "key_spec_07",
       "ok": true,
-      "receipt_sha256": "b911ea93e848b436a75f93de965dbd26b6c53c76d7065a0c21e8628e46f4a4c6",
+      "receipt_sha256": "aabd04c4012315883b54ebdfc8ce6c0ddfa445397a449af32f2785e9d64f01d0",
       "state_after": "done",
-      "submitted_at": "1793759430.9933681"
+      "submitted_at": "1793759571.1864426"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_f11c40106b52:KIT-TRANSCR-07:draft",
+      "task_id": "er_0ebf3c944bfe:KIT-TRANSCR-07:draft",
       "worker": "volunteer-drafter-07",
       "key_id": "key_drafter_07",
       "ok": true,
-      "receipt_sha256": "875b63d30fc1a755a310dc0ab2891093e8fcfc6c8aa56a5592eb842306419268",
+      "receipt_sha256": "e27346ee3b891c49b410994fff4ca86bf397ce7e391263d83a734db6926b714a",
       "state_after": "done",
-      "submitted_at": "1793759431.001617",
+      "submitted_at": "1793759571.1953473",
       "draft_sha256": "fd3ce83dd5668dfb567544eb60f02199cc6ae3319673c4cb42d6e680ddfd2abe",
       "verification": {
         "passed": true,
@@ -61,16 +61,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_f11c40106b52:KIT-TRANSCR-07:review",
+      "task_id": "er_0ebf3c944bfe:KIT-TRANSCR-07:review",
       "worker": "volunteer-reviewer-07",
       "key_id": "key_reviewer_07",
       "ok": true,
-      "receipt_sha256": "b3fbf954e02839e86ca671f927180ed02271b28a71b70352d27796819b2a0d98",
+      "receipt_sha256": "de33232ef5483b4361b48dd66b40fdb86bb7e6ddc83cc2e86a507d67680b0193",
       "state_after": "done",
-      "submitted_at": "1793759431.0491436",
+      "submitted_at": "1793759571.2309813",
       "parked_for_steward": true,
       "steward_signoff": "records-steward-lead",
-      "publication_sha256": "f74bac6573a5a15d06f9af230ac3e3f1ab5b5cdf0544f609cbe095798a8c396d"
+      "publication_sha256": "0d241c472bd56202f6a4d0ccb11496e6e946f07aedd29df139ee2191eddc121b"
     }
   ],
   "outcome": "published",
@@ -85,8 +85,8 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "e67e9e555b893c2440143cc2f9e01cd86ca63873",
-    "tree_clean": false,
+    "commit": "209bda93056883967e75530666f9e32cdb180b02",
+    "tree_clean": true,
     "seed_pack_library": {
       "commit": "ca65911ad20d27432f6523463b15bbabc59f1499",
       "tree_clean": true
@@ -94,5 +94,5 @@
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-04T02:30:32Z"
+  "recorded_at": "2026-11-04T02:32:51Z"
 }
