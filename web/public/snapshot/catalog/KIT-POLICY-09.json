@@ -224,7 +224,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-09",
-    "drafted_by_key": "key_drafter_09"
+    "drafted_by_key": "key_drafter_09",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-POLICY-09",
@@ -232,12 +236,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 3,
@@ -250,14 +255,14 @@
   "reviewed_by_key": "key_reviewer_09",
   "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
   "steward_signoff": null,
-  "draft_receipt": "416ddc36c18a1863bc272f86e5115fa763bd6ba1b67e45b25dc6b581ae4b37a8",
-  "review_receipt": "acb64df415a2a119cb76c007ff28c9ed626b35839f9633be00c7afc606ac4307",
-  "blob_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+  "draft_receipt": "3e15e09c811475c2f31a4ce1829f76219e1862fa16a822e64e4183bb446f800f",
+  "review_receipt": "595d1d627c149e7489ad698403bfc81d7581aefdab06e16f112e0dd3be528cd7",
+  "blob_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
   "catalog_version": 1,
-  "review_task_id": "er_9a9077153a6c:KIT-POLICY-09:review",
-  "draft_task_id": "er_9a9077153a6c:KIT-POLICY-09:draft",
-  "draft_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+  "review_task_id": "er_713a15f02fcd:KIT-POLICY-09:review",
+  "draft_task_id": "er_713a15f02fcd:KIT-POLICY-09:draft",
+  "draft_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
   "drafter_key_id": "key_drafter_09",
   "reviewer_key_id": "key_reviewer_09",
-  "publication_sha256": "640dfc690c4739e2c75976d953504a8dd784ec7ff5ab79bafbb17ea8fd7eca1d"
+  "publication_sha256": "72715c8dad822e4672583b01d5754a0523715024e6828d93047d28088961c30b"
 }

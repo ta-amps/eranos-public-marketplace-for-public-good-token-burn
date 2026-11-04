@@ -1,23 +1,23 @@
 {
- "is_example": true,
- "store": "eranos.sources",
- "key": "SRC-TENANT-03",
- "version": 1,
- "value": {
-  "access": "public_web_page",
-  "id": "SRC-TENANT-03",
-  "public": true,
-  "published": "2026-10-01",
-  "publisher": "practice-case City C Housing Office",
   "is_example": true,
-  "text": "practice-case stand-in text. The City C housing office now explains new state tenant laws in plain language each week. Its notes are general information and are not legal advice.",
-  "title": "practice-case City C news release on the tenant help line",
-  "topics": [
-   "tenant",
-   "tenants",
-   "news",
-   "housing"
-  ],
-  "url": "https://example.org/example/city-c/tenant-help-line"
- }
+  "store": "eranos.sources",
+  "key": "SRC-TENANT-03",
+  "version": 1,
+  "value": {
+    "access": "public_web_page",
+    "id": "SRC-TENANT-03",
+    "public": true,
+    "published": "2026-10-01",
+    "publisher": "practice-case City C Housing Office",
+    "is_example": true,
+    "text": "practice-case stand-in text. The City C housing office now explains new state tenant laws in plain language each week. Its notes are general information and are not legal advice.",
+    "title": "practice-case City C news release on the tenant help line",
+    "topics": [
+      "tenant",
+      "tenants",
+      "news",
+      "housing"
+    ],
+    "url": "https://example.org/example/city-c/tenant-help-line"
+  }
 }

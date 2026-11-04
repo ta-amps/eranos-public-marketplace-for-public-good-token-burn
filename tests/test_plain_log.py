@@ -97,7 +97,7 @@ CASES: list[tuple[str, str, list[str], bool]] = [
     ("meta-key-shaped token", "aaa_" + "7" * 8 + FAKE32, [FAKE32], True),
     (
         "file path",
-        "No such file: /home/username/meta_hacakthon/notes/x/secret.json",
+        "No such file: /home/someone/work/x/secret.json",
         ["/home/username", "secret.json"],
         True,
     ),

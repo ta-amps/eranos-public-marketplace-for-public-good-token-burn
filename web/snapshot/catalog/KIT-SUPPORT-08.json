@@ -250,7 +250,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-08",
-    "drafted_by_key": "key_drafter_08"
+    "drafted_by_key": "key_drafter_08",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-SUPPORT-08",
@@ -258,12 +262,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 3,
@@ -277,14 +282,14 @@
   "reviewed_by_key": "key_reviewer_08",
   "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
   "steward_signoff": "victim-services-steward",
-  "draft_receipt": "5560856f5f198318c949b006931ec88836e83a404b34a6b7f16948037e289577",
-  "review_receipt": "00c6c26a0a2d5aa806c1619db807ef201c0034a027eea74ed5c6967fae2c3442",
-  "blob_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+  "draft_receipt": "89e6f353835d3045a73f17dc432ec3800ec265b99fd4b8a3ea83c036ae29f74e",
+  "review_receipt": "f911871ca81e130ae63c763fbddc732653e13dfa3934bbf8fd00be34e6d71ba5",
+  "blob_sha256": "d0693581c67d9e0009e4d120897e89baf42af62e3b0253a66c095e5cb5264232",
   "catalog_version": 1,
-  "review_task_id": "er_ef79cfd0fc05:KIT-SUPPORT-08:review",
-  "draft_task_id": "er_ef79cfd0fc05:KIT-SUPPORT-08:draft",
-  "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+  "review_task_id": "er_28b204857adb:KIT-SUPPORT-08:review",
+  "draft_task_id": "er_28b204857adb:KIT-SUPPORT-08:draft",
+  "draft_sha256": "d0693581c67d9e0009e4d120897e89baf42af62e3b0253a66c095e5cb5264232",
   "drafter_key_id": "key_drafter_08",
   "reviewer_key_id": "key_reviewer_08",
-  "publication_sha256": "1eeb86060833ecd4180bc11ac965084459d42657f27026cd618936f527b5dd41"
+  "publication_sha256": "a481a5b06bf94fed1d53aee11c98dbef4bec1dbae33050e9d38d5753c9d991a1"
 }

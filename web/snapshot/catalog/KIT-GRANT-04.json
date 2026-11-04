@@ -166,7 +166,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-04",
-    "drafted_by_key": "key_drafter_04"
+    "drafted_by_key": "key_drafter_04",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-GRANT-04",
@@ -174,12 +178,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -192,14 +197,14 @@
   "reviewed_by_key": "key_reviewer_04",
   "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
   "steward_signoff": null,
-  "draft_receipt": "ea522c2100d11116009840753571c1c8b9547f2783df9bcd8cb82eec16a336a3",
-  "review_receipt": "9879e989f7393ed08193babd1029aecaebd3b6d8896dee00778c7db38053c185",
-  "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
+  "draft_receipt": "5afa9d9554c8f5699049762d830b532a6cd3c88c0e64ec2af2d7c9c4006ba315",
+  "review_receipt": "99ebda396d545ef4e0d07d35fe6030ae950b06130d9b826e6b2151194ffa9d0d",
+  "blob_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
   "catalog_version": 1,
-  "review_task_id": "er_d0639ae90b55:KIT-GRANT-04:review",
-  "draft_task_id": "er_d0639ae90b55:KIT-GRANT-04:draft",
-  "draft_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
+  "review_task_id": "er_fb8a4d080393:KIT-GRANT-04:review",
+  "draft_task_id": "er_fb8a4d080393:KIT-GRANT-04:draft",
+  "draft_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
   "drafter_key_id": "key_drafter_04",
   "reviewer_key_id": "key_reviewer_04",
-  "publication_sha256": "fa11823d4954b7e170d56e265bc5f57d4bd4994a990e367f3a8f81aec50a6b36"
+  "publication_sha256": "80608a570be9ba52a4ca12a68d6489c617e3a7e4bca917c2f90a1579c7559e28"
 }

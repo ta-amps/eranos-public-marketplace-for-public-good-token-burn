@@ -164,7 +164,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-02",
-    "drafted_by_key": "key_drafter_02"
+    "drafted_by_key": "key_drafter_02",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-HOTLINE-02",
@@ -172,12 +176,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -191,14 +196,14 @@
   "reviewed_by_key": "key_reviewer_02",
   "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
   "steward_signoff": "helpline-steward-lead",
-  "draft_receipt": "7e65179d77d38f15974bcdbe182ea7c3b6027641ad9e241f2068c6e883b4a537",
-  "review_receipt": "68a0aff0c1d4ceac5a63ceeb3d8b630b9b7500c9a49d205e56fd83e5873cb0e8",
-  "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
+  "draft_receipt": "6e3a7daab0b4dc3d87a2d5074613aa9c91c1da74abe9ce28adde6ed1d9bf42be",
+  "review_receipt": "6a8872e23b1ed2dcccb11ef58621786a540b75ad33ed8ed1b0a781035306583c",
+  "blob_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
   "catalog_version": 1,
-  "review_task_id": "er_f00cb8888417:KIT-HOTLINE-02:review",
-  "draft_task_id": "er_f00cb8888417:KIT-HOTLINE-02:draft",
-  "draft_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
+  "review_task_id": "er_8c3498d67301:KIT-HOTLINE-02:review",
+  "draft_task_id": "er_8c3498d67301:KIT-HOTLINE-02:draft",
+  "draft_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
   "drafter_key_id": "key_drafter_02",
   "reviewer_key_id": "key_reviewer_02",
-  "publication_sha256": "c8c468993d0cdeec9d2759261a2c15e6f0ad6fe5eafd1634fd79bdf120976e0e"
+  "publication_sha256": "66b711b3b615692f3ec7ecab2427bcdcff0c3e6c0683b690040eb8948cdf9005"
 }

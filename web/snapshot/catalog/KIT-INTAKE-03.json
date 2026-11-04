@@ -160,7 +160,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-03",
-    "drafted_by_key": "key_drafter_03"
+    "drafted_by_key": "key_drafter_03",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-INTAKE-03",
@@ -168,12 +172,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -186,14 +191,14 @@
   "reviewed_by_key": "key_reviewer_03",
   "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
   "steward_signoff": null,
-  "draft_receipt": "28bda9272e1a7b15fadf014a6476704942367dafdfeea555c1ed5be838067b49",
-  "review_receipt": "4573e86d0fa7bd8644d9f25e8f61291affd826837ecd7afe0c927abf284f7590",
-  "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
+  "draft_receipt": "e4f90e019deabc74bcc55610e96c86a3a2720a1e4c6f07ada010ed25e5e4447d",
+  "review_receipt": "f8060fca767ee4de85905b6fb5ce2642a8047bef1c5ed755522d4cfec7b7c34c",
+  "blob_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
   "catalog_version": 1,
-  "review_task_id": "er_d9a0f60d6ffc:KIT-INTAKE-03:review",
-  "draft_task_id": "er_d9a0f60d6ffc:KIT-INTAKE-03:draft",
-  "draft_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
+  "review_task_id": "er_faef1cf5bd4c:KIT-INTAKE-03:review",
+  "draft_task_id": "er_faef1cf5bd4c:KIT-INTAKE-03:draft",
+  "draft_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
   "drafter_key_id": "key_drafter_03",
   "reviewer_key_id": "key_reviewer_03",
-  "publication_sha256": "3b937c8670fa6007ff0940afc0cc958ada0450f330da17085cf447ef0d7530cc"
+  "publication_sha256": "b23928cb0ca30e867758c7bac617910d2a34147e5a06f7ad834eee5e2ad2b843"
 }

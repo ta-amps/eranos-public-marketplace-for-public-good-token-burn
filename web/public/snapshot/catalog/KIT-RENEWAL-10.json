@@ -222,7 +222,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-10",
-    "drafted_by_key": "key_drafter_10"
+    "drafted_by_key": "key_drafter_10",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-RENEWAL-10",
@@ -230,12 +234,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -249,14 +254,14 @@
   "reviewed_by_key": "key_reviewer_10",
   "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "56556bb9944911b268b315818b7b25be86955df67bddb0d76d1255f3715337c2",
-  "review_receipt": "916c98c9ede57944aa5069a4a0bee05b2a86f14f32f9418b6ff62fed31798df1",
-  "blob_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+  "draft_receipt": "af9aadd64ac35e29ae229a7e00b00fca81a4ad6d3e0db390d12f8fec38915ffd",
+  "review_receipt": "41d980befa9801265c5683f2c233fd0d5b77e639aa5cec00d2a3cd348f0f1a26",
+  "blob_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
   "catalog_version": 1,
-  "review_task_id": "er_0af756f44628:KIT-RENEWAL-10:review",
-  "draft_task_id": "er_0af756f44628:KIT-RENEWAL-10:draft",
-  "draft_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+  "review_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:review",
+  "draft_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:draft",
+  "draft_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
   "drafter_key_id": "key_drafter_10",
   "reviewer_key_id": "key_reviewer_10",
-  "publication_sha256": "d957a3f27f483721d0868a32ae0170ff99675f0f935c75eeb04e8ba107df189e"
+  "publication_sha256": "d5841df9f1583ed9af1548410114267aa948265d1a79453e5591c354b5d15808"
 }

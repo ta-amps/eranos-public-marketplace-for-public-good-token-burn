@@ -210,7 +210,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-14",
-        "drafted_by_key": "key_drafter_14"
+        "drafted_by_key": "key_drafter_14",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-FLYER-14",
@@ -218,12 +222,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -236,16 +241,16 @@
       "reviewed_by_key": "key_reviewer_14",
       "review_notes": "Checked exact matching of dates, times and phone numbers, that the agent asks questions instead of rewriting, and that fluent review and printing stay with people.",
       "steward_signoff": null,
-      "draft_receipt": "ff465f7e57eddfe9ba8fab6306b35117238283f01ae95999251ee596a3c93804",
-      "review_receipt": "5643405c0fb53d3f9007718a6bf1fedf8642395208aacb6da04a6aa8d1bbe095",
-      "blob_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+      "draft_receipt": "3534a55e87d0d96db75264619544a878cc7cea91b2b12f8bfd03a9ddd39d04b2",
+      "review_receipt": "12f5afc7eb8723a9677308275498e3fe2b5d70f0d61ed22d6d035c7144d76476",
+      "blob_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
       "catalog_version": 1,
-      "review_task_id": "er_55b2eec58a57:KIT-FLYER-14:review",
-      "draft_task_id": "er_55b2eec58a57:KIT-FLYER-14:draft",
-      "draft_sha256": "0aa0952e2e58b0afd9a47c98cd6c3ed10cb2709c52e3a6f01945c08554b07376",
+      "review_task_id": "er_a925e0805f6b:KIT-FLYER-14:review",
+      "draft_task_id": "er_a925e0805f6b:KIT-FLYER-14:draft",
+      "draft_sha256": "a705159903c9ebd472c52e04244a98096ad52dec1f80dcb1bcfd1a94fee16d08",
       "drafter_key_id": "key_drafter_14",
       "reviewer_key_id": "key_reviewer_14",
-      "publication_sha256": "a974a680e966bdc84000f6fc7b5e6af92baa757b65bb30ff12f38ac2d5e309ae"
+      "publication_sha256": "948420c2800ee284a7b010dfa821651a12a2af7c9b5292631f61950fbc41f22f"
     },
     {
       "spdx_license": "BSD-3-Clause",
@@ -414,7 +419,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-04",
-        "drafted_by_key": "key_drafter_04"
+        "drafted_by_key": "key_drafter_04",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-GRANT-04",
@@ -422,12 +431,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -440,16 +450,16 @@
       "reviewed_by_key": "key_reviewer_04",
       "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
       "steward_signoff": null,
-      "draft_receipt": "ea522c2100d11116009840753571c1c8b9547f2783df9bcd8cb82eec16a336a3",
-      "review_receipt": "9879e989f7393ed08193babd1029aecaebd3b6d8896dee00778c7db38053c185",
-      "blob_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
+      "draft_receipt": "5afa9d9554c8f5699049762d830b532a6cd3c88c0e64ec2af2d7c9c4006ba315",
+      "review_receipt": "99ebda396d545ef4e0d07d35fe6030ae950b06130d9b826e6b2151194ffa9d0d",
+      "blob_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
       "catalog_version": 1,
-      "review_task_id": "er_d0639ae90b55:KIT-GRANT-04:review",
-      "draft_task_id": "er_d0639ae90b55:KIT-GRANT-04:draft",
-      "draft_sha256": "db9d34e8cb52c265a5b62bc4e9d03ef1e259c55a3bbcbf5fc9748ddff2b04b76",
+      "review_task_id": "er_fb8a4d080393:KIT-GRANT-04:review",
+      "draft_task_id": "er_fb8a4d080393:KIT-GRANT-04:draft",
+      "draft_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
       "drafter_key_id": "key_drafter_04",
       "reviewer_key_id": "key_reviewer_04",
-      "publication_sha256": "fa11823d4954b7e170d56e265bc5f57d4bd4994a990e367f3a8f81aec50a6b36"
+      "publication_sha256": "80608a570be9ba52a4ca12a68d6489c617e3a7e4bca917c2f90a1579c7559e28"
     },
     {
       "spdx_license": "CC-BY-4.0",
@@ -616,7 +626,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-02",
-        "drafted_by_key": "key_drafter_02"
+        "drafted_by_key": "key_drafter_02",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-HOTLINE-02",
@@ -624,12 +638,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -643,16 +658,16 @@
       "reviewed_by_key": "key_reviewer_02",
       "review_notes": "Automated checks and UNODC citations pass; parking on Tessera for human helpline steward sign-off before catalog publication.",
       "steward_signoff": "helpline-steward-lead",
-      "draft_receipt": "7e65179d77d38f15974bcdbe182ea7c3b6027641ad9e241f2068c6e883b4a537",
-      "review_receipt": "68a0aff0c1d4ceac5a63ceeb3d8b630b9b7500c9a49d205e56fd83e5873cb0e8",
-      "blob_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
+      "draft_receipt": "6e3a7daab0b4dc3d87a2d5074613aa9c91c1da74abe9ce28adde6ed1d9bf42be",
+      "review_receipt": "6a8872e23b1ed2dcccb11ef58621786a540b75ad33ed8ed1b0a781035306583c",
+      "blob_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
       "catalog_version": 1,
-      "review_task_id": "er_f00cb8888417:KIT-HOTLINE-02:review",
-      "draft_task_id": "er_f00cb8888417:KIT-HOTLINE-02:draft",
-      "draft_sha256": "39796817fae7db4c64271943051b7c2b84b13f54a2ada46b1c9e4563d06cc66d",
+      "review_task_id": "er_8c3498d67301:KIT-HOTLINE-02:review",
+      "draft_task_id": "er_8c3498d67301:KIT-HOTLINE-02:draft",
+      "draft_sha256": "de996313cf6952877a1d7cf2c3d2ffa5ed81b44e260b8623c1a60fc25f0eabc4",
       "drafter_key_id": "key_drafter_02",
       "reviewer_key_id": "key_reviewer_02",
-      "publication_sha256": "c8c468993d0cdeec9d2759261a2c15e6f0ad6fe5eafd1634fd79bdf120976e0e"
+      "publication_sha256": "66b711b3b615692f3ec7ecab2427bcdcff0c3e6c0683b690040eb8948cdf9005"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -836,7 +851,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-15",
-        "drafted_by_key": "key_drafter_15"
+        "drafted_by_key": "key_drafter_15",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-HOUSING-15",
@@ -844,12 +863,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -862,16 +882,16 @@
       "reviewed_by_key": "key_reviewer_15",
       "review_notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off.",
       "steward_signoff": "housing-clinic-steward",
-      "draft_receipt": "bd6a13b937f02cb49bfd8ce076d54f12c7d852b1f9fc9fc11b84114c3b38d320",
-      "review_receipt": "dcb0d38f953a0148328b35c6b980644247d09daa3d903fb97124b1c80b249016",
-      "blob_sha256": "aca3bc6a4ff0c9aadc6010213ffe96c4d4b50f714a0f6bbae9cd3ffef55db775",
+      "draft_receipt": "c5ea5122ff532dba2fd1e0c78c6ec0e34ac4af746f7a1aa63ffe6f71d36df8ca",
+      "review_receipt": "2e3193003a333901b21831bf737935d8a6172f75aad953fafcae4b44e96a88ab",
+      "blob_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
       "catalog_version": 1,
-      "review_task_id": "er_97daaa4cb40e:KIT-HOUSING-15:review",
-      "draft_task_id": "er_97daaa4cb40e:KIT-HOUSING-15:draft",
-      "draft_sha256": "aca3bc6a4ff0c9aadc6010213ffe96c4d4b50f714a0f6bbae9cd3ffef55db775",
+      "review_task_id": "er_b46043d4b543:KIT-HOUSING-15:review",
+      "draft_task_id": "er_b46043d4b543:KIT-HOUSING-15:draft",
+      "draft_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
       "drafter_key_id": "key_drafter_15",
       "reviewer_key_id": "key_reviewer_15",
-      "publication_sha256": "a7656f5885bc8788c00e8add02d60a24e8e3da634a27116f54f3da9d58f1400d"
+      "publication_sha256": "a649984cadff5f6952deff80a312d4abb0087f2c66cc23380f22db559d848c01"
     },
     {
       "spdx_license": "MIT",
@@ -1111,7 +1131,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-06",
-        "drafted_by_key": "key_drafter_06"
+        "drafted_by_key": "key_drafter_06",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-IMPACT-06",
@@ -1119,12 +1143,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 3,
@@ -1138,16 +1163,16 @@
       "reviewed_by_key": "key_reviewer_06",
       "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "67cfbde018cee486a59a1cc42ea8a633bb393291fa51dcd318eaa91c0b860558",
-      "review_receipt": "63f19d74847b727cc6d53d86ebfe67d1f0c12bcc25332b8af9a58991965d6095",
-      "blob_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
+      "draft_receipt": "14eb5d92bac2196c471ca8f7f20c10286db805f31d16c4f6168fca9872103be8",
+      "review_receipt": "5354839bd3354c2469837a12a16fcabecd40b9080647009eeff06066341cc7f6",
+      "blob_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
       "catalog_version": 1,
-      "review_task_id": "er_4ea1272b676a:KIT-IMPACT-06:review",
-      "draft_task_id": "er_4ea1272b676a:KIT-IMPACT-06:draft",
-      "draft_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
+      "review_task_id": "er_85567c383ff8:KIT-IMPACT-06:review",
+      "draft_task_id": "er_85567c383ff8:KIT-IMPACT-06:draft",
+      "draft_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
       "drafter_key_id": "key_drafter_06",
       "reviewer_key_id": "key_reviewer_06",
-      "publication_sha256": "d0d4c111ea202d5d4b4aacddd243de952b1f82e926dde6ab507f7a8030193895"
+      "publication_sha256": "6a7e11a5cfc2fa4e348afc5d97504f5c8a230d637c6bd66602f213df03bcd3d1"
     },
     {
       "spdx_license": "MIT",
@@ -1310,7 +1335,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-03",
-        "drafted_by_key": "key_drafter_03"
+        "drafted_by_key": "key_drafter_03",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-INTAKE-03",
@@ -1318,12 +1347,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -1336,16 +1366,16 @@
       "reviewed_by_key": "key_reviewer_03",
       "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
       "steward_signoff": null,
-      "draft_receipt": "28bda9272e1a7b15fadf014a6476704942367dafdfeea555c1ed5be838067b49",
-      "review_receipt": "4573e86d0fa7bd8644d9f25e8f61291affd826837ecd7afe0c927abf284f7590",
-      "blob_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
+      "draft_receipt": "e4f90e019deabc74bcc55610e96c86a3a2720a1e4c6f07ada010ed25e5e4447d",
+      "review_receipt": "f8060fca767ee4de85905b6fb5ce2642a8047bef1c5ed755522d4cfec7b7c34c",
+      "blob_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
       "catalog_version": 1,
-      "review_task_id": "er_d9a0f60d6ffc:KIT-INTAKE-03:review",
-      "draft_task_id": "er_d9a0f60d6ffc:KIT-INTAKE-03:draft",
-      "draft_sha256": "84c5ced267b4778033d9aca6b80ac836eb379536541591ddf362685f36a5231a",
+      "review_task_id": "er_faef1cf5bd4c:KIT-INTAKE-03:review",
+      "draft_task_id": "er_faef1cf5bd4c:KIT-INTAKE-03:draft",
+      "draft_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
       "drafter_key_id": "key_drafter_03",
       "reviewer_key_id": "key_reviewer_03",
-      "publication_sha256": "3b937c8670fa6007ff0940afc0cc958ada0450f330da17085cf447ef0d7530cc"
+      "publication_sha256": "b23928cb0ca30e867758c7bac617910d2a34147e5a06f7ad834eee5e2ad2b843"
     },
     {
       "spdx_license": "MIT",
@@ -1581,7 +1611,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-12",
-        "drafted_by_key": "key_drafter_12"
+        "drafted_by_key": "key_drafter_12",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-PANTRY-12",
@@ -1589,12 +1623,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 3,
@@ -1607,16 +1642,16 @@
       "reviewed_by_key": "key_reviewer_12",
       "review_notes": "Checked blank-not-zero counts, use-first items routed to a person instead of a safety ruling, slot codes instead of names, and that exceptions and reminders stay with the coordinator.",
       "steward_signoff": null,
-      "draft_receipt": "ef71aa520ab983657aab3444f6c6468560c69819a308d11acc03d161f59dcabc",
-      "review_receipt": "cbb8f552e2be35cdc4d933b49d2051bb983ba2a15f2e27fe364cbcaef33e0603",
-      "blob_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+      "draft_receipt": "20ce69d03ee1cd2acd5255adb86ef3f134cd6b7f071f7f27af4a7c5e59e243bc",
+      "review_receipt": "80aba4fd4981574951f54d957cfeb0669af8a53462b409ab4d91e5a9eabde338",
+      "blob_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
       "catalog_version": 1,
-      "review_task_id": "er_54936deac453:KIT-PANTRY-12:review",
-      "draft_task_id": "er_54936deac453:KIT-PANTRY-12:draft",
-      "draft_sha256": "04a3d6a9ff3525f3746f2bad2396e4f0bc33b285cab1c9a9fcb2b0545a18aa8c",
+      "review_task_id": "er_1e266ca19702:KIT-PANTRY-12:review",
+      "draft_task_id": "er_1e266ca19702:KIT-PANTRY-12:draft",
+      "draft_sha256": "cdc4340ac337d3cf367dd568db8f62a75feca12c92e1c9fd793d51559f2175cc",
       "drafter_key_id": "key_drafter_12",
       "reviewer_key_id": "key_reviewer_12",
-      "publication_sha256": "9c686070f4f5804550065926cb80f34c9a7e00a886e49537edced83c6b149ad5"
+      "publication_sha256": "04c2dd96b94d12769482fa25ddd0fe6c7033840bff11169c9b4cfe94d9149673"
     },
     {
       "spdx_license": "MIT",
@@ -1843,7 +1878,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-09",
-        "drafted_by_key": "key_drafter_09"
+        "drafted_by_key": "key_drafter_09",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-POLICY-09",
@@ -1851,12 +1890,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 3,
@@ -1869,16 +1909,16 @@
       "reviewed_by_key": "key_reviewer_09",
       "review_notes": "Checked clause numbering and quotes against the official text, a citation for every point, the Not legal advice notice, a different worker's citation check, and that interpretation and sharing stay with staff and counsel.",
       "steward_signoff": null,
-      "draft_receipt": "416ddc36c18a1863bc272f86e5115fa763bd6ba1b67e45b25dc6b581ae4b37a8",
-      "review_receipt": "acb64df415a2a119cb76c007ff28c9ed626b35839f9633be00c7afc606ac4307",
-      "blob_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+      "draft_receipt": "3e15e09c811475c2f31a4ce1829f76219e1862fa16a822e64e4183bb446f800f",
+      "review_receipt": "595d1d627c149e7489ad698403bfc81d7581aefdab06e16f112e0dd3be528cd7",
+      "blob_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
       "catalog_version": 1,
-      "review_task_id": "er_9a9077153a6c:KIT-POLICY-09:review",
-      "draft_task_id": "er_9a9077153a6c:KIT-POLICY-09:draft",
-      "draft_sha256": "83f5d68da1e7a0e226084458893868f90d507fc36e2b0262c3fa61085e08a8fa",
+      "review_task_id": "er_713a15f02fcd:KIT-POLICY-09:review",
+      "draft_task_id": "er_713a15f02fcd:KIT-POLICY-09:draft",
+      "draft_sha256": "c302ac1bd9b633a7ea2599965ebf9f4dc41fee7c74ea685a4f1a11cc6f112bf5",
       "drafter_key_id": "key_drafter_09",
       "reviewer_key_id": "key_reviewer_09",
-      "publication_sha256": "640dfc690c4739e2c75976d953504a8dd784ec7ff5ab79bafbb17ea8fd7eca1d"
+      "publication_sha256": "72715c8dad822e4672583b01d5754a0523715024e6828d93047d28088961c30b"
     },
     {
       "spdx_license": "Apache-2.0",
@@ -2047,7 +2087,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-01",
-        "drafted_by_key": "key_drafter_01"
+        "drafted_by_key": "key_drafter_01",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-RECRUIT-01",
@@ -2055,12 +2099,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -2073,16 +2118,16 @@
       "reviewed_by_key": "key_reviewer_01",
       "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
       "steward_signoff": null,
-      "draft_receipt": "cb04d523d23b23e5bebbddefdce39f70f983d7f8dac93475a4184ed74a3ad58d",
-      "review_receipt": "f629abfc8c3700bb2a4dc620fe7da3e3f6ac9c2406b3035e0eb3043eba9f5985",
-      "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
+      "draft_receipt": "17da12843530415b183c0c7f942db8c6af1a0fec9fbeb245a9a8c91e4976127b",
+      "review_receipt": "ff766ace1b07b3f5ad3803d02b775c7729a72acabb53f0ff6ba36cacc6ae9d9d",
+      "blob_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
       "catalog_version": 1,
-      "review_task_id": "er_3bf6478bbf10:KIT-RECRUIT-01:review",
-      "draft_task_id": "er_3bf6478bbf10:KIT-RECRUIT-01:draft",
-      "draft_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
+      "review_task_id": "er_36c28d216ed3:KIT-RECRUIT-01:review",
+      "draft_task_id": "er_36c28d216ed3:KIT-RECRUIT-01:draft",
+      "draft_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
       "drafter_key_id": "key_drafter_01",
       "reviewer_key_id": "key_reviewer_01",
-      "publication_sha256": "14a79021b0f36a9738b4a1c28a8c15a608eac23373555ae8d4adb27ac13d3c7c"
+      "publication_sha256": "59458c0a808ec7d7c3fd121183e049a6086bc109dc23b2ffdf2237d40088256d"
     },
     {
       "spdx_license": "MIT",
@@ -2321,7 +2366,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-11",
-        "drafted_by_key": "key_drafter_11"
+        "drafted_by_key": "key_drafter_11",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-RELIEF-11",
@@ -2329,12 +2378,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 3,
@@ -2348,16 +2398,16 @@
       "reviewed_by_key": "key_reviewer_11",
       "review_notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people.",
       "steward_signoff": null,
-      "draft_receipt": "3c2c6096b90c1b77ac6ebb4244b90bc71a9c76e53db4d8bf693bfd564bb06e1f",
-      "review_receipt": "856e2e426a0213cd0940dee4e7f6d15ecd1981f8646f5e3437df5f1f44179cdf",
-      "blob_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
+      "draft_receipt": "925d0653579becc50f90c6fe88c162da9aa32c0b02fb47812b259a6f11d43c3c",
+      "review_receipt": "4e317e3b9cd24c01b19864c9550d2cd3362c60b354c341fe05ea1c57e3a21653",
+      "blob_sha256": "a833d6c1958c7ae81aaf3d43a23a67b49c59e08ddf5d7a2404fac0f427e5abe7",
       "catalog_version": 1,
-      "review_task_id": "er_e2ccbfd9ca34:KIT-RELIEF-11:review",
-      "draft_task_id": "er_e2ccbfd9ca34:KIT-RELIEF-11:draft",
-      "draft_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
+      "review_task_id": "er_e9647cd6be27:KIT-RELIEF-11:review",
+      "draft_task_id": "er_e9647cd6be27:KIT-RELIEF-11:draft",
+      "draft_sha256": "a833d6c1958c7ae81aaf3d43a23a67b49c59e08ddf5d7a2404fac0f427e5abe7",
       "drafter_key_id": "key_drafter_11",
       "reviewer_key_id": "key_reviewer_11",
-      "publication_sha256": "ba5a00895151de9d765656bf626da7b46166f14c66a5de383b7c15e4e265bac5"
+      "publication_sha256": "ff5fd44a7a41f09aa544b68a578c9aef257cf72153682cb08151b5d510d69ddc"
     },
     {
       "spdx_license": "MIT",
@@ -2582,7 +2632,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-10",
-        "drafted_by_key": "key_drafter_10"
+        "drafted_by_key": "key_drafter_10",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-RENEWAL-10",
@@ -2590,12 +2644,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -2609,16 +2664,16 @@
       "reviewed_by_key": "key_reviewer_10",
       "review_notes": "Checked that totals trace to every period, the finance lead's spending is copied unchanged, missing numbers stay unknown, and checking, approval and submission stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "56556bb9944911b268b315818b7b25be86955df67bddb0d76d1255f3715337c2",
-      "review_receipt": "916c98c9ede57944aa5069a4a0bee05b2a86f14f32f9418b6ff62fed31798df1",
-      "blob_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+      "draft_receipt": "af9aadd64ac35e29ae229a7e00b00fca81a4ad6d3e0db390d12f8fec38915ffd",
+      "review_receipt": "41d980befa9801265c5683f2c233fd0d5b77e639aa5cec00d2a3cd348f0f1a26",
+      "blob_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
       "catalog_version": 1,
-      "review_task_id": "er_0af756f44628:KIT-RENEWAL-10:review",
-      "draft_task_id": "er_0af756f44628:KIT-RENEWAL-10:draft",
-      "draft_sha256": "b4081b1fdcb9145c05f30937884856e5cef1bee0699e05c986e834b4e9de34c8",
+      "review_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:review",
+      "draft_task_id": "er_b01eba6be66e:KIT-RENEWAL-10:draft",
+      "draft_sha256": "123269a43622dee383bfe79a890b216dcd67c3a755a9667d6960ad474f9a1db2",
       "drafter_key_id": "key_drafter_10",
       "reviewer_key_id": "key_reviewer_10",
-      "publication_sha256": "d957a3f27f483721d0868a32ae0170ff99675f0f935c75eeb04e8ba107df189e"
+      "publication_sha256": "d5841df9f1583ed9af1548410114267aa948265d1a79453e5591c354b5d15808"
     },
     {
       "spdx_license": "CC0-1.0",
@@ -2788,7 +2843,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-05",
-        "drafted_by_key": "key_drafter_05"
+        "drafted_by_key": "key_drafter_05",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-SHIFT-05",
@@ -2796,12 +2855,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -2815,16 +2875,16 @@
       "reviewed_by_key": "key_reviewer_05",
       "review_notes": "Verified custom step kind volunteer_roster_prep, standalone SOP + CSV artifacts without requiring an MCP server, and strict human_only captain escalation.",
       "steward_signoff": null,
-      "draft_receipt": "2d8bc5b367af1b134b9fc86ab26a5494d5c3bd08c7e217b6c725eacc00d5bf04",
-      "review_receipt": "57a2cb09d2f4628ba49cf7a5ee85e611693f4c94990746c05bdad9986ccae10e",
-      "blob_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
+      "draft_receipt": "e79d6462ddb1c2ac3f29758705cd8557d5d134ea9b89acc9dea96007777d8123",
+      "review_receipt": "97ae2057a7392d3553536bb948196201453f75e8cb98f5bdb73b2c7b23947ea2",
+      "blob_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
       "catalog_version": 1,
-      "review_task_id": "er_1c8a50dcc553:KIT-SHIFT-05:review",
-      "draft_task_id": "er_1c8a50dcc553:KIT-SHIFT-05:draft",
-      "draft_sha256": "c07a678bb8ad7668f252d6bfd4d0bceada059ff914aae7b58ac8a34d6134db89",
+      "review_task_id": "er_986b4943be87:KIT-SHIFT-05:review",
+      "draft_task_id": "er_986b4943be87:KIT-SHIFT-05:draft",
+      "draft_sha256": "804301003bfafb6e6de56568c3f2e3c7805f0b3059667e00ad2b54a79e585fde",
       "drafter_key_id": "key_drafter_05",
       "reviewer_key_id": "key_reviewer_05",
-      "publication_sha256": "b30687630df9f9547948d921a87e3ed875c4ed4cc8f87122c1b2ec25759b0dde"
+      "publication_sha256": "b4abba1c388566e491d3a78f675f23c2441193bc9f09c9c60f178707aca05653"
     },
     {
       "spdx_license": "MIT",
@@ -3077,7 +3137,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-08",
-        "drafted_by_key": "key_drafter_08"
+        "drafted_by_key": "key_drafter_08",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-SUPPORT-08",
@@ -3085,12 +3149,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 3,
@@ -3104,16 +3169,16 @@
       "reviewed_by_key": "key_reviewer_08",
       "review_notes": "Checked that only entered service needs reach the agent, stale entries are marked verify first, wording stays neutral, and conversations, safety planning, decisions and contact stay with trained advocates.",
       "steward_signoff": "victim-services-steward",
-      "draft_receipt": "5560856f5f198318c949b006931ec88836e83a404b34a6b7f16948037e289577",
-      "review_receipt": "00c6c26a0a2d5aa806c1619db807ef201c0034a027eea74ed5c6967fae2c3442",
-      "blob_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+      "draft_receipt": "89e6f353835d3045a73f17dc432ec3800ec265b99fd4b8a3ea83c036ae29f74e",
+      "review_receipt": "f911871ca81e130ae63c763fbddc732653e13dfa3934bbf8fd00be34e6d71ba5",
+      "blob_sha256": "d0693581c67d9e0009e4d120897e89baf42af62e3b0253a66c095e5cb5264232",
       "catalog_version": 1,
-      "review_task_id": "er_ef79cfd0fc05:KIT-SUPPORT-08:review",
-      "draft_task_id": "er_ef79cfd0fc05:KIT-SUPPORT-08:draft",
-      "draft_sha256": "40aa1fe17c4ea70918845c4f5e396f6788a12ecb576ed713914fa8642633ba9e",
+      "review_task_id": "er_28b204857adb:KIT-SUPPORT-08:review",
+      "draft_task_id": "er_28b204857adb:KIT-SUPPORT-08:draft",
+      "draft_sha256": "d0693581c67d9e0009e4d120897e89baf42af62e3b0253a66c095e5cb5264232",
       "drafter_key_id": "key_drafter_08",
       "reviewer_key_id": "key_reviewer_08",
-      "publication_sha256": "1eeb86060833ecd4180bc11ac965084459d42657f27026cd618936f527b5dd41"
+      "publication_sha256": "a481a5b06bf94fed1d53aee11c98dbef4bec1dbae33050e9d38d5753c9d991a1"
     },
     {
       "spdx_license": "MIT",
@@ -3340,7 +3405,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-13",
-        "drafted_by_key": "key_drafter_13"
+        "drafted_by_key": "key_drafter_13",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-THANKS-13",
@@ -3348,12 +3417,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 2,
@@ -3367,16 +3437,16 @@
       "reviewed_by_key": "key_reviewer_13",
       "review_notes": "Checked placeholders instead of names, held rows with missing privacy choices, word-for-word acknowledgment wording, and that special handling, wording and sending stay with staff.",
       "steward_signoff": null,
-      "draft_receipt": "b1df7de9ec2d097f6d455000a0e4c61b620c9666d5a23c96bee104f1f9b8af24",
-      "review_receipt": "035c2bd85bb2fdd34c199973f0237359b08ee9bd73eab19a9879141ba000a93e",
-      "blob_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+      "draft_receipt": "6dbda8f66a44e1961e368b08e3e68e058038d10d477340385bf000fc46f1e9d9",
+      "review_receipt": "133173ecb97f2e94f592cda755344ad43f834cd8f4cf58097f95c77f9b5878b6",
+      "blob_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
       "catalog_version": 1,
-      "review_task_id": "er_3c2d03790fbe:KIT-THANKS-13:review",
-      "draft_task_id": "er_3c2d03790fbe:KIT-THANKS-13:draft",
-      "draft_sha256": "3450d729d90950bc419491676f45a5cc05718d8dd530e2d4928436fcec0b8869",
+      "review_task_id": "er_e27e74df6610:KIT-THANKS-13:review",
+      "draft_task_id": "er_e27e74df6610:KIT-THANKS-13:draft",
+      "draft_sha256": "69df5a229670e2bd5f4d1c35c2162aef2db58eb34a80296a72e86ae1479a7182",
       "drafter_key_id": "key_drafter_13",
       "reviewer_key_id": "key_reviewer_13",
-      "publication_sha256": "1981d08bd7d896494d81a2534983917e082f891f0ba01d6e71b6441ea411e395"
+      "publication_sha256": "bb595c285e44580188f56da333c7788de1d63de3ddce8cfdcd12757fa34a45df"
     },
     {
       "spdx_license": "MIT",
@@ -3686,7 +3756,11 @@
           }
         ],
         "drafted_by": "volunteer-drafter-07",
-        "drafted_by_key": "key_drafter_07"
+        "drafted_by_key": "key_drafter_07",
+        "model_hook": {
+          "default": "none",
+          "uses": "your own agent's model"
+        }
       },
       "verification": {
         "kit_id": "KIT-TRANSCR-07",
@@ -3694,12 +3768,13 @@
         "checks_run": [
           "track_alignment",
           "human_only_boundaries",
-          "synthetic_fixtures",
+          "practice_case_fixtures",
           "non_accusatory_copy",
           "prohibited_topics",
           "spdx_license_allowlist",
           "cited_sources",
-          "deliverable_alignment"
+          "deliverable_alignment",
+          "model_free_by_default"
         ],
         "issues": [],
         "fixture_count": 4,
@@ -3714,16 +3789,16 @@
       "reviewed_by_key": "key_reviewer_07",
       "review_notes": "Checked the verbatim rules against the rendered synthetic pages, flags for smudged and crossed-out words, a glossary that never changes the text, and that review, safety follow-up, sign-off and sharing stay with people.",
       "steward_signoff": "records-steward-lead",
-      "draft_receipt": "e62c22ff6fe6a1c90b37863296f59a44cdb95a8d45a0c578cfad4f96c94af350",
-      "review_receipt": "f753fc77fd3a7d175196debb71abb95fa16663794c7d195ea9e42c2d5e9d5ada",
-      "blob_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+      "draft_receipt": "62042b08fd2c1dd088a55cdf243ee54afce3aa85d9d9c2d75bfd78d1f1a6dbcb",
+      "review_receipt": "170e084978d9db9592d0b8fdf3b917bdd30d5cfa661f7b01084d260163cea03b",
+      "blob_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
       "catalog_version": 1,
-      "review_task_id": "er_a09cc86ca5ac:KIT-TRANSCR-07:review",
-      "draft_task_id": "er_a09cc86ca5ac:KIT-TRANSCR-07:draft",
-      "draft_sha256": "e7f5aa870f44b37971920b3d9365bf3b9b27032a87fe85269cd6c7560928b780",
+      "review_task_id": "er_70ede300282a:KIT-TRANSCR-07:review",
+      "draft_task_id": "er_70ede300282a:KIT-TRANSCR-07:draft",
+      "draft_sha256": "8526d2231fb4f2d3882572473d8eb4cf44fb7e20d38fd1b43be8a107a50cd83c",
       "drafter_key_id": "key_drafter_07",
       "reviewer_key_id": "key_reviewer_07",
-      "publication_sha256": "1d3395753ade847875f18503554142005813ecea54ec9c7d1966f70371dbba34"
+      "publication_sha256": "fb0d0c0d6ff807b845112f0fdf42ed6ea80c990c469138ed61931a0ad461619a"
     }
   ]
 }

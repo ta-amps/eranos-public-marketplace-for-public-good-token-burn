@@ -236,7 +236,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-11",
-    "drafted_by_key": "key_drafter_11"
+    "drafted_by_key": "key_drafter_11",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-RELIEF-11",
@@ -244,12 +248,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 3,
@@ -263,14 +268,14 @@
   "reviewed_by_key": "key_reviewer_11",
   "review_notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people.",
   "steward_signoff": null,
-  "draft_receipt": "3c2c6096b90c1b77ac6ebb4244b90bc71a9c76e53db4d8bf693bfd564bb06e1f",
-  "review_receipt": "856e2e426a0213cd0940dee4e7f6d15ecd1981f8646f5e3437df5f1f44179cdf",
-  "blob_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
+  "draft_receipt": "925d0653579becc50f90c6fe88c162da9aa32c0b02fb47812b259a6f11d43c3c",
+  "review_receipt": "4e317e3b9cd24c01b19864c9550d2cd3362c60b354c341fe05ea1c57e3a21653",
+  "blob_sha256": "a833d6c1958c7ae81aaf3d43a23a67b49c59e08ddf5d7a2404fac0f427e5abe7",
   "catalog_version": 1,
-  "review_task_id": "er_e2ccbfd9ca34:KIT-RELIEF-11:review",
-  "draft_task_id": "er_e2ccbfd9ca34:KIT-RELIEF-11:draft",
-  "draft_sha256": "3262f7766bb6436cc63cdeb92804cc0da267be81e538fd5750e882445ef1811f",
+  "review_task_id": "er_e9647cd6be27:KIT-RELIEF-11:review",
+  "draft_task_id": "er_e9647cd6be27:KIT-RELIEF-11:draft",
+  "draft_sha256": "a833d6c1958c7ae81aaf3d43a23a67b49c59e08ddf5d7a2404fac0f427e5abe7",
   "drafter_key_id": "key_drafter_11",
   "reviewer_key_id": "key_reviewer_11",
-  "publication_sha256": "ba5a00895151de9d765656bf626da7b46166f14c66a5de383b7c15e4e265bac5"
+  "publication_sha256": "ff5fd44a7a41f09aa544b68a578c9aef257cf72153682cb08151b5d510d69ddc"
 }

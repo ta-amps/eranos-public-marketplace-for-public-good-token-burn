@@ -166,7 +166,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-01",
-    "drafted_by_key": "key_drafter_01"
+    "drafted_by_key": "key_drafter_01",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-RECRUIT-01",
@@ -174,12 +178,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -192,14 +197,14 @@
   "reviewed_by_key": "key_reviewer_01",
   "review_notes": "Verified ILO C181 and HK Cap 57A citations, currency guard, and human_only interview/decision steps.",
   "steward_signoff": null,
-  "draft_receipt": "cb04d523d23b23e5bebbddefdce39f70f983d7f8dac93475a4184ed74a3ad58d",
-  "review_receipt": "f629abfc8c3700bb2a4dc620fe7da3e3f6ac9c2406b3035e0eb3043eba9f5985",
-  "blob_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
+  "draft_receipt": "17da12843530415b183c0c7f942db8c6af1a0fec9fbeb245a9a8c91e4976127b",
+  "review_receipt": "ff766ace1b07b3f5ad3803d02b775c7729a72acabb53f0ff6ba36cacc6ae9d9d",
+  "blob_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
   "catalog_version": 1,
-  "review_task_id": "er_3bf6478bbf10:KIT-RECRUIT-01:review",
-  "draft_task_id": "er_3bf6478bbf10:KIT-RECRUIT-01:draft",
-  "draft_sha256": "26f772bd6a0cbe5a370feab9052981f8b4e92ae62897c5566b6855832fbeafde",
+  "review_task_id": "er_36c28d216ed3:KIT-RECRUIT-01:review",
+  "draft_task_id": "er_36c28d216ed3:KIT-RECRUIT-01:draft",
+  "draft_sha256": "ae96c699fea80ecd76edff9e9555611b44862582b83206e0c5d785c85e9768b9",
   "drafter_key_id": "key_drafter_01",
   "reviewer_key_id": "key_reviewer_01",
-  "publication_sha256": "14a79021b0f36a9738b4a1c28a8c15a608eac23373555ae8d4adb27ac13d3c7c"
+  "publication_sha256": "59458c0a808ec7d7c3fd121183e049a6086bc109dc23b2ffdf2237d40088256d"
 }

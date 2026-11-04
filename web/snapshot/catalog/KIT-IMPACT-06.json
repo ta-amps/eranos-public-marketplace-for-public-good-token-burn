@@ -237,7 +237,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-06",
-    "drafted_by_key": "key_drafter_06"
+    "drafted_by_key": "key_drafter_06",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-IMPACT-06",
@@ -245,12 +249,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 3,
@@ -264,14 +269,14 @@
   "reviewed_by_key": "key_reviewer_06",
   "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "67cfbde018cee486a59a1cc42ea8a633bb393291fa51dcd318eaa91c0b860558",
-  "review_receipt": "63f19d74847b727cc6d53d86ebfe67d1f0c12bcc25332b8af9a58991965d6095",
-  "blob_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
+  "draft_receipt": "14eb5d92bac2196c471ca8f7f20c10286db805f31d16c4f6168fca9872103be8",
+  "review_receipt": "5354839bd3354c2469837a12a16fcabecd40b9080647009eeff06066341cc7f6",
+  "blob_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
   "catalog_version": 1,
-  "review_task_id": "er_4ea1272b676a:KIT-IMPACT-06:review",
-  "draft_task_id": "er_4ea1272b676a:KIT-IMPACT-06:draft",
-  "draft_sha256": "ae623cbb99e03b7c0ba83a738f00edba275819a960a7a8c95e18652bbc4814a1",
+  "review_task_id": "er_85567c383ff8:KIT-IMPACT-06:review",
+  "draft_task_id": "er_85567c383ff8:KIT-IMPACT-06:draft",
+  "draft_sha256": "7c7c3a142432c469e1531cbee94cee4147ed339a19a5cc2ef63cf7c3092341b3",
   "drafter_key_id": "key_drafter_06",
   "reviewer_key_id": "key_reviewer_06",
-  "publication_sha256": "d0d4c111ea202d5d4b4aacddd243de952b1f82e926dde6ab507f7a8030193895"
+  "publication_sha256": "6a7e11a5cfc2fa4e348afc5d97504f5c8a230d637c6bd66602f213df03bcd3d1"
 }

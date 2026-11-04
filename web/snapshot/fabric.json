@@ -15,7 +15,7 @@
     },
     {
       "name": "eq02",
-      "label": "Draft + verify",
+      "label": "Draft + check",
       "ready": 0,
       "leased": 0,
       "waiting": 0,

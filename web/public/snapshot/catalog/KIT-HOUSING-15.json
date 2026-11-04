@@ -181,7 +181,11 @@
       }
     ],
     "drafted_by": "volunteer-drafter-15",
-    "drafted_by_key": "key_drafter_15"
+    "drafted_by_key": "key_drafter_15",
+    "model_hook": {
+      "default": "none",
+      "uses": "your own agent's model"
+    }
   },
   "verification": {
     "kit_id": "KIT-HOUSING-15",
@@ -189,12 +193,13 @@
     "checks_run": [
       "track_alignment",
       "human_only_boundaries",
-      "synthetic_fixtures",
+      "practice_case_fixtures",
       "non_accusatory_copy",
       "prohibited_topics",
       "spdx_license_allowlist",
       "cited_sources",
-      "deliverable_alignment"
+      "deliverable_alignment",
+      "model_free_by_default"
     ],
     "issues": [],
     "fixture_count": 2,
@@ -207,14 +212,14 @@
   "reviewed_by_key": "key_reviewer_15",
   "review_notes": "Verified neutral non-accusatory wording, IRS and HUD primary sources, and strict human_only boundaries for counselor review and external filings; parking for clinic steward sign-off.",
   "steward_signoff": "housing-clinic-steward",
-  "draft_receipt": "bd6a13b937f02cb49bfd8ce076d54f12c7d852b1f9fc9fc11b84114c3b38d320",
-  "review_receipt": "dcb0d38f953a0148328b35c6b980644247d09daa3d903fb97124b1c80b249016",
-  "blob_sha256": "aca3bc6a4ff0c9aadc6010213ffe96c4d4b50f714a0f6bbae9cd3ffef55db775",
+  "draft_receipt": "c5ea5122ff532dba2fd1e0c78c6ec0e34ac4af746f7a1aa63ffe6f71d36df8ca",
+  "review_receipt": "2e3193003a333901b21831bf737935d8a6172f75aad953fafcae4b44e96a88ab",
+  "blob_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
   "catalog_version": 1,
-  "review_task_id": "er_97daaa4cb40e:KIT-HOUSING-15:review",
-  "draft_task_id": "er_97daaa4cb40e:KIT-HOUSING-15:draft",
-  "draft_sha256": "aca3bc6a4ff0c9aadc6010213ffe96c4d4b50f714a0f6bbae9cd3ffef55db775",
+  "review_task_id": "er_b46043d4b543:KIT-HOUSING-15:review",
+  "draft_task_id": "er_b46043d4b543:KIT-HOUSING-15:draft",
+  "draft_sha256": "f97baf0c4687204da35f2a9faa6bed304de63be5f8537cbdaecebb9c852749f1",
   "drafter_key_id": "key_drafter_15",
   "reviewer_key_id": "key_reviewer_15",
-  "publication_sha256": "a7656f5885bc8788c00e8add02d60a24e8e3da634a27116f54f3da9d58f1400d"
+  "publication_sha256": "a649984cadff5f6952deff80a312d4abb0087f2c66cc23380f22db559d848c01"
 }

@@ -303,7 +303,7 @@ def test_example_kits_are_rewritten_in_plain_words_and_still_verify() -> None:
     from eranos.verifier import verify_kit
 
     bundles = load_example_bundles()
-    assert len(bundles) == 14
+    assert len(bundles) == 15
     for bundle in bundles:
         draft = KitDraft.model_validate(
             {**plain(bundle["draft"]), "drafted_by": "check-drafter", "drafted_by_key": "k_check"}
