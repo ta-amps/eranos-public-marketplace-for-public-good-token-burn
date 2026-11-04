@@ -925,7 +925,7 @@ RULES_NOW = json.loads((ROOT / "instructions" / "worker.json").read_text())["reu
     [
         "How can a health nonprofit run a vaccination event?",
         "how can a health nonprofit run a vaccination event",
-        "How can a health nonprofit run a vaccination event? Labeled gaps test, Nov 4, a repeat, our own, not a real organization's request.",
+        "How can a health nonprofit run a vaccination event? Labeled gaps test, Nov 4, a repeat of an earlier question, our own, not a real organization's request.",
         "How can a health nonprofit run a vaccination event? Test run, Nov 4.",
         "Example request: How can a health nonprofit run a vaccination event? Final-read test run, second request, Nov 4.",
     ],
@@ -1059,3 +1059,50 @@ def test_the_proposing_key_still_may_not_approve_the_same_words() -> None:
             judge=_judge("yes"),
             reuse_rules=RULES_NOW,
         )
+
+
+@pytest.mark.parametrize(
+    ("one", "two"),
+    [
+        (
+            "Our town is in Ohio and we are not a real organization yet. How do we incorporate?",
+            "Our town is in Texas and we are not a real organization yet. How do we incorporate?",
+        ),
+        (
+            "Our shelter needs help. Test run, Nov 9 in Ohio, how many volunteers do we need?",
+            "Our shelter needs help. Test run, Nov 9 in Texas, how many volunteers do we need?",
+        ),
+        ("Who regulates charities in \u65e5\u672c?", "Who regulates charities in \u4e2d\u56fd?"),
+        ("Can we accept a gift of $500?", "Can we accept a gift of \u20ac500?"),
+        ("Must we keep 5% aside?", "Must we keep 5 aside?"),
+    ],
+)
+def test_a_place_or_an_amount_stays_part_of_the_question(one: str, two: str) -> None:
+    assert not reuse.same_question(one, two, RULES_NOW)
+
+
+def test_a_report_taken_off_after_the_check_was_queued_is_not_approved() -> None:
+    fabric = Fabric()
+    fabric.library_report("RPT-SAME-01", {**IRS_REPORT, "question": LABELED})
+    match = reuse.find_reuse(fabric, LABELED, RULES_NOW, output_type="information")
+    assert match is not None
+    pointer = {
+        "store": match.store,
+        "key": match.key,
+        "version": match.version,
+        "score": match.score,
+        "kind": match.kind,
+        "review_receipt": match.review_receipt,
+        "title": match.title,
+    }
+    brief = reuse_check.reuse_brief(
+        "rq-same", LABELED, {"output_type": "information"}, pointer, proposed_by_key=PLANNER_KEY
+    )
+    out = reuse_check.review_reuse(
+        fabric,
+        _lease("t_same", reuse_check.REUSE_KIND, "eq03", brief),
+        key_id=REVIEWER_KEY,
+        judge=_judge("yes"),
+        reuse_rules={**RULES_NOW, "not_reused": ["RPT-SAME-01"]},
+    )
+    assert out["status"] == "sent_back"

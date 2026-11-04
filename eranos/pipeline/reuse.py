@@ -74,7 +74,7 @@ def strip_shared(text: str, rules: dict[str, Any]) -> str:
 
 
 def _plain_words(text: str) -> str:
-    return " ".join(re.sub(r"[^a-z0-9]+", " ", text.lower()).split())
+    return " ".join(re.sub(r"[^\w$€£%]+", " ", text.casefold()).split())
 
 
 def same_question(first: str, second: str, rules: dict[str, Any]) -> bool:

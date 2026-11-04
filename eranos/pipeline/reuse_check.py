@@ -191,6 +191,8 @@ def review_reuse(
             problem = "the library answer's review cannot be confirmed"
     except NotFound:
         problem = "the library answer is no longer there"
+    if str(pointer.get("key")) in set((reuse_rules or {}).get("not_reused") or []):
+        problem = problem or "the library answer was taken off display"
     cap = int(max_question_chars) if max_question_chars else DEFAULT_MAX_QUESTION_CHARS
     raw_question = str(brief.get("question") or "")
     try:
