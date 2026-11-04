@@ -2,11 +2,11 @@
   "$schema": "https://github.com/ta-amps/ta-amps-hackathon/blob/main/hackathon/agents/schemas/architecture.schema.json",
   "schema_version": 1,
   "name": "eranos",
-  "summary": "Eranos lets people donate unused AI tokens to build, test, and independently review off-the-shelf agent skills, read-only MCP tools, operational files (SOPs, checklists, CSV templates, Open Referral directories), and multi-step agentic processes for NGOs, nonprofits, and public-good teams. Contributors connect agents to scoped queues on Tessera (eq01 spec, eq02 build & test, eq03 independent review); deterministic checks verify SYNTHETIC test fixtures and step autonomy boundaries so interviews, crisis safety planning, individual decisions, and external sends stay strictly human-only; and a second contributor's agent or human steward (drafter != reviewer across both worker ID and Tessera key ID) approves each package before atomic compare-and-set publication into eranos.catalog. Alongside Shamash (shamash.<domain>), Eranos (eranos.<domain>) runs on Tessera (tessera.<domain>) under a single shared domain.",
+  "summary": "Eranos lets people donate unused AI tokens to build, test, and independently review off-the-shelf agent skills, read-only MCP tools, operational files (SOPs, checklists, CSV templates, Open Referral directories), and multi-step agentic processes for NGOs, nonprofits, and public-good teams. Contributors connect agents to scoped queues on Teleion Fabric (eq01 spec, eq02 build & test, eq03 independent review); deterministic checks verify SYNTHETIC test fixtures and step autonomy boundaries so interviews, crisis safety planning, individual decisions, and external sends stay strictly human-only; and a second contributor's agent or human steward (drafter != reviewer across both worker ID and Teleion Fabric key ID) approves each package before atomic compare-and-set publication into eranos.catalog. Alongside Shamash (shamash.<domain>), Eranos (eranos.<domain>) runs on Teleion Fabric (tessera.<domain>) under a single shared domain.",
   "status": {
     "as_of": "2026-10-29",
     "stage": "prototype",
-    "notes": "Schemas, copy and topic guards, strict JSON loader, six NGO and nonprofit tracks, deterministic verifier, two-step Tessera pipeline (eq01 -> eq02 -> eq03) with steward park/resume and CAS catalog publication, traced local/HTTP adapter, FastAPI service with edge lockdown, React 19 + Astryx web app with offline snapshot mode, and task briefs E1-E4 built and tested (56 pytest tests, one of which needs a ta-amps-hackathon checkout alongside, plus Tessera's conformance suite through the adapter: 30 passed, 6 skipped)."
+    "notes": "Schemas, copy and topic guards, strict JSON loader, six NGO and nonprofit tracks, deterministic verifier, two-step Teleion Fabric pipeline (eq01 -> eq02 -> eq03) with steward park/resume and CAS catalog publication, traced local/HTTP adapter, FastAPI service with edge lockdown, React 19 + Astryx web app with offline snapshot mode, and task briefs E1-E4 built and tested (56 pytest tests, one of which needs a ta-amps-hackathon checkout alongside, plus Teleion Fabric's conformance suite through the adapter: 30 passed, 6 skipped)."
   },
   "docs": {
     "summary": "docs/summary.md",
@@ -151,7 +151,7 @@
       "path": "eranos/queues",
       "kind": "worker",
       "domain": "neutral",
-      "role": "Defines eq01 (spec), eq02 (draft), and eq03 (review) leased queue configurations on Tessera"
+      "role": "Defines eq01 (spec), eq02 (draft), and eq03 (review) leased queue configurations on Teleion Fabric"
     },
     {
       "id": "pipeline",
@@ -190,7 +190,7 @@
     },
     {
       "id": "adapter",
-      "title": "Tessera fabric adapter",
+      "title": "Teleion Fabric fabric adapter",
       "path": "eranos/adapter",
       "kind": "library",
       "domain": "neutral",
@@ -241,7 +241,7 @@
       ],
       "kind": "cli",
       "domain": "neutral",
-      "role": "eranos tracks, verify-examples, practice, donor-demo (two-donor synthesis and review over Tessera HTTP), seed-requests, and export-snapshot, and record-example-runs (one example-run evidence noun per example kit)",
+      "role": "eranos tracks, verify-examples, practice, donor-demo (two-donor synthesis and review over Teleion Fabric HTTP), seed-requests, and export-snapshot, and record-example-runs (one example-run evidence noun per example kit)",
       "depends_on": [
         "adapter",
         "copy",
@@ -310,7 +310,7 @@
       ],
       "kind": "data",
       "domain": "neutral",
-      "role": "Versioned source files for the onboarding steps, starting brief, request guidance, classify and research rules and stand-in sources, plus the public-research packs read from the seed-pack library; seeded to Tessera and rendered by the surfaces",
+      "role": "Versioned source files for the onboarding steps, starting brief, request guidance, classify and research rules and stand-in sources, plus the public-research packs read from the seed-pack library; seeded to Teleion Fabric and rendered by the surfaces",
       "depends_on": [
         "jsonfile"
       ],
@@ -409,7 +409,7 @@
     },
     {
       "id": "fabric",
-      "kind": "Tessera (local SQLite store or HTTP service)",
+      "kind": "Teleion Fabric (local SQLite store or HTTP service)",
       "owned_by": "adapter",
       "location": "ERANOS_LOCAL_DB or TESSERA_URL",
       "holds": [
@@ -424,7 +424,7 @@
       "owned_by": "log",
       "location": "ERANOS_TRACE, default traces/run.jsonl",
       "holds": [
-        "timestamped Tessera verb calls and queue telemetry"
+        "timestamped Teleion Fabric verb calls and queue telemetry"
       ]
     },
     {
@@ -448,7 +448,7 @@
     },
     {
       "id": "request-nouns",
-      "kind": "Tessera records",
+      "kind": "Teleion Fabric records",
       "owned_by": "pipeline",
       "path": "eranos/pipeline/request_noun.py",
       "holds": [
@@ -547,7 +547,7 @@
     },
     {
       "id": "E5",
-      "statement": "Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Tessera key ID",
+      "statement": "Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Teleion Fabric key ID",
       "enforced_by": "pipeline",
       "checked_by": [
         "tests/test_schemas_and_copy.py::test_published_kit_refuses_same_drafter_and_reviewer",
@@ -565,7 +565,7 @@
     },
     {
       "id": "E7",
-      "statement": "Sensitive kits park on Tessera for human nonprofit steward sign-off and publish atomically via CAS upon resume",
+      "statement": "Sensitive kits park on Teleion Fabric for human nonprofit steward sign-off and publish atomically via CAS upon resume",
       "enforced_by": "pipeline",
       "checked_by": [
         "tests/test_pipeline.py::test_steward_signoff_parks_and_resumes_on_tessera",
@@ -716,7 +716,7 @@
         "eranos.e2e",
         "eranos.intake"
       ],
-      "why": "Ring 1 runs deterministic verification and strict JSON loading without touching Tessera, adapters, or network"
+      "why": "Ring 1 runs deterministic verification and strict JSON loading without touching Teleion Fabric, adapters, or network"
     },
     {
       "id": "ring2-use-cases-see-ports-not-engines",
@@ -750,7 +750,7 @@
         "eranos.e2e",
         "eranos.intake"
       ],
-      "why": "Ring 2 orchestrates eq01 -> eq02 -> eq03 against an injected Tessera Backend port without knowing local SQLite vs HTTP"
+      "why": "Ring 2 orchestrates eq01 -> eq02 -> eq03 against an injected Teleion Fabric Backend port without knowing local SQLite vs HTTP"
     },
     {
       "id": "ring3-adapters-never-reach-inward-use-cases-or-doors",
@@ -837,7 +837,7 @@
     },
     {
       "id": "EC2",
-      "claim": "Two-step Tessera verification guarantees drafter != reviewer across worker ID and key ID, with steward park/resume and atomic CAS publication",
+      "claim": "Two-step Teleion Fabric verification guarantees drafter != reviewer across worker ID and key ID, with steward park/resume and atomic CAS publication",
       "status": "built",
       "evidence": [
         "eranos/pipeline/run.py",
@@ -878,7 +878,7 @@
       "parts": [
         "API on :7720",
         "web app on :5174",
-        "local Tessera SQLite store (.eranos/local.db)"
+        "local Teleion Fabric SQLite store (.eranos/local.db)"
       ]
     },
     {
@@ -904,7 +904,7 @@
       "schemas and autonomy boundary rules",
       "deterministic kit verifier",
       "two-step eq01 -> eq02 -> eq03 pipeline and CAS publisher",
-      "Tessera adapter and trace logger",
+      "Teleion Fabric adapter and trace logger",
       "API and web catalog"
     ],
     "specific": [
