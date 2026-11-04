@@ -65,9 +65,8 @@
           "id": "agents",
           "label": "AI assistants or agents you use",
           "options": [
-            "ChatGPT",
-            "Claude",
-            "Meta AI"
+            "Meta AI",
+            "Another AI assistant"
           ],
           "pick": "any"
         },
@@ -76,7 +75,7 @@
           "label": "AI models or services you can use",
           "options": [
             "Meta’s Muse models",
-            "An OpenAI-compatible API",
+            "A hosted model from another provider",
             "A model on our own computer"
           ],
           "pick": "any"

@@ -268,14 +268,14 @@
   "reviewed_by_key": "key_reviewer_11",
   "review_notes": "Checked that unmatched tasks stay unmatched with reasons, briefings carry no contact details, and placements, site safety and messages stay with people.",
   "steward_signoff": null,
-  "draft_receipt": "71a77f3ec2de647020ef4c2be5aae9fd963a09094948118b2616cdfafd51327a",
-  "review_receipt": "a3757ba93756741b4ff08756572edac6e5c6f822512fca6e807318f8b78170a5",
+  "draft_receipt": "0f1199c9a169a9dff3ecf602e385a4b7e2abee7b61f4b5ce63f6bb3e1fbff8bb",
+  "review_receipt": "34d2adb0035c01c75b427d8b9adaf5c4d32578b8da902f1e882e64f201525b61",
   "blob_sha256": "1035047ee9848d77790c0e6bac224f0147406878f46641d342c3bac8358a4723",
   "catalog_version": 1,
-  "review_task_id": "er_3cc86d6808a7:KIT-RELIEF-11:review",
-  "draft_task_id": "er_3cc86d6808a7:KIT-RELIEF-11:draft",
+  "review_task_id": "er_6a2df9f59cbb:KIT-RELIEF-11:review",
+  "draft_task_id": "er_6a2df9f59cbb:KIT-RELIEF-11:draft",
   "draft_sha256": "1035047ee9848d77790c0e6bac224f0147406878f46641d342c3bac8358a4723",
   "drafter_key_id": "key_drafter_11",
   "reviewer_key_id": "key_reviewer_11",
-  "publication_sha256": "ae8bd04fbdab32a89a9d0210ff1687f88981b52f3d14d6fb64f9a199b9ecb517"
+  "publication_sha256": "f285e95b94fbb1a0a6e9dddd63f9e2eb65dafadb3ba942d22c0140de30677e48"
 }
