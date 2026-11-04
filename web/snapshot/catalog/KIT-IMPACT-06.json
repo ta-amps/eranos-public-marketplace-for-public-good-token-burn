@@ -269,14 +269,14 @@
   "reviewed_by_key": "key_reviewer_06",
   "review_notes": "Checked that every figure traces to the results table, missing counts stay unknown, unapproved quotes stay out, and figure checks, approval and sharing stay with staff.",
   "steward_signoff": null,
-  "draft_receipt": "0c1c6086f3aae29b712fc29a059645db03ea38daa86b30df3a69f1a04a70bd75",
-  "review_receipt": "f911fe5b5d85032c23bb5d78be227419749b41e6d59f9d28bc9b61b632c37ee0",
+  "draft_receipt": "004b8f24b454c152f1f6c1125a85c3e88ef9dcd4c69cc7f4b27804b810adfafe",
+  "review_receipt": "e556f9a397a3e9ddcb4ab5e6182107cac47b5c36eb79c7250b5eddacafb34729",
   "blob_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
   "catalog_version": 1,
-  "review_task_id": "er_83ccacb21ffe:KIT-IMPACT-06:review",
-  "draft_task_id": "er_83ccacb21ffe:KIT-IMPACT-06:draft",
+  "review_task_id": "er_83202cc00870:KIT-IMPACT-06:review",
+  "draft_task_id": "er_83202cc00870:KIT-IMPACT-06:draft",
   "draft_sha256": "28342355631dcfa97b35e5f3d4ed23fa17f4f99ddd7033314d09694ec1b16d51",
   "drafter_key_id": "key_drafter_06",
   "reviewer_key_id": "key_reviewer_06",
-  "publication_sha256": "8ba98aaccebacb7a6ef154d3a55fd170bc2c71ea420c6156aba9bafeeaec82f8"
+  "publication_sha256": "f1bbd509de432ae4145db83ffe7214f7c4de917ebfaf010bd6e662fa3ef3f5d0"
 }

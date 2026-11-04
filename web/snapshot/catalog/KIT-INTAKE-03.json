@@ -191,14 +191,14 @@
   "reviewed_by_key": "key_reviewer_03",
   "review_notes": "HSDS fields match spec; automatic eligibility denial is explicitly blocked and navigator retains individual_decision.",
   "steward_signoff": null,
-  "draft_receipt": "ae10969ed24a96db069cca7ef843d81248988253df29fc1d7e99db58db9ea12b",
-  "review_receipt": "3bbd674fefd9fa588db1d2f9e8ecbab7adf3cf372a73b6e3aff95ba5cb20bb75",
+  "draft_receipt": "6095ca1b2abb306a27a9f6549c45ab38cfc8fa542a34672e292b9a52b7cfd692",
+  "review_receipt": "7e45635036e09732ec0609b92063ebc007fffa1e9bbba4861ab5ab344555aa44",
   "blob_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
   "catalog_version": 1,
-  "review_task_id": "er_2c2fda5b795c:KIT-INTAKE-03:review",
-  "draft_task_id": "er_2c2fda5b795c:KIT-INTAKE-03:draft",
+  "review_task_id": "er_e266788473c7:KIT-INTAKE-03:review",
+  "draft_task_id": "er_e266788473c7:KIT-INTAKE-03:draft",
   "draft_sha256": "120500bafbe56d4ce36364d61018c84a7af6cfebff8b9e68fe0054c39a98d190",
   "drafter_key_id": "key_drafter_03",
   "reviewer_key_id": "key_reviewer_03",
-  "publication_sha256": "309299093dea4e1969b019c7e39fd2c799e949d6f50519723848eec60234c6f7"
+  "publication_sha256": "abfa88ffc3b9519146868d1a3bd1a579ab168b6379bf561d90ac4ddd6a44e497"
 }
