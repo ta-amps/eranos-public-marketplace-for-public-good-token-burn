@@ -203,6 +203,7 @@ function StatusFrame({ words, record, now, routeId, example, live, notices }: St
           shareUrl={`${window.location.origin}/requests/${encodeURIComponent(routeId)}`}
           routeId={routeId}
           requester={requester}
+          requestText={record.request.text}
           settled={record.mode !== "live" || Boolean(live?.updated)}
         />
       )}

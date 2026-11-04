@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { BoundaryBadge, DomainBadge } from "../components/BoundaryBadge";
 import { ErrorAlert } from "../components/ErrorAlert";
-import { runPracticeVerify } from "../lib/api";
+import { getJson, runPracticeVerify } from "../lib/api";
 import {
   allSkills,
   allTools,
@@ -11,6 +11,7 @@ import {
 } from "../lib/types";
 import { useResource } from "../lib/useResource";
 import { fill, type RequestStatusNoun } from "../lib/nouns";
+import { isOwnTest } from "../lib/status/derive";
 import { shortReceipt } from "../lib/status/ids";
 import { useNoun } from "../lib/useNoun";
 import { Evidence } from "../components/status/StatusParts";
@@ -32,6 +33,21 @@ function shownWorker(who: string | undefined): string {
 export function KitDetail({ id }: { id: string }) {
   const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}?view=page`);
   const words = useNoun<RequestStatusNoun>("request-status").value;
+  const [fromTest, setFromTest] = useState<{ id: string; text: string } | null>(null);
+  // A kit built from a test request says so, from that request's own public words: only a request labeled
+  // as a test by whoever sent it counts, so no other kit can read as one.
+  const requestId = state.status === "ready" ? [...(state.data.tags ?? []), ...(state.data.kit.tags ?? [])].find((tag) => tag.startsWith("request:"))?.slice(8) : undefined;
+  useEffect(() => {
+    if (!requestId) return;
+    const stop = new AbortController();
+    void getJson<{ value?: { text?: string | null } }>(`/api/requests/${encodeURIComponent(requestId)}`, stop.signal)
+      .then((found) => {
+        const text = found.value?.text ?? "";
+        if (isOwnTest(text)) setFromTest({ id: requestId, text });
+      })
+      .catch(() => undefined);
+    return () => stop.abort();
+  }, [requestId]);
   const [practiceState, setPracticeState] = useState<
     | { status: "idle" }
     | { status: "running" }
@@ -106,6 +122,12 @@ export function KitDetail({ id }: { id: string }) {
         </div>
         <h1>{kit.title}</h1>
         <p className="er-lede" data-source-text>{kit.summary}</p>
+        {fromTest && words?.kit_from_test && (
+          <p className="er-reopened" data-testid="kit-from-test">
+            <strong>{words.kit_from_test.chip}.</strong> {fill(words.kit_from_test.line, { text: fromTest.text })}{" "}
+            <AppLink to={`/requests/${encodeURIComponent(fromTest.id)}`}>{words.kit_from_test.link}</AppLink>
+          </p>
+        )}
         {words && (
           <p className="er-reviewed-line" data-testid="kit-reviewed">
             <span>

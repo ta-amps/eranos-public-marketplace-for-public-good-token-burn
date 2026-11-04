@@ -159,6 +159,25 @@ export function plainReason(reason: string | undefined): string | undefined;
 export function plainReason(reason: string | undefined): string | undefined {
   return reason && TECHNICAL_REASON.test(reason) ? "a technical problem" : reason;
 }
+/** A label we put on our own test and practice requests; it isn't part of the question. */
+const OWN_LABEL = /\b(?:test run|practice case)\b[^.?!:]*[.?!:]?/gi;
+export function isOwnTest(text: string | null | undefined): boolean {
+  return /\btest run\b/i.test(text ?? "");
+}
+export function withoutOwnLabel(text: string | null | undefined): string {
+  return (text ?? "").replace(OWN_LABEL, " ").replace(/\s+/g, " ").trim();
+}
+
+/** Why a closed request has nothing to show, from its own record: how many tries, and whether sources were why;
+ * it says searched only when a search really came back with no quoted claim and nothing went on to be checked. */
+export function noResultCause(rawEvents: StatusEvent[]): { tries: number; sources: boolean } {
+  const reopen = rawEvents.map((event) => event.type).lastIndexOf("reopened");
+  const events = reopen >= 0 ? rawEvents.slice(reopen) : rawEvents;
+  const onSources = events.filter((event) => event.type === "work_released" && /no cited claims|claims kept a verbatim quote/.test(event.reason ?? "")).length;
+  if (onSources > 0 && !events.some((event) => event.type === "work_submitted")) return { tries: onSources, sources: true };
+  return { tries: events.filter((event) => event.type === "work_claimed").length, sources: false };
+}
+
 export function plainEvent(event: StatusEvent): StatusEvent {
   return {
     ...event,

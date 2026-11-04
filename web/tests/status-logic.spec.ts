@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 
 import type { RequestStatusNoun } from "../src/lib/nouns";
 import { plainHappened, plainSummary } from "../src/components/status/PlainStatus";
-import { applyEvents, deriveView } from "../src/lib/status/derive";
+import { applyEvents, deriveView, isOwnTest, noResultCause, withoutOwnLabel } from "../src/lib/status/derive";
 import { ordinal, pickupEstimate, placeLine } from "../src/lib/status/estimate";
 import type { RequestExampleNoun } from "../src/lib/status/example";
 import { canonicalJson } from "../src/lib/status/ids";
@@ -154,5 +154,31 @@ test.describe("E04 no step shows a state without its record", () => {
     const plainRows = plainHappened(events, view.facts, words.plain);
     expect(plainRows.some((r) => r.text.includes("no process class fits this request"))).toBe(true);
     expect(plainRows[0]?.text).toBe("This request closed before a checked result was ready.");
+  });
+});
+
+test.describe("a request that closed with nothing delivered", () => {
+  const ev = (type: string, reason?: string) => ({ type, at: 1, reason }) as StatusEvent;
+  const empty = "self-test failed: the report makes no cited claims; only 0 claims kept a verbatim quote";
+  test("counts only the tries that came back with no quoted claim as searches", () => {
+    const tech = "ModelUnavailable: the model gave no answer";
+    expect(
+      noResultCause([ev("work_claimed"), ev("work_released", tech), ev("work_claimed"), ev("work_released", empty)]),
+    ).toEqual({ tries: 1, sources: true });
+  });
+  test("a report that was made and then failed its check isn't blamed on sources", () => {
+    expect(noResultCause([ev("work_claimed"), ev("work_released", empty), ev("work_claimed"), ev("work_submitted"), ev("check_sent_back")])).toEqual({
+      tries: 2,
+      sources: false,
+    });
+  });
+  test("only what happened after the last reopen counts", () => {
+    expect(noResultCause([ev("work_claimed"), ev("work_released", empty), ev("reopened"), ev("closed")])).toEqual({ tries: 0, sources: false });
+  });
+  test("the test label comes off the question and only a test run reads as one", () => {
+    expect(withoutOwnLabel("How do we plan? Test run, Nov 4.")).toBe("How do we plan?");
+    expect(isOwnTest("How do we plan? Test run, Nov 4.")).toBe(true);
+    expect(isOwnTest("How do we test a run of 40 flyers?")).toBe(false);
+    expect(isOwnTest(null)).toBe(false);
   });
 });

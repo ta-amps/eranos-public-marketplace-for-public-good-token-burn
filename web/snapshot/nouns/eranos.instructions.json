@@ -2537,7 +2537,23 @@
      "reopened_note": "Opened again: the similar library answer didn’t fit this request, so it’s back in line. That answer stays in its history.",
      "reopened_note_reason": "Opened again: {reason}",
      "reopened_note_plain": "This request was opened again.",
-     "reuse_rejected_note": "A similar answer from the library didn’t fit this request, so it will be made from scratch."
+     "reuse_rejected_note": "A similar answer from the library didn’t fit this request, so it will be made from scratch.",
+     "no_result": {
+      "again": "Ask again",
+      "can_do": [
+       "Ask again with more detail: who it’s for, your country or state, and what you’ll do with the answer.",
+       "Add a link to a public page you trust. We read your links first.",
+       "Try a narrower question in plain words. Small questions are easier to find sources for."
+      ],
+      "can_do_title": "What you can do",
+      "nothing_delivered": "Nothing was delivered for this request.",
+      "title": "We couldn’t find an answer we could stand behind",
+      "why_never_tried": "The request closed before any worker could make a result.",
+      "why_no_sources": "We searched public sources {n} times. Nothing we found answered your question with a sentence we could quote word for word, and we don’t guess.",
+      "why_no_sources_one": "We searched public sources. Nothing we found answered your question with a sentence we could quote word for word, and we don’t guess.",
+      "why_other": "We tried {n} times, and no result passed our checks.",
+      "why_other_one": "We tried, and no result passed our checks."
+     }
     },
     "steps": {
      "tag_process": "A reusable process",
@@ -2589,6 +2605,11 @@
     "model_names": {
      "fallback": "Meta’s latest Muse model",
      "own": "its own model"
+    },
+    "kit_from_test": {
+     "chip": "From a test request",
+     "line": "This kit came from a test request we sent ourselves, not from a nonprofit: “{text}”",
+     "link": "See the request"
     }
    }
   },

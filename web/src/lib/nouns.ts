@@ -324,6 +324,8 @@ type Words = Record<string, string>;
 
 /** The request status and report pages: `eranos.instructions/request-status`. */
 export interface RequestStatusNoun {
+  /** On a kit built from one of our own test requests. */
+  kit_from_test?: { chip: string; line: string; link: string };
   titles: Words;
   meta: Words;
   /** How the request's own choices read: what kind of output, and how often. */
@@ -468,6 +470,19 @@ export interface PlainWords {
   > &
     /** reused: a request answered from the library with no new work (F-UI-STALE-001); the fit check's states. */
     Partial<Record<"reused" | "reused_unchecked" | "reuse_does_not_fit" | "reuse_checking", T>>;
+  /** What happened and what to do next, when a request closed with nothing delivered. */
+  no_result?: {
+    title: T;
+    nothing_delivered: T;
+    why_no_sources: T;
+    why_no_sources_one: T;
+    why_other: T;
+    why_other_one: T;
+    why_never_tried: T;
+    can_do_title: T;
+    can_do: T[];
+    again: T;
+  };
   /** Over the steps when a closed request was opened again: after an undone library answer, with a reason, or plain. */
   reopened_note?: T;
   reopened_note_reason?: T;
