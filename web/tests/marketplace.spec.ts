@@ -354,7 +354,7 @@ test.describe("on the hosted build", () => {
     await expect(list.locator("li").first()).toContainText("Summarize tenant deposit rules");
     // An example task keeps its practice-case mark (AGENTS.md rule 1), in the words the site serves.
     await expect(list.locator("li").first()).toContainText("Practice case: an example, not a real person or case. Summarize tenant deposit rules");
-    await expect(list.locator("li").nth(1)).toContainText("needs a volunteer key");
+    await expect(list.locator("li").nth(1)).toContainText("for trusted checkers");
     await list.locator("li").first().getByRole("button", { name: "Copy for my agent" }).click();
     expect((await copied(page)).at(-1)).toMatch(/Claim the open task t-research-1 on Eranos[’']s queue eq02/);
   });

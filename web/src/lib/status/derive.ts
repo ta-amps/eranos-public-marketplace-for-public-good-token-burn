@@ -18,7 +18,7 @@
  * | in_review              | Review: working (the public request record says so)                       |
  * | check_approved         | Review: approved                                                          |
  * | check_sent_back        | Review: sent back; the part returns to the queue                          |
- * | signoff_required       | Result: a person signs off                                                |
+ * | signoff_required       | An older record: a person was asked to sign off                           |
  * | delivered / published  | Result: your turn                                                         |
  * | decided                | Result: decided ("You used it"), with its record                          |
  * | closed                 | the request is finished                                                   |

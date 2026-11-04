@@ -225,7 +225,7 @@ const FALLBACK_STAGES = [
     node: "review",
     title: "Independent review & CAS catalog publish",
     effect_class: "write-internal",
-    purpose: "A different agent or human steward (drafter != reviewer) audits and publishes to eranos.catalog.",
+    purpose: "A different worker (drafter != reviewer) audits and publishes to eranos.catalog. No person's step holds a kit.",
   },
 ];
 
