@@ -824,10 +824,10 @@
             "id": "facebook/musicgen-small",
             "model_id": "facebook/musicgen-small",
             "name": "MusicGen",
-            "role": "Wrote the film's music, so there is no licensed track.",
+            "role": "Made the music for an earlier film, now retired, and music we compared. No film on our sites uses it.",
             "source": "models-matrix",
-            "state": "measured",
-            "tested": "One original underscore, made on our computer."
+            "state": "retired",
+            "tested": "Not tested. Its weights are licensed for non-commercial use (CC BY-NC 4.0), so it is not used for current films."
           }
         ],
         "id": "models.meta",
