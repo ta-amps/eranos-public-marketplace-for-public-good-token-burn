@@ -359,6 +359,17 @@ test.describe("on the hosted build", () => {
     await expect(page.locator("main")).not.toContainText("parking on");
   });
 
+  test("/help shows a worker's name with the public name, and its stored name stays in the record", async ({ page }) => {
+    const now = Math.floor(Date.now() / 1000);
+    await mockSite(page, {
+      openTasks: [{ task_id: "t-1", queue: "eq02", kind: "research", title: "Read clinic_params_named_muse-herma-worker-01_20261102_v1 and check it", created_at: now - 60, open_to_anonymous: true }],
+    });
+    await page.goto("/help");
+    const list = page.getByTestId("open-task-list");
+    await expect(list).toContainText("muse-fabric-worker-01");
+    await expect(list).not.toContainText("herma");
+  });
+
   test("B2: /help lists the live open tasks, and a task copies as a claim for your agent", async ({ page }) => {
     await stubClipboard(page);
     const now = Math.floor(Date.now() / 1000);

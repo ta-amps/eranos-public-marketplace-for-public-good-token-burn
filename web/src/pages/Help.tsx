@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 
+import { publicNames } from "../lib/publicNames";
 import { Icon } from "../components/Icon";
 import { LIVE_QUEUE_POLL_MS, SNAPSHOT } from "../config";
 import { briefWithInterests, fill, type HelpNoun, type HelpPageNoun } from "../lib/nouns";
@@ -190,7 +191,7 @@ export function Help() {
                 {open.state.data.tasks.map((task) => (
                   <li key={task.task_id}>
                     <span className="er-open-task-title">
-                      <strong>{task.title || task.task_id}</strong>
+                      <strong>{publicNames(task.title || task.task_id)}</strong>
                     </span>
                     <span className={task.queue === "eq03" ? "er-chip er-chip-task" : "er-chip er-chip-object"}>{tasks.by_kind[task.kind] ?? task.kind}</span>
                     <span className="er-small">

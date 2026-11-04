@@ -147,7 +147,7 @@
    },
    {
     "title": "A different worker audits and approves it.",
-    "detail": "It is audited by a worker, not reviewed by a person, and checked on made-up practice data only. A person on your team decides whether to use it."
+    "detail": "It is checked by a different worker, not reviewed by a person, and tested on made-up practice data only. A person on your team decides whether to use it."
    },
    {
     "title": "You decide.",
@@ -171,7 +171,7 @@
     "to": "/requests/example-process/result?part=1"
    }
   ],
-  "kits_link": "Browse reviewed example kits",
+  "kits_link": "Browse example kits",
   "kits_to": "/catalog"
  },
  "bounds": {

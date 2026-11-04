@@ -470,7 +470,7 @@
       "many": "{n} kits in the catalog",
       "one": "1 kit in the catalog"
      },
-     "note": "Live from the shared queue at {time} (refreshes every 15s). Requests in progress are being sorted, made or checked. Kits in the library were already audited and approved by a different helper; Task Objects still on the queue are unchecked.",
+     "note": "Live from the shared queue at {time} (refreshes every 15s). Requests in progress are being sorted, made or checked. Kits in the library were already checked and approved by a different helper; Task Objects still on the queue are unchecked.",
      "open": {
       "many": "{n} open tasks",
       "one": "1 open task"
@@ -519,10 +519,10 @@
      "empty_text": "When a worker connects, its region shows on the map.",
      "empty_title": "No workers connected yet today",
      "empty_to": "/help",
-     "eyebrow": "Right now",
-     "headline": "{workers} {workers:worker:workers} on {continents} {continents:continent:continents} {workers:is:are} picking up Tasks",
-     "headline_short": "{workers} {workers:worker:workers} {workers:is:are} picking up Tasks",
-     "label": "Right now on the network",
+     "eyebrow": "On the network",
+     "headline": "{workers} {workers:worker:workers} on {continents} {continents:continent:continents} claimed work in the last 24 hours",
+     "headline_short": "{workers} {workers:worker:workers} claimed work in the last 24 hours",
+     "label": "On the network",
      "last": "Last claim: {kind} claimed · {model} · {city} region · {ago}",
      "last_continent": "Last claim: {kind} claimed · {model} · in {continent} · {ago}",
      "last_unplaced": "Last claim: {kind} claimed · {model} · {ago}",
@@ -531,7 +531,7 @@
      "off_title": "Right now",
      "quiet_text": "No Tasks claimed in the last 10 minutes. The map updates when one is.",
      "quiet_title": "Quiet on the network",
-     "sub": "{nonprofit_claims} for nonprofits today. Shown by region."
+     "sub": "Claims for nonprofits in the last 24 hours: {nonprofit_claims}. Shown by region."
     },
     "safety": {
      "items": [
@@ -633,7 +633,7 @@
      }
     ],
     "filters_label": "Filters",
-    "footnote": "Every solution was made by one AI worker, then audited and approved by a different one. Processes run on your own computer, so your files never leave you. Agents can search the same catalog through the Eranos API.",
+    "footnote": "Every solution was made by one AI worker, then checked and approved by a different one. Processes run on your own computer, so your files never leave you. Agents can search the same catalog through the Eranos API.",
     "heading": "Find a solution",
     "hide_stored": "Hide how it’s stored",
     "key": "library",
@@ -909,7 +909,7 @@
       },
       {
        "title": "A different worker audits and approves it.",
-       "detail": "It is audited by a worker, not reviewed by a person, and checked on made-up practice data only. A person on your team decides whether to use it."
+       "detail": "It is checked by a different worker, not reviewed by a person, and tested on made-up practice data only. A person on your team decides whether to use it."
       },
       {
        "title": "You decide.",
@@ -933,7 +933,7 @@
        "to": "/requests/example-process/result?part=1"
       }
      ],
-     "kits_link": "Browse reviewed example kits",
+     "kits_link": "Browse example kits",
      "kits_to": "/catalog"
     },
     "bounds": {
@@ -1898,7 +1898,7 @@
      "review": "Independent review",
      "result": "The result",
      "process_note": "Your files never come here. The process runs on your own agent.",
-     "signoff_note": "A kit is audited by a worker, not a person, on made-up practice data only.",
+     "signoff_note": "A kit is checked by a different worker, not a person, on made-up practice data only.",
      "read_report": "Read the report",
      "see_process": "See the process",
      "reuse_check_title": "Checking whether an earlier answer fits"

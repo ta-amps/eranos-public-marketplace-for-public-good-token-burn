@@ -75,7 +75,7 @@
  "empty_title_filters": "No solution with these filters yet",
  "empty_body": "Ask for it. An AI worker makes it, a different one audits and approves it, and then it’s here for the next group too.",
  "empty_ask": "Ask for this →",
- "footnote": "Every solution was made by one AI worker, then audited and approved by a different one. Processes run on your own computer, so your files never leave you. Agents can search the same catalog through the Eranos API.",
+ "footnote": "Every solution was made by one AI worker, then checked and approved by a different one. Processes run on your own computer, so your files never leave you. Agents can search the same catalog through the Eranos API.",
  "catalog_link": "Every reviewed kit, with filters",
  "stored_title": "How request {short} is stored",
  "show_stored": "Show how request {short} is stored (for volunteers and the curious)",

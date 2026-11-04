@@ -66,7 +66,7 @@
    }
   ],
   "filters_label": "Filters",
-  "footnote": "Every solution was made by one AI worker, then audited and approved by a different one. Processes run on your own computer, so your files never leave you. Agents can search the same catalog through the Eranos API.",
+  "footnote": "Every solution was made by one AI worker, then checked and approved by a different one. Processes run on your own computer, so your files never leave you. Agents can search the same catalog through the Eranos API.",
   "heading": "Find a solution",
   "hide_stored": "Hide how it’s stored",
   "key": "library",

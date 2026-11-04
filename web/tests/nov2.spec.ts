@@ -19,15 +19,15 @@ interface HelpWords {
 test("the strip's count wording reads right at 0, 1 and 2 of each count", () => {
   const words = noun<{ right_now: RightNowWords }>("home").right_now;
   const headline = (workers: number, continents: number) => fill(words.headline, { workers, continents });
-  expect(headline(1, 1)).toBe("1 worker on 1 continent is picking up Tasks");
-  expect(headline(2, 1)).toBe("2 workers on 1 continent are picking up Tasks");
-  expect(headline(1, 2)).toBe("1 worker on 2 continents is picking up Tasks");
-  expect(headline(2, 2)).toBe("2 workers on 2 continents are picking up Tasks");
-  expect(headline(0, 0)).toBe("0 workers on 0 continents are picking up Tasks");
-  expect(fill(words.headline_short, { workers: 0 })).toBe("0 workers are picking up Tasks");
-  expect(fill(words.headline_short, { workers: 1 })).toBe("1 worker is picking up Tasks");
-  expect(fill(words.headline_short, { workers: 2 })).toBe("2 workers are picking up Tasks");
-  for (const n of [0, 1, 2]) expect(fill(words.sub, { nonprofit_claims: n })).toMatch(new RegExp(`^${n} for nonprofits today\\.`));
+  expect(headline(1, 1)).toBe("1 worker on 1 continent claimed work in the last 24 hours");
+  expect(headline(2, 1)).toBe("2 workers on 1 continent claimed work in the last 24 hours");
+  expect(headline(1, 2)).toBe("1 worker on 2 continents claimed work in the last 24 hours");
+  expect(headline(2, 2)).toBe("2 workers on 2 continents claimed work in the last 24 hours");
+  expect(headline(0, 0)).toBe("0 workers on 0 continents claimed work in the last 24 hours");
+  expect(fill(words.headline_short, { workers: 0 })).toBe("0 workers claimed work in the last 24 hours");
+  expect(fill(words.headline_short, { workers: 1 })).toBe("1 worker claimed work in the last 24 hours");
+  expect(fill(words.headline_short, { workers: 2 })).toBe("2 workers claimed work in the last 24 hours");
+  for (const n of [0, 1, 2]) expect(fill(words.sub, { nonprofit_claims: n })).toMatch(new RegExp(`^Claims for nonprofits in the last 24 hours: ${n}\\.`));
   // Every template in the strip, at every count, leaves no hole or form behind.
   const values = (n: number) => ({ workers: n, continents: n, nonprofit_claims: n, kind: "Check", model: "Muse Spark", city: "Frankfurt", continent: "Europe", ago: "now" });
   for (const [key, template] of Object.entries(words) as [string, string][]) {
@@ -69,8 +69,8 @@ test.describe("on the hosted build", () => {
     await page.goto("/");
     const strip = page.getByTestId("right-now-strip");
     await expect(strip).toHaveAttribute("data-state", "live");
-    await expect(strip).toContainText("12 workers on 3 continents are picking up Tasks");
-    await expect(strip).toContainText("9 for nonprofits today.");
+    await expect(strip).toContainText("12 workers on 3 continents claimed work in the last 24 hours");
+    await expect(strip).toContainText("Claims for nonprofits in the last 24 hours: 9.");
     await expect(strip).toContainText("Last claim: Nonprofit Task claimed · Muse Spark 1.3 (declared) · Frankfurt region · 2 minutes ago");
     await expect(strip.getByRole("link", { name: "See the network ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/network/");
   });
@@ -123,18 +123,18 @@ test.describe("on the hosted build", () => {
     await mockSite(page, mocks);
     const strip = page.getByTestId("right-now-strip");
     for (const [workers, continents, nonprofit, headline] of [
-      [1, 1, 0, "1 worker on 1 continent is picking up Tasks"],
-      [2, 1, 1, "2 workers on 1 continent are picking up Tasks"],
-      [1, 2, 2, "1 worker on 2 continents is picking up Tasks"],
-      [2, 2, 0, "2 workers on 2 continents are picking up Tasks"],
-      [1, 0, 1, "1 worker is picking up Tasks"],
-      [2, 0, 2, "2 workers are picking up Tasks"],
+      [1, 1, 0, "1 worker on 1 continent claimed work in the last 24 hours"],
+      [2, 1, 1, "2 workers on 1 continent claimed work in the last 24 hours"],
+      [1, 2, 2, "1 worker on 2 continents claimed work in the last 24 hours"],
+      [2, 2, 0, "2 workers on 2 continents claimed work in the last 24 hours"],
+      [1, 0, 1, "1 worker claimed work in the last 24 hours"],
+      [2, 0, 2, "2 workers claimed work in the last 24 hours"],
     ] as const) {
       mocks.network = { available: true, recent_minutes: 10, totals: { workers, continents, claims: 3, nonprofit_claims: nonprofit }, last };
       await page.goto("/");
       await expect(strip).toHaveAttribute("data-state", "live");
       await expect(strip.locator(".er-now-strip-headline")).toHaveText(headline);
-      await expect(strip.locator(".er-now-strip-sub")).toContainText(`${nonprofit} for nonprofits today.`);
+      await expect(strip.locator(".er-now-strip-sub")).toContainText(`Claims for nonprofits in the last 24 hours: ${nonprofit}.`);
       expect(await strip.innerText()).not.toMatch(/[{}]/);
     }
     mocks.network = { available: true, recent_minutes: 10, totals: { workers: 0, continents: 0, claims: 0, nonprofit_claims: 0 }, last: null };
