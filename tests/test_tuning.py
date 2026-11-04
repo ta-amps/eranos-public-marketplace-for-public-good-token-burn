@@ -645,7 +645,13 @@ def test_a_timer_with_the_same_outcomes_writes_no_new_version(tmp_path: Path) ->
     backend = Backend(failing_requests())
     drafter = Drafter({"title": "x", "text": "x"})
     worker = planner(tmp_path, backend, drafter)
-    tuned = tuning.retune(TUNING, tuning.outcomes_from_events("rq-f", failing_requests()[0].value["events"], TUNING["rewards"]), now=1.0)
+    tuned = tuning.retune(
+        TUNING,
+        tuning.outcomes_from_events(
+            "rq-f", failing_requests()[0].value["events"], TUNING["rewards"]
+        ),
+        now=1.0,
+    )
     tuned["proposed_at"] = {step: 9e12 for step in tuning.STEPS}
     worker.tuning = lambda fresh=False: (tuned, 7)  # type: ignore[method-assign]
     lease = SimpleNamespace(task_id="tune-2026110106", fencing_token=1, kind="tune", brief={})
@@ -655,7 +661,9 @@ def test_a_timer_with_the_same_outcomes_writes_no_new_version(tmp_path: Path) ->
 
 
 def test_new_outcomes_are_new_evidence() -> None:
-    outcomes = tuning.outcomes_from_events("rq-f", failing_requests()[0].value["events"], TUNING["rewards"])
+    outcomes = tuning.outcomes_from_events(
+        "rq-f", failing_requests()[0].value["events"], TUNING["rewards"]
+    )
     tuned = tuning.retune(TUNING, outcomes, now=1.0)
     assert tuning.has_new_outcomes(tuned, outcomes) is False
     assert tuning.has_new_outcomes(tuned, outcomes[:-1]) is True
