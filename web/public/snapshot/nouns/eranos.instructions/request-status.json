@@ -400,7 +400,7 @@
    "copy_task": "Copy the task for my agent",
    "copied": "Copied. Paste it into your agent.",
    "example_note": "This is an example: nothing here was built or run.",
-   "meta_anon": "Built by one AI worker, then audited and approved by a different one",
+   "meta_anon": "Built by one AI worker, then checked and approved by a different one",
    "use": "Use this process",
    "not_ready": "This process appears here once a different worker has checked it.",
    "kit_link": "Open the published process",

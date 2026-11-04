@@ -432,7 +432,7 @@
      ],
      "title": "What you can ask for"
     },
-    "honesty": "We don’t accept private information at this stage. Requests are public, and every result is audited and approved by a different worker.",
+    "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked and approved by a different worker.",
     "honesty_short": "We don’t accept private information at this stage. Requests are public.",
     "how": {
      "link": "Watch an example request",
@@ -640,7 +640,7 @@
     "kind": "instructions",
     "lead": "Every finished request becomes a solution any nonprofit can use: a process your own AI runs on your computer, or an answer with its sources.",
     "loading": "Loading solutions…",
-    "meta_checked": "audited and approved by a different worker",
+    "meta_checked": "checked and approved by a different worker",
     "meta_for": "For {who}",
     "open": "Open it →",
     "results_label": "Solutions",
@@ -2151,7 +2151,7 @@
      "copy_task": "Copy the task for my agent",
      "copied": "Copied. Paste it into your agent.",
      "example_note": "This is an example: nothing here was built or run.",
-     "meta_anon": "Built by one AI worker, then audited and approved by a different one",
+     "meta_anon": "Built by one AI worker, then checked and approved by a different one",
      "use": "Use this process",
      "not_ready": "This process appears here once a different worker has checked it.",
      "kit_link": "Open the published process",

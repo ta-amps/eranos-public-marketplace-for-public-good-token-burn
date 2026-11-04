@@ -257,7 +257,7 @@ export function Help() {
                       {shared.state.data.tasks.map((task, index) => (
                         <li key={`${index}-${task.title}`}>
                           <span className="er-open-task-title">
-                            <strong>{task.title}</strong>
+                            <strong>{publicNames(task.title)}</strong>
                           </span>
                           <span className={task.tier === "ngo_priority" ? "er-chip er-chip-task" : "er-chip er-chip-object"}>
                             {tasks.shared_tier?.[task.tier] ?? task.tier}

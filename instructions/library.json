@@ -60,7 +60,7 @@
  "tag_answer": "An answer with sources",
  "example": "Example",
  "meta_for": "For {who}",
- "meta_checked": "audited and approved by a different worker",
+ "meta_checked": "checked and approved by a different worker",
  "open": "Open it →",
  "adapt": "Adapt it for my group",
  "count_all_one": "1 solution",

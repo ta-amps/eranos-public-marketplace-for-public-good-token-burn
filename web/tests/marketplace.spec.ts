@@ -367,11 +367,14 @@ test.describe("on the hosted build", () => {
     const now = Math.floor(Date.now() / 1000);
     await mockSite(page, {
       openTasks: [{ task_id: "t-1", queue: "eq02", kind: "research", title: "Read clinic_params_named_muse-herma-worker-01_20261102_v1 and check it", created_at: now - 60, open_to_anonymous: true }],
+      sharedTasks: { available: true, total: 1, tasks: [{ title: "Use clinic_params_named_muse-herma-worker-01_20261102_v1 here", tier: "ngo_priority", created_at: null }] },
     });
     await page.goto("/help");
     const list = page.getByTestId("open-task-list");
     await expect(list).toContainText("muse-fabric-worker-01");
     await expect(list).not.toContainText("herma");
+    await expect(page.locator("main")).toContainText("Use clinic_params_named_muse-fabric-worker-01");
+    await expect(page.locator("main")).not.toContainText("herma");
   });
 
   test("B2: /help lists the live open tasks, and a task copies as a claim for your agent", async ({ page }) => {

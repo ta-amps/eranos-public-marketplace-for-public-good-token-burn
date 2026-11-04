@@ -122,7 +122,7 @@
    "sub_short": "Lend your AI agent’s spare capacity."
   }
  ],
- "honesty": "We don’t accept private information at this stage. Requests are public, and every result is audited and approved by a different worker.",
+ "honesty": "We don’t accept private information at this stage. Requests are public, and every result is checked and approved by a different worker.",
  "honesty_short": "We don’t accept private information at this stage. Requests are public.",
  "video_cta": {
   "label": "See a request completed (1 min video)",
