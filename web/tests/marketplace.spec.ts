@@ -345,7 +345,8 @@ test.describe("on the hosted build", () => {
     await mockSite(page, {
       catalog: {
         "KIT-RECRUIT-01": { ...base, review_notes: "Practice review with fixed checks on made-up sample data; no model assessment was performed." },
-        "KIT-FLYER-14": { ...base, review_notes: "Muse Wonder 1.0 read all of this kit's text. Found nothing." },
+        "KIT-FLYER-14": { ...base, review_notes: "Muse Wonder 1.0 read all of this kit's text and found no problems." },
+        "PRC-TEST-01": { ...base, review_notes: "Ran the package's tests. Muse Wonder 1.0 read the records this kit publishes, and this worker's fixed review checked the bundle's files and found no problems." },
         "KIT-HOTLINE-02": { ...base, review_notes: "Automated checks and UNODC citations pass; parking on Teleion Fabric for human helpline steward sign-off before catalog publication." },
       },
     });
@@ -354,6 +355,9 @@ test.describe("on the hosted build", () => {
     await expect(page.locator("main")).not.toContainText("a model read all of its text");
     await page.goto("/catalog/KIT-FLYER-14");
     await expect(page.locator("main")).toContainText("a model read all of its text");
+    await page.goto("/catalog/PRC-TEST-01");
+    await expect(page.locator("main")).toContainText("a model read the records this kit publishes");
+    await expect(page.locator("main")).not.toContainText("a model read all of its text");
     await page.goto("/catalog/KIT-HOTLINE-02");
     await expect(page.locator("main")).toContainText("Under an older rule, this version also had a sign-off step");
     await expect(page.locator("main")).not.toContainText("parking on");
