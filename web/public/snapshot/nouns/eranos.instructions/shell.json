@@ -34,9 +34,9 @@
     "match": "library"
    },
    {
-    "to": "/video",
     "label": "Video",
-    "match": "video"
+    "href": "https://teleionlabs.com/video/",
+    "external": true
    }
   ],
   "external_note": "opens on Teleion Labs",

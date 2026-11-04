@@ -69,7 +69,7 @@ for (const viewport of VIEWPORTS) {
         expect(text).not.toMatch(/SYNTHETIC DATA ONLY|Live API mode/);
         // Only /report links to the live public issue tracker and private security advisories; every other page keeps zero GitHub links.
         if (route === "/report") {
-          const ghLinks = await page.$$eval('a[href*="github.com/ta-amps"]', (as) => as.map((a) => a.getAttribute("href") ?? ""));
+          const ghLinks = await page.$$eval('main a[href*="github.com/ta-amps"]', (as) => as.map((a) => a.getAttribute("href") ?? ""));
           expect(ghLinks.length).toBeGreaterThan(0);
           for (const href of ghLinks) {
             expect(href).toMatch(
@@ -77,7 +77,9 @@ for (const viewport of VIEWPORTS) {
             );
           }
         } else {
-          expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
+          // Outside the footer's one Source link, no GitHub address.
+          expect(await page.locator('main a[href*="github.com/ta-amps"]').count()).toBe(0);
+          await expect(page.locator('footer a[href*="github.com/ta-amps"]')).toHaveAttribute("href", "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn");
         }
         // Owner, Oct 31: "DO NOT INCLUDE SYNTHETIC." (the sweep below also covers kits and examples).
         expect(text).not.toMatch(/synthetic/i);
@@ -128,7 +130,7 @@ test("kit detail says a different worker reviewed it, with the real reviewer and
   );
   await page.goto("/catalog/KIT-HOTLINE-02");
   const line = page.getByTestId("kit-reviewed");
-  await expect(line).toContainText(`A different worker reviewed this: ${kit.reviewed_by}`);
+  await expect(line).toContainText(`Checked with fixed checks by a different worker: ${kit.reviewed_by}`);
   // People-readable facts only: a "Record" link, never the receipt's hash.
   await expect(line).toContainText("Record");
   await expect(line).not.toContainText(kit.review_receipt.slice(0, 12));
@@ -136,7 +138,8 @@ test("kit detail says a different worker reviewed it, with the real reviewer and
   await expect(page.getByTestId("kit-tested-on")).toHaveText("Tested with example files (no real case data).");
   // Each practice case carries its mark (AGENTS.md rule 1); no chip or tag.
   await expect(page.locator(".er-fixture-divider").first()).toContainText("Practice case: an example, not a real person or case.");
-  expect(await page.locator('a[href*="github.com/ta-amps"]').count()).toBe(0);
+  // The footer's Source link is the only GitHub address on the page.
+  expect(await page.locator('main a[href*="github.com/ta-amps"]').count()).toBe(0);
 });
 
 test("missing kit renders an accessible role=alert banner, without a Retry that cannot help", async ({ page }) => {
@@ -254,8 +257,8 @@ test("no page shows a forbidden word, a receipt or a hash, anywhere a visitor or
       }
     }
     // The operator's code name stays in addresses and repository names; visible words say a dedicated worker or
-    // Teleion Labs (owner, Nov 3). The /video transcript is word for word with the recording, so it is not read here.
-    if (route !== "/video" && /(?<![\w./@-])ta-amps(?![\w/-]|\.\w)/i.test(text.ours)) said.push(`${route}: the code name`);
+    // Teleion Labs (owner, Nov 3). The /video transcript and captions leave the code name out too (coordinator, Nov 4).
+    if (/(?<![\w./@-])ta-amps(?![\w/-]|\.\w)/i.test(text.ours)) said.push(`${route}: the code name`);
   }
   expect(said).toEqual([]);
 });
