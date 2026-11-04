@@ -2072,8 +2072,10 @@ async function handleCloudApi(request, env, pathname) {
         // graceful fallback if anonymous session minting is rate-limited
       }
     }
-    return jsonResp({
-      ...negotiation,
+    // A handshake's session token belongs to the caller who asked for it, so it stays out of the display step.
+    const answer = await jsonResp({ ...negotiation }).json();
+    return new Response(JSON.stringify({
+      ...answer,
       ...(tesseraSession
         ? {
             session_id: tesseraSession.session_id,
@@ -2082,7 +2084,7 @@ async function handleCloudApi(request, env, pathname) {
             tessera_session: tesseraSession,
           }
         : {}),
-    });
+    }), { status: 200, headers: { "content-type": "application/json", "cache-control": "private, no-store" } });
   }
 
   if (pathname === "/api/tracks") {
