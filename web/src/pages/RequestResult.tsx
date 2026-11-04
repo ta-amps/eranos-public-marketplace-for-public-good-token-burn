@@ -42,7 +42,7 @@ interface ProcessSolution {
   };
 }
 
-type Solution = ExampleSolution & { process?: ProcessSolution; build_receipt?: string };
+type Solution = ExampleSolution & { audit_status?: string; audit_findings?: string[]; process?: ProcessSolution; build_receipt?: string };
 
 interface Loaded {
   example: boolean;
@@ -544,6 +544,12 @@ export function RequestResult({ id }: { id: string }) {
           ) : (
             <StateNotice tone="wait" head={processPart ? (words.result.not_ready ?? "") : (r.not_ready ?? "")} testId="result-not-ready" />
           ))}
+        {solution?.audit_status === "not_audited_yet" && (
+          <StateNotice tone="wait" head={words.result.not_audited_yet ?? ""} testId="result-not-audited" />
+        )}
+        {solution?.audit_status === "audit_failed" && (
+          <StateNotice tone="error" head={words.result.audit_failed ?? ""} body={(solution.audit_findings ?? []).join(" ")} testId="result-audit-failed" />
+        )}
         {solution && view.part?.reused_from && <StateNotice tone="wait" head={words.result.reused_note ?? ""} testId="result-reused-note" />}
         {report && (
           <>

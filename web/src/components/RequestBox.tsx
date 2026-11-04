@@ -230,6 +230,8 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
     textarea.current?.focus();
   }
 
+  const [acceptUnaudited, setAcceptUnaudited] = useState(false);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (submitting.current || waitingUntil > Date.now() / 1000) return;
@@ -295,6 +297,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
         organization_type: organizationType,
         output_type: outputType,
         frequency: draft.frequency || "one-off",
+        ...(acceptUnaudited ? { accept_unaudited: true } : {}),
         ...(draft.frequency === "recurring" ? { cadence: draft.cadence || page.frequency.default_cadence } : {}),
         ...(prefsBrief(prefs, page.advanced) ? { prefs: prefsBrief(prefs, page.advanced) } : {}),
         ...(improvedRequest(prefs, page.advanced) ? { follows: { request_id: improvedRequest(prefs, page.advanced) } } : {}),
@@ -446,6 +449,12 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
       </fieldset>
 
       <div className="er-describe">
+        {page.frequency.accept_unaudited && (
+          <label className="er-choice-pill">
+            <input type="checkbox" checked={acceptUnaudited} onChange={(event) => setAcceptUnaudited(event.target.checked)} />{" "}
+            {page.frequency.accept_unaudited}
+          </label>
+        )}
         <label htmlFor="need" className="er-describe-label">
           {form.label}
         </label>

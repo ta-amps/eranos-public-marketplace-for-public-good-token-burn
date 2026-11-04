@@ -251,6 +251,7 @@ export interface NonprofitsPageNoun {
   bounds: { head: string; body: string };
   output: { legend: string; hint: string; options: ChoiceOption[] };
   frequency: {
+    accept_unaudited?: string;
     legend: string;
     options: ChoiceOption[];
     cadence_label: string;

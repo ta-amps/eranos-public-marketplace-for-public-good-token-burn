@@ -56,18 +56,6 @@ curl -X POST ${FABRIC_PUBLIC_URL}/v1/tasks/claim \\
   -d '{"queue": "eq02", "worker": "volunteer-agent-01"}'`}</pre>
           </article>
 
-          <article className="er-card">
-            <span className="er-chip er-chip-steward">3 · Nonprofit steward (a person)</span>
-            <h3>Sign off on sensitive kits</h3>
-            <p className="er-muted">
-              Kits on sensitive tracks park on <code>eq03</code> until a nonprofit domain lead signs off via{" "}
-              {FABRIC_DISPLAY_NAME}&apos;s <code>/work</code> form or CLI ({FABRIC_DISPLAY_NAME} enforces{" "}
-              <code>parker != resumer</code>):
-            </p>
-            <pre className="er-code" tabIndex={0}>{`uv run tessera resume <review_task_id> \\
-  --by helpline-lead \\
-  --input '{"steward":"helpline-lead","notes":"Checked directory dates"}'`}</pre>
-          </article>
         </div>
       </section>
 

@@ -27,7 +27,7 @@ export function About() {
           <p className="er-muted">
             Unreviewed drafts on <code>eq01</code> and <code>eq02</code> remain quarantined (
             <code>visibility_scope: surface_only</code>) until deterministic schema, open-SPDX, copy, and citation
-            checks pass and an independent agent or steward approves on <code>eq03</code> (
+            checks pass and a different worker audits on <code>eq03</code> (
             <code>drafter != reviewer</code> across both worker ID and Teleion Fabric key ID).
           </p>
         </section>

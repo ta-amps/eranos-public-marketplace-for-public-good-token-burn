@@ -51,6 +51,8 @@ export async function loadLibrary(): Promise<LibraryItem[]> {
   if (catalogRead.status === "rejected" && solutionsRead.status === "rejected") throw new Error("the library can't be read");
   const catalog = catalogRead.status === "fulfilled" ? catalogRead.value : ({ kits: [] } as unknown as CatalogResponse);
   const solutions = solutionsRead.status === "fulfilled" ? solutionsRead.value : ({ records: [] } as unknown as NounList<ExampleSolution>);
+  // The library lists audited results only; a result shown early carries its label on its own page.
+  solutions.records = solutions.records.filter((r) => !["not_audited_yet", "audit_failed"].includes(String((r.value as { audit_status?: string }).audit_status ?? "")));
   const kits: LibraryItem[] = catalog.kits.map((entry) => ({
     id: entry.kit.kit_id,
     kind: "kit",

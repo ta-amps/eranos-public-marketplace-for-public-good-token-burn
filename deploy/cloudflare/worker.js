@@ -953,8 +953,8 @@ const MODELS_KEY = "models.meta";
 // workers' hourly tune. Agora's Models used page reads them here: Tessera's own public read needs a key.
 const SHARES_STORE = "eranos.instructions";
 const SHARES_KEY = "worker.shares";
-const PUBLIC_NOUN_STORES = new Set(["eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
-const LIVE_COORDINATOR_STORES = new Set(["eranos.requests", "eranos.plans", "eranos.solutions"]);
+const PUBLIC_NOUN_STORES = new Set(["eranos.drafts", "eranos.instructions", "eranos.plans", "eranos.requests", "eranos.solutions", "eranos.sources", "eranos.verb_templates"]);
+const LIVE_COORDINATOR_STORES = new Set(["eranos.drafts", "eranos.requests", "eranos.plans", "eranos.solutions"]);
 const NOUN_KEY_RE = /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$/;
 const LIVE_REQUEST_ID_RE = /^rq-r_[0-9a-f]{32}-[0-9a-z]+$/;
 const SHORT_BADGE_RE = /^R-[A-Z0-9]{4}$/i;
@@ -2133,6 +2133,18 @@ async function handleCloudApi(request, env, pathname) {
         `${reqId} is the 4-character display badge; pass the full rq-... request_id from the /requests/rq-... URL.`,
         "not_found"
       );
+    }
+    if (new URL(request.url).searchParams.get("accept_unaudited") === "true") {
+      // A reader may ask for the maker's work before its audit. Each result carries its own label.
+      const plan = await loadNoun(request, env, "eranos.plans", reqId).catch(() => null);
+      const ids = ((plan && plan.value && plan.value.parts) || []).map((p) => p.report_id).filter(Boolean);
+      const drafts = await Promise.all(ids.map((id) => loadNoun(request, env, "eranos.drafts", String(id)).catch(() => null)));
+      return jsonResp({
+        request_id: reqId,
+        accept_unaudited: true,
+        results: drafts.filter(Boolean).map((d) => ({ audit_status: d.value.audit_status, findings: d.value.audit_findings || [], report: d.value.report })),
+        note: "A result marked not_audited_yet has not been checked by a different worker.",
+      });
     }
     return edgeCached(request, async () => {
       const record = await loadNoun(request, env, "eranos.requests", reqId).catch(() => null);

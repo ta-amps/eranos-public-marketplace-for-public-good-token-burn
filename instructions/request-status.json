@@ -142,7 +142,7 @@
   "review": "Independent review",
   "result": "The result",
   "process_note": "Your files never come here. The process runs on your own agent.",
-  "signoff_note": "Sensitive processes also need a person’s sign-off.",
+  "signoff_note": "A kit is audited by a worker, not a person, on made-up practice data only.",
   "read_report": "Read the report",
   "see_process": "See the process",
   "reuse_check_title": "Checking whether an earlier answer fits"
@@ -369,6 +369,8 @@
   "reviewed_line_eranos": "Audited and approved by a dedicated worker, a different helper from its maker"
  },
  "result": {
+  "not_audited_yet": "Not audited yet. A different worker hasn’t checked this yet. You asked to see it right away. This label changes when a worker does the audit.",
+  "audit_failed": "The audit didn’t pass. A different worker checked this and found problems. Read it with care.",
   "back": "← Request {short}",
   "process_badge": "Part {n} · reusable process",
   "approved_badge": "A different worker reviewed this",

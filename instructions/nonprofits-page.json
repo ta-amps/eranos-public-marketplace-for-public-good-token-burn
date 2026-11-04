@@ -147,7 +147,7 @@
    },
    {
     "title": "A different worker audits and approves it.",
-    "detail": "Sensitive processes also wait for a person’s sign-off."
+    "detail": "It is audited by a worker, not reviewed by a person, and checked on made-up practice data only. A person on your team decides whether to use it."
    },
    {
     "title": "You decide.",
@@ -233,7 +233,8 @@
    "information_once": "You get one report, audited and approved by a different worker.",
    "information_regular": "We run it again {every} and add each update to your request’s page.",
    "none": "Once is most common. Regular requests repeat on a schedule."
-  }
+  },
+  "accept_unaudited": "Show me the result right away, marked “not audited yet”. A different worker still audits it afterward, and the label changes."
  },
  "advanced": {
   "summary": "Advanced settings",
