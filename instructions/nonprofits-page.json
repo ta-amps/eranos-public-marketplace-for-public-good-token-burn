@@ -289,9 +289,8 @@
     "label": "AI assistants or agents you use",
     "pick": "any",
     "options": [
-     "ChatGPT",
-     "Claude",
-     "Meta AI"
+     "Meta AI",
+     "Another AI assistant"
     ]
    },
    {
@@ -300,7 +299,7 @@
     "pick": "any",
     "options": [
      "Meta’s Muse models",
-     "An OpenAI-compatible API",
+     "A hosted model from another provider",
      "A model on our own computer"
     ]
    },
