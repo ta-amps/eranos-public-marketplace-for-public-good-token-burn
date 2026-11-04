@@ -44,7 +44,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`briefs/E3.json`](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [`briefs/E4.json`](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (15)
+## deploy/ (17)
 
 | File | What it is |
 |---|---|
@@ -58,6 +58,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`deploy/cloudflare/public_names.js`](deploy/cloudflare/public_names.js) | Public output says Teleion Fabric and the shim's public address. |
 | [`deploy/cloudflare/schema.js`](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
 | [`deploy/cloudflare/surface-release-policy.json`](deploy/cloudflare/surface-release-policy.json) | JSON object: `schema`, `required_ancestors`, `rules` |
+| [`deploy/cloudflare/worker.js`](deploy/cloudflare/worker.js) |  |
+| [`deploy/cloudflare/worker.js`](deploy/cloudflare/worker.js) |  |
 | [`deploy/cloudflare/worker.js`](deploy/cloudflare/worker.js) |  |
 | [`deploy/cloudflare/wrangler.jsonc`](deploy/cloudflare/wrangler.jsonc) | Eranos Cloud Worker: serves the React web app plus native 24/7 /api/ endpoints backed by |
 | [`deploy/fly/Dockerfile`](deploy/fly/Dockerfile) | Build from the workspace root so both tessera and eranos are in the build context. |
@@ -284,7 +286,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (200)
+## web/ (202)
 
 | File | What it is |
 |---|---|
@@ -422,6 +424,8 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/src/lib/nouns.ts`](web/src/lib/nouns.ts) |  |
 | [`web/src/lib/privacy.ts`](web/src/lib/privacy.ts) |  |
 | [`web/src/lib/reportWords.ts`](web/src/lib/reportWords.ts) | The stored title limit: a title this long may have been cut by the old pipeline. |
+| [`web/src/lib/shown.ts`](web/src/lib/shown.ts) |  |
+| [`web/src/lib/shown.ts`](web/src/lib/shown.ts) |  |
 | [`web/src/lib/shown.ts`](web/src/lib/shown.ts) |  |
 | [`web/src/lib/snapshot-data.live.ts`](web/src/lib/snapshot-data.live.ts) |  |
 | [`web/src/lib/snapshot-data.offline.ts`](web/src/lib/snapshot-data.offline.ts) |  |
