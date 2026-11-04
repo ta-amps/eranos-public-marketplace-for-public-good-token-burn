@@ -1,3 +1,4 @@
+import { discoveryFile, SITEMAP_XML, wantsPlainText } from "./agent_connect.js";
 import { CLIENT_PREF_PROPERTIES, applyClientPrefs, readClientPrefs } from "./client_prefs.js";
 import { withPublicNames } from "./public_names.js";
 import { agentStartAsset } from "./agent_start.js";
@@ -78,6 +79,8 @@ Allow: /agent.md
 Allow: /.well-known/agent-card.json
 Allow: /.well-known/agent.json
 Allow: /.well-known/security.txt
+
+Sitemap: https://eranosforgood.org/sitemap.xml
 `;
 
 const SECURITY_TXT = `Contact: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/security/advisories
@@ -1643,7 +1646,7 @@ async function lookupSingleKit(request, env, kitId, cohort = null) {
 
 async function handleMcp(request, env) {
   if (request.method !== "POST") {
-    return problem(405, "Method Not Allowed", "MCP endpoint requires POST JSON-RPC 2.0.", "method_not_allowed", {
+    return problem(405, "Method Not Allowed", "MCP endpoint requires POST JSON-RPC 2.0. If your tool can only open URLs, the kits are at https://eranosforgood.org/api/catalog and instructions at https://eranosforgood.org/llms.txt", "method_not_allowed", {
       allow: "POST",
     });
   }
@@ -2298,7 +2301,7 @@ async function handleCloudApi(request, env, pathname) {
   if (kitMatch) {
     const kitId = decodeSegment(kitMatch[1]);
     if (kitId === BROKEN_ESCAPE || !KIT_ID_RE.test(kitId)) {
-      return problem(400, "Bad Request", "invalid kit id", "invalid_request");
+      return problem(400, "Bad Request", "invalid kit id: see the list at https://eranosforgood.org/api/catalog", "invalid_request");
     }
     const found = await lookupSingleKit(request, env, kitId);
     if (!found) {
@@ -2649,7 +2652,8 @@ const onboardingApplication = {
     }
     const access = accessResponse(request, "eranos");
     if (access) return finish(access, request.method);
-    let response = await handleDiscoveryRoute(request, env, pathname);
+    let response = await connectRoute(request, env, pathname);
+    if (!response) response = await handleDiscoveryRoute(request, env, pathname);
     if (!response) {
       if (pathname === "/api" || pathname.startsWith("/api/")) {
         if ((env.STORAGE_MODE || "cloud") === "origin") {
@@ -2669,7 +2673,9 @@ const onboardingApplication = {
           (!isAppPage(pathname) ||
             (await isMissingKitPage(request, env, pathname)))
         ) {
-          response = new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers });
+          response = wantsHtml(request)
+            ? new Response(response.body, { status: 404, statusText: "Not Found", headers: response.headers })
+            : plainNotFound(pathname);
         } else if (response.status === 200 && html && request.method === "GET") {
           response = await withCanonical(response, pathname);
         }
@@ -2680,6 +2686,26 @@ const onboardingApplication = {
     return finish(response, request.method);
   },
 };
+
+const wantsHtml = (request) => (request.headers.get("accept") || "").toLowerCase().includes("text/html");
+function plainNotFound(pathname) {
+  const shown = pathname.length > 200 ? `${pathname.slice(0, 200)}...` : pathname;
+  return new Response(`No page at ${shown}.\nStart at https://eranosforgood.org/llms.txt . Agent kits: https://eranosforgood.org/api/catalog . Ways to connect: https://teleionlabs.com/docs/#ways\n`, {
+    status: 404,
+    headers: { "content-type": "text/plain; charset=utf-8" },
+  });
+}
+// Files agents look for, and plain text for a client that asks for it. Not a page, so no page shell.
+async function connectRoute(request, env, pathname) {
+  if (request.method !== "GET" && request.method !== "HEAD") return null;
+  const json = discoveryFile(pathname);
+  if (json) return jsonResp(json);
+  if (pathname === "/sitemap.xml") return textResp(SITEMAP_XML, "application/xml; charset=utf-8");
+  if (pathname === "/" && wantsPlainText(request)) {
+    return handleDiscoveryRoute(new Request(new URL("/llms.txt", request.url), { method: request.method, headers: request.headers }), env, "/llms.txt");
+  }
+  return null;
+}
 
 // The vendored onboarding module still serves /agent-start.{js,css,json}. Its landing banner is not
 // injected here: the home page opens on the marketplace's two front doors, and the /help page copies the
