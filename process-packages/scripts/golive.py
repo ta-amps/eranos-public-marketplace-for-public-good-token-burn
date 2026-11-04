@@ -27,8 +27,10 @@ sys.path.insert(0, str(ROOT))
 
 from process_packages.handler import BUCKET, finalize_catalog_record  # noqa: E402
 
-TESSERA_URL = os.environ.get("TESSERA_URL", "https://tessera.ta-amps.workers.dev")
-HERMA_URL = os.environ.get("HERMA_URL", "https://herma.ta-amps.workers.dev")
+TESSERA_URL = os.environ.get("TESSERA_URL", "")
+HERMA_URL = os.environ.get("HERMA_URL", "")
+if not TESSERA_URL or not HERMA_URL:
+    raise SystemExit("set TESSERA_URL and HERMA_URL: your key goes only to the addresses you name")
 HERMA_NAMESPACE = "herma.provisions.process-packages"
 FILM_PROMPT = ("Say someone asks for a data-cleaning pipeline. It becomes one verb, and the agent holding it splits it up. "
                "Workers anywhere claim the pieces.")

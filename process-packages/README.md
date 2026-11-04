@@ -12,8 +12,8 @@ template). The nonprofit runs it on its own computer or cloud account. Its files
 - Verbs: `run-cleaning-process` (an agent, no model), `review-flags` (a person) and `follow-up-missing-details`
   (a person). The build itself is B1's verbs: the split, the pieces, combine, and an eq03 review by a
   different key.
-- Surface: the marketplace catalog and its permalink, plus the library. Herma and Agora find the package there.
-- Infrastructure (existing, nothing new): Tessera buckets, records, leases and receipts.
+- Surface: the marketplace catalog and its permalink, plus the library. The Teleion Fabric shim and Agora find the package there.
+- Infrastructure (existing, nothing new): Teleion Fabric buckets, records, leases and receipts.
 
 ## Process classes
 
@@ -46,7 +46,7 @@ result = build_process(
 )
 result["bundle_path"]          # str: out/<pack>.tar.gz, byte-reproducible
 result["bundle_sha256"]        # str
-result["catalog_record"]       # Tessera RecordWrite for eranos.catalog/<kit_id>, quarantined until review
+result["catalog_record"]       # Teleion Fabric RecordWrite for eranos.catalog/<kit_id>, quarantined until review
 result["task_template_record"] # RecordWrite for eranos.verb_templates/<pack>, value.task_spec = the TaskSpec template
 result["test_report"]          # dict: passed, failures, checks{...}, pieces, model_calls (always 0)
 # documented extras:
@@ -103,12 +103,13 @@ entry with exactly that one `reuse:` tag, the record key `PRC-7EEFCA-01` and `ki
   (`samples/`, no real data). A package ships its own class's runner. `scripts/make_scan_samples.py` draws the practice scans.
 - `vendor/`: copies, with provenance in `vendor/VENDORED.json`. They are the library's `build_packs.py`,
   `validate_packs.py` and `check_public.py` at 1685005; the marketplace's `verify_kit` at 6397473; and
-  Gemini's persona compiler and config scanner.
+  a persona compiler and a config scanner.
 - `out/`: built packages and `<pack>.build.json` (the test report and records).
-- `scripts/build.py`, `scripts/review.py`, `scripts/golive.py`; `GO-LIVE.md`; `evidence/`.
+- `scripts/build.py`, `scripts/review.py`, `scripts/golive.py`.
 
 ## Checks
 
+    python3 -m venv .venv && .venv/bin/pip install pydantic   # the checks run kits in this environment
     python3 -m unittest discover -s tests -v          # handler, trust, review, wording and the scan class (no model, no network)
     (cd runner && python3 -m unittest discover -s tests -v)   # the spreadsheet runner's tests
     (cd runner_scans && python3 -m unittest discover -s tests -v)   # the scan runner's tests

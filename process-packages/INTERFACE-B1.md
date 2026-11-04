@@ -11,7 +11,7 @@ reference implementation of the worker side. Adopt it or replace it. Its film te
 | `build_process(request, plan_part)` | builder | Returns `bundle_path` (inside the handler's own run folder), `bundle_sha256`, `catalog_record` and `task_template_record` at exactly the derived `{store, key}` with `value`, `test_report` (`passed`, `issues`, `tests`) and `ids`. The worker refuses records anywhere else |
 | `review_process(package, request, plan_part, *, bundle_path, records, builder_key_id, trusted_builder_keys=None, builder_account_id=None, trusted_account_id=None)` | reviewer | `bundle_path`: the reviewer fetched the blob by `package.blob_sha256` into its own temp folder. `records`: `{name: {value, owner_key_id}}` as read at the derived keys; `builder_key_id`: the build lease's completing key. The build key must be one of `trusted_builder_keys` (required) and both drafts must be owned by it (and by the trusted account when that is given). Returns `passed`, `checks`, `notes`, and `verified`: the derived ids, `value_sha256` for both drafts, and `catalog_value` and `template_value` rebuilt from the bundle and the request, which the worker publishes instead of the drafts. Without `bundle_path` it fails closed |
 | `record_digest(value)` | reviewer | The digest to compare with `verified[name]["value_sha256"]` just before publishing |
-| `finalize_catalog_value(value, review)` | reviewer | Adds the review fields (keys from the leases, `draft_sha256` = blob digest, `review_receipt` None before the submit) and validates the result as `PublishedKit`. The worker hashes it into `publication_sha256` before the submit, then publishes `{...value, review_receipt, publication_sha256}` to the listed catalog entry. Tessera's publication guard checks exactly this |
+| `finalize_catalog_value(value, review)` | reviewer | Adds the review fields (keys from the leases, `draft_sha256` = blob digest, `review_receipt` None before the submit) and validates the result as `PublishedKit`. The worker hashes it into `publication_sha256` before the submit, then publishes `{...value, review_receipt, publication_sha256}` to the listed catalog entry. Teleion Fabric's publication guard checks exactly this |
 | `reuse_signature(text)` | planner | 0 tokens. A reviewed catalog entry tagged `reuse:<key>` is an exact reuse match (score 1.0) |
 
 The interface is the same for every process class. `handwritten_case_files` needs no worker change: its ids are
@@ -40,7 +40,7 @@ Worker-side changes in the branch, all in `eranos/pipeline/`:
 ## Builder keys: the exact name and format (agreed for the worker-loop merge)
 
 - Variable: `ERANOS_PROCESS_BUILDER_KEYS`, on the reviewer's unit only.
-- Format: one or more Tessera key ids, comma-separated (`k_a4146f08757b` or `k_a…,k_b…`). Spaces are trimmed and empty entries ignored. At go-live it holds the one dedicated builder key id.
+- Format: one or more Teleion Fabric key ids, comma-separated (`k_a4146f08757b` or `k_a…,k_b…`). Spaces are trimmed and empty entries ignored. At go-live it holds the one dedicated builder key id.
 - Required: a reviewer with a process handler refuses to start without it (`BuilderKeysMissing`; branch `b4-process-handler` `9fba6ee`). It is read once at start, never inside the review process.
 - Passed to the handler as keyword arguments, because the clean review process (`_clean_review`, `python -I`, `_PASS_ENV` only) does not see the worker's environment:
   - `trusted_builder_keys`: the list above;

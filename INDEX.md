@@ -212,12 +212,11 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`instructions/worker.json`](instructions/worker.json) | Rules for Eranos's volunteer workers |
 | [`instructions/worker.policy.json`](instructions/worker.policy.json) | How Eranos's workers tune themselves |
 
-## process-packages/ (63)
+## process-packages/ (62)
 
 | File | What it is |
 |---|---|
 | [`process-packages/.gitignore`](process-packages/.gitignore) |  |
-| [`process-packages/GO-LIVE.md`](process-packages/GO-LIVE.md) | B4 go-live: prepared, not executed |
 | [`process-packages/INTERFACE-B1.md`](process-packages/INTERFACE-B1.md) | The worker loop and the B4 handler: the agreed interface (proposal for the worker builder) |
 | [`process-packages/README.md`](process-packages/README.md) | B4: process requests become generated, tested process packages |
 | [`process-packages/eranos_handler.py`](process-packages/eranos_handler.py) | B4's process handler for the volunteer worker loop (B1): point ERANOSPROCESSHANDLER at this file. |

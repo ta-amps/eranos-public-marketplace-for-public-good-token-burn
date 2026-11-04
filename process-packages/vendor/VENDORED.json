@@ -4,7 +4,7 @@
   "entries": [
     {
       "folder": "vendor/library",
-      "source": "notes/claude-work-2026-10-31/eranos-impl/seed-packs-library-of-nouns-and-verbs",
+      "source": "github.com/ta-amps/seed-packs-library-of-nouns-and-verbs",
       "commit": "168500501378bbd6f625efaf810126d8f5ef017f",
       "how": "copied, then patched (Nov 1): build_packs.py and validate_packs.py also accept the owner's vocabulary (A collection of Task Objects and Tasks for ..., ## Task Objects, ## Tasks) next to the library's own; finding F31-B4-21",
       "files": {
@@ -18,7 +18,7 @@
     },
     {
       "folder": "vendor/eranos_verify",
-      "source": "notes/claude-work-2026-10-31/eranos-impl/eranos-public-marketplace-for-public-good-token-burn",
+      "source": "github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn",
       "commit": "6397473d1de84ed6467caaa156b9ca0fb042fe96",
       "how": "copied, then patched (Oct 31 to Nov 1): eranos/schemas/records.py and verifier.py accept a MADE-UP test-case mark (findings F31-B4-12)",
       "files": {
@@ -39,7 +39,7 @@
     },
     {
       "folder": "vendor/persona_compiler",
-      "source": "notes/work-2026-10-30/feed-runner/staged-packs/portable-agent-persona-compiler/code (staged proposal, not in git)",
+      "source": "seed pack portable-agent-persona",
       "commit": null,
       "how": "copied unchanged; the package adds adapted OpenCode and Roo files next to its output (findings F31-B4-01, F31-B4-02)",
       "files": {
@@ -59,7 +59,7 @@
     },
     {
       "folder": "vendor/config_scanner",
-      "source": "notes/work-2026-10-30/feed-runner/staged-packs/agent-config-supply-chain-scanner/code (staged proposal, not in git)",
+      "source": "seed pack agent-config-supply-chain-scanner",
       "commit": null,
       "how": "copied unchanged",
       "files": {
