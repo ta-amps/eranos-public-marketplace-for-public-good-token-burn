@@ -194,14 +194,14 @@
   "reviewed_by_key": "key_reviewer_02",
   "review_notes": "Automated checks and UNODC citations pass.",
   "steward_signoff": null,
-  "draft_receipt": "2500201f59ac291735512f13b8ee188e04f82672ffaf0e65c4357fa91c831639",
-  "review_receipt": "0661f7acbd2f1310beee5a46c62ffe2f9dac4732e56fc204fe3f3907c6e9e4bb",
+  "draft_receipt": "6f76f5936cd629c345122c92732640cb5467455501f3b77c1bfee61018352dd5",
+  "review_receipt": "f0074579139f12d63c91276915f711a63ec2bc7e30ac607c8fd55c8e13c67f17",
   "blob_sha256": "9eec59aa1b9f594b68d032473378690201a96acf047285eaace4f2c9af8f7a09",
   "catalog_version": 1,
-  "review_task_id": "er_22036f9c57ea:KIT-HOTLINE-02:review",
-  "draft_task_id": "er_22036f9c57ea:KIT-HOTLINE-02:draft",
+  "review_task_id": "er_a1a6ca577498:KIT-HOTLINE-02:review",
+  "draft_task_id": "er_a1a6ca577498:KIT-HOTLINE-02:draft",
   "draft_sha256": "9eec59aa1b9f594b68d032473378690201a96acf047285eaace4f2c9af8f7a09",
   "drafter_key_id": "key_drafter_02",
   "reviewer_key_id": "key_reviewer_02",
-  "publication_sha256": "f874792f60e19cd35528ab50a8f7810794c9d3f6ee66810ac00383fc7fe127d0"
+  "publication_sha256": "84bd37109b92751dff71d1ece515d7cc57dbee627166acb89f12a7f464326f05"
 }
