@@ -275,9 +275,9 @@ def test_a_contributor_id_is_refused_in_any_spelling(model_id: str) -> None:
 def test_the_owners_caps_and_metas_rates_hold_whatever_the_nouns_say(tmp_path: Path) -> None:
     ledger = Ledger(tmp_path / "spend.json", daily_usd=1_000_000, total_usd=1_000_000)
     assert (ledger.daily_usd, ledger.total_usd) == (
-        25.0,
         150.0,
-    )  # owner D11; the noun can only lower them
+        150.0,
+    )  # the owner's total of credits; the noun can only lower them
     assert Ledger(tmp_path / "s2.json", daily_usd=1, total_usd=20).daily_usd == 1.0
     cheap = MetaModel({**SETTINGS, "prices_usd_per_million": {"input": 0.01, "output": 0.01}})
     assert (

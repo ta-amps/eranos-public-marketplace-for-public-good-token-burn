@@ -1293,9 +1293,9 @@
       "max_tokens": 6000,
       "reasoning_effort": "low",
       "budget": {
-        "daily_usd": 25,
+        "daily_usd": 150,
         "total_usd": 150,
-        "about": "The owner's caps: $25 a UTC day (owner D11, Nov 1) and $150 in all (the owner's Meta credit), shared by every worker on the machine; the code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later."
+        "about": "The owner's cap: $150 in all (the owner's Meta credit), shared by every worker on the machine; the owner removed the daily limit on Nov 4, so the daily figure equals the total. The code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later."
       },
       "fallback": "none: when the Meta model cannot answer, the verb records the failure and is retried later"
     },
