@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { LIVE, mockSite, noun } from "./support/mocks";
+import { LIVE, mockSite, noun, snapshot } from "./support/mocks";
 
 // F-UI-STALE-001 and the review of 8d8f50a (G1, G2, N11): a request's steps, its details view and its history follow
 // its real state. A library answer shows as checked only after a different key checked that it fits this request
@@ -54,6 +54,7 @@ interface StatusWords {
     reopened_note: string;
     reopened_note_reason: string;
     reuse_rejected_note: string;
+    no_result?: { title: string; why_no_sources: string; why_never_tried: string; can_do: string[] };
     bands: { status: Record<string, string>; reused: Record<string, string>; ready: Record<string, string> };
   };
 }
@@ -165,6 +166,65 @@ test.describe("on the hosted build, a request's steps follow its real state", ()
     expect(text).not.toContain("All parts finished");
     expect(text).not.toContain("Muse");
     expect(text).toContain(words.log.closed_unfinished ?? "");
+  });
+
+  test("closed with nothing delivered after searches: says what happened and what to do, with a way to ask again", async ({ page }) => {
+    const w = noun<StatusWords>("request-status").plain;
+    const receipt = (c: string) => c.repeat(64);
+    const noClaims = { type: "work_released", part: 1, reason: "self-test failed: the report makes no cited claims; only 0 claims kept a verbatim quote", summary: { claims: 0 } };
+    await open(
+      page,
+      [
+        RECEIVED,
+        PLAN_CLAIMED,
+        { type: "work_claimed", part: 1, receipt: receipt("a") },
+        { ...noClaims, receipt: receipt("b") },
+        { type: "work_claimed", part: 1, receipt: receipt("c") },
+        { ...noClaims, receipt: receipt("d") },
+        CLOSED,
+      ],
+      [2],
+      "closed",
+    );
+    const panel = page.getByTestId("no-result");
+    await expect(panel).toContainText(w.no_result?.title ?? "missing");
+    await expect(page.getByTestId("no-result-why")).toContainText((w.no_result?.why_no_sources ?? "").replace("{n}", "2"));
+    await expect(panel.getByRole("listitem")).toHaveCount(w.no_result?.can_do.length ?? -1);
+    await expect(page.getByTestId("no-result-again")).toHaveAttribute("href", /^\/nonprofits/);
+  });
+
+  test("a process no tested class fits: says we can't build it, what comes instead, and never promises setup files", async ({ page }) => {
+    const w = noun<StatusWords & { plain: { no_process_class_note?: string } }>("request-status").plain;
+    const planned = {
+      type: "planned",
+      ref: `eranos.plans/${REQUEST_ID}`,
+      receipt: "a".repeat(64),
+      parts: [{ part: 1, route: "public-only", output_type: "process", text: "A reusable process for our CSV." }],
+    };
+    await open(page, [RECEIVED, PLAN_CLAIMED, planned], [], "open_for_build");
+    await expect(page.getByTestId("no-process-class")).toHaveText(w.no_process_class_note ?? "missing");
+    await expect(page.locator("main")).not.toContainText("Setup files");
+  });
+
+  test("a process no class fits that closed with nothing: says so in the no-result note", async ({ page }) => {
+    const w = noun<StatusWords>("request-status").plain;
+    const planned = {
+      type: "planned",
+      ref: `eranos.plans/${REQUEST_ID}`,
+      receipt: "a".repeat(64),
+      parts: [{ part: 1, route: "public-only", output_type: "process", text: "A reusable process for our CSV." }],
+    };
+    await open(page, [RECEIVED, PLAN_CLAIMED, planned, CLOSED], [3], "closed");
+    await expect(page.getByTestId("no-result-why")).toContainText("can’t build a reusable process");
+    await expect(page.getByTestId("no-process-class")).toHaveCount(0);
+    expect(w.chip).toBeTruthy();
+  });
+
+  test("closed with nothing delivered and no search that came back empty: it never says we searched", async ({ page }) => {
+    const w = noun<StatusWords>("request-status").plain;
+    await open(page, [RECEIVED, PLAN_CLAIMED, CLOSED], [2], "closed");
+    await expect(page.getByTestId("no-result-why")).toContainText(w.no_result?.why_never_tried ?? "missing");
+    await expect(page.getByTestId("no-result-why")).not.toContainText("searched");
   });
 
   // The worker loop's checked reuse (F-REUSE-001, worker-loop-next 6684c6c), in its exact order: planned (part 1, route
@@ -288,5 +348,34 @@ test.describe("on the hosted build, a request's steps follow its real state", ()
     await open(page, [RECEIVED, PLAN_CLAIMED], [], "open_for_build", true);
     await expect(page.locator("main")).toContainText("deterministic planner (no model)");
     expect(await page.locator("main").innerText()).not.toContain("Muse");
+  });
+});
+
+test.describe("a kit built from a request", () => {
+  test.use({ baseURL: LIVE });
+  const KIT = "KIT-HOTLINE-02";
+  async function kitPage(page: Page, requestText: string): Promise<void> {
+    await mockSite(page, {});
+    const entry = snapshot<{ tags?: string[] }>(`catalog/${KIT}.json`);
+    await page.route(new RegExp(`/api/catalog/${KIT}`), (route) =>
+      route.fulfill({ json: { ...entry, tags: [...(entry.tags ?? []), `request:${REQUEST_ID}`] } }),
+    );
+    await page.route(new RegExp(`/api/requests/${REQUEST_ID}`), (route) => route.fulfill({ json: { value: { text: requestText } } }));
+    await page.goto(`/catalog/${KIT}`);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  }
+
+  test("a labeled test request: the kit says so and links to it", async ({ page }) => {
+    await kitPage(page, "Clean our bed list. Test run, Nov 4.");
+    const line = page.getByTestId("kit-from-test");
+    await expect(line).toContainText("test request");
+    await expect(line).toContainText("Clean our bed list. Test run, Nov 4.");
+    await expect(line.getByRole("link")).toHaveAttribute("href", `/requests/${REQUEST_ID}`);
+  });
+
+  test("any other request: nothing says test", async ({ page }) => {
+    await kitPage(page, "Clean our bed list.");
+    await page.waitForTimeout(500);
+    await expect(page.getByTestId("kit-from-test")).toHaveCount(0);
   });
 });

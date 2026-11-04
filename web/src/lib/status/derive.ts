@@ -159,6 +159,29 @@ export function plainReason(reason: string | undefined): string | undefined;
 export function plainReason(reason: string | undefined): string | undefined {
   return reason && TECHNICAL_REASON.test(reason) ? "a technical problem" : reason;
 }
+/** A label we put on our own test and practice requests; it isn't part of the question. */
+// Its own sentence at the end or start, with at most a date at the end; the words inside a question are the question.
+const OWN_LABEL_DATE = String.raw`(?:[,:\s-]+(?:on\s+)?[a-z]{3,9}\.?\s+\d{1,2}(?:,\s*\d{4})?)?`;
+const OWN_LABEL_LONG = String.raw`(?:,\s*our own example, not a real organization's request)?`;
+const OWN_LABEL_END = new RegExp(String.raw`(?:^|(?<=[.?!])\s+)\(?test run${OWN_LABEL_DATE}${OWN_LABEL_LONG}[.?!]?\)?\s*$`, "i");
+const OWN_LABEL_START = new RegExp(String.raw`^\s*\(?test run${OWN_LABEL_DATE}${OWN_LABEL_LONG}\s*\)?\s*[.:\u2013-]\s*`, "i");
+export function isOwnTest(text: string | null | undefined): boolean {
+  return OWN_LABEL_END.test(text ?? "") || OWN_LABEL_START.test(text ?? "");
+}
+export function withoutOwnLabel(text: string | null | undefined): string {
+  return (text ?? "").replace(OWN_LABEL_START, "").replace(OWN_LABEL_END, "").replace(/\s+/g, " ").trim();
+}
+
+/** Why a closed request has nothing to show, from its own record: how many tries, and whether sources were why;
+ * it says searched only when a search really came back with no quoted claim and nothing went on to be checked. */
+export function noResultCause(rawEvents: StatusEvent[]): { tries: number; sources: boolean } {
+  const reopen = rawEvents.map((event) => event.type).lastIndexOf("reopened");
+  const events = reopen >= 0 ? rawEvents.slice(reopen) : rawEvents;
+  const onSources = events.filter((event) => event.type === "work_released" && /no cited claims|claims kept a verbatim quote/.test(event.reason ?? "")).length;
+  if (onSources > 0 && !events.some((event) => event.type === "work_submitted")) return { tries: onSources, sources: true };
+  return { tries: events.filter((event) => event.type === "work_claimed").length, sources: false };
+}
+
 export function plainEvent(event: StatusEvent): StatusEvent {
   return {
     ...event,

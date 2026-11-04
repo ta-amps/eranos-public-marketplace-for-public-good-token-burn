@@ -6,7 +6,9 @@ import llmsFallbackNoun from "../../instructions/llms.json" with { type: "json" 
 import { schemaIssues } from "./schema.js";
 import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
 import WORD_LIST from "./banned_words.generated.js";
+import { withExactQuotes } from "./display_corrections.js";
 import { makeNeutral } from "./display_words.js";
+import { stripPiiForDisplay } from "./pii_strip.js";
 // Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback), intercepts
 // AI-agent discovery endpoints (/favicon.svg, /healthz, /robots.txt, /llms.txt, /llms-full.txt,
 // /.well-known/agent-card.json, POST /mcp) before SPA fallback, and serves /api/* natively 24/7 from
@@ -435,7 +437,7 @@ function isPageRead(request) {
 }
 
 function forPage(request, data) {
-  return isPageRead(request) ? pageWords(data) : data;
+  return isPageRead(request) ? pageWords(stripPiiForDisplay(data)) : data;
 }
 
 /** A page's read of any API answer (the app sends x-eranos-view: page): its JSON in the site's words. */
@@ -450,11 +452,11 @@ async function inPageWords(response) {
   const headers = new Headers(response.headers);
   headers.delete("content-length");
   headers.append("vary", "x-eranos-view");
-  return new Response(JSON.stringify(pageWords(data)), { status: response.status, statusText: response.statusText, headers });
+  return new Response(JSON.stringify(pageWords(stripPiiForDisplay(data))), { status: response.status, statusText: response.statusText, headers });
 }
 
 function jsonResp(data, status = 200) {
-  return new Response(JSON.stringify(visibleWords(data)), {
+  return new Response(JSON.stringify(visibleWords(stripPiiForDisplay(data))), {
     status,
     headers: { "content-type": "application/json", "cache-control": "private, no-store" },
   });
@@ -1050,6 +1052,10 @@ async function fetchPendingRequestVerb(env, reqId) {
 const PAGE_TEXT_STORE = "eranos.instructions";
 
 async function loadNoun(request, env, store, key) {
+  return withExactQuotes(await readNoun(request, env, store, key));
+}
+
+async function readNoun(request, env, store, key) {
   if (store === PAGE_TEXT_STORE) {
     const shipped = await fetchAssetJson(request, env, `/snapshot/nouns/${store}/${key}.json`);
     if (shipped && shipped.store === store && shipped.key === key) return shipped;
@@ -1063,6 +1069,12 @@ async function loadNoun(request, env, store, key) {
 }
 
 async function loadNounList(request, env, store) {
+  const list = await readNounList(request, env, store);
+  if (store !== "eranos.solutions" || !Array.isArray(list?.records)) return list;
+  return { ...list, records: list.records.map((record) => withExactQuotes({ ...record, store })) };
+}
+
+async function readNounList(request, env, store) {
   if (store === PAGE_TEXT_STORE) {
     const shipped = await fetchAssetJson(request, env, `/snapshot/nouns/${store}.json`);
     if (shipped && shipped.store === store && Array.isArray(shipped.records)) return shipped;
