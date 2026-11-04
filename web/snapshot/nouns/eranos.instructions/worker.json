@@ -654,47 +654,6 @@
         },
         {
           "access": "public_web_page",
-          "id": "ready-emergency-plans",
-          "publisher": "Ready.gov, U.S. Department of Homeland Security",
-          "topics": [
-            "emergency",
-            "disaster",
-            "preparedness",
-            "evacuation",
-            "continuity",
-            "severe-weather"
-          ],
-          "url": "https://www.ready.gov/business/emergency-plans"
-        },
-        {
-          "access": "public_web_page",
-          "id": "ready-severe-weather",
-          "publisher": "Ready.gov, U.S. Department of Homeland Security",
-          "topics": [
-            "severe-weather",
-            "weather",
-            "storm",
-            "tornado",
-            "flood",
-            "hurricane",
-            "emergency"
-          ],
-          "url": "https://www.ready.gov/severe-weather"
-        },
-        {
-          "access": "public_web_page",
-          "id": "cisa-phishing",
-          "publisher": "Cybersecurity and Infrastructure Security Agency",
-          "topics": [
-            "phishing",
-            "scam",
-            "scams",
-            "spoofing"
-          ],
-          "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing"
-        },
-        {
-          "access": "public_web_page",
           "id": "ftc-phishing",
           "publisher": "U.S. Federal Trade Commission",
           "topics": [
@@ -982,41 +941,6 @@
         },
         {
           "access": "public_web_page",
-          "id": "ready-kit",
-          "publisher": "Ready.gov, U.S. Department of Homeland Security",
-          "topics": [
-            "emergency",
-            "disaster",
-            "kit",
-            "supplies",
-            "preparedness"
-          ],
-          "url": "https://www.ready.gov/kit"
-        },
-        {
-          "access": "public_web_page",
-          "id": "ready-heat",
-          "publisher": "Ready.gov, U.S. Department of Homeland Security",
-          "topics": [
-            "heat",
-            "heatwave",
-            "cooling"
-          ],
-          "url": "https://www.ready.gov/heat"
-        },
-        {
-          "access": "public_web_page",
-          "id": "ready-floods",
-          "publisher": "Ready.gov, U.S. Department of Homeland Security",
-          "topics": [
-            "flood",
-            "floods",
-            "flooding"
-          ],
-          "url": "https://www.ready.gov/floods"
-        },
-        {
-          "access": "public_web_page",
           "id": "ada-intro",
           "publisher": "U.S. Department of Justice, ADA.gov",
           "topics": [
@@ -1242,6 +1166,1303 @@
             "988"
           ],
           "url": "https://www.samhsa.gov/find-help/988"
+        },
+        {
+          "id": "ftc-background-checks",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "background",
+            "screen",
+            "screening",
+            "check",
+            "checks"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/background-checks-what-employers-need-know",
+          "requires": [
+            "volunteer",
+            "volunteers",
+            "employee",
+            "employees",
+            "staff",
+            "hire",
+            "hiring",
+            "mentor",
+            "mentors"
+          ]
+        },
+        {
+          "id": "ftc-disposal",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "dispose",
+            "disposal",
+            "shred",
+            "paper",
+            "throw"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/disposing-consumer-report-information-rule-tells-how",
+          "requires": [
+            "files",
+            "records",
+            "information",
+            "documents"
+          ]
+        },
+        {
+          "id": "ftc-coppa",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "coppa",
+            "under",
+            "children",
+            "13",
+            "child"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions",
+          "requires": [
+            "website",
+            "online",
+            "information",
+            "app"
+          ]
+        },
+        {
+          "id": "ftc-canspam",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "can-spam",
+            "spam",
+            "email",
+            "emails",
+            "newsletter",
+            "unsubscribe"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/can-spam-act-compliance-guide-business"
+        },
+        {
+          "id": "ftc-start-security",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "security",
+            "laptop",
+            "stolen",
+            "passwords"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/start-security-guide-business",
+          "requires": [
+            "information",
+            "records",
+            "data",
+            "client",
+            "clients",
+            "donor",
+            "laptop"
+          ]
+        },
+        {
+          "id": "ftc-telemarketing",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "phone",
+            "telemarketing",
+            "calls",
+            "call",
+            "telephone"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/complying-telemarketing-sales-rule",
+          "requires": [
+            "donation",
+            "donations",
+            "charity",
+            "charities",
+            "fundraising"
+          ]
+        },
+        {
+          "id": "ftc-deceptive",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "deceptive",
+            "claims",
+            "misleading",
+            "advertising"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/advertising-faqs-guide-small-business"
+        },
+        {
+          "id": "ftc-cyber",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "cybersecurity",
+            "ransomware",
+            "security",
+            "laptop",
+            "stolen"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/small-businesses/cybersecurity"
+        },
+        {
+          "id": "usc-volunteer-protection",
+          "publisher": "U.S. Code (govinfo)",
+          "access": "public_web_page",
+          "topics": [
+            "liability",
+            "liable",
+            "protected",
+            "protection",
+            "personal"
+          ],
+          "url": "https://www.govinfo.gov/content/pkg/USCODE-2022-title42/html/USCODE-2022-title42-chap139.htm",
+          "requires": [
+            "volunteer",
+            "volunteers"
+          ]
+        },
+        {
+          "id": "dol-interns",
+          "publisher": "U.S. Department of Labor",
+          "access": "public_web_page",
+          "topics": [
+            "intern",
+            "interns",
+            "internship",
+            "internships",
+            "unpaid"
+          ],
+          "url": "https://www.dol.gov/agencies/whd/fact-sheets/71-flsa-internships"
+        },
+        {
+          "id": "cdc-motor-vehicle-work",
+          "publisher": "CDC NIOSH",
+          "access": "public_web_page",
+          "topics": [
+            "driving",
+            "drive",
+            "driver",
+            "drivers",
+            "delivery",
+            "deliveries",
+            "cars"
+          ],
+          "url": "https://www.cdc.gov/niosh/motor-vehicle/about/index.html"
+        },
+        {
+          "id": "cdc-evaluation",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "evaluate",
+            "evaluation",
+            "measure",
+            "outcomes",
+            "logic"
+          ],
+          "url": "https://www.cdc.gov/evaluation/php/evaluation-framework/index.html"
+        },
+        {
+          "id": "cdc-handwash",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "wash",
+            "handwashing",
+            "hands",
+            "gloves",
+            "hygiene"
+          ],
+          "url": "https://www.cdc.gov/clean-hands/about/index.html"
+        },
+        {
+          "id": "cdc-bedbugs",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "bed",
+            "bugs",
+            "bedbugs"
+          ],
+          "url": "https://www.cdc.gov/bed-bugs/about/index.html"
+        },
+        {
+          "id": "cdc-tb",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "tuberculosis",
+            "tb"
+          ],
+          "url": "https://www.cdc.gov/tb/about/index.html"
+        },
+        {
+          "id": "cdc-co",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "carbon",
+            "monoxide"
+          ],
+          "url": "https://www.cdc.gov/carbon-monoxide/about/index.html"
+        },
+        {
+          "id": "cdc-winter",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "winter",
+            "cold",
+            "hypothermia",
+            "extreme"
+          ],
+          "url": "https://www.cdc.gov/winter-weather/about/index.html"
+        },
+        {
+          "id": "cdc-naloxone",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "naloxone",
+            "narcan",
+            "overdose",
+            "opioid"
+          ],
+          "url": "https://www.cdc.gov/stop-overdose/caring/naloxone.html"
+        },
+        {
+          "id": "cdc-falls",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "falls",
+            "fall",
+            "falling"
+          ],
+          "url": "https://www.cdc.gov/falls/about/index.html",
+          "requires": [
+            "senior",
+            "seniors",
+            "older",
+            "elder",
+            "elderly",
+            "adults"
+          ]
+        },
+        {
+          "id": "cdc-childabuse",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "abuse",
+            "neglect",
+            "safe"
+          ],
+          "url": "https://www.cdc.gov/child-abuse-neglect/prevention/index.html",
+          "requires": [
+            "child",
+            "children",
+            "youth"
+          ]
+        },
+        {
+          "id": "cdc-concussion",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "concussion",
+            "head",
+            "injury"
+          ],
+          "url": "https://www.cdc.gov/heads-up/about/index.html"
+        },
+        {
+          "id": "cdc-social",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "social",
+            "connected",
+            "connection",
+            "isolation",
+            "loneliness"
+          ],
+          "url": "https://www.cdc.gov/social-connectedness/about/index.html"
+        },
+        {
+          "id": "cdc-vaccines",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "vaccine",
+            "vaccines",
+            "vaccination",
+            "immunization"
+          ],
+          "url": "https://www.cdc.gov/vaccines/hcp/storage-handling/"
+        },
+        {
+          "id": "cdc-earthquake",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "earthquake",
+            "earthquakes"
+          ],
+          "url": "https://www.cdc.gov/earthquakes/safety/index.html"
+        },
+        {
+          "id": "cdc-hurricane",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "hurricane",
+            "hurricanes"
+          ],
+          "url": "https://www.cdc.gov/hurricanes/safety/index.html"
+        },
+        {
+          "id": "cdc-wildfire",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "wildfire",
+            "wildfires",
+            "smoke"
+          ],
+          "url": "https://www.cdc.gov/wildfires/safety/index.html"
+        },
+        {
+          "id": "cdc-tornado",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "tornado",
+            "tornadoes"
+          ],
+          "url": "https://www.cdc.gov/tornadoes/safety/index.html"
+        },
+        {
+          "id": "niosh-violence",
+          "publisher": "CDC NIOSH",
+          "access": "public_web_page",
+          "topics": [
+            "violence",
+            "workplace"
+          ],
+          "url": "https://www.cdc.gov/niosh/violence/about/index.html",
+          "requires": [
+            "staff",
+            "employee",
+            "employees",
+            "workplace",
+            "worker",
+            "workers"
+          ]
+        },
+        {
+          "id": "niosh-heat",
+          "publisher": "CDC NIOSH",
+          "access": "public_web_page",
+          "topics": [
+            "heat",
+            "outdoors",
+            "outdoor"
+          ],
+          "url": "https://www.cdc.gov/niosh/heat-stress/about/index.html",
+          "requires": [
+            "staff",
+            "employee",
+            "employees",
+            "worker",
+            "workers",
+            "volunteers"
+          ]
+        },
+        {
+          "id": "niosh-ergonomics",
+          "publisher": "CDC NIOSH",
+          "access": "public_web_page",
+          "topics": [
+            "lifting",
+            "ergonomics",
+            "heavy",
+            "back",
+            "boxes"
+          ],
+          "url": "https://www.cdc.gov/niosh/ergonomics/about/index.html"
+        },
+        {
+          "id": "niosh-stress",
+          "publisher": "CDC NIOSH",
+          "access": "public_web_page",
+          "topics": [
+            "burnout",
+            "stress",
+            "mental"
+          ],
+          "url": "https://www.cdc.gov/niosh/stress/about/index.html",
+          "requires": [
+            "staff",
+            "worker",
+            "workers",
+            "employee",
+            "employees"
+          ]
+        },
+        {
+          "id": "cdc-hipaa",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "hipaa"
+          ],
+          "url": "https://www.cdc.gov/phlp/php/resources/health-insurance-portability-and-accountability-act-of-1996-hipaa.html"
+        },
+        {
+          "id": "cdc-youth-violence",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "bullying",
+            "bully",
+            "bullied",
+            "violence"
+          ],
+          "url": "https://www.cdc.gov/youth-violence/prevention/index.html",
+          "requires": [
+            "youth",
+            "young",
+            "school",
+            "program"
+          ]
+        },
+        {
+          "id": "cdc-homeless2",
+          "publisher": "Centers for Disease Control and Prevention",
+          "access": "public_web_page",
+          "topics": [
+            "homeless",
+            "homelessness",
+            "shelter",
+            "shelters"
+          ],
+          "url": "https://www.cdc.gov/homelessness-and-health/about/index.html"
+        },
+        {
+          "id": "youth-mentoring",
+          "publisher": "Youth.gov",
+          "access": "public_web_page",
+          "topics": [
+            "mentor",
+            "mentors",
+            "mentoring",
+            "mentee"
+          ],
+          "url": "https://youth.gov/youth-topics/mentoring"
+        },
+        {
+          "id": "eeoc-harassment",
+          "publisher": "U.S. Equal Employment Opportunity Commission",
+          "access": "public_web_page",
+          "topics": [
+            "harassment",
+            "harass"
+          ],
+          "url": "https://www.eeoc.gov/harassment"
+        },
+        {
+          "id": "eeoc-accommodation",
+          "publisher": "U.S. Equal Employment Opportunity Commission",
+          "access": "public_web_page",
+          "topics": [
+            "accommodation",
+            "accommodations",
+            "undue"
+          ],
+          "url": "https://www.eeoc.gov/laws/guidance/enforcement-guidance-reasonable-accommodation-and-undue-hardship-under-ada",
+          "requires": [
+            "employee",
+            "employees",
+            "staff",
+            "job",
+            "disability"
+          ]
+        },
+        {
+          "id": "irs-contractor",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "contractor",
+            "contractors",
+            "independent",
+            "self-employed"
+          ],
+          "url": "https://www.irs.gov/businesses/small-businesses-self-employed/independent-contractor-self-employed-or-employee"
+        },
+        {
+          "id": "irs-public-disclosure",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "disclosure",
+            "inspection",
+            "share"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/exempt-organization-public-disclosure-and-availability-requirements",
+          "requires": [
+            "990",
+            "return",
+            "public",
+            "charity"
+          ]
+        },
+        {
+          "id": "irs-intermediate",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "excess",
+            "sanctions",
+            "compensation",
+            "salary",
+            "pay"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/intermediate-sanctions"
+        },
+        {
+          "id": "irs-exempt-purposes",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "501(c)(3)",
+            "exempt",
+            "purpose",
+            "purposes",
+            "losing"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/exempt-purposes-internal-revenue-code-section-501c3"
+        },
+        {
+          "id": "irs-apply",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "1023",
+            "apply",
+            "application",
+            "applying"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/applying-for-tax-exempt-status",
+          "requires": [
+            "status",
+            "exempt",
+            "exemption",
+            "501(c)(3)",
+            "tax-exempt"
+          ]
+        },
+        {
+          "id": "irs-political",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "political",
+            "candidate",
+            "campaign",
+            "endorse",
+            "forum",
+            "election"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/restriction-of-political-campaign-intervention-by-section-501c3-tax-exempt-organizations"
+        },
+        {
+          "id": "irs-lobby-measure",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "lobbying",
+            "lobby",
+            "expenditure"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/measuring-lobbying-activity-expenditure-test"
+        },
+        {
+          "id": "irs-employer-forms",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "employment",
+            "taxes",
+            "forms",
+            "941",
+            "w-2",
+            "payroll"
+          ],
+          "url": "https://www.irs.gov/businesses/small-businesses-self-employed/understanding-employment-taxes",
+          "requires": [
+            "employee",
+            "employees",
+            "workers"
+          ]
+        },
+        {
+          "id": "irs-quidproquo",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "quid",
+            "dinner",
+            "exchange",
+            "benefit",
+            "goods",
+            "event"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-quid-pro-quo-contributions",
+          "requires": [
+            "donor",
+            "donors",
+            "gift",
+            "gifts",
+            "donation",
+            "donations"
+          ]
+        },
+        {
+          "id": "irs-state-reg",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "register",
+            "registration",
+            "state",
+            "states",
+            "solicitation",
+            "solicit"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-solicitation-initial-state-registration",
+          "requires": [
+            "donation",
+            "donations",
+            "donor",
+            "donors",
+            "fundraising"
+          ]
+        },
+        {
+          "id": "irs-sponsorship",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "sponsorship",
+            "sponsor",
+            "corporate",
+            "advertising"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/advertising-or-qualified-sponsorship-payments"
+        },
+        {
+          "id": "irs-donated-goods",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "donated",
+            "goods",
+            "receipt",
+            "acknowledgment"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/charitable-contributions-written-acknowledgments",
+          "requires": [
+            "donor",
+            "donors",
+            "donated",
+            "gift",
+            "gifts",
+            "donation",
+            "donations"
+          ]
+        },
+        {
+          "id": "irs-daf",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "donor-advised",
+            "advised",
+            "daf"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/charitable-organizations/donor-advised-funds"
+        },
+        {
+          "id": "irs-vita",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "vita",
+            "free",
+            "tax",
+            "preparation"
+          ],
+          "url": "https://www.irs.gov/individuals/free-tax-return-preparation-for-qualifying-taxpayers"
+        },
+        {
+          "id": "irs-substantiation2",
+          "publisher": "Internal Revenue Service",
+          "access": "public_web_page",
+          "topics": [
+            "acknowledgment",
+            "receipt",
+            "gift",
+            "gifts",
+            "250",
+            "substantiating",
+            "value"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/substantiating-charitable-contributions",
+          "requires": [
+            "donor",
+            "donors",
+            "donated",
+            "donation",
+            "donations",
+            "gift",
+            "gifts"
+          ]
+        },
+        {
+          "id": "grants-eligibility",
+          "publisher": "Grants.gov",
+          "access": "public_web_page",
+          "topics": [
+            "eligible",
+            "eligibility",
+            "federal"
+          ],
+          "url": "https://www.grants.gov/learn-grants/grant-eligibility",
+          "requires": [
+            "grant",
+            "grants"
+          ]
+        },
+        {
+          "id": "grants-terminology",
+          "publisher": "Grants.gov",
+          "access": "public_web_page",
+          "topics": [
+            "indirect",
+            "cost",
+            "costs",
+            "budget",
+            "terminology"
+          ],
+          "url": "https://www.grants.gov/learn-grants/grant-terminology",
+          "requires": [
+            "grant",
+            "grants"
+          ]
+        },
+        {
+          "id": "sam-uei",
+          "publisher": "General Services Administration",
+          "access": "public_web_page",
+          "topics": [
+            "uei",
+            "unique",
+            "entity",
+            "identifier"
+          ],
+          "url": "https://sam.gov/entity-registration"
+        },
+        {
+          "id": "sba-disaster",
+          "publisher": "U.S. Small Business Administration",
+          "access": "public_web_page",
+          "topics": [
+            "loan",
+            "loans",
+            "disaster",
+            "declared"
+          ],
+          "url": "https://www.sba.gov/disaster/"
+        },
+        {
+          "id": "copyright-fair-use",
+          "publisher": "U.S. Copyright Office",
+          "access": "public_web_page",
+          "topics": [
+            "copyright",
+            "photos",
+            "articles",
+            "images"
+          ],
+          "url": "https://www.copyright.gov/fair-use/"
+        },
+        {
+          "id": "fda-allergens",
+          "publisher": "U.S. Food and Drug Administration",
+          "access": "public_web_page",
+          "topics": [
+            "allergy",
+            "allergies",
+            "allergen",
+            "allergens"
+          ],
+          "url": "https://www.fda.gov/food/nutrition-food-labeling-and-critical-foods/food-allergies",
+          "requires": [
+            "food",
+            "pantry",
+            "meal",
+            "kitchen"
+          ]
+        },
+        {
+          "id": "epa-bedbugs",
+          "publisher": "Environmental Protection Agency",
+          "access": "public_web_page",
+          "topics": [
+            "bed",
+            "bugs",
+            "bedbugs"
+          ],
+          "url": "https://www.epa.gov/bedbugs"
+        },
+        {
+          "id": "epa-co",
+          "publisher": "Environmental Protection Agency",
+          "access": "public_web_page",
+          "topics": [
+            "carbon",
+            "monoxide"
+          ],
+          "url": "https://www.epa.gov/indoor-air-quality-iaq/carbon-monoxides-impact-indoor-air-quality"
+        },
+        {
+          "id": "va-homeless",
+          "publisher": "U.S. Department of Veterans Affairs",
+          "access": "public_web_page",
+          "topics": [
+            "veteran",
+            "veterans",
+            "homeless"
+          ],
+          "url": "https://department.va.gov/homeless/"
+        },
+        {
+          "id": "usfa-smoke",
+          "publisher": "U.S. Fire Administration",
+          "access": "public_web_page",
+          "topics": [
+            "fire",
+            "smoke",
+            "alarm",
+            "alarms"
+          ],
+          "url": "https://www.usfa.fema.gov/prevention/home-fires/prepare-for-fire/smoke-alarms/"
+        },
+        {
+          "id": "usfa-escape",
+          "publisher": "U.S. Fire Administration",
+          "access": "public_web_page",
+          "topics": [
+            "fire",
+            "escape",
+            "overnight"
+          ],
+          "url": "https://www.usfa.fema.gov/prevention/home-fires/prepare-for-fire/home-fire-escape-plans/"
+        },
+        {
+          "id": "womenshealth-dv",
+          "publisher": "Office on Women's Health, HHS",
+          "access": "public_web_page",
+          "topics": [
+            "domestic",
+            "survivor",
+            "survivors"
+          ],
+          "url": "https://womenshealth.gov/relationships-and-safety/domestic-violence"
+        },
+        {
+          "id": "samhsa-find",
+          "publisher": "Substance Abuse and Mental Health Services Administration",
+          "access": "public_web_page",
+          "topics": [
+            "substance",
+            "treatment",
+            "addiction",
+            "drug",
+            "alcohol"
+          ],
+          "url": "https://www.samhsa.gov/find-help/helplines/national-helpline"
+        },
+        {
+          "id": "childwelfare2",
+          "publisher": "Child Welfare Information Gateway",
+          "access": "public_web_page",
+          "topics": [
+            "child",
+            "abuse",
+            "neglect",
+            "report",
+            "reporting",
+            "mandated"
+          ],
+          "url": "https://www.childwelfare.gov/resources/mandatory-reporting-child-abuse-and-neglect/"
+        },
+        {
+          "id": "nimh-suicide",
+          "publisher": "National Institute of Mental Health",
+          "access": "public_web_page",
+          "topics": [
+            "suicide",
+            "suicidal",
+            "warning"
+          ],
+          "url": "https://www.nimh.nih.gov/health/publications/warning-signs-of-suicide"
+        },
+        {
+          "id": "ada-title3",
+          "publisher": "U.S. Department of Justice",
+          "access": "public_web_page",
+          "topics": [
+            "ada",
+            "accessible",
+            "public-accommodations",
+            "disabilities",
+            "barrier"
+          ],
+          "url": "https://www.ada.gov/topics/title-iii/",
+          "requires": [
+            "building",
+            "business",
+            "wheelchair",
+            "ramp",
+            "ada",
+            "entrance",
+            "center",
+            "accessible"
+          ]
+        },
+        {
+          "id": "ada-web",
+          "publisher": "U.S. Department of Justice",
+          "access": "public_web_page",
+          "topics": [
+            "website",
+            "web",
+            "accessible",
+            "accessibility",
+            "online",
+            "blind"
+          ],
+          "url": "https://www.ada.gov/resources/web-guidance/"
+        },
+        {
+          "id": "ada-effective",
+          "publisher": "U.S. Department of Justice",
+          "access": "public_web_page",
+          "topics": [
+            "deaf",
+            "hearing",
+            "interpreter",
+            "sign",
+            "communication",
+            "communicate",
+            "captions"
+          ],
+          "url": "https://www.ada.gov/resources/effective-communication/"
+        },
+        {
+          "id": "wai-writing",
+          "publisher": "World Wide Web Consortium",
+          "access": "public_web_page",
+          "topics": [
+            "website",
+            "web",
+            "blind",
+            "alt",
+            "accessible"
+          ],
+          "url": "https://www.w3.org/WAI/tips/writing/"
+        },
+        {
+          "id": "wai-av",
+          "publisher": "World Wide Web Consortium",
+          "access": "public_web_page",
+          "topics": [
+            "captions",
+            "transcripts",
+            "transcript",
+            "video",
+            "videos",
+            "caption"
+          ],
+          "url": "https://www.w3.org/WAI/media/av/"
+        },
+        {
+          "id": "section508-create",
+          "publisher": "Section508.gov",
+          "access": "public_web_page",
+          "topics": [
+            "pdf",
+            "alt",
+            "documents"
+          ],
+          "url": "https://www.section508.gov/create/",
+          "requires": [
+            "accessible",
+            "accessibility",
+            "disability",
+            "disabilities",
+            "literacy"
+          ]
+        },
+        {
+          "id": "lep-gov",
+          "publisher": "LEP.gov",
+          "access": "public_web_page",
+          "topics": [
+            "limited",
+            "english",
+            "language",
+            "interpreter",
+            "lep",
+            "translation"
+          ],
+          "url": "https://www.justice.gov/crt/limited-english-proficiency"
+        },
+        {
+          "id": "ed-ferpa",
+          "publisher": "U.S. Department of Education",
+          "access": "public_web_page",
+          "topics": [
+            "ferpa",
+            "student",
+            "students",
+            "school",
+            "education"
+          ],
+          "url": "https://studentprivacy.ed.gov/faq/what-ferpa",
+          "requires": [
+            "records",
+            "record"
+          ]
+        },
+        {
+          "id": "ftc-older-scams",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "scam",
+            "scams",
+            "fraud"
+          ],
+          "url": "https://consumer.ftc.gov/articles/how-avoid-scam"
+        },
+        {
+          "id": "ftc-charity3",
+          "publisher": "Federal Trade Commission",
+          "access": "public_web_page",
+          "topics": [
+            "crowdfunding",
+            "donate",
+            "giving",
+            "scam",
+            "scams"
+          ],
+          "url": "https://consumer.ftc.gov/features/donating-safely-and-avoiding-scams",
+          "requires": [
+            "charity",
+            "charities",
+            "donor",
+            "donors",
+            "crowdfunding"
+          ]
+        },
+        {
+          "id": "council-fiduciary",
+          "publisher": "National Council of Nonprofits",
+          "access": "public_web_page",
+          "topics": [
+            "duties",
+            "duty",
+            "fiduciary",
+            "board",
+            "member"
+          ],
+          "url": "https://www.councilofnonprofits.org/running-nonprofit/governance-leadership/board-roles-and-responsibilities"
+        },
+        {
+          "id": "council-exec-comp",
+          "publisher": "National Council of Nonprofits",
+          "access": "public_web_page",
+          "topics": [
+            "compensation",
+            "pay",
+            "salary",
+            "executive"
+          ],
+          "url": "https://www.councilofnonprofits.org/running-nonprofit/governance-leadership/executive-compensation"
+        },
+        {
+          "id": "council-whistleblower",
+          "publisher": "National Council of Nonprofits",
+          "access": "public_web_page",
+          "topics": [
+            "whistleblower",
+            "retention"
+          ],
+          "url": "https://www.councilofnonprofits.org/running-nonprofit/ethics-accountability/whistleblower-protections-nonprofits"
+        },
+        {
+          "id": "council-theft",
+          "publisher": "National Council of Nonprofits",
+          "access": "public_web_page",
+          "topics": [
+            "controls",
+            "theft",
+            "fraud",
+            "embezzlement",
+            "internal"
+          ],
+          "url": "https://www.councilofnonprofits.org/running-nonprofit/administration-and-financial-management/internal-controls-nonprofits"
+        },
+        {
+          "id": "census-data",
+          "publisher": "U.S. Census Bureau",
+          "access": "public_web_page",
+          "topics": [
+            "census",
+            "acs",
+            "demographics"
+          ],
+          "url": "https://www.census.gov/programs-surveys/acs/about.html"
+        },
+        {
+          "id": "weather-hurricane",
+          "publisher": "National Weather Service",
+          "access": "public_web_page",
+          "topics": [
+            "hurricane",
+            "hurricanes"
+          ],
+          "url": "https://www.weather.gov/safety/hurricane"
+        },
+        {
+          "id": "nhlbi-aed",
+          "publisher": "National Heart, Lung, and Blood Institute",
+          "access": "public_web_page",
+          "topics": [
+            "aed",
+            "defibrillator",
+            "cardiac",
+            "arrest"
+          ],
+          "url": "https://www.nhlbi.nih.gov/health/defibrillators"
+        },
+        {
+          "id": "nist-mfa",
+          "publisher": "National Institute of Standards and Technology",
+          "access": "public_web_page",
+          "topics": [
+            "mfa",
+            "multi-factor",
+            "two-factor",
+            "authentication",
+            "accounts"
+          ],
+          "url": "https://www.nist.gov/itl/smallbusinesscyber/guidance-topic/multi-factor-authentication"
+        },
+        {
+          "id": "cms-hipaa",
+          "publisher": "Centers for Medicare and Medicaid Services",
+          "access": "public_web_page",
+          "topics": [
+            "hipaa",
+            "covered"
+          ],
+          "url": "https://www.cms.gov/priorities/key-initiatives/burden-reduction/administrative-simplification/hipaa/covered-entities"
+        },
+        {
+          "access": "public_web_page",
+          "id": "ready-emergency-plans",
+          "publisher": "Ready.gov, U.S. Department of Homeland Security",
+          "topics": [
+            "emergency",
+            "disaster",
+            "preparedness",
+            "evacuation",
+            "continuity",
+            "severe-weather"
+          ],
+          "url": "https://www.ready.gov/business/emergency-plans"
+        },
+        {
+          "access": "public_web_page",
+          "id": "ready-severe-weather",
+          "publisher": "Ready.gov, U.S. Department of Homeland Security",
+          "topics": [
+            "severe-weather",
+            "weather",
+            "storm",
+            "tornado",
+            "flood",
+            "hurricane",
+            "emergency"
+          ],
+          "url": "https://www.ready.gov/severe-weather"
+        },
+        {
+          "access": "public_web_page",
+          "id": "cisa-phishing",
+          "publisher": "Cybersecurity and Infrastructure Security Agency",
+          "topics": [
+            "phishing",
+            "scam",
+            "scams",
+            "spoofing"
+          ],
+          "url": "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing"
+        },
+        {
+          "access": "public_web_page",
+          "id": "ready-kit",
+          "publisher": "Ready.gov, U.S. Department of Homeland Security",
+          "topics": [
+            "emergency",
+            "disaster",
+            "kit",
+            "supplies",
+            "preparedness"
+          ],
+          "url": "https://www.ready.gov/kit"
+        },
+        {
+          "access": "public_web_page",
+          "id": "ready-heat",
+          "publisher": "Ready.gov, U.S. Department of Homeland Security",
+          "topics": [
+            "heat",
+            "heatwave",
+            "cooling"
+          ],
+          "url": "https://www.ready.gov/heat"
+        },
+        {
+          "access": "public_web_page",
+          "id": "ready-floods",
+          "publisher": "Ready.gov, U.S. Department of Homeland Security",
+          "topics": [
+            "flood",
+            "floods",
+            "flooding"
+          ],
+          "url": "https://www.ready.gov/floods"
         }
       ],
       "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it."
@@ -1294,8 +2515,8 @@
       "reasoning_effort": "low",
       "budget": {
         "daily_usd": 150,
-        "total_usd": 150,
-        "about": "The owner's cap: $150 in all (the owner's Meta credit), shared by every worker on the machine; the owner removed the daily limit on Nov 4, so the daily figure equals the total. The code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later."
+        "total_usd": 145,
+        "about": "The owner's cap: $145 in all (a stop just under the owner's $150 Meta credit), shared by every worker on the machine; the owner removed the daily limit on Nov 4, so the daily figure equals the total. The code holds both as ceilings, so the noun can only lower them. A call that could pass either cap is not sent; the verb records the failure and is retried later."
       },
       "fallback": "none: when the Meta model cannot answer, the verb records the failure and is retried later"
     },
