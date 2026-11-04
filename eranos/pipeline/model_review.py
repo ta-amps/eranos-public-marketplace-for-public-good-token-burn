@@ -11,6 +11,8 @@ import json
 from collections.abc import Callable, Iterable
 from typing import Any
 
+from eranos.privacy import LABEL_FIELDS
+
 # In order: the first one that isn't the maker's model reads the kit. A model with no rates is never called.
 REVIEW_MODELS = ("muse-wonder-1.0", "muse-spark-1.3")
 MAX_NOTE = 300
@@ -20,7 +22,7 @@ Read ALL of its text. Send it back if ANY of these is true:
 - dangerous_advice: anything that could put someone in danger or lead to harm or a crime. For example, telling someone to confront or escape an employer, abuser or trafficker on their own, to take documents back by themselves, to avoid police or emergency help or trained staff, medical or legal instructions that could hurt someone, or steps that expose a person at risk.
 - personal_data: a real-looking name with contact details, a phone number, an email address, a home address, an ID number or a case record about a person. Clearly made-up test data marked MADE-UP or using reserved fiction numbers and example.com is fine, and so is a public organization's public contact.
 - autonomy: the agent decides about a person, sends something outside the organization, or does a step that only a person may do.
-- false_claims: a claim that it was tested, approved, certified or checked by someone when the text gives no support for it.
+- false_claims: a claim that it was tested, approved, certified or checked by someone when neither the text nor checked_by_this_worker supports it. checked_by_this_worker is true: this worker did those checks itself.
 
 Approve only if you read everything and found none of these. If unsure, send it back.
 
@@ -51,11 +53,24 @@ def read_kit(
     model_id: str,
     model_display: str,
     meter: Any,
+    known_facts: Iterable[str] = (),
 ) -> dict[str, Any]:
-    """One model's reading of all of `value`. Returns approved, findings and notes. A model that can't be reached raises, and nothing publishes."""
+    """One model's reading of all of `value`. Returns approved, findings and notes. A model that can't be reached raises, and nothing publishes.
+
+    Labels are the system's own, not the maker's text. `known_facts` are what this worker checked itself, so a true claim isn't sent back.
+    """
+    text = (
+        {k: v for k, v in value.items() if k not in LABEL_FIELDS}
+        if isinstance(value, dict)
+        else value
+    )
     answer = chat_json(
         SYSTEM,
-        json.dumps({"kit": value}, ensure_ascii=False, sort_keys=True),
+        json.dumps(
+            {"checked_by_this_worker": list(known_facts), "kit": text},
+            ensure_ascii=False,
+            sort_keys=True,
+        ),
         meter=meter,
         temperature=0.0,
     )

@@ -111,7 +111,10 @@ def test_a_clean_kit_publishes_after_the_model_read_it_and_the_record_says_so(
     published = get_published_kit(backend, req.kit_id)
     assert published is not None and published.steward_signoff is None
     assert "read all of this kit's text" in published.review_notes
-    assert json.loads(reader.calls[0])["kit"]["summary"], "the model is sent the kit's text"
+    sent = json.loads(reader.calls[0])
+    assert sent["kit"]["summary"], "the model is sent the kit's text"
+    assert "tags" not in sent["kit"], "labels are the system's own"
+    assert sent["checked_by_this_worker"] == ["The kit's fixed checks passed."]
     assert "no model" not in published.review_notes.lower()
 
 

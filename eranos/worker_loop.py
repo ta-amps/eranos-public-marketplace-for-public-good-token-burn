@@ -1573,7 +1573,7 @@ class Worker:
 
     def review_reader(
         self, lease: Lease, meter: UsageMeter, notes: dict[str, Any], maker_model: str
-    ) -> Callable[[Any], dict[str, Any]]:
+    ) -> Callable[..., dict[str, Any]]:
         """A model other than the maker's reads a kit before it can publish. No other model, or
         no answer, raises: the kit stays unpublished. Doubt comes back as findings."""
         model_id = pick_review_model(maker_model)
@@ -1592,7 +1592,7 @@ class Worker:
         }
         notes["pick"] = pick
 
-        def read(value: Any) -> dict[str, Any]:
+        def read(value: Any, known_facts: tuple[str, ...] = ()) -> dict[str, Any]:
             screened = text_personal_findings(value)
             if screened:
                 return {
@@ -1607,6 +1607,7 @@ class Worker:
                 model_id=model_id,
                 model_display=self.model_display(model_id),
                 meter=meter,
+                known_facts=known_facts,
             )
 
         return read
@@ -1643,7 +1644,12 @@ class Worker:
         draft = KitDraft.model_validate(dep.output["draft"])
         verification = VerificationReport.model_validate(dep.output["verification"])
         reading = self.review_reader(lease, meter, notes, maker_model_of(dep.output))(
-            draft.model_dump(mode="json")
+            draft.model_dump(mode="json"),
+            (
+                "The kit's fixed checks passed."
+                if verification.passed
+                else "The kit's fixed checks failed.",
+            ),
         )
         decision = ReviewDecision(
             kit_id=draft.kit_id,

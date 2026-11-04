@@ -457,7 +457,7 @@ def review_package(
     handler: Any,
     key_id: str,
     trusted_keys: frozenset[str] | None = None,
-    reader: Callable[[Any], dict[str, Any]] | None = None,
+    reader: Callable[..., dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """A different key checks the package it fetched itself, in a clean process, then publishes it.
 
@@ -573,7 +573,13 @@ def review_package(
             findings.append(NO_REBUILT_VALUES)
     reading: dict[str, Any] = {}
     if not findings and reader is not None:
-        reading = reader((verdict.get("verified") or {}).get("catalog_value"))
+        rebuilt_value = (verdict.get("verified") or {}).get("catalog_value")
+        reading = reader(
+            rebuilt_value.get("kit", rebuilt_value)
+            if isinstance(rebuilt_value, dict)
+            else rebuilt_value,
+            ("This worker ran the package's own tests again in a clean folder, and they passed.",),
+        )
         if not reading.get("approved"):
             findings.extend(reading.get("findings") or ["the model didn't approve this kit"])
     if findings:
