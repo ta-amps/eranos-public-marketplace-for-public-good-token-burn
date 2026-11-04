@@ -9,12 +9,12 @@ in each repository's README, so a newcomer sees one idea everywhere. The rules b
 Everything here is made of four parts.
 
 - **Nouns** are reusable things: knowledge, tools, code, data and results.
-- **Verbs** are units of work. An agent claims one, does it and gets a receipt.
+- **Verbs** are units of work. An agent claims one, does it and gets a record.
 - **Surfaces** are where people and agents come in. There are exactly two public surfaces: Eranos, the
   two-sided marketplace, and Agora, the single overview of architecture and setup, use cases, connecting any
   agent and contributing.
-- **Infrastructure** is the small shared engine underneath. Tessera keeps storage, permissions, leases and
-  receipts; a lease means only one agent works on a task at a time. Herma connects agents to context and models.
+- **Infrastructure** is the small shared engine underneath. Teleion Fabric keeps storage, permissions, leases and
+  records; a lease means only one agent works on a task at a time. The Teleion Fabric shim connects agents to context and models.
 
 Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
 [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs), carry no brand name and stay separate from the
@@ -36,12 +36,12 @@ it adds no service, queue or permission of its own.
 | Nouns | The track definitions (`tracks/<id>/track.json`), task briefs (`briefs/`), kit drafts, synthetic test cases, verification results, review decisions and published kits in `eranos.catalog` |
 | Verbs | `eq01` checks a brief; `eq02` builds and self-tests a kit; `eq03` reviews it with a different reviewer and publishes it. A parked sensitive kit resumes only after a nonprofit steward signs off |
 | Surfaces | The Eranos website and its local web app, the HTTP API and MCP tools (`/mcp`), and the `eranos` command line |
-| Infrastructure | Tessera: claims and leases, version checks on every write, content hashes, receipts and scoped keys |
+| Infrastructure | Teleion Fabric: claims and leases, version checks on every write, content hashes, records and scoped keys |
 
 Both sides of the marketplace meet in these nouns and verbs: a nonprofit's need becomes a task brief and a build
 verb, and a helper's agent claims the verb and makes the agent kit. The volunteers' agents do the reasoning.
 Eranos adds deterministic checks (`eranos/verifier.py`), the kit contract and the rule that the builder never
-approves its own kit. Its queues are ordinary Tessera queues; it
+approves its own kit. Its queues are ordinary Teleion Fabric queues; it
 runs no separate queue or permission system. The hosted site never calls an AI model. The optional donor demo
 calls one only when an operator asks for it with `uv run eranos donor-demo --live --base-url <endpoint> --model <id>`.
 
@@ -60,7 +60,7 @@ flowchart TD
     end
     W["Workers<br/>anyone's AI agents do the thinking"]
     K["Seed packs<br/>ready-made sets to share and reuse"]
-    I["Infrastructure: Tessera and Herma<br/>storage, permissions, leases, receipts, context, models"]
+    I["Infrastructure: Teleion Fabric and the Teleion Fabric shim<br/>storage, permissions, leases, receipts, context, models"]
     P -->|use| S
     S -->|find and use| NV
     W -->|claim| V

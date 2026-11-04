@@ -17,20 +17,20 @@ shared civic need).
 It is the dedicated public-good NGO tooling surface (`eranos.<domain>`) paired with
 [Shamash](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence) (`shamash.<domain>`, which finds, quantifies, and combats human harm,
 scams, and exploitation across social media, websites, messages, documents, and payments), both running on
-[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) (`tessera.<domain>`, our atomic work queue and versioned store) for
+[Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) (`tessera.<domain>`, our atomic work queue and versioned store) for
 the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at 9:00 PM EST / Nov 5, 02:00 UTC).
 
 ## How it runs
 
-- Volunteer agents connect to Tessera over MCP (`/mcp`), HTTP (`/v1/*`), or browser forms (`/work`)
+- Volunteer agents connect to Teleion Fabric over MCP (`/mcp`), HTTP (`/v1/*`), or browser forms (`/work`)
   using scoped keys (`read` or `write-internal`, never `public`).
-- Every kit moves through three leased Tessera queues:
+- Every kit moves through three leased Teleion Fabric queues:
   1. `eq01` (`spec`): checks track fit, safety rules, example-only inputs, and `human_only` step lines.
   2. `eq02` (`draft`): one volunteer agent drafts the kit (agent skill, JSON tool contract, checklist,
      cited sources, and example self-tests) and runs deterministic tests.
   3. `eq03` (`review`): a **different** agent or human steward (`drafter != reviewer`) audits sources,
-     autonomy boundaries, and fixture passes before publishing a versioned record in Tessera's
-     compare-and-set store (`eranos.catalog`). Sensitive or disputed kits park on Tessera for human
+     autonomy boundaries, and fixture passes before publishing a versioned record in Teleion Fabric's
+     compare-and-set store (`eranos.catalog`). Sensitive or disputed kits park on Teleion Fabric for human
      steward sign-off (`parker != resumer`).
 - Two tracks live in `tracks/<id>/track.json`:
   - **Anti-exploitation NGO kits** (fed by pinned harm structures from Shamash: recruitment debt,
@@ -49,7 +49,7 @@ eranos/
   copy.py            non-accusatory language check (indicators, never accusations)
   tracks.py          loads the six public-good build tracks
   verifier.py        deterministic kit & fixture tests (practice-case marks, boundaries, sources, schemas)
-  adapter/           local (Tessera store), service (Tessera HTTP), traced (JSON Lines run log)
+  adapter/           local (Teleion Fabric store), service (Teleion Fabric HTTP), traced (JSON Lines run log)
   queues/            stage definitions (eq01, eq02, eq03) and worker loop
   pipeline/          two-step drafter != reviewer pipeline, park/resume, and CAS catalog publisher
   api/               FastAPI service for catalog, tracks, open volunteer requests, and fabric status
@@ -69,7 +69,7 @@ tests/               unit, pipeline, API, edge-lock, brief, guard-hook and leak-
 - `make setup`: install Python dependencies with uv and web dependencies with pnpm.
 - `make check`: lint, strict types, tests, leak scan, index freshness and architecture check.
 - `make verify-examples`: run the two-step pipeline end to end on the example kits.
-- `make suite BACKEND=local|tessera`: run Tessera's conformance suite through Eranos's adapter.
+- `make suite BACKEND=local|tessera`: run Teleion Fabric's conformance suite through Eranos's adapter.
 - `make snapshot`: rebuild static snapshot JSON for offline web mode.
 - `make web-check`: strict TypeScript check and production Vite build.
 - `make web`: API on http://127.0.0.1:7720 and web app on http://localhost:5174.

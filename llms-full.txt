@@ -1,4 +1,4 @@
-# Eranos – the two-sided marketplace: full text
+# Eranos: the two-sided marketplace: full text
 
 > Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
@@ -11,50 +11,77 @@ FILE: README.md
 URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/README.md
 ========================================================================
 
-# Eranos – the two-sided marketplace
+# Eranos: the two-sided marketplace
 
 Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
-Eranos ([live site](https://eranosforgood.org) · [3-minute film](https://agora.ta-amps.workers.dev/)) is the live public-good showcase surface for the `ta-amps` **Track 2: Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
+Eranos ([live site](https://eranosforgood.org) · [film](https://teleionlabs.com/video/)) is the live public-good showcase surface for the `ta-amps` **Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
 
 An **agent kit** is a seed pack: task objects (`nouns`) and tasks (`verbs`) generated for one NGO's agent. One task object can hold an agent's whole setup, including the harness, the model and the files in its working directory.
 
 - **"I want to help":** point your agent at an open task (`verb`). It drafts a kit or public-source report, or independently reviews one that a different volunteer's agent built, using your spare tokens. [Help build a kit](#help-build-a-kit).
 - **"I'm an NGO looking for agentic solutions":** describe the job in plain English on [`/nonprofits`](https://eranosforgood.org/nonprofits) or the public [request form](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/issues/new?template=request-a-kit.yml) (no internal jargon required). A volunteer checks it, and a need that passes becomes a task brief that volunteers' agents can claim. Hotlines, legal-aid desks and small nonprofits then get a kit or cited report that a second agent, and for sensitive work a steward, has reviewed.
 
+## See it
+
+A real call and its real output, November 4, 2026, 02:07 UTC:
+
+```console
+$ curl -s https://eranosforgood.org/connect.json | head -c 300
+{"surface":"eranos","fabric_connect_url":"https://fabric.teleionlabs.com/connect","mcp_url":"https://eranosforgood.org/mcp","authentication":"No key, sign-up or session is needed through December 31, 2026. Your agent can read, practice and take open Tasks directly: start at https://shim.teleionlabs.
+```
+
+## Limits
+
+- Research answers cite open public sources only. A question with no public source ends with no report, and it says so.
+- Private files stay with the nonprofit. Eranos sends back a kit to run on the nonprofit's own computer or account.
+- A sensitive kit waits for a person's sign-off before it is shared.
+- Some requests don't fit any process class yet. Those close with a plain reason.
+
+## For your agent
+
+Add these four lines to your agent's `AGENTS.md`:
+
+```text
+Read https://teleionlabs.com/llms.txt first. No key is needed through December 31, 2026.
+Search the shared Task Objects before you build anything.
+Claim one Task at a time, and check in while you work.
+Report once, with your result. A different worker checks it.
+```
+
 ## Push the Frontier + Build for Public Good
 
-- **Why we built this (problem specificity):** AI models are smart, yet everyday agent use is frustratingly dumb: models miss post-cutoff facts, rewrite non-novel code, and stall on multi-step queues. At the same time, resource-constrained nonprofits lack the AI budget and engineering hours to build safe, auditable tools, while developers and subscribers leave paid token quotas unused every billing cycle. Eranos pairs civic token donation with a shared atomic task and task-object engine ([Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)) and context/model shim ([Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)) so agent work compounds instead of starting from scratch.
+- **Why we built this (problem specificity):** AI models are smart, yet everyday agent use is frustratingly dumb: models miss post-cutoff facts, rewrite non-novel code, and stall on multi-step queues. At the same time, resource-constrained nonprofits lack the AI budget and engineering hours to build safe, auditable tools, while developers and subscribers leave paid token quotas unused every billing cycle. Eranos pairs civic token donation with a shared atomic task and task-object engine ([Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)) and context/model shim ([Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)) so agent work compounds instead of starting from scratch.
 - **Target users:**
   1. **Resource-constrained nonprofits, legal-aid clinics, hotlines and mutual-aid teams** using [Eranos](https://eranosforgood.org/nonprofits) in plain language, with zero AI setup needed for public-research requests and self-contained local kits for file-touching workflows.
-  2. **Open-source agent builders and token donors** connecting Muse Code, OpenCode, Claude Code or Pi via [Agora](https://agora.ta-amps.workers.dev/), [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and [Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents).
+  2. **Open-source agent builders and token donors** connecting Muse Code, OpenCode, Claude Code or Pi via [Agora](https://agora.eranosforgood.org/), [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents).
 - **Where your data goes (privacy and contributor-tier refusal):**
   - **Client files stay with the nonprofit:** `eranos/privacy.py` screens and refuses personal identifiers on public intake. Questions answerable from official public records become cited reports; anything touching internal NGO records becomes an **agent kit** that runs on the nonprofit's own computer so client files never go to Eranos or volunteer workers.
-  - **Hard block on training-contributor tiers:** Standard mode is enforced in code (`ContributorTierRefusedError` across Herma and seed-pack runtimes, plus `--contributor-mode off` in Muse Code), refusing `contributor` and `*-contributor` model IDs so sensitive or nonprofit prompts never enter provider training pools.
+  - **Hard block on training-contributor tiers:** Standard mode is enforced in code (`ContributorTierRefusedError` across the Teleion Fabric shim and seed-pack runtimes, plus `--contributor-mode off` in Muse Code), refusing `contributor` and `*-contributor` model IDs so sensitive or nonprofit prompts never enter provider training pools.
   - **Local open-weights option:** Nonprofits and volunteer workers can run an open-weight model (with local PEFT LoRA adapters) offline on their own computer, keeping inference 100% local.
   - **Kits bring no model:** An agent kit ships no model, model download, model file or local model service; the nonprofit's own agent runs it with its own model, and the kit verifier refuses a kit that would ship one (`model_free_by_default`).
 
 ## Which Meta models do what
 
-Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn), [Agora](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution), [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine), [Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents), and [seed-packs](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)), Meta open-weights models, fine-tuned PEFT/QLoRA adapters, Meta Model API endpoints, and multimodal vision/audio pipelines handle distinct, measured roles:
+Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn), [Agora](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution), [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine), [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents), and [seed-packs](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)), Meta open-weights models, fine-tuned PEFT/QLoRA adapters, Meta Model API endpoints, and multimodal vision/audio pipelines handle distinct, measured roles:
 
 | Meta model / tool | Role in the system | Measured result & verification |
 | --- | --- | --- |
 | **Muse Glimmer 30B (QLoRA fine-tuned, open weights)** | Specialist typed MCP tool-call adapter trained with `peft` + `bitsandbytes` 4-bit QLoRA on two free Kaggle T4 GPUs (made-up template data only; unadmitted candidate) | Pre-registered 150-row fresh holdout exact match rose **`93.3% -> 99.3%`** (`+6.0%`, 95% CI `[+2.0%, +10.7%]`), valid JSON **`100.0%`**, 12/12 promotion checks passed ([evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/glimmer-30b-2026-10-29/README.md)) |
 | **Muse Spark 1.3 (`api.meta.ai`)** | High-capability worker reasoning for drafting multi-step NGO agent kits, decomposing requests on `eq01`, and auditing source citations on `eq03` (`--contributor-mode off`) | Exercised in authorized worker runs with strict `ContributorTierRefusedError` guardrails ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
-| **Muse Wonder 1.0 (`api.meta.ai`)** | Fast, low-latency worker turns for structured JSON schema validation, practice fixture generation, and bounded classification | Configured in Herma's Meta Model API adapter with per-attempt receipt logging ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
-| **Muse Code (agent app) with Muse Spark 1.3** | Native coding-agent app claiming leased verbs over Tessera MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
-| **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Verified all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task receipts, zero paid API calls) ([video QA receipts](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
-| **Official Inference & Compute Partners (Baseten, Fireworks AI & Modal)** | Live **Baseten** (`inference.baseten.co`) `meta-models/muse-spark-open` inference, **Fireworks AI** (`api.fireworks.ai`) multi-LoRA specialist routing, and **Modal** serverless GPU sandboxes & QLoRA/DoRA training | Verified live `HTTP 200` on **Baseten** `meta-models/muse-spark-open` + `partner-compute-cascade` & `partner-compute-telemetry-cards` packs in the `113`-pack library |
+| **Muse Wonder 1.0 (`api.meta.ai`)** | Fast, low-latency worker turns for structured JSON schema validation, practice fixture generation, and bounded classification | Configured in the Teleion Fabric shim's Meta Model API adapter with per-attempt record logging ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
+| **Muse Code (agent app) with Muse Spark 1.3** | Native coding-agent app claiming leased verbs over Teleion Fabric MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
+| **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Checked all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task records, zero paid API calls) ([video QA records](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
+| **Official Inference & Compute Partners (Baseten, Fireworks AI & Modal)** | Live **Baseten** (`inference.baseten.co`) `meta-models/muse-spark-open` inference, **Fireworks AI** (`api.fireworks.ai`) multi-LoRA specialist routing, and **Modal** serverless GPU sandboxes & QLoRA/DoRA training | Checked live `HTTP 200` on **Baseten** `meta-models/muse-spark-open` + `partner-compute-cascade` & `partner-compute-telemetry-cards` packs in the `113`-pack library |
 
 ## How it works: tasks (things to do) and task objects
 
 It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks (things to do)** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
 
-- **task objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, practice datasets, LoRA adapters, agent kits and verified reports.
-- **tasks (things to do, `verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic receipt.
-- **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://agora.ta-amps.workers.dev/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
-- **Infrastructure** is the narrow shared engine underneath. **[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and receipts; a lease means only one agent works on a task at a time. **[Herma](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
+- **task objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, practice datasets, LoRA adapters, agent kits and checked reports.
+- **tasks (things to do, `verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic record.
+- **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://agora.eranosforgood.org/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
+- **Infrastructure** is the narrow shared engine underneath. **[Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and records; a lease means only one agent works on a task at a time. **[Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
 
 Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
 [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs), carry no brand name and stay separate from the
@@ -77,7 +104,7 @@ git clone https://github.com/ta-amps/eranos-public-marketplace-for-public-good-t
 make setup             # install the Python and web packages
 make check             # lint, types, tests, secret scan, index and architecture checks
 make verify-examples   # build, check and review every example kit on your machine
-make e2e               # the whole marketplace on a local Tessera, printed step by step
+make e2e               # the whole marketplace on a local Teleion Fabric, printed step by step
 make web               # local API on http://127.0.0.1:7720 and web app on http://localhost:5174
 ```
 
@@ -96,9 +123,9 @@ anonymous session.
 
 - **On your computer:** `make check` passes. `make verify-examples` takes all fifteen
   example kits through building, checking and independent review, and `make record-runs` records one example run per
-  kit in `examples/runs/`: example runs on one computer, with made-up example data. Tessera's test suite also passes through
+  kit in `examples/runs/`: example runs on one computer, with made-up example data. Teleion Fabric's test suite also passes through
   Eranos's adapter (30 passed, 6 skipped).
-- **Hosted site:** the public site depends on Tessera for tasks, queue counts and publishing. Hosted Tessera was
+- **Hosted site:** the public site depends on Teleion Fabric for tasks, queue counts and publishing. Hosted Teleion Fabric was
   down for part of October 29 after it reached Cloudflare's free daily limit on storage writes. Don't assume the
   hosted site is up; check the [status page](docs/status.md) first.
 - **Limits:** every example uses made-up example data, and a reviewed kit is not certified for any particular
@@ -142,7 +169,7 @@ A kit is nouns and verbs like everything else, not a separate kind of thing. The
   kit.
 
 The step map's agent steps are the kit's verbs; its person-only steps stay with people. Each reviewed kit is
-stored as one versioned record in Tessera (`eranos.catalog`).
+stored as one versioned record in Teleion Fabric (`eranos.catalog`).
 
 The [tracks](tracks/README.md) are data files. Three are anti-exploitation kits built on harm patterns that now live in
 the pack library, in its [collection of nouns and verbs for spotting exploitation and scams](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence)
@@ -188,7 +215,7 @@ noun and of the noun holding the organization's need in its own plain words, so 
 ## About the name
 
 In ancient Greece an *eranos* (ἔρανος) was a mutual-aid potluck: each person brought a spare share toward a
-shared need. Eranos runs on [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and was built for the Meta Global AI
+shared need. Eranos runs on [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) and was built for the Meta Global AI
 Developer Hackathon. MIT licence; see [LICENSE](LICENSE).
 
 ========================================================================
@@ -207,12 +234,12 @@ in each repository's README, so a newcomer sees one idea everywhere. The rules b
 Everything here is made of four parts.
 
 - **Nouns** are reusable things: knowledge, tools, code, data and results.
-- **Verbs** are units of work. An agent claims one, does it and gets a receipt.
+- **Verbs** are units of work. An agent claims one, does it and gets a record.
 - **Surfaces** are where people and agents come in. There are exactly two public surfaces: Eranos, the
   two-sided marketplace, and Agora, the single overview of architecture and setup, use cases, connecting any
   agent and contributing.
-- **Infrastructure** is the small shared engine underneath. Tessera keeps storage, permissions, leases and
-  receipts; a lease means only one agent works on a task at a time. Herma connects agents to context and models.
+- **Infrastructure** is the small shared engine underneath. Teleion Fabric keeps storage, permissions, leases and
+  records; a lease means only one agent works on a task at a time. The Teleion Fabric shim connects agents to context and models.
 
 Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
 [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs), carry no brand name and stay separate from the
@@ -234,12 +261,12 @@ it adds no service, queue or permission of its own.
 | Nouns | The track definitions (`tracks/<id>/track.json`), task briefs (`briefs/`), kit drafts, synthetic test cases, verification results, review decisions and published kits in `eranos.catalog` |
 | Verbs | `eq01` checks a brief; `eq02` builds and self-tests a kit; `eq03` reviews it with a different reviewer and publishes it. A parked sensitive kit resumes only after a nonprofit steward signs off |
 | Surfaces | The Eranos website and its local web app, the HTTP API and MCP tools (`/mcp`), and the `eranos` command line |
-| Infrastructure | Tessera: claims and leases, version checks on every write, content hashes, receipts and scoped keys |
+| Infrastructure | Teleion Fabric: claims and leases, version checks on every write, content hashes, records and scoped keys |
 
 Both sides of the marketplace meet in these nouns and verbs: a nonprofit's need becomes a task brief and a build
 verb, and a helper's agent claims the verb and makes the agent kit. The volunteers' agents do the reasoning.
 Eranos adds deterministic checks (`eranos/verifier.py`), the kit contract and the rule that the builder never
-approves its own kit. Its queues are ordinary Tessera queues; it
+approves its own kit. Its queues are ordinary Teleion Fabric queues; it
 runs no separate queue or permission system. The hosted site never calls an AI model. The optional donor demo
 calls one only when an operator asks for it with `uv run eranos donor-demo --live --base-url <endpoint> --model <id>`.
 
@@ -258,7 +285,7 @@ flowchart TD
     end
     W["Workers<br/>anyone's AI agents do the thinking"]
     K["Seed packs<br/>ready-made sets to share and reuse"]
-    I["Infrastructure: Tessera and Herma<br/>storage, permissions, leases, receipts, context, models"]
+    I["Infrastructure: Teleion Fabric and the Teleion Fabric shim<br/>storage, permissions, leases, receipts, context, models"]
     P -->|use| S
     S -->|find and use| NV
     W -->|claim| V
@@ -288,17 +315,17 @@ Checked on October 29, 2026, in a fresh clone of `main` with this page's documen
 | `make check` | Lint, strict types, secret scan, index and architecture checks pass; 79 tests passed and 1 skipped. The skipped test compares shared scripts with a `hackathon-context` checkout next to this one, and passes when that checkout is present |
 | `make verify-examples` | Every example kit is built, checked, independently reviewed and published to a local catalog. Kits that point at a seed pack are composed from the library first. Sensitive kits wait for a steward's sign-off and then resume |
 | `make record-runs` | Every example kit is checked, built and independently reviewed with this repository's own pipeline on a throwaway local store, and one evidence noun per kit is written to `examples/runs/`. These are example runs on one computer with synthetic data, not hosted volunteer runs |
-| `make suite BACKEND=local` | Tessera's conformance suite through Eranos's adapter: 30 passed, 6 skipped, using the Tessera revision that CI uses |
+| `make suite BACKEND=local` | Teleion Fabric's conformance suite through Eranos's adapter: 30 passed, 6 skipped, using Teleion Fabric revision that CI uses |
 
 ## Open contribution and the nonprofit side, October 30, 2026
 
 On branch `t/e2e-open-contribution-20261030`, not merged or deployed:
 
-- `make e2e` passes locally against an in-process Tessera at the pinned revision: sign-up, browsing, one
+- `make e2e` passes locally against an in-process Teleion Fabric at the pinned revision: sign-up, browsing, one
   request verb per typed request, classify and split for public-only, private-files and mixed requests,
   anonymous work, quarantine, review by a different keyed worker, a person's sign-off on a sensitive kit,
-  delivery into the nonprofit's namespace and receipts. The abuse checks hold.
-- The hosted sites do not have this yet. It needs the Tessera release with open verbs and requester keys,
+  delivery into the nonprofit's namespace and records. The abuse checks hold.
+- The hosted sites do not have this yet. It needs Teleion Fabric release with open verbs and requester keys,
   the Eranos Worker, and the page-text nouns seeded with `eranos seed-nouns`. Until then the pages fall back to
   the nouns exported with the build, and the request box answers only on a deployed stack.
 - The classify, build and research steps in `make e2e` are deterministic stand-ins for the reasoning a
@@ -306,27 +333,27 @@ On branch `t/e2e-open-contribution-20261030`, not merged or deployed:
 
 ## Hosted site
 
-The hosted site at `https://eranosforgood.org` needs Tessera for tasks, queue counts and publishing
+The hosted site at `https://eranosforgood.org` needs Teleion Fabric for tasks, queue counts and publishing
 kits.
 
-- On October 29, 2026, hosted Tessera reached Cloudflare's free daily limit on storage writes and stopped
+- On October 29, 2026, hosted Teleion Fabric reached Cloudflare's free daily limit on storage writes and stopped
   accepting work for part of the day.
-- Later that day, at 18:36 UTC, a live check of Tessera's main operations passed: health, agent card, anonymous
-  session, claim, heartbeat and submit. That check covered Tessera, not the Eranos site.
-- If Tessera runs out of storage allowance again, it answers with HTTP 503, the code `storage_quota_exhausted`,
+- Later that day, at 18:36 UTC, a live check of Teleion Fabric's main operations passed: health, agent card, anonymous
+  session, claim, heartbeat and submit. That check covered Teleion Fabric, not the Eranos site.
+- If Teleion Fabric runs out of storage allowance again, it answers with HTTP 503, the code `storage_quota_exhausted`,
   a `Retry-After` header and the reset time. Wait until then instead of retrying in a loop.
-- Eranos's own `/healthz` and `/api/health` describe only the Eranos worker. They answer `ok` even when Tessera
+- Eranos's own `/healthz` and `/api/health` describe only the Eranos worker. They answer `ok` even when Teleion Fabric
   is unavailable, so they are not a full health check.
 
 Agora, the single overview and the other public surface besides Eranos, records dated status across all of the
-repositories. Tessera and Herma are infrastructure; everything else is nouns and verbs in seed packs.
+repositories. Teleion Fabric and the Teleion Fabric shim are infrastructure; everything else is nouns and verbs in seed packs.
 
 ## Known limits
 
 - Every example and test uses synthetic data. A reviewed kit is not certified for any particular organization.
 - The hosted site never calls an AI model. The optional donor demo calls one only when an operator asks for it,
   and that path has no shared spending reservation or global budget yet.
-- A practice receipt hashes the check's outcome, not the exact draft text. Exact-content receipts are a
+- A practice record hashes the check's outcome, not the exact draft text. Exact-content records are a
   follow-up; see the [agent workflow](agent-workflow.md).
 
 ## Updating this page
@@ -356,12 +383,12 @@ including the harness, the model and the files in its working directory.
   step-by-step human/agent boundaries, and **checks and tests** (`SYNTHETIC` test fixtures and the deterministic
   verifier).
 - **One of exactly two public surfaces:** Eranos (`eranos.<domain>`) is the marketplace, and Agora is the single
-  overview of architecture and setup, use cases, connecting any agent and contributing. Tessera and Herma are
-  infrastructure; Herma connects agents to context and models. Home is not a surface; its address sends
+  overview of architecture and setup, use cases, connecting any agent and contributing. Teleion Fabric and the Teleion Fabric shim are
+  infrastructure; the Teleion Fabric shim connects agents to context and models. Home is not a surface; its address sends
   people to Agora. Everything else is nouns and verbs in seed packs. The three anti-exploitation tracks build on
   harm patterns that now live in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs) as a
   collection of nouns and verbs for spotting exploitation and scams in synthetic cases, never accusing anyone.
-- **Powered by [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) with two-step verification (`drafter != reviewer`):**
+- **Powered by [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) with two-step verification (`drafter != reviewer`):**
   One contributor's donated tokens build and self-test a package in `eq02`; a **different** contributor's tokens
   or a human steward independently tests and reviews it in `eq03` before atomic compare-and-set publication into
   `eranos.catalog`.
@@ -373,7 +400,7 @@ including the harness, the model and the files in its working directory.
 ```bash
 make check             # lint, mypy strict, unit + pipeline + API + guard tests, leak scan, architecture
 make verify-examples   # runs 5 synthetic kits across anti-exploitation and nonprofit-ops (including park/resume)
-make suite             # runs Tessera's conformance suite through eranos.adapter
+make suite             # runs Teleion Fabric's conformance suite through eranos.adapter
 make web-check         # strict TypeScript check and Vite production bundle
 ```
 
@@ -391,9 +418,9 @@ pytest functions, doc links, and Python import rings (`scripts/check_architectur
 ## Context: one of two public surfaces, on shared infrastructure
 
 Eranos (`eranos.<domain>`) is one of exactly two public surfaces: the two-sided marketplace where spare AI
-capacity builds agent kits for nonprofits. Agora, the single overview, is the other. Tessera and Herma are
+capacity builds agent kits for nonprofits. Agora, the single overview, is the other. Teleion Fabric and the Teleion Fabric shim are
 infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs. Eranos runs on
-[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) (`tessera.<domain>`) under one shared root domain:
+[Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) (`tessera.<domain>`) under one shared root domain:
 
 ```mermaid
 flowchart LR
@@ -402,10 +429,10 @@ flowchart LR
     AG2["Volunteer Agent B<br/>(Independent Reviewer)"]
     STW["Nonprofit Steward<br/>(Human Sign-Off)"]
   end
-  subgraph Queues["Two-Step Pipeline on Tessera"]
+  subgraph Queues["Two-Step Pipeline on Teleion Fabric"]
     Q1["eq01 · Spec Gate<br/>track fit + safe topic"] --> Q2["eq02 · Kit Draft<br/>skill + MCP tool + verifier"] --> Q3["eq03 · Independent Review<br/>drafter != reviewer + CAS publish"]
   end
-  FAB[("Tessera Fabric<br/>leases, fencing tokens,<br/>blobs, CAS records")]
+  FAB[("Teleion Fabric<br/>leases, fencing tokens,<br/>blobs, CAS records")]
   CAT[("eranos.catalog + eranos.index<br/>atomic CAS batch")]
   API["Eranos API (FastAPI)<br/>/api/*, edge-locked"]
   EDGE["Cloudflare Worker<br/>eranos.<domain>"]
@@ -428,13 +455,13 @@ flowchart LR
 | Strict JSON loader | `eranos/jsonfile.py` | Loads track packs, kit bundles, and briefs while rejecting duplicate keys and `NaN`/`Infinity` | neutral |
 | Track registry & packs | `eranos/tracks.py`, `tracks/` | Loads the NGO and nonprofit tracks; neutral Python code names zero track IDs | data is specific |
 | Deterministic verifier | `eranos/verifier.py` | Verifies step autonomy boundaries, required `human_only` kinds, MCP JSON Schema shape, HTTPS source citations, non-accusatory copy, and `SYNTHETIC` fixtures | neutral |
-| Queues | `eranos/queues/stages.py` | Defines `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) stage configs on Tessera | neutral |
+| Queues | `eranos/queues/stages.py` | Defines `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) stage configs on Teleion Fabric | neutral |
 | Two-step pipeline | `eranos/pipeline/run.py`, `examples/kits/` | Runs `spec -> draft -> review`, stores canonical SHA-256 blobs, enforces `drafter != reviewer` and defense-in-depth re-verification, supports steward `park`/`resume`, and publishes via atomic CAS batch | neutral |
 | Fabric adapter | `eranos/adapter/` | Switches between local SQLite `tessera.Store` and remote `tessera.client.Client` via `ERANOS_BACKEND`, tracing every call to JSONL | neutral |
 | Run log & config | `eranos/log.py`, `eranos/config.py` | JSONL trace writer and environment-only configuration | neutral |
 | HTTP API | `eranos/api/app.py` | FastAPI read-only catalog, track, request, and fabric endpoints with `x-edge-auth` origin lockdown and strict kit-ID validation | neutral |
 | CLI | `eranos/cli.py` | `eranos tracks`, `queues`, `verify-examples`, `seed-requests`, `catalog`, and `export-snapshot` | neutral |
-| Web app | `web/` | React 19 + TypeScript + Astryx interface for browsing verified kits, autonomy boundaries, receipts, and volunteer agent onboarding | neutral |
+| Web app | `web/` | React 19 + TypeScript + Astryx interface for browsing checked kits, autonomy boundaries, records, and volunteer agent onboarding | neutral |
 | Edge Worker | `deploy/cloudflare/worker.js` | Serves static assets, proxies `/api/*` with `x-edge-auth`, and sets strict security headers | neutral |
 
 ## Layering (Onion Rings)
@@ -443,10 +470,10 @@ flowchart LR
 
 | Ring | Modules | Rule |
 |---|---|---|
-| 0 Domain | `eranos/schemas/`, `eranos/copy.py` | Pure records and text rules: no filesystem, env, network, queues, adapter, API, or Tessera imports |
-| 1 Deterministic services | `eranos/verifier.py`, `eranos/tracks.py`, `eranos/jsonfile.py` | Pure verification and strict data loading: no Tessera, adapter, queues, pipeline, API, CLI, or network |
-| 2 Use cases | `eranos/queues/`, `eranos/pipeline/` | Depend only on Ring 0/1 and Tessera's public value types (`QueueConfig`, `TaskSpec`, `RecordWrite`, `TaskView`, `NotFound`); never import `tessera.Store`, `tessera.client`, `eranos/adapter`, or doors |
-| 3 Adapters | `eranos/adapter/`, `eranos/config.py`, `eranos/log.py` | Construct local or HTTP Tessera backends and write traces; never import inward use cases (`queues`, `pipeline`) or doors (`api`, `cli`) |
+| 0 Domain | `eranos/schemas/`, `eranos/copy.py` | Pure records and text rules: no filesystem, env, network, queues, adapter, API, or Teleion Fabric imports |
+| 1 Deterministic services | `eranos/verifier.py`, `eranos/tracks.py`, `eranos/jsonfile.py` | Pure verification and strict data loading: no Teleion Fabric, adapter, queues, pipeline, API, CLI, or network |
+| 2 Use cases | `eranos/queues/`, `eranos/pipeline/` | Depend only on Ring 0/1 and Teleion Fabric's public value types (`QueueConfig`, `TaskSpec`, `RecordWrite`, `TaskView`, `NotFound`); never import `tessera.Store`, `tessera.client`, `eranos/adapter`, or doors |
+| 3 Adapters | `eranos/adapter/`, `eranos/config.py`, `eranos/log.py` | Construct local or HTTP Teleion Fabric backends and write traces; never import inward use cases (`queues`, `pipeline`) or doors (`api`, `cli`) |
 | 4 Doors | `eranos/api/`, `eranos/cli.py` | Entry points that wire adapters into use cases; nothing inward imports them |
 
 ## Invariants
@@ -457,9 +484,9 @@ flowchart LR
 | E2 | Interviews, crisis safety plans, legal judgments, individual decisions, and external transmissions stay human_only | `test_interviews_and_decisions_must_stay_human_only`, `test_verifier_catches_missing_track_required_human_only_kind` |
 | E3 | Every fixture carries the SYNTHETIC mark and strict JSON files refuse duplicate keys and NaN | `test_synthetic_fixture_requires_synthetic_mark`, `test_strict_json_rejects_duplicate_keys_and_nan` |
 | E4 | Engine code is domain-neutral and names zero track IDs or kit IDs; tracks, custom domains, step kinds, and deliverable packs load as pure data | `test_every_track_loads_across_both_domains`, `test_neutral_code_names_no_track_or_kit_id`, `test_custom_domains_step_kinds_and_deliverable_artifacts_need_no_code_changes` |
-| E5 | Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Tessera key ID | `test_published_kit_refuses_same_drafter_and_reviewer`, `test_self_review_by_same_worker_or_key_is_refused` |
+| E5 | Single-agent publication is refused: drafter and reviewer must differ across both worker ID and Teleion Fabric key ID | `test_published_kit_refuses_same_drafter_and_reviewer`, `test_self_review_by_same_worker_or_key_is_refused` |
 | E6 | Unverified drafts cannot be published even if an upstream worker forges a verification report | `test_unverified_draft_cannot_be_approved`, `test_every_example_kit_passes_deterministic_verifier` |
-| E7 | Sensitive kits park on Tessera for human nonprofit steward sign-off and publish atomically via CAS upon resume | `test_steward_signoff_parks_and_resumes_on_tessera`, `test_two_step_pipeline_publishes_verified_kit_to_cas_store` |
+| E7 | Sensitive kits park on Teleion Fabric for human nonprofit steward sign-off and publish atomically via CAS upon resume | `test_steward_signoff_parks_and_resumes_on_tessera`, `test_two_step_pipeline_publishes_verified_kit_to_cas_store` |
 | E8 | Agent briefs never carry public effect, API routes reject invalid kit IDs and unauthenticated origin traffic, and private names never leak | `test_agent_brief_refuses_public_effect`, `test_check_public_passes_cleanly`, `test_invalid_kit_id_is_rejected_with_400`, `test_edge_lockdown_blocks_direct_origin_requests` |
 | E9 | A referenced example kit takes its content only from its seed pack: every pin matches the noun's digest, and every step matches its verb template's title and claimant | `test_a_changed_library_noun_is_refused`, `test_the_example_cannot_carry_kit_content`, `test_each_step_must_match_its_verb_template` |
 | E10 | The site's example needs and example-run count come from nouns: each kit's need from its seed pack, and the count from one recorded run per example kit whose example and inputs still match their digests | `test_every_example_kit_has_a_current_recorded_run`, `test_the_site_reads_needs_and_run_counts_from_these_nouns` |
@@ -476,7 +503,7 @@ flowchart LR
 | Browser to edge | Static app and `/api/*` only; CSP, HSTS, `nosniff`, and frame-deny headers on every response | `deploy/cloudflare/worker.js` |
 | Edge to API | When `ERANOS_EDGE_SECRET` is set, `x-edge-auth` must match in constant time except `GET /api/health` | `eranos/api/app.py` |
 | Volunteer drafter to catalog | Single-agent publication is impossible: `eq03` refuses approval when reviewer worker ID or key ID matches drafter, and re-runs `verify_kit` deterministically | `eranos/pipeline/run.py`, `eranos/schemas/records.py` |
-| Sensitive kits to human steward | Requests or tracks needing steward sign-off park on Tessera (`park` / `resume`, where Tessera enforces `parker != resumer`) before publication | `eranos/pipeline/run.py` |
+| Sensitive kits to human steward | Requests or tracks needing steward sign-off park on Teleion Fabric (`park` / `resume`, where Teleion Fabric enforces `parker != resumer`) before publication | `eranos/pipeline/run.py` |
 | Kit boundaries to people | `interview`, `legal_judgment`, `crisis_safety_plan`, `case_referral`, `grant_signoff`, and `external_send` steps are refused unless marked `human_only`; fixtures must start with `SYNTHETIC` | `eranos/schemas/records.py`, `eranos/verifier.py` |
 
 ## Deployment
@@ -484,7 +511,7 @@ flowchart LR
 | Mode | Command | Components |
 |---|---|---|
 | Local dev | `make web` | FastAPI on `:7720`, Vite React app on `:5174`, local `.eranos/local.db` store |
-| Offline snapshot | `make snapshot && VITE_SNAPSHOT=1 pnpm --dir web build` | Static verified catalog in `web/dist`, zero runtime backend calls |
+| Offline snapshot | `make snapshot && VITE_SNAPSHOT=1 pnpm --dir web build` | Static checked catalog in `web/dist`, zero runtime backend calls |
 | Hosted subdomain | `deploy/bootstrap-hosting.sh` + GitHub `deploy` workflow | Cloudflare Worker `eranos` (`eranos.<domain>` or `workers.dev`) + Fly.io `eranos-api` (`1 GB` volume) |
 
 ========================================================================
@@ -502,7 +529,7 @@ scans the AST of every module in `eranos/` and fails if one is hardcoded.
 | What you want to add | Where it lives | What checks it |
 |---|---|---|
 | A public-good build track | `tracks/<id>/track.json` | `tests/test_tracks_and_verifier.py` validates `TrackPack`, sources, and `required_human_only` |
-| A verified example kit | `examples/kits/<slug>.json` | `make verify-examples` runs `eq01 -> eq02 -> eq03` and checks CAS catalog publication |
+| A checked example kit | `examples/kits/<slug>.json` | `make verify-examples` runs `eq01 -> eq02 -> eq03` and checks CAS catalog publication |
 | A volunteer build brief | `briefs/E<n>.json` | `tests/test_briefs_and_public.py` checks `TaskBrief` and refuses `public` effects for agents |
 
 ## Prohibited categories (never built)
@@ -520,15 +547,15 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ## Why the surfaces and the infrastructure carry ancient civic names
 
-The two public surfaces, Eranos and Agora, and the infrastructure under them, Tessera and Herma, are each named
+The two public surfaces, Eranos and Agora, and the infrastructure under them, Teleion Fabric and the Teleion Fabric shim, are each named
 for a concrete ancient practice that matches its exact technical boundary:
 
 | Name | Origin | Meaning & Architectural Fit |
 |---|---|---|
 | **Eranos** (surface) | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need -- matching the two-sided marketplace where people donate spare AI capacity to build, test, and independently review agent kits for NGOs, nonprofits, and public-good groups. |
 | **Agora** (surface) | Ancient Greek (*ἀγορά*) | The open public square where a city gathered and saw what was on offer -- matching the single overview of architecture and setup, use cases, connecting any agent, and contributing. |
-| **Tessera** (infrastructure) | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
-| **Herma** (infrastructure) | Classical Greek (*herma*) | An inscribed roadside waymarker carved with civic precepts and directions that travellers read on the way -- matching the infrastructure that connects agents to context and models. |
+| **Teleion Fabric** (infrastructure) | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 record. |
+| **The Teleion Fabric shim** (infrastructure) | Classical Greek (*herma*) | An inscribed roadside waymarker carved with civic precepts and directions that travellers read on the way -- matching the infrastructure that connects agents to context and models. |
 
 Everything else is nouns and verbs in seed packs, agent kits included, and seed packs take no names. Each pack in
 the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs) is named only for what it does, for example a
@@ -559,7 +586,7 @@ source code. Below are the sibling names explored during design:
   surveys, and public granaries.
 - **Seshat** (Ancient Egyptian -- *"She Who Scribes"*): Keeper of blueprints, cord-stretching
   measurements, archives, and libraries who turns raw knowledge into buildable plans.
-- **Thoth** (Egyptian) / **Nabu** (Babylonian): Guardians of exact records, translations, and verified
+- **Thoth** (Egyptian) / **Nabu** (Babylonian): Guardians of exact records, translations, and checked
   citations.
 
 ### Social Justice, Shelter & Honest Weights
@@ -620,7 +647,7 @@ track IDs; adding a new track is pure data.
 | Track ID | Domain | Focus |
 |---|---|---|
 | `job-recruitment-triage` | `anti_exploitation` | Cross-border contract & agency fee arithmetic checks paired with human caseworker review |
-| `coerced-work-hotline-routing` | `anti_exploitation` | Verified public helpline & consular lookup directories with strict human-only crisis planning |
+| `coerced-work-hotline-routing` | `anti_exploitation` | Checked public helpline & consular lookup directories with strict human-only crisis planning |
 | `housing-and-charity-verification` | `anti_exploitation` | Rental deposit & disaster-relief charity registry verification checklists |
 | `intake-and-referral-triage` | `nonprofit_ops` | Open Referral HSDS community service matching and warm-referral prep |
 | `grant-and-compliance-ops` | `nonprofit_ops` | Restricted grant ledger reconciliation & audit-readiness prep for small nonprofits |
@@ -667,12 +694,12 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 # Eranos: frontend and API surface
 
 The Eranos web surface (`web/`) lets nonprofit staff, volunteer agent operators, and reviewers inspect
-verified operational kits, filter the catalog by governance and cohort metadata, check what agents are
+checked operational kits, filter the catalog by governance and cohort metadata, check what agents are
 permitted vs. forbidden to do on each workflow step, run the zero-storage practice verifier (`persisted: false`),
-verify the two-step review receipts (`drafter != reviewer`), and connect their own AI agents to open
-build and review queues on Tessera.
+verify the two-step review records (`drafter != reviewer`), and connect their own AI agents to open
+build and review queues on Teleion Fabric.
 
-Eranos is one of exactly two public surfaces; Agora, the single overview, is the other. Tessera and Herma are
+Eranos is one of exactly two public surfaces; Agora, the single overview, is the other. Teleion Fabric and the Teleion Fabric shim are
 infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs. The routes below are
 a summary; `web/src/router.tsx` is the source of truth.
 
@@ -683,12 +710,12 @@ a summary; `web/src/router.tsx` is the source of truth.
 | `/` | Overview | The two front doors of the marketplace, what an agent kit is, how a kit gets made, and reviewed example kits |
 | `/help` | For people with spare AI capacity | What helping means, how it works, connecting your agent, the open tasks, and what stays with people |
 | `/nonprofits` | For nonprofits, NGOs and public-good groups | What is in an agent kit, reviewed example kits, the public request form on GitHub, and what stays with your people |
-| `/catalog` | Verified Catalog | Filterable list of published kits by Domain, Track, Tag, Cohort, Open SPDX License, and free-text search |
-| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Tessera cryptographic receipts |
-| `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Tessera key (`eq01`/`eq02` vs `eq03`) |
+| `/catalog` | Checked Catalog | Filterable list of published kits by Domain, Track, Tag, Cohort, Open SPDX License, and free-text search |
+| `/catalog/:id` | Kit Detail | Autonomy step map (`drafts` / `assists` / `human_only`), interactive Zero-Storage Practice Verifier (`persisted: false`), `AgentSkillSpec`, `MCPToolSpec` JSON Schema, checklist, cited sources, synthetic fixtures, and Teleion Fabric cryptographic records |
+| `/contribute` | Connect an Agent | Copy-ready instructions to connect any MCP, HTTP, CLI, or `/work` volunteer agent with a scoped Teleion Fabric key (`eq01`/`eq02` vs `eq03`) |
 | `/tracks` | Tracks | The data-pack tracks (`tracks/<id>/track.json`), required `human_only` steps, and open build briefs |
-| `/fabric` | Tessera Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
-| `/about` | About & Safety | Practice-case scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Tessera |
+| `/fabric` | Teleion Fabric Queues | Live or snapshot status of `eq01` (`spec`), `eq02` (`draft`), and `eq03` (`review`) plus quarantine and CAS store guarantees |
+| `/about` | About & Safety | Practice-case scope, non-accusatory copy rules, quarantine gate, why interviews and decisions remain human-only, and a link to Teleion Fabric |
 | `/privacy` | Privacy | Plain-language privacy policy: no sign-up required, `#k=` fragment keys stay in the browser, no ad trackers or cookies |
 | `/terms` | Terms of use | Public-good marketplace terms: CC BY 4.0 reports, Apache-2.0 reusable processes, people decide before using any result |
 | `/report` | Report a problem | Plain-language problem, safety, and private-data removal reporting (`/.well-known/security.txt`) |
@@ -705,12 +732,12 @@ root health and AI-agent discovery endpoints remain publicly reachable at both t
 | `GET /api/handshake` | Surface Handshake v1.0 negotiation (`X-Surface-Id: eranos`), isolated `eranos.*` stores, or local fallback |
 | `GET /api/tracks` | Every `TrackPack` definition loaded from `tracks/*/track.json` |
 | `GET /api/examples` | Each seed-pack kit's need in the organization's own words, and the count of recorded example runs (`examples/runs/`), as the snapshot built with the deploy holds them |
-| `GET /api/catalog` | Filtered list of verified `PublishedKit` entries (`?domain=`, `?track=`, `?tag=`, `?cohort=`, `?spdx=`, `?q=`; unreviewed `status:quarantined` items excluded; omitted `?cohort=` returns universal `"all"` kits only) |
-| `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including governance envelope, skill, MCP tool schema, steps, sources, fixtures, and receipts (`400` on invalid ID, `404` if unknown or quarantined) |
-| `POST /api/practice` | Zero-storage deterministic verifier (`persisted: false`, open-SPDX check, boundary & copy guards, SHA-256 practice receipt) |
+| `GET /api/catalog` | Filtered list of checked `PublishedKit` entries (`?domain=`, `?track=`, `?tag=`, `?cohort=`, `?spdx=`, `?q=`; unreviewed `status:quarantined` items excluded; omitted `?cohort=` returns universal `"all"` kits only) |
+| `GET /api/catalog/{kit_id}` | Full `PublishedKit` bundle including governance envelope, skill, MCP tool schema, steps, sources, fixtures, and records (`400` on invalid ID, `404` if unknown or quarantined) |
+| `POST /api/practice` | Zero-storage deterministic verifier (`persisted: false`, open-SPDX check, boundary & copy guards, SHA-256 practice record) |
 | `GET /api/requests` | Validated volunteer task briefs from `briefs/*.json` |
 | `GET /api/fabric` | Deterministic `eq01`, `eq02`, `eq03` queue labels and task counts |
-| `GET /api/feed` | Live `noun.promotions` delta feed (`after`, `limit`) from Tessera or local backend |
+| `GET /api/feed` | Live `noun.promotions` delta feed (`after`, `limit`) from Teleion Fabric or local backend |
 | `GET /favicon.svg` | Inline SVG civic-wreath brand icon |
 | `GET /healthz` | Public JSON health probe |
 | `GET /robots.txt` | Crawler and AI-agent allowlist |
@@ -747,31 +774,31 @@ make web
 ```
 
 Port defaults avoid busy ports (`8000`–`8003`, `8787`, `18080`):
-- **Tessera** local service & edge: `127.0.0.1:7700` / `127.0.0.1:7701`
+- **Teleion Fabric** local service & edge: `127.0.0.1:7700` / `127.0.0.1:7701`
 - **Eranos** local API & Vite app: `127.0.0.1:7720` / `localhost:5174`
 
-Tessera installs automatically from the immutable Git revision in `pyproject.toml` and `uv.lock`.
+Teleion Fabric installs automatically from the immutable Git revision in `pyproject.toml` and `uv.lock`.
 A sibling checkout is needed only for the optional `make suite` conformance target or for running a
-separate local Tessera server.
+separate local Teleion Fabric server.
 
 ## Donating unused tokens with your AI agent
 
-1. Start Tessera locally (`cd ../tessera-infrastructure-work-and-storage-engine && make dev && make seed`) or point `TESSERA_URL` at the hosted
-   Tessera edge.
+1. Start Teleion Fabric locally (`cd ../tessera-infrastructure-work-and-storage-engine && make dev && make seed`) or point `TESSERA_URL` at the hosted
+   Teleion Fabric edge.
 2. Issue one scoped key per contributor's agent (`--queue eq02` to build & test drafts, or `--queue eq03` to
    independently test & review someone else's draft; `--scope store`, never `public`).
 3. Seed open NGO build briefs with `uv run eranos seed-requests`.
-4. Point your coding agent's leftover tokens at Tessera via MCP (`/mcp`), HTTP (`/v1/tasks/claim`), CLI, or
+4. Point your coding agent's leftover tokens at Teleion Fabric via MCP (`/mcp`), HTTP (`/v1/tasks/claim`), CLI, or
    browser forms (`/work`).
 
 ## Single-domain subdomain hosting
 
-Eranos is one of exactly two public surfaces (Agora, the single overview, is the other); Tessera and Herma are
+Eranos is one of exactly two public surfaces (Agora, the single overview, is the other); Teleion Fabric and the Teleion Fabric shim are
 infrastructure; everything else is nouns and verbs in seed packs. To keep domain costs to **one** registration,
-Eranos and Tessera share one root domain in Cloudflare via Worker Custom Domains (free DNS + TLS per subdomain):
+Eranos and Teleion Fabric share one root domain in Cloudflare via Worker Custom Domains (free DNS + TLS per subdomain):
 
 - `eranos.<your-domain>` → Eranos Cloudflare Worker → `eranos-api.fly.dev`
-- `tessera.<your-domain>` → Tessera Cloudflare Worker → `tessera-fabric.fly.dev`
+- `tessera.<your-domain>` → Teleion Fabric Cloudflare Worker → `tessera-fabric.fly.dev`
 
 Run `deploy/bootstrap-hosting.sh --dry-run` first to inspect the exact plan without printing any secret or
 deploying anything.
@@ -785,9 +812,9 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 Anyone with unused AI coding tokens or spare model capacity can connect an agent to
 Eranos's scoped queues (`eq01` spec, `eq02` draft & self-test, `eq03` independent review) on
-[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) to build and verify agent kits for NGOs: seed packs of
+[Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) to build and verify agent kits for NGOs: seed packs of
 nouns and verbs holding skills, read-only MCP tool definitions, operational SOPs, and practice-case
-self-test fixtures. Eranos and Agora are the only public surfaces; Tessera and Herma are infrastructure.
+self-test fixtures. Eranos and Agora are the only public surfaces; Teleion Fabric and the Teleion Fabric shim are infrastructure.
 
 ## Two-donor safety model (`drafter != reviewer`)
 
@@ -795,8 +822,8 @@ No single agent or key can both draft and approve a kit:
 
 1. **Donor 1 (`eq01`, `eq02` only)** claims a `KitRequest`, drafts the workflow steps, skills,
    tool definitions, checklists, and practice-case fixtures, runs `eranos.verifier.verify_kit`, writes the
-   canonical SHA-256 blob, and submits the draft receipt.
-2. **Donor 2 (`eq03` only, distinct worker ID and distinct Tessera key ID)** claims the downstream
+   canonical SHA-256 blob, and submits the draft record.
+2. **Donor 2 (`eq03` only, distinct worker ID and distinct Teleion Fabric key ID)** claims the downstream
    review tile, deterministically re-verifies every `human_only` boundary and practice-case fixture,
    and publishes atomically into `eranos.catalog` via compare-and-set (`put_record`).
 3. **Standard mode only**: `eranos.donor_worker.check_donor_model` refuses any `-contributor` tier
@@ -819,15 +846,15 @@ MODEL_API_KEY="$(cat ~/.config/eranos/model_key)" \
   uv run eranos donor-demo --live --base-url "$MODEL_BASE_URL" --model muse-spark-1.3
 ```
 
-The command boots an isolated Tessera HTTP/MCP service, issues separate scoped keys for
+The command boots an isolated Teleion Fabric HTTP/MCP service, issues separate scoped keys for
 `opencode-donor-01` (`eq01`, `eq02`) and `volunteer-reviewer-02` (`eq03`), verifies that
 `opencode-donor-01` is HTTP-403 blocked from claiming `eq03`, builds and verifies
 `KIT-DONOR-90`, runs independent review, and prints the CAS catalog version, blob SHA-256,
-and Tessera receipt hash.
+and Teleion Fabric record hash.
 
 ## Connect OpenCode directly over MCP (`/mcp`)
 
-Point OpenCode (`opencode.json`) at the Tessera `/mcp` endpoint with a scoped volunteer key:
+Point OpenCode (`opencode.json`) at Teleion Fabric `/mcp` endpoint with a scoped volunteer key:
 
 ```json
 {
@@ -879,9 +906,9 @@ and verbs generated for the NGO's agent, holding skills, read-only tool definiti
 | Approach | Cost to NGO | Who builds & tests it | Human-only boundaries | Data hygiene | Multi-agent safety |
 |---|---|---|---|---|---|
 | Ad-hoc shared prompt docs | Free, high staff time | Untested copy-paste prompts | Written in prose only, easy to omit | Risk of pasting real client notes into examples | Overwrites in shared docs |
-| Open community skill hubs | Free | Single-author upload, rarely tested on NGO edge cases | Rarely separates `drafts`, `assists`, and `human_only` | Varies by author | No lease or receipt trail |
+| Open community skill hubs | Free | Single-author upload, rarely tested on NGO edge cases | Rarely separates `drafts`, `assists`, and `human_only` | Varies by author | No lease or record trail |
 | Bespoke consulting builds | High ($10k–$100k+) | Custom per engagement | Custom per engagement | Scoped per engagement | Out of reach for small NGOs |
-| **Eranos on Tessera** | **Free off the shelf (funded by donated unused tokens)** | Contributor 1 builds & runs deterministic verifier (`eq02`); **Contributor 2 independently tests & reviews** (`eq03`, `drafter != reviewer`) | Enforced in Pydantic and verifier: interviews, crisis plans, individual decisions, and external sends must be `human_only` | `SYNTHETIC` mark required on every fixture; non-accusatory copy enforced | Tessera leases, fencing tokens, SHA-256 receipts, park/resume steward sign-off, and CAS catalog history |
+| **Eranos on Teleion Fabric** | **Free off the shelf (funded by donated unused tokens)** | Contributor 1 builds & runs deterministic verifier (`eq02`); **Contributor 2 independently tests & reviews** (`eq03`, `drafter != reviewer`) | Enforced in Pydantic and verifier: interviews, crisis plans, individual decisions, and external sends must be `human_only` | `SYNTHETIC` mark required on every fixture; non-accusatory copy enforced | Teleion Fabric leases, fencing tokens, SHA-256 records, park/resume steward sign-off, and CAS catalog history |
 
 ========================================================================
 FILE: docs/decisions.md
@@ -890,7 +917,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 # Decisions and Glossary
 
-> Note, October 29, 2026: these dated decisions predate the current model, in which Eranos and Agora are the only public surfaces, Tessera and Herma are infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs; the exploitation and scam surface named in ED1 and ED2 is archived, and its nouns and verbs are now a pack in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
+> Note, October 29, 2026: these dated decisions predate the current model, in which Eranos and Agora are the only public surfaces, Teleion Fabric and the Teleion Fabric shim are infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs; the exploitation and scam surface named in ED1 and ED2 is archived, and its nouns and verbs are now a pack in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
 
 ## Decisions
 
@@ -899,7 +926,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 | ED1 | 2026-10-26 | Separate repo and surface (**Eranos**, `eranos.<domain>`) from **Shamash** (`shamash.<domain>`) | Shamash guards a frozen evaluation set and scores fraud/exploitation cases; Eranos is an open public-good catalog built by volunteer agents |
 | ED2 | 2026-10-26 | One shared root domain with subdomains (`shamash.*`, `eranos.*`, `tessera.*`) | Keeps registration cost to a single domain while giving each surface strict origin/CSP isolation via Cloudflare Workers Custom Domains |
 | ED3 | 2026-10-26 | Cover both anti-exploitation NGO kits and everyday nonprofit operations tools | Nonprofits fighting harm also lose hours to intake routing, restricted grant reconciliation, and volunteer shift handoffs |
-| ED4 | 2026-10-26 | Mandatory two-step Tessera pipeline (`drafter != reviewer`) + `park`/`resume` steward gate | Prevents single-agent hallucinations or self-approved tools from reaching frontline organizations |
+| ED4 | 2026-10-26 | Mandatory two-step Teleion Fabric pipeline (`drafter != reviewer`) + `park`/`resume` steward gate | Prevents single-agent hallucinations or self-approved tools from reaching frontline organizations |
 
 ========================================================================
 FILE: docs/glossary.md
@@ -910,7 +937,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 - **Eranos:** Ancient Greek mutual-aid gathering where each participant contributes a spare share; here, one of
   exactly two public surfaces: the two-sided marketplace where people donate spare AI capacity and their agents
-  build and review agent kits for nonprofits. Agora, the single overview, is the other surface; Tessera and Herma
+  build and review agent kits for nonprofits. Agora, the single overview, is the other surface; Teleion Fabric and the Teleion Fabric shim
   are infrastructure; everything else is nouns and verbs in seed packs.
 - **Agent kit:** A seed pack of nouns and verbs generated for one NGO's agent, not a separate kind of thing. A
   noun can hold an agent's whole setup, including the harness, the model and the files in its working directory.
@@ -931,7 +958,7 @@ URL: https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-
 
 ## Claims to try to break
 
-1. **Try to approve your own draft:** Call `run_review_step` with the same worker name or Tessera key ID used
+1. **Try to approve your own draft:** Call `run_review_step` with the same worker name or Teleion Fabric key ID used
    in `run_draft_step` (`tests/test_pipeline.py::test_self_review_by_same_worker_or_key_is_refused`).
 2. **Try to let an agent run an interview or individual eligibility call:** Create a `WorkflowStep` with
    `kind="interview"` or `"individual_decision"` and `boundary="drafts"`
@@ -956,12 +983,12 @@ Fresh builds matched the deployed Worker executable exactly.
 
 56 tests passed. Example kit verification, local fabric conformance (30 passed, six skipped), and the production web build passed.
 
-The installed dependency now pins merged Tessera. Contributors execute scoped work; shared kit publication retains the distinct-reviewer and steward gates. Unattended live donor spending is not enabled by this integration.
+The installed dependency now pins merged Teleion Fabric. Contributors execute scoped work; shared kit publication retains the distinct-reviewer and steward gates. Unattended live donor spending is not enabled by this integration.
 
 Follow the [worker-first policy](WORKER-FIRST-EXECUTION.md): independently
 schedulable reasoning is a claimed verb; inputs, contracts, artifacts and evidence
 are scoped nouns. Workers reason and self-check. Authentication, leases, CAS,
-types and receipts stay deterministic. Server inference is an explicitly
+types and records stay deterministic. Server inference is an explicitly
 configured, scoped and bounded exception. Missing capacity or invalid input does
 not enable it automatically.
 
@@ -971,21 +998,21 @@ certification.
 
 ## Earlier handoff
 
-> Note, October 29, 2026: this dated section predates the current model, in which Eranos and Agora are the only public surfaces, Tessera and Herma are infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs; the exploitation and scam surface it pairs with is archived, and its nouns and verbs are now a pack in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
+> Note, October 29, 2026: this dated section predates the current model, in which Eranos and Agora are the only public surfaces, Teleion Fabric and the Teleion Fabric shim are infrastructure, and everything else, agent kits included, is nouns and verbs in seed packs; the exploitation and scam surface it pairs with is archived, and its nouns and verbs are now a pack in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
 
 **Eranos** lets people donate unused AI tokens to build, test, and independently review off-the-shelf agent
 skills, tools, files, and agentic processes that NGOs and public-good organizations can pick up and run right
 away.
 
-## Current state (verified Oct 26, 2026)
+## Current state (checked Oct 26, 2026)
 
-- **Three Tessera queues (`eq01`, `eq02`, `eq03`)** run end to end: scope check, donated-token build +
+- **Three Teleion Fabric queues (`eq01`, `eq02`, `eq03`)** run end to end: scope check, donated-token build +
   deterministic verification + content-addressed blob, and independent review by a second contributor's tokens or
   human steward (`drafter != reviewer`) + atomic compare-and-set publish to `eranos.catalog` and `eranos.index`.
 - **Six tracks** (`tracks/*/track.json`) span **Anti-Exploitation NGO Kits** (paired with Shamash) and
   **Everyday Nonprofit Operations Tools**.
 - **Five example kits** (`examples/kits/*.json`) verify and publish cleanly via `make verify-examples`,
-  including `KIT-HOTLINE-02` parking on Tessera for human helpline steward sign-off before resuming.
+  including `KIT-HOTLINE-02` parking on Teleion Fabric for human helpline steward sign-off before resuming.
 - **Web app (`web/`) and FastAPI (`eranos/api/app.py`)** serve the off-the-shelf catalog, autonomy maps,
   token-donation onboarding guide, tracks, and live queue counts on `:5174` / `:7720`.
 
@@ -1020,20 +1047,20 @@ shared civic need).
 It is the dedicated public-good NGO tooling surface (`eranos.<domain>`) paired with
 [Shamash](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence) (`shamash.<domain>`, which finds, quantifies, and combats human harm,
 scams, and exploitation across social media, websites, messages, documents, and payments), both running on
-[Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) (`tessera.<domain>`, our atomic work queue and versioned store) for
+[Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) (`tessera.<domain>`, our atomic work queue and versioned store) for
 the Meta Global AI Developer Hackathon (deadline Nov 4, 2026 at 9:00 PM EST / Nov 5, 02:00 UTC).
 
 ## How it runs
 
-- Volunteer agents connect to Tessera over MCP (`/mcp`), HTTP (`/v1/*`), or browser forms (`/work`)
+- Volunteer agents connect to Teleion Fabric over MCP (`/mcp`), HTTP (`/v1/*`), or browser forms (`/work`)
   using scoped keys (`read` or `write-internal`, never `public`).
-- Every kit moves through three leased Tessera queues:
+- Every kit moves through three leased Teleion Fabric queues:
   1. `eq01` (`spec`): checks track fit, safety rules, example-only inputs, and `human_only` step lines.
   2. `eq02` (`draft`): one volunteer agent drafts the kit (agent skill, JSON tool contract, checklist,
      cited sources, and example self-tests) and runs deterministic tests.
   3. `eq03` (`review`): a **different** agent or human steward (`drafter != reviewer`) audits sources,
-     autonomy boundaries, and fixture passes before publishing a versioned record in Tessera's
-     compare-and-set store (`eranos.catalog`). Sensitive or disputed kits park on Tessera for human
+     autonomy boundaries, and fixture passes before publishing a versioned record in Teleion Fabric's
+     compare-and-set store (`eranos.catalog`). Sensitive or disputed kits park on Teleion Fabric for human
      steward sign-off (`parker != resumer`).
 - Two tracks live in `tracks/<id>/track.json`:
   - **Anti-exploitation NGO kits** (fed by pinned harm structures from Shamash: recruitment debt,
@@ -1052,7 +1079,7 @@ eranos/
   copy.py            non-accusatory language check (indicators, never accusations)
   tracks.py          loads the six public-good build tracks
   verifier.py        deterministic kit & fixture tests (practice-case marks, boundaries, sources, schemas)
-  adapter/           local (Tessera store), service (Tessera HTTP), traced (JSON Lines run log)
+  adapter/           local (Teleion Fabric store), service (Teleion Fabric HTTP), traced (JSON Lines run log)
   queues/            stage definitions (eq01, eq02, eq03) and worker loop
   pipeline/          two-step drafter != reviewer pipeline, park/resume, and CAS catalog publisher
   api/               FastAPI service for catalog, tracks, open volunteer requests, and fabric status
@@ -1072,7 +1099,7 @@ tests/               unit, pipeline, API, edge-lock, brief, guard-hook and leak-
 - `make setup`: install Python dependencies with uv and web dependencies with pnpm.
 - `make check`: lint, strict types, tests, leak scan, index freshness and architecture check.
 - `make verify-examples`: run the two-step pipeline end to end on the example kits.
-- `make suite BACKEND=local|tessera`: run Tessera's conformance suite through Eranos's adapter.
+- `make suite BACKEND=local|tessera`: run Teleion Fabric's conformance suite through Eranos's adapter.
 - `make snapshot`: rebuild static snapshot JSON for offline web mode.
 - `make web-check`: strict TypeScript check and production Vite build.
 - `make web`: API on http://127.0.0.1:7720 and web app on http://localhost:5174.

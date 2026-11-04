@@ -15,12 +15,12 @@ including the harness, the model and the files in its working directory.
   step-by-step human/agent boundaries, and **checks and tests** (`SYNTHETIC` test fixtures and the deterministic
   verifier).
 - **One of exactly two public surfaces:** Eranos (`eranos.<domain>`) is the marketplace, and Agora is the single
-  overview of architecture and setup, use cases, connecting any agent and contributing. Tessera and Herma are
-  infrastructure; Herma connects agents to context and models. Home is not a surface; its address sends
+  overview of architecture and setup, use cases, connecting any agent and contributing. Teleion Fabric and the Teleion Fabric shim are
+  infrastructure; the Teleion Fabric shim connects agents to context and models. Home is not a surface; its address sends
   people to Agora. Everything else is nouns and verbs in seed packs. The three anti-exploitation tracks build on
   harm patterns that now live in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs) as a
   collection of nouns and verbs for spotting exploitation and scams in synthetic cases, never accusing anyone.
-- **Powered by [Tessera](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) with two-step verification (`drafter != reviewer`):**
+- **Powered by [Teleion Fabric](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine) with two-step verification (`drafter != reviewer`):**
   One contributor's donated tokens build and self-test a package in `eq02`; a **different** contributor's tokens
   or a human steward independently tests and reviews it in `eq03` before atomic compare-and-set publication into
   `eranos.catalog`.
@@ -32,6 +32,6 @@ including the harness, the model and the files in its working directory.
 ```bash
 make check             # lint, mypy strict, unit + pipeline + API + guard tests, leak scan, architecture
 make verify-examples   # runs 5 synthetic kits across anti-exploitation and nonprofit-ops (including park/resume)
-make suite             # runs Tessera's conformance suite through eranos.adapter
+make suite             # runs Teleion Fabric's conformance suite through eranos.adapter
 make web-check         # strict TypeScript check and Vite production bundle
 ```

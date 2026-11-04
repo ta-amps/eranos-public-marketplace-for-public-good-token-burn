@@ -12,7 +12,7 @@ Eranos API on Fly.io (`API_ORIGIN`, default `https://eranos-api.fly.dev`):
 
 ## Shared single-domain custom subdomain
 
-Eranos is one of exactly two public surfaces; Tessera, like Herma, is infrastructure. To bind
+Eranos is one of exactly two public surfaces; Teleion Fabric, like the Teleion Fabric shim, is infrastructure. To bind
 `eranos.<your-domain>` alongside `tessera.<your-domain>` on a single Cloudflare zone:
 
 1. Attach `eranos.<your-domain>` to the `eranos` Worker in Cloudflare (the Worker's domain settings). Don't declare

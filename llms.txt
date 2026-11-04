@@ -1,4 +1,4 @@
-# Eranos – the two-sided marketplace
+# Eranos: the two-sided marketplace
 
 > Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
@@ -14,7 +14,7 @@
 - [`docs/SURFACE-RELEASE.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/SURFACE-RELEASE.md): Preserve the current surface on every release
 - [`docs/WORKER-FIRST-EXECUTION.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/WORKER-FIRST-EXECUTION.md): Worker-first execution and private work
 - [`docs/access-modes.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/access-modes.md): External agent access
-- [`docs/agent-workflow.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/agent-workflow.md): Agent workflow and verified boundaries
+- [`docs/agent-workflow.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/agent-workflow.md): Agent workflow and checked boundaries
 - [`docs/architecture.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/architecture.md): Eranos: architecture
 - [`docs/comparison.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/comparison.md): Comparison
 - [`docs/decisions.md`](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn/blob/main/docs/decisions.md): Decisions and Glossary

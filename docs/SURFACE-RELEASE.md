@@ -36,7 +36,7 @@ readiness, explicit refusal reasons and read-after-write changes.
    request under light and dark OS preferences. Verify the actual API-driven
    instruction nouns, four accordion controls and explicit refusal wording.
 
-Keep the rollback target and a receipt naming the source commit, manifest hash,
+Keep the rollback target and a record naming the source commit, manifest hash,
 previous/live Worker versions and observed checks. Never claim a complete
 recovery from a successful upload alone.
 

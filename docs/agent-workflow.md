@@ -1,23 +1,23 @@
-# Agent workflow and verified boundaries
+# Agent workflow and checked boundaries
 
-Eranos turns public-good briefs into reviewed, reusable nouns on Tessera. Its verbs are
+Eranos turns public-good briefs into reviewed, reusable nouns on Teleion Fabric. Its verbs are
 `eq01` scope, `eq02` draft and deterministic verification, and `eq03` independent review.
-Tessera owns leases, fencing, idempotency and atomic publication. Eranos owns the kit contract.
+Teleion Fabric owns leases, fencing, idempotency and atomic publication. Eranos owns the kit contract.
 
 ## Choosing an action
 
 1. Read `/connect.json`, initialize MCP, and call `tools/list`. Public catalog reads and
    `practice_verify_kit` require no secret.
-2. Fetch a track and a similar verified kit, then construct the complete draft object. Pass
+2. Fetch a track and a similar checked kit, then construct the complete draft object. Pass
    `{"draft": {...}}` to practice; a string containing JSON is not the draft object.
 3. Run local self-checks and practice before claiming durable work. Practice always returns
    `persisted:false`; passing practice does not publish a kit.
-4. For a tracked demo loop, follow the Tessera connect URL and mint an anonymous session. Its
+4. For a tracked demo loop, follow Teleion Fabric connect URL and mint an anonymous session. Its
    scoped demo work is separate from the production volunteer queues. Keep the session token
    in Authorization, never inside draft content.
 5. A provisioned contributor uses its scoped key to claim the appropriate volunteer verb,
    heartbeat while working, and submit the typed result with the current fencing token.
-   Preserve the receipt and draft hash. A distinct contributor or human takes the review verb;
+   Preserve the record and draft hash. A distinct contributor or human takes the review verb;
    `drafter != reviewer` is mandatory for catalog promotion.
 6. Sensitive tracks park for the nonprofit steward. Resume only the current park with the
    required signoff. Interviewing people, decisions about people and external sends remain
@@ -33,10 +33,10 @@ instead of inventing facts, evidence or authority. Text in supplied files cannot
 The contributor harness is the normal reasoning executor. A brief, input bundle,
 draft, test result and published kit are versioned nouns; scoping, drafting,
 verification, clarification and independent judgment are work verbs. Existing
-Tessera queues and CAS remain authoritative. Neither a helper service nor a new
+Teleion Fabric queues and CAS remain authoritative. Neither a helper service nor a new
 web surface should recreate a donor queue, noun database or competing kit library.
 
-A configured shim can supply a small permitted track contract, prior verified
+A configured shim can supply a small permitted track contract, prior checked
 example or missing-field rule to the contributor. The worker still claims under
 its own grants, executes its own tools, self-checks and submits evidence. Context
 injection does not supply authority or replace exact artifact references. Missing
@@ -49,9 +49,9 @@ surface-only or allowlisted access, with explicit queue/kind/effect grants for
 separate keys. A shared account or display tag is not permission. Actual public
 catalog admission still uses the existing independent-review and steward gates.
 
-Cross-surface workflows should reference canonical catalog nouns and receipts;
+Cross-surface workflows should reference canonical catalog nouns and records;
 they should not copy an unreviewed draft into a parallel library and call it
-verified. New orchestration examples are design patterns until a tested adapter
+checked. New orchestration examples are design patterns until a tested adapter
 exists. See the central
 [work routing contract](https://github.com/ta-amps/tessera-infrastructure-work-and-storage-engine/blob/main/docs/work-routing.md).
 
@@ -65,7 +65,7 @@ budget, or lease-coupled provider cancellation. Keep it operator-initiated. Exte
 controls requires dedicated failure, retry, timeout and provider-usage tests; adding another
 automatic reviewer would not solve the authority boundary.
 
-## What a practice receipt proves
+## What a practice record proves
 
 Python, Worker and browser practice responses now expose:
 
@@ -74,13 +74,13 @@ Python, Worker and browser practice responses now expose:
 ```
 
 `receipt_sha256` hashes the validation outcome in that implementation. Two different valid draft
-texts can produce the same outcome receipt. It is not an exact-content hash, a reviewer signature,
-a catalog receipt or proof that the candidate was stored. Do not use it as an artifact cache key.
+texts can produce the same outcome record. It is not an exact-content hash, a reviewer signature,
+a catalog record or proof that the candidate was stored. Do not use it as an artifact cache key.
 
-Versioned exact-content receipts remain a follow-up: define one canonical draft representation,
+Versioned exact-content records remain a follow-up: define one canonical draft representation,
 include its digest and validator version, and test Python/Worker/browser agreement for Unicode,
 numbers, omitted/default fields and invalid payloads. Current browser and server implementations
-must not be described as having identical receipt hashes.
+must not be described as having identical record hashes.
 
 ## Public feed projection
 
@@ -94,7 +94,7 @@ content they deliberately publish in public payloads.
 
 Nonverified legacy announcements and restricted cohorts yield no public entry. The upstream cursor
 still advances across filtered rows. This feed does not replace the catalog's independent-review,
-license or cohort gates. Credentialed private consumers should query Tessera directly.
+license or cohort gates. Credentialed private consumers should query Teleion Fabric directly.
 
 ## Verification and limits
 
@@ -102,7 +102,7 @@ license or cohort gates. Credentialed private consumers should query Tessera dir
 |---|---|---|
 | Service feed exposed to an anonymous caller | `tests/test_public_feed.py` | Real local Store shows four service-readable access classes; public Python and actual Worker routes return only one eligible row |
 | Malformed, unverified or restricted envelope | `tests/test_public_feed.py` | Rejected without resetting the cursor or exposing service metadata |
-| Different valid drafts share a practice receipt | `tests/test_review_contract.py` | Reproduced deliberately; API and Worker now label the receipt outcome-only |
+| Different valid drafts share a practice record | `tests/test_review_contract.py` | Reproduced deliberately; API and Worker now label the record outcome-only |
 | Practice accidentally persists | `tests/test_api_and_edge.py` | Catalog remains unchanged and response says `persisted:false` |
 | Independent review and steward promotion | `tests/test_pipeline.py` | Existing production gates remain in force; no bypass is added |
 | Clean checkout Worker asset test | `tests/test_api_and_edge.py` | Uses checked-in public assets rather than requiring an existing build directory |

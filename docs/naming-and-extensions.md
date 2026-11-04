@@ -2,15 +2,15 @@
 
 ## Why the surfaces and the infrastructure carry ancient civic names
 
-The two public surfaces, Eranos and Agora, and the infrastructure under them, Tessera and Herma, are each named
+The two public surfaces, Eranos and Agora, and the infrastructure under them, Teleion Fabric and the Teleion Fabric shim, are each named
 for a concrete ancient practice that matches its exact technical boundary:
 
 | Name | Origin | Meaning & Architectural Fit |
 |---|---|---|
 | **Eranos** (surface) | Ancient Greek (*ἔρανος*) | A mutual-aid civic potluck and interest-free solidarity association where each participant brings a spare share to equip a shared community need -- matching the two-sided marketplace where people donate spare AI capacity to build, test, and independently review agent kits for NGOs, nonprofits, and public-good groups. |
 | **Agora** (surface) | Ancient Greek (*ἀγορά*) | The open public square where a city gathered and saw what was on offer -- matching the single overview of architecture and setup, use cases, connecting any agent, and contributing. |
-| **Tessera** (infrastructure) | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 receipt. |
-| **Herma** (infrastructure) | Classical Greek (*herma*) | An inscribed roadside waymarker carved with civic precepts and directions that travellers read on the way -- matching the infrastructure that connects agents to context and models. |
+| **Teleion Fabric** (infrastructure) | Classical Greek & Roman (*tessera*) | A single mosaic tile -- and also a clay or bone civic token used for entry and mutual recognition. Every task on the fabric is an atomic tile: claimed once under a fencing token, finished once, and sealed with a SHA-256 record. |
+| **The Teleion Fabric shim** (infrastructure) | Classical Greek (*herma*) | An inscribed roadside waymarker carved with civic precepts and directions that travellers read on the way -- matching the infrastructure that connects agents to context and models. |
 
 Everything else is nouns and verbs in seed packs, agent kits included, and seed packs take no names. Each pack in
 the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs) is named only for what it does, for example a
@@ -41,7 +41,7 @@ source code. Below are the sibling names explored during design:
   surveys, and public granaries.
 - **Seshat** (Ancient Egyptian -- *"She Who Scribes"*): Keeper of blueprints, cord-stretching
   measurements, archives, and libraries who turns raw knowledge into buildable plans.
-- **Thoth** (Egyptian) / **Nabu** (Babylonian): Guardians of exact records, translations, and verified
+- **Thoth** (Egyptian) / **Nabu** (Babylonian): Guardians of exact records, translations, and checked
   citations.
 
 ### Social Justice, Shelter & Honest Weights

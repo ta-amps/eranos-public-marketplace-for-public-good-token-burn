@@ -2,7 +2,7 @@
 
 - **Eranos:** Ancient Greek mutual-aid gathering where each participant contributes a spare share; here, one of
   exactly two public surfaces: the two-sided marketplace where people donate spare AI capacity and their agents
-  build and review agent kits for nonprofits. Agora, the single overview, is the other surface; Tessera and Herma
+  build and review agent kits for nonprofits. Agora, the single overview, is the other surface; Teleion Fabric and the Teleion Fabric shim
   are infrastructure; everything else is nouns and verbs in seed packs.
 - **Agent kit:** A seed pack of nouns and verbs generated for one NGO's agent, not a separate kind of thing. A
   noun can hold an agent's whole setup, including the harness, the model and the files in its working directory.

@@ -13,7 +13,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`CLAUDE.md`](CLAUDE.md) | Claude Code instructions for Eranos |
 | [`LICENSE`](LICENSE) | MIT License |
 | [`Makefile`](Makefile) | Eranos. |
-| [`README.md`](README.md) | Eranos – the two-sided marketplace |
+| [`README.md`](README.md) | Eranos: the two-sided marketplace |
 | [`architecture.json`](architecture.json) | eranos |
 | [`keywords.txt`](keywords.txt) | Terms for KEYWORDS.md, one per line: "term" or "term: alias, alias". |
 | [`pyproject.toml`](pyproject.toml) |  |
@@ -70,7 +70,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`docs/SURFACE-RELEASE.md`](docs/SURFACE-RELEASE.md) | Preserve the current surface on every release |
 | [`docs/WORKER-FIRST-EXECUTION.md`](docs/WORKER-FIRST-EXECUTION.md) | Worker-first execution and private work |
 | [`docs/access-modes.md`](docs/access-modes.md) | External agent access |
-| [`docs/agent-workflow.md`](docs/agent-workflow.md) | Agent workflow and verified boundaries |
+| [`docs/agent-workflow.md`](docs/agent-workflow.md) | Agent workflow and checked boundaries |
 | [`docs/architecture.md`](docs/architecture.md) | Eranos: architecture |
 | [`docs/comparison.md`](docs/comparison.md) | Comparison |
 | [`docs/decisions.md`](docs/decisions.md) | Decisions and Glossary |

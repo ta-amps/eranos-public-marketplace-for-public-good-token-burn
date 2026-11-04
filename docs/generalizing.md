@@ -8,7 +8,7 @@ scans the AST of every module in `eranos/` and fails if one is hardcoded.
 | What you want to add | Where it lives | What checks it |
 |---|---|---|
 | A public-good build track | `tracks/<id>/track.json` | `tests/test_tracks_and_verifier.py` validates `TrackPack`, sources, and `required_human_only` |
-| A verified example kit | `examples/kits/<slug>.json` | `make verify-examples` runs `eq01 -> eq02 -> eq03` and checks CAS catalog publication |
+| A checked example kit | `examples/kits/<slug>.json` | `make verify-examples` runs `eq01 -> eq02 -> eq03` and checks CAS catalog publication |
 | A volunteer build brief | `briefs/E<n>.json` | `tests/test_briefs_and_public.py` checks `TaskBrief` and refuses `public` effects for agents |
 
 ## Prohibited categories (never built)

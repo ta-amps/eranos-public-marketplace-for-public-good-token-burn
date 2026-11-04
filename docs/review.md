@@ -2,7 +2,7 @@
 
 ## Claims to try to break
 
-1. **Try to approve your own draft:** Call `run_review_step` with the same worker name or Tessera key ID used
+1. **Try to approve your own draft:** Call `run_review_step` with the same worker name or Teleion Fabric key ID used
    in `run_draft_step` (`tests/test_pipeline.py::test_self_review_by_same_worker_or_key_is_refused`).
 2. **Try to let an agent run an interview or individual eligibility call:** Create a `WorkflowStep` with
    `kind="interview"` or `"individual_decision"` and `boundary="drafts"`

@@ -4,7 +4,7 @@ Hotline or helpline
 
 ### The job to be done
 
-Build a helpline directory schema and a safe intake triage script so our hotline volunteers route urgent callers to verified hotlines and trained caseworkers without exposing callers. (SYNTHETIC request.)
+Build a helpline directory schema and a safe intake triage script so our hotline volunteers route urgent callers to checked hotlines and trained caseworkers without exposing callers. (SYNTHETIC request.)
 
 ### Steps that must stay with a person
 
@@ -12,7 +12,7 @@ Interviews, crisis safety planning and any referral sent outside the organizatio
 
 ### Constraints
 
-English and Tagalog; directory entries must be verified public hotlines only.
+English and Tagalog; directory entries must be checked public hotlines only.
 
 ### Before you submit
 

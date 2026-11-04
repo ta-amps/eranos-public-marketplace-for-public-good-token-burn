@@ -3,9 +3,9 @@
 Eranos runs behind a Cloudflare Worker (`eranos`) in front of one small Fly.io API container
 (`eranos-api`) with a persistent 1 GB volume (`eranos_data`) for its local SQLite store and traces.
 
-Eranos is one of exactly two public surfaces (Agora, the single overview, is the other); Tessera and Herma are
+Eranos is one of exactly two public surfaces (Agora, the single overview, is the other); Teleion Fabric and the Teleion Fabric shim are
 infrastructure; everything else is nouns and verbs in seed packs. Under the shared single-domain layout, Eranos
-and Tessera share one root domain on free Cloudflare Workers Custom Domains:
+and Teleion Fabric share one root domain on free Cloudflare Workers Custom Domains:
 
 | Subdomain | Worker | Origin | Purpose |
 |---|---|---|---|

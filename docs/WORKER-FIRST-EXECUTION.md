@@ -2,7 +2,7 @@
 
 Architecture direction adopted October 28, 2026, clarified October 29. Follow this policy when designing, implementing, reviewing and handing off work. It describes required design and migration checks, not an event rule or certification that every current endpoint or worker already implements them.
 
-Independently schedulable agentic work must be a **verb that an authorized worker claims**, unless an explicit server exception applies. A noun holds versioned input, context, code, a tool, a model, a recipe, an artifact or evidence. Workers reason, act, check and repair. The server coordinates identity, discovery, leases, storage, validation and receipts without autonomous model calls on the normal path.
+Independently schedulable agentic work must be a **verb that an authorized worker claims**, unless an explicit server exception applies. A noun holds versioned input, context, code, a tool, a model, a recipe, an artifact or evidence. Workers reason, act, check and repair. The server coordinates identity, discovery, leases, storage, validation and records without autonomous model calls on the normal path.
 
 ## Required boundaries: nouns, verbs, surfaces and infrastructure
 
@@ -13,7 +13,7 @@ For a one-minute explanation and the diagram, see
 [nouns, verbs, surfaces and infrastructure](nouns-and-verbs.md).
 
 Today there are exactly two public surfaces: Eranos, the two-sided marketplace,
-and Agora, the single overview. Tessera and Herma are infrastructure; Herma
+and Agora, the single overview. Teleion Fabric and the Teleion Fabric shim are infrastructure; the Teleion Fabric shim
 connects agents to context and models. Everything else is nouns and verbs in
 seed packs, including agent kits generated for an NGO's agent.
 
@@ -22,7 +22,7 @@ seed packs, including agent kits generated for an NGO's agent.
 | Nouns | Scoped, versioned knowledge, source observations, tools/code, prompts, profiles, models, data, recipes, configuration, plans, artifacts and evidence | An access grant, execution authority or quality certificate merely because it is stored or hashed |
 | Verbs | Independently schedulable work with input references, acceptance checks, authority and recorded outcomes; authorized workers perform ordinary reasoning | A second queue or an unrecorded server agent |
 | Surfaces | Websites, apps, dashboards, CLI and HTTP/MCP interfaces for discovering and using nouns and verbs | A separate permission system, autonomous domain brain or work authority |
-| Infrastructure | Narrow, explicit identity, authorization, storage, versions, leases, CAS, receipts, transport, health, backpressure and essential management plumbing | A label that exempts domain reasoning from worker execution or permission checks |
+| Infrastructure | Narrow, explicit identity, authorization, storage, versions, leases, CAS, records, transport, health, backpressure and essential management plumbing | A label that exempts domain reasoning from worker execution or permission checks |
 
 A **seed pack bundles nouns and verb templates/seeds**. It is not another entity
 type, scheduler or runtime. Exporting or importing pack data does not execute,
@@ -53,7 +53,7 @@ service must satisfy the explicit inference rules below.
 Server-side configuration, provider plans, health observations and attempt
 evidence are nouns too. Independently schedulable server management is private
 verb work. Server-side describes placement, not an exemption from the entity
-model. Enforce access on discovery, claims, records, blobs, history, receipts and
+model. Enforce access on discovery, claims, records, blobs, history, records and
 logs; a private label alone grants nothing. Provider rotation may select only
 explicitly permitted provider/model pairs for that data and payer, and must
 retain each attempt and unknown outcome. Deterministic work records no model,
@@ -69,7 +69,7 @@ Private, management and infrastructure work can use the same pattern through pri
 ## Policy rules
 
 1. Represent independently schedulable agentic outcomes as verbs. Reuse existing queue, record and execution contracts. Do not create another runtime, queue authority or policy registry.
-2. Keep authentication, authorization, schema checks, lease maintenance, ordinary search, status reads and receipt validation deterministic. Do not turn every database read, helper function, render frame or arithmetic operation into another verb or model call.
+2. Keep authentication, authorization, schema checks, lease maintenance, ordinary search, status reads and record validation deterministic. Do not turn every database read, helper function, render frame or arithmetic operation into another verb or model call.
 3. Workers use permitted tools and existing code first, run the task's checks and repair their own failures. Pin acceptance criteria independently of the proposed result; a producer cannot silently weaken its own check to pass.
 4. Additional judgment becomes a review verb for a suitably capable agent. Review only when the task, evidence or applicable admission policy requires it. Do not add a reviewer to every successful action or recursively review every review.
 5. Privacy is enforced by authenticated identity, ownership, scope and effect authorization. A label such as `private` is descriptive metadata, never an access grant.
@@ -116,13 +116,13 @@ A worker may be asked to obtain, install, configure and run a tool as part of an
 
 Give the worker a concrete execution recipe:
 
-1. **Inspect the environment.** Identify the assigned workspace, runtime, platform, existing tools and permitted effects. Reuse a compatible verified installation when available. Name the required tool or mark candidate tools as suggestions.
+1. **Inspect the environment.** Identify the assigned workspace, runtime, platform, existing tools and permitted effects. Reuse a compatible checked installation when available. Name the required tool or mark candidate tools as suggestions.
 2. **Resolve the tool.** Record its source, exact release or revision, artifact digest, licence, runtime requirements and dependency lock where applicable. For an open-ended search, select and record these before execution. Verify the downloaded bytes against the expected source evidence. A matching digest alone does not establish that code is trustworthy.
 3. **Prepare a task-owned location.** Use an explicitly assigned directory, such as `.tools/<tool>/<version>/` under the workspace, with separate inputs, outputs and logs. Confine extraction and writes to authorized paths, preserving unrelated files. Use a project environment, approved container or existing tool adapter as appropriate. Package installation may execute build or install scripts, so its isolation and permissions matter before the final tool starts.
 4. **Define the invocation.** Supply the executable and argument vector, working directory, input references, expected outputs, permitted environment variables, network destinations and time/resource limits. Resolve only the needed secret references at the authorized boundary. Do not concatenate untrusted inputs into a shell command or inherit unrelated credentials.
 5. **Check readiness and supervise execution.** Run a meaningful capability check, then the real command through the existing harness or process adapter. A separate process is useful for a command-line tool but is not a security sandbox. Use the isolation the tool and inputs require. Capture bounded, appropriately redacted output, errors and exit status; handle startup failure, timeout, cancellation and lease loss. A service needs an observed readiness check and a declared lifetime, not just a process identifier.
 6. **Verify the result.** Check actual artifact contents and task-specific acceptance criteria. Installation success, a version string and exit code zero are separate from useful completed work. Preserve the source/version, invocation, environment manifest and check evidence with compact artifact references.
-7. **Retain or clean up deliberately.** Stop only the processes owned by the task, confirm termination and preserve required outputs and failure evidence. Keep reusable verified installations when permitted. Remove only task-owned temporary material under the existing cleanup policy; do not delete another task's environment or a shared service.
+7. **Retain or clean up deliberately.** Stop only the processes owned by the task, confirm termination and preserve required outputs and failure evidence. Keep reusable checked installations when permitted. Remove only task-owned temporary material under the existing cleanup policy; do not delete another task's environment or a shared service.
 
 Search, download, install, execution and external effects remain subject to their existing grants. A missing capability becomes an actionable failure, permitted alternative or preparation task, without silently enabling server inference. The recipe specifies how to perform authorized work; it does not create another approval layer or expand authority.
 
@@ -163,7 +163,7 @@ Before an exception call, record why the normal worker path is unsuitable, the r
 
 An explicitly requested model proxy is different from an autonomous server decision to call a model. Preserve the proxy's existing permissions and caller funding. Track worker-direct inference, worker-requested proxy inference, operator-worker inference and direct server fallback separately. These are reporting categories to map onto existing usage records, not new public API fields.
 
-A server-owned worker should claim an ordinary scoped verb and retain the same receipt and budget controls. It must not become an unbounded scheduler that spends on behalf of every waiting task. If the queue itself is unavailable, use the existing authorized incident procedure, keep an independent incident record and reconcile it after recovery.
+A server-owned worker should claim an ordinary scoped verb and retain the same record and budget controls. It must not become an unbounded scheduler that spends on behalf of every waiting task. If the queue itself is unavailable, use the existing authorized incident procedure, keep an independent incident record and reconcile it after recovery.
 
 ## Qualification and honest coverage
 
@@ -179,7 +179,7 @@ For each workflow migration, demonstrate:
 - Changed artifact or contract versions invalidate affected acceptance evidence.
 - The exceptional server path refuses missing authority or allowance and records its complete usage when enabled.
 
-Run these checks against the exact implementation and environment. Documentation, a signed receipt, a successful HTTP response and a green unrelated test suite are not substitutes for the corresponding behavioral proof.
+Run these checks against the exact implementation and environment. Documentation, a signed record, a successful HTTP response and a green unrelated test suite are not substitutes for the corresponding behavioral proof.
 
 ## Design references
 
