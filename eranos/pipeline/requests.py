@@ -322,7 +322,7 @@ def kit_brief(
         "track": track.model_dump(mode="json"),
         "needs_steward_signoff": track.needs_steward_signoff,
         "acceptance": [
-            "Every fixture's sample_input carries a visible SYNTHETIC mark; no real person's data.",
+            "Every fixture's sample_input carries a visible MADE-UP mark; no real person's data.",
             "Steps of the track's required person-only kinds keep boundary human_only.",
             "Words name warning signs and checklist questions, never accusations.",
             "The draft passes the practice check, which stores nothing.",

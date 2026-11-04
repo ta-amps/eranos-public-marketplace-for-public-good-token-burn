@@ -7,7 +7,7 @@
  */
 const CASE_MARK = "Practice case: an example, not a real person or case.";
 const RULES: [RegExp, string | ((match: string, word: string) => string)][] = [
-  [/SYNTHETIC:\s*/g, `${CASE_MARK} `],
+  [/(?:SYNTHETIC|MADE-UP):\s*/g, `${CASE_MARK} `],
   [/\bSYNTHETIC\b/g, "practice-case"],
   [/synthetic_example/g, "example"],
   [/synthetic_/g, "example_"],

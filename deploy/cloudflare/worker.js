@@ -1,3 +1,4 @@
+import { withPublicNames } from "./public_names.js";
 import { agentStartAsset } from "./agent_start.js";
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
 import llmsFallbackNoun from "../../instructions/llms.json" with { type: "json" };
@@ -351,7 +352,7 @@ function finish(response, method) {
 // snapshot files.
 const CASE_MARK = "Practice case: an example, not a real person or case.";
 const VISIBLE_RULES = [
-  [/SYNTHETIC:\s*/g, `${CASE_MARK} `],
+  [/(?:SYNTHETIC|MADE-UP):\s*/g, `${CASE_MARK} `],
   [/\bSYNTHETIC\b/g, "practice-case"],
   [/synthetic_example/g, "example"],
   [/synthetic_/g, "example_"],
@@ -1408,7 +1409,7 @@ async function practiceVerifyKit(draftPayload, explicitTrackId, tracksById) {
       }
       const fxId = String(fx.id || `FX-${i}`);
       const sample = String(fx.sample_input || "");
-      if (!sample.includes("SYNTHETIC") && !sample.includes(CASE_MARK)) {
+      if (!sample.includes("SYNTHETIC") && !sample.includes("MADE-UP") && !sample.includes(CASE_MARK)) {
         addIssue(`fixture '${fxId}' sample_input must carry the practice-case mark ("Practice case: an example, not a real person or case.")`);
       }
       if (fx.expected_human_escalation === true) hasEsc = true;
@@ -2602,6 +2603,8 @@ function canonicalRedirect(request) {
 export default {
   ...onboardingApplication,
   async fetch(request, env, ctx) {
-    return canonicalRedirect(request) || agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
+    const answer = canonicalRedirect(request) || agentStartAsset(request) || onboardingApplication.fetch(request, env, ctx);
+    if (env.PUBLIC_NAMES_FILTER !== "on") return answer;
+    return withPublicNames(request, await answer, { skip: ["/assets/", "/snapshot/"] });
   },
 };

@@ -44,7 +44,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`briefs/E3.json`](briefs/E3.json) | E3: Executable reference runner for MCPToolSpec deterministic checks |
 | [`briefs/E4.json`](briefs/E4.json) | E4: Export published kits as downloadable SKILL.md + MCP tool bundles |
 
-## deploy/ (14)
+## deploy/ (15)
 
 | File | What it is |
 |---|---|
@@ -55,6 +55,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`deploy/cloudflare/agent_start.js`](deploy/cloudflare/agent_start.js) | Versioned onboarding instructions. |
 | [`deploy/cloudflare/display_words.js`](deploy/cloudflare/display_words.js) | Plain words for stored record text on pages (MUST-FOLLOW rule 16: data a page shows passes the shared word li… |
 | [`deploy/cloudflare/kit-draft.schema.json`](deploy/cloudflare/kit-draft.schema.json) | KitDraft |
+| [`deploy/cloudflare/public_names.js`](deploy/cloudflare/public_names.js) | Public output says Teleion Fabric and the shim's public address. |
 | [`deploy/cloudflare/schema.js`](deploy/cloudflare/schema.js) | JSON Schema subset emitted by Pydantic KitDraft. |
 | [`deploy/cloudflare/surface-release-policy.json`](deploy/cloudflare/surface-release-policy.json) | JSON object: `schema`, `required_ancestors`, `rules` |
 | [`deploy/cloudflare/worker.js`](deploy/cloudflare/worker.js) |  |
@@ -223,7 +224,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`scripts/check_surface_release.py`](scripts/check_surface_release.py) | Fail closed before uploading stale, snapshot-mode, or unreviewed surface assets. |
 | [`scripts/export_practice_schema.py`](scripts/export_practice_schema.py) | Export the Python kit schema used by the Worker practice validator. |
 
-## tests/ (35)
+## tests/ (36)
 
 | File | What it is |
 |---|---|
@@ -243,6 +244,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tests/test_general_sources.py`](tests/test_general_sources.py) | A question no official page fits still gets public sources: open research searches, cited per article. |
 | [`tests/test_guard_hook.py`](tests/test_guard_hook.py) | Tests for .claude/hooks/guard.py enforcing protected paths and banned flags. |
 | [`tests/test_light_ui_only.py`](tests/test_light_ui_only.py) | Mechanical light-UI-only conformance gate for Eranos. |
+| [`tests/test_made_up_mark.py`](tests/test_made_up_mark.py) | The hosted practice check and page text treat the MADE-UP mark as the Python check does. |
 | [`tests/test_marketplace_site.py`](tests/test_marketplace_site.py) | The two-sided marketplace site: Worker routes, the request-a-kit form and the wording it shows. |
 | [`tests/test_model_client.py`](tests/test_model_client.py) | The workers' Meta client: standard tier only, the key from its file, caps before any call, no fallback. |
 | [`tests/test_open_contribution.py`](tests/test_open_contribution.py) | The two-sided marketplace end to end on a local Tessera and Eranos (make e2e), plus the abuse cases: nothing… |

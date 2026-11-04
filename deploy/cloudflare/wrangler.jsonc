@@ -42,6 +42,7 @@
   ],
   "vars": {
     "STORAGE_MODE": "cloud",
+    "PUBLIC_NAMES_FILTER": "on",
     "API_ORIGIN": "https://eranos-api.fly.dev"
   },
   // Privacy (F-PRIV-LOGS-001, Nov 2): no invocation logs and no traces, so Cloudflare keeps no per-request record of a

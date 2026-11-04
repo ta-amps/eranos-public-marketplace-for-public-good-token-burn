@@ -45,7 +45,7 @@ def personal_data_findings(fields: dict[str, str]) -> list[str]:
     """Kinds of personal data found per field, as `field: kind` strings, without the matched text.
 
     A line shaped like a record about a person (`Name: ...`, `Phone: ...`) counts unless the line
-    itself carries a visible SYNTHETIC mark, so made-up examples stay possible.
+    itself carries a visible MADE-UP mark, so made-up examples stay possible.
     """
     findings: list[str] = []
     for field, text in fields.items():
