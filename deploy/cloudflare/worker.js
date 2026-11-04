@@ -352,6 +352,7 @@ function finish(response, method) {
 // snapshot files.
 const CASE_MARK = "Practice case: an example, not a real person or case.";
 const VISIBLE_RULES = [
+  [/MADE-UP:\s*/g, `${CASE_MARK} `],
   [/SYNTHETIC:\s*/g, `${CASE_MARK} `],
   [/\bSYNTHETIC\b/g, "practice-case"],
   [/synthetic_example/g, "example"],
