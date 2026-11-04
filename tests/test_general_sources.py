@@ -320,3 +320,54 @@ def test_phrases_only_fill_the_query_of_a_search_the_brief_permits():
     part = {"text": "What does this page say?", "part": 1, "n": 1}
     with_links = R.research_brief("rq-test", part, "Example", GUARD, RULES, ["https://x.example/"])
     assert R.phrase_urls(with_links, ["a b"]) == []
+
+
+def test_label_words_inside_a_question_are_the_question():
+    text = (
+        "We ran a test run of our disaster plan; what should evacuation drills for seniors cover?"
+    )
+    assert R.subject_text(text) == text
+    assert "evacuation" in R.query_terms(text)
+    assert R.subject_text("Practice case: an example. How do we plan?") == "How do we plan?"
+    assert R.subject_text("How do we plan? Test run, Nov 4.") == "How do we plan?"
+
+
+def test_a_literal_retention_word_stays_and_only_a_mapped_one_goes():
+    assert "retention" in R.query_terms("What are the IRS record retention rules?")
+    assert "turnover" in R.query_terms("How do we measure inventory turnover?")
+
+
+def test_a_legal_question_never_reads_the_open_encyclopedia():
+    part = {"text": "What does the law say about tenants?", "part": 1, "n": 1, "legal": True}
+    made = R.research_brief("rq-test", part, "Example", GUARD, RULES, [])
+    assert "wikipedia" not in [a["id"] for a in made["fetch"]["apis"]]
+
+
+def test_a_wikipedia_answer_only_cites_wikipedia():
+    body = {
+        "query": {
+            "pages": [
+                {"index": 1, "title": "X", "extract": "Y z.", "fullurl": "https://evil.example/x"}
+            ]
+        }
+    }
+    assert R.search_articles("wikipedia", json.dumps(body).encode()) == []
+    assert (
+        R.search_articles("wikipedia", json.dumps({"query": {"pages": {"1": {}}}}).encode()) == []
+    )
+
+
+def test_a_caveat_goes_with_every_report_whose_brief_holds_its_page():
+    fetch = {"pages": [{"url": "https://x.example/", "caveat": "Rules vary."}]}
+    base = {"report_id": "R", "request_id": "r", "title": "t", "question": "q", "fetch": fetch}
+    source = {"id": "S1", "url": "https://en.wikipedia.org/wiki/Milk", "title": "Milk"}
+    claim = {"id": "C1", "text": "x", "citations": [{"source": "S1", "quote": "y"}]}
+    assert "Rules vary." in R.build_report(base, [source], [claim], {}, guardrails={})["summary"]
+
+
+def test_two_rounds_of_sources_never_share_a_number():
+    made = brief()
+    first, _ = R.gather(made, fetcher)
+    made["fetch"]["apis"] = [a for a in made["fetch"]["apis"] if a["id"] == "doaj"]
+    second, _ = R.gather(made, lambda u: fetcher(u), phrases=["other words"])
+    assert not {s["id"] for s in first} & {s["id"] for s in second}

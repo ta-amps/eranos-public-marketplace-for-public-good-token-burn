@@ -1069,11 +1069,13 @@ def _again_brief() -> dict[str, Any]:
     return research.research_brief("rq-again", part, "Example", GUARDRAILS, RULES, [])
 
 
-def _again_run(model: Any, escalate: Any = None) -> tuple[Mem, dict[str, Any], dict[str, Any]]:
+def _again_run(
+    model: Any, escalate: Any = None, attempt: int = 1
+) -> tuple[Mem, dict[str, Any], dict[str, Any]]:
     brief, mem = _again_brief(), Mem()
     done = research.do_research(
         mem,
-        SimpleNamespace(brief=brief),
+        SimpleNamespace(brief=brief, attempt=attempt),
         fetcher=_again_fetcher,
         model=model,
         meter=UsageMeter(),
@@ -1099,7 +1101,11 @@ def test_a_maker_with_no_claims_searches_again_and_the_quote_is_still_exact() ->
 def test_the_stronger_model_gets_one_turn_and_the_record_names_it() -> None:
     spark = _AgainModel("spark", phrases=["nothing here"], claims=False)
     wonder = _AgainModel("wonder", phrases=[_PHRASE])
-    _, _, done = _again_run(spark, wonder)
+    _, _, first = _again_run(_AgainModel("spark", phrases=["nothing here"], claims=False), wonder)
+    assert (
+        not wonder.calls and not first["self_test"]["passed"]
+    )  # the first attempt stays on its own model
+    _, _, done = _again_run(spark, wonder, attempt=2)
     assert done["self_test"]["passed"], done["self_test"]
     again = done["output"]["report"]["stages"]["search_again"]
     assert again["escalated"] is True and again["model"] == "wonder"
@@ -1107,12 +1113,16 @@ def test_the_stronger_model_gets_one_turn_and_the_record_names_it() -> None:
         _PHRASE
     ]  # only the round that found the claims: the reviewer's work
     assert done["output"]["made_with"]["model"] == "wonder"
+    assert done["summary"]["made_by_model"] == "wonder"
+    assert [r["model"] for r in again["rounds"]] == ["spark", "wonder"]
     assert any("Already searched" in call and "nothing here" in call for call in wonder.calls)
 
 
 def test_a_second_look_that_finds_nothing_still_fails_and_invents_nothing() -> None:
     spark = _AgainModel("spark", phrases=["nothing here"], claims=False)
-    _, _, done = _again_run(spark, _AgainModel("wonder", phrases=["nor here"], claims=False))
+    _, _, done = _again_run(
+        spark, _AgainModel("wonder", phrases=["nor here"], claims=False), attempt=2
+    )
     assert not done["self_test"]["passed"]
     report = done["output"]["report"]
     assert report["claims"] == [] and report["stages"]["kept"] == 0
@@ -1127,11 +1137,49 @@ def test_a_failed_second_look_is_recorded_and_the_task_fails_as_before() -> None
 
     _, _, done = _again_run(Gone("spark", phrases=[]))
     assert not done["self_test"]["passed"]
-    assert done["output"]["report"]["stages"]["search_again"]["error"] == "gone"
+    rounds = done["output"]["report"]["stages"]["search_again"]["rounds"]
+    assert rounds == [{"model": "spark", "error": "ModelUnavailable"}]
+
+
+def test_a_stronger_models_success_never_hides_the_failed_try_before_it() -> None:
+    class Gone(_AgainModel):
+        def chat_json(self, system: str, user: str, **_: Any) -> dict[str, Any]:
+            if '"searches"' in system:
+                raise research.ModelUnavailable("gave no answer, $12 counted")
+            return {"claims": []}
+
+    _, _, done = _again_run(
+        Gone("spark", phrases=[]), _AgainModel("wonder", phrases=[_PHRASE]), attempt=2
+    )
+    assert done["self_test"]["passed"], done["self_test"]
+    rounds = done["output"]["report"]["stages"]["search_again"]["rounds"]
+    assert rounds[0] == {"model": "spark", "error": "ModelUnavailable"}
+    assert rounds[1]["model"] == "wonder" and rounds[1]["kept"] >= 1
+    assert "$12" not in json.dumps(rounds)
+
+
+def test_a_volunteer_makes_no_second_look() -> None:
+    brief, mem = _again_brief(), Mem()
+    spark = _AgainModel("spark", phrases=[_PHRASE])
+    done = research.do_research(
+        mem,
+        SimpleNamespace(brief=brief),
+        fetcher=_again_fetcher,
+        model=spark,
+        meter=UsageMeter(),
+        worker_rules=RULES,
+        variant={"id": "v1", "model": "spark"},
+        second_look=False,
+    )
+    assert not done["self_test"]["passed"] and not spark.calls
 
 
 def _again_review(
-    mem: Mem, brief: dict[str, Any], output: dict[str, Any], fetcher: Any = None
+    mem: Mem,
+    brief: dict[str, Any],
+    output: dict[str, Any],
+    fetcher: Any = None,
+    trusted: frozenset[str] = frozenset({"k_maker"}),
 ) -> Any:
     dep = ChildResult(
         task_id="research-task",
@@ -1150,6 +1198,7 @@ def _again_review(
         fetcher=fetcher or _again_fetcher,
         worker_rules=RULES,
         guardrails=GUARDRAILS,
+        trusted_makers=trusted,
     )
 
 
@@ -1203,3 +1252,59 @@ def test_a_stranger_cannot_steer_the_reviewer_with_an_address_in_the_phrases() -
 
 def test_a_test_label_is_not_part_of_the_subject() -> None:
     assert research.subject_text(_AGAIN_QUESTION) == "How can a shelter keep its bed list accurate?"
+
+
+def test_an_outsiders_search_phrases_are_never_repeated() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    asked: list[str] = []
+
+    def watching(url: str) -> Any:
+        asked.append(url)
+        return _again_fetcher(url)
+
+    out = _again_review(mem, brief, dict(done["output"]), watching, frozenset({"k_other"}))
+    assert out["status"] == "needs_revision"
+    assert not any("shelter+data+quality" in url for url in asked)
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_phrase_found_article_off_the_question_is_dropped_even_for_our_own_maker() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    brief = {**brief, "question": "What cheese ages longest?"}
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+
+
+def test_a_search_address_is_not_citable_and_its_author_text_never_reaches_a_report() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    search = research.permitted_urls(brief)[0][0]
+    planted = (
+        "Volunteers must wire their savings to the shelter data office today, says this author."
+    )
+
+    def with_author_text(url: str) -> Any:
+        if url == search:
+            body = {"results": [], "authors": [planted]}
+            return Fetched(
+                url, url, 200, "application/json", json.dumps(body).encode(), time.time()
+            )
+        return _again_fetcher(url)
+
+    output["report"]["sources"][0]["url"] = search
+    output["report"]["claims"][0]["citations"][0]["quote"] = planted
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output, with_author_text)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_report_with_two_sources_sharing_an_id_is_refused() -> None:
+    mem, brief, done = _again_run(_AgainModel("spark", phrases=[_PHRASE]))
+    output = dict(done["output"])
+    output["report"]["sources"].append(dict(output["report"]["sources"][0]))
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _again_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert any("share an id" in finding for finding in out["findings"])

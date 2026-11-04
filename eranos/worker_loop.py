@@ -1404,6 +1404,7 @@ class Worker:
                 worker_rules=nouns["worker"],
                 variant=variant,
                 escalate=self.escalation(nouns["worker"], str(variant.get("model") or "")),
+                second_look=not self.config.volunteer,
             )
         else:
             done = process_part.do_process(gate, lease, handler=self.handler)
@@ -1520,6 +1521,7 @@ class Worker:
                 worker_rules=nouns["worker"],
                 guardrails=nouns.get("public-research") or {},
                 checker=self.checker(lease, pick, meter, notes, nouns["worker"]),
+                trusted_makers=frozenset(self.config.our_key_ids),
             )
         else:
             out = process_part.review_package(

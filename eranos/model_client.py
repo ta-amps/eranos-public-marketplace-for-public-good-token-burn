@@ -52,6 +52,7 @@ class ModelCall:
     seed: int | None = None
     cost_usd: float = 0.0
     reasoning_effort: str | None = None
+    model: str | None = None
 
 
 @dataclass
@@ -101,9 +102,13 @@ class UsageMeter:
     def model_report(self) -> dict[str, Any] | None:
         if self.model is None:
             return None
+        several = (
+            len({c.model for c in self.calls}) > 1
+        )  # which call used which model, when it varied
         sampling = [
             {"temperature": c.temperature, "seed": c.seed}
             | ({"reasoning_effort": c.reasoning_effort} if c.reasoning_effort else {})
+            | ({"model": c.model} if several and c.model else {})
             for c in self.calls
         ]
         return {
@@ -426,6 +431,7 @@ class MetaModel:
                 seed=seed,
                 cost_usd=cost,
                 reasoning_effort=effort,
+                model=self.model,
             ),
         )
         choice = (data.get("choices") or [{}])[0]
