@@ -1092,6 +1092,59 @@
             "financial"
           ],
           "url": "https://www.councilofnonprofits.org/running-nonprofit/administration-and-financial-management"
+        },
+        {
+          "access": "public_web_page",
+          "id": "ftc-data-breach",
+          "publisher": "U.S. Federal Trade Commission",
+          "topics": [
+            "breach",
+            "breaches",
+            "hacked",
+            "leak",
+            "leaked"
+          ],
+          "url": "https://www.ftc.gov/business-guidance/resources/data-breach-response-guide-business"
+        },
+        {
+          "access": "public_web_page",
+          "id": "council-solicitation-registration",
+          "publisher": "National Council of Nonprofits",
+          "topics": [
+            "solicitation",
+            "solicit",
+            "asking",
+            "registration",
+            "register"
+          ],
+          "url": "https://www.councilofnonprofits.org/running-nonprofit/fundraising-and-resource-development/charitable-solicitation-registration",
+          "requires": [
+            "donation",
+            "donations",
+            "donor",
+            "donors",
+            "fundraising",
+            "charity",
+            "charities",
+            "charitable",
+            "nonprofit"
+          ]
+        },
+        {
+          "access": "public_web_page",
+          "id": "irs-conflict-of-interest",
+          "publisher": "Internal Revenue Service",
+          "topics": [
+            "conflict",
+            "conflicts"
+          ],
+          "url": "https://www.irs.gov/charities-non-profits/form-1023-purpose-of-conflict-of-interest-policy",
+          "requires": [
+            "board",
+            "policy",
+            "directors",
+            "trustees"
+          ]
         }
       ],
       "official_pages_about": "Official public pages, chosen like the open APIs by the topics of a part, for topics whose own pages are too short to quote three points from (FB1-024 follow-up, Nov 2). Food safety (lead, Nov 2): FDA, CDC and EPA pages and the Bill Emerson Good Samaritan Food Donation Act as amended in 2022 (govinfo); FoodSafety.gov, USDA FSIS and usda.gov answer 403 to this machine, so their FDA and CDC counterparts stand in. A page's caveat is added to the summary of a report that cites it."
