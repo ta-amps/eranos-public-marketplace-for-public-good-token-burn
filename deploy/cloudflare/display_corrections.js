@@ -14,6 +14,23 @@ const TAKEN_OFF = new Set([
   "RPT-RD865E06-01",
   "RPT-RF92DA4E-01",
   "RPT-RF0D3C3D-01",
+  "RPT-R1087361-01",
+  "RPT-R2629BD5-01",
+  "RPT-R30F07F9-01",
+  "RPT-R364D880-01",
+  "RPT-R3DC7D0A-01",
+  "RPT-R662CA2B-01",
+  "RPT-R7E76ADA-01",
+  "RPT-R7EF1806-01",
+  "RPT-R81E610E-01",
+  "RPT-R89864E8-01",
+  "RPT-R8A6EAE9-01",
+  "RPT-R8F5EC63-01",
+  "RPT-R9C79B12-01",
+  "RPT-RA1FAFC6-01",
+  "RPT-RD9152EF-01",
+  "RPT-RB7F38AF-01",
+  "RPT-RC80830D-01",
 ]);
 const TAKEN_OFF_NOTE = "We took this report off display: its sources didn't answer the question. Please ask again, with a link to a page you trust if you have one.";
 const COUNT_LINE = /^\d+ cited points? from \d+ public sources?\./;
