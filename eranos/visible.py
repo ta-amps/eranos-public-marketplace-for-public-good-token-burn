@@ -31,8 +31,8 @@ _RULES: list[tuple[re.Pattern[str], str | Callable[[re.Match[str]], str]]] = [
 
 
 def has_example_mark(text: str) -> bool:
-    """A practice case carries its mark: the current one, or the former internal mark older fixtures still hold."""
-    return CASE_MARK in text or "SYNTHETIC" in text
+    """A practice case carries its mark: the current one, the MADE-UP mark new packages use, or the former internal mark older fixtures still hold."""
+    return CASE_MARK in text or "MADE-UP" in text or "SYNTHETIC" in text
 
 
 def visible_text(text: str) -> str:

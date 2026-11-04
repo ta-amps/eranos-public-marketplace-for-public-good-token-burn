@@ -299,6 +299,8 @@ def test_worker_serves_public_nouns_and_the_practice_digest() -> None:
         "help-page",
         "library",
         "agent-banner",
+        "worker",
+        "models.meta",
     } <= set(keys)
     for name in ("private_store", "catalog_store", "missing"):
         assert out[name]["status"] == 404, name

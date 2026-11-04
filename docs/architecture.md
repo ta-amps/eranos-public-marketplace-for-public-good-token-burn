@@ -83,6 +83,7 @@ flowchart LR
 | E12 | A nonprofit's request becomes exactly one eq01 verb, which an authorized worker classifies and splits into public research and kit parts, recorded as a plan noun | `test_typing_a_request_enqueues_exactly_one_verb`, `test_classify_then_split_routes_public_private_and_mixed_requests` |
 | E13 | Personal data is refused before a request is stored, and public reports cite a public source for every claim, say they are not legal advice when legal, and leave the decision to a person | `test_personal_data_screen_names_kinds_never_text`, `test_report_guardrails_refuse_scraping_uncited_claims_and_missing_disclaimers` |
 | E14 | Eranos renders strictly in its warm Paper & Ink light palette across source and built bundles regardless of OS dark-mode preferences | `test_index_html_pins_light_only_theme_and_color_scheme`, `test_no_dark_mode_css_or_background_declarations_in_source_or_bundles` |
+| E15 | No request is answered from the library without a reuse check that a key other than the planner's approves with a recorded model verdict; a check that says no or is unsure, or never finishes, has new work planned, and a wrongly reused request is opened again only by a reopen its own record names | `test_the_film_request_never_matches_the_political_campaign_report`, `test_a_near_duplicate_only_queues_a_reuse_check_by_another_key`, `test_a_check_that_says_no_or_is_unsure_has_new_work_planned`, `test_a_reopen_the_request_record_does_not_name_is_refused_and_writes_nothing` |
 
 ## Trust boundaries
 

@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -25,13 +26,27 @@ from eranos.visible import has_example_mark
 PRACTICE_CHECKS: list[str] = [
     "track_alignment",
     "human_only_boundaries",
-    "synthetic_fixtures",
+    "practice_case_fixtures",
     "non_accusatory_copy",
     "prohibited_topics",
     "spdx_license_allowlist",
     "cited_sources",
     "deliverable_alignment",
+    "model_free_by_default",
 ]
+# Kits ship no model: no local model service or compose entry for one, no model download, model
+# file, Modelfile or tuned adapter. The agent that uses a kit brings its own model. An open model
+# family whose licence asks for attribution wherever its files or derivatives ship is never shipped,
+# so no kit names it either (owner direction, Nov 1).
+MODEL_SHIPPING = re.compile(
+    r"\bollama\b|(?<![a-z])llama|\bmodelfile\b|\.gguf\b|\.safetensors\b|\bggml\b"
+    r"|\badapter_(?:model|config)\b|\b(?:q?lora|peft) adapters?\b"
+    r"|\b(?:vllm|localai|text-generation-inference|koboldcpp|lm studio)\b"
+    r"|\b(?:huggingface-cli|hf) download\b|\bfrom_pretrained\(",
+    re.IGNORECASE,
+)
+# A worker's own label is not kit content.
+_LABEL_FIELDS = ("drafted_by", "drafted_by_key")
 
 
 def _iter_strings(node: Any) -> list[str]:
@@ -91,6 +106,16 @@ def verify_kit(draft: KitDraft, track: TrackPack) -> VerificationReport:
         )
         if matched_topics:
             issues.append(f"prohibited collection topic detected: {', '.join(matched_topics)}")
+            break
+
+    content = {k: v for k, v in draft.model_dump(mode="json").items() if k not in _LABEL_FIELDS}
+    for text in _iter_strings(content):
+        shipped = MODEL_SHIPPING.search(text)
+        if shipped:
+            issues.append(
+                "kits ship no model, model service, model download, model file or tuned adapter;"
+                f" the agent that uses the kit brings its own model (found {shipped.group(0)!r})"
+            )
             break
 
     if not draft.sources:
@@ -237,7 +262,7 @@ def practice_verify_kit(
     # 4. Synthetic fixture checks
     raw_fixtures = raw.get("fixtures")
     if not isinstance(raw_fixtures, list) or len(raw_fixtures) < 2:
-        add_issue("fixtures must provide at least 2 synthetic test cases")
+        add_issue("fixtures must provide at least 2 practice cases")
     else:
         has_esc = False
         has_rou = False

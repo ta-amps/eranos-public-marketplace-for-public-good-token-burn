@@ -1,0 +1,393 @@
+{
+  "kind": "task_object",
+  "id": "models.meta",
+  "version": 6,
+  "owner": "Claude Design (design lead)",
+  "created_at": "2026-11-01T05:45:00Z",
+  "status": "canonical",
+  "why": "The owner asked (Nov 1): 'why is nanomuse the reviewer, what is this', and for a 'Models used' page that explains how we use each model, emphasizes Meta's models, and marks fallbacks to other models with *. Every fact below comes from a run record or the owner's rules, listed under sources.",
+  "page": {
+    "surface": "agora",
+    "route": "/models/",
+    "title": "Models used",
+    "board": "ModelsUsed (canvas page Agora)",
+    "linked_from": [
+      "Agora header nav: The film · How it works · Use cases · Models used · Decks · Evidence",
+      "Agora footer: Models used",
+      "Eranos footer: Models used ↗",
+      "Eranos request page, calm view, after 'One helper at a time. Every step is recorded.': 'Which model does what ↗'"
+    ],
+    "render_from": "This file. No number on the page may be typed by hand."
+  },
+  "rules": [
+    "Meta first: every step defaults to a Muse model through the Meta API, at the standard tier (owner, Nov 1).",
+    "Name models, not agent apps. An agent app (Muse Code, nanoMuse, OpenClaw...) is not a model. Agent apps appear only in the 'Volunteers' AIs' table on this page.",
+    "A * marks a model that is not Meta's: a fallback, or a model used only in tests.",
+    "If a fallback ever answers, the request page names it next to the step it did.",
+    "No receipts, hashes or run ids on the page. Dates, durations, counts and versions only."
+  ],
+  "steps": [
+    {
+      "station": "In line",
+      "model": null,
+      "text": "No model. The request waits in a durable queue."
+    },
+    {
+      "station": "Picked up",
+      "model": "Muse Spark 1.3",
+      "text": "Muse Spark 1.3 or Muse Wonder 1.0 splits it into Tasks.",
+      "text_design": "Muse Spark 1.3 splits it into Tasks.",
+      "models": [
+        "muse-spark-1.3",
+        "muse-wonder-1.0"
+      ],
+      "mix_source": "worker.policy summary (live share per model)"
+    },
+    {
+      "station": "Being made",
+      "model": "Muse Spark 1.3",
+      "agent_app": "Muse Code, when the work needs code",
+      "text": "Muse Spark 1.3 or Muse Wonder 1.0 does the work.",
+      "text_design": "Muse Spark 1.3, in Muse Code when it needs code.",
+      "why_changed": "The dedicated workers call Muse Spark 1.3 directly; Muse Code ran the build only in the Oct 31 test run.",
+      "models": [
+        "muse-spark-1.3",
+        "muse-wonder-1.0"
+      ],
+      "mix_source": "worker.policy summary (live share per model)"
+    },
+    {
+      "station": "In line for a check",
+      "model": null,
+      "text": "No model. The check waits for a second agent."
+    },
+    {
+      "station": "Being checked",
+      "model": "Muse Spark 1.3",
+      "text": "A different agent with its own key checks it, on Muse Spark 1.3 or Muse Wonder 1.0 with a different persona.",
+      "text_design": "Muse Spark 1.3, a second agent with its own key.",
+      "models": [
+        "muse-spark-1.3",
+        "muse-wonder-1.0"
+      ],
+      "mix_source": "worker.policy summary (live share per model)"
+    },
+    {
+      "station": "Ready for you",
+      "model": null,
+      "text": "No model. A person at the nonprofit decides."
+    }
+  ],
+  "meta_models": [
+    {
+      "name": "Muse Spark 1.3",
+      "kind": "model",
+      "access": "Meta Model API, standard tier",
+      "model_id": "muse-spark-1.3",
+      "role": "Splits a request into Tasks, does the work and checks another agent's work. Our dedicated workers use it.",
+      "tested": [
+        {
+          "date": "2026-10-31",
+          "text": "Test run: one agent built a kit with it in 3 min 27 s (207.27 s, 25 model calls); a second agent with its own key checked it in 1 min 23 s (82.73 s, 14 model calls).",
+          "source": "real-run-v7"
+        },
+        {
+          "date": "2026-10-29",
+          "text": "It finished the full claim · do · report test in three agent apps: Muse Code, nanoMuse and OpenClaw.",
+          "source": "harness-evidence"
+        }
+      ],
+      "variant_note": "The Oct 31 test run used muse-spark-1.3-contributor, which we use only for public test work. Live requests use the standard tier; Herma refuses Contributor variants for real requests.",
+      "id": "muse-spark-1.3",
+      "state": "live"
+    },
+    {
+      "name": "Muse Code 1.4.14",
+      "kind": "agent app by Meta (not a model)",
+      "version": "1.4.14-R7309.1",
+      "role": "Runs Muse Spark 1.3 when a request needs code: it writes the files, runs the tests and reports back to the queue.",
+      "tested": [
+        {
+          "date": "2026-10-31",
+          "text": "Built the weekly shift-schedule kit, with 8 tests and a README, in 25 model calls.",
+          "source": "real-run-v7"
+        }
+      ],
+      "id": "muse-code",
+      "state": "live"
+    },
+    {
+      "name": "Muse Wonder 1.0",
+      "kind": "model",
+      "access": "Meta Model API",
+      "model_id": "muse-wonder-1.0",
+      "role": "Writes test scenarios and typed proposals, one at a time. Each one is checked against its schema and never runs by itself.",
+      "tested": [
+        {
+          "text": "Our scenario generator runs it, with a self-test.",
+          "source": "models-matrix"
+        }
+      ],
+      "id": "muse-wonder-1.0",
+      "state": "measured",
+      "role_dedicated": "Also splits, makes and checks requests for the dedicated workers whenever the tuning picks it.",
+      "state_dedicated": "pending"
+    },
+    {
+      "name": "Muse Glimmer 30B",
+      "kind": "open weights, tuned by us",
+      "model_id": "meta-muse/Muse-Glimmer-30B (QLoRA, 4-bit NF4)",
+      "role": "Fills in Task Object forms and tool calls exactly, so a worker's report fits the queue the first time.",
+      "tested": [
+        {
+          "text": "Exact tool-call match rose from 93.3% to 99.3% on our 150-case test, tuned and measured on Kaggle on two T4 GPUs.",
+          "numbers": {
+            "before_pct": 93.3,
+            "after_pct": 99.3,
+            "n": 150
+          },
+          "source": "models-matrix"
+        }
+      ],
+      "serving_note": "Measured, not serving requests. Do not claim it answers live requests.",
+      "id": "muse-glimmer-30b",
+      "state": "measured",
+      "note": "Tuned and tested by ta-amps; the live workers run Muse Spark 1.3 through the Meta API.",
+      "uses": [
+        {
+          "role": "orchestrator",
+          "state": "measured",
+          "text": "One fine-tuned Muse Glimmer 30B for search, review, routing and tool calling. On held-out tests it picked the right Task Object 89% of the time (base 2%), reviewed submitted work at 99% balanced accuracy (base 28%; it wrongly accepted 2 of 126 flawed reports), split nonprofit requests into Tasks at 98% F1 (base 45%), and kept tool calling at 99% (base 94%)",
+          "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md"
+        },
+        {
+          "role": "review",
+          "state": "measured",
+          "text": "Reviewer under the rule of two: sent back every self-review case and 124 of 126 flawed submissions (99% balanced accuracy on 204 held-out reviews; the 2 misses were reports with too few claims)",
+          "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md"
+        },
+        {
+          "role": "search-and-retrieval",
+          "text": "Search and retrieval: picking the right Task Object for a plain-language need went from 1.7% to 89.1% (top choice, 175 held-out needs)",
+          "state": "measured",
+          "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md"
+        },
+        {
+          "role": "routing",
+          "text": "Routing: splitting a nonprofit's request into Tasks, Task-Object F1 45.0% to 97.8% (106 held-out requests)",
+          "state": "measured",
+          "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md"
+        },
+        {
+          "role": "tool-calling-multirole",
+          "text": "Tool calling inside the same adapter: 94.0% to 99.3% exact match on the fixed 150-task evaluation",
+          "state": "measured",
+          "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/evidence/README.md"
+        },
+        {
+          "role": "check (trial)",
+          "state": "ready",
+          "text": "Ready for a 5% trial on checking finished work. On 107 held-out reviews it scored 98.5% balanced accuracy, against 92.0% for Muse Spark 1.3 on the same reviews. With two simple rule checks run first (at least three claims, and the not-legal-advice line on legal topics), it sent back every flawed report and passed every good one in that set.",
+          "evidence": "notes/claude-work-2026-10-31/glimmer-orchestrator/results/variant-spec-glimmer-orchestrator.json"
+        }
+      ],
+      "hosting": "Served by ta-amps on Modal: one H100 that shuts off when idle"
+    }
+  ],
+  "film_models": [
+    {
+      "name": "SAM",
+      "model_id": "facebook/sam-vit-base",
+      "role": "Finds the parts of the page in each frame, so captions stay clear of them.",
+      "tested": "Overlap between captions and page parts fell from 0.281 to 0.037.",
+      "source": "models-matrix",
+      "id": "facebook/sam-vit-base",
+      "state": "pending",
+      "why_state": "Measured on the earlier v6 film; becomes measured again when the same check runs on the new cut."
+    },
+    {
+      "name": "wav2vec 2.0",
+      "model_id": "facebook/wav2vec2-base-960h",
+      "role": "Times each caption to the narration.",
+      "tested": "Checks every caption against what is said.",
+      "source": "models-matrix",
+      "id": "facebook/wav2vec2-base-960h",
+      "state": "pending",
+      "why_state": "Measured on the earlier v6 film; becomes measured again when the same check runs on the new cut."
+    },
+    {
+      "name": "MusicGen",
+      "model_id": "facebook/musicgen-small",
+      "role": "Wrote the film's music, so there is no licensed track.",
+      "tested": "One original underscore, made on our computer.",
+      "source": "models-matrix",
+      "id": "facebook/musicgen-small",
+      "state": "measured"
+    }
+  ],
+  "agent_apps_tested_2026_10_29": [
+    {
+      "app": "Muse Code",
+      "version": "1.4.14-R7309.1",
+      "by": "Meta",
+      "model": "Muse Spark 1.3",
+      "result": "passed"
+    },
+    {
+      "app": "nanoMuse",
+      "version": "1.0.8",
+      "by": "open source, not Meta",
+      "model": "Muse Spark 1.3",
+      "result": "passed"
+    },
+    {
+      "app": "OpenClaw",
+      "version": "2026.10.8",
+      "model": "Muse Spark 1.3",
+      "result": "passed"
+    },
+    {
+      "app": "Hermes",
+      "version": "0.20.1",
+      "model": "Kimi K2.7 Code *",
+      "result": "passed"
+    },
+    {
+      "app": "OpenCode",
+      "version": "2.1.2",
+      "model": "Kimi K2.7 Code *",
+      "result": "passed"
+    },
+    {
+      "app": "Pi",
+      "version": "0.73.1",
+      "model": "Kimi K2.7 Code *",
+      "result": "passed"
+    }
+  ],
+  "nanomuse": {
+    "what": "A small open-source agent app (v1.0.8), not a model and not made by Meta. Public listings describe it as an open-source personal agent from a Zhejiang University team.",
+    "why_it_was_the_checker": "The Oct 31 test run used two different agent apps and two different keys, so the checker could never be the builder: Muse Code built, nanoMuse checked, and both ran Muse Spark 1.3.",
+    "page_copy": "An open-source agent app, not a model and not made by Meta. In our Oct 31 test run it was the second agent: it ran Muse Spark 1.3 with its own key and checked the kit another agent built (8 tests passed, 0 rule violations).",
+    "owner_decision": "Keep nanoMuse as one tested agent app, or run the dedicated checker in Muse Code under a second key so every app named in the film is Meta's. The page is correct either way."
+  },
+  "fallbacks": [
+    {
+      "name": "Claude Haiku 4.5 *",
+      "by": "Anthropic",
+      "model_id": "claude-haiku-4-5-20251001",
+      "role": "A fallback Herma can call with the project's own key.",
+      "state": "Switched off since 2026-10-29 (owner's decision)",
+      "source": "provider-handoff"
+    },
+    {
+      "name": "GPT-4.1 nano *",
+      "by": "OpenAI, through OpenRouter",
+      "model_id": "openai/gpt-4.1-nano",
+      "role": "A second fallback Herma can call with the project's own key.",
+      "state": "Switched off since 2026-10-29 (owner's decision)",
+      "source": "provider-handoff"
+    }
+  ],
+  "other_non_meta": [
+    {
+      "name": "Kimi K2.7 Code *",
+      "by": "Moonshot AI",
+      "model_id": "kimi-k2.7-code",
+      "use": "Only as the model in three agent-app tests on Oct 29 (Hermes, OpenCode, Pi).",
+      "source": "harness-evidence"
+    },
+    {
+      "name": "Kokoro 82M *",
+      "use": "The film's narration voice. The Meta API offers transcription but no speaking voice.",
+      "source": "film-production",
+      "state": "measured"
+    }
+  ],
+  "featured_use_case": {
+    "title": "A food pantry's weekly shift schedule",
+    "kind": "a process you run",
+    "label": "Recorded test run · Oct 31",
+    "asked": "Each week our volunteers tell us when they can come in. Please build us a small kit that turns our volunteer availability CSV into a weekly shift schedule that meets our coverage rules, with tests and a README, so our own agent or staff can run it.",
+    "rules": [
+      "12 shifts, Monday to Saturday, morning and afternoon",
+      "at least 2 volunteers a shift",
+      "at least 1 lead a shift",
+      "only shifts a volunteer is available for",
+      "nobody past their weekly limit",
+      "nobody on both shifts of one day"
+    ],
+    "steps": [
+      {
+        "title": "Split into two Tasks",
+        "text": "Build the kit; check the kit."
+      },
+      {
+        "title": "Built",
+        "model": "Muse Spark 1.3",
+        "agent_app": "Muse Code",
+        "seconds": 207.27,
+        "model_calls": 25
+      },
+      {
+        "title": "Checked by a second agent",
+        "model": "Muse Spark 1.3",
+        "seconds": 82.73,
+        "model_calls": 14,
+        "tests_passed": 8,
+        "rule_violations": 0
+      },
+      {
+        "title": "Waiting for a person",
+        "text": "Nothing is used or published until someone at the pantry says yes."
+      }
+    ],
+    "page_note": "A test request, with made-up volunteer names.",
+    "source": "real-run-v7"
+  },
+  "sources": {
+    "real-run-v7": "notes/work-2026-10-30/real-run-v7/ (run-facts.json, stdout.log, reviewer/invocation.json, final-readback.json)",
+    "harness-evidence": "notes/harness-matrix-2026-10-29/public-harness-evidence.json",
+    "models-matrix": "notes/coordination-2026-10-31/META_PAPERS_MODELS_AND_FRAMEWORKS_MATRIX.md (Oct 31)",
+    "provider-handoff": "notes/provider-verification-2026-10-29/HANDOFF.md and operator-disable-owner-direction.json",
+    "owner-rules": "notes/COORDINATION-2026-10-31.md, 'Owner rules, Nov 1, about 01:30 ET'",
+    "herma-live": "herma.ta-amps.workers.dev, section 'Which Meta Models Do What' (read Nov 1)",
+    "film-production": "notes/claude-work-2026-10-31/v5/production/production-receipts.json"
+  },
+  "updated": "2026-11-01",
+  "derived_from": "notes/coordination-2026-10-31/claude-design-models.v1.json (Claude Design, Nov 1) plus the corrections listed below",
+  "runtime": {
+    "display_by_id": {
+      "muse-spark-1.3": "Muse Spark 1.3",
+      "muse-wonder-1.0": "Muse Wonder 1.0",
+      "muse-glimmer-30b": "Muse Glimmer 30B",
+      "muse-code": "Muse Code 1.4.14",
+      "facebook/sam-vit-base": "SAM",
+      "facebook/wav2vec2-base-960h": "wav2vec 2.0",
+      "facebook/musicgen-small": "MusicGen"
+    },
+    "rates_usd_per_million_tokens": {
+      "muse-spark-1.3": {
+        "input": 1.25,
+        "output": 4.25
+      },
+      "muse-wonder-1.0": {
+        "input": 4.0,
+        "output": 20.0
+      }
+    },
+    "tier": "standard",
+    "selection": "self-tuning policy (Task Object worker.policy): Thompson sampling per role over model x persona profiles, recorded per claim",
+    "owner_decision": "D8, Nov 1: multiple Muse models with personas, self-tuning, not fixed"
+  },
+  "corrections": [
+    "Being made: the step text names Muse Spark 1.3 only (see why_changed).",
+    "SAM and wav2vec 2.0: pending until the same check runs on the new cut.",
+    "Added Kokoro 82M * (the film voice).",
+    "Muse Glimmer 30B: shown as tuned and tested, not as running live.",
+    "Removed internal to-do and rule lines that named banned words.",
+    "Steps name both Muse Spark 1.3 and Muse Wonder 1.0: the owner chose a self-tuning mix (D8). Pages show the live share.",
+    "Glimmer orchestrator results (H100, Nov 2) added from held-out evaluation with paired CIs; see glimmer-orchestrator/evidence/README.md.",
+    "v6 (Nov 2): Glimmer served on Modal for a 5% check trial; the Muse Spark 1.3 comparison and the rule-checks result were added from paired held-out evaluation."
+  ]
+}

@@ -160,6 +160,26 @@
       "title": "MCPToolSpec",
       "type": "object"
     },
+    "ModelHook": {
+      "additionalProperties": false,
+      "description": "A kit ships no model: no model file, model download, tuned adapter or local model service.\nThe agent that uses the kit runs it with its own model, as process packages do.",
+      "properties": {
+        "default": {
+          "const": "none",
+          "type": "string",
+          "default": "none",
+          "title": "Default"
+        },
+        "uses": {
+          "const": "your own agent's model",
+          "default": "your own agent's model",
+          "title": "Uses",
+          "type": "string"
+        }
+      },
+      "title": "ModelHook",
+      "type": "object"
+    },
     "SourceRef": {
       "additionalProperties": false,
       "properties": {
@@ -450,6 +470,9 @@
       "minLength": 2,
       "title": "Drafted By Key",
       "type": "string"
+    },
+    "model_hook": {
+      "$ref": "#/$defs/ModelHook"
     }
   },
   "required": [

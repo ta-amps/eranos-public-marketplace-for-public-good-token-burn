@@ -1,0 +1,398 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$comment": "The request-status page's event definition, copied from docs/status-events.schema.json at the Eranos web commit 2dce2dd (reopened, F-UI-STALE-001; reuse_checked, F-REUSE-001), so the worker's facts are tested against the page's own shape.",
+ "$ref": "#/$defs/event",
+ "$defs": {
+  "event": {
+   "type": "object",
+   "required": [
+    "type",
+    "at"
+   ],
+   "anyOf": [
+    {
+     "required": [
+      "receipt"
+     ]
+    },
+    {
+     "required": [
+      "ref"
+     ]
+    }
+   ],
+   "properties": {
+    "type": {
+     "enum": [
+      "received",
+      "plan_claimed",
+      "plan_released",
+      "planned",
+      "blocked",
+      "queued",
+      "work_claimed",
+      "work_released",
+      "work_submitted",
+      "check_claimed",
+      "in_review",
+      "check_approved",
+      "check_sent_back",
+      "check_refused",
+      "signoff_required",
+      "signed_off",
+      "delivered",
+      "published",
+      "library_added",
+      "decided",
+      "heartbeat",
+      "closed",
+      "reopened",
+      "reuse_checked",
+      "withdrawn"
+     ],
+     "description": "received; plan_claimed (the request verb claimed to plan it); planned (split into parts); queued (a place in line); work_claimed / check_claimed (a part's work or its review claimed); work_submitted; check_approved / check_sent_back (the review verdict); signoff_required / signed_off; delivered (report) / published (kit); library_added; decided (a person's decision, from the decision task); heartbeat; closed; reopened (a closed request open again, for example after a wrong library reuse; the earlier facts stay in the history); withdrawn. A delivered or published fact with summary.reused true before any plan means the request was answered from the library with no new work. reuse_checked (F-REUSE-001): a different key's check of whether that similar answer fits this request, with verdict ('fits' or 'does_not_fit'), checker_role, model, similarity and a ref to the matched answer; the page shows the reuse as checked only after a 'fits' verdict. check_refused: Tessera refused a check because the maker tried to approve its own work (the board's 'refused'; cite the refusal's record)."
+    },
+    "at": {
+     "type": [
+      "number",
+      "null"
+     ],
+     "description": "Unix seconds of the receipt or event."
+    },
+    "part": {
+     "type": "integer",
+     "minimum": 1
+    },
+    "receipt": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$",
+     "description": "Claim receipts: sha256(canonical_json({namespace, task_id, fencing_token, claimed_at})). Submit and review: Tessera's receipt_hash."
+    },
+    "ref": {
+     "type": "string",
+     "description": "A record reference when Tessera writes no hash, e.g. 'eranos.catalog/KIT-R1234567-02 version 3'."
+    },
+    "worker": {
+     "type": "string",
+     "description": "The claiming worker's label."
+    },
+    "model": {
+     "type": "string",
+     "description": "The model the worker declares it runs."
+    },
+    "lease_ends": {
+     "type": "number",
+     "description": "Unix seconds when the lease expires."
+    },
+    "place": {
+     "type": "integer",
+     "minimum": 1,
+     "description": "The request's place in line before planning (queued, received)."
+    },
+    "places": {
+     "type": "object",
+     "additionalProperties": {
+      "type": "integer",
+      "minimum": 1
+     },
+     "description": "Place in line by part number (queued, planned)."
+    },
+    "parts": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/part"
+     },
+     "description": "planned: the plan's parts."
+    },
+    "summary": {
+     "type": "object",
+     "properties": {
+      "sources": {
+       "type": "integer"
+      }
+     }
+    },
+    "reason": {
+     "type": "string"
+    },
+    "findings": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "choice": {
+     "enum": [
+      "use",
+      "changes",
+      "dont"
+     ]
+    },
+    "note": {
+     "type": "string",
+     "description": "decided with choice 'changes': the requester's note; that part goes back in line."
+    },
+    "result_id": {
+     "type": "string",
+     "description": "delivered: RPT-... (eranos.solutions key); published: KIT-... (catalog id); library_added: either."
+    },
+    "library_ref": {
+     "type": "string",
+     "description": "library_added: the public URL of the library entry."
+    },
+    "dedicated": {
+     "type": "boolean",
+     "description": "work_claimed or check_claimed by one of Eranos's own workers: volunteers get the first pick, and a task nobody claims within about 90 seconds of entering the line goes to a dedicated worker run by the ta-amps team on Meta's latest Muse model through the Meta API (standard tier), under the same claim and report rules. Without this field the page treats a worker label starting with 'eranos' as dedicated."
+    },
+    "method": {
+     "type": "string",
+     "description": "How a step ran when it runs no model, for example 'deterministic planner (no model)'. A step with a method and no model is never credited with a model."
+    },
+    "verdict": {
+     "enum": [
+      "fits",
+      "does_not_fit"
+     ],
+     "description": "reuse_checked: whether the similar library answer fits this request, as a different key checked it."
+    },
+    "checker_role": {
+     "type": "string",
+     "description": "reuse_checked: the checker's role, for example 'dedicated worker 3 (run by ta-amps)'; never the maker's key."
+    },
+    "similarity": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1,
+     "description": "reuse_checked: the similarity score of the match that was checked."
+    }
+   }
+  },
+  "part": {
+   "type": "object",
+   "required": [
+    "part",
+    "route",
+    "text"
+   ],
+   "properties": {
+    "part": {
+     "type": "integer"
+    },
+    "route": {
+     "enum": [
+      "public-only",
+      "private-files",
+      "held"
+     ]
+    },
+    "text": {
+     "type": "string"
+    },
+    "legal": {
+     "type": "boolean"
+    },
+    "output_type": {
+     "type": "string"
+    },
+    "frequency": {
+     "type": "string"
+    },
+    "report_id": {
+     "type": "string"
+    },
+    "kit_id": {
+     "type": "string"
+    },
+    "track_id": {
+     "type": "string"
+    },
+    "needs_person_signoff": {
+     "type": "boolean"
+    },
+    "work_task_id": {
+     "type": "string"
+    },
+    "review_task_id": {
+     "type": "string"
+    }
+   }
+  },
+  "decision_task_brief": {
+   "description": "Option A: a person's decision is filed by the requester key as one request verb on eq01 (kind 'request'); the worker that claims it records a 'decided' event, with its submit receipt, on the original request's history.",
+   "type": "object",
+   "required": [
+    "text",
+    "decision"
+   ],
+   "properties": {
+    "text": {
+     "type": "string"
+    },
+    "decision": {
+     "type": "object",
+     "required": [
+      "request_id",
+      "part",
+      "choice"
+     ],
+     "properties": {
+      "request_id": {
+       "type": "string"
+      },
+      "part": {
+       "type": "integer"
+      },
+      "choice": {
+       "enum": [
+        "use",
+        "changes",
+        "dont"
+       ]
+      },
+      "note": {
+       "type": "string"
+      }
+     }
+    }
+   }
+  },
+  "request_brief": {
+   "description": "The brief of the request verb on eq01 (kind 'request'), as the request box files it with the requester key. The same fields are written to the requester's org.requests noun.",
+   "type": "object",
+   "required": [
+    "text",
+    "organization_type",
+    "output_type",
+    "frequency"
+   ],
+   "properties": {
+    "text": {
+     "type": "string"
+    },
+    "links": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "format": "uri"
+     }
+    },
+    "organization_type": {
+     "type": "string"
+    },
+    "output_type": {
+     "enum": [
+      "process",
+      "information",
+      "both"
+     ]
+    },
+    "frequency": {
+     "enum": [
+      "one-off",
+      "recurring"
+     ]
+    },
+    "cadence": {
+     "enum": [
+      "weekly",
+      "monthly",
+      "quarterly",
+      "yearly"
+     ]
+    },
+    "follows": {
+     "type": "object",
+     "description": "An improvement of an earlier request ('Improve an earlier request'), or a part sent back with a note.",
+     "properties": {
+      "request_id": {
+       "type": "string"
+      },
+      "part": {
+       "type": "integer"
+      }
+     }
+    },
+    "prefs": {
+     "type": "object",
+     "description": "Advanced settings, only what was chosen (RequestForm board).",
+     "properties": {
+      "start": {
+       "enum": [
+        "Something new",
+        "Improve an earlier request"
+       ]
+      },
+      "skill": {
+       "type": "string"
+      },
+      "runs": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "agents": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "models": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "tools": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "limits": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "other": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "Text typed into a question's Other box, by question id (skill, runs, agents, models, tools, limits)."
+      },
+      "improve_link": {
+       "type": "string"
+      },
+      "improve_what": {
+       "type": "string"
+      }
+     }
+    },
+    "decision": {
+     "$ref": "#/$defs/decision_task_brief/properties/decision"
+    }
+   }
+  },
+  "caption_names": {
+   "description": "The film's caption names (RequestStatusPage onEvent, Claude Design 20:15) for these event types. The page dispatches window CustomEvent 'eranos:status-event' with detail {n, type, band, text} for each new fact.",
+   "const": {
+    "received": "received",
+    "planned": "split",
+    "queued": "queued",
+    "work_claimed": "claimed",
+    "work_submitted": "submitted",
+    "check_refused": "refused",
+    "check_claimed": "rclaimed",
+    "check_approved": "approved",
+    "check_sent_back": "sentback",
+    "signoff_required": "signoff",
+    "delivered": "ready",
+    "published": "ready",
+    "decided": "decision",
+    "library_added": "library"
+   }
+  }
+ }
+}

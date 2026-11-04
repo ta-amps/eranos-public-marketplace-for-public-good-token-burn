@@ -101,7 +101,7 @@ def test_the_nonprofit_receives_results_as_nouns_in_its_namespace(
     assert "A person decides" in report["report"]["decision"]
     kit = next(n for n in received["private"]["nouns"] if n["kind"] == "kit")
     assert kit["nouns"]["steps"] and kit["nouns"]["fixtures"]
-    assert all("SYNTHETIC" in f["sample_input"] for f in kit["nouns"]["fixtures"])
+    assert all("MADE-UP" in f["sample_input"] for f in kit["nouns"]["fixtures"])
     assert sorted(n["kind"] for n in received["mixed"]["nouns"]) == ["kit", "report"]
 
 

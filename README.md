@@ -19,6 +19,7 @@ An **agent kit** is a seed pack: task objects (`nouns`) and tasks (`verbs`) gene
   - **Client files stay with the nonprofit:** `eranos/privacy.py` screens and refuses personal identifiers on public intake. Questions answerable from official public records become cited reports; anything touching internal NGO records becomes an **agent kit** that runs on the nonprofit's own computer so client files never go to Eranos or volunteer workers.
   - **Hard block on training-contributor tiers:** Standard mode is enforced in code (`ContributorTierRefusedError` across Herma and seed-pack runtimes, plus `--contributor-mode off` in Muse Code), refusing `contributor` and `*-contributor` model IDs so sensitive or nonprofit prompts never enter provider training pools.
   - **Local open-weights option:** Nonprofits and volunteer workers can run an open-weight model (with local PEFT LoRA adapters) offline on their own computer, keeping inference 100% local.
+  - **Kits bring no model:** An agent kit ships no model, model download, model file or local model service; the nonprofit's own agent runs it with its own model, and the kit verifier refuses a kit that would ship one (`model_free_by_default`).
 
 ## Which Meta models do what
 

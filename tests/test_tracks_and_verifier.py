@@ -6,6 +6,9 @@ import ast
 import re
 from pathlib import Path
 
+import pytest
+from pydantic import ValidationError
+
 from eranos.pipeline import load_example_bundles, practice_verify_kit
 from eranos.schemas import KitDraft
 from eranos.tracks import get_track, load_tracks
@@ -53,6 +56,59 @@ def test_every_example_kit_passes_deterministic_verifier() -> None:
         track = get_track(draft.track_id)
         report = verify_kit(draft, track)
         assert report.passed, report.issues
+
+
+MODEL_SHIPPING_CASES = [
+    (
+        "artifact",
+        "services:\n  model:\n    image: ollama/ollama:latest\n    ports: ['11434:11434']",
+    ),
+    ("step", "Before the first shift, run `ollama pull` to download the model this kit uses."),
+    ("artifact", "A Modelfile: FROM base-model, PARAMETER temperature 0."),
+    ("artifact", "Copy adapter_model.safetensors and adapter_config.json from the tuned run."),
+    ("skill", "Load the weights with AutoModel.from_pretrained(path) before answering."),
+    ("artifact", "Download weights.gguf with hf download before you start."),
+]
+
+
+@pytest.mark.parametrize(("where", "text"), MODEL_SHIPPING_CASES)
+def test_a_kit_that_ships_a_model_or_model_service_is_refused(where: str, text: str) -> None:
+    """Kits are model-free: the agent that uses a kit brings its own model (owner, Nov 1)."""
+    bundle = load_example_bundles()[0]
+    raw = {**bundle["draft"], "drafted_by": "vol-a", "drafted_by_key": "k-a"}
+    if where == "artifact":
+        raw["artifacts"] = [
+            *raw.get("artifacts", []),
+            {
+                "name": "local-model-setup",
+                "title": "Local model setup",
+                "artifact_format": "markdown_sop",
+                "summary": "How to start the local model this kit would use.",
+                "spec": text,
+            },
+        ]
+    elif where == "step":
+        step = dict(raw["steps"][0])
+        raw["steps"] = [{**step, "guidance": text}, *raw["steps"][1:]]
+    else:
+        skill = dict(raw.get("skill") or {})
+        raw["skill"] = {**skill, "instructions": f"{skill.get('instructions', '')} {text}"}
+    draft = KitDraft.model_validate(raw)
+    assert draft.model_hook.model_dump() == {"default": "none", "uses": "your own agent's model"}
+    report = verify_kit(draft, get_track(draft.track_id))
+    assert not report.passed and "model_free_by_default" in report.checks_run
+    assert any("kits ship no model" in issue for issue in report.issues), report.issues
+
+
+def test_a_kit_names_no_model_of_its_own_and_cannot_point_at_one() -> None:
+    bundle = load_example_bundles()[0]
+    raw = {**bundle["draft"], "drafted_by": "vol-a", "drafted_by_key": "k-a"}
+    assert KitDraft.model_validate(raw).model_hook.default == "none"
+    with pytest.raises(ValidationError):
+        KitDraft.model_validate({**raw, "model_hook": {"default": "muse-wonder-1.0"}})
+    # A worker's own label is not kit content: it is never refused for its name.
+    labelled = KitDraft.model_validate({**raw, "drafted_by": "ollama-volunteer"})
+    assert verify_kit(labelled, get_track(labelled.track_id)).passed
 
 
 def test_verifier_catches_missing_track_required_human_only_kind() -> None:

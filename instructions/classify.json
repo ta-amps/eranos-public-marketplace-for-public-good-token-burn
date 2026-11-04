@@ -24,16 +24,11 @@
   ],
   "markers": {
     "private_files": [
-      "client",
-      "clients",
       "client statements",
       "case file",
       "case files",
       "case notes",
-      "cases",
       "caseload",
-      "donor",
-      "donors",
       "donor records",
       "intake notes",
       "bank statements",
@@ -43,9 +38,6 @@
       "signups",
       "member list",
       "contact list",
-      "beneficiary",
-      "beneficiaries",
-      "patients",
       "our files",
       "our records",
       "personnel files"
@@ -91,12 +83,14 @@
       "rulings",
       "legal",
       "court"
-    ]
+    ],
+    "private_files_about": "Phrases that name the organization's own records route a part to a kit its agent runs. A bare mention of donors, clients or cases does not (FB1-025); personal data pasted into a request (record lines, emails, phone numbers) is refused by the privacy check before any routing."
   },
   "plain_words": {
     "public-only": "We'll do this part from public information. An AI worker researches it, a different worker audits every source and approves it, and a person on your team decides what to do with it.",
     "private-files": "This part touches your files, so we'll build a kit your own agent runs. Your data stays with you.",
     "held": "A person needs to look at this part before work starts.",
-    "blocked": "We couldn't take this request because it seems to include personal information. Please describe the job without details about people."
+    "blocked": "We couldn't take this request because it seems to include personal information. Please describe the job without details about people.",
+    "reuse_check": "A reviewed answer from the library may fit. Another worker checks that it answers this request before it is sent; if it does not, new work is planned."
   }
 }

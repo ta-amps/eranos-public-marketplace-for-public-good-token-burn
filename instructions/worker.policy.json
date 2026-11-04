@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "kind": "worker_policy",
+  "key": "worker.policy",
+  "title": "How Eranos's workers tune themselves",
+  "goal": "Requests delivered well, fast and cheap.",
+  "about": "Each step that calls a model (make: research; check: the check of a report) draws a variant from this mix, and every pick is recorded on the request's facts and in its execution report. An hourly task (tune) rereads the recorded outcomes, moves each step's mix toward the variants that earn the most reward, keeps or drops trial variants by their results, and when a step keeps failing asks a Muse model to draft a new persona from the recorded failure reasons; a draft that passes the wording, accusation and personal-data checks enters as a trial at a small share. Tunable here: model, persona, effort, temperature and how often a check gets a second check. Not tunable: the owner's spending caps, the standard tier, a check by a different key, Muse models through the Meta API, every pick recorded, and the owner's wording rules.",
+  "tuner_version": 0,
+  "computed_at": null,
+  "method": "Thompson sampling: each variant's share is its chance of earning the most reward, from Beta posteriors over recorded outcomes (4,000 draws, seeded by the tuner version). Version 0 is the starting mix.",
+  "rewards": {
+    "make": "passed the independent check the first time: 1; sent back or failed: 0; a person's 'use' at Ready for you: 1, 'changes' or 'dont': 0",
+    "check": "agreed with a second check: 1; disagreed: 0, and a fault the other check found that this one passed counts missed_fault_weight times; a person's 'use': 1, 'changes' or 'dont': 0",
+    "penalty": "a success counts less by its cost and time: cost_usd / cost_scale_usd + minutes / time_scale_minutes, at most max_penalty",
+    "missed_fault_weight": 3,
+    "cost_scale_usd": 0.2,
+    "time_scale_minutes": 60,
+    "max_penalty": 0.5
+  },
+  "trial": {
+    "share": 0.05,
+    "until_outcomes": 5
+  },
+  "drop": {
+    "below_share": 0.02,
+    "after_outcomes": 10
+  },
+  "propose": {
+    "after_failures": 2,
+    "max_trials_per_step": 2,
+    "model": "muse-spark-1.3"
+  },
+  "check_sampling": {
+    "second_check_share": 0.2
+  },
+  "variants": [
+    {
+      "id": "make-spark-careful",
+      "step": "make",
+      "model": "muse-spark-1.3",
+      "model_display": "Muse Spark 1.3",
+      "reasoning_effort": "low",
+      "temperature": 0.0,
+      "persona": {
+        "title": "Careful maker",
+        "text": "Read every numbered sentence before you answer. Propose a claim only when one sentence states it plainly, and keep the claim close to that sentence's words. Fewer claims that hold up are better than many that stretch."
+      },
+      "status": "active",
+      "origin": {
+        "by": "seed",
+        "chosen_by": "the worker builder, Nov 1"
+      }
+    },
+    {
+      "id": "make-spark-quick",
+      "step": "make",
+      "model": "muse-spark-1.3",
+      "model_display": "Muse Spark 1.3",
+      "reasoning_effort": "low",
+      "temperature": 0.3,
+      "persona": {
+        "title": "Quick maker",
+        "text": "Go straight to the sentences that answer the question. Propose the clearest claims you can, each resting on one numbered sentence, and skip any point that needs two sentences to stand."
+      },
+      "status": "active",
+      "origin": {
+        "by": "seed",
+        "chosen_by": "the worker builder, Nov 1"
+      }
+    },
+    {
+      "id": "make-wonder-careful",
+      "step": "make",
+      "model": "muse-wonder-1.0",
+      "model_display": "Muse Wonder 1.0",
+      "reasoning_effort": "low",
+      "temperature": 0.0,
+      "persona": {
+        "title": "Careful maker",
+        "text": "Read every numbered sentence before you answer. Propose a claim only when one sentence states it plainly, and keep the claim close to that sentence's words. Fewer claims that hold up are better than many that stretch."
+      },
+      "status": "active",
+      "origin": {
+        "by": "seed",
+        "chosen_by": "the worker builder, Nov 1"
+      }
+    },
+    {
+      "id": "check-spark-skeptical",
+      "step": "check",
+      "model": "muse-spark-1.3",
+      "model_display": "Muse Spark 1.3",
+      "reasoning_effort": "low",
+      "temperature": 0.0,
+      "persona": {
+        "title": "Skeptical checker",
+        "text": "Treat each claim as unsupported until its quote proves it. If the claim leaves out a condition, date, number or exception that the quote has, or says more than the quote, mark it unsupported."
+      },
+      "status": "active",
+      "origin": {
+        "by": "seed",
+        "chosen_by": "the worker builder, Nov 1"
+      }
+    },
+    {
+      "id": "check-spark-literal",
+      "step": "check",
+      "model": "muse-spark-1.3",
+      "model_display": "Muse Spark 1.3",
+      "reasoning_effort": "low",
+      "temperature": 0.0,
+      "persona": {
+        "title": "Literal checker",
+        "text": "Check each claim against its quote word by word. A claim is supported only when every fact in it appears in the quote; anything added, widened or changed makes it unsupported."
+      },
+      "status": "active",
+      "origin": {
+        "by": "seed",
+        "chosen_by": "the worker builder, Nov 1"
+      }
+    },
+    {
+      "id": "check-wonder-literal",
+      "step": "check",
+      "model": "muse-wonder-1.0",
+      "model_display": "Muse Wonder 1.0",
+      "reasoning_effort": "low",
+      "temperature": 0.0,
+      "persona": {
+        "title": "Literal checker",
+        "text": "Check each claim against its quote word by word. A claim is supported only when every fact in it appears in the quote; anything added, widened or changed makes it unsupported."
+      },
+      "status": "active",
+      "origin": {
+        "by": "seed",
+        "chosen_by": "the worker builder, Nov 1"
+      }
+    }
+  ],
+  "mix": {
+    "make": {
+      "make-spark-careful": 0.3333,
+      "make-spark-quick": 0.3333,
+      "make-wonder-careful": 0.3333
+    },
+    "check": {
+      "check-spark-skeptical": 0.3333,
+      "check-spark-literal": 0.3333,
+      "check-wonder-literal": 0.3333
+    }
+  },
+  "stats": {},
+  "summary": {
+    "mix": {
+      "make": "Muse Spark 1.3 67% · Muse Wonder 1.0 33%",
+      "check": "Muse Spark 1.3 67% · Muse Wonder 1.0 33%"
+    },
+    "top": {
+      "make": [
+        {
+          "variant": "make-spark-careful",
+          "model_display": "Muse Spark 1.3",
+          "persona": "Careful maker",
+          "share_percent": 33,
+          "outcomes": 0,
+          "status": "active"
+        },
+        {
+          "variant": "make-spark-quick",
+          "model_display": "Muse Spark 1.3",
+          "persona": "Quick maker",
+          "share_percent": 33,
+          "outcomes": 0,
+          "status": "active"
+        },
+        {
+          "variant": "make-wonder-careful",
+          "model_display": "Muse Wonder 1.0",
+          "persona": "Careful maker",
+          "share_percent": 33,
+          "outcomes": 0,
+          "status": "active"
+        }
+      ],
+      "check": [
+        {
+          "variant": "check-spark-literal",
+          "model_display": "Muse Spark 1.3",
+          "persona": "Literal checker",
+          "share_percent": 33,
+          "outcomes": 0,
+          "status": "active"
+        },
+        {
+          "variant": "check-spark-skeptical",
+          "model_display": "Muse Spark 1.3",
+          "persona": "Skeptical checker",
+          "share_percent": 33,
+          "outcomes": 0,
+          "status": "active"
+        },
+        {
+          "variant": "check-wonder-literal",
+          "model_display": "Muse Wonder 1.0",
+          "persona": "Literal checker",
+          "share_percent": 33,
+          "outcomes": 0,
+          "status": "active"
+        }
+      ]
+    }
+  },
+  "inputs": {
+    "outcomes": 0,
+    "refs": []
+  }
+}
