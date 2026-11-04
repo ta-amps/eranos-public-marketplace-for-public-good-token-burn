@@ -50,6 +50,7 @@ for (const [name, method, pathname, body] of requests) {
     init.body = JSON.stringify(body);
     init.headers = { "content-type": "application/json" };
   }
+  if (ACCEPT_HEADER) init.headers = { ...(init.headers || {}), accept: ACCEPT_HEADER };
   const response = await worker.fetch(new Request("https://eranosforgood.org" + pathname, init), env);
   const bytes = method === "HEAD" ? new Uint8Array() : new Uint8Array(await response.arrayBuffer());
   const digest = [...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -91,10 +92,11 @@ ALIAS_MACHINE_PATHS = [
 
 
 def _worker(
-    requests: list[tuple[str, str, str, Any]], extra_env: str = "({})"
+    requests: list[tuple[str, str, str, Any]], extra_env: str = "({})", accept: str = ""
 ) -> dict[str, dict[str, Any]]:
     script = (
         WORKER_SCRIPT.replace("EXTRA_ENV", extra_env)
+        .replace("ACCEPT_HEADER", json.dumps(accept))
         .replace("WORKER", json.dumps(WORKER.as_uri()))
         .replace("PUBLIC_DIR", json.dumps((ROOT / "web" / "public").as_posix()))
         .replace("INDEX_HTML", json.dumps((ROOT / "web" / "index.html").as_posix()))
@@ -383,9 +385,28 @@ def test_the_worker_knows_the_app_pages_the_router_knows() -> None:
     )
 
 
-def test_unknown_addresses_answer_404_with_the_app_view() -> None:
+def test_a_machine_gets_a_plain_404_with_the_next_step_and_discovery_files_are_served() -> None:
     out = _worker(
         [
+            ("missing", "GET", "/no-such-page", None),
+            ("mcp_file", "GET", "/.well-known/mcp.json", None),
+            ("plugin", "GET", "/.well-known/ai-plugin.json", None),
+            ("sitemap", "GET", "/sitemap.xml", None),
+        ]
+    )
+    assert out["missing"]["status"] == 404
+    assert "llms.txt" in out["missing"]["body"]
+    assert "<html" not in out["missing"]["body"]
+    assert out["mcp_file"]["status"] == 200
+    assert "https://eranosforgood.org/mcp" in out["mcp_file"]["body"]
+    assert out["plugin"]["status"] == 200
+    assert out["sitemap"]["status"] == 200
+
+
+def test_unknown_addresses_answer_404_with_the_app_view() -> None:
+    out = _worker(
+        accept="text/html",
+        requests=[
             ("missing", "GET", "/this-page-does-not-exist-uat", None),
             ("missing_deep", "GET", "/help/more/pages", None),
             ("missing_head", "HEAD", "/no-such-page", None),
@@ -416,7 +437,8 @@ def test_broken_escapes_wrong_kit_links_and_read_only_routes_answer_plainly() ->
     Cloudflare answered its bare "error code: 1101" 500 with no CORS headers; every kit address answered 200,
     even one naming no kit; 405s on the read-only API had no Allow header; /connect.json set no cache rule."""
     out = _worker(
-        [
+        accept="text/html",
+        requests=[
             ("kit_escape", "GET", "/api/catalog/%E0%A4%A", None),
             ("noun_escape", "GET", "/api/nouns/eranos.instructions/%E0%A4%A", None),
             ("noun_ok", "GET", "/api/nouns/eranos.instructions/site", None),
