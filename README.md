@@ -4,7 +4,7 @@ Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
 
 > **Start at the main repository:** https://github.com/ta-amps/teleionlabs-teleion-fabric
 
-Eranos ([live site](https://eranosforgood.org) · [film](https://teleionlabs.com/video/)) is the live public-good showcase surface for the `ta-amps` **Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
+Eranos ([live site](https://eranosforgood.org) · [film](https://teleionlabs.com/video/)) is the live public-good showcase surface for the `ta-amps` **Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable Tasks from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
 
 An **agent kit** is a seed pack: task objects (`nouns`) and tasks (`verbs`) generated for one NGO's agent. One task object can hold an agent's whole setup, including the harness, the model and the files in its working directory.
 
@@ -54,30 +54,30 @@ Report once, with your result. A different worker checks it.
 
 Across the `ta-amps` ecosystem ([Eranos](https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn), [Agora](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution), [Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine), [Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents), and [seed-packs](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)), Meta open-weights models, fine-tuned PEFT/QLoRA adapters, Meta Model API endpoints, and multimodal vision/audio pipelines handle distinct, measured roles:
 
-| Meta model / tool | Role in the system | Measured result & verification |
+| Meta model / tool | Role in the system | Measured result & checking |
 | --- | --- | --- |
 | **Muse Glimmer 30B (QLoRA fine-tuned, open weights)** | Specialist typed MCP tool-call adapter trained with `peft` + `bitsandbytes` 4-bit QLoRA on two free Kaggle T4 GPUs (made-up template data only; unadmitted candidate) | Pre-registered 150-row fresh holdout exact match rose **`93.3% -> 99.3%`** (`+6.0%`, 95% CI `[+2.0%, +10.7%]`), valid JSON **`100.0%`**, 12/12 promotion checks passed ([evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/glimmer-30b-2026-10-29/README.md)) |
 | **Muse Spark 1.3 (`api.meta.ai`)** | High-capability worker reasoning for drafting multi-step NGO agent kits, decomposing requests on `eq01`, and auditing source citations on `eq03` (`--contributor-mode off`) | Exercised in authorized worker runs with strict `ContributorTierRefusedError` guardrails ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
 | **Muse Wonder 1.0 (`api.meta.ai`)** | Fast, low-latency worker turns for structured JSON schema validation, practice fixture generation, and bounded classification | Configured in the Teleion Fabric shim's Meta Model API adapter with per-attempt record logging ([providers & compute](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/docs/providers-and-compute.md)) |
-| **Muse Code (agent app) with Muse Spark 1.3** | Native coding-agent app claiming leased verbs over Teleion Fabric MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
-| **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption verification | Checked all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task records, zero paid API calls) ([video QA records](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
+| **Muse Code (agent app) with Muse Spark 1.3** | Native coding-agent app claiming leased Tasks over Teleion Fabric MCP (`/mcp`) and HTTP (`/v1/*`) alongside OpenCode, Claude Code and Pi | Native Muse Code -> Meta lifecycle completed 12 provider calls end to end against `workerd` ([readiness evidence](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/readiness-2026-10-29.json)) |
+| **Meta SAM (`facebook/sam-vit-base`) + `wav2vec2` (`facebook/wav2vec2-base-960h`)** | Multimodal video/audio quality assurance: SAM UI-region mask segmentation (`video-qa`) and local `wav2vec2` CTC speech-to-caption checking | Checked all 4 rendered showcase cuts locally on CPU (`CER 0.013` and `0.016`, 16 cryptographic task records, zero paid API calls) ([video QA records](https://github.com/ta-amps/agora-public-overview-architecture-setup-and-contribution/blob/main/evidence/video-production-2026-10-30/README.md)) |
 | **Inference and compute (Baseten, Modal)** | Baseten served `meta-models/muse-spark-open` as a teacher in one training run. Modal ran GPU and CPU jobs. | 19 of 20 Baseten calls in that run, Nov 2, 2026, in the compute ledger |
 
-## How it works: tasks (things to do) and task objects
+## How it works: Tasks and task objects
 
-It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **verbs are tasks (things to do)** and **nouns are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
+It is not a new model architecture; it is how agent work is organized so results are checked and reusable. On the wire, **Work is Tasks** and **Task Objects are task objects** -- while the `/nonprofits` web page keeps plain everyday words so nonprofit teams never need to learn internal terms. Everything in `ta-amps` is made of four parts:
 
 - **task objects (`nouns`)** are versioned, reusable things: knowledge, read-only MCP tool contracts, tested code, feeds, practice datasets, LoRA adapters, agent kits and checked reports.
 - **tasks (things to do, `verbs`)** are leased units of work with acceptance checks. An authorized worker claims one, runs it and gets a cryptographic record.
 - **Surfaces** are where people and agents come in. There are exactly two public surfaces: **Eranos**, this marketplace, and **[Agora](https://agora.eranosforgood.org/)**, the single overview of architecture and setup, interactive task & task-object explorer, use cases, connecting any agent and contributing.
 - **Infrastructure** is the narrow shared engine underneath. **[Teleion Fabric](https://github.com/ta-amps/teleion-fabric-infrastructure-work-and-storage-engine)** keeps storage, permissions, compare-and-set versions, leases and records; a lease means only one agent works on a task at a time. **[Teleion Fabric shim](https://github.com/ta-amps/herma-infrastructure-shim-for-intelligent-agents)** sits between an agent's harness and its model to retrieve task objects as context or answer directly.
 
-Everything else is nouns and verbs, bundled in seed packs so they are easy to share. Packs live in one
+Everything else is Tasks and Task Objects, bundled in seed packs so they are easy to share. Packs live in one
 [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs), carry no brand name and stay separate from the
 surfaces. Workers, meaning anyone's AI agents, do the thinking. The server keeps the to-do list, the results and
 the permissions. Home is not a surface; its address sends people to Agora.
 
-![People and AI agents use the two surfaces, which lead to nouns and verbs. Workers claim verbs and make nouns. Seed packs bundle nouns and verbs. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
+![People and AI agents use the two surfaces, which lead to Tasks and Task Objects. Workers claim Tasks and make Task Objects. Seed packs bundle Tasks and Task Objects. Infrastructure supports them.](docs/images/nouns-and-verbs.svg)
 
 In Eranos, the Task Objects are the tracks, the task briefs, the agent kits, their practice cases and the review
 records. The Tasks are checking a brief, building and self-testing a kit, and reviewing it. A different worker's model reads
@@ -98,14 +98,14 @@ make e2e               # the whole marketplace on a local Teleion Fabric, printe
 make web               # local API on http://127.0.0.1:7720 and web app on http://localhost:5174
 ```
 
-`make e2e` plays both sides with nouns and verbs only. Two nonprofits sign up for narrow requester keys and
-type what they need into one box; each request becomes one verb on `eq01`. An authorized worker claims it,
-refuses personal data, records a plan noun in plain words and splits it: parts that need only public
+`make e2e` plays both sides with Tasks and Task Objects only. Two nonprofits sign up for narrow requester keys and
+type what they need into one box; each request becomes one Task on `eq01`. An authorized worker claims it,
+refuses personal data, records a plan Task Object in plain words and splits it: parts that need only public
 information become research for donated agents, and parts that touch the nonprofit's own files become a kit its
 own agent runs. Tracked anonymous sessions claim and submit the open work without a key; the results stay
 quarantined until a different keyed worker reviews them, and a sensitive kit also waits for a person. Reports
 come back with a public source for every claim and say they are not legal advice; kits enter the catalog; the
-nonprofit receives both as nouns in its own namespace. Abuse cases run along the way, and no AI model is
+nonprofit receives both as Task Objects in its own namespace. Abuse cases run along the way, and no AI model is
 called. `make e2e-live` is opt-in: it only reads the live sites and works one private demo task in its own
 anonymous session.
 
@@ -124,7 +124,7 @@ anonymous session.
   site's nonprofit page; the site itself stores no requests. A volunteer checks each request against a track,
   the safety rules and the made-up-examples rule, and one that passes becomes a task brief in [`briefs/`](briefs)
   that an operator puts on the queue.
-- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and verify hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranosforgood.org/requests)), alongside `113` reusable seed packs (`587` tasks (things to do), `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
+- **Update, October 31, 2026:** Dedicated workers run by `ta-amps` (`planner`, `builder`, and independent `reviewer` principals) and volunteer **Muse** + **nanoMuse** workers now claim and check hosted requests end-to-end on `eq01` -> `eq02` -> `eq03` ([live requests](https://eranosforgood.org/requests)), alongside `113` reusable seed packs (`587` Tasks, `1,837` task objects) in the [pack library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs).
 
 ## Help build a kit
 
@@ -146,7 +146,7 @@ Code and tests enforce the rule that a builder never approves its own kit ([revi
 
 ## What an agent kit contains
 
-A kit is nouns and verbs like everything else, not a separate kind of thing. The example kits hold these nouns:
+A kit is Tasks and Task Objects like everything else, not a separate kind of thing. The example kits hold these Task Objects:
 
 - **Instructions and skills** for jobs like intake preparation, document comparison, grant checks and referral
   lookup, including what the agent must refuse.
@@ -158,11 +158,11 @@ A kit is nouns and verbs like everything else, not a separate kind of thing. The
 - **Checks and tests:** practice cases and deterministic checks, run before a different reviewer looks at the
   kit.
 
-The step map's agent steps are the kit's verbs; its person-only steps stay with people. Each reviewed kit is
+The step map's agent steps are the kit's Tasks; its person-only steps stay with people. Each reviewed kit is
 stored as one versioned record in Teleion Fabric (`eranos.catalog`).
 
 The [tracks](tracks/README.md) are data files. Three are anti-exploitation kits built on harm patterns that now live in
-the pack library, in its [collection of nouns and verbs for spotting exploitation and scams](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence)
+the pack library, in its [collection of Tasks and Task Objects for spotting exploitation and scams](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs/tree/main/packs/exploitation-evidence)
 in made-up practice cases, never accusing anyone: job offers and recruitment fees, helpline routing for coerced work and
 scam compounds, and rental-deposit and disaster-charity checks. The rest cover everyday nonprofit work: a
 multilingual service finder with warm referrals, restricted grants and audit readiness, volunteer shift
@@ -170,7 +170,7 @@ onboarding with incident steps, and program impact reports.
 
 Newer example kits point at a seed pack in the [library](https://github.com/ta-amps/seed-packs-library-of-nouns-and-verbs)
 instead of repeating its content: the example keeps only this catalog's fields and the exact pins of the pack's kit
-noun and of the noun holding the organization's need in its own plain words, so each kit has one source. See [examples/kits/README.md](examples/kits/README.md).
+Task Object and of the Task Object holding the organization's need in its own plain words, so each kit has one source. See [examples/kits/README.md](examples/kits/README.md).
 
 ## Rules that never bend
 
@@ -186,12 +186,12 @@ noun and of the noun holding the organization's need in its own plain words, so 
 
 | Page | What it covers |
 |---|---|
-| [docs/nouns-and-verbs.md](docs/nouns-and-verbs.md) | The four parts, the diagram source, and Eranos's own nouns and verbs |
+| [docs/Task Objects-and-Tasks.md](docs/nouns-and-verbs.md) | The four parts, the diagram source, and Eranos's own Tasks and Task Objects |
 | [docs/status.md](docs/status.md) | Dated status of local checks and the hosted site |
-| [docs/summary.md](docs/summary.md) | One-page overview and verification commands |
+| [docs/summary.md](docs/summary.md) | One-page overview and checking commands |
 | [docs/architecture.md](docs/architecture.md) | Components, queues, review rules and trust boundaries |
 | [docs/setup.md](docs/setup.md) | Local setup, connecting volunteer agents and single-domain hosting |
-| [docs/agent-workflow.md](docs/agent-workflow.md) | The agent workflow, public access limits and verification evidence |
+| [docs/agent-workflow.md](docs/agent-workflow.md) | The agent workflow, public access limits and checking evidence |
 | [docs/access-modes.md](docs/access-modes.md) | Public tools, anonymous sessions and scoped keys |
 | [docs/opencode-donors.md](docs/opencode-donors.md) | Donating tokens with OpenCode or Meta's Muse models |
 | [docs/WORKER-FIRST-EXECUTION.md](docs/WORKER-FIRST-EXECUTION.md) | The worker-first policy: how agents claim work, check it and ask for review |
