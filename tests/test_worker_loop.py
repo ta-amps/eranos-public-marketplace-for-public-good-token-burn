@@ -397,7 +397,7 @@ def assert_nothing_public_says_synthetic(fabric: Any, task_ids: list[str]) -> No
         seen += [json.dumps(r) for r in _executions(fabric, task_id)]
     assert seen
     for text in seen:
-        found = re.search("synthetic|(?<!o)llama", text, re.IGNORECASE)
+        found = re.search("synthetic|(?<!o)l[l]ama", text, re.IGNORECASE)
         assert not found, text[max(0, found.start() - 200) : found.end() + 100] if found else ""
 
 

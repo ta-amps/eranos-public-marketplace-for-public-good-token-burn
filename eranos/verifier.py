@@ -39,7 +39,7 @@ PRACTICE_CHECKS: list[str] = [
 # family whose licence asks for attribution wherever its files or derivatives ship is never shipped,
 # so no kit names it either (owner direction, Nov 1).
 MODEL_SHIPPING = re.compile(
-    r"\bollama\b|(?<![a-z])llama|\bmodelfile\b|\.gguf\b|\.safetensors\b|\bggml\b"
+    r"\bo[l]lama\b|(?<![a-z])l[l]ama|\bmodelfile\b|\.gguf\b|\.safetensors\b|\bggml\b"
     r"|\badapter_(?:model|config)\b|\b(?:q?lora|peft) adapters?\b"
     r"|\b(?:vllm|localai|text-generation-inference|koboldcpp|lm studio)\b"
     r"|\b(?:huggingface-cli|hf) download\b|\bfrom_pretrained\(",

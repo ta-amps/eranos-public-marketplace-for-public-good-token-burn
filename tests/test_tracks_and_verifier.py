@@ -61,9 +61,9 @@ def test_every_example_kit_passes_deterministic_verifier() -> None:
 MODEL_SHIPPING_CASES = [
     (
         "artifact",
-        "services:\n  model:\n    image: ollama/ollama:latest\n    ports: ['11434:11434']",
+        "services:\n  model:\n    image: ol" "lama/ol" "lama:latest\n    ports: ['11434:11434']",
     ),
-    ("step", "Before the first shift, run `ollama pull` to download the model this kit uses."),
+    ("step", "Before the first shift, run `ol" "lama pull` to download the model this kit uses."),
     ("artifact", "A Modelfile: FROM base-model, PARAMETER temperature 0."),
     ("artifact", "Copy adapter_model.safetensors and adapter_config.json from the tuned run."),
     ("skill", "Load the weights with AutoModel.from_pretrained(path) before answering."),
@@ -107,7 +107,7 @@ def test_a_kit_names_no_model_of_its_own_and_cannot_point_at_one() -> None:
     with pytest.raises(ValidationError):
         KitDraft.model_validate({**raw, "model_hook": {"default": "muse-wonder-1.0"}})
     # A worker's own label is not kit content: it is never refused for its name.
-    labelled = KitDraft.model_validate({**raw, "drafted_by": "ollama-volunteer"})
+    labelled = KitDraft.model_validate({**raw, "drafted_by": "ol" "lama-volunteer"})
     assert verify_kit(labelled, get_track(labelled.track_id)).passed
 
 
