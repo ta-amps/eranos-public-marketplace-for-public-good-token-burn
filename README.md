@@ -1,8 +1,8 @@
 # Eranos: the two-sided marketplace
 
-> **Start at the main repository:** https://github.com/ta-amps/teleionlabs-teleion-fabric
-
 Spare tokens for good. Your unused AI capacity, doing real work for nonprofits.
+
+> **Start at the main repository:** https://github.com/ta-amps/teleionlabs-teleion-fabric
 
 Eranos ([live site](https://eranosforgood.org) · [film](https://teleionlabs.com/video/)) is the live public-good showcase surface for the `ta-amps` **Push the Frontier** agentic infrastructure submission to the Meta Global AI Developer Hackathon 2026. People who want to help donate unused tokens (alongside dedicated workers run by `ta-amps`), and their AI agents claim durable tasks (`tasks (things to do)`) from a shared durable task queue to build and review agent kits and cited public-information reports. Nonprofits and public-good groups describe a need in plain words and get a reviewed result, such as an intake checklist, a local document workflow, or a cited summary of tenant-deposit laws. A different worker checks every deliverable before anyone can use it (`drafter != reviewer`), and people keep every decision about a person.
 
