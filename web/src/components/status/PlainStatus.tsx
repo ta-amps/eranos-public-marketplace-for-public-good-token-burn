@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { AGORA_HOW_IT_WORKS_URL } from "../../lib/marketplace";
 import { fill, type PlainWords } from "../../lib/nouns";
-import { applyEvents, outsideVolunteer, ownWorker, plainEvent, type Facts } from "../../lib/status/derive";
+import { applyEvents, noResultCause, outsideVolunteer, ownWorker, plainEvent, withoutOwnLabel, type Facts } from "../../lib/status/derive";
 import { ordinal } from "../../lib/status/estimate";
 import type { StatusEvent } from "../../lib/status/types";
 import { AppLink, useHash } from "../../router";
@@ -584,7 +584,10 @@ export function PlainStatus({
   routeId,
   requester,
   settled = true,
+  requestText,
 }: {
+  /** The request's own words, for "Ask again"; never holds the private key. */
+  requestText?: string | null;
   /** False until a live page has read the request's first real snapshot: the track shows no token before then. */
   settled?: boolean;
   summary: PlainSummary;
@@ -608,6 +611,26 @@ export function PlainStatus({
   // Answered from the library (F-UI-STALE-001): each step says so, from the request's own record.
   const candidate = !facts.reused && facts.reuseCandidate && facts.reuseCheck?.verdict !== "does_not_fit" && !facts.closed ? facts.reuseCandidate : undefined;
   const reuse = facts.reused ?? candidate;
+  // Closed with nothing delivered: say what happened and what to do, from the request's own record.
+  const nothingReady = !parts.some((p) => p.check === "approved" || p.decide === "yourturn" || p.decide === "decided");
+  const noResult = facts.closed && nothingReady && !facts.withdrawn && !facts.blocked && !facts.reused && words.no_result ? words.no_result : null;
+  const cause = noResultCause(rawEvents);
+  // A process no ready class fits is looked up as public information instead: the note says so.
+  const noClass = parts.some((p) => p.plan.output_type === "process" && p.plan.route === "public-only");
+  const noResultWhy = !noResult
+    ? ""
+    : noClass && noResult.why_no_process_class
+      ? noResult.why_no_process_class
+      : cause.tries === 0
+      ? noResult.why_never_tried
+      : cause.sources
+        ? cause.tries === 1
+          ? noResult.why_no_sources_one
+          : fill(noResult.why_no_sources, { n: cause.tries })
+        : cause.tries === 1
+          ? noResult.why_other_one
+          : fill(noResult.why_other, { n: cause.tries });
+  const askAgainText = withoutOwnLabel(requestText);
   const reusedHref = facts.reused ? sourceHref({ type: "delivered", result_id: facts.reused.id, ref: facts.reused.ref }) : null;
 
   // Each new recorded fact is announced once for the film frame (the board's onEvent): its caption name, band and line.
@@ -729,6 +752,27 @@ export function PlainStatus({
       <p className="er-visually-hidden" aria-live="polite" data-testid="track-live">
         {(happened.find((row) => row.type !== "signoff_required") ?? happened[0])?.text ?? ""}
       </p>
+      {noResult && (
+        <section className="er-panel er-no-result" aria-labelledby="no-result-title" data-testid="no-result">
+          <h2 id="no-result-title">{noResult.title}</h2>
+          <p data-testid="no-result-why">
+            {noResult.nothing_delivered} {noResultWhy}
+          </p>
+          <h3>{noResult.can_do_title}</h3>
+          <ul>
+            {noResult.can_do.map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+          <AppLink
+            to={askAgainText ? `/nonprofits?q=${encodeURIComponent(askAgainText)}` : "/nonprofits"}
+            className="er-btn-primary"
+            data-testid="no-result-again"
+          >
+            {noResult.again}
+          </AppLink>
+        </section>
+      )}
       {facts.reuseRejected && !facts.reused && words.reuse_rejected_note && (
         <p className="er-small er-reopened" data-testid="reuse-rejected-note">
           {words.reuse_rejected_note}

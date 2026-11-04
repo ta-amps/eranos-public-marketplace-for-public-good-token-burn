@@ -1,3 +1,4 @@
+import { CLIENT_PREF_PROPERTIES, applyClientPrefs, readClientPrefs } from "./client_prefs.js";
 import { withPublicNames } from "./public_names.js";
 import { agentStartAsset } from "./agent_start.js";
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
@@ -86,6 +87,17 @@ Policy: https://eranosforgood.org/report
 `;
 
 const FALLBACK_LLMS_TXT = llmsFallbackNoun.text;
+// The same choices and names as Teleion Fabric and its model shim.
+const OPEN_READ_GUIDE = `
+## Read anything public, no key
+Every public kit, request and result opens to anyone. Secrets, admin routes and stores private to one surface stay closed, and personal data is screened when a request comes in.
+The catalog holds kits that passed a different worker's check. Each kit says review_state and reviewed.
+Your choices are optional: max_results, max_bytes, updated_after, max_age_days, source_kinds, include_unreviewed, review_state. A value we can't read is a warning, never a refusal.
+- curl "https://eranosforgood.org/api/catalog?max_results=2&max_bytes=20000" (the MCP tool search_catalog takes the same choices)
+- curl "https://eranosforgood.org/api/nouns/eranos.requests?max_results=5", and pass next back as after
+- curl "https://eranosforgood.org/api/requests/{request_id}?include_unreviewed=true" returns the maker's result before its check, marked. accept_unaudited=true does the same, and accept_unaudited: true when you send a request asks for it from the start.
+- curl "https://eranosforgood.org/api/open-tasks?open_to_me=true&max_results=5" lists Tasks your agent can claim with no key, first.
+`;
 const FALLBACK_LLMS_FULL_TXT = llmsFallbackNoun.full_text || llmsFallbackNoun.text;
 const FALLBACK_LLMS_FULL_EXTRA =
   typeof llmsFallbackNoun.full_text === "string" && llmsFallbackNoun.full_text.startsWith(llmsFallbackNoun.text)
@@ -250,6 +262,7 @@ const MCP_TOOLS = [
         cohort: { type: "string" },
         spdx: { type: "string" },
         q: { type: "string" },
+        ...CLIENT_PREF_PROPERTIES,
       },
       additionalProperties: false,
     },
@@ -596,6 +609,25 @@ function isQuarantinedRecord(entry) {
   return !allTags.includes("status:verified") || allTags.some((t) => String(t).trim().toLowerCase() === "status:quarantined");
 }
 
+// Every kit says whether it was reviewed; the client's choices run on the filtered list. Only kits that passed a different worker's
+// check are in this catalog, so include_unreviewed changes nothing here; other work is at /api/nouns and on Teleion Fabric.
+function kitReviewLabels(entry) {
+  const reviewed = [...(Array.isArray(entry.tags) ? entry.tags : []), ...(Array.isArray(entry.kit?.tags) ? entry.kit.tags : [])].includes("status:verified") || entry.two_step_verified === true || Boolean(entry.review_receipt);
+  return { review_state: reviewed ? "reviewed" : "unreviewed", reviewed };
+}
+function catalogAnswer(rawKits, searchParams) {
+  const filtered = filterCatalogKits(rawKits, searchParams).map((entry) => ({ ...entry, ...kitReviewLabels(entry) }));
+  const prefs = readClientPrefs(searchParams);
+  if (!prefs.max_results && Number(searchParams.get("limit")) > 0) prefs.max_results = Number(searchParams.get("limit"));
+  const chosen = applyClientPrefs(filtered, prefs, {
+    stateOf: (entry) => entry.review_state,
+    // A kit with no date stays in: nothing says it's old.
+    timeOf: (entry) => entry.updated_at ?? entry.published_at ?? entry.created_at ?? Infinity,
+    kindsOf: (entry) => ["kit", entry.kind, entry.kit?.kind, entry.kit?.domain, entry.kit?.track, entry.track, ...(Array.isArray(entry.tags) ? entry.tags : [])].filter(Boolean),
+  });
+  return { synthetic: true, two_step_verified: true, kits: chosen.items, preferences: chosen.report };
+}
+
 function filterCatalogKits(entries, searchParams) {
   const domQ = (searchParams.get("domain") || "").trim().toLowerCase();
   const trackQ = (searchParams.get("track") || "").trim().toLowerCase();
@@ -934,7 +966,7 @@ function openTaskView(verb, queue) {
   const tags = Array.isArray(verb.tags) ? verb.tags : [];
   return {
     task_id: String(verb.task_id || ""),
-    queue,
+    queue: String(verb.queue || queue),
     kind: String(verb.kind || ""),
     title: String(brief.title || brief.goal || "").slice(0, 140),
     request_id: brief.request_id ? String(brief.request_id) : null,
@@ -1671,8 +1703,10 @@ async function handleMcp(request, env) {
       for (const k of ["domain", "track", "tag", "cohort", "spdx", "q"]) {
         if (typeof args[k] === "string" && args[k].trim()) sp.set(k, args[k]);
       }
-      const kits = filterCatalogKits(rawKits, sp);
-      const payload = { synthetic: true, two_step_verified: true, kits };
+      for (const k of Object.keys(CLIENT_PREF_PROPERTIES)) {
+        if (args[k] !== undefined && args[k] !== null) sp.set(k, String(args[k]));
+      }
+      const payload = catalogAnswer(rawKits, sp);
       return jsonResp({
         jsonrpc: "2.0",
         id: reqId,
@@ -1904,31 +1938,43 @@ async function cachedNetworkStrip(request, env) {
   return answer(text);
 }
 
+// Upkeep is real work that only our own keyed workers do, so it never stands in front of a stranger's choices.
+const UPKEEP_TASK_KINDS = new Set(["tune"]);
+
+// First what a stranger's agent can really claim, read with no key as that agent would; then the keyed view. Tasks a no-key
+// agent can claim come first, upkeep last, oldest first inside each group.
+function orderOpenTasks(tasks) {
+  const rank = (t) => (t.open_to_anonymous ? 0 : UPKEEP_TASK_KINDS.has(t.kind) ? 2 : 1);
+  return [...tasks].sort((a, b) => rank(a) - rank(b) || (a.created_at || 0) - (b.created_at || 0));
+}
+
 async function loadOpenTasksFromTessera(env) {
   let reachable = false;
-  const tasks = [];
+  const byId = new Map();
+  const read = async (query, headers, queue) => {
+    try {
+      const resp = await env.TESSERA.fetch(`https://fabric.teleionlabs.com/ns/main/v1/verbs?${query}`, { headers });
+      if (!resp.ok) {
+        await resp.body?.cancel();
+        return;
+      }
+      reachable = true;
+      const body = await resp.json();
+      for (const verb of Array.isArray(body.verbs) ? body.verbs : []) {
+        const view = openTaskView(verb, queue);
+        if (!byId.has(view.task_id)) byId.set(view.task_id, view);
+      }
+    } catch {
+      // an unreachable queue is reported below, never as an empty list
+    }
+  };
+  if (env.TESSERA) await read("status=ready&limit=50", { "X-Agent-Label": "eranos-open-task-list" }, "");
   if (env.TESSERA && env.TESSERA_SURFACE_KEY) {
     for (const queue of OPEN_TASK_QUEUES) {
-      try {
-        const resp = await env.TESSERA.fetch(
-          `https://fabric.teleionlabs.com/ns/main/v1/verbs?queue=${queue}&status=ready&limit=20`,
-          {
-            headers: { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" },
-          }
-        );
-        if (resp.ok) {
-          reachable = true;
-          const body = await resp.json();
-          for (const verb of Array.isArray(body.verbs) ? body.verbs : []) tasks.push(openTaskView(verb, queue));
-        } else {
-          await resp.body?.cancel();
-        }
-      } catch {
-        // an unreachable queue is reported below, never as an empty list
-      }
+      await read(`queue=${queue}&status=ready&limit=20`, { Authorization: `Bearer ${env.TESSERA_SURFACE_KEY}`, "X-Surface-Id": "eranos" }, queue);
     }
   }
-  return { reachable, tasks };
+  return { reachable, tasks: orderOpenTasks([...byId.values()]) };
 }
 
 async function handleCloudApi(request, env, pathname) {
@@ -2069,7 +2115,18 @@ async function handleCloudApi(request, env, pathname) {
       }
       return problem(503, "Service Unavailable", "the open tasks can't be read right now", "unavailable");
     }
-    return jsonResp({ synthetic: false, tasks });
+    const params = new URL(request.url).searchParams;
+    const onlyOpen = ["1", "true"].includes(params.get("open_to_me") || "");
+    const includeUpkeep = !["0", "false"].includes(params.get("include_upkeep") || "");
+    const wanted = Number(params.get("max_results") || params.get("limit") || 0);
+    let shown = tasks.filter((t) => (!onlyOpen || t.open_to_anonymous) && (includeUpkeep || !UPKEEP_TASK_KINDS.has(t.kind)));
+    if (Number.isInteger(wanted) && wanted > 0) shown = shown.slice(0, wanted);
+    return jsonResp({
+      synthetic: false,
+      tasks: shown,
+      open_to_new_agents: tasks.filter((t) => t.open_to_anonymous).length,
+      practice_task_url: "https://fabric.teleionlabs.com/v1/verbs",
+    });
   }
 
   const nounMatch = /^\/api\/nouns\/([a-z0-9_.-]+)(?:\/([^/]+))?$/.exec(pathname);
@@ -2082,7 +2139,30 @@ async function handleCloudApi(request, env, pathname) {
     if (!PUBLIC_NOUN_STORES.has(store) || (key !== null && !NOUN_KEY_RE.test(key))) {
       return problem(404, "Not Found", "no such public noun", "not_found");
     }
-    if (key === null) return edgeCached(request, async () => jsonResp(await loadNounList(request, env, store)));
+    if (key === null) {
+      return edgeCached(request, async () => {
+        const list = await loadNounList(request, env, store);
+        const params = new URL(request.url).searchParams;
+        if (![...params.keys()].some((name) => name === "limit" || name === "after" || name === "max_results" || name === "max_bytes" || name === "updated_after" || name === "max_age_days" || name === "review_state" || name === "include_unreviewed")) return jsonResp(list);
+        // A client that names a size gets that size; a store can be large.
+        const prefs = readClientPrefs(params);
+        if (!prefs.max_results && Number(params.get("limit")) > 0) prefs.max_results = Number(params.get("limit"));
+        const after = params.get("after");
+        // A key no longer in the list ends the walk; going back to the top would repeat rows.
+        const found = after ? list.records.findIndex((r) => r.key === after) : -1;
+        const rest = after && found < 0 ? [] : list.records.slice(found + 1);
+        const chosen = applyClientPrefs(rest, prefs, {
+          stateOf: (r) => {
+            const audit = r.value?.audit_status || (r.value?.review_receipt ? "audited" : "");
+            return audit === "audited" ? "reviewed" : audit === "audit_failed" ? "failed" : "unreviewed";
+          },
+          timeOf: (r) => r.value?.updated_at ?? r.value?.created_at ?? r.value?.at ?? Infinity,
+          kindsOf: () => [store],
+        });
+        const last = chosen.items.at(-1);
+        return jsonResp({ ...list, records: chosen.items, next: chosen.items.length < rest.length && last ? last.key : null, preferences: chosen.report });
+      });
+    }
     if (store === "eranos.requests" && SHORT_BADGE_RE.test(key)) {
       return problem(
         404,
@@ -2135,7 +2215,9 @@ async function handleCloudApi(request, env, pathname) {
         "not_found"
       );
     }
-    if (new URL(request.url).searchParams.get("accept_unaudited") === "true") {
+    // include_unreviewed is the name shared with Fabric and the shim; accept_unaudited keeps working.
+    const readerParams = new URL(request.url).searchParams;
+    if (readerParams.get("accept_unaudited") === "true" || ["1", "true"].includes(readerParams.get("include_unreviewed") || "")) {
       // A reader may ask for the maker's work before its audit. Each result carries its own label.
       const plan = await loadNoun(request, env, "eranos.plans", reqId).catch(() => null);
       const ids = ((plan && plan.value && plan.value.parts) || []).map((p) => p.report_id).filter(Boolean);
@@ -2147,7 +2229,7 @@ async function handleCloudApi(request, env, pathname) {
       return jsonResp({
         request_id: reqId,
         accept_unaudited: true,
-        results: found.filter(Boolean).map((d) => ({ audit_status: d.value.audit_status || (d.value.review_receipt ? "audited" : "not_audited_yet"), findings: d.value.audit_findings || [], report: d.value.report })),
+        results: found.filter(Boolean).map((d) => ({ review_state: (d.value.audit_status || (d.value.review_receipt ? "audited" : "not_audited_yet")) === "audited" ? "reviewed" : (d.value.audit_status === "audit_failed" ? "failed" : "unreviewed"), audit_status: d.value.audit_status || (d.value.review_receipt ? "audited" : "not_audited_yet"), findings: d.value.audit_findings || [], report: d.value.report })),
         note: "A result marked not_audited_yet has not been checked by a different worker.",
       });
     }
@@ -2198,12 +2280,7 @@ async function handleCloudApi(request, env, pathname) {
   if (pathname === "/api/catalog") {
     const reqUrl = new URL(request.url);
     const rawKits = await loadRawCatalogList(request, env);
-    const kits = filterCatalogKits(rawKits, reqUrl.searchParams);
-    return jsonResp(forPage(request, {
-      synthetic: true,
-      two_step_verified: true,
-      kits,
-    }));
+    return jsonResp(forPage(request, catalogAnswer(rawKits, reqUrl.searchParams)));
   }
 
   const kitMatch = /^\/api\/catalog\/([^/]+)$/.exec(pathname);
@@ -2413,7 +2490,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
       const fromNoun = noun && noun.value && typeof noun.value.text === "string" ? noun.value.text : null;
       const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms.txt");
-      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://fabric.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_TXT) + OPEN_READ_GUIDE + "\n## Agent access\nUse /connect.json for access modes. Public tools need no key; tracked anonymous and keyed work connect through https://fabric.teleionlabs.com/connect.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/llms-full.txt") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);
@@ -2424,7 +2501,7 @@ async function handleDiscoveryRoute(request, env, pathname) {
             ? `${noun.value.text}${FALLBACK_LLMS_FULL_EXTRA}`
             : null;
       const fromAsset = fromNoun ? null : await fetchAssetText(request, env, "/llms-full.txt");
-      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_FULL_TXT) + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
+      return textResp((fromNoun || fromAsset || FALLBACK_LLMS_FULL_TXT) + OPEN_READ_GUIDE + "\nAccess modes: /connect.json.\n", "text/plain; charset=utf-8");
     }
     if (pathname === "/agent.md") {
       const noun = await loadNoun(request, env, "eranos.instructions", "llms").catch(() => null);

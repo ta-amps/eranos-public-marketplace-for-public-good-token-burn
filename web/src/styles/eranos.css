@@ -2770,6 +2770,22 @@ button.er-choice-pill {
   border-color: var(--line-strong);
   border-style: solid;
 }
+.er-no-result {
+  margin: 16px 0;
+  padding: 16px;
+}
+.er-no-result h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+.er-no-result h3 {
+  margin: 12px 0 4px;
+  font-size: 1rem;
+}
+.er-no-result ul {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
 .er-reopened {
   margin: 8px 0 0;
   padding: 8px 12px;
