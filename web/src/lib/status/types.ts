@@ -108,7 +108,7 @@ export interface StatusEvent {
    * published part answered from the library, `next_at` (Unix seconds) and `occurrence` on a recurring request's
    * next run, and `attempt` / `max_attempts` / `retry_at` on a failed try when the worker knows them.
    */
-  summary?: { sources?: number; reused?: boolean; score?: number; next_at?: number; occurrence?: number; attempt?: number; max_attempts?: number; retry_at?: number };
+  summary?: { unaudited?: boolean; sources?: number; reused?: boolean; score?: number; next_at?: number; occurrence?: number; attempt?: number; max_attempts?: number; retry_at?: number };
   reason?: string;
   findings?: string[];
   choice?: DecisionChoice;

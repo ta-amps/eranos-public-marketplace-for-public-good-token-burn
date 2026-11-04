@@ -151,7 +151,7 @@
       "reuse_check_title": "Checking whether an earlier answer fits",
       "review": "Independent review",
       "see_process": "See the process",
-      "signoff_note": "Sensitive processes also need a person’s sign-off.",
+      "signoff_note": "A kit is audited by a worker, not a person, on made-up practice data only.",
       "worker": "The work"
     },
     "log": {
@@ -186,6 +186,7 @@
       "published": "Part {n} published: an agent kit.",
       "queued": "In line: {nth} for part {n}.",
       "queued_plan": "In line: {nth}.",
+      "ready_unaudited": "The maker’s result is ready, marked not audited yet.",
       "received": "Request received.",
       "record_note": "Lines without a time come from public records, which don’t carry their write time.",
       "released": "{who} let part {n} go when its lease ended. It’s back in line.",
@@ -699,6 +700,7 @@
     },
     "result": {
       "approved_badge": "A different worker reviewed this",
+      "audit_failed": "The audit didn’t pass. A different worker checked this and found problems. Read it with care.",
       "back": "← Request {short}",
       "closed_without_result": "This request closed without a result for this part.",
       "container": "Container",
@@ -712,6 +714,7 @@
       "install": "How to install it",
       "kit_link": "Open the published process",
       "meta_anon": "Built by one AI worker, then audited and approved by a different one",
+      "not_audited_yet": "Not audited yet. A different worker hasn’t checked this yet. You asked to see it right away. This label changes when a worker does the audit.",
       "not_ready": "This process appears here once a different worker has checked it.",
       "output": "Output",
       "person_only": "Steps only a person does",
@@ -790,6 +793,7 @@
       "part_working": "Part {n} is being worked on.",
       "planned": "Split into {n} parts.",
       "planning": "A worker is reading your request and splitting it into parts.",
+      "ready_unaudited": "The maker’s result is ready, not audited yet.",
       "reopened": "Opened again: back in line.",
       "reuse_checking": "A similar answer is in the library; a different helper is checking whether it fits.",
       "reuse_does_not_fit": "The library answer didn’t fit this request; it will be made from scratch.",

@@ -135,7 +135,7 @@
           "title": "AI workers do each part."
         },
         {
-          "detail": "Sensitive processes also wait for a person’s sign-off.",
+          "detail": "It is audited by a worker, not reviewed by a person, and checked on made-up practice data only. A person on your team decides whether to use it.",
           "title": "A different worker audits and approves it."
         },
         {
@@ -254,6 +254,7 @@
       "waiting_connection": "Waiting for connection"
     },
     "frequency": {
+      "accept_unaudited": "Show me the result right away, marked “not audited yet”. A different worker still audits it afterward, and the label changes.",
       "cadence_label": "How often should it repeat?",
       "cadences": [
         {
