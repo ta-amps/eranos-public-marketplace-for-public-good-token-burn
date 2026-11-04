@@ -964,6 +964,16 @@ def review_research(
     }
     fresh: dict[str, dict[str, Any]] = {}
     fetch_failures: list[str] = []
+    # A research search answers with articles: this reviewer runs the same searches itself, and a
+    # claim may cite only an article that its own search returned, with the quote in that text.
+    if any(api.get("results") for api in (brief.get("fetch") or {}).get("apis") or []):
+        searched, search_failures = gather(brief, fetcher)
+        fresh.update({str(s["url"]): s for s in searched})
+        numbered.update(
+            {str(s["url"]): (0, str(s["access"]), s.get("publisher")) for s in searched}
+        )
+        if not searched:
+            findings.extend(f"the review's own search failed: {f}" for f in search_failures)
     kept: list[dict[str, Any]] = []
     dropped: list[dict[str, str]] = []
     seen: set[str] = set()

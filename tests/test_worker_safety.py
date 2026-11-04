@@ -24,13 +24,14 @@ from support.workerd_fabric import RULES_HTML, RULES_URL, FakeModel, fixture_fet
 from tessera import IdempotencyConflict, Lease, NotFound, StorageQuotaExhausted, VersionConflict
 from tessera.models import ChildResult
 
+from eranos.sources import Fetched
 from eranos.jsonfile import load_json
 from eranos.model_client import UsageMeter
 from eranos.pipeline import process as process_part
 from eranos.pipeline import research
 from eranos.pipeline.planner import Planner
 from eranos.pipeline.solutions import report_digest
-from eranos.sources import FetchFailed, SourcePolicy, SourceRefused, check_address, fetch
+from eranos.sources import Fetched, FetchFailed, SourcePolicy, SourceRefused, check_address, fetch
 from eranos.worker_keys import write_env_file
 from eranos.worker_loop import LeaseGate, Worker, WorkerConfig
 
@@ -900,3 +901,105 @@ def test_env_proxy_settings_never_reach_the_tessera_client(monkeypatch: pytest.M
     )
     assert not client._http._mounts or all(v is None for v in client._http._mounts.values())
     client.close()
+
+
+# A research search: maker and reviewer each fetch it, and quotes are checked per article ----------
+_SEARCH_QUESTION = "A short literature review on what helps small nonprofits keep their volunteers."
+_SEARCH_TEXT = (
+    "Nonprofits kept volunteers longer when leaders thanked volunteers every month. "
+    "Volunteers stayed when nonprofits gave volunteers clear written roles at the start. "
+    "Nonprofits that trained volunteers for two hours kept volunteers after one year. "
+    "Volunteers returned more often when nonprofits matched volunteers to tasks they liked."
+)
+_INVERTED: dict[str, list[int]] = {}
+for _at, _word in enumerate(_SEARCH_TEXT.split()):
+    _INVERTED.setdefault(_word, []).append(_at)
+_SEARCH_BODY = {
+    "results": [
+        {
+            "doi": "https://doi.org/10.5555/one",
+            "title": "Volunteer retention",
+            "abstract_inverted_index": _INVERTED,
+        }
+    ]
+}
+
+
+def _search_fetcher(url: str) -> Any:
+    body = _SEARCH_BODY if "openalex" in url else {}
+    return Fetched(url, url, 200, "application/json", json.dumps(body).encode(), time.time())
+
+
+class _SearchModel:
+    def chat_json(self, system: str, user: str, **_: Any) -> dict[str, Any]:
+        ids = sorted(set(re.findall(r"S\d+-\d+", user)))
+        lines = {i: re.search(rf"{i}\W+(.+)", user).group(1) for i in ids}  # type: ignore[union-attr]
+        return {"claims": [{"sentence": i, "claim": lines[i]} for i in ids]}
+
+
+def _search_run() -> tuple[Mem, dict[str, Any], dict[str, Any]]:
+    part = {**PART, "text": _SEARCH_QUESTION}
+    brief = research.research_brief("rq-search", part, "Example", GUARDRAILS, RULES, [])
+    assert brief["fetch"]["apis"][0]["results"] == "openalex"
+    mem = Mem()
+    done = research.do_research(
+        mem,
+        SimpleNamespace(brief=brief),
+        fetcher=_search_fetcher,
+        model=_SearchModel(),
+        meter=UsageMeter(),
+        worker_rules=RULES,
+    )
+    assert done["self_test"]["passed"], done["self_test"]
+    return mem, brief, dict(done["output"])
+
+
+def _search_review(mem: Mem, brief: dict[str, Any], output: dict[str, Any]) -> dict[str, Any]:
+    dep = ChildResult(
+        task_id="research-task",
+        state="done",
+        ok=True,
+        output=output,
+        receipt_hash="r-research",
+        completed_by_key="k_maker",
+    )
+    lease = _lease("report_review", "eq03", research.review_brief(brief), [dep])
+    return research.review_research(
+        mem,
+        lease,
+        worker="t-reviewer",
+        key_id="k_reviewer",
+        fetcher=_search_fetcher,
+        worker_rules=RULES,
+        guardrails=GUARDRAILS,
+    )
+
+
+def test_a_report_from_a_research_search_passes_its_review_and_cites_each_article() -> None:
+    mem, brief, output = _search_run()
+    out = _search_review(mem, brief, output)
+    assert out["status"] != "needs_revision", out
+    delivered = mem.records[("eranos.solutions", brief["report_id"])]
+    assert "doi.org/10.5555/one" in json.dumps(getattr(delivered, "value", delivered))
+
+
+def test_a_review_of_a_search_refuses_an_article_its_own_search_did_not_find() -> None:
+    mem, brief, output = _search_run()
+    for source in output["report"]["sources"]:
+        source["url"] = "https://example.org/not-found-by-the-search"
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _search_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
+
+
+def test_a_review_of_a_search_refuses_an_altered_quote() -> None:
+    mem, brief, output = _search_run()
+    for claim in output["report"]["claims"]:
+        claim["citations"][0]["quote"] = (
+            "Nonprofits were told to pay every volunteer a large bonus each year."
+        )
+    output["blob_sha256"] = report_digest(output["report"])
+    out = _search_review(mem, brief, output)
+    assert out["status"] == "needs_revision"
+    assert ("eranos.solutions", brief["report_id"]) not in mem.records
