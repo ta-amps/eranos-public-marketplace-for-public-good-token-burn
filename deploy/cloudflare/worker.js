@@ -89,7 +89,7 @@ const FALLBACK_LLMS_TXT = llmsFallbackNoun.text;
 // The same choices and names as Teleion Fabric and its model shim.
 const OPEN_READ_GUIDE = `
 ## Read anything public, no key
-Every public kit, request and result opens to anyone. Personal data, secrets, admin routes and stores private to one surface stay closed.
+Every public kit, request and result opens to anyone. Secrets, admin routes and stores private to one surface stay closed, and personal data is screened when a request comes in.
 The catalog holds kits that passed a different worker's check. Each kit says review_state and reviewed.
 Your choices are optional: max_results, max_bytes, updated_after, max_age_days, source_kinds, include_unreviewed, review_state. A value we can't read is a warning, never a refusal.
 - curl "https://eranosforgood.org/api/catalog?max_results=2&max_bytes=20000" (the MCP tool search_catalog takes the same choices)
@@ -620,7 +620,8 @@ function catalogAnswer(rawKits, searchParams) {
   if (!prefs.max_results && Number(searchParams.get("limit")) > 0) prefs.max_results = Number(searchParams.get("limit"));
   const chosen = applyClientPrefs(filtered, prefs, {
     stateOf: (entry) => entry.review_state,
-    timeOf: (entry) => entry.updated_at ?? entry.published_at ?? entry.created_at ?? 0,
+    // A kit with no date stays in: nothing says it's old.
+    timeOf: (entry) => entry.updated_at ?? entry.published_at ?? entry.created_at ?? Infinity,
     kindsOf: (entry) => ["kit", entry.kind, entry.kit?.kind, entry.kit?.domain, entry.kit?.track, entry.track, ...(Array.isArray(entry.tags) ? entry.tags : [])].filter(Boolean),
   });
   return { synthetic: true, two_step_verified: true, kits: chosen.items, preferences: chosen.report };
@@ -2141,16 +2142,20 @@ async function handleCloudApi(request, env, pathname) {
       return edgeCached(request, async () => {
         const list = await loadNounList(request, env, store);
         const params = new URL(request.url).searchParams;
-        if (![...params.keys()].some((name) => name === "limit" || name === "after" || name === "max_results" || name === "max_bytes" || name === "updated_after" || name === "max_age_days")) return jsonResp(list);
+        if (![...params.keys()].some((name) => name === "limit" || name === "after" || name === "max_results" || name === "max_bytes" || name === "updated_after" || name === "max_age_days" || name === "review_state" || name === "include_unreviewed")) return jsonResp(list);
         // A client that names a size gets that size; a store can be large.
         const prefs = readClientPrefs(params);
         if (!prefs.max_results && Number(params.get("limit")) > 0) prefs.max_results = Number(params.get("limit"));
         const after = params.get("after");
-        const start = after ? list.records.findIndex((r) => r.key === after) + 1 : 0;
-        const rest = list.records.slice(start);
+        // A key no longer in the list ends the walk; going back to the top would repeat rows.
+        const found = after ? list.records.findIndex((r) => r.key === after) : -1;
+        const rest = after && found < 0 ? [] : list.records.slice(found + 1);
         const chosen = applyClientPrefs(rest, prefs, {
-          stateOf: () => "unreviewed",
-          timeOf: (r) => r.value?.updated_at ?? r.value?.created_at ?? r.value?.at ?? 0,
+          stateOf: (r) => {
+            const audit = r.value?.audit_status || (r.value?.review_receipt ? "audited" : "");
+            return audit === "audited" ? "reviewed" : audit === "audit_failed" ? "failed" : "unreviewed";
+          },
+          timeOf: (r) => r.value?.updated_at ?? r.value?.created_at ?? r.value?.at ?? Infinity,
           kindsOf: () => [store],
         });
         const last = chosen.items.at(-1);
