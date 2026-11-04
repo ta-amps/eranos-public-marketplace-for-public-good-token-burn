@@ -405,7 +405,7 @@ def permitted_urls(brief: dict[str, Any]) -> list[tuple[str, str, str | None]]:
 
 
 # A tag starts with a letter: "<10 staff and >50 volunteers" is text, and removing it changes the facts.
-_TAG = re.compile(r"</?[a-zA-Z][^<>]*>|<!--.*?-->", re.DOTALL)
+_TAG = re.compile(r"</?[a-zA-Z][^<>]*>|<!--(?:(?!<!--).)*?-->", re.DOTALL)
 MAX_ARTICLES_PER_SEARCH = 4
 # A search answer carries each article's opening; its full text takes one more call, same host.
 WIKIPEDIA_PAGE = (
@@ -917,8 +917,11 @@ _CUT_OFF_LINE = re.compile(
     r"(?::|\b(?:not|never|no|don['\u2019]t|do not|must not|cannot))$", re.IGNORECASE
 )
 _WARNING_HEADING = re.compile(
-    r"^(?:avoid\b|never\b|do not\b|don['\u2019]t\b)|\bdon['\u2019]ts\b|\bwhat not to\b|\bnot to do\b"
-    r"|\b(?:mistakes?|myths?|unsafe|prohibited|forbidden)\b",
+    r"^(?:\d+[.)]\s*)?(?:avoid\b|never\b|do not\b|don['\u2019]t\b)|\bdon['\u2019]?ts\b|\bdo not\b"
+    r"|\b(?:what|how) not to\b|\bnot to do\b|(?<!how )\bto avoid\b|\b(?:should|must) (?:not|never)\b"
+    r"|\bshouldn['\u2019]t\b|\bnot (?:recommended|safe|allowed)\b"
+    r"|\b(?:mistakes?|myths?|misconceptions?|unsafe|prohibited|forbidden|false|bad|wrong|dangerous|risky)\b"
+    r"|^(?:warning|danger)$",
     re.IGNORECASE,
 )
 
@@ -938,7 +941,7 @@ def standalone_sentences(text: str) -> list[str]:
         if (
             line
             and not line.endswith((".", "!", "?", ":", '"', "\u201d", ")"))
-            and len(line.split()) <= 8
+            and len(line.split()) <= 12
         ):
             warned = bool(_WARNING_HEADING.search(line))
         for piece in _SENTENCE.split(line):
