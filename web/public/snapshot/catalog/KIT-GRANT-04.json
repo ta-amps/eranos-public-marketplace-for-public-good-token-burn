@@ -197,14 +197,14 @@
   "reviewed_by_key": "key_reviewer_04",
   "review_notes": "Honest-null handling of missing receipts verified; treasurer approval and external filing remain strictly human_only.",
   "steward_signoff": null,
-  "draft_receipt": "aedb772c94dfe71f087b6e2c098c04813a110d5caf8b2aecbc9492783b80330f",
-  "review_receipt": "f7672b681541af84e463d3aa31be57b4762604666074c7e182a47adc60811be9",
+  "draft_receipt": "81d2ba39fa71aadc078b42cd596544c68c761472881a1fb864f559c1d0ee575d",
+  "review_receipt": "9ea1819f871dded191fddbf9327c508761ab6d2e34779520a5a630f5afcdc739",
   "blob_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
   "catalog_version": 1,
-  "review_task_id": "er_431facd0ff22:KIT-GRANT-04:review",
-  "draft_task_id": "er_431facd0ff22:KIT-GRANT-04:draft",
+  "review_task_id": "er_25736e967921:KIT-GRANT-04:review",
+  "draft_task_id": "er_25736e967921:KIT-GRANT-04:draft",
   "draft_sha256": "7a137366b7d3c31f5c1ebaaee0d1bbf4c8dd979ea4c790f76b28abd838c74207",
   "drafter_key_id": "key_drafter_04",
   "reviewer_key_id": "key_reviewer_04",
-  "publication_sha256": "b40d4b807abc72845e0ecbef9058f06134e50ff13611064d6bbc844176e4a80f"
+  "publication_sha256": "2369d52a4a36318cfc5197fc4073ec85e35eaf259f205db11896a3f86951ed7d"
 }
