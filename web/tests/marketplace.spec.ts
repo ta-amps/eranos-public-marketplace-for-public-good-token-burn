@@ -603,6 +603,14 @@ test.describe("wording and accessibility", () => {
     expect(errors).toEqual([]);
   });
 
+  test(`the top menu lists "${NGO_LABEL}" before "${HELP_LABEL}"`, async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto("/");
+    const links = page.getByRole("navigation", { name: "Primary navigation" }).first().getByRole("link");
+    await expect(links.nth(0)).toHaveText(NGO_LABEL);
+    await expect(links.nth(1)).toHaveText(HELP_LABEL);
+  });
+
   test("/connect is a page of the site, with its layout and title, light only", async ({ page }) => {
     await page.goto("/connect");
     await expect(page).toHaveTitle("Connect to Eranos");
