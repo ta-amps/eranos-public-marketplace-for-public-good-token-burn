@@ -109,6 +109,11 @@
     },
     "key": "request-status",
     "kind": "instructions",
+    "kit_from_test": {
+      "chip": "From a test request",
+      "line": "This kit came from a test request we sent ourselves, not from a nonprofit: “{text}”",
+      "link": "See the request"
+    },
     "legend": {
       "items": [
         {
@@ -529,6 +534,24 @@
         ]
       },
       "making_title": "What we’re making for you",
+      "no_process_class_note": "We can’t build a reusable process for this yet: we don’t have a tested one that fits. What you get instead is a short report from public sources about it, with a source for every point, if we can find any.",
+      "no_result": {
+        "again": "Ask again",
+        "can_do": [
+          "Ask again with more detail: who it’s for, your country or state, and what you’ll do with the answer.",
+          "Add a link to a public page you trust. We read your links first.",
+          "Try a narrower question in plain words. Small questions are easier to find sources for."
+        ],
+        "can_do_title": "What you can do",
+        "nothing_delivered": "Nothing was delivered for this request.",
+        "title": "We couldn’t find an answer we could stand behind",
+        "why_never_tried": "The request closed before any worker could make a result.",
+        "why_no_process_class": "We can’t build a reusable process for this yet: we don’t have a tested one that fits. We looked for public information about it instead, and nothing passed our checks.",
+        "why_no_sources": "We searched public sources {n} times. Nothing we found answered your question with a sentence we could quote word for word, and we don’t guess.",
+        "why_no_sources_one": "We searched public sources. Nothing we found answered your question with a sentence we could quote word for word, and we don’t guess.",
+        "why_other": "We tried {n} times, and no result passed our checks.",
+        "why_other_one": "We tried, and no result passed our checks."
+      },
       "private_line": "Your private link lets your team decide on the result: use Copy private link and keep it. To share the request, use Copy link.",
       "ready_title": "Ready for you",
       "reopened_note": "Opened again: the similar library answer didn’t fit this request, so it’s back in line. That answer stays in its history.",
