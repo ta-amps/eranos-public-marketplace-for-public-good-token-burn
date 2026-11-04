@@ -142,7 +142,7 @@
   "review": "Independent review",
   "result": "The result",
   "process_note": "Your files never come here. The process runs on your own agent.",
-  "signoff_note": "A kit is audited by a worker, not a person, on made-up practice data only.",
+  "signoff_note": "A kit is checked by a different worker, not a person, on made-up practice data only.",
   "read_report": "Read the report",
   "see_process": "See the process",
   "reuse_check_title": "Checking whether an earlier answer fits"

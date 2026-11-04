@@ -351,7 +351,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`tracks/victim-support-referrals/track.json`](tracks/victim-support-referrals/track.json) | Victim Support Referrals |
 | [`tracks/volunteer-shift-and-sop-builder/track.json`](tracks/volunteer-shift-and-sop-builder/track.json) | Field Volunteer Onboarding & Incident Escalation SOPs |
 
-## web/ (200)
+## web/ (201)
 
 | File | What it is |
 |---|---|
@@ -488,6 +488,7 @@ Every file in this repo with a one-line description taken from the file itself. 
 | [`web/src/lib/models.ts`](web/src/lib/models.ts) |  |
 | [`web/src/lib/nouns.ts`](web/src/lib/nouns.ts) |  |
 | [`web/src/lib/privacy.ts`](web/src/lib/privacy.ts) |  |
+| [`web/src/lib/publicNames.ts`](web/src/lib/publicNames.ts) | Public text says Fabric, never the old code names, inside a worker's name too. |
 | [`web/src/lib/reportWords.ts`](web/src/lib/reportWords.ts) | The stored title limit: a title this long may have been cut by the old pipeline. |
 | [`web/src/lib/shown.ts`](web/src/lib/shown.ts) |  |
 | [`web/src/lib/snapshot-data.live.ts`](web/src/lib/snapshot-data.live.ts) |  |
