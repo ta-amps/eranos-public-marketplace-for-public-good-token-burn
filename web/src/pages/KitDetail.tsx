@@ -315,7 +315,10 @@ export function KitDetail({ id }: { id: string }) {
           </div>
           <div>
             <dt>Audited and approved by a different worker</dt>
-            <dd>{entry.reviewed_by}</dd>
+            <dd>
+              {entry.reviewed_by}. A worker audited this, not a person, and it was checked on made-up practice data only. A person on
+              your team decides whether to use it.
+            </dd>
           </div>
           <div>
             <dt>Every step is recorded</dt>
