@@ -172,7 +172,7 @@
   "declared": "{model} (declared)",
   "not_declared": "Model not declared",
   "cta": "See the network ↗",
-  "cta_href": "https://agora.eranosforgood.org/network/",
+  "cta_href": "https://shim.teleionlabs.com/dashboard",
   "quiet_title": "Quiet on the network",
   "quiet_text": "No Tasks claimed in the last 10 minutes. The map updates when one is.",
   "empty_title": "No workers connected yet today",

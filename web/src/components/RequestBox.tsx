@@ -4,6 +4,7 @@ import { AdvancedSettings, EMPTY_PREFS, improvedRequest, improving, parsePrefs, 
 import { flushSync } from "react-dom";
 
 import { FABRIC_PUBLIC_URL, SNAPSHOT } from "../config";
+import { getJson } from "../lib/api";
 import { loadLibrary, searchLibrary, type LibraryItem } from "../lib/library";
 import { fill, type NonprofitsPageNoun } from "../lib/nouns";
 import { caseDetailHints, personalDataKinds } from "../lib/privacy";
@@ -64,7 +65,8 @@ function loadDraft(page: NonprofitsPageNoun): Draft {
   const improve = (params.get("improve") ?? "").trim().slice(0, 500);
   if (!text && !improve) return EMPTY;
   const prefs = improve ? JSON.stringify({ ...EMPTY_PREFS, start: page.advanced.improve.value, improve_link: improve }) : "";
-  return { ...EMPTY, text, prefs };
+  const kind = params.get("output");
+  return { ...EMPTY, text, prefs, ...(improve && (kind === "information" || kind === "process") ? { output: kind, frequency: "one-off" } : {}) };
 }
 
 function saveDraft(_draft: Draft): void {
@@ -203,6 +205,20 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
         .sort((a, b) => page.output.options.findIndex((o) => o.value === a) - page.output.options.findIndex((o) => o.value === b))
         .join(","),
     );
+  // "Adapt it for my group": the earlier result is named above the form, and the main box asks what should be different.
+  const adapting = improving(prefs, page.advanced) && Boolean(prefs.improve_link.trim());
+  const adaptHref = adapting && prefs.improve_link.trim().startsWith(`${window.location.origin}/`) ? prefs.improve_link.trim() : "";
+  const adaptId = /\/requests\/(rq-r_[0-9a-f]{32}-[0-9a-z]+)/.exec(adaptHref)?.[1] ?? "";
+  const [adaptTitle, setAdaptTitle] = useState("");
+  useEffect(() => {
+    if (!adaptId) return;
+    getJson<{ value?: { text?: string } }>(`/api/nouns/eranos.requests/${adaptId}`)
+      .then((record) => {
+        const words = (record.value?.text ?? "").trim();
+        setAdaptTitle(words.length > 90 ? `${words.slice(0, 88)}\u2026` : words);
+      })
+      .catch(() => setAdaptTitle(""));
+  }, [adaptId]);
   const missing = {
     output: outputs.length === 0,
     need: draft.text.trim().length < form.min_chars,
@@ -349,6 +365,13 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
 
   return (
     <form ref={box} className="er-ask" data-testid="request-box" noValidate onSubmit={(event) => void submit(event)}>
+      {adapting && (
+        <div className="er-adapt-from" data-testid="adapt-from">
+          <strong>{form.adapt.from_label}</strong>{" "}
+          {adaptHref ? <a href={adaptHref}>{adaptTitle || form.adapt.from_fallback}</a> : <span>{prefs.improve_link}</span>}
+          <p className="er-small">{form.adapt.from_note}</p>
+        </div>
+      )}
       <fieldset className="er-choice" data-field="output" tabIndex={-1} aria-describedby={showMissing("output") ? `${ids}-output-missing` : `${ids}-output-hint`}>
         <legend>{page.output.legend}</legend>
         <p id={`${ids}-output-hint`} className="er-small">
@@ -456,10 +479,10 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
           </label>
         )}
         <label htmlFor="need" className="er-describe-label">
-          {form.label}
+          {adapting ? form.adapt.label : form.label}
         </label>
         <p id="need-hint" className="er-describe-hint">
-          {form.hint}
+          {adapting ? form.adapt.hint : form.hint}
         </p>
         <textarea
           id="need"
@@ -471,7 +494,7 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
           dir="auto"
           maxLength={4000}
           value={draft.text}
-          placeholder={outputs.length === 1 ? form.placeholders[outputs[0] as "process" | "information"] : outputs.length ? form.placeholders.process : form.placeholders.none}
+          placeholder={adapting ? form.adapt.placeholder : outputs.length === 1 ? form.placeholders[outputs[0] as "process" | "information"] : outputs.length ? form.placeholders.process : form.placeholders.none}
           aria-describedby={["need-hint", flags.length ? `${ids}-flag` : "", showMissing("need") ? `${ids}-need-missing` : ""].filter(Boolean).join(" ")}
           aria-invalid={showMissing("need") || undefined}
           onChange={(event) => set("text")(event.target.value)}
@@ -481,14 +504,16 @@ export function RequestBox({ page, libraryWords }: { page: NonprofitsPageNoun; l
             {form.missing.need}
           </p>
         )}
-        <div className="er-examples">
-          <span>{form.examples_label}</span>
-          {form.examples.map((example) => (
-            <button key={example.id} type="button" className="er-example-chip" onClick={() => pick(example)}>
-              {example.short}
-            </button>
-          ))}
-        </div>
+        {!adapting && (
+          <div className="er-examples">
+            <span>{form.examples_label}</span>
+            {form.examples.map((example) => (
+              <button key={example.id} type="button" className="er-example-chip" onClick={() => pick(example)}>
+                {example.short}
+              </button>
+            ))}
+          </div>
+        )}
         <div role="status" aria-live="polite" className="er-describe-checks">
           {flags.length > 0 ? (
             <p id={`${ids}-flag`} className="er-flag" data-testid="personal-data-hint">

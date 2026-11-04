@@ -681,7 +681,7 @@ export function RequestResult({ id }: { id: string }) {
           </>
         )}
         {approved && (
-          <details className="er-details er-checked-how">
+          <details className="er-details er-checked-how" open>
             <summary>{words.steps.checked_how}</summary>
             <p className="er-reviewed-line" data-testid="reviewed-badge">
               {view.checker?.who

@@ -241,7 +241,13 @@ test.describe("part 2 pages", () => {
     const first = page.getByTestId("solutions").locator("li").first();
     await first.getByRole("link", { name: /^Adapt it for my group/ }).click();
     await expect(page).toHaveURL(/\/nonprofits\?improve=/);
-    await expect(page.getByTestId("advanced-settings")).toHaveAttribute("open", "");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Adapt this for your group.");
+    await expect(page.getByTestId("adapt-from").getByRole("link")).toHaveAttribute("href", /\/catalog\/KIT-/);
+    await expect(page.getByLabel("What should be different for your group?")).toBeVisible();
+    // The kind comes from the card, and the choices stay out of the way until asked for; the link is kept there too.
+    await expect(page.getByRole("checkbox", { name: /A reusable process/ })).toBeChecked();
+    await expect(page.getByTestId("advanced-settings")).not.toHaveAttribute("open", "");
+    await page.getByTestId("advanced-settings").locator("summary").click();
     await expect(page.locator("#improve-link")).toHaveValue(/\/catalog\/KIT-/);
   });
 
@@ -313,7 +319,7 @@ test("no horizontal scroll at 390 px, or at 640 px (a 1280 px window at 200% zoo
 test("the header's How it works ↗ opens Agora's How it works page", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/");
-  await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://agora.eranosforgood.org/how-it-works/");
+  await expect(page.locator("header").getByRole("link", { name: /How it works/ })).toHaveAttribute("href", "https://teleionlabs.com/fabric/");
 });
 
 for (const [width, height] of [

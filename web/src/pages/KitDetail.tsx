@@ -24,6 +24,11 @@ function plainReviewNotes(notes: string | undefined): string {
   );
 }
 
+/** A key id means nothing to a reader; the record keeps it. */
+function shownWorker(who: string | undefined): string {
+  return !who || /^k_[0-9a-f]+$/.test(who) ? "a separate reviewer key" : who;
+}
+
 export function KitDetail({ id }: { id: string }) {
   const { state, reload } = useResource<PublishedKit>(`/api/catalog/${encodeURIComponent(id)}?view=page`);
   const words = useNoun<RequestStatusNoun>("request-status").value;
@@ -70,7 +75,8 @@ export function KitDetail({ id }: { id: string }) {
     : kit.target_cohorts?.length
       ? kit.target_cohorts
       : ["all"];
-  const tags = Array.from(new Set([...(entry.tags ?? []), ...(kit.tags ?? [])]));
+  // Only the tags that help a reader: status and internal ids stay in the record.
+  const tags = Array.from(new Set([...(entry.tags ?? []), ...(kit.tags ?? [])])).filter((tag) => !/^(status|reuse|request|package):/.test(tag));
 
   const handlePracticeRun = () => {
     setPracticeState({ status: "running" });
@@ -103,7 +109,9 @@ export function KitDetail({ id }: { id: string }) {
         {words && (
           <p className="er-reviewed-line" data-testid="kit-reviewed">
             <span>
-              {fill(words.report.reviewed_line ?? "", { who: entry.reviewed_by })}
+              {modelRead
+                ? fill(words.report.reviewed_line ?? "", { who: shownWorker(entry.reviewed_by) })
+                : `Checked with fixed checks by a different worker: ${shownWorker(entry.reviewed_by)}`}
               {entry.review_receipt && (
                 <>
                   {" "}
@@ -328,10 +336,10 @@ export function KitDetail({ id }: { id: string }) {
             <dt>{modelRead ? "Audited and approved by a different worker" : "Checked by a different worker with fixed checks"}</dt>
             <dd>
               {modelReadRecords
-                ? `${entry.reviewed_by}. A worker audited this, not a person: a model read the records this kit publishes, and fixed checks covered the bundle's files. It was checked on made-up practice data only. A person on your team decides whether to use it.`
+                ? `${shownWorker(entry.reviewed_by)}. A worker audited this, not a person: a model read the records this kit publishes, and fixed checks covered the bundle's files. It was checked on made-up practice data only. A person on your team decides whether to use it.`
                 : modelReadAll
-                  ? `${entry.reviewed_by}. A worker audited this, not a person, and a model read all of its text. It was checked on made-up practice data only. A person on your team decides whether to use it.`
-                  : `${entry.reviewed_by}. No model read this version's text. A worker ran fixed checks on made-up practice data only, and no person reviewed it. A person on your team decides whether to use it.`}
+                  ? `${shownWorker(entry.reviewed_by)}. A worker audited this, not a person, and a model read all of its text. It was checked on made-up practice data only. A person on your team decides whether to use it.`
+                  : `${shownWorker(entry.reviewed_by)}. No model read this version's text. A worker ran fixed checks on made-up practice data only, and no person reviewed it. A person on your team decides whether to use it.`}
             </dd>
           </div>
           <div>

@@ -34,7 +34,7 @@
       "match": "video"
     }
   ],
-  "external_note": "opens on Agora",
+  "external_note": "opens on Teleion Labs",
   "menu": {
     "button": "Menu",
     "open_label": "Open menu",
@@ -47,10 +47,6 @@
     "spec": "ta-amps.footer/2 (notes/coordination-2026-10-31/claude-design-components.v2.json, SiteFooter, Eranos)",
     "links_label": "Site information",
     "links": [
-      {
-        "label": "Agora ↗",
-        "href": "https://agora.eranosforgood.org/"
-      },
       {
         "label": "Teleion Labs ↗",
         "href": "https://teleionlabs.com/"
@@ -65,7 +61,7 @@
       },
       {
         "label": "Network ↗",
-        "href": "https://agora.eranosforgood.org/network/"
+        "href": "https://shim.teleionlabs.com/dashboard"
       },
       {
         "label": "Models used ↗",
@@ -73,11 +69,11 @@
       },
       {
         "label": "Status ↗",
-        "href": "https://agora.eranosforgood.org/status/"
+        "href": "https://teleionlabs.com/status/"
       },
       {
         "label": "Source ↗",
-        "href": "https://agora.eranosforgood.org/source/"
+        "href": "https://github.com/ta-amps/eranos-public-marketplace-for-public-good-token-burn"
       },
       {
         "label": "Privacy",
@@ -96,7 +92,7 @@
     "beta_note": "Beta until 2027. Open to everyone; your experience may vary."
   },
   "right": {
-    "href": "https://agora.eranosforgood.org/how-it-works/",
+    "href": "https://teleionlabs.com/fabric/",
     "label": "How it works",
     "external": true
   },

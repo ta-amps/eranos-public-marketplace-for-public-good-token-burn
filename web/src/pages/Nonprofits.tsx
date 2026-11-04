@@ -15,12 +15,13 @@ export function Nonprofits() {
   const libraryWords = useNoun<LibraryWords>("library").value;
   if (failed && !page) return <ErrorAlert title="This page is unavailable" message="Its text could not load." onRetry={reload} />;
   if (!page) return null;
+  const adapting = new URLSearchParams(window.location.search).has("improve");
   return (
     <div className="er-ask-page">
       <section className="er-ask-main" aria-labelledby="ngo-title" data-testid="request-kit">
         <p className="er-eyebrow">{page.eyebrow}</p>
-        <h1 id="ngo-title">{page.heading}</h1>
-        <p className="er-lede">{page.lead}</p>
+        <h1 id="ngo-title">{adapting ? page.form.adapt.heading : page.heading}</h1>
+        <p className="er-lede">{adapting ? page.form.adapt.lead : page.lead}</p>
         <p className="er-bounds" role="note" data-testid="request-bounds">
           <Icon name="lock-keyhole" size={20} />
           <span>

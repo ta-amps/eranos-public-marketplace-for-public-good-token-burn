@@ -113,6 +113,16 @@
    "switch": {
     "text": "Need to work with private files? Ask for a reusable process instead. It runs on your own computer, so nothing private is sent.",
     "action": "Switch to a reusable process"
+   },
+   "adapt": {
+    "heading": "Adapt this for your group.",
+    "lead": "Start from a finished result. Tell us what should change, and AI workers make a new version for you.",
+    "from_label": "You are starting from:",
+    "from_fallback": "this finished result",
+    "from_note": "It stays as it is. Your new request links to it, and it's public like every request.",
+    "label": "What should be different for your group?",
+    "hint": "For example: another state, another language, typed forms instead of handwritten ones. Please don't add names or case details.",
+    "placeholder": "For example: the same report for our state, in Spanish"
    }
   },
   "states": {

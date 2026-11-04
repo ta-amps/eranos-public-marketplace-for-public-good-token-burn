@@ -22,6 +22,11 @@ interface OpenTask {
   open_to_anonymous: boolean;
 }
 
+/** Upkeep the system files for itself (test Tasks and tuning prompts): real, but not work a volunteer picks up here. */
+function isUpkeepTask(task: OpenTask): boolean {
+  return task.kind === "tune" || /^End-to-end test Task\b/i.test(task.title);
+}
+
 function waited(words: HelpPageNoun["tasks"], createdAt: number | null): string {
   if (!createdAt) return "";
   const minutes = Math.max(1, Math.round((Date.now() / 1000 - createdAt) / 60));
@@ -188,7 +193,7 @@ export function Help() {
             </p>
             {!SNAPSHOT && open.state.status === "ready" && open.state.data.tasks.length > 0 ? (
               <ul className="er-open-tasks" data-testid="open-task-list">
-                {open.state.data.tasks.map((task) => (
+                {open.state.data.tasks.filter((task) => !isUpkeepTask(task)).map((task) => (
                   <li key={task.task_id}>
                     <span className="er-open-task-title">
                       <strong>{publicNames(task.title || task.task_id)}</strong>
@@ -273,7 +278,6 @@ export function Help() {
                 {tasks.shared_link && tasks.shared_href && <a href={tasks.shared_href}>{tasks.shared_link}</a>}
               </div>
             )}
-            <p className="er-small">{tasks.guard_note}</p>
             <p className="er-small">{tasks.list_note}</p>
             {page.map_notice && (
               <p className="er-small" data-testid="map-notice">

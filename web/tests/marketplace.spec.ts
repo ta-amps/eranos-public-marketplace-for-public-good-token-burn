@@ -638,9 +638,9 @@ test.describe("wording and accessibility", () => {
     }
     const footer = page.locator("footer.er-footer");
     const links = footer.getByRole("navigation", { name: "Site information" }).getByRole("link");
-    await expect(links).toHaveText(["Agora ↗", "Teleion Labs ↗", "Library", "Requests", "Network ↗", "Models used ↗", "Status ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
+    await expect(links).toHaveText(["Teleion Labs ↗", "Library", "Requests", "Network ↗", "Models used ↗", "Status ↗", "Source ↗", "Privacy", "Terms", "Report a problem"]);
     await expect(footer.getByRole("link", { name: "Privacy" })).toHaveAttribute("href", "/privacy");
-    await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://agora.eranosforgood.org/status/");
+    await expect(footer.getByRole("link", { name: "Status ↗" })).toHaveAttribute("href", "https://teleionlabs.com/status/");
     // One row: at desktop width every link sits on the same line.
     await page.setViewportSize({ width: 1440, height: 900 });
     const tops = await links.evaluateAll((els) => [...new Set(els.map((el) => Math.round(el.getBoundingClientRect().top)))]);
