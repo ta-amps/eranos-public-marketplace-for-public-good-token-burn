@@ -6,7 +6,7 @@ import llmsFallbackNoun from "../../instructions/llms.json" with { type: "json" 
 import { schemaIssues } from "./schema.js";
 import { accessResponse, accessDescriptor, CORS_HEADERS, publicFeedPayload } from "./access.js";
 import WORD_LIST from "./banned_words.generated.js";
-import { withExactQuotes } from "./display_corrections.js";
+import { isListed, withExactQuotes } from "./display_corrections.js";
 import { makeNeutral } from "./display_words.js";
 import { stripPiiForDisplay } from "./pii_strip.js";
 // Cloudflare Cloud Worker for Eranos. Serves the web app's static files (SPA fallback), intercepts
@@ -1071,7 +1071,7 @@ async function readNoun(request, env, store, key) {
 async function loadNounList(request, env, store) {
   const list = await readNounList(request, env, store);
   if (store !== "eranos.solutions" || !Array.isArray(list?.records)) return list;
-  return { ...list, records: list.records.map((record) => withExactQuotes({ ...record, store })) };
+  return { ...list, records: list.records.filter(isListed).map((record) => withExactQuotes({ ...record, store })) };
 }
 
 async function readNounList(request, env, store) {
