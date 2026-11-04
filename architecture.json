@@ -528,7 +528,7 @@
     },
     {
       "id": "E3",
-      "statement": "Every fixture carries the SYNTHETIC mark and strict JSON files refuse duplicate keys and NaN",
+      "statement": "Every fixture carries the practice mark and strict JSON files refuse duplicate keys and NaN",
       "enforced_by": "jsonfile",
       "checked_by": [
         "tests/test_schemas_and_copy.py::test_synthetic_fixture_requires_synthetic_mark",
