@@ -5,32 +5,32 @@
   "title": "Rental Deposit & Disaster-Relief Charity Registry Check Kit",
   "example": {
     "path": "examples/kits/15-housing-and-charity-verification.json",
-    "sha256": "45e622b5995cc39305854aae9a03e85e805d8a80638b49b5b59ae5519ff7fc67"
+    "sha256": "cf0c32ca25ba8bf877ef40aa961dd81b09af48da6b3b1cd939529179e5b688f7"
   },
-  "inputs_sha256": "d29816c142a14dd3b749aefd8f1540a2b2142451b1686cd74325135089b10349",
+  "inputs_sha256": "3082da4de81c38981914178858f778fd6812af842117d3419ab00a26ea682c40",
   "seed_pack": null,
   "verbs": [
     {
       "verb": "check",
       "queue": "eq01",
-      "task_id": "er_2390b0024b96:KIT-HOUSING-15:spec",
+      "task_id": "er_f11bb1ebb7bc:KIT-HOUSING-15:spec",
       "worker": "spec-gate-15",
       "key_id": "key_spec_15",
       "ok": true,
-      "receipt_sha256": "0c82f873f9c8cae0213a62db673827d85ae77d58fd8a104f791b55fc1ef83860",
+      "receipt_sha256": "66f722b4773fcae5484ed960be757dbd15ad0b0f101be8c4505736c4d75e2964",
       "state_after": "done",
-      "submitted_at": "1793784478.5482447"
+      "submitted_at": "1793784826.7513394"
     },
     {
       "verb": "build",
       "queue": "eq02",
-      "task_id": "er_2390b0024b96:KIT-HOUSING-15:draft",
+      "task_id": "er_f11bb1ebb7bc:KIT-HOUSING-15:draft",
       "worker": "volunteer-drafter-15",
       "key_id": "key_drafter_15",
       "ok": true,
-      "receipt_sha256": "e4720444f702681e268e1aaf8f2d391c78b35e57cb09c6ddc8cbe7ffbcded098",
+      "receipt_sha256": "dde8fa1c6866b2bd25c5d336c753d69ab37a941cb9dc0acd3ce35bccb7d2a914",
       "state_after": "done",
-      "submitted_at": "1793784478.5572302",
+      "submitted_at": "1793784826.7564535",
       "draft_sha256": "3195a1aa4fdd361a05aeaf2ffa287b41ac9ab80188aef697dfc56bbac2929bfc",
       "verification": {
         "passed": true,
@@ -45,16 +45,16 @@
     {
       "verb": "review",
       "queue": "eq03",
-      "task_id": "er_2390b0024b96:KIT-HOUSING-15:review",
+      "task_id": "er_f11bb1ebb7bc:KIT-HOUSING-15:review",
       "worker": "volunteer-reviewer-15",
       "key_id": "key_reviewer_15",
       "ok": true,
-      "receipt_sha256": "36068535085497b938ac3a4bac9fceb3c998ca84d1c1cab17ba1552e75c2d7b0",
+      "receipt_sha256": "f4445c7e0ac628eddf2f8c5599ed87c223e3febc2a181de8b8535da672ffe200",
       "state_after": "done",
-      "submitted_at": "1793784478.5733125",
+      "submitted_at": "1793784826.7659128",
       "parked_for_steward": false,
       "steward_signoff": null,
-      "publication_sha256": "c945abf9d7d8e8f1319b6ef3024a0edea16232759c499934a08415a2d21df3ba"
+      "publication_sha256": "6f861a70f94081ff921f309540ba60360b3f1b4eedb3325417375352b1740e3d"
     }
   ],
   "outcome": "published",
@@ -69,7 +69,7 @@
   },
   "source": {
     "repository": "eranos-public-marketplace-for-public-good-token-burn",
-    "commit": "8a7e18540e5db681df784d82fa0bc512e75946bf",
+    "commit": "a3192db4b84d796d703e7a2fff7fa95796481cf5",
     "tree_clean": true,
     "seed_pack_library": {
       "commit": "a8fea84c51415c98d4ace0aff2d323de7d9901d7",
@@ -78,5 +78,5 @@
   },
   "store": "local Tessera store in a temporary folder, discarded after the run",
   "model_calls": 0,
-  "recorded_at": "2026-11-04T09:27:58Z"
+  "recorded_at": "2026-11-04T09:33:46Z"
 }
