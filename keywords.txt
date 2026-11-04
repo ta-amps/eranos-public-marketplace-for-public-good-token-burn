@@ -12,7 +12,6 @@ eq02: draft queue
 eq03: review queue
 anti-exploitation: anti_exploitation
 nonprofit operations: nonprofit_ops, nonprofit-ops
-SYNTHETIC
 TrackPack: tracks, track.json
 Astryx
 snapshot: VITE_SNAPSHOT
