@@ -18,4 +18,5 @@ test("Eranos display", () => {
   assert.equal(out.claims[0].text, "reach [phone]");
   assert.deepEqual(out.record, data.record);
   assert.equal(stripPii("250-500 words"), "250-500 words");
+  assert.equal(stripPii("Hotline 1-800-373-7888, or my cell 617-204-8831."), "Hotline 1-800-373-7888, or my cell [phone].");
 });

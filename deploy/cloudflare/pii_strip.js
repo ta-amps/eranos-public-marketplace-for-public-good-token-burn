@@ -3,6 +3,7 @@
 // pages still ask people not to send private information. The same file is used by the shim and by Eranos.
 //
 // stripPii(text)            the text with each find replaced by a typed marker such as [email]
+// Toll-free numbers (800, 888, 877, 866, 855, 844, 833) stay: they are public helplines.
 // stripPii(text, {quote})   a source's own cited quote: public phone numbers and street addresses stay; the rest goes
 // stripPiiDeep(value)       the same over JSON strings; identifiers, addresses, digests and code files are left alone
 
@@ -88,6 +89,12 @@ function looksLikeCard(found) {
   return luhn(digits);
 }
 
+// Coordinator, Nov 4: a toll-free number is a public helpline, not personal data, so it stays: 1-800-373-7888 is help.
+function isTollFree(found) {
+  const digits = found.replace(/\s{0,2}(?:x|ext\.?)\s{0,2}\d{1,6}$/i, "").replace(/\D/g, "").replace(/^(?:011|00)?1?(?=\d{10}$)/, "");
+  return digits.length === 10 && /^8(?:00|88|77|66|55|44|33)/.test(digits);
+}
+
 function digitCount(text) { return (text.match(/\d/g) || []).length; }
 
 function stripPlain(text, quote) {
@@ -99,10 +106,10 @@ function stripPlain(text, quote) {
   out = out.replace(IPV6, (m) => (/^(?:::1?|2001:db8:|fe80:)/i.test(m) || (m.match(/[0-9a-f]+/gi) || []).length < 3 ? m : "[ip address]"));
   if (quote) return out;
   for (const pattern of PHONES) {
-    out = out.replace(pattern, (m) => { const n = digitCount(m); return n >= (/^0{2}|^011/.test(m) ? 10 : 8) && n <= 15 ? "[phone]" : m; });
+    out = out.replace(pattern, (m) => { const n = digitCount(m); return n >= (/^0{2}|^011/.test(m) ? 10 : 8) && n <= 15 && !isTollFree(m) ? "[phone]" : m; });
   }
-  out = out.replace(BARE_PHONE, (m) => (/^20\d\d(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:[01]\d|2[0-3])$/.test(m) || /^(?:214748364[78]|429496729[56])$/.test(m) ? m : "[phone]"));
-  out = out.replace(OTHER_BARE, (m, at, whole) => (/(?:gtin|ean|upc|isbn|sku|barcode)[\s:#-]*$/i.test(whole.slice(Math.max(0, at - 10), at)) ? m : "[phone]"));
+  out = out.replace(BARE_PHONE, (m) => (/^20\d\d(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:[01]\d|2[0-3])$/.test(m) || /^(?:214748364[78]|429496729[56])$/.test(m) || isTollFree(m) ? m : "[phone]"));
+  out = out.replace(OTHER_BARE, (m, at, whole) => (/(?:gtin|ean|upc|isbn|sku|barcode)[\s:#-]*$/i.test(whole.slice(Math.max(0, at - 10), at)) || isTollFree(m) ? m : "[phone]"));
   out = out.replace(ADDRESS_SURE, "[address]").replace(ADDRESS_LOOSE, "[address]").replace(PO_BOX, "[address]");
   return out;
 }
@@ -192,7 +199,7 @@ export function stripPiiHtml(html) {
       } else if (m) code = !m[1];
       return part
         .replace(/\b(content|title|alt|value|placeholder|aria-label|data-[\w-]+)=("[^"]*"|'[^']*')/gi, (_, name, quoted) => `${name}=${stripPii(quoted)}`)
-        .replace(/\b(?:mailto|tel):[^"'\s>]+/gi, (found) => (found[0].toLowerCase() === "m" ? "mailto:[email]" : "tel:[phone]"));
+        .replace(/\b(?:mailto|tel):[^"'\s>]+/gi, (found) => (found[0].toLowerCase() === "m" ? "mailto:[email]" : isTollFree(found.slice(4)) ? found : "tel:[phone]"));
     }
     if (script && data && part.trim()) {
       try {
