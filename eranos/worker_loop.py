@@ -2008,7 +2008,9 @@ class Worker:
             )
         ]
         now = time.time()
-        waiting_failures = any(tuning_mod.failures_to_propose(tuning, outcomes, step) for step in tuning_mod.STEPS)
+        waiting_failures = any(
+            tuning_mod.failures_to_propose(tuning, outcomes, step) for step in tuning_mod.STEPS
+        )
         if not waiting_failures and not tuning_mod.has_new_outcomes(tuning, outcomes):
             output = {
                 "node": "tune",
