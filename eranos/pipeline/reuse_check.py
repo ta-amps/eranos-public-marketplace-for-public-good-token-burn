@@ -4,7 +4,7 @@ Finding F-REUSE-001: the planner once closed a real request with an unrelated li
 check and no decision. Now a reuse match is only a candidate. The planner queues one `reuse_review`
 verb on eq03 for it, and a reviewer (a different key from the planner's, which may not claim eq03
 verbs at all) reads the request and the library answer and asks a Muse model whether the answer fits
-as it is. Only a yes answers the request from the library; no, unsure, an answer it cannot read, or a
+as it is (the same question word for word needs no model). Only a yes answers the request from the library; no, unsure, an answer it cannot read, or a
 library answer that changed or lost its confirmed review sends it back, and the planner then plans new
 work. Every check records its model, verdict and reason.
 
@@ -35,6 +35,7 @@ from eranos.privacy import personal_data_findings
 REUSE_KIND = "reuse_review"
 VERDICTS = ("yes", "no", "unsure")
 MAX_WHY = 240
+SAME_WORDS = "The same question, word for word."
 REOPEN_SEP = "--reopen-"
 _WORKER_NOUN_PATH = Path(__file__).resolve().parents[2] / "instructions" / "worker.json"
 DEFAULT_MAX_QUESTION_CHARS = int(
@@ -162,6 +163,7 @@ def review_reuse(
     judge: Judge,
     max_points: int = 6,
     max_question_chars: int | None = None,
+    reuse_rules: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Check one reuse candidate, then answer the request from the library or send it back."""
     brief = dict(lease.brief)
@@ -189,6 +191,8 @@ def review_reuse(
             problem = "the library answer's review cannot be confirmed"
     except NotFound:
         problem = "the library answer is no longer there"
+    if str(pointer.get("key")) in set((reuse_rules or {}).get("not_reused") or []):
+        problem = problem or "the library answer was taken off display"
     cap = int(max_question_chars) if max_question_chars else DEFAULT_MAX_QUESTION_CHARS
     raw_question = str(brief.get("question") or "")
     try:
@@ -203,16 +207,17 @@ def review_reuse(
         problem = problem or "the request text for the reuse check was incomplete"
     question = full_question[:cap]
     started = time.time()
-    if problem is None:
-        verdict = judge(
-            question,
-            library_view(
-                str(pointer.get("kind")),
-                value,
-                max_points=max_points,
-                max_question_chars=cap,
-            ),
-        )
+    view = library_view(
+        str(pointer.get("kind")), value, max_points=max_points, max_question_chars=cap
+    )
+    if problem is None and (
+        str(pointer.get("kind")) == "report"
+        and reuse.same_question(question, view["question_it_answered"], reuse_rules or {})
+    ):
+        # The same words need no model to say so: this other key still decides, for no tokens.
+        verdict = {"answers": "yes", "why": SAME_WORDS, "model": None, "cost_usd": 0.0}
+    elif problem is None:
+        verdict = judge(question, view)
     else:
         verdict = {"answers": "no", "why": problem, "model": None}
     judged = read_judgment(verdict)

@@ -14,6 +14,7 @@ receipt Tessera confirms.
 
 A match never closes a request on its own (finding F-REUSE-001): the planner queues a reuse check, a
 verb another worker's key claims, and only an approved check answers the request from the library.
+The same question word for word, apart from a test label, is approved by that key with no model call.
 Every decision records the best candidate, its score and the threshold.
 """
 
@@ -44,20 +45,42 @@ def _stem(word: str) -> str:
     return word
 
 
-# The bar in code: a noun may raise the reuse threshold, never lower it below this.
-MIN_THRESHOLD = 0.7
+# The bar in code: a noun may raise the reuse threshold, never lower it below this. A match is only a
+# candidate, and the reuse check decides, so this bar sets how many checks run, not what gets reused.
+MIN_THRESHOLD = 0.5
 MIN_TERMS = 3
 
 
-def strip_shared(text: str, rules: dict[str, Any]) -> str:
-    """The request without the phrasing many requests share (the noun's `strip` patterns)."""
+def _sub_all(patterns: Any, text: str) -> str:
     out = text
-    for pattern in rules.get("strip") or []:
+    for pattern in patterns or []:
         try:
             out = re.sub(str(pattern), " ", out, flags=re.IGNORECASE)
         except re.error:
             continue
     return out
+
+
+def strip_labels(text: str, rules: dict[str, Any]) -> str:
+    """The request without a test label (the noun's `labels` patterns). Our own labeled requests
+    stay in the library, so left in, a label's words make unrelated labeled questions look alike and
+    keep a person's own repeat, which has no label, from matching at all."""
+    return _sub_all(rules.get("labels"), text)
+
+
+def strip_shared(text: str, rules: dict[str, Any]) -> str:
+    """The request without a label or the phrasing many requests share (the noun's `strip`)."""
+    return _sub_all(rules.get("strip"), strip_labels(text, rules))
+
+
+def _plain_words(text: str) -> str:
+    return " ".join(re.sub(r"[^\w$€£%]+", " ", text.casefold()).split())
+
+
+def same_question(first: str, second: str, rules: dict[str, Any]) -> bool:
+    """The same words, apart from a test label, capitals and punctuation."""
+    one = _plain_words(strip_labels(first, rules))
+    return bool(one) and one == _plain_words(strip_labels(second, rules))
 
 
 def terms(text: str, rules: dict[str, Any]) -> set[str]:
@@ -226,6 +249,20 @@ def find_reuse(
     if exact is not None:
         note.update(best=_brief_match(exact), outcome="exact package key: a reuse check decides")
         return exact
+    if output_type != "process":
+        for store, record, have_text, kind, receipt in candidates(backend, rules):
+            body = record.value if isinstance(record.value, dict) else {}
+            if (
+                kind == "report"
+                and same_question(text, have_text, rules)
+                and verified(backend, body, receipt)
+            ):
+                title = str((body.get("report") or {}).get("title") or "")
+                same = Match(store, str(record.key), int(record.version), 1.0, kind, receipt, title)
+                note.update(
+                    best=_brief_match(same), outcome="the same question: a reuse check decides"
+                )
+                return same
     wanted = terms(text, rules)
     if len(wanted) < MIN_TERMS:
         note["outcome"] = "too few distinctive words to compare"
