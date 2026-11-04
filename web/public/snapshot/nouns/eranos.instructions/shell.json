@@ -40,6 +40,10 @@
           "label": "Source ↗"
         },
         {
+          "href": "https://teleionlabs.com/legal/meta-models.txt",
+          "label": "Built with Muse Spark Open ↗"
+        },
+        {
           "label": "Privacy",
           "to": "/privacy"
         },
