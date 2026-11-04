@@ -201,7 +201,8 @@
    "reopened_plain": "Opened again.",
    "reuse_fits": "A different helper checked the library answer: it fits.",
    "reuse_does_not_fit": "A different helper checked the library answer: it doesn’t fit.",
-   "planned_reuse_check": "A similar answer is in the library; a different helper checks whether it fits."
+   "planned_reuse_check": "A similar answer is in the library; a different helper checks whether it fits.",
+   "ready_unaudited": "The maker’s result is ready, marked not audited yet."
   },
   "queue": {
    "title": "Eranos queue right now",
@@ -255,7 +256,8 @@
    "reopened": "Opened again: back in line.",
    "reuse_checking": "A similar answer is in the library; a different helper is checking whether it fits.",
    "reuse_fits": "A different helper checked the library answer: it fits this request.",
-   "reuse_does_not_fit": "The library answer didn’t fit this request; it will be made from scratch."
+   "reuse_does_not_fit": "The library answer didn’t fit this request; it will be made from scratch.",
+   "ready_unaudited": "The maker’s result is ready, not audited yet."
   },
   "notices": {
    "no_agents": {

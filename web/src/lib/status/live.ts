@@ -309,6 +309,7 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
             at: null,
             ref: `eranos.solutions/${part.report_id ?? ""}`,
             result_id: part.report_id,
+            summary: { unaudited: true },
           });
           break;
         case "delivered":

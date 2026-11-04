@@ -317,7 +317,8 @@ export function applyEvents(events: StatusEvent[], live = false): Facts {
         }
         if (!p) break;
         if (p.work !== "done") p.work = "done";
-        if (p.check !== "approved") p.check = "approved";
+        // A result shown before its audit is not an approval.
+        if (p.check !== "approved" && !event.summary?.unaudited) p.check = "approved";
         p.result = "noun";
         p.resultEvidence = { ...evidence(event), id: event.result_id };
         if (p.decide !== "decided") {
@@ -635,6 +636,10 @@ function logRows(record: StatusRecord, words: RequestStatusNoun): LogRow[] {
         text = fill(words.log.signed_off ?? "", { n });
         break;
       case "delivered":
+        if (event.summary?.unaudited) {
+          text = words.log.ready_unaudited ?? "";
+          break;
+        }
         if (event.summary?.reused) {
           reusedSeen = true;
           text = words.log.reused ?? "";
@@ -1146,6 +1151,7 @@ export function summaryLine(allEvents: StatusEvent[], words: RequestStatusNoun):
       return fill(words.summary.signoff ?? "", { n });
     case "delivered":
     case "published":
+      if (last.summary?.unaudited) return words.summary.ready_unaudited ?? "";
       if (last.summary?.reused) return words.summary.reused ?? "";
       return `${fill(words.summary.part_approved ?? "", { n })} ${words.summary.your_turn ?? ""}`.trim();
     case "reuse_checked":
