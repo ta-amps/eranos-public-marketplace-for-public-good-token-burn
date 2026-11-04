@@ -211,7 +211,9 @@ _ABOUT_PEOPLE = frozenset(
 )
 _PEOPLE_MEANS = frozenset({"retention", "turnover", "recruitment"})
 # A label says who is asking or why, not what about: it never goes into a search.
-_LABEL_START = re.compile(r"^\s*(?:example request:|practice case:[^.?!]*[.?!])\s*", re.IGNORECASE)
+_LABEL_START = re.compile(
+    r"^\s*(?:example request:|(?:practice case:|test run\b)[^.?!]*[.?!])\s*", re.IGNORECASE
+)
 _LABEL_END = re.compile(r"\s*\btest run\b(?:,\s*[^.?!]{0,30})?[.?!]?\s*$", re.IGNORECASE)
 
 

@@ -330,6 +330,11 @@ def test_label_words_inside_a_question_are_the_question():
     assert "evacuation" in R.query_terms(text)
     assert R.subject_text("Practice case: an example. How do we plan?") == "How do we plan?"
     assert R.subject_text("How do we plan? Test run, Nov 4.") == "How do we plan?"
+    start = (
+        "Test run, Nov 4, 2026, our own example, not a real organization's request. How do we plan?"
+    )
+    assert R.subject_text(start) == "How do we plan?"
+    assert not {"test", "organization's"} & set(R.query_terms(start + " Budget plans."))
 
 
 def test_a_literal_retention_word_stays_and_only_a_mapped_one_goes():
