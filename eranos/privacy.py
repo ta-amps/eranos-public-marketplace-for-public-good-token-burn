@@ -86,8 +86,8 @@ def _strings(node: Any, path: str = "") -> list[tuple[str, str]]:
     return []
 
 
-def text_personal_findings(value: Any, *, skip: frozenset[str] = LABEL_FIELDS) -> list[str]:
-    """Personal data anywhere in a kit's text, as `field: kind`, never the match. Sources are public links; their addresses aren't screened."""
+def text_personal_findings(value: Any, *, skip: frozenset[str] = frozenset()) -> list[str]:
+    """Personal data anywhere in a kit's text, labels included, as `field: kind`, never the match. Sources are public links; their addresses aren't screened."""
     found: list[str] = []
     top = {k: v for k, v in value.items() if k not in skip} if isinstance(value, dict) else value
     for path, text in _strings(top):

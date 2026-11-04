@@ -672,17 +672,19 @@ def run_review_step(
     key_id: str,
     tracks_root: Path | None = None,
 ) -> dict[str, Any] | None:
-    with _eranos_surface_scope(backend):
-        recovered = recover_publications(
-            backend, _publish_to_catalog, kit_id=decision.kit_id, key_id=key_id
-        )
-    if recovered is not None:
-        return {
-            "node": "review",
-            "status": "published",
-            "kit_id": recovered.kit.kit_id,
-            "published": recovered.model_dump(mode="json"),
-        }
+    # An interrupted approval is finished only by a current approval: a new "no" never publishes an old yes.
+    if decision.verdict == "approved":
+        with _eranos_surface_scope(backend):
+            recovered = recover_publications(
+                backend, _publish_to_catalog, kit_id=decision.kit_id, key_id=key_id
+            )
+        if recovered is not None:
+            return {
+                "node": "review",
+                "status": "published",
+                "kit_id": recovered.kit.kit_id,
+                "published": recovered.model_dump(mode="json"),
+            }
     lease = _claim_with_key(backend, "eq03", worker, key_id=key_id, kinds=["review"])
     if lease is None:
         return None

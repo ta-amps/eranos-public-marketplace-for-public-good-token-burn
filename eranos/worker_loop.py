@@ -79,11 +79,19 @@ from eranos.pipeline.reuse_check import (
     resolve_max_question_chars,
     review_reuse,
 )
-from eranos.pipeline.run import SelfReviewRefused, run_draft_step, run_review_step, run_spec_step
+from eranos.pipeline.run import (
+    SelfReviewRefused,
+    draft_digests,
+    run_draft_step,
+    run_review_step,
+    run_spec_step,
+)
 from eranos.pipeline.status_events import fact, queue_snapshot, record_events
 from eranos.privacy import text_personal_findings
-from eranos.schemas import KitDraft, ReviewDecision, VerificationReport
+from eranos.schemas import KitDraft, ReviewDecision
 from eranos.sources import Fetched, fetch, policy_from_rules
+from eranos.tracks import get_track
+from eranos.verifier import verify_kit
 
 # Kit builds and kit reviews are not claimed here: kits carry a fixture mark these workers must
 # not publish. Work on a nonprofit's own files goes through process packages instead.
@@ -99,7 +107,7 @@ VOLUNTEER_KINDS = frozenset({"research", "report_review"})
 MODEL_STEPS = {"research": "make", "report_review": "check"}
 # Verbs that need a model to answer, so none is claimed while it cannot (the reuse check runs the
 # worker noun's fixed model, not a tuned variant).
-MODEL_KINDS = frozenset({*MODEL_STEPS, REUSE_KIND})
+MODEL_KINDS = frozenset({*MODEL_STEPS, REUSE_KIND, "review", process_part.REVIEW_KIND})
 MODEL_CATALOG = ("eranos.instructions", "models.meta")
 LOCAL_CATALOG = Path(__file__).resolve().parents[1] / "instructions" / "models.meta.json"
 DECLARED = {
@@ -1597,7 +1605,8 @@ class Worker:
             if screened:
                 return {
                     "approved": False,
-                    "findings": [f"personal details: {x}" for x in screened],
+                    "findings": [f"personal_data: {len(screened)}"],
+                    "counts": {"personal_data": len(screened)},
                     "model": None,
                     "notes": "The personal-data screen stopped this kit before any model read it.",
                 }
@@ -1611,6 +1620,20 @@ class Worker:
             )
 
         return read
+
+    def kit_free_checks(
+        self, draft: KitDraft, output: dict[str, Any], *, worker: str, key_id: str
+    ) -> str | None:
+        """What can stop a kit for free, by this worker's own checks and not the maker's report. run_review_step checks them again."""
+        if worker == draft.drafted_by or key_id == draft.drafted_by_key:
+            return "a worker can't audit its own kit"
+        if str(output.get("blob_sha256") or "") not in draft_digests(output["draft"], draft):
+            return "its digest doesn't match its content"
+        try:
+            report = verify_kit(draft, get_track(draft.track_id))
+        except (KeyError, ValueError, OSError):
+            return "its track can't be read"
+        return f"{len(report.issues)} issue(s)" if not report.passed else None
 
     def kit(
         self, gate: LeaseGate, lease: Lease, meter: UsageMeter, notes: dict[str, Any]
@@ -1642,26 +1665,23 @@ class Worker:
             )
             return {"status": "nothing_to_review", "receipt": receipt.receipt_hash}
         draft = KitDraft.model_validate(dep.output["draft"])
-        verification = VerificationReport.model_validate(dep.output["verification"])
-        reading = self.review_reader(lease, meter, notes, maker_model_of(dep.output))(
-            draft.model_dump(mode="json"),
-            (
-                "The kit's fixed checks passed."
-                if verification.passed
-                else "The kit's fixed checks failed.",
-            ),
-        )
+        stopped = self.kit_free_checks(draft, dep.output, worker=worker, key_id=key_id)
+        if stopped:  # the free checks first, so a bad kit costs no model call
+            reading = {
+                "approved": False,
+                "notes": f"Fixed checks stopped this kit before any model read it: {stopped}.",
+            }
+        else:
+            reading = self.review_reader(lease, meter, notes, maker_model_of(dep.output))(
+                draft.model_dump(mode="json"),
+                ("This worker ran the kit's fixed checks itself, and they passed.",),
+            )
         decision = ReviewDecision(
             kit_id=draft.kit_id,
-            verdict="approved" if verification.passed and reading["approved"] else "needs_revision",
+            verdict="approved" if reading["approved"] else "needs_revision",
             reviewed_by=worker,
             reviewed_by_key=key_id,
-            notes=(
-                reading["notes"]
-                + (" Sent back: " + "; ".join(reading["findings"]) if reading["findings"] else "")
-            )[:500]
-            if len(reading["notes"]) >= 5
-            else "Sent back by the reader.",
+            notes=reading["notes"],
         )
         if forbidden(dep.output):
             decision = decision.model_copy(

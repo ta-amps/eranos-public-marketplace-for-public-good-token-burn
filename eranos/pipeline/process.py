@@ -573,15 +573,16 @@ def review_package(
             findings.append(NO_REBUILT_VALUES)
     reading: dict[str, Any] = {}
     if not findings and reader is not None:
-        rebuilt_value = (verdict.get("verified") or {}).get("catalog_value")
+        rebuilt_values = verdict.get("verified") or {}
         reading = reader(
-            rebuilt_value.get("kit", rebuilt_value)
-            if isinstance(rebuilt_value, dict)
-            else rebuilt_value,
+            {
+                "catalog": rebuilt_values.get("catalog_value"),
+                "template": rebuilt_values.get("template_value"),
+            },
             ("This worker ran the package's own tests again in a clean folder, and they passed.",),
         )
         if not reading.get("approved"):
-            findings.extend(reading.get("findings") or ["the model didn't approve this kit"])
+            findings.extend(reading.get("findings") or ["not_approved: 1"])
     if findings:
         receipt = backend.submit(
             lease.task_id,

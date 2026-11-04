@@ -734,6 +734,86 @@ def test_process_request_with_a_handler_is_built_reviewed_and_published(
     )
 
 
+class _KitReader(FakeModel):
+    def __init__(self, verdict: str = "needs_revision") -> None:
+        super().__init__()
+        self.verdict, self.sent = verdict, []
+
+    def chat_json(self, system: str, user: str, **kwargs: Any) -> dict[str, Any]:
+        self.sent.append(user)
+        return {
+            "verdict": self.verdict,
+            "dangerous_advice": ["SAID-BY-THE-MODEL about the kit"]
+            if self.verdict != "approved"
+            else [],
+            "personal_data": [],
+            "autonomy": [],
+            "false_claims": [],
+            "notes": "SAID-BY-THE-MODEL",
+        }
+
+
+def _process_run(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch, reader: Any
+) -> tuple[Any, str, Any]:
+    bundle = tmp_path / "bundle" / "bundle.tgz"
+    bundle.parent.mkdir()
+    bundle.write_bytes(b"made-up sample process bundle")
+    handler_path = tmp_path / "handler.py"
+    handler_path.write_text(HANDLER_FILE)
+    monkeypatch.setenv("TEST_BUNDLE", str(bundle))
+    handler = process_part.load_handler(str(handler_path))
+    rid = fabric.file_request(
+        fabric.requester(),
+        {
+            "text": "A reusable process to merge our made-up shift lists and flag gaps.",
+            "links": [],
+            "organization_type": "Food pantry",
+            "output_type": "process",
+            "frequency": "one-off",
+        },
+        "proc-read",
+    )
+    w = _workers(fabric, handler=handler)
+    w["reviewer"] = _reviewer(fabric, name="reviewer", handler=handler, model=reader)
+    for role in ("planner", "builder", "reviewer"):
+        w[role].run_once()
+    return handler, rid, fabric.get(f"/v1/stores/eranos.plans/records/{rid}")["value"]["parts"][0]
+
+
+@needs_workerd
+def test_a_process_kit_the_reader_refuses_never_publishes_and_its_words_stay_private(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reader = _KitReader("needs_revision")
+    handler, rid, part = _process_run(fabric, tmp_path, monkeypatch, reader)
+    assert reader.sent, "the reader was asked"
+    review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
+    assert review["output"]["status"] == "needs_revision"
+    ids = handler.expected_records({"request_id": rid}, {"part": 1})
+    catalog = fabric.get(f"/v1/stores/eranos.processes/records/{ids['catalog_record']['key']}")
+    assert catalog.get("visibility_scope") != "public_commons"
+    public = json.dumps(_record(fabric, rid)) + json.dumps(review)
+    assert "SAID-BY-THE-MODEL" not in public and "dangerous_advice: 1" in public
+
+
+@needs_workerd
+def test_a_process_kit_sends_all_it_publishes_to_the_reader(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    reader = _KitReader("approved")
+    handler, rid, part = _process_run(fabric, tmp_path, monkeypatch, reader)
+    sent = json.loads(reader.sent[0])
+    assert (
+        set(sent["kit"]) == {"catalog", "template"}
+        and sent["kit"]["catalog"]
+        and sent["kit"]["template"]
+    )
+    assert "package's own tests" in sent["checked_by_this_worker"][0]
+    review = fabric.get(f"/v1/tasks/{part['review_task_id']}/results")["results"][-1]
+    assert review["output"]["approved"] is True
+
+
 B4_HANDLER = os.environ.get("ERANOS_PROCESS_HANDLER", "")
 FILM_REQUEST = (
     "A reusable process to clean our volunteer sign-up spreadsheets: remove duplicates, fix date and phone "
