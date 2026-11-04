@@ -691,7 +691,7 @@ def test_the_agent_banner_copies_the_llms_line_and_pages_link_no_dead_github_add
     shown += sorted((ROOT / "web" / "src").rglob("*.ts*"))
     matched = [p for p in shown if dead.search(p.read_text(encoding="utf-8"))]
     # The footer's Source link and the report links are the only GitHub addresses in the page text.
-    assert [p.name for p in matched] == ["shell.json", "trust.json"]
+    assert [p.name for p in matched] == ["help.json", "shell.json", "trust.json"]
     trust_urls = set(
         re.findall(
             r"https://github\.com/ta-amps/[^\s\"']+",
