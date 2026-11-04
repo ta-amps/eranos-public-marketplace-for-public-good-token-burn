@@ -688,6 +688,32 @@ def test_open_tasks_are_read_with_the_surface_key_and_show_only_the_brief_title(
     assert unreachable["tasks"]["status"] == 503
 
 
+def test_catalog_and_nouns_take_the_shared_client_choices() -> None:
+    out = _worker(
+        [
+            ("all", "GET", "/api/catalog", None),
+            ("one", "GET", "/api/catalog?max_results=1", None),
+            ("limit", "GET", "/api/catalog?limit=1", None),
+            ("small", "GET", "/api/catalog?max_bytes=10", None),
+            ("bad", "GET", "/api/catalog?max_results=wat", None),
+            ("mcp", "POST", "/mcp", {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "search_catalog", "arguments": {"max_results": 1}}}),
+            ("nouns", "GET", "/api/nouns/eranos.instructions?max_results=1", None),
+        ]
+    )
+    everything = json.loads(out["all"]["body"])
+    assert everything["kits"], "the snapshot has kits"
+    assert all(kit["review_state"] in {"reviewed", "unreviewed"} and isinstance(kit["reviewed"], bool) for kit in everything["kits"])
+    assert everything["preferences"]["returned"] == len(everything["kits"])
+    assert len(json.loads(out["one"]["body"])["kits"]) == 1
+    assert len(json.loads(out["limit"]["body"])["kits"]) == 1
+    small = json.loads(out["small"]["body"])
+    assert small["kits"] == [] and small["preferences"]["left_out_by_max_bytes"] > 0
+    assert "warnings" in json.loads(out["bad"]["body"])["preferences"]
+    assert len(json.loads(out["mcp"]["body"])["result"]["structuredContent"]["kits"]) == 1
+    nouns = json.loads(out["nouns"]["body"])
+    assert len(nouns["records"]) == 1 and nouns["next"]
+
+
 def test_the_agent_banner_copies_the_llms_line_and_pages_link_no_dead_github_address() -> None:
     banner = json.loads((ROOT / "instructions" / "agent-banner.json").read_text(encoding="utf-8"))
     # AgentBanner board: Copy puts exactly this line on the clipboard, and /llms.txt answers it.

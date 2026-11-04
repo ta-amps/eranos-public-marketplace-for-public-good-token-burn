@@ -1,3 +1,4 @@
+import { CLIENT_PREF_PROPERTIES, applyClientPrefs, readClientPrefs } from "./client_prefs.js";
 import { withPublicNames } from "./public_names.js";
 import { agentStartAsset } from "./agent_start.js";
 import kitSchema from "./kit-draft.schema.json" with { type: "json" };
@@ -249,6 +250,7 @@ const MCP_TOOLS = [
         cohort: { type: "string" },
         spdx: { type: "string" },
         q: { type: "string" },
+        ...CLIENT_PREF_PROPERTIES,
       },
       additionalProperties: false,
     },
@@ -593,6 +595,24 @@ function isQuarantinedRecord(entry) {
     ...(Array.isArray(kit.tags) ? kit.tags : []),
   ];
   return !allTags.includes("status:verified") || allTags.some((t) => String(t).trim().toLowerCase() === "status:quarantined");
+}
+
+// Every kit says whether it was reviewed; the client's choices run on the filtered list. Only kits that passed a different worker's
+// check are in this catalog, so include_unreviewed changes nothing here; other work is at /api/nouns and on Teleion Fabric.
+function kitReviewLabels(entry) {
+  const reviewed = [...(Array.isArray(entry.tags) ? entry.tags : []), ...(Array.isArray(entry.kit?.tags) ? entry.kit.tags : [])].includes("status:verified") || entry.two_step_verified === true || Boolean(entry.review_receipt);
+  return { review_state: reviewed ? "reviewed" : "unreviewed", reviewed };
+}
+function catalogAnswer(rawKits, searchParams) {
+  const filtered = filterCatalogKits(rawKits, searchParams).map((entry) => ({ ...entry, ...kitReviewLabels(entry) }));
+  const prefs = readClientPrefs(searchParams);
+  if (!prefs.max_results && Number(searchParams.get("limit")) > 0) prefs.max_results = Number(searchParams.get("limit"));
+  const chosen = applyClientPrefs(filtered, prefs, {
+    stateOf: (entry) => entry.review_state,
+    timeOf: (entry) => entry.updated_at ?? entry.published_at ?? entry.created_at ?? 0,
+    kindsOf: (entry) => ["kit", entry.kind, entry.kit?.kind, entry.kit?.domain, entry.kit?.track, entry.track, ...(Array.isArray(entry.tags) ? entry.tags : [])].filter(Boolean),
+  });
+  return { synthetic: true, two_step_verified: true, kits: chosen.items, preferences: chosen.report };
 }
 
 function filterCatalogKits(entries, searchParams) {
@@ -1670,8 +1690,10 @@ async function handleMcp(request, env) {
       for (const k of ["domain", "track", "tag", "cohort", "spdx", "q"]) {
         if (typeof args[k] === "string" && args[k].trim()) sp.set(k, args[k]);
       }
-      const kits = filterCatalogKits(rawKits, sp);
-      const payload = { synthetic: true, two_step_verified: true, kits };
+      for (const k of Object.keys(CLIENT_PREF_PROPERTIES)) {
+        if (args[k] !== undefined && args[k] !== null) sp.set(k, String(args[k]));
+      }
+      const payload = catalogAnswer(rawKits, sp);
       return jsonResp({
         jsonrpc: "2.0",
         id: reqId,
@@ -2104,7 +2126,26 @@ async function handleCloudApi(request, env, pathname) {
     if (!PUBLIC_NOUN_STORES.has(store) || (key !== null && !NOUN_KEY_RE.test(key))) {
       return problem(404, "Not Found", "no such public noun", "not_found");
     }
-    if (key === null) return edgeCached(request, async () => jsonResp(await loadNounList(request, env, store)));
+    if (key === null) {
+      return edgeCached(request, async () => {
+        const list = await loadNounList(request, env, store);
+        const params = new URL(request.url).searchParams;
+        if (![...params.keys()].some((name) => name === "limit" || name === "after" || name === "max_results" || name === "max_bytes" || name === "updated_after" || name === "max_age_days")) return jsonResp(list);
+        // A client that names a size gets that size; a store can be large.
+        const prefs = readClientPrefs(params);
+        if (!prefs.max_results && Number(params.get("limit")) > 0) prefs.max_results = Number(params.get("limit"));
+        const after = params.get("after");
+        const start = after ? list.records.findIndex((r) => r.key === after) + 1 : 0;
+        const rest = list.records.slice(start);
+        const chosen = applyClientPrefs(rest, prefs, {
+          stateOf: () => "unreviewed",
+          timeOf: (r) => r.value?.updated_at ?? r.value?.created_at ?? r.value?.at ?? 0,
+          kindsOf: () => [store],
+        });
+        const last = chosen.items.at(-1);
+        return jsonResp({ ...list, records: chosen.items, next: chosen.items.length < rest.length && last ? last.key : null, preferences: chosen.report });
+      });
+    }
     if (store === "eranos.requests" && SHORT_BADGE_RE.test(key)) {
       return problem(
         404,
@@ -2157,7 +2198,9 @@ async function handleCloudApi(request, env, pathname) {
         "not_found"
       );
     }
-    if (new URL(request.url).searchParams.get("accept_unaudited") === "true") {
+    // include_unreviewed is the name shared with Fabric and the shim; accept_unaudited keeps working.
+    const readerParams = new URL(request.url).searchParams;
+    if (readerParams.get("accept_unaudited") === "true" || ["1", "true"].includes(readerParams.get("include_unreviewed") || "")) {
       // A reader may ask for the maker's work before its audit. Each result carries its own label.
       const plan = await loadNoun(request, env, "eranos.plans", reqId).catch(() => null);
       const ids = ((plan && plan.value && plan.value.parts) || []).map((p) => p.report_id).filter(Boolean);
@@ -2169,7 +2212,7 @@ async function handleCloudApi(request, env, pathname) {
       return jsonResp({
         request_id: reqId,
         accept_unaudited: true,
-        results: found.filter(Boolean).map((d) => ({ audit_status: d.value.audit_status || (d.value.review_receipt ? "audited" : "not_audited_yet"), findings: d.value.audit_findings || [], report: d.value.report })),
+        results: found.filter(Boolean).map((d) => ({ review_state: (d.value.audit_status || (d.value.review_receipt ? "audited" : "not_audited_yet")) === "audited" ? "reviewed" : (d.value.audit_status === "audit_failed" ? "failed" : "unreviewed"), audit_status: d.value.audit_status || (d.value.review_receipt ? "audited" : "not_audited_yet"), findings: d.value.audit_findings || [], report: d.value.report })),
         note: "A result marked not_audited_yet has not been checked by a different worker.",
       });
     }
@@ -2220,12 +2263,7 @@ async function handleCloudApi(request, env, pathname) {
   if (pathname === "/api/catalog") {
     const reqUrl = new URL(request.url);
     const rawKits = await loadRawCatalogList(request, env);
-    const kits = filterCatalogKits(rawKits, reqUrl.searchParams);
-    return jsonResp(forPage(request, {
-      synthetic: true,
-      two_step_verified: true,
-      kits,
-    }));
+    return jsonResp(forPage(request, catalogAnswer(rawKits, reqUrl.searchParams)));
   }
 
   const kitMatch = /^\/api\/catalog\/([^/]+)$/.exec(pathname);
