@@ -2138,11 +2138,15 @@ async function handleCloudApi(request, env, pathname) {
       // A reader may ask for the maker's work before its audit. Each result carries its own label.
       const plan = await loadNoun(request, env, "eranos.plans", reqId).catch(() => null);
       const ids = ((plan && plan.value && plan.value.parts) || []).map((p) => p.report_id).filter(Boolean);
-      const drafts = await Promise.all(ids.map((id) => loadNoun(request, env, "eranos.drafts", String(id)).catch(() => null)));
+      // The delivered result wins: it holds the audited report and the current label. A draft is only what the maker has.
+      const found = await Promise.all(ids.map(async (id) => {
+        const delivered = await loadNoun(request, env, "eranos.solutions", String(id)).catch(() => null);
+        return delivered || loadNoun(request, env, "eranos.drafts", String(id)).catch(() => null);
+      }));
       return jsonResp({
         request_id: reqId,
         accept_unaudited: true,
-        results: drafts.filter(Boolean).map((d) => ({ audit_status: d.value.audit_status, findings: d.value.audit_findings || [], report: d.value.report })),
+        results: found.filter(Boolean).map((d) => ({ audit_status: d.value.audit_status || (d.value.review_receipt ? "audited" : "not_audited_yet"), findings: d.value.audit_findings || [], report: d.value.report })),
         note: "A result marked not_audited_yet has not been checked by a different worker.",
       });
     }

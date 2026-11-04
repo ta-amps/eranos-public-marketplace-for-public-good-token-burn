@@ -301,6 +301,16 @@ export async function readLive(id: string, keyed: KeyedData | null): Promise<Liv
           events.push({ type: "check_approved", part: n, at: null, ref });
           events.push({ type: "signoff_required", part: n, at: null, ref });
           break;
+        case "delivered_unaudited":
+          // The maker's result, shown early: no audit event, because no audit has happened.
+          events.push({
+            type: "delivered",
+            part: n,
+            at: null,
+            ref: `eranos.solutions/${part.report_id ?? ""}`,
+            result_id: part.report_id,
+          });
+          break;
         case "delivered":
           events.push({ type: "check_approved", part: n, at: null, receipt: state.review_receipt, ref });
           events.push({

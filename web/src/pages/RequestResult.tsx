@@ -598,8 +598,13 @@ export function RequestResult({ id }: { id: string }) {
                 {report.sources.map((source, i) => (
                   <li key={source.id} id={`source-${i + 1}`}>
                     {source.title} · <span className="er-mono">{host(source.url)}</span>
-                    {source.published ? ` · ${fill(r.published ?? "", { date: source.published })}` : ""} ·{" "}
-                    <span className="er-checked">{r.checked}</span>
+                    {source.published ? ` · ${fill(r.published ?? "", { date: source.published })}` : ""}
+                    {solution?.audit_status === "not_audited_yet" || solution?.audit_status === "audit_failed" ? null : (
+                      <>
+                        {" · "}
+                        <span className="er-checked">{r.checked}</span>
+                      </>
+                    )}
                   </li>
                 ))}
               </ol>
