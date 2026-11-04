@@ -939,7 +939,44 @@ def test_a_check_that_says_no_is_not_retried(
         planner.pacer.next_at.clear()
         planner.run_once()
     record = _record(fabric, rid)
+    assert record["status"] == "closed", "the planner reached finish()"
     assert "review_retries" not in record and len(reader.sent) == 1
+
+
+@needs_workerd
+def test_a_retry_round_the_record_missed_is_read_not_planned_over(
+    fabric: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import eranos.pipeline.planner as planner_mod
+
+    handler, rid, w, reader = _outage_run(fabric, tmp_path, monkeypatch)
+    _pump(w, fabric, rid, lambda r: r.get("review_retries") == 1)
+    reader.down = False
+    real, failed = planner_mod.Planner._facts, []
+
+    def miss_once(self: Any, events: Any, **kwargs: Any) -> Any:
+        if not failed and any(e.get("type") == "planned" for e in events):
+            failed.append(True)
+            raise RuntimeError("made-up storage error after the split")
+        return real(self, events, **kwargs)
+
+    monkeypatch.setattr(planner_mod.Planner, "_facts", miss_once)
+    _pump(w, fabric, rid, lambda r: r.get("status") == "closed")
+    assert failed, "the write really failed once"
+    ids = handler.expected_records({"request_id": rid}, {"part": 1})
+    assert _is_public(fabric, ids), "the approved round stays public"
+    record = _record(fabric, rid)
+    assert record["review_retries"] == 1 and "blocked" not in _types(record)
+
+
+def test_a_recurring_process_request_gets_no_extra_rounds() -> None:
+    from eranos.pipeline.planner import Planner
+
+    fake = Planner.__new__(Planner)
+    fake.terms = {"frequency": "recurring"}
+    assert fake._check_never_finished({"children": ["a"]}) is False
+    fake.terms = {"frequency": "one-off"}
+    assert fake._check_never_finished({"children": ["a"], "unrecorded": True}) is False
 
 
 B4_HANDLER = os.environ.get("ERANOS_PROCESS_HANDLER", "")
