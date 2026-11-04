@@ -111,9 +111,9 @@ export function Overview({ site }: { site: SiteNoun | null }) {
             )}
             {home?.video_cta && (
               <p className="er-home-video-cta">
-                <AppLink to={home.video_cta.to} className="er-text-link">
-                  {home.video_cta.label} →
-                </AppLink>
+                <a href={home.video_cta.href} className="er-text-link">
+                  {home.video_cta.label}
+                </a>
               </p>
             )}
           </div>

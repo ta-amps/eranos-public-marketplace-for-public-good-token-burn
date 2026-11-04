@@ -151,7 +151,7 @@ export interface HomeNoun {
   buttons: { id: string; label: string; to: string; sub?: string; sub_short?: string }[];
   honesty: string;
   honesty_short?: string;
-  video_cta?: { label: string; to: string };
+  video_cta?: { label: string; href: string };
   /** The hero's line under the headline (EranosHome); the site noun's subline when absent. */
   lead?: string;
   /** The hero's four tiles: the request flow's steps, lit once after load (owner, Nov 1 evening). */
