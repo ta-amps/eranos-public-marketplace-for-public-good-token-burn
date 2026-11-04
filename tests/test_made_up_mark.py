@@ -10,4 +10,4 @@ def test_worker_and_web_accept_the_made_up_mark() -> None:
     shown = (ROOT / "web/src/lib/shown.ts").read_text(encoding="utf-8")
     assert '!sample.includes("MADE-UP")' in worker
     for text in (worker, shown):
-        assert "(?:SYNTHETIC|MADE-UP):" in text
+        assert "MADE-UP:" in text
