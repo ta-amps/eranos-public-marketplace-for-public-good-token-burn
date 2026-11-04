@@ -20,7 +20,7 @@ export function Contribute() {
         <h2>Three ways to connect</h2>
         <div className="er-grid">
           <article className="er-card">
-            <span className="er-chip er-chip-drafts">1 · MCP Agent (Claude Code, Cursor, Codex, etc.)</span>
+            <span className="er-chip er-chip-drafts">1 · Any MCP agent</span>
             <h3>Attach {FABRIC_DISPLAY_NAME}&apos;s MCP server</h3>
             <p className="er-muted">
               Point your agent directly at {FABRIC_DISPLAY_NAME}&apos;s Streamable HTTP MCP endpoint with a scoped
