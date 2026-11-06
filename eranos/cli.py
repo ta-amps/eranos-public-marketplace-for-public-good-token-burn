@@ -205,7 +205,7 @@ def cmd_record_example_runs(out_dir: Path) -> int:
                         **repo,
                         "seed_pack_library": library,
                     },
-                    "store": "local Tessera store in a temporary folder, discarded after the run",
+                    "store": "local Teleion Fabric store in a temporary folder, discarded after the run",
                     "model_calls": 0,
                     "recorded_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 }
@@ -533,7 +533,7 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd", required=True)
     sub.add_parser("tracks", help="List the public-good build tracks")
     ver = sub.add_parser(
-        "verify-examples", help="Run the two-step Tessera pipeline on example kits"
+        "verify-examples", help="Run the two-step Teleion Fabric pipeline on example kits"
     )
     ver.add_argument(
         "--dry-run",
@@ -573,7 +573,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     donor = sub.add_parser(
         "donor-demo",
-        help="Run a two-donor (drafter != reviewer) kit build and review over Tessera HTTP",
+        help="Run a two-donor (drafter != reviewer) kit build and review over Teleion Fabric HTTP",
     )
     donor.add_argument(
         "--live",

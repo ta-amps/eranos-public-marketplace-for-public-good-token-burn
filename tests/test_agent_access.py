@@ -27,7 +27,7 @@ def test_browser_onboarding_and_cors() -> None:
         assert response.status_code in (200, 204)
         assert response.headers["access-control-allow-origin"] == "*"
     descriptor = client.get("/connect.json").json()
-    assert descriptor["fabric_connect_url"] == "https://tessera.ta-amps.workers.dev/connect"
+    assert descriptor["fabric_connect_url"] == "https://fabric.teleionlabs.com/connect"
     assert descriptor["surface_persistence"] is False
     card = client.get("/.well-known/agent-card.json").json()
     tools = client.post("/mcp", json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"}).json()[

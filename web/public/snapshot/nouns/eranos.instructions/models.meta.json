@@ -61,7 +61,7 @@
         "by": "Anthropic",
         "model_id": "claude-haiku-4-5-20251001",
         "name": "Claude Haiku 4.5 *",
-        "role": "A fallback Herma can call with the project's own key.",
+        "role": "A fallback the Teleion Fabric model shim can call with the project's own key.",
         "source": "provider-handoff",
         "state": "Switched off since 2026-10-29 (owner's decision)"
       },
@@ -69,7 +69,7 @@
         "by": "OpenAI, through OpenRouter",
         "model_id": "openai/gpt-4.1-nano",
         "name": "GPT-4.1 nano *",
-        "role": "A second fallback Herma can call with the project's own key.",
+        "role": "A second fallback the Teleion Fabric model shim can call with the project's own key.",
         "source": "provider-handoff",
         "state": "Switched off since 2026-10-29 (owner's decision)"
       }
@@ -169,7 +169,7 @@
             "text": "It finished the full claim · do · report test in three agent apps: Muse Code, nanoMuse and OpenClaw."
           }
         ],
-        "variant_note": "The Oct 31 test run used muse-spark-1.3-contributor, which we use only for public test work. Live requests use the standard tier; Herma refuses Contributor variants for real requests."
+        "variant_note": "The Oct 31 test run used muse-spark-1.3-contributor, which we use only for public test work. Live requests use the standard tier; the Teleion Fabric model shim refuses Contributor variants for real requests."
       },
       {
         "id": "muse-code",

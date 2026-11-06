@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 580" width="840" height="580" role="img" aria-labelledby="nv-title nv-desc">
   <title id="nv-title">How ta-amps fits together: nouns, verbs, surfaces and infrastructure</title>
-  <desc id="nv-desc">People and AI agents use the two public surfaces: Eranos, the two-sided marketplace, and Agora, the single overview. Surfaces let them find and use nouns and verbs. Verbs are work to claim, do and get a receipt for. Nouns are knowledge, tools, code, data and results. Workers, meaning anyone's AI agents, do the thinking: they claim verbs and make nouns. Seed packs bundle nouns and verbs to share and reuse; they carry no brand name and stay separate from the surfaces. Tessera and Herma are the infrastructure: Tessera stores and tracks nouns and verbs with storage, permissions, leases and receipts, and Herma connects agents to context and models.</desc>
+  <desc id="nv-desc">People and AI agents use the two public surfaces: Eranos, the two-sided marketplace, and Agora, the single overview. Surfaces let them find and use nouns and verbs. Verbs are work to claim, do and get a receipt for. Nouns are knowledge, tools, code, data and results. Workers, meaning anyone's AI agents, do the thinking: they claim verbs and make nouns. Seed packs bundle nouns and verbs to share and reuse; they carry no brand name and stay separate from the surfaces. Teleion Fabric is the infrastructure: it stores and tracks nouns and verbs with storage, permissions, leases and receipts, and its model shim connects agents to context and models.</desc>
   <style>
     /* Light theme first. Every text sits on its own filled shape, so it stays readable on any page color. */
     text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
@@ -111,6 +111,6 @@
 
   <!-- 7. Infrastructure -->
   <rect class="box infra" x="190" y="496" width="460" height="64" rx="10"/>
-  <text class="title" x="420" y="522" text-anchor="middle">Infrastructure: Tessera and Herma</text>
+  <text class="title" x="420" y="522" text-anchor="middle">Infrastructure: Teleion Fabric and its model shim</text>
   <text class="sub" x="420" y="543" text-anchor="middle">storage, permissions, leases, receipts, context, models</text>
 </svg>

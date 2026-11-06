@@ -309,13 +309,13 @@ def dashboard_route(request: Request) -> Response:
                 "ok": True,
                 "synthetic": True,
                 "surface": "eranos",
-                "dashboard_url": "https://herma.ta-amps.workers.dev/dashboard",
+                "dashboard_url": "https://shim.teleionlabs.com/dashboard",
                 "fabric_page": "/fabric",
                 "fabric_api": "/api/fabric",
                 **fabric(),
             }
         )
-    return RedirectResponse(url="https://herma.ta-amps.workers.dev/dashboard", status_code=307)
+    return RedirectResponse(url="https://shim.teleionlabs.com/dashboard", status_code=307)
 
 
 @app.get("/api/handshake")
@@ -814,16 +814,16 @@ async def mcp_jsonrpc(request: Request) -> JSONResponse:
 def connect_info() -> dict[str, Any]:
     return {
         "surface": "eranos",
-        "fabric_connect_url": "https://tessera.ta-amps.workers.dev/connect",
+        "fabric_connect_url": "https://fabric.teleionlabs.com/connect",
         "surface_persistence": False,
-        "authentication": "Public reads and practice are open. Tracked noun/verb work uses a Tessera anonymous session or API key.",
+        "authentication": "Public reads and practice are open. No key is needed through December 31, 2026. For tracked work, a Teleion Fabric anonymous session or API key is optional.",
         "practice_persisted": False,
     }
 
 
 @app.get("/connect", response_class=HTMLResponse)
 def connect_page() -> str:
-    return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect to Eranos</title><h1>Connect to Eranos</h1><p>Public tools require no key. Use Tessera for tracked work.</p><p><a href="https://tessera.ta-amps.workers.dev/connect">Get an anonymous demo session</a></p><p><a href="https://tessera.ta-amps.workers.dev/connect">Create or use an API key</a></p><a href="/connect.json">Machine-readable access modes</a></html>'
+    return '<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connect to Eranos</title><h1>Connect to Eranos</h1><p>Public tools require no key. Use Teleion Fabric for tracked work. No key is needed through December 31, 2026.</p><p><a href="https://fabric.teleionlabs.com/connect">Get an anonymous demo session</a></p><p><a href="https://fabric.teleionlabs.com/connect">Create or use an API key</a></p><a href="/connect.json">Machine-readable access modes</a></html>'
 
 
 # CORS is outermost so preflight needs no origin authentication; actual requests retain it.
